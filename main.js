@@ -47,12 +47,29 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
-  const hasTitleChild = svgProps.children && 
-    (Array.isArray(svgProps.children) 
-      ? svgProps.children.some(c => c && c.type === 'title')
-      : svgProps.children.type === 'title');
+  
+  // Helper function to check if a child element is a title
+  const isTitleElement = (child) => {
+    if (!child || typeof child !== 'object') return false;
+    const childType = child.type;
+    return childType === 'title' || childType === 'Title';
+  };
+  
+  // Check for title child element
+  const children = svgProps.children;
+  let hasTitleChild = false;
+  
+  if (children) {
+    if (Array.isArray(children)) {
+      hasTitleChild = children.some(isTitleElement);
+    } else if (typeof children === 'object') {
+      hasTitleChild = isTitleElement(children);
+    } else if (typeof children === 'string') {
+      hasTitleChild = children.includes('<title');
+    }
+  }
   
   const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
   

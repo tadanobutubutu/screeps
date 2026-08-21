@@ -20,6 +20,8 @@ const Layout = ({ children }) => {
         </svg>
         {/* ... other components ... */}
         {children}
+        {/* Adding a button for the 'rotate back' action */}
+        <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       </main>
     </html>
   );

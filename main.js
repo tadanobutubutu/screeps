@@ -150,3 +150,8 @@ function rotateBack() {
 
 // Export the function so it remains accessible to other modules
 export { rotateBack };
+
+// Ensure mainElement is used when available
+if (mainElement) {
+  // Optionally perform actions with mainElement here
+}

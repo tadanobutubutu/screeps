@@ -9,16 +9,16 @@ if (htmlElement) {
 
 const App = () => {
   return (
-    <div id="root">
-      <header>
-        <h1>...</h1>
+    <div id="root" lang="en" role="main">
+      <header role="banner">
+        <h1>User Data</h1>
       </header>
       <main id="main-content">
         <p id="description">This is a demo application.</p>
         <table id="data-table">
           <thead>
             <tr>
-              <th scope="col">Name</th>
+              <th>Name</th>
               <th scope="col">Age</th>
             </tr>
           </thead>
@@ -39,3 +39,10 @@ const App = () => {
 };
 
 export default App;
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

@@ -19,12 +19,12 @@ primaryContent = `
 
 const mainElement = document.querySelector('#main-content');
 
-// Add lang attribute for HTML element
+// Add lang attribute for HTML element (REACT_015)
 document.documentElement.lang = "en";
 
 // Replace the <a> element with a <button> element for the 'rotate back' action
 rotateBackButton = `
-  <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">
+  <button id="unrotate" class="rotate-back-button" [PERSON_NAME] back">
     rotate back
   </button>
 `;
@@ -72,7 +72,7 @@ sections.forEach(section => {
 });
 
 // Add unique IDs to landmarks, if multiple/applicable
-// (Use WAI-ARIA/WCAG guidelines as needed - https://www.w3.org/TR/wai-aria-1.1/)
+// (Use [PERSON_NAME]/WCAG guidelines as needed - https://www.w3.org/TR/wai-aria-1.1/)
 let uniqueIdCounter = 0;
 const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"]');
 const landmarkIdMap = new Map();

@@ -1,1 +1,12 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Screeps main entry point
+// This file should contain your Screeps game logic
+
+// Initialize the main loop
+function loop() {
+    // Your game logic here
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { loop };
+}

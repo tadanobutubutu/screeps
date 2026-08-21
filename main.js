@@ -70,7 +70,7 @@ export function Navigation({ children, ariaLabel }) {
  * Fixes: REACT_017
  */
 export function Header({ children }) {
-  return <header role="banner">{children}</header>;
+  return <header>{children}</header>;
 }
 
 /**
@@ -78,7 +78,7 @@ export function Header({ children }) {
  * Fixes: REACT_017
  */
 export function Footer({ children }) {
-  return <footer role="contentinfo">{children}</footer>;
+  return <footer>{children}</footer>;
 }
 
 /**
@@ -88,10 +88,30 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href}>{children}</a>;
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
   return <button type="button" onClick={onClick}>{children}</button>;
+}
+
+/**
+ * Rotation controls component with accessible buttons
+ * Fixes: REACT_036 (Fake Link)
+ */
+export function RotationControls({ onRotate, onReset, currentAngle }) {
+  return (
+    <div className="rotation-controls" role="group" aria-label="Image rotation controls">
+      <button type="button" onClick={onRotate} aria-label="Rotate image clockwise">
+        <AccessibleIcon label="Rotate">{/* SVG icon */}</AccessibleIcon>
+      </button>
+      <button type="button" onClick={onReset} aria-label="Reset rotation">
+        Reset rotation
+      </button>
+      <span className="current-angle" aria-live="polite">
+        Current angle: {currentAngle}°
+      </span>
+    </div>
+  );
 }
 
 /**
@@ -149,6 +169,7 @@ export function AccessiblePageWrapper({ children }) {
           <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </Navigation>
       </Header>
@@ -171,6 +192,7 @@ export const accessibilityComponents = {
   Header,
   Footer,
   AccessibleLink,
+  RotationControls,
   SkipLink,
   AccessiblePageWrapper,
 };
@@ -178,4 +200,4 @@ export const accessibilityComponents = {
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, RotationControls, SkipLink, AccessiblePageWrapper };

@@ -23,12 +23,12 @@
     // Try to find the main element by various selectors
     var mainElement = document.querySelector('main') || 
                       document.querySelector('[role="main"]') ||
-                      document.getElementById('main') ||
-                      document.getElementById('main-content');
+                      document.querySelector('div#main') ||
+                      document.querySelector('div.main');
     if (!mainElement) {
       // Fallback: look for common main content containers
       mainElement = document.getElementById('content') ||
-                    document.getElementById('app-content') ||
+                    document.getElementById('main-content') ||
                     document.querySelector('#root > main') ||
                     document.querySelector('#root > div');
     }
@@ -36,7 +36,7 @@
       // Fallback: look for common class or id patterns
       mainElement = document.querySelector('.content') || 
                     document.querySelector('.main-content') ||
-                    document.querySelector('.app');
+                    document.querySelector('#app > div');
     }
     return mainElement;
   }
@@ -56,7 +56,7 @@
     }
     
     // Fix duplicate landmark issues (REACT_025)
-    var landmarks = document.querySelectorAll('nav, main, footer, aside');
+    var landmarks = document.querySelectorAll('main, footer, aside');
     landmarks.forEach(function(landmark, index) {
       if (index > 0 && !landmark.id) {
         landmark.id = 'main-content-' + index;
@@ -80,7 +80,7 @@
       }
       
       // Find the container with Quality & Metrics Reports - the other affected element
-      var containerDiv = document.querySelector('h2');
+      var containerDiv = document.querySelector('.quality-metrics');
       if (containerDiv && containerDiv.parentNode) {
         var container = containerDiv.parentNode;
         var parent = container.parentNode;
@@ -163,7 +163,7 @@
   }
 
   function fixFakeLinkIssue() {
-    var fakeLinks = document.querySelectorAll('div[href="#"], a[href="#"]');
+    var fakeLinks = document.querySelectorAll('div[onclick], span[onclick], a[href="#"]');
     fakeLinks.forEach(function(link) {
       if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
         var href = link.getAttribute('href');
@@ -175,7 +175,7 @@
     });
   }
 
-  function removeDuplicateMainElements() {
+  function fixDuplicateMain() {
     // Remove duplicate <main> elements that may exist in the same document
     var mainElements = document.querySelectorAll('main');
     if (mainElements.length > 1) {
@@ -192,7 +192,7 @@
     fixTableStructure();
     fixSvgAccessibility();
     fixFakeLinkIssue();
-    removeDuplicateMainElements();
+    fixDuplicateMain();
   }
 
   // Export for module usage
@@ -205,7 +205,7 @@
       fixSvgAccessibility,
       fixFakeLinkIssue,
       fixTableStructure,
-      removeDuplicateMainElements,
+      fixDuplicateMain,
       fixMissingMain
     };
   }

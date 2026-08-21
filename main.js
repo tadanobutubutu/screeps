@@ -11,12 +11,19 @@ const DependencyGraphComponent = () => {
 
 // Add new functions to address accessibility issues
 const ensureUniqueLandmarks = () => {
-  // Implement your logic to ensure unique landmarks here
+  // Ensure each landmark region has a unique aria-label or role
+  // Common landmark roles: banner, navigation, main, complementary, contentinfo, search
+  // This function should be called during component mount to validate uniqueness
 };
 
 // TODO: Implement the function to fix 26 table structure issues
 const fixTableStructureIssues = () => {
-  // Implement your logic to fix table structure issues here
+  // Address table structure accessibility issues:
+  // 1. Ensure all tables have proper <th> elements with scope attributes
+  // 2. Add caption elements where appropriate
+  // 3. Ensure proper thead/tbody/tfoot structure
+  // 4. Add aria-describedby for complex tables
+  // 5. Ensure proper column/row headers
 };
 
 export { DependencyGraphComponent as default };

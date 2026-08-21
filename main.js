@@ -1,5 +1,5 @@
 const React = require('react');
-const ReactDOM = require('react-dom/client');
+const ReactDOM = require('react-dom');
 
 // Dynamic import for Next.js App Router
 async function bootstrap() {
@@ -9,7 +9,7 @@ async function bootstrap() {
     const next = require('next');
     const dev = process.env.NODE_ENV !== 'production';
     const hostname = 'localhost';
-    const port = parseInt(process.env.PORT || '3000', 10);
+    const port = parseInt(process.env.PORT, 10) || 3000;
 
     const app = next({ dev, hostname, port });
     const handle = app.getRequestHandler();
@@ -46,26 +46,13 @@ if (require.main === module) {
 
 const Main = () => {
   // existing Main component code...
-  return (
-    <main>
-      {/* Wrap existing content in main landmark */}
-      {/* ... */}
-    </main>
-  );
+  return null;
 };
 
 const NecessaryExport = () => {
   // Add the necessary export component code here...
-  return (
-    <main>
-      <div>New Required Export</div>
-    </main>
-  );
+  return null;
 };
 
-export default Main;
-export { NecessaryExport };
-
-// Integrating both changes
-// =========================================
-```
+module.exports.Main = Main;
+module.exports.NecessaryExport = NecessaryExport;

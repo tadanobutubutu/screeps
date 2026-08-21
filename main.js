@@ -40,5 +40,14 @@ function renderDependencyDashboard() {
   document.body.appendChild(mainContent);
 }
 
-// Call the function to render the dashboard
+// Ensure SVGs are hidden from accessibility tools (decorative)
+// This addresses REACT_041 warnings about SVGs lacking accessible names.
+function makeSvgAccessible() {
+  document.querySelectorAll('svg').forEach((svg) => {
+    svg.setAttribute('aria-hidden', 'true');
+  });
+}
+
+// Call the functions to render the dashboard and adjust SVG accessibility
 renderDependencyDashboard();
+makeSvgAccessible();

@@ -7,14 +7,16 @@ import './styles.css'; // assuming a styles file with proper ARIA attributes
 const MyTableComponent = () => {
   // Adding ARIA table attributes
   return (
-    <table role="grid">
-      <thead>
-        {/* Table header code */}
-      </thead>
-      <tbody>
-        {/* Table body code */}
-      </tbody>
-    </table>
+    <main>
+      <table role="grid">
+        <thead>
+          {/* Table header code */}
+        </thead>
+        <tbody>
+          {/* Table body code */}
+        </tbody>
+      </table>
+    </main>
   );
 };
 
@@ -43,7 +45,7 @@ const LinkComponent = (props) => {
 const SvgIcon = (props) => {
   // Adding a hidden 'aria-label' based on the icon's purpose or name
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" ... {...props}>
       {props.children}
     </svg>
   );

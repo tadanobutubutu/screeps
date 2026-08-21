@@ -132,10 +132,8 @@ module.exports = roleClaimer;`,
             } else {
                 let spawn = Game.getObjectById(creep.memory.spawnId);
                 if (!spawn) {
-                    spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                    if (spawn) {
-                        creep.memory.spawnId = spawn.id;
-                    }
+                    spawn = creep.pos.findClosestByRange(FIND_MY_SPAWNS);
+                    if (spawn) creep.memory.spawnId = spawn.id;
                 }
                 if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(spawn, {visualizePathStyle: {stroke: '#ffffff'}});

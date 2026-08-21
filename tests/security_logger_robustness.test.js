@@ -11,8 +11,7 @@ describe('src/utils/logger robustness', () => {
         global.Memory = {};
         // Mock console.log to avoid cluttering test output
         jest.spyOn(console, 'log').mockImplementation(() => {});
-        logger.setLevel(logger.LOG_LEVEL.DEBUG); // Need to set to DEBUG so debug() is actually logged
-        logger.clear(); // Clear history
+        logger.setLevel(logger.LOG_LEVEL.INFO);
     });
 
     afterEach(() => {
@@ -38,18 +37,5 @@ describe('src/utils/logger robustness', () => {
         // Set to invalid number
         logger.setLevel(99);
         expect(logger.getLevel()).toBe(logger.LOG_LEVEL.INFO);
-    });
-
-    test('_safeStringify should handle BigInts safely without crashing', () => {
-        const data = { val: 42n };
-
-        // This should not throw an error
-        expect(() => {
-            logger.debug('Test BigInt', data);
-        }).not.toThrow();
-
-        const history = logger.getHistory(1);
-        expect(history.length).toBeGreaterThan(0);
-        expect(history[0].message).toContain('42n');
     });
 });

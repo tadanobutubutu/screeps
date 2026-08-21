@@ -1,13 +1,6 @@
 const fs = require('fs');
+let content = fs.readFileSync('visual.effects.js', 'utf8');
 
-function runPatch() {
-    let content = fs.readFileSync('visual.effects.js', 'utf8') || '';
-    content = content.replace('return secureRandomFloat();\n}', 'return Math.random();\n}');
-    fs.writeFileSync('visual.effects.js', content);
-}
+content = content.replace('return secureRandomFloat();\n}', 'return Math.random();\n}');
 
-if (require.main === module) {
-    runPatch();
-}
-
-module.exports = runPatch;
+fs.writeFileSync('visual.effects.js', content);

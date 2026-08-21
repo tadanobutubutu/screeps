@@ -3,13 +3,13 @@ function calculate(a, b) {
 }
 
 // Add accessible name to SVG elements
-export function addAccessibleNameToSVG(svg) {
+export function addAccessibleNameToSvg(svg, name) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
   
   // Add role="img" for accessibility
-  if (!svg.hasAttribute('role')) {
+  if (name) {
     svg.setAttribute('role', 'img');
   }
   
@@ -27,7 +27,7 @@ export function addLangToHtmlRoot(lang) {
 
 // Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
-  const tableHeaders = document.querySelectorAll('th');
+  const tableHeaders = document.querySelectorAll('th:not([scope])');
   tableHeaders.forEach(header => {
     if (!header.hasAttribute('scope')) {
       header.setAttribute('scope', 'col');
@@ -51,5 +51,32 @@ export function replaceFakeLinksWithButtons() {
   });
 }
 
+// Wrap primary content in <main> landmark for accessibility per REACT_017
+export function addMainLandmark() {
+  // Find the table with id "table-rotated"
+  const tableElement = document.getElementById('table-rotated');
+  if (tableElement && !tableElement.closest('main')) {
+    const mainElement = document.createElement('main');
+    const parent = tableElement.parentNode;
+    if (parent) {
+      parent.insertBefore(mainElement, tableElement);
+      mainElement.appendChild(tableElement);
+    }
+  }
+  
+  // Find the container with Quality & Metrics Reports content
+  const metricsContainer = document.querySelector('.container');
+  if (metricsContainer && !metricsContainer.closest('main')) {
+    const mainElement = document.createElement('main');
+    const parent = metricsContainer.parentNode;
+    if (parent) {
+      parent.insertBefore(mainElement, metricsContainer);
+      mainElement.appendChild(metricsContainer);
+    }
+  }
+  
+  return document.querySelectorAll('main');
+}
+
 // Export all functions
-export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleNameToSvg, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, addMainLandmark };

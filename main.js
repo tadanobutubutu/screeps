@@ -3,9 +3,9 @@ function calculate(a, b) {
 }
 
 // Add accessible name to SVG elements
-export function addAccessibleNameToSVG(svg) {
+export function addAccessibleNameToSVG(svg, accessibleName = 'Accessible name for SVG') {
   const titleElement = document.createElement('title');
-  titleElement.textContent = 'Accessible name for SVG';
+  titleElement.textContent = accessibleName;
   svg.insertBefore(titleElement, svg.firstChild);
 
   // Add role="img" for accessibility
@@ -20,7 +20,7 @@ export function addAccessibleNameToSVG(svg) {
 export function addLangToHtmlRoot(lang) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    htmlElement.lang = lang;
   }
   return htmlElement;
 }

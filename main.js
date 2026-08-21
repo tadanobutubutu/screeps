@@ -9,15 +9,17 @@ const App = () => {
         <title>My App</title>
       </head>
       <body>
-        <div className="app-container">
-          {/* App content */}
-        </div>
+        <main>
+          <div ...>
+            {/* App content */}
+          </div>
+        </main>
       </body>
     </html>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...
 
 /**
  * Returns accessibility attributes for SVG elements
@@ -26,7 +28,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
  * @param {string} [ariaLabel] - Optional accessible name
  * @returns {Object} Accessibility props to spread onto <svg>
  */
-export function getSVGAriaProps(isDecorative = false, ariaLabel) {
+export function ... = false, ariaLabel) {
   if (isDecorative) {
     return { 'aria-hidden': 'true' };
   }
@@ -62,16 +64,16 @@ export function getSVGAriaProps(isDecorative = false, ariaLabel) {
  * @param {Object} svgProps - Props from an SVG element
  * @returns {{compliant: boolean, issues: string[]}}
  */
-export function validateSVGAccessibility(svgProps) {
+export function ... {
   const issues = [];
   
-  const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaHidden = ... === 'true';
+  const hasAriaLabel = ...
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
-    (Array.isArray(svgProps.children) 
-      ? svgProps.children.some(c => c && c.type === 'title')
-      : svgProps.children.type === 'title');
+    ... 
+      ? ... => c && c.type === 'title')
+      : ... === 'title');
   
   const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
   

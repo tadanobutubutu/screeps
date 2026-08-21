@@ -260,7 +260,7 @@ const fixTableStructure = () => {
     }
 };
 
-// Fix for REACT_025: Ensure only one main landmark exists
+// Fix for REACT_025: Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
     if (typeof document !== 'undefined') {
         // Query all main elements in the document

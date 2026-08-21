@@ -1,5 +1,7 @@
 // ... Existing code ...
 
+// TODO: Address accessibility issues from insight report
+
 // New function to create main HTML with main landmark (new)
 export function createMainHTML({ children, id }) {
   return `
@@ -20,12 +22,12 @@ export function createMainHTML({ children, id }) {
 
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
-export function addScopeToTableHeaders(html) {
-  return html.replace(/<th(\s+[^>]*)?>/g, (match, attrs) => {
+export function fixTableStructure(content) {
+  return content.replace(/<th(?:\s+([^>]*))?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = existingAttrs.includes('scope');
+    const hasScope = /scope\s*=/i.test(existingAttrs);
     const scopeAttr = hasScope ? '' : ' scope="col"';
-    return `<th${existingAttrs}${scopeAttr}>`;
+    return `<th${existingAttrs ? ' ' + existingAttrs : ''}${scopeAttr}>`;
   });
 }
 
@@ -50,8 +52,8 @@ export function createIndexHTML() {
 }
 
 // Example of how to use the new function to create updated html for another specific page
-export function createDependencyGraphHTML(tableContent) {
-  const updatedTableContent = addScopeToTableHeaders(tableContent);
+export function createDependencyGraphHTML(dependencyGraphContent) {
+  const updatedTableContent = fixTableStructure(dependencyGraphContent);
 
   return createMainHTML({
     children: updatedTableContent,

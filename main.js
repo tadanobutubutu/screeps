@@ -40,6 +40,8 @@ export default function Main() {
   // Add accessible landmark - one main per page (REACT_025)
   const landmarkMain = createAccessibleSVG('Main content', '0 0 1 1');
 
+  const mainElement = distMainModule.default;
+
   // Fix table structure issues (REACT_027)
   const table = (
     <table aria-label="Code analysis results">
@@ -69,7 +71,7 @@ export default function Main() {
   );
 
   // Add accessible landmark for the table (REACT_025)
-  const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
+  const landmarkTable = ... analysis results', '0 0 1 1');
 
   // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
@@ -80,8 +82,8 @@ export default function Main() {
   );
 
   // Add accessible names to SVGs (REACT_041)
-  const externalLink = createAccessibleSVG('External Link', '0 0 24 24');
-  const infoIcon = createAccessibleSVG('Information', '0 0 24 24');
+  const externalLink = ... Link', '0 0 24 24');
+  const infoIcon = ... '0 0 24 24');
 
   return (
     // ... (Existing return statement below)

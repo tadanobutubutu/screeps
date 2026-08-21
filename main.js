@@ -11,7 +11,7 @@ export function AccessibleTable({ headers, rows, caption }) {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -70,7 +70,7 @@ export function Navigation({ children, ariaLabel }) {
  * Fixes: REACT_017
  */
 export function Header({ children }) {
-  return <header role="banner">{children}</header>;
+  return <header>{children}</header>;
 }
 
 /**
@@ -78,7 +78,7 @@ export function Header({ children }) {
  * Fixes: REACT_017
  */
 export function Footer({ children }) {
-  return <footer role="contentinfo">{children}</footer>;
+  return <footer>{children}</footer>;
 }
 
 /**
@@ -88,7 +88,7 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href}>{children}</a>;
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
   return <button type="button" onClick={onClick}>{children}</button>;
@@ -149,6 +149,7 @@ export function AccessiblePageWrapper({ children }) {
           <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </Navigation>
       </Header>

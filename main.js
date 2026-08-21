@@ -35,6 +35,15 @@ function renderDependencyDashboard() {
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
       <!-- Dependency dashboard content goes here -->
+      <h1>Dependency Dashboard</h1>
+      <p>Here is the information about the project's dependencies:</p>
+      <ul>
+        <li>React: ${options.reactVersion || 'Not specified'}</li>
+        <li>Jest: ${options.jestVersion || 'Not specified'}</li>
+        <li>Eslint: ${options.eslintVersion || 'Not specified'}</li>
+        <li>Typescript: ${options.typescriptVersion || 'Not specified'}</li>
+        <!-- Add other dependencies as needed -->
+      </ul>
     </div>
   `;
   document.body.appendChild(mainContent);
@@ -42,3 +51,24 @@ function renderDependencyDashboard() {
 
 // Call the function to render the dashboard
 renderDependencyDashboard();
+
+// New function to update the dashboard with Renovate information
+function updateDashboardWithRenovateInfo(pendingUpdates) {
+  const updateList = document.getElementById('dependency-dashboard').querySelector('ul');
+  updateList.innerHTML = '<li>Updates pending:</li>';
+  pendingUpdates.forEach(update => {
+    const listItem = document.createElement('li');
+    listItem.textContent = `${update.packageName}: ${update.newVersion}`;
+    updateList.appendChild(listItem);
+  });
+}
+
+// Example usage of updateDashboardWithRenovateInfo
+const pendingUpdates = [
+  { packageName: 'react', newVersion: '19.0.0' },
+  { packageName: 'jest', newVersion: '30.0.0' },
+  { packageName: 'eslint', newVersion: '10.0.0' },
+  { packageName: 'typescript', newVersion: '7.0.0' }
+];
+
+updateDashboardWithRenovateInfo(pendingUpdates);

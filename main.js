@@ -16,3 +16,10 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     config: require('./config')
   };
 }
+
+function initialize() {
+  // Existing initialization code
+  return true;
+}
+
+module.exports.initialize = initialize;

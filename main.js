@@ -18,9 +18,6 @@ primaryContent = `
 
 const mainElement = document.querySelector('#main-content');
 
-// Add lang attribute for HTML element
-document.documentElement.lang = "en";
-
 // Replace the <a> element with a <button> element for the 'rotate back' action
 rotateBackButton = `
   <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">

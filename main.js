@@ -3,13 +3,13 @@ function calculate(a, b) {
 }
 
 // Add accessible name to SVG elements
-export function ... {
+export function addAccessibleNameToSVG(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
   
   // Add role="img" for accessibility
-  if ... {
+  if (svg.getAttribute('role') !== 'img') {
     svg.setAttribute('role', 'img');
   }
   
@@ -20,16 +20,16 @@ export function ... {
 export function addLangToHtmlRoot(lang) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    ... lang);
+    htmlElement.setAttribute('lang', lang);
   }
   return htmlElement;
 }
 
 // Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
-  const tableHeaders = ...
+  const tableHeaders = document.querySelectorAll('th');
   tableHeaders.forEach(header => {
-    if ... {
+    if (!header.hasAttribute('scope')) {
       header.setAttribute('scope', 'col');
     }
   });
@@ -52,4 +52,4 @@ export function replaceFakeLinksWithButtons() {
 }
 
 // Export all functions
-export { calculate, ... addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };

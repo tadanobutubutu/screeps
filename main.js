@@ -62,12 +62,15 @@ function fixReactSVGAccessibility() {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Add aria-hidden="true" to SVG elements (favicon, etc.)
-        content = content.replace(/<svg([^>]*)>/g, (match, attrs) => {
-          if (!attrs.includes('aria-hidden')) {
-            return `<svg aria-hidden="true"${attrs}>`;
+        content = content.replace(
+          /<svg([^>]*?)>/gi,
+          (match, attrs) => {
+            if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label') && !attrs.includes('<title')) {
+              return `<svg aria-hidden="true"${attrs}>`;
+            }
+            return match;
           }
-          return match;
-        });
+        );
         
         fs.writeFileSync(filePath, content);
         console.log(`Added aria-hidden="true" to SVG elements in ${file}`);
@@ -101,7 +104,7 @@ function fixReactLandmarkIssues() {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (!content.includes('<main>') && !content.includes('<main ')) {
+        if (content.includes('{children}') && !content.includes('<main') && !content.includes('</main>')) {
           // Replace {children} with <main>{children}</main>
           content = content.replace(
             /\{children\}/g,
@@ -125,12 +128,12 @@ function fixReactLandmarkIssues() {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (!content.includes('<main>') && !content.includes('<main ')) {
+        if (content.includes('<body') && content.includes('</body>') && !content.includes('<main') && !content.includes('</main>')) {
           // Wrap content between <body> tags in <main> tags
           content = content.replace(
-            /<body([^>]*)>([\s\S]*?)<\/body>/g,
+            /<body([^>]*)>([\s\S]*)<\/body>/gi,
             (match, attrs, bodyContent) => {
-              return `<body${attrs}>\n<main>\n${bodyContent}\n</main>\n</body>`;
+              return `<body${attrs}><main>${bodyContent}</main></body>`;
             }
           );
           
@@ -163,7 +166,7 @@ function addLangAttribute() {
         content = content.replace(
           /<html([^>]*)>/g,
           (match, attrs) => {
-            if (!attrs.includes('lang=')) {
+            if (!attrs.includes('lang')) {
               return `<html lang="en"${attrs}>`;
             }
             return match;
@@ -196,15 +199,15 @@ function fixTableStructureIssues() {
         
         // Add <thead> and <tbody> to tables if missing
         content = content.replace(
-          /<table([^>]*)>([\s\S]*?)(<\/table>)/g,
+          /<table([^>]*)>([\s\S]*?)(<\/table>)/gi,
           (match, attrs, tableContent, closeTag) => {
             // Only wrap if there's no thead or tbody
             if (!tableContent.includes('<thead') && !tableContent.includes('<tbody')) {
               // Simple heuristic: first row becomes thead, rest becomes tbody
-              const rows = tableContent.match(/<tr[\s\S]*?<\/tr>/g) || [];
+              const rows = tableContent.match(/<tr[\s\S]*?<\/tr>/gi) || [];
               if (rows.length > 0) {
                 const theadRow = rows[0];
-                const tbodyRows = rows.slice(1).join('\n          ');
+                const tbodyRows = rows.slice(1).join('');
                 
                 const newContent = `
         <thead>
@@ -214,7 +217,7 @@ function fixTableStructureIssues() {
           ${tbodyRows}
         </tbody>`;
                 
-                return `<table${attrs}>${newContent}${closeTag}`;
+                return `<table${attrs}>${newContent}</table>`;
               }
             }
             return match;
@@ -254,19 +257,19 @@ function fixFakeLinkIssues() {
         
         // Replace <div onclick> pseudo-links with <a href> or proper buttons
         content = content.replace(
-          /<div([^>]*)onclick([^>]*)>/g,
+          /<div([^>]*?)onclick([^>]*?)>/gi,
           (match, before, after) => {
             // Convert to button element
-            return match.replace(/<div/g, '<button').replace(/<\/div>/g, '</button>');
+            return `<button${before}${after}>`;
           }
         );
         
         // Ensure links have proper href attributes
         content = content.replace(
-          /<a([^>]*)(?<!href=)([^>]*)>/g,
+          /<a([^>]*?)>([\s\S]*?)<\/a>/gi,
           (match, attrs, rest) => {
-            if (!attrs.includes('href=') && !attrs.includes('onclick=')) {
-              return `<a href="#"${attrs}>`;
+            if (!attrs.includes('href') && !attrs.includes('onclick')) {
+              return `<a href="#${attrs}">${rest}</a>`;
             }
             return match;
           }
@@ -287,15 +290,15 @@ function existingFunction() {
 }
 
 // Add any new exports for the dependency updates
-module.exports.handleReact19Update = handleReact19Update;
-module.exports.handleJest30Update = handleJest30Update;
-module.exports.handleEslint10Update = handleEslint10Update;
-module.exports.handleTypeScript7Update = handleTypeScript7Update;
-module.exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
-module.exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
-module.exports.addLangAttribute = addLangAttribute;
-module.exports.fixTableStructureIssues = fixTableStructureIssues;
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
+exports.handleReact19Update = handleReact19Update;
+exports.handleJest30Update = handleJest30Update;
+exports.handleEslint10Update = handleEslint10Update;
+exports.handleTypeScript7Update = handleTypeScript7Update;
+exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
+exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+exports.addLangAttribute = addLangAttribute;
+exports.fixTableStructureIssues = fixTableStructureIssues;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.fixFakeLinkIssues = fixFakeLinkIssues;
 
 // ... rest of the existing code remains unchanged

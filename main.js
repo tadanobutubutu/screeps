@@ -1,53 +1,62 @@
-// The content of main.js with the necessary changes for the issue REACT_025
-// Note: This is a hypothetical example, as the actual file content is not provided.
-
 import React from 'react';
+import { useState, useEffect } from 'react';
 
-// ... other imports and component logic ...
+// ... other imports ...
 
 const Dashboard = ({ error, copied, errCopyHover, errRetryHover, refreshing, copyErr, fetchStats }) => {
-  // ... existing code ...
+  // ... existing state and hooks ...
 
-  return (
-    <div>
-      {/* Assuming this is the original structure, we'll refactor it to avoid multiple <main> tags */}
-      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        {/* ... error state content ... */}
-      </main>
-      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        {/* ... success state content ... */}
-      </main>
-      {/* ... rest of the component ... */}
-    </div>
-  );
-};
+  useEffect(() => {
+    // ... existing effects ...
+  }, [error, refreshing]);
 
-// Refactored to use a single <main> and conditional rendering
-const Dashboard = ({ error, copied, errCopyHover, errRetryHover, refreshing, copyErr, fetchStats }) => {
-  const renderMainContent = () => {
-    if (error) {
-      return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-          {/* ... error state content ... */}
-        </main>
-      );
-    } else {
-      return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-          {/* ... success state content ... */}
-        </main>
-      );
-    }
+  const handleCopyError = () => {
+    // ... existing copy logic ...
+  };
+
+  const handleRetry = () => {
+    // ... existing retry logic ...
   };
 
   return (
     <div>
-      {renderMainContent()}
+      {/* Single main element with conditional content */}
+      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        {error ? (
+          <>
+            {/* Error state content */}
+            <h2>Error Loading Data</h2>
+            <p>{error}</p>
+            <div
+              onClick={handleCopyError}
+              onMouseEnter={() => setErrCopyHover(true)}
+              onMouseLeave={() => setErrCopyHover(false)}
+              style={{ cursor: 'pointer' }}
+            >
+              Copy error details
+            </div>
+            <button
+              onClick={handleRetry}
+              onMouseEnter={() => setErrRetryHover(true)}
+              onMouseLeave={() => setErrRetryHover(false)}
+            >
+              Retry
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Success state content */}
+            <h2>Dashboard</h2>
+            {copied && <div>Copied!</div>}
+            {/* ... rest of dashboard content ... */}
+          </>
+        )}
+      </main>
+      
+      {/* Any additional content outside main */}
       {/* ... rest of the component ... */}
     </div>
   );
 };
 
 export default Dashboard;
-
-// ... rest of the main.js content ...

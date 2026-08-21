@@ -1,13 +1,34 @@
-// Example placeholder structure for main.js
-// (Actual implementation depends on existing code)
+tsx
+import React, { useState } from 'react';
 
-// Ensure existing exports and functions are preserved
-// Add new functions or changes as required by the issue
-// (In this case, changes are in an HTML file, not main.js)
+// (Assuming the rest of your component code is here)
 
-// Placeholder example
-function existingFunction() {
-  // Existing logic
+// Replace the proper error state returnpath
+if (error) {
+  return (
+    <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+      <pre
+        tabIndex={0}
+        aria-label="エラーメッセージ詳細"
+        style={{
+          color: '#c53030',
+          backgroundColor: '#fff5f5',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflow: 'auto',
+        }}
+      >
+        {error}
+      </pre>
+      {/* Existing buttons */}
+    </section>
+  );
 }
 
-export { existingFunction };
+// No change in success state returnpath
+if (stats) {
+  return <main style={{ padding: '2rem', fontFamily: 'monospace' }}>{/* Existing content */}</main>;
+}
+
+// Rest of your component code

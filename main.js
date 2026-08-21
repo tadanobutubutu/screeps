@@ -45,4 +45,43 @@
 // </svg>
 // OR use aria-hidden="true" if purely decorative
 
-module.exports = { accessibilityFixes: true };
+/**
+ * Validates table structure for accessibility (REACT_027)
+ * Ensures all <th> elements have proper scope attributes
+ * @param {Object} tableProps - Object containing table headers and data
+ * @param {Array} tableProps.headers - Array of header objects with name and optional isRowHeader
+ * @param {Array} tableProps.rows - Array of row data arrays
+ * @returns {Object} Validated table props with proper scope attributes
+ */
+function validateTableAccessibility(tableProps) {
+  const { headers = [], rows = [] } = tableProps;
+  
+  const validatedHeaders = headers.map((header, index) => ({
+    ...header,
+    scope: header.scope || (index === 0 ? 'row' : 'col'),
+  }));
+  
+  return {
+    ...tableProps,
+    headers: validatedHeaders,
+  };
+}
+
+/**
+ * Generates proper table JSX props for accessibility
+ * @param {Array} columnHeaders - Array of column header names
+ * @param {boolean} includeRowHeader - Whether first column is a row header
+ * @returns {Array} Array of header objects with proper scope attributes
+ */
+function generateTableHeaders(columnHeaders, includeRowHeader = false) {
+  return columnHeaders.map((name, index) => ({
+    name,
+    scope: includeRowHeader && index === 0 ? 'row' : 'col',
+  }));
+}
+
+module.exports = { 
+  accessibilityFixes: true,
+  validateTableAccessibility,
+  generateTableHeaders,
+};

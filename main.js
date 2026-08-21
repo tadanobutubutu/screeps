@@ -1,5 +1,3 @@
-// dashboard/app/layout.tsx
-
 import React from 'react';
 
 const Layout = ({ children }) => {

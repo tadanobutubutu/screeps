@@ -1,15 +1,6 @@
-import DependencyGraph from './DependencyGraph';
+import DependencyGraph from './DependencyGraph'; const DependencyGraphComponent = () => { return ( <main> 
+<button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button> 
 
-const DependencyGraphComponent = () => {
-  return (
-    <main>
-      {/* Other components and content */}
-      <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
-      {/* Other components and content */}
-      <DependencyGraph />
-    </main>
-  );
-};
+<DependencyGraph /> 
 
-// Re-adding the missing export for DependencyGraphComponent
-export { DependencyGraphComponent as default };
+</main> ); }; export { DependencyGraphComponent as default };

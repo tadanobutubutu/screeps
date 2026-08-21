@@ -16,6 +16,8 @@ primaryContent = `
   </main>
 `;
 
+const mainElement = document.querySelector('#main-content');
+
 // Add lang attribute for HTML element
 document.documentElement.lang = "en";
 

@@ -58,7 +58,7 @@ sections.forEach(section => {
 });
 
 // Add unique IDs to landmarks, if multiple/applicable
-// (Use WAI-ARIA/WCAG guidelines as needed - https://www.w3.org/TR/wcag21/)
+// (Use WAI-ARIA/WCAG guidelines as needed - https://www.w3.org/TR/wai-aria-1.1/)
 let uniqueIdCounter = 0;
 const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="header"], [role="footer"]');
 landmarks.forEach(landmark => {

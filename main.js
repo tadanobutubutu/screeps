@@ -25,20 +25,61 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Rotate back clicked');
     });
 
-    // Add setLanguageAttribute function
-    function setLanguageAttribute() {
-      document.documentElement.lang = 'en';
-    }
-
-    // Call the function to set the language attribute
-    setLanguageAttribute();
-
     // Replace the old element with the new button
     unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
   }
+
+  // Add main landmark for accessibility (REACT_017)
+  function createMainLandmark() {
+    // Check if main landmark already exists
+    if (document.querySelector('main')) {
+      return document.querySelector('main');
+    }
+
+    // Find the main content container to wrap
+    const mainContent = document.querySelector('.container') || 
+                        document.getElementById('table-rotated')?.parentElement ||
+                        document.body;
+
+    // Create main element
+    const main = document.createElement('main');
+    
+    // Insert main as the first child of body
+    const body = document.body;
+    body.insertBefore(main, body.firstChild);
+    
+    return main;
+  }
+
+  // Add setLanguageAttribute function
+  function setLanguageAttribute() {
+    document.documentElement.lang = 'en';
+  }
+
+  // Create main landmark for accessibility
+  createMainLandmark();
+
+  // Call the function to set the language attribute
+  setLanguageAttribute();
 });
 
 // Export for testing (if applicable)
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { init: () => {} }; // Update the init function if needed
+  module.exports = { 
+    init: () => {},
+    createMainLandmark: function() {
+      if (typeof document !== 'undefined' && document.querySelector('main')) {
+        return document.querySelector('main');
+      }
+      const main = document.createElement('main');
+      const body = document.body;
+      body.insertBefore(main, body.firstChild);
+      return main;
+    },
+    setLanguageAttribute: function() {
+      if (typeof document !== 'undefined') {
+        document.documentElement.lang = 'en';
+      }
+    }
+  };
 }

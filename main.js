@@ -1,16 +1,4 @@
-// Assuming main.js has some imports and other code that is not related to the issue.
-// Here's a simplified example of how the relevant section might look with conflict markers removed.
-
-// Before the change:
-// <a id="unrotate" href="#">rotate back</a>
-// =======
-// <button id="unrotate">rotate back</button>
-// >>>>>>> origin/main
-
-// After the change:
-// <button id="unrotate">rotate back</button>
-
-// Any other code in main.js remains unchanged.
+// The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
 
 /**
  * Main application entry point
@@ -33,6 +21,8 @@ function init() {
     if (main) {
         main.setAttribute('role', 'main');
     }
+    // Set language attribute for accessibility
+    document.documentElement.setAttribute('lang', 'en');
     return main;
 }
 

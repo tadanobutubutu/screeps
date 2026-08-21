@@ -5,6 +5,8 @@ const lodash = require('lodash');
 const jest = require('jest');
 const eslint = require('eslint');
 const babelJest = require('babel-jest');
+const React = require('react');
+const ReactDOM = require('react-dom');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -66,8 +68,22 @@ function ensureUniqueLandmarks() {
 }
 
 function fixFakeLinkIssues() {
-  console.log('Fixing fake link issues');
-  // Implementation details
+  try {
+    const filePath = path.resolve(__dirname, 'docs', 'dependency-graph.html');
+    if (!fs.existsSync(filePath)) {
+      console.warn('File not found:', filePath);
+      return;
+    }
+    let content = fs.readFileSync(filePath, 'utf8');
+    content = content.replace(
+      /<a\s+id="unrotate"\s+href="#">rotate back<\/a>/g,
+      '<button id="unrotate" type="button">rotate back</button>'
+    );
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log('Fixed fake link issues');
+  } catch (e) {
+    console.error('Error fixing fake link issues:', e.message);
+  }
 }
 
 // SVG accessibility check (existing)
@@ -89,18 +105,8 @@ function validateReactLandmarks() {
   // Implementation details
 }
 
-// App component server rendering
-function App() {
-  React.useEffect(() => {
-    addScopeAttributesToHeaders();
-  }, []);
-  return (
-    <div>
-      {/* ... existing JSX ... */}
-      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
-      {/* ... rest of JSX ... */}
-    </div>
-  );
+function addScopeAttributesToHeaders() {
+  console.log('Adding scope attributes to headers');
 }
 
 function handleRotateBack() {
@@ -113,14 +119,24 @@ function handleRotateBack() {
   }
 }
 
+// App component server rendering
+function App() {
+  React.useEffect(function() {
+    addScopeAttributesToHeaders();
+  }, []);
+  return React.createElement('div', null,
+    React.createElement('button', { id: 'unrotate', onClick: handleRotateBack }, 'rotate back')
+  );
+}
+
 // Server setup
-app.get('/', (_, res) => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+app.get('/', function(_, res) {
+  ReactDOM.render(React.createElement(App), document.getElementById('root'));
   res.send('Server running with updated dependencies');
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(port, function() {
+  console.log('Server running on port ' + port);
   handleReact19Update();
   handleJest30Update();
   handleEslint10Update();

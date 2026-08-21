@@ -1,14 +1,9 @@
-// main.js - Screeps game logic entry point
+// main.js
 
-// The main game loop that runs every tick
-function loop() {
-    // Game logic goes here
-}
+// Assuming that the table structure is defined in a React component
+import React from 'react';
 
-// Another example function added for the asked question
-function exampleFunc() {
-    // Example logic for the additional function
-}
+// ... other imports ...
 
 // Configuration settings for the game with added 'aria-label' for accessibility
 const config = {
@@ -19,10 +14,32 @@ const config = {
     ariaLabel: 'Game Configuration',
 };
 
-// Export the loop function for the game engine as requested
-module.exports = {
-    loop: loop,
-    exampleFunc: exampleFunc,
-    config: config,
-    // Add any missing exports here if necessary
+// Component that renders the table
+const DependencyGraphTable = ({ data }) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {data.columns.map((column, index) => (
+            <th scope="col" key={index}>
+              {column.label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.cells.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell.content}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 };
+
+// ... rest of the code ...
+
+export default DependencyGraphTable;

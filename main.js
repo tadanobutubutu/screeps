@@ -1,5 +1,5 @@
-// main.js
 import React, { useState } from 'react';
+import { TableComponent } from './TableComponent';
 
 export function App() {
     const [hasError, setHasError] = useState(false);
@@ -19,6 +19,7 @@ export function App() {
                 <main>
                     <h1>メインコンテンツ</h1>
                     <p>ここにメインのコンテンツが表示されます。</p>
+                    <TableComponent />
                 </main>
             </div>
         );

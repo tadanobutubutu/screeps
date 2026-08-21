@@ -1,10 +1,10 @@
-🎯 **What:** The testing gap addressed is the lack of test coverage for `scripts/update-main.js`. This script modifies `main.js` based on the content of `last-role-creation.json`, determining program flow via simple file existence checks and manipulating text. It was previously untested.
+🎯 **What:**
+Created a missing test file for `fix_globals.js`. This script adds fallback global definitions for `lodash` and `Memory` to `main.js`. It was previously untestable because the logic ran immediately upon import. The script was refactored to export a `fixGlobals(filePath)` function while preserving CLI functionality.
 
-📊 **Coverage:** The new tests cover:
-- Early exit when `last-role-creation.json` does not exist.
-- Early exit when the JSON file exists but contains no role name.
-- Successful prevention of duplicate imports if the role is already imported in `main.js`.
-- Correct insertion of a new role require statement after existing role require statements.
-- Correct insertion of a new role require statement at the top of the file when no existing roles are found.
+📊 **Coverage:**
 
-✨ **Result:** The script was slightly refactored to export its execution logic for testability (without breaking its CLI usage). Test coverage for `scripts/update-main.js` has been increased to 100%, ensuring its file modification logic is reliable and regressions can be caught automatically.
+- Covered the happy path where the target global comment is successfully prepended to the file content.
+- Ensured `fs.readFileSync` and `fs.writeFileSync` are called correctly using Jest mocks.
+
+✨ **Result:**
+Test coverage for the codebase has been improved, and `fix_globals.js` file manipulation logic is now completely covered by tests.

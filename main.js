@@ -9,6 +9,7 @@ if (typeof document !== 'undefined') {
 }
 
 const App = () => {
+  // Integrating both changes to include the new data row for Charlie
   return (
     <div id="root" lang="en" role="main">
       <header role="banner">
@@ -32,6 +33,11 @@ const App = () => {
               <td>Bob</td>
               <td>25</td>
             </tr>
+            // Adding Charlie's row from the conflicting code
+            <tr>
+              <td>Charlie</td>
+              <td>40</td>
+            </tr>
           </tbody>
         </table>
       </main>
@@ -39,8 +45,10 @@ const App = () => {
   );
 };
 
+// Keeping both export statements to maintain the original export and the line added in the conflicting code
 export default App;
 
+// Integrating both rendering approaches
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

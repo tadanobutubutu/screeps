@@ -52,6 +52,40 @@ fakeLinks.forEach(link => {
   // Optionally, add a real link or handle it accordingly
 });
 
+// Add main landmark for REACT_017 accessibility rule
+// Wrap primary content in main landmark element
+function addMainLandmark() {
+  // Check if main element already exists
+  if (document.querySelector('main[role="main"]') || document.querySelector('main')) {
+    return; // Main landmark already exists
+  }
+  
+  // Create main element
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  
+  // Find the primary content container and wrap it
+  const contentContainer = document.querySelector('.container') || 
+                          document.querySelector('table') || 
+                          document.body;
+  
+  if (contentContainer && contentContainer.parentNode) {
+    const parent = contentContainer.parentNode;
+    // Insert main element before the content container
+    parent.insertBefore(mainElement, contentContainer);
+    // Move content container inside main element
+    mainElement.appendChild(contentContainer);
+  } else if (document.body) {
+    // If we can't identify specific content, wrap all body content
+    mainElement.appendChild(document.body.cloneNode(true));
+    document.body.innerHTML = '';
+    document.body.appendChild(mainElement);
+  }
+}
+
+// Apply main landmark fix
+addMainLandmark();
+
 // Existing code in main.js continues here
 // ... (rest of main.js code)
 

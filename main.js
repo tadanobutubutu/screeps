@@ -6,11 +6,13 @@ function App() {
   // ... existing function content
 
   return (
-    <div className="App">
-      {/* You need to add an aria-label or <title> child here */}
-      <img src={favicon} alt="Favicon" />
-      // ... rest of your code
-    </div>
+    <main>
+      <div className="App">
+        {/* You need to add an aria-label or <title> child here */}
+        <img src={favicon} alt="Favicon" />
+        // ... rest of your code
+      </div>
+    </main>
   );
 }
 

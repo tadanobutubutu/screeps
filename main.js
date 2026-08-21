@@ -60,7 +60,7 @@
                         cursor: 'pointer',
                         transition: 'all 0.2s ease-in-out',
                         transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-                        boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                        boxShadow: errCopyHovering ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                         filter: errCopyHover ? 'brightness(1.1)' : 'none',
                     }}
                 >
@@ -106,7 +106,7 @@
                         <h2 style={{ color: '#2b6cb0', marginTop: 0 }}>{key}</h2>
                         <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2d3748' }}>{value}</p>
                     </div>
-                ))}
+                }));
             </div>
             <button
                 onClick={() => fetchStats(true)}
@@ -114,23 +114,8 @@
                 style={{
                     backgroundColor: '#2b6cb0',
                     color: 'white',
-                    padding: '0.5rem 1rem',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                    transition: 'all 0.2s ease-in-out',
-                }}
-                onMouseEnter={() => setErrRetryHover(true)}
-                onMouseLeave={() => setErrRetryHover(false)}
-                aria-label="更新"
-                title="更新"
-            >
-                {refreshing ? '🔄 更新中...' : '🔄 更新'}
-            </button>
-        </div>
-    );
+                    padding: '0.50501549671549<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk>
+                }
+            </div>
+        );
 };
-
-export default Dashboard;
-</main>

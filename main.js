@@ -11,7 +11,7 @@ const SomeComponent = ({ error, data, fetchStats }) => {
   const [errRetryHover, setErrRetryHover] = useState(false);
 
   const copyErr = () => {
-    navigator.clipboard.writeText(error);
+    ...
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -37,9 +37,9 @@ const SomeComponent = ({ error, data, fetchStats }) => {
           <button
             onClick={copyErr}
             onMouseEnter={() => setErrCopyHover(true)}
-            onMouseLeave={() => setErrCopyHover(false)}
+            onMouseLeave={() => ...
             onFocus={() => setErrCopyHover(true)}
-            onBlur={() => setErrCopyHover(false)}
+            onBlur={() => ...
             aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
             title={copied ? 'コピー済み' : 'エラーをコピー'}
             style={{
@@ -76,11 +76,25 @@ const SomeComponent = ({ error, data, fetchStats }) => {
           </button>
         </section>
       ) : (
-        <article aria-labelledby="success-heading">
+        <article ...
           <h1 id="success-heading" style={{ color: '#2e7d32' }}>✅ 成功</h1>
           <div>
-            {data && <p>{JSON.stringify(data)}</p>}
+            {data && ...
           </div>
+          <button
+            id="unrotate"
+            onClick={() => fetchStats(false)}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#004b73',
+              padding: '0.5rem 1rem',
+              border: '1px solid #004b73',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            rotate back
+          </button>
         </article>
       )}
     </main>

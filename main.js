@@ -1,5 +1,3 @@
-// main.js - Accessibility fixes for all 6 open checks
-
 import React from 'react';
 
 // ============================================

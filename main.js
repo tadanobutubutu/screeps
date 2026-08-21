@@ -107,6 +107,17 @@ fakeLinks.forEach(link => {
   link.style.textDecoration = 'none';
 });
 
+// Add the new function (resetAllRotations) to the exports
+function resetAllRotations() {
+  const rotateTargets = document.querySelectorAll('.rotate-target');
+  rotateTargets.forEach(el => {
+    el.style.transform = 'none';
+  });
+}
+
+// Export the new function for use by other modules
+export { resetAllRotations };
+
 // Add back the main function (rotateBack) to the exports
 function rotateBack() {
   // Example implementation: reset rotation of targeted elements
@@ -118,14 +129,3 @@ function rotateBack() {
 
 // Export the function so it remains accessible to other modules
 export { rotateBack };
-
-// Add the new function (resetAllRotations) to the exports
-function resetAllRotations() {
-  const rotateTargets = document.querySelectorAll('.rotate-target');
-  rotateTargets.forEach(el => {
-    el.style.transform = 'none';
-  });
-}
-
-// Export the new function for use by other modules
-export { resetAllRotations };

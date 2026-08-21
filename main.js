@@ -63,7 +63,7 @@ function fixLandmarkIssues() {
   // Re-query main elements after potentially creating one
   mainElements = document.querySelectorAll('main');
 
-  // Fix duplicate main landmarks - convert additional main elements to section
+  // Fix duplicate main landmarks - convert additional main elements to <section> elements
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -143,8 +143,7 @@ function ensureUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href=""], a:not([href])');
-
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
   fakeLinks.forEach(link => {
     const text = link.textContent;
     const onClick = link.getAttribute('onclick') || '';

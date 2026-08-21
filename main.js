@@ -1,4 +1,3 @@
-// Assuming this is a module that imports the HTML files and returns updated versions
 const fs = require('fs');
 const path = require('path');
 

@@ -9,7 +9,7 @@ const App = () => {
         <title>My App</title>
       </head>
       <body>
-        <div className="app-container">
+        <div ...
           {/* App content */}
         </div>
       </body>
@@ -17,7 +17,7 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...
 
 /**
  * Returns accessibility attributes for SVG elements
@@ -66,7 +66,7 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 

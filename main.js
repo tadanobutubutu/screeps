@@ -1,16 +1,16 @@
 // Original main.js content (with conflict markers removed for clarity)
 // ... [existing code] ...
 
-// New changes to fix the REACT_041 issue
-// Add the aria-label attribute to the <svg> elements in the affected files
+// New changes to fix the REACT_015 issue
+// Add the lang attribute to the <html> element in the affected file
 
 // Example of how to fix the issue in a single file
 // Replace the following line:
-// <svg>...</svg>
+// <html>...</html>
 // With:
-// <svg aria-label="Accessible description of the SVG content">...</svg>
+// <html lang="en">...</html>
 
 // Repeat the above change for all occurrences in the affected files, such as:
-// `app/layout.tsx` and `dashboard/app/layout.tsx`
+// `docs/dependency-graph.html`
 
 // ... [rest of the main.js content] ...

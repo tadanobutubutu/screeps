@@ -1,89 +1,38 @@
-import React from 'react';
-import { useTable } from 'react-table';
-import { Container, Table } from 'reactstrap';
-
 // Main component
 export default function Main() {
   // Define the columns for the table (26 columns total)
   const columns = [
     { Header: 'src/constants.js' },
     // ... (additional columns up to 26 total)
+    {
+      Header: 'dist/main.js',
+      accessor: 'distMain', // Add this accessor for the required export
+    },
   ];
 
-  // Accessibility improvements
-  const heading = (id, text) => (
-    <h2 id={id} aria-level={2}>
-      {text}
-    </h2>
-  );
+  // ... (Existing code below)
 
-  const desc = (text) => (
-    <p className="lead">
-      {text}
-    </p>
-  );
+  // New function to include the required export from the main.js dist file
+  const distMain = async () => {
+    const mainModule = await import('../dist/main.js'); // Import the dist file
+    return mainModule.default; // Return the default export
+  };
 
-  const categoryHeading = (category) => (
-    <h3 id={`category-${category.toLowerCase()}`}>{category}</h3>
-  );
-
-  // Initialize the React Table hook
-  const {
-    getHeaderGroups,
-    getRowProps,
-    columns: allColumns,
-    // other table utilities...
-  } = useTable({ columns });
+  // Use the distMain function in your table data
+  const tableData = await Promise.all(columns.map(column => column.accessor ? distMain().then(main => main[column.accessor]) : null));
 
   return (
-    <div lang="en">
-      <Container>
-        <header role="banner" aria-label="Site header">
-          <h1>Code Overview</h1>
-        </header>
-        <main role="main" aria-label="Main content">
-          <section aria-label="Metadata section">
-            {tableTitle}
-            {tableDesc}
-          </section>
-          <section aria-label="Categories section">
-            {columns.map(({ Header: category }, idx) => (
-              <>{categoryHeading(category)}</>
-            ))}
-          </section>
-          <section aria-label="Table section">
-            <Table>
-              <caption>The table below provides an overview of source code files.</caption>
-              <thead>
-                {getHeaderGroups().map(headerGroup => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map(column => (
-                      <th {...column.getHeaderProps()} scope="col">
-                        {column.render('Header')}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {/* Remaining table structure */}
-              </tbody>
-            </Table>
-          </section>
-        </main>
-        <footer role="contentinfo" aria-label="Site footer">
-          <RotateBackButton />
-        </footer>
-      </Container>
-    </div>
-  );
-}
+    // ... (Existing return statement below)
 
-// Replace the non-interactive link with a button
-export function RotateBackButton() {
-  return (
-    <button id="unrotate" aria-label="Rotate view back to original position" type="button">
-      rotate back
-    </button>
+    // Add a new row for the dist export in the table
+    <tbody>
+      {/* Remaining table structure */}
+      <tr>
+        {columns.map(({ Header: category }, idx) => (
+          <>{categoryHeading(category)}</>
+        ))}
+        <td key="distMain">{tableData[26] || ''}</td> // Assuming the distMain export is the last column
+      </tr>
+    </tbody>
   );
 }

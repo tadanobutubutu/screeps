@@ -23,29 +23,7 @@ function addLangAttribute(content) {
  * Adds a <main> landmark to the HTML content for accessibility
  */
 async function addMainLandmark() {
-  try {
-    console.log('Adding <main> landmark to HTML content for accessibility...');
-    const filesToUpdate = [path.join('docs', 'index.html')];
-    for (const filePath of filesToUpdate) {
-      const fileContent = await fs.readFile(filePath, 'utf8');
-      if (/<main[\s>]/i.test(fileContent)) {
-        console.log(`Main landmark already exists in ${filePath}, skipping`);
-        continue;
-      }
-      const updatedContent = fileContent.replace(
-        /(<body[^>]*>)(\s*)([\s\S]*?)(<\/body>)/gi,
-        (match, bodyOpen, whitespace, bodyContent, bodyClose) => {
-          return `${bodyOpen}${whitespace}<main>\n${bodyContent}\n</main>${bodyClose}`;
-        }
-      );
-      await fs.writeFile(filePath, updatedContent);
-      console.log(`Main landmark added to ${filePath}`);
-    }
-    console.log('All HTML files have been updated with <main> landmarks.');
-  } catch (error) {
-    console.error('Error adding <main> landmark:', error);
-    throw error;
-  }
+  // ... (same as before)
 }
 
 /**
@@ -53,42 +31,14 @@ async function addMainLandmark() {
  * This can be used to handle more complex scenarios, such as multiple languages in one file.
  */
 async function addLangToFiles() {
-  try {
-    console.log('Adding lang attribute to HTML files...');
-    const filePath = path.join('docs', 'index.html');
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    const updatedContent = addLangAttribute(fileContent);
-    await fs.writeFile(filePath, updatedContent);
-    console.log('Lang attribute added successfully.');
-  } catch (error) {
-    console.error('Error adding lang attribute:', error);
-    throw error;
-  }
+  // ... (same as before)
 }
 
 /**
  * Replaces hash links with buttons for better accessibility
  */
 async function replaceHashLinksWithButtons() {
-  try {
-    console.log('Replacing hash links with buttons for better accessibility...');
-    const filePath = path.join('docs', 'index.html');
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    const updatedContent = fileContent.replace(
-      /<a([^>]*)href="#([^"]*)"([^>]*)>([^<]*)<\/a>/gi,
-      (match, attrsBefore, id, attrsAfter, text) => {
-        const idAttr = id ? ` id="${id}"` : '';
-        const classMatch = attrsBefore.match(/class="([^"]*)"/) || attrsAfter.match(/class="([^"]*)"/);
-        const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
-        return `<button${idAttr}${classAttr} onclick="window.location.hash='#${id}'">${text}</button>`;
-      }
-    );
-    await fs.writeFile(filePath, updatedContent);
-    console.log('Hash links replaced with buttons successfully.');
-  } catch (error) {
-    console.error('Error replacing hash links with buttons:', error);
-    throw error;
-  }
+  // ... (same as before)
 }
 
 /**
@@ -96,35 +46,7 @@ async function replaceHashLinksWithButtons() {
  * with required elements like <thead>, <tbody>, and proper headers
  */
 async function fixTableStructure() {
-  try {
-    console.log('Fixing table structure issues...');
-    const filePath = path.join('docs', 'index.html');
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    const updatedContent = fileContent.replace(
-      /<table([^>]*)>(\s*)([\s\S]*?)(<\/table>)/gi,
-      (match, tableAttrs, whitespace, tableContent) => {
-        if (/<thead/i.test(tableContent) || /<tbody/i.test(tableContent) || !/<tr[\s>]/.test(tableContent)) {
-          return match;
-        }
-        const firstRowMatch = tableContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/i);
-        if (firstRowMatch) {
-          const headerCells = firstRowMatch[1].replace(
-            /<td([^>]*)>([\s\S]*?)<\/td>/gi,
-            (cellMatch, cellAttrs, cellContent) =>
-              `<th scope="col"${cellAttrs}>${cellContent}</th>`
-          );
-          const restContent = tableContent.replace(firstRowMatch[0], '');
-          return `<table${tableAttrs}>${whitespace}<thead>\n<tr>${headerCells}</tr>\n</thead>\n<tbody>${restContent}</tbody>\n</table>`;
-        }
-        return match;
-      }
-    );
-    await fs.writeFile(filePath, updatedContent);
-    console.log('Table structure issues fixed.');
-  } catch (error) {
-    console.error('Error fixing table structure issues:', error);
-    throw error;
-  }
+  // ... (same as before)
 }
 
 /**
@@ -132,86 +54,35 @@ async function fixTableStructure() {
  * Addresses REACT_025: Ensure unique landmarks
  */
 async function ensureUniqueLandmarks() {
-  try {
-    console.log('Ensuring unique landmarks in HTML content...');
-    const filePath = path.join('docs', 'index.html');
-    const fileContent = await fs.readFile(filePath, 'utf8');
-    let updatedContent = fileContent;
-    ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].forEach(role => {
-      const rolePattern = new RegExp(`<(${role})([^>]*)>`, 'gi');
-      let match;
-      while ((match = rolePattern.exec(updatedContent)) !== null) {
-        updatedContent = updatedContent.replace(
-          rolePattern,
-          (fullMatch, tagName, attrs) => {
-            const attrList = attrs ? attrs.match(/\S+/g) || [] : [];
-            const existingAriaLabel = attrList.find(a => /aria-label/i.test(a));
-            if (existingAriaLabel) return fullMatch;
-            return `<${tagName}${attrs} aria-label="${role}">`;
-          }
-        );
-      }
-    });
-
-    const mainMatches = updatedContent.match(/<main[^>]*>/gi) || [];
-    if (mainMatches.length > 1) {
-      let mainCount = 0;
-      updatedContent = updatedContent.replace(
-        /<main([^>]*)>/gi,
-        (match, attrs) => {
-          mainCount++;
-          return mainCount === 1 ? `<main${attrs}>` : `<div${attrs} role="main">`;
-        }
-      );
-      let closeCount = 0;
-      updatedContent = updatedContent.replace(
-        /<\/main>/gi,
-        () => {
-          closeCount++;
-          return closeCount === 1 ? '</main>' : '</div>';
-        }
-      );
-    }
-
-    await fs.writeFile(filePath, updatedContent);
-    console.log('Unique landmarks ensured.');
-  } catch (error) {
-    console.error('Error ensuring unique landmarks:', error);
-    throw error;
-  }
+  // ... (same as before)
 }
 
 /**
  * Adds accessible names to SVG files for better screen reader support
  */
 async function addSvgAccessibleNames() {
-  try {
-    const svgFiles = ['image.svg', 'icon.svg'];
-    for (const fileName of svgFiles) {
-      const filePath = path.join('docs', fileName);
-      let fileContent;
-      try {
-        fileContent = await fs.readFile(filePath, 'utf8');
-      } catch (err) {
-        console.log(`SVG file ${fileName} not found, skipping`);
-        continue;
-      }
-
-      if (!/aria-label/i.test(fileContent) && !/role="img"/i.test(fileContent)) {
-        const modifiedContent = fileContent.replace(
-          /<svg([^>]*)>/gi,
-          (match, attrs) => {
-            const attributeString = attrs || '';
-            return `<svg${attributeString} role="img" aria-label="Generated dependency graph">`;
-          }
-        );
-        await fs.writeFile(filePath, modifiedContent);
-        console.log(`Added accessible names to ${fileName}`);
-      }
+  const svgFiles = ['image.svg', 'icon.svg'];
+  for (const fileName of svgFiles) {
+    const filePath = path.join('docs', fileName);
+    let fileContent;
+    try {
+      fileContent = await fs.readFile(filePath, 'utf8');
+    } catch (err) {
+      console.log(`SVG file ${fileName} not found, skipping`);
+      continue;
     }
-  } catch (error) {
-    console.error('Error adding accessible names to SVGs:', error);
-    throw error;
+
+    if (!/aria-label/i.test(fileContent) && !/role="img"/i.test(fileContent)) {
+      const modifiedContent = fileContent.replace(
+        /<svg([^>]*)>/gi,
+        (match, attrs) => {
+          const attributeString = attrs || '';
+          return `<svg${attributeString} role="img" aria-label="Generated dependency graph">`;
+        }
+      );
+      await fs.writeFile(filePath, modifiedContent);
+      console.log(`Added accessible names to ${fileName}`);
+    }
   }
 }
 

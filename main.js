@@ -8,8 +8,6 @@
     // Export the function
     module.exports.myFunction = myFunction;
 
-    // Additional code to add accessible names to SVGs
-
     // Function to add aria-label to SVGs for accessibility
     function addAccessibleNameToSVGs(svgString, label) {
         // Regex to find the SVG tag and the content within it
@@ -50,6 +48,22 @@
     // Export the new functions
     module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
     module.exports.updateIcons = updateIcons;
+
+    // Additional code to address the open checks
+
+    // Add aria-label to buttons for accessibility
+    function addAriaLabelToButtons(buttons, label) {
+        const updatedButtons = {};
+        for (const key in buttons) {
+            const buttonData = buttons[key];
+            const ariaLabelButton = buttonData.replace('type="button"', `type="button" aria-label="${label}"`);
+            updatedButtons[key] = ariaLabelButton;
+        }
+        return updatedButtons;
+    }
+
+    // Export the new function
+    module.exports.addAriaLabelToButtons = addAriaLabelToButtons;
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

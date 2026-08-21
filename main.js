@@ -1,17 +1,1 @@
-import React from 'react';
-
-const WrappedDependencyGraph = () => {
-  const htmlString = `
-    <html lang="en">
-      <!-- Original HTML content... -->
-    </html>
-    `;
-
-  return (
-    <div
-      dangerouslySetInnerHTML={{ __html: htmlString }}
-    />
-  );
-};
-
-export default WrappedDependencyGraph;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

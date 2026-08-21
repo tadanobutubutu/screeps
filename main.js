@@ -4,12 +4,12 @@ import ReactDOM from 'react-dom';
 // Example component (assuming this is where the <html> tag is being used)
 const App = () => {
   return (
-    <html>
+    <html lang="en">
       <head>
         <title>My App</title>
       </head>
       <body>
-        <div className="app-container">
+        <div>
           {/* App content */}
         </div>
       </body>
@@ -66,7 +66,7 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 

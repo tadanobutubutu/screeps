@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Before (missing scope):
+// <th>Header</th>
+
+// After (with scope for column headers):
+// <th scope="col">Header</th>
+
+// For row headers:
+// <th scope="row">Row Header</th>

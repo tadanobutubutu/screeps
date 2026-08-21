@@ -18,7 +18,7 @@ export default function App() {
   const [error, setError] = useState(initialState.error);
   const [copied, setCopied] = useState(initialState.copied);
   const [refreshing, setRefreshing] = useState(initialState.refreshing);
-  const [errCopyHover, setErrCopyHover] = useState(initialState.errCopyHover);
+  const [errCopyHover, setErrCopyHover] = ...;
   const [errRetryHover, setErrRetryHover] = useState(initialState.errRetryHover);
 
   // -----------------------------------------------------------------------
@@ -67,9 +67,9 @@ export default function App() {
           <button
             onClick={copyErr}
             onMouseEnter={() => setErrCopyHover(true)}
-            onMouseLeave={() => setErrCopyHover(false)}
+            onMouseLeave={() => ...}
             onFocus={() => setErrCopyHover(true)}
-            onBlur={() => setErrCopyHover(false)}
+            onBlur={() => ...}
             aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
             title={copied ? 'コピー済み' : 'エラーをコピー'}
             style={{

@@ -77,4 +77,9 @@ export function addAriaLabel(element, label) {
 }
 
 export function setMainLandmark(mainElement) {
-  if (main
+  // TODO: Remove the commented line and uncomment mainElement when available
+  // mainElement.setAttribute('aria-label', 'Main content area');
+}
+
+// <-- ADD EXPORT STATEMENT HERE -->
+export default enhanceAccessibility;

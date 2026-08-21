@@ -1,5 +1,6 @@
 // Original main.js content (with conflict markers removed for clarity)
 // ...
+
 export function rotateBack() {
   // existing rotateBack function code
 }

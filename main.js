@@ -65,7 +65,7 @@ export default function Main() {
   // Add accessible landmark for the table (REACT_025)
   const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
 
-  // Fix link issue (REACT_036) - use properanchor or button
+  // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
   const link = (
     <a href="..." aria-label="Navigate to destination">

@@ -13,7 +13,7 @@ module.exports = {
     // Spawn creeps if needed
     const spawn = Object.values(Game.spawns)[0];
     if (spawn) {
-      const creepCount = Object.keys(Game.creeps).length;
+      const creepCount = Object.values(Game.creeps).filter(c => c.room.name === spawn.room.name).length;
       if (creepCount < 5) {
         const name = `Creep${Game.time}`;
         spawn.spawnCreep([WORK, CARRY, MOVE], name);

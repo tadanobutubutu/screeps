@@ -14,22 +14,22 @@ export const mainElement = `<main id="main" aria-label="Main content"></main>`;
 
 // Function to add lang attribute to HTML element
 export function addLangToHtml(html) {
-  return ... (match, attrs) => {
+  return html.replace(/<html([^>]*)>/g, (match, attrs) => {
     const hasLang = attrs && /\blang\s*=/.test(attrs);
     if (hasLang) {
       return match;
     }
     const existingAttrs = attrs || '';
-    return ... lang="en">`;
+    return `<html${existingAttrs} lang="en">`;
   });
 }
 
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
 export function fixTableScope(html) {
-  return ... (match, attrs) => {
+  return html.replace(/<th([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = ...
+    const hasScope = /\bscope\s*=/.test(existingAttrs);
     if (hasScope) {
       return match;
     }
@@ -44,15 +44,15 @@ export function addLandmarks(html) {
   // Helper to generate unique IDs for landmarks
   let landmarkIdCounter = 0;
   const getNextId = (prefix) => {
-    const id = ...
+    const id = `${prefix}-${landmarkIdCounter++}`;
     return id;
   };
 
   // Add/main landmark with proper id and aria-label
-  result = ... (match, attrs) => {
+  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasId = ...
-    const hasAriaLabel = ...
+    const hasId = /\bid\s*=/.test(existingAttrs);
+    const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
     let newAttrs = existingAttrs;
     if (!hasId) {
       newAttrs += ' id="main"';
@@ -60,33 +60,33 @@ export function addLandmarks(html) {
     if (!hasAriaLabel) {
       newAttrs += ' aria-label="Main content"';
     }
-    return ...
+    return `<main${newAttrs}>`;
   });
 
   // Fix div landmarks
-  result = ... (match, attrs1, content, attrs2, attrs3) => {
+  result = result.replace(/<div([^>]*)>([\s\S]*?)<\/div>/g, (match, attrs1, content, attrs2, attrs3) => {
     const existingAttrs = (attrs2 || '') + (attrs3 || '');
-    const hasRole = ...
+    const hasRole = /\brole\s*=/.test(existingAttrs);
     if (!hasRole) {
       // Ensure a unique id for the landmark div
-      const idMatch = ...
+      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']+)["']/);
       const uniqueId = idMatch ? idMatch[1] : getNextId('banner');
-      return `<div${attrs1}><div id="${uniqueId}" ...
+      return `<div${attrs1}><div id="${uniqueId}" role="banner">${content}</div></div>`;
     }
     return match;
   });
 
   // Fix section landmarks
-  result = ... (match, attrs) => {
+  result = result.replace(/<section([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      const idMatch = ...
+      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']+)["']/);
       const sectionId = idMatch ? idMatch[1] : '';
       const label = sectionId || 'Section';
       // Ensure unique id if missing
-      if ... {
+      if (!idMatch) {
         const uid = getNextId('section');
         existingAttrs += ` id="${uid}"`;
       }
@@ -96,12 +96,12 @@ export function addLandmarks(html) {
   });
 
   // Fix article landmarks
-  result = ... (match, attrs) => {
+  result = result.replace(/<article([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      if ... {
+      if (!/\bid\s*=/.test(existingAttrs)) {
         const uid = getNextId('article');
         return `<article${existingAttrs} id="${uid}" role="article">`;
       }
@@ -111,16 +111,16 @@ export function addLandmarks(html) {
   });
 
   // Fix nav landmarks
-  result = ... (match, attrs) => {
+  result = result.replace(/<nav([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      const idMatch = ...
+      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']+)["']/);
       const navId = idMatch ? idMatch[1] : '';
       const label = navId || 'Navigation';
       // Ensure unique id if missing
-      if ... {
+      if (!idMatch) {
         const uid = getNextId('nav');
         return `<nav${existingAttrs} id="${uid}" aria-label="${label}">`;
       }
@@ -132,16 +132,16 @@ export function addLandmarks(html) {
   return result;
 }
 
-// Function to add accessible names to SVGs
-export function ... {
+// Function to add accessible name to SVGs
+export function addSvgAriaLabels(html) {
   let result = html;
 
   // Add role and aria-label to svg elements
-  result = ... (match, attrs, inner) => {
+  result = result.replace(/<svg([^>]*)>([\s\S]*?)<\/svg>/g, (match, attrs, inner) => {
     const existingAttrs = attrs || '';
-    const hasRole = ...
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasRole = /\brole\s*=/.test(existingAttrs);
+    const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     let newAttrs = existingAttrs;
 
     if (!hasRole) {
@@ -149,17 +149,17 @@ export function ... {
     }
 
     // Try to obtain an accessible name from a nested <title> element
-    const titleMatch = ...
+    const titleMatch = inner.match(/<title>([^<]+)<\/title>/);
     let accessibleName = 'Image';
     if (titleMatch) {
-      accessibleName = ...
+      accessibleName = titleMatch[1];
     }
 
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      newAttrs += ` ...
+      newAttrs += ` aria-label="${accessibleName}"`;
     }
 
-    return ...
+    return `<svg${newAttrs}>${inner}</svg>`;
   });
 
   return result;
@@ -167,31 +167,18 @@ export function ... {
 
 // Function to fix 1 fake link issue
 export function fixFakeLinks(html) {
-  return ... (match, attrs) => {
+  return html.replace(/<a([^>]*)>/g, (match, attrs) => {
     // Ensure href is present
     if (!/\bhref\s*=/.test(attrs)) {
       attrs += ' href="#"';
     }
     // Ensure accessible name if empty
-    if (!attrs || !/\boria-label\s*=/.test(attrs) && ... {
-      attrs = ... 'class="$1" aria-label="Link"');
-      if ... {
+    if (!attrs || !/\baria-label\s*=/.test(attrs) && !/\btitle\s*=/.test(attrs)) {
+      attrs = attrs.replace(/\bclass\s*=\s*"([^"]*)"/, 'class="$1" aria-label="Link"');
+      if (!/\baria-label\s*=/.test(attrs)) {
         attrs += ' aria-label="Link"';
       }
     }
     return `<a${attrs}>`;
-  });
-}
-
-// Function to fix table structure issues by adding scope attributes to th tags
-// This improves accessibility by properly associating header cells with data cells
-export function fixTableScope(html) {
-  return ... (match, attrs) => {
-    const existingAttrs = attrs || '';
-    const hasScope = ...
-    if (hasScope) {
-      return match;
-    }
-    return `<th${existingAttrs} scope="col">`;
   });
 }

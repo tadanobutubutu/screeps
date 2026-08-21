@@ -15,6 +15,12 @@ const config = {
     // Add your configuration options here
     maxCreeps: 50,
     room: 'W0N0',
+    // Add new configuration options if necessary
+    accessibilityOptions: {
+        // New accessibility-related configuration options
+        screenReader: true,
+        keyboardNavigation: true,
+    },
 };
 
 // Export the loop function for the game engine as requested

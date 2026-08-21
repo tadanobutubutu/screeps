@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// Placeholder for accessibility-related code changes
+// TODO: Remove the commented line and uncomment mainElement when available
 
 // Function to create main HTML with main landmark (improves accessibility)
 export function createMainHTML({ children, id }) {
@@ -10,9 +9,12 @@ export function createMainHTML({ children, id }) {
   `;
 }
 
+// Main element with proper accessibility
+export const mainElement = `<main id="main" aria-label="Main content"></main>`;
+
 // Function to add lang attribute to HTML element
 export function addLangToHtml(html) {
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/, (match, attrs) => {
     const hasLang = attrs && /\blang\s*=/.test(attrs);
     if (hasLang) {
       return match;
@@ -62,14 +64,14 @@ export function addLandmarks(html) {
   });
 
   // Fix div landmarks
-  result = result.replace(/<div([^>]*)>([\s\S]*?)(<div([^>]*)>|$)/gi, (match, attrs1, content, attrs2, attrs3) => {
+  result = result.replace(/<div([^>]*)>[\s\S]*?<\/div>/gi, (match, attrs1, content, attrs2, attrs3) => {
     const existingAttrs = (attrs2 || '') + (attrs3 || '');
     const hasRole = /\brole\s*=/.test(existingAttrs);
     if (!hasRole) {
       // Ensure a unique id for the landmark div
-      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']*)["']/);
+      const idMatch = existingAttrs.match(/id="([^"]+)"/);
       const uniqueId = idMatch ? idMatch[1] : getNextId('banner');
-      return `<div${attrs1}><div id="${uniqueId}" role="banner">${content}`;
+      return `<div${attrs1}><div id="${uniqueId}" role="banner"></div>`;
     }
     return match;
   });
@@ -80,7 +82,7 @@ export function addLandmarks(html) {
     const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
     const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']*)["']/);
+      const idMatch = existingAttrs.match(/id="([^"]+)"/);
       const sectionId = idMatch ? idMatch[1] : '';
       const label = sectionId || 'Section';
       // Ensure unique id if missing
@@ -114,7 +116,7 @@ export function addLandmarks(html) {
     const hasAriaLabel = /\baria-label\s*=/.test(existingAttrs);
     const hasAriaLabelledby = /\baria-labelledby\s*=/.test(existingAttrs);
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      const idMatch = existingAttrs.match(/\bid\s*=\s*["']([^"']*)["']/);
+      const idMatch = existingAttrs.match(/id="([^"]+)"/);
       const navId = idMatch ? idMatch[1] : '';
       const label = navId || 'Navigation';
       // Ensure unique id if missing
@@ -131,7 +133,7 @@ export function addLandmarks(html) {
 }
 
 // Function to add accessible names to SVGs
-export function addAccessibleNamesToSvgs(html) {
+export function addSvgAccessibility(html) {
   let result = html;
 
   // Add role and aria-label to svg elements
@@ -147,7 +149,7 @@ export function addAccessibleNamesToSvgs(html) {
     }
 
     // Try to obtain an accessible name from a nested <title> element
-    const titleMatch = inner.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = inner.match(/<title[^>]*>([^<]+)<\/title>/i);
     let accessibleName = 'Image';
     if (titleMatch) {
       accessibleName = titleMatch[1].trim();
@@ -171,8 +173,8 @@ function fixFakeLinks(html) {
       attrs += ' href="#"';
     }
     // Ensure accessible name if empty
-    if (!/\baria-label\s*=/.test(attrs) || (match.includes('aria-label=""') || match.includes("aria-label=''"))) {
-      attrs = attrs.replace(/aria-label\s*=\s*["']{2}/, 'aria-label="Link"');
+    if (!attrs || !/\baria-label\s*=/.test(attrs) && !/\baria-labelledby\s*=/.test(attrs)) {
+      attrs = attrs.replace(/class="([^"]*)"/, 'class="$1" aria-label="Link"');
       if (!/\baria-label\s*=/.test(attrs)) {
         attrs += ' aria-label="Link"';
       }

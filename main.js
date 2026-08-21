@@ -1,60 +1,97 @@
-// main.js
+// Screeps Main Loop
+// This file manages the game logic for your Screeps AI
 
-// Importing required dependencies and extending the existing code
-// (You might have to add specific libraries depending on your project)
-import React from 'react';
-import PropTypes from 'prop-types';
+// Define your roles
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Fix language for the HTML root element
-const rootElement = document.createElement('html');
-rootElement.setAttribute('lang', 'en'); // Change this to your desired language code
-document.write(rootElement);
+// Main loop function
+function loop() {
+    // Display memory usage
+    const memoryUsage = JSON.stringify(Memory).length;
+    console.log(`Memory usage: ${memoryUsage} characters`);
 
-// - REACT_027: Fix 26 table structure issues
-// Here, I'm adding an example of a fixed table. You'll have to correct your tables as needed.
-const tableExample = (
-  <table>
-    <thead>
-      <tr>
-        <th>Header 1</th>
-        <th>Header 2</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Cell 1, Row 1</td>
-        <td>Cell 2, Row 1</td>
-      </tr>
-      <tr>
-        <td>Cell 1, Row 2</td>
-        <td>Cell 2, Row 2</td>
-      </tr>
-    </tbody>
-  </table>
-);
+    // Clean up dead creeps' memory
+    for (const name in Memory.creeps) {
+        if (!Game.creeps[name]) {
+            delete Memory.creeps[name];
+            console.log(`Cleared non-existing creep memory: ${name}`);
+        }
+    }
 
-// - REACT_017: Add/fix 4 landmark issues
-// Here's an example of how to use role and aria-label attributes for a landmark element.
-const mainLandmark = <header role="banner" aria-label="Main Content Header Element"></header>;
+    // Count available energy
+    const availableEnergy = Game.spawns['Spawn1'].room.energyAvailable;
+    console.log(`Available energy: ${availableEnergy}`);
 
-// - REACT_041: Add accessible names to 2 SVGs
-// Set the aria-label attribute for the SVG elements.
-const svgExample = (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M24 22H0V12H24V22ZM10 3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H10C11.1 21 12 20.1 12 19V5C12 3.9 11.1 3 10 3Z"
-      fill="#000"
-    />
-  </svg>
-);
-svgExample.props.ariaLabel = 'Your SVG Accessible Name';
+    // Get spawn
+    const spawn = Game.spawns['Spawn1'];
 
-// - REACT_025: Ensure unique landmarks (2 issues)
-// Verify that you have only one of each type of landmark in your document.
+    // Determine how many creeps of each role we need
+    const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester');
+    const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader');
+    const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder');
 
-// - REACT_036: Fix 1 fake link issue
-// Replace any elements that should have a nav-link or anchor tag with a proper <a> tag.
+    console.log(`Harvesters: ${harvesters.length}`);
+    console.log(`Upgraders: ${upgraders.length}`);
+    console.log(`Builders: ${builders.length}`);
 
-// Additional code that might exist after the conflict markers (>>>>>>>), preserved
+    // Spawn new creeps if needed
+    const minHarvesters = 3;
+    const minUpgraders = 2;
+    const minBuilders = 2;
+
+    if (harvesters.length < minHarvesters) {
+        const newName = `Harvester${Game.time}`;
+        const energyCapacity = spawn.room.energyCapacityAvailable;
+        
+        if (spawn.spawnCreep([WORK, CARRY, MOVE], newName, {
+            memory: { role: 'harvester' }
+        }) === OK) {
+            console.log(`Spawning new harvester: ${newName}`);
+        }
+    } else if (upgraders.length < minUpgraders) {
+        const newName = `Upgrader${Game.time}`;
+        
+        if (spawn.spawnCreep([WORK, CARRY, MOVE], newName, {
+            memory: { role: 'upgrader' }
+        }) === OK) {
+            console.log(`Spawning new upgrader: ${newName}`);
+        }
+    } else if (builders.length < minBuilders) {
+        const newName = `Builder${Game.time}`;
+        
+        if (spawn.spawnCreep([WORK, CARRY, MOVE], newName, {
+            memory: { role: 'builder' }
+        }) === OK) {
+            console.log(`Spawning new builder: ${newName}`);
+        }
+    }
+
+    // Display spawn status if currently spawning
+    if (spawn.spawning) {
+        const spawningCreep = Game.creeps[spawn.spawning.name];
+        spawn.room.visual.text(
+            `🛠️ ${spawningCreep.memory.role}`,
+            spawn.pos.x + 1,
+            spawn.pos.y,
+            { align: 'left', opacity: 0.8 }
+        );
+    }
+
+    // Run role logic for all creeps
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        
+        if (creep.memory.role === 'harvester') {
+            roleHarvester.run(creep);
+        } else if (creep.memory.role === 'upgrader') {
+            roleUpgrader.run(creep);
+        } else if (creep.memory.role === 'builder') {
+            roleBuilder.run(creep);
+        }
+    }
+}
+
+// Export the loop function for Screeps to use
+module.exports = { loop };

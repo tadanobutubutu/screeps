@@ -1,4 +1,3 @@
-// Resolved main.js file
 // Original main.js content
 // ...
 

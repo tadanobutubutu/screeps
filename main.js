@@ -111,6 +111,11 @@ export function fixFakeLinkIssues(html) {
   });
 }
 
+// Function to fix 1 fake link issue
+export function fixFakeLinkIssue(html) {
+  return fixFakeLinkIssues(html); // Reuse existing function
+}
+
 // Example of how to use the new function to create updated html for a specific page
 export function createIndexHTML() {
   return addLangAttribute(fixTableHeaders(addLandmarks(addAccessibleNamesToSVGs(ensureUniqueLandmarks(fixFakeLinkIssues(createMainHTML({

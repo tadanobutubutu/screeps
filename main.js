@@ -1,5 +1,5 @@
 tsx
-import React from 'react';
+import React, { useState } from 'react';
 
 interface DashboardProps {
   error?: string;

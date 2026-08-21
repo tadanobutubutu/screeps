@@ -14,7 +14,11 @@ function enhanceAccessibility(element) {
 // Ensure the provided element is a DOM element or a string that can be converted to a DOM element
 function ensureElement(input) {
   if (typeof input === "string") {
-    return document.querySelector(input);
+    // Convert string selector to DOM element
+    if (typeof document !== "undefined" && document.querySelector) {
+      return document.querySelector(input);
+    }
+    return null;
   }
   return input;
 }

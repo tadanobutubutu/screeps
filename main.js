@@ -11,5 +11,10 @@ module.exports = {
         header.setAttribute('scope', 'col');
       }
     });
+    // Convert the 'rotate back' anchor to a button
+    const rotateBackLink = document.getElementById('unrotate');
+    if (rotateBackLink) {
+      rotateBackLink.outerHTML = '<button id="unrotate">rotate back</button>';
+    }
   }
 };

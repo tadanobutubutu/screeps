@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-
 // Function to add landmark roles and fix landmark issues
 function addLandmarks() {
     document.documentElement.setAttribute('role', 'application');
@@ -14,6 +12,13 @@ function addLandmarks() {
 
     const footer = document.querySelector('footer');
     footer.setAttribute('role', 'contentinfo');
+
+    // Find the elements with the classes corresponding to the roles you want to add
+    const searchForm = document.querySelector('.search-form');
+    searchForm.setAttribute('role', 'search');
+
+    const loginLink = document.querySelector('.login-link');
+    loginLink.setAttribute('role', 'link');
 }
 
 // Preserve existing default export but also expose required exports
@@ -21,7 +26,7 @@ const exportsObj = {
     icons,
     checkDependencyStatus,
     getDependencyAlerts,
-    addLandmarks, // Add the new function here
+    addLandmarks,
     myFunction
 };
 

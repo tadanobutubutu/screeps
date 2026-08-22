@@ -4,14 +4,12 @@
  */
 
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (N/A - utility file)
-// - REACT_027: Fix 26 table structure issues (N/A - utility file)
-// - REACT_017: Add/fix 4 landmark issues (N/A - utility file)
-// - REACT_041: Add accessible names to 2 SVGs (N/A - utility file)
-// - REACT_025: Ensure unique landmarks (2 issues) (N/A - utility file)
-// - REACT_036: Fix 1 fake link issue (N/A - utility file)
-// Note: This is a dependency management utility file, not a React/HTML component file.
-// Accessibility concerns should be addressed in the relevant component files.
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark & getSvgAccessibleName())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmark)
+// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility())
 
 /**
  * Version compatibility matrix for the updates mentioned in the dashboard

@@ -161,6 +161,37 @@ const calculateAverage = function(numbers) {
   return sum / numbers.length;
 };
 
+// New functions to address specific accessibility tasks mentioned in the insight report
+
+const addLangAttribute = function(lang = 'en') {
+  // REACT_015: Add lang attribute to HTML element
+  document.documentElement.lang = lang;
+};
+
+const addMainLandmark = function() {
+  // REACT_017: Add/fix 2 landmark issues – ensure a main landmark exists
+  let main = document.querySelector('main');
+  if (!main) {
+    main = document.createElement('main');
+    document.body.prepend(main);
+  }
+  // Optionally add role if missing
+  if (!main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+};
+
+const addressAccessibilityImprovements = function() {
+  // Aggregate all accessibility improvements
+  addLangAttribute();
+  addMainLandmark();
+  ensureUniqueLandmarks();
+  fixTableStructure();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
+  enhanceFocusVisibility();
+};
+
 module.exports = {
   // Existing exports would be preserved here
   newExport: function() {
@@ -170,9 +201,12 @@ module.exports = {
   calculateAverage: calculateAverage,
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   addressAccessibilityIssues: addressAccessibilityIssues,
+  enhanceFocusVisibility: enhanceFocusVisibility,
 
-  // New function to address accessibility issue from insight report
-  enhanceFocusVisibility: enhanceFocusVisibility
+  // Newly added exports for accessibility functions
+  addLangAttribute: addLangAttribute,
+  addMainLandmark: addMainLandmark,
+  addressAccessibilityImprovements: addressAccessibilityImprovements
 };
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements

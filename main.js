@@ -1,14 +1,1 @@
-// Unable to provide the fixed code without seeing the current main.js content
-// 
-// Based on the issue description, the fix requires:
-// 1. Replacing duplicate <main> elements with <section> or <article> elements
-// 2. Keeping only ONE <main> landmark per page
-//
-// Please paste the current main.js file so I can:
-// - Identify the multiple <main> elements
-// - Replace the additional <main> tags with <section> or <article> 
-// - Preserve all existing functionality and exports
-//
-// Example fix pattern:
-// - Change: <main>...</main> (duplicate) → <section aria-label="...">...</section>
-// - Keep:  <main>...</main> (only one per document)
+function setupSVGIcons() { // Define a function to create an accessible SVG element function createAccessibleSVG(iconData, label) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> <title>${label}</title> ${iconData} </svg>`; } // Replace the SVG creation with the accessible version const icons = { icon: createAccessibleSVG('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🐛</text></svg>', 'Screeps Dashboard Icon'), apple: createAccessibleSVG('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🐛</text></svg>', 'Apple Icon' }; // ... other icons ... }; // ... existing code ... } // Call the function to set up the icons setupSVGIcons(); // ... existing code ...

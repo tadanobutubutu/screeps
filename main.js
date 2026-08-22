@@ -1,2 +1,1 @@
-// This is a placeholder - the actual issue is with HTML files, not main.js
-// The main.js file should contain valid JavaScript code, not HTML
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

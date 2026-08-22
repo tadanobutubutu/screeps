@@ -43,22 +43,58 @@ const enhanceFocusVisibility = function() {
   document.head.appendChild(style);
 };
 
+const addSvgAccessibleNames = function() {
+  // Add accessible names to 2 SVGs from the insight report
+  const svgLogo = document.getElementById('logo-svg');
+  if (svgLogo && !svgLogo.hasAttribute('aria-label')) {
+    svgLogo.setAttribute('aria-label', 'Logo');
+  }
+  const svgNav = document.querySelector('svg.accessible-name');
+  if (svgNav && !svgNav.hasAttribute('aria-label')) {
+    svgNav.setAttribute('aria-label', 'Navigation icon');
+  }
+};
+
+const fixFakeLinkIssue = function() {
+  // Fix 1 fake link issue: ensure elements acting as links are proper <a> tags
+  document.querySelectorAll('.fake-link').forEach(fake => {
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = fake.textContent;
+    a.title = fake.title || '';
+    a.setAttribute('role', 'link');
+    fake.parentNode.replaceChild(a, fake);
+  });
+  // Ensure any element using role="link" has an href attribute
+  document.querySelectorAll('[role="link"]').forEach(link => {
+    if (!link.hasAttribute('href')) {
+      link.setAttribute('href', '#');
+    }
+  });
+};
+
 const addressAccessibilityIssues = function() {
   // Address accessibility issues from insight report:
   // - REACT_015: Add lang attribute to HTML element
   // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs (handled elsewhere)
+  // - REACT_041: Add accessible names to 2 SVGs
   // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue (handled elsewhere)
+  // - REACT_036: Fix 1 fake link issue
 
   // Add lang attribute to HTML element
   document.documentElement.lang = 'en';
 
-  // Enhance focus visibility for keyboard navigation
-  enhanceFocusVisibility();
-
   // Ensure unique landmarks
   ensureUniqueLandmarks();
+
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
+
+  // Fix fake link issue
+  fixFakeLinkIssue();
+
+  // Enhance focus visibility for keyboard navigation
+  enhanceFocusVisibility();
 };
 
 const setLanguageAttribute = function(lang) {

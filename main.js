@@ -16,6 +16,11 @@ const tableHeaders = [
 function rotateBack() {
   // Implementation for the rotate back action goes here
   // This could be a simple state change or a function call to rotate the graph back
+  if (typeof resetRotation === 'function') {
+    resetRotation();
+  } else {
+    console.log('rotateBack: resetRotation function not defined');
+  }
 }
 
 // The rest of the main.js content would remain unchanged.

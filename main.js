@@ -8,4 +8,4 @@ export { functionBExport as functionB } from './moduleB';
 export { functionC } from './moduleC';
 
 // ADDING NEW REQUIRED EXPORTS BELOW
-export { additionalFunction } from './moduleD'; // Example of a newly required export
+export { additionalFunction } from './moduleD';

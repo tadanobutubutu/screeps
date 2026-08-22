@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import Link from 'next/link';
-
 export default function Main() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);

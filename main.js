@@ -6,12 +6,6 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-/**
- * REACT_015: Add lang attribute to HTML element
- * Adds or ensures the lang attribute is set on the html element for accessibility
- * @param {Document|Element} doc - The document or container element
- * @param {string} lang - Language code (default: 'en')
- */
 export function addLangAttribute(doc, lang = 'en') {
   const element = doc.documentElement || doc.querySelector('html');
   if (element && !element.hasAttribute('lang')) {
@@ -20,11 +14,6 @@ export function addLangAttribute(doc, lang = 'en') {
   return element;
 }
 
-/**
- * REACT_027: Fix table structure issues
- * Ensures tables have proper thead and tbody structure for accessibility
- * @param {Element} container - Container element to search for tables
- */
 export function fixTableStructure(container) {
   const tables = container.querySelectorAll('table');
   
@@ -53,12 +42,6 @@ export function fixTableStructure(container) {
   });
 }
 
-/**
- * REACT_017: Add/fix landmark issues
- * Ensures main landmark exists and is properly marked
- * @param {Element} container - Container element to search for main
- * @returns {Element|null} - The main element found or created
- */
 export function addMainLandmark(container) {
   let main = container.querySelector('main, [role="main"]');
   
@@ -80,12 +63,6 @@ export function addMainLandmark(container) {
   return main;
 }
 
-/**
- * REACT_041: Add accessible names to SVGs
- * Adds title elements and aria-labelledby to SVGs lacking accessible names
- * @param {Element} container - Container element to search for SVGs
- * @returns {number} - Number of SVGs fixed
- */
 export function addSvgAccessibleNames(container) {
   const svgs = container.querySelectorAll('svg');
   let count = 0;
@@ -110,11 +87,6 @@ export function addSvgAccessibleNames(container) {
   return count;
 }
 
-/**
- * REACT_025: Ensure unique landmarks
- * Ensures all landmark elements have unique IDs for accessibility
- * @param {Element} container - Container element to search for landmarks
- */
 export function ensureUniqueLandmarks(container) {
   const landmarkSelectors = ['nav', 'main', 'aside', 'footer', 'header', 'section', '[role="navigation"]', '[role="main"]', '[role="complementary"]', '[role="contentinfo"]', '[role="banner"]'];
   
@@ -129,3 +101,6 @@ export function ensureUniqueLandmarks(container) {
     const landmarks = container.querySelectorAll(selector);
     landmarks.forEach((landmark, index) => {
       // Add role
+    });
+  });
+}

@@ -45,7 +45,20 @@ function initialize() {
   db.connect();
   console.log(`Server starting in ${ENV} mode`);
   
-  app.get('/', homeRoute);
+  // Wrap primary content in <main>
+  app.get('/', (req, res) => {
+    res.send(`
+      <main>
+        <h1>Welcome to the API</h1>
+        <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+        <div class="links">
+          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+      </main>
+    `);
+  });
+
   app.get('/status', statusRoute);
   app.use(errorHandler);
   

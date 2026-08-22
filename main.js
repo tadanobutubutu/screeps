@@ -7,7 +7,6 @@ function addLandmarks() {
   // Add lang attribute to HTML
   const html = document.documentElement;
   html.setAttribute('lang', 'en');
-  // or your language code
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -47,7 +46,6 @@ function addLandmarks() {
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
-  // Find the elements with the classes corresponding to the roles you want to add
   const searchForm = document.querySelector('.search-form');
   if (searchForm) {
     searchForm.setAttribute('role', 'search');
@@ -56,7 +54,6 @@ function addLandmarks() {
   if (loginLink) {
     loginLink.setAttribute('role', 'link');
   }
-  // Add accessible names to the SVGs
   const logoSvg = document.querySelector('.logo svg');
   if (logoSvg && !logoSvg.getAttribute('aria-label') && !logoSvg.querySelector('title')) {
     logoSvg.setAttribute('aria-label', 'Site Logo');
@@ -65,7 +62,6 @@ function addLandmarks() {
   if (iconSvg1 && !iconSvg1.getAttribute('aria-label') && !iconSvg1.querySelector('title')) {
     iconSvg1.setAttribute('aria-label', 'Icon 1');
   }
-  // Ensure unique landmarks - include all landmark roles
   const landmarkRoles = [
     { role: 'banner', label: 'Site Header' },
     { role: 'navigation', label: 'Main Navigation' },
@@ -88,12 +84,9 @@ function addLandmarks() {
       }
     }
   });
-  // Ensure login link has accessible name if it's just an icon
   if (loginLink && !loginLink.textContent.trim() && !loginLink.getAttribute('aria-label')) {
     loginLink.setAttribute('aria-label', 'Login');
   }
-  // Fix 26 table structure issues
-  // Add proper table headers
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const thead = table.querySelector('thead');
@@ -117,87 +110,34 @@ function addLandmarks() {
       });
     }
   });
-  // Fix table structure issues by ensuring proper header elements
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    // Get all header cells from thead or first row of tbody
-    const headerCells = Array.from(table.querySelectorAll('th, td'));
-    if (headerCells.length === 0) return;
-    // Create unique IDs for each column based on header text
-    const columnIds = [];
-    headerCells.forEach((cell, index) => {
-      const id = `table-column-${index}`;
-      cell.setAttribute('data-col-id', id);
-      columnIds.push(id);
-    });
-    // Set scope for each column header
-    table.querySelectorAll('th, td').forEach((cell, index) => {
-      if (columnIds[index]) {
-        cell.setAttribute('scope', 'col');
-      }
-    });
+  const headerCells = Array.from(table.querySelectorAll('th, td'));
+  if (headerCells.length === 0) return;
+  const columnIds = [];
+  headerCells.forEach((cell, index) => {
+    const id = `table-column-${index}`;
+    cell.setAttribute('data-col-id', id);
+    columnIds.push(id);
+  });
+  table.querySelectorAll('th, td').forEach((cell, index) => {
+    if (columnIds[index]) {
+      cell.setAttribute('scope', 'col');
+    }
   });
 }
+
 // Function to add missing ARIA labels and improve accessibility
 function addMissingAriaLabels() {
-  // Ensure all SVG elements have accessible labels
   document.querySelectorAll('svg').forEach(svg => {
     if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
       const fallbackLabel = svg.getAttribute('aria-label') || 'Icon';
       svg.setAttribute('aria-label', fallbackLabel);
     }
   });
-  // Ensure elements that act as buttons have accessible names
   document.querySelectorAll('[role="button"]').forEach(el => {
     if (!el.hasAttribute('aria-label')) {
       el.setAttribute('aria-label', 'Activate');
     }
   });
-  // Ensure search inputs have accessible names
-  const searchInput = document.querySelector('.search-form input[type="search"], .search-form button');
-  if (searchInput && !searchInput.hasAttribute('aria-label')) {
-    searchInput.setAttribute('aria-label', 'Search this site');
-  }
-}
-// Parallel function with same implementation (duplicate for testing)
-function addLandmarksForTables() {
-  // Fix table structure issues by ensuring proper header elements
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    // Get all header cells from thead or first row of tbody
-    const headerCells = Array.from(table.querySelectorAll('th, td'));
-    if (headerCells.length === 0) return;
-    // Create unique IDs for each column based on header text
-    const columnIds = [];
-    headerCells.forEach((cell, index) => {
-      const id = `table-column-${index}`;
-      cell.setAttribute('data-col-id', id);
-      columnIds.push(id);
-    });
-    // Set scope for each column header
-    table.querySelectorAll('th, td').forEach((cell, index) => {
-      if (columnIds[index]) {
-        cell.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-// Function to add missing ARIA labels and improve accessibility (duplicate for testing)
-function addMissingAriaLabels() { // Duplicate of the above function
-  // Ensure all SVG elements have accessible labels
-  document.querySelectorAll('svg').forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
-      const fallbackLabel = svg.getAttribute('aria-label') || 'Icon';
-      svg.setAttribute('aria-label', fallbackLabel);
-    }
-  });
-  // Ensure elements that act as buttons have accessible names
-  document.querySelectorAll('[role="button"]').forEach(el => {
-    if (!el.hasAttribute('aria-label')) {
-      el.setAttribute('aria-label', 'Activate');
-    }
-  });
-  // Ensure search inputs have accessible names
   const searchInput = document.querySelector('.search-form input[type="search"], .search-form button');
   if (searchInput && !searchInput.hasAttribute('aria-label')) {
     searchInput.setAttribute('aria-label', 'Search this site');
@@ -205,4 +145,4 @@ function addMissingAriaLabels() { // Duplicate of the above function
 }
 
 // Export functions
-export { icons, checkDependencyStatus, getDependencyAlerts, myFunction, addLandmarks, addLandmarksForTables, addMissingAriaLabels };
+export { icons, checkDependencyStatus, getDependencyAlerts, myFunction, addLandmarks, addMissingAriaLabels };

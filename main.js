@@ -10,4 +10,7 @@
 
 module.exports = {
   // Existing exports would be preserved here
+  newExport: function() {
+    // Add your new function logic here
+  }
 };

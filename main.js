@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 // Example component for demonstration
 const MyTable = () => {
   return (
-    <table lang="table" id="employee-table">
+    <table lang="en" id="employee-table">
       <caption>Employee List</caption>
       <thead>
         <tr>

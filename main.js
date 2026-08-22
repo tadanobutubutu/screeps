@@ -5,6 +5,9 @@
 // Existing tests in /tests/ must continue to pass.
 // Beginner Overview: The existing code needs to be preserved in the main.js file, while adding new functions requested in the issue. The new functions should not remove or rename the existing exports.
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+const docPromise = import('document');
+
 // TODO: Address accessibility issues from insight report
 // - Add lang attribute to HTML element
 addLangAttribute();
@@ -234,6 +237,12 @@ const runAllAccessibilityFixes = function() {
   fixHashLinkToButton();
 };
 
+const initializeAccessibility = function() {
+  // New function to initialize accessibility features
+  runAllAccessibilityFixes();
+  enhanceFocusVisibility();
+};
+
 module.exports = {
   newExport: function() {
     // Add your new function logic here
@@ -249,7 +258,8 @@ module.exports = {
   fixTableStructure: fixTableStructure,
   addSvgAccessibleNames: addSvgAccessibleNames,
   fixFakeLinkIssue: fixFakeLinkIssue,
-  fixHashLinkToButton: fixHashLinkToButton
+  fixHashLinkToButton: fixHashLinkToButton,
+  initializeAccessibility: initializeAccessibility
 };
 
 document.documentElement.lang = 'en';

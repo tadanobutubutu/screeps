@@ -15,4 +15,12 @@ module.exports.loop = function () {
             roleUpgrader.run(creep);
         }
     }
+
+    // Accessibility improvement: Ensure console output is not disruptive
+    console.log = function (message) {
+        if (message && message.length > 0) {
+            // Log message with timestamp
+            console.log(new Date().toISOString() + ' - ' + message);
+        }
+    };
 };

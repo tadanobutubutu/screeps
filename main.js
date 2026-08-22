@@ -1,14 +1,13 @@
 // TODO: Address accessibility issues from insight report:
 
 // Address accessibility issues from insight report
-// This function validates accessibility requirements
 const validateAccessibility = (component) => {
   const checks = {
-    hasAriaLabel: !!component.ariaLabel,
+    hasAriaLabel: !!component['aria-label'],
     hasRole: !!component.role,
     hasTabIndex: component.tabIndex !== undefined,
     hasKeyboardSupport: !!component.onKeyDown,
-    hasScreenReaderText: !!component.ariaDescribedBy,
+    hasScreenReaderText: !!component['aria-describedby'],
   };
   
   return Object.values(checks).every(check => check);

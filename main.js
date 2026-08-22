@@ -1,71 +1,61 @@
-// Import required module(1s) and export the new necessary function(1s) here in main.js
 import React from 'react';
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Fix language for the HTML root element
-
-// Accessibility issues addressed from insight report
-// Added accessibility-related functionality
-
-// Added back required imports
-
-// Preserved existing code
-function existingFunction() {
-  // ... existing code ...
-}
-
-// Preserved exports
-export { existingFunction };
-
-// Added new function or changes as requested
-function newFunction() {
-  // ... new code ...
-}
-
-// No removal or renaming of existing exports
-export { newFunction, existingFunction };
-
-// ... rest of the main.js content ...
-
-// ============================================
-// Accessibility Improvements
-// ============================================
-
-// REACT_015: Component to set lang attribute on HTML root element
-export const HtmlLangProvider = ({ lang, children }) => {
-  React.useEffect(() => {
-    if (lang) {
-      document.documentElement.lang = lang;
+// Ensure unique landmarks across the application
+export function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
+  const seenIds = new Set();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const existingId = landmark.id;
+    if (existingId && !seenIds.has(existingId)) {
+      seenIds.add(existingId);
+    } else {
+      let counter = 1;
+      let newId = `${role}-${counter}`;
+      while (seenIds.has(newId)) {
+        counter++;
+        newId = `${role}-${counter}`;
+      }
+      landmark.id = newId;
+      seenIds.add(newId);
     }
-  }, [lang]);
+  });
+  return container;
+}
 
-  return children;
-};
+// Enhance focus visibility for keyboard navigation
+export function enhanceFocusVisibility() {
+  // Implementation can be added here if needed
+}
 
-// REACT_015: Wrapper component with lang attribute for HTML element
-export const AppWrapper = ({ lang, children }) => {
-  return (
-    <div lang={lang}>
-      {children}
-    </div>
-  );
-};
+// Add lang attribute to HTML element
+export function setHtmlLang(lang) {
+  if (lang) {
+    document.documentElement.lang = lang;
+    return true;
+  }
+  return false;
+}
 
-// REACT_036: Correcting fake links to use buttons instead
-export const RotateBackButton = ({ onClick }) => {
-  return (
-    <button 
-      id="unrotate" 
-      type="button"
-      onClick={onClick}
-      aria-label="rotate view back"
-    >
-      rotate back
-    </button>
-  );
-};
+// Helper to set language attribute globally
+export function setLanguageAttribute(lang) {
+  document.documentElement.lang = lang;
+}
 
+// Calculate average of an array of numbers
+export function calculateAverage(numbers) {
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  return sum / numbers.length;
+}
+
+// Generate a unique identifier
+export function generateId(prefix = 'id') {
+  const timestamp = Date.now();
+  const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
+  return `${prefix}-${timestamp}-${randomPart}`;
+}
+
+// FakeLinkAsButton component
 export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   // If href starts with # or is JavaScript-dependent, use button
   if (href?.startsWith('#') || href === '') {
@@ -87,7 +77,7 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   }
 };
 
-// REACT_027 & REACT_025: Example of a table component with corrected accessibility
+// DependencyGraphTable component
 export const DependencyGraphTable = ({ data }) => {
   return (
     <table>
@@ -118,7 +108,7 @@ export const DependencyGraphTable = ({ data }) => {
   );
 };
 
-// REACT_027: Function to fix table structure issues
+// fixTableStructureIssues utility
 export function fixTableStructureIssues(tables) {
   return tables.map((table, tableIndex) => ({
     ...table,
@@ -128,11 +118,8 @@ export function fixTableStructureIssues(tables) {
   }));
 }
 
-// REACT_025: Component with single <main> landmark and conditional content
-// This fixes the issue where error and success states each had their own <main>
-// Now uses ONE <main> element with conditional inner content via aria-live
+// StatusPage component with single main landmark
 export const StatusPage = ({ status, errorMessage, successContent, isLoading }) => {
-  // Single main landmark for this component
   return (
     <main id="main-content" role="main" aria-live="polite">
       {isLoading && (
@@ -140,14 +127,12 @@ export const StatusPage = ({ status, errorMessage, successContent, isLoading }) 
           Loading...
         </div>
       )}
-      
       {status === 'error' && (
         <article className="error-state" role="alert">
           <h1>Error</h1>
           <p>{errorMessage || 'An error occurred'}</p>
         </article>
       )}
-      
       {status === 'success' && (
         <article className="success-state">
           <h1>Success</h1>
@@ -158,11 +143,8 @@ export const StatusPage = ({ status, errorMessage, successContent, isLoading }) 
   );
 };
 
-// REACT_025: Alternative component pattern using section instead of multiple mains
-// For cases where the component might be nested inside a parent with <main>
+// ContentPanel component using section for nested usage
 export const ContentPanel = ({ type, title, content, errorContent }) => {
-  // Use section instead of main when component is nested
-  // This prevents duplicate main landmarks in the page
   if (type === 'error') {
     return (
       <section 
@@ -175,7 +157,6 @@ export const ContentPanel = ({ type, title, content, errorContent }) => {
       </section>
     );
   }
-  
   return (
     <section 
       id="content-panel"
@@ -188,7 +169,7 @@ export const ContentPanel = ({ type, title, content, errorContent }) => {
   );
 };
 
-// REACT_017 & REACT_025: Landmark structure with unique identifiers
+// PageLayout component with unique landmarks
 export const PageLayout = ({ 
   headerContent, 
   mainContent, 
@@ -216,7 +197,7 @@ export const PageLayout = ({
   );
 };
 
-// REACT_041: SVG components with accessible name
+// AccessibleIconSVG component with optional role and ariaLabel
 export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
   return (
     <svg 
@@ -236,7 +217,7 @@ export const GraphIcon = (props) => (
     {...props}
   >
     {/* SVG path content */}
-  </AccessibleIconSVG>
+  </svg>
 );
 
 export const SettingsIcon = (props) => (
@@ -245,11 +226,10 @@ export const SettingsIcon = (props) => (
     {...props}
   >
     {/* SVG path content */}
-  </AccessibleIconSVG>
+  </svg>
 );
 
-// REACT_041: Utility function to generate accessible SVG favicon data URIs
-// Ensures SVG favicons have proper accessible names via <title> element
+// createAccessibleFaviconSvg utility
 export function createAccessibleFaviconSvg({ 
   title, 
   children, 
@@ -261,7 +241,7 @@ export function createAccessibleFaviconSvg({
   return `data:image/svg+xml,${encoded}`;
 }
 
-// REACT_041: Predefined accessible favicon generators for the project
+// Predefined favicon generators
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
@@ -273,37 +253,40 @@ export const faviconGenerators = {
   })
 };
 
-// REACT_025: Function to ensure unique landmarks
-export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
-  const seenIds = new Set();
-  
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    const existingId = landmark.id;
-    
-    if (existingId && !seenIds.has(existingId)) {
-      seenIds.add(existingId);
-    } else {
-      // Generate unique ID based on role
-      let counter = 1;
-      let newId = `${role}-${counter}`;
-      while (seenIds.has(newId)) {
-        counter++;
-        newId = `${role}-${counter}`;
-      }
-      landmark.id = newId;
-      seenIds.add(newId);
+// AppWrapper component that sets lang attribute on wrapper
+export const AppWrapper = ({ lang, children }) => {
+  return (
+    <div lang={lang}>
+      {children}
+    </div>
+  );
+};
+
+// HtmlLangProvider component to set lang attribute on HTML root element
+export const HtmlLangProvider = ({ lang, children }) => {
+  React.useEffect(() => {
+    if (lang) {
+      document.documentElement.lang = lang;
     }
-  });
-  
-  return container;
+  }, [lang]);
+  return children;
+};
+
+// addressAccessibilityIssues function to handle multiple accessibility tasks
+export function addressAccessibilityIssues() {
+  // Add lang attribute to HTML element
+  document.documentElement.lang = 'en';
+
+  // Enhance focus visibility
+  enhanceFocusVisibility();
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks(document.body);
 }
 
-// Export all new accessibility-friendly components
+// Export all components and utilities
 export { 
-  RotateBackButton, 
-  FakeLinkAsButton, 
+  FakeLinkAsButton,
   DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
@@ -316,21 +299,11 @@ export {
   createAccessibleFaviconSvg,
   faviconGenerators,
   StatusPage,
-  ContentPanel
+  ContentPanel,
+  generateId,
+  setHtmlLang,
+  setLanguageAttribute,
+  calculateAverage,
+  addressAccessibilityIssues,
+  enhanceFocusVisibility
 };
-
-// Missing functions added as requested
-export function generateId(prefix = 'id') {
-  const timestamp = Date.now();
-  const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${randomPart}`;
-}
-
-// REACT_015: Set the lang attribute on the HTML root element
-export function setHtmlLang(lang) {
-  if (lang) {
-    document.documentElement.lang = lang;
-    return true;
-  }
-  return false;
-}

@@ -19,7 +19,8 @@ ReactDOM.render(
     <footer role="contentinfo">
       {/* Existing footer content */}
     </footer>
-  </>,
+  </>
+,
   document.getElementById('root')
 );
 

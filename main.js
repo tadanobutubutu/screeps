@@ -186,7 +186,7 @@ export const GraphIcon = (props) => (
     {...props}
   >
     {/* SVG path content */}
-  </AccessibleIconSVG>
+  </svg>
 );
 
 export const SettingsIcon = (props) => (
@@ -195,7 +195,7 @@ export const SettingsIcon = (props) => (
     {...props}
   >
     {/* SVG path content */}
-  </AccessibleIconSVG>
+  </svg>
 );
 
 // Export all new accessibility-friendly components

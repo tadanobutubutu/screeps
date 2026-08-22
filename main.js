@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -12,66 +9,33 @@ Here's the resolved file content:
 const fs = require('fs').promises;
 const path = require('path');
 
-/**
- * Adds `lang="en"` to the root `<html>` element if it is missing.
- * Preserves any existing attributes and avoids duplicating a `lang` attribute.
- * @param {string} content - HTML string to modify
- * @returns {string} - Modified HTML with a language attribute
- */
-function addLangAttribute(content) {
-  // ... Your existing addLangAttribute function
-}
+// ... Your existing addLangAttribute function
 
-/**
- * Adds a <main> landmark to the HTML content for accessibility
- */
 async function addMainLandmark() {
   // ... Your existing addMainLandmark function
 }
 
-/**
- * Adds a function to modify the HTML content with the `lang` attribute.
- * This can be used to handle more complex scenarios, such as multiple languages in one file.
- */
-async function addLangToFiles() {
-  // ... Your existing addLangToFiles function
-}
+// ... Your existing addLangToFiles function
 
-/**
- * Replaces hash links with buttons for better accessibility
- */
 async function replaceHashLinksWithButtons() {
   // ... Your existing replaceHashLinksWithButtons function
 }
 
-/**
- * Fixes table structure issues by ensuring tables have proper structure
- * with required elements like <thead>, <tbody>, and proper headers
- */
 async function fixTableStructure() {
   // ... Your existing fixTableStructure function
 }
 
-/**
- * Ensures unique landmarks in the HTML content
- * Addresses REACT_025: Ensure unique landmarks
- */
 async function ensureUniqueLandmarks() {
   // ... Your existing ensureUniqueLandmarks function
 }
 
-/**
- * Adds accessible names to SVG files for better screen reader support
- */
 async function addSvgAccessibleNames() {
   // ... Your existing addSvgAccessibleNames function
 }
 
 import React, { FC, useState } from 'react';
 
-interface DashboardProps {
-  // ... define your props interface here
-}
+// ... Define your props interface here
 
 const Dashboard: React.FC<DashboardProps> = ({ /* props */ }) => {
   // ... Your existing component code
@@ -104,6 +68,3 @@ const Dashboard: React.FC<DashboardProps> = ({ /* props */ }) => {
 };
 
 export default Dashboard;
-```
-
-This resolves the Git conflict by merging both changes. The JavaScript part now contains your original functions to handle accessibility issues, and the new React component with table structure fixes are combined together.

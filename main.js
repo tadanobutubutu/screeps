@@ -9,7 +9,7 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark & getSvgAccessibleName())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmark)
-// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility())
+// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility() and createInPageButton())
 
 /**
  * Version compatibility matrix for the updates mentioned in the dashboard
@@ -274,6 +274,25 @@ function validateLinkAccessibility(linkText, context = {}) {
   return { valid: true };
 }
 
+/**
+ * Create an accessible button configuration for in-page actions
+ * Replaces fake links with proper button elements for better keyboard and screen reader support
+ * @param {string} text - Button text
+ * @param {function} onClick - Click event handler
+ * @returns {Object} Button configuration with accessibility attributes
+ */
+function createInPageButton(text, onClick) {
+  return {
+    type: 'button',
+    text: text,
+    onClick: onClick,
+    accessibility: {
+      role: 'button',
+      ariaLabel: text
+    }
+  };
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -288,7 +307,8 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   getTableScopeRecommendation,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  createInPageButton
 };
 
 // Run if executed directly

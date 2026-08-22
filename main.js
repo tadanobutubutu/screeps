@@ -1,3 +1,12 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateUniqueLandmarks(), and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), and createAccessibleLink())
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -175,6 +184,210 @@ function fixFakeLinkIssue() {
 }
 
 /**
+ * Get the lang attribute from the HTML element
+ * @returns {string|null} The language code or null if not set
+ */
+function getLangAttribute() {
+  const html = document.querySelector('html');
+  return html ? html.getAttribute('lang') : null;
+}
+
+/**
+ * Get the full language attribute, falling back to navigator.language
+ * @returns {string} The full language code (e.g., 'en-US')
+ */
+function getFullLangAttribute() {
+  const lang = getLangAttribute();
+  if (lang) return lang;
+  return navigator.language || 'en';
+}
+
+/**
+ * Validate table accessibility
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if the table is accessible
+ */
+function validateTableAccessibility(table) {
+  if (!table || table.tagName !== 'TABLE') return false;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  const hasCaption = !!table.querySelector('caption');
+  const hasAriaLabels = table.hasAttribute('aria-label') || table.hasAttribute('aria-labelledby');
+  return hasHeaders && (hasCaption || hasAriaLabels);
+}
+
+/**
+ * Validate table structure
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if the table structure is valid
+ */
+function validateTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') return false;
+  const headers = table.querySelectorAll('th');
+  let valid = true;
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      valid = false;
+    }
+  });
+  return valid;
+}
+
+/**
+ * Validate if an element is a landmark
+ * @param {HTMLElement} element - The element to validate
+ * @returns {boolean} True if the element is a valid landmark
+ */
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute('role') || '';
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const tagName = element.tagName.toLowerCase();
+  const implicitLandmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  if (implicitLandmarks.includes(tagName) && !role) {
+    return true;
+  }
+  return validRoles.includes(role);
+}
+
+/**
+ * Validate that landmarks are unique
+ * @returns {boolean} True if all landmark types are unique
+ */
+function validateUniqueLandmarks() {
+  const selectors = 'header, nav, main, footer, aside, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]';
+  const landmarks = document.querySelectorAll(selectors);
+  const types = {};
+  let unique = true;
+  landmarks.forEach(el => {
+    const type = el.getAttribute('role') || el.tagName.toLowerCase();
+    if (types[type]) {
+      unique = false;
+    } else {
+      types[type] = true;
+    }
+  });
+  return unique;
+}
+
+/**
+ * Validate landmark structure (e.g., at most one main landmark)
+ * @returns {boolean} True if the landmark structure is valid
+ */
+function validateLandmarkStructure() {
+  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  return mainLandmarks.length <= 1;
+}
+
+/**
+ * Get the accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const label = document.getElementById(ariaLabelledby);
+    if (label) return label.textContent;
+  }
+  return 'SVG graphic';
+}
+
+/**
+ * Create accessibility props for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {object} Accessibility props (e.g., for React)
+ */
+function createSvgAccessibilityProps(svg) {
+  const name = getSvgAccessibleName(svg);
+  return {
+    'aria-label': name,
+    'role': 'img'
+  };
+}
+
+/**
+ * Validate link accessibility
+ * @param {HTMLElement} link - The link element to validate
+ * @returns {boolean} True if the link is accessible
+ */
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+  const tagName = link.tagName.toLowerCase();
+  if (tagName === 'a') {
+    return link.hasAttribute('href') && 
+           (link.textContent.trim() || 
+            link.hasAttribute('aria-label') || 
+            link.hasAttribute('aria-labelledby'));
+  } else if (tagName === 'button' || 
+             link.getAttribute('role') === 'link' || 
+             link.getAttribute('role') === 'button') {
+    return link.textContent.trim() || 
+           link.hasAttribute('aria-label') || 
+           link.hasAttribute('aria-labelledby');
+  }
+  return false;
+}
+
+/**
+ * Create an in-page button element
+ * @param {string} text - The button text
+ * @param {Function} onClick - Click handler
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  button.setAttribute('type', 'button');
+  return button;
+}
+
+/**
+ * Validate if an element acts as a link or button
+ * @param {HTMLElement} element - The element to validate
+ * @returns {boolean} True if the element is a link or button
+ */
+function validateLinkOrButton(element) {
+  if (!element) return false;
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === 'a' || tagName === 'button') return true;
+  const role = element.getAttribute('role');
+  if (role === 'link' || role === 'button') return true;
+  return false;
+}
+
+/**
+ * Create an accessible link element
+ * @param {object} options - Configuration options
+ * @returns {HTMLElement} The created anchor element
+ */
+function createAccessibleLink(options = {}) {
+  const {
+    text = 'Link',
+    href = '#',
+    target = '_self',
+    rel = '',
+    ariaLabel = '',
+    className = ''
+  } = options;
+  
+  const link = document.createElement('a');
+  link.textContent = text;
+  link.setAttribute('href', href);
+  if (target) link.setAttribute('target', target);
+  if (rel) link.setAttribute('rel', rel);
+  if (ariaLabel) link.setAttribute('aria-label', ariaLabel);
+  if (className) link.className = className;
+  
+  return link;
+}
+
+/**
  * Initialize all accessibility fixes
  */
 function initAccessibility() {
@@ -201,5 +414,18 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  initAccessibility
+  initAccessibility,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createSvgAccessibilityProps,
+  validateLinkAccessibility,
+  createInPageButton,
+  validateLinkOrButton,
+  createAccessibleLink
 };

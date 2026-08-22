@@ -6,5 +6,5 @@ function rotateBack() {
 // Replace the anchor tag with a button
 // Ensure to maintain the `id` attribute if it's being used elsewhere
 document.getElementById('unrotate').innerHTML = `
-  <button onclick="rotateBack()">rotate back</button>
+  <button id="unrotate" onclick="rotateBack()">rotate back</button>
 `;

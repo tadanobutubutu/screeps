@@ -15,3 +15,23 @@ module.exports = {
   Bar,
   initialize
 };
+
+// Update the table headers in docs/dependency-graph.html to include the scope attribute
+// Here is an example of how to fix the first occurrence
+// Note: The actual implementation might require adjusting the template strings for the rest of the occurrences
+module.exports = {
+  // ... existing exports ...
+  Foo,
+  Bar,
+  initialize,
+  updateTableHeaders: () => {
+    const headersToUpdate = [
+      // ... array of header elements to update
+    ];
+    headersToUpdate.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+  }
+};

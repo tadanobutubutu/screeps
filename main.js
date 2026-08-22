@@ -1,3 +1,5 @@
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+
 // Accessibility issues addressed from insight report
 // Added accessibility-related functionality
 

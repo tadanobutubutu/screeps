@@ -6,12 +6,10 @@
   const $ = require('jquery');
 
   // New function to add scope attribute to th elements
-  function addScopeToTh(elements) {
-    elements.each(function(index, element) {
-      if ($(element).prop('tagName') === 'TH') {
-        $(element).attr('scope', 'col');
-      }
-    });
+  function addScopeToTh(element) {
+    if (element.prop('tagName') === 'TH') {
+      element.attr('scope', 'col');
+    }
   }
 
   // New function to replace the fake link with a button for better accessibility
@@ -26,7 +24,9 @@
 
   // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
   function addScopeToThs(elements) {
-    addScopeToTh(elements);
+    elements.each(function() {
+      addScopeToTh($(this));
+    });
   }
 
   // ... Existing code ...

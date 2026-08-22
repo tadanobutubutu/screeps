@@ -52,6 +52,23 @@ export function addLandmarks() {
     mainContent.setAttribute('role', 'main');
   }
   
+  // Ensure only one main element exists (REACT_025)
+  const allMains = document.querySelectorAll('main');
+  if (allMains.length > 1) {
+    allMains.forEach((mainElement, index) => {
+      if (index === 0) return; // keep the first main
+      // Convert duplicate main to section
+      const section = document.createElement('section');
+      Array.from(mainElement.attributes).forEach(attr => {
+        if (attr.name !== 'role' && attr.name !== 'id') {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+      section.innerHTML = mainElement.innerHTML;
+      mainElement.parentNode.replaceChild(section, mainElement);
+    });
+  }
+  
   const footer = document.querySelector('footer');
   if (footer) {
     footer.setAttribute('role', 'contentinfo');

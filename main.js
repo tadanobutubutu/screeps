@@ -6,10 +6,12 @@
   const $ = require('jquery');
 
   // New function to add scope attribute to th elements
-  function addScopeToTh(element) {
-    if (element.prop('tagName') === 'TH') {
-      element.attr('scope', 'col');
-    }
+  function addScopeToTh(elements) {
+    elements.each(function(index, element) {
+      if ($(element).prop('tagName') === 'TH') {
+        $(element).attr('scope', 'col');
+      }
+    });
   }
 
   // New function to replace the fake link with a button for better accessibility
@@ -20,6 +22,11 @@
       button.on('click', fakeLink.click); // Copy the click event handler to the new button
       fakeLink.replaceWith(button);
     }
+  }
+
+  // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
+  function addScopeToThs(elements) {
+    addScopeToTh(elements);
   }
 
   // ... Existing code ...
@@ -34,6 +41,7 @@
     wrapContentInMain,
     addScopeToTh,
     createTableHeaders,
-    replaceFakeLinkWithButton
+    replaceFakeLinkWithButton,
+    addScopeToThs  // Add the new export
   };
 })();

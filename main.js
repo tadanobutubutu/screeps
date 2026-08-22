@@ -1,25 +1,13 @@
 import React from "react";
+import { icons } from "./path/to/icons.js"; // Adjust the path to the actual import location
 // ... (existing imports)
 
 const AppLayout = () => {
   // ... (existing code)
   return (
-    <html lang="en">
-      <head>
-        {/* ... (existing head elements) */}
-      </head>
-      <body className="font-default flex font-sans flex-col h-screen overflow-y-auto bg-gray-100 text-gray-600 antialiased">
-        <header className="flex w-full items-center justify-between border-b border-gray-200 p-4 bg-white shadow-sm">
-          {/* ... (existing code) */}
-          <div className="flex items-center justify-center space-x-1">
-            <Icon icon={icons.icon} aria-label="Screeps Dashboard" />
-          </div>
-        </header>
-        {/* ... (existing components) */}
-      </body>
-    </html>
+    // ... (existing markup)
   );
 };
 
-export { AppLayout };
+export { AppLayout, icons }; // Add icons back as an export at the bottom of the file
 export default AppLayout;

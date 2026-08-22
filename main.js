@@ -4,7 +4,7 @@
 // - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark(), validateLandmark(), validateUniqueLandmarks(), validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames(), getSvgAccessibleName(), createSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue(), validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), createAccessibleLink())
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue(), validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), validateLinkOrButton(), createAccessibleLink())
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
@@ -35,24 +35,28 @@ function fixTableStructure(table) {
   if (!table || table.tagName !== 'TABLE') return;
   
   const headers = table.querySelectorAll('th');
-  const cells = table.querySelectorAll('td, th');
-  
-  // Ensure proper scope attributes on headers
-  headers.forEach((th, index) => {
+  headers.forEach((th, headerIndex) => {
     const row = th.parentElement;
     const rowIndex = Array.from(row.parentElement.children).indexOf(row);
     const colIndex = Array.from(row.children).indexOf(th);
     
-    const isRowHeader = rowIndex === 0 && colIndex > 0;
-    const isColHeader = rowIndex > 0 && colIndex === 0;
-    
-    if (isRowHeader && !th.hasAttribute('scope')) {
-      th.setAttribute('scope', 'col');
-    } else if (isColHeader && !th.hasAttribute('scope')) {
-      th.setAttribute('scope', 'row');
-    } else if (rowIndex === 0 && colIndex === 0 && !th.hasAttribute('scope')) {
-      // Corner cell
-      th.setAttribute('scope', 'col');
+    // Header cells in the first row are column headers
+    if (rowIndex === 0) {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    }
+    // Header cells in the first column but not in the first row are row headers
+    else if (colIndex === 0) {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'row');
+      }
+    }
+    // Other header cells (e.g., spanning multiple columns) default to column scope
+    else {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
     }
   });
   

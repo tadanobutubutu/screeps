@@ -340,6 +340,20 @@ function validateLinkAccessibility(link) {
 }
 
 /**
+ * Validate if an element acts as a link or button
+ * @param {HTMLElement} element - The element to validate
+ * @returns {boolean} True if the element is a link or button
+ */
+function validateLinkOrButton(element) {
+  if (!element) return false;
+  const tagName = element.tagName.toLowerCase();
+  if (tagName === 'a' || tagName === 'button') return true;
+  const role = element.getAttribute('role');
+  if (role === 'link' || role === 'button') return true;
+  return false;
+}
+
+/**
  * Create an in-page button element
  * @param {string} text - The button text
  * @param {Function} onClick - Click handler

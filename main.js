@@ -1,1 +1,1 @@
-Unfortunately, the provided Git conflict markers are incomplete. The `=======` and `>>>>>>>` sections lack the code they separate. For example, the "HEAD" section is present, but the branch changes after `=======` and `>>>>>>>` are missing. Please provide the full conflicting file content with all conflict markers so I can resolve the conflict logically.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

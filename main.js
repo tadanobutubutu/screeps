@@ -11,11 +11,6 @@
             .catch(error => console.error(error));
     }
 
-    // Export the new function
-    exports.fetchData = fetchData;
-
-    // Additional code to add accessible names to SVGs
-
     // Function to add accessible name to SVGs for accessibility
     function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
@@ -26,11 +21,14 @@
         // Replace the SVG content with an updated version that includes a title element
         return svgData.replace(svgRegex, (match) => {
             // Check if the SVG already contains a title
-            let hasTitle = titleRegex.test(match);
-            let hasText = textRegex.test(match);
+            let titleExists = titleRegex.test(match);
+            let textExists = textRegex.test(match);
+
+            // Check if the changes are from the same or different branches (merge conflict resolution)
+            let shouldAddTitle = titleExists ? true : textExists; // This assumes that adding title when text is present is a common change, but you may need to modify based on the context of the respective branches.
 
             // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
+            if (!titleExists && shouldAddTitle) {
                 // Replace the SVG content with a title element wrapping the existing text
                 return match.replace(textRegex, (textMatch) => {
                     return `<title>${label}</title>${textMatch}`;

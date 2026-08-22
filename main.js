@@ -31,9 +31,7 @@
   // };
   // module.exports.MyComponent = MyComponent;
 
-  // ----- BEGIN NEW CODE (changes requested) -----
-  // Add your changes here
-
+  // New functions to address accessibility issues
   const removeDuplicateMainElements = (children) => {
     const mainElements = children.filter(
       (child) => child.type === mainElement
@@ -55,9 +53,15 @@
   // Call the function to add lang attribute to the root element
   addLangAttributeToRoot();
 
-  // TODO: Add back any required exports that might have been removed
+  // A new function to remove duplicate <main> elements
+  React.Children.forEach(React.Children.toArray(React.createElement(React.Fragment, {}, children)), (child) => {
+    const updatedChildren = removeDuplicateMainElements(child.props.children);
+    child.props.children = updatedChildren;
+  });
+
+  // TODO: Add any required exports that might have been removed
+
   // Here's an example of how to export a required function from another file:
   // const { myFunction } = require('./otherFile');
   // module.exports = { myFunction };
-  // ----- END NEW CODE -----
 })();

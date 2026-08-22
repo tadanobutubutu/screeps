@@ -168,7 +168,7 @@ export const PageLayout = ({
   );
 };
 
-// REACT_041: SVG components with accessible names
+// REACT_041: SVG components with accessible name
 export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
   return (
     <svg 

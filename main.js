@@ -1,5 +1,20 @@
 // TODO: Add back any required exports that might have been?
 
+const img = document.getElementById('target'); let rotation = 0;
+
+function rotate() {
+  rotation += 90;
+  img.style.transform = `rotate(${rotation}deg)`;
+}
+
+function rotateBack() {
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
+}
+
+document.getElementById('rotate').addEventListener('click', rotate);
+document.getElementById('unrotate').addEventListener('click', rotateBack);
+
 /**
  * Adds two numbers together
  * @param {number} a - First number
@@ -116,27 +131,10 @@ function setFocusToFirstFocusable(container) {
   }
 }
 
-// Export all functions
+// Add export for the main game loop logic (merged change)
 module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  announceToScreenReader,
-  trapFocus,
-  releaseFocus,
-  setFocusToFirstFocusable
-};
-
-// Add aria-label to SVGs in app/layout.tsx and dashboard/app/layout.tsx
-const updateFaviconSVG = (icon) => {
-  return icon.replace(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg".*?>/g, (svg) => {
-    return svg.replace(/<title>(.*?)<\/title>/, '<title>Screeps Dashboard</title>').replace(/<text.*?>(.*?)<\/text>/, '<title>Screeps Dashboard</title>');
-  });
-};
-
-// Update icons with accessible SVG
-module.exports = {
+  loop: function() { // Main game loop logic myNewFunction(); },
+  myNewFunction: myNewFunction,
   add,
   subtract,
   multiply,
@@ -145,5 +143,4 @@ module.exports = {
   trapFocus,
   releaseFocus,
   setFocusToFirstFocusable,
-  updateFaviconSVG
 };

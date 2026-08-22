@@ -39,6 +39,11 @@ function App() {
     return <img src={dataURI} alt={ariaLabel} />;
   };
 
+  // Set language attribute on the HTML element for accessibility
+  React.useEffect(() => {
+    document.documentElement.lang = 'en';
+  }, []);
+
   return (
     <div>
       {/* Use the createAccessibleSVG function to make the SVGs accessible */}

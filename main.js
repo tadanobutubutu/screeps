@@ -14,90 +14,90 @@ export function addLandmarks() {
     html.setAttribute('lang', 'en');
   }
   
-  const header = document.querySelector('header');
+  const header = ...
   if (header) {
     header.setAttribute('role', 'banner');
   }
   
-  const nav = document.querySelector('nav');
+  const nav = ...
   if (nav) {
     nav.setAttribute('role', 'navigation');
   }
   
-  let mainContent = document.querySelector('main');
+  let mainContent = ...
   if (!mainContent) {
-    mainContent = document.createElement('main');
+    mainContent = ...
     mainContent.setAttribute('role', 'main');
-    const container = document.querySelector('.container');
+    const container = ...
     if (container) {
-      container.appendChild(mainContent);
+      ...
     } else {
-      const table = document.querySelector('table');
+      const table = ...
       if (table) {
         table.insertBefore(mainContent, table.firstChild);
       }
     }
-    const headerNode = document.querySelector('header');
-    const navNode = document.querySelector('nav');
+    const headerNode = ...
+    const navNode = ...
     let insertNode = headerNode;
     if (navNode) {
       insertNode = navNode;
     }
     if (insertNode) {
-      insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+      insertNode.parentNode.insertBefore(mainContent, ...
     } else {
-      document.body.insertBefore(mainContent, document.body.firstChild);
+      ... ...
     }
   } else {
     mainContent.setAttribute('role', 'main');
   }
   
   // Ensure only one main element exists (REACT_025)
-  const allMains = document.querySelectorAll('main');
+  const allMains = ...
   if (allMains.length > 1) {
-    allMains.forEach((mainElement, index) => {
+    ... index) => {
       if (index === 0) return; // keep the first main
       // Convert duplicate main to section
-      const section = document.createElement('section');
-      Array.from(mainElement.attributes).forEach(attr => {
+      const section = ...
+      ... => {
         if (attr.name !== 'role' && attr.name !== 'id') {
           section.setAttribute(attr.name, attr.value);
         }
       });
       section.innerHTML = mainElement.innerHTML;
-      mainElement.parentNode.replaceChild(section, mainElement);
+      ... mainElement);
     });
   }
   
-  const footer = document.querySelector('footer');
+  const footer = ...
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
   
-  const searchForm = document.querySelector('.search-form');
+  const searchForm = ...
   if (searchForm) {
-    searchForm.setAttribute('role', 'search');
+    ... 'search');
   }
   
-  const loginLink = document.querySelector('.login-link');
+  const loginLink = ...
   if (loginLink) {
-    loginLink.setAttribute('role', 'link');
+    ... 'link');
   }
   
   const logoSvg = document.querySelector('.logo svg');
   if (logoSvg) {
     const title = document.createElement('title');
     title.textContent = 'Site Logo';
-    logoSvg.insertBefore(title, logoSvg.firstChild);
+    logoSvg.insertBefore(title, ...
     logoSvg.setAttribute('role', 'img');
   }
   
-  const iconSvg1 = document.querySelector('.icon svg');
+  const iconSvg1 = ... svg');
   if (iconSvg1) {
     const title = document.createElement('title');
     title.textContent = 'Icon 1';
-    iconSvg1.insertBefore(title, iconSvg1.firstChild);
-    iconSvg1.setAttribute('role', 'img');
+    ... ...
+    ... 'img');
   }
   
   const landmarkRoles = [
@@ -108,14 +108,14 @@ export function addLandmarks() {
     { role: 'search', label: 'Site Search' }
   ];
   
-  landmarkRoles.forEach((landmark, index) => {
-    const element = document.querySelector(`[role="${landmark.role}"]`);
+  ... index) => {
+    const element = ...
     if (element) {
-      const uniqueId = `landmark-${index}`;
+      const uniqueId = ...
       element.setAttribute('aria-labelledby', uniqueId);
-      const existingLabel = element.querySelector(`#${uniqueId}`);
+      const existingLabel = ...
       if (!existingLabel) {
-        const label = document.createElement('span');
+        const label = ...
         label.id = uniqueId;
         label.textContent = landmark.label;
         label.style.display = 'none';
@@ -128,24 +128,24 @@ export function addLandmarks() {
     loginLink.textContent = 'Login';
   }
   
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table) => {
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const thead = ...
+    const tbody = ...
+    const rows = ...
     if (rows.length > 0) {
       rows.forEach((rowHeader, indexHeader) => {
         const columnCells = Array.from(rows).filter((cell) => cell.cellIndex === indexHeader);
         const columnHeaders = [];
         tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
           if (!columnHeaders.includes(cell)) {
-            columnHeaders.push(cell);
+            ...
           }
         });
         if (columnCells.length > indexHeader) {
-          columnCells.forEach((headerCell, idx) => {
-            headerCell.setAttribute('id', `${table.alt || 'table'}-header-${idx}`);
-            headerCell.setAttribute('scope', 'col');
+          ... idx) => {
+            headerCell.setAttribute('id', `${table.alt || ...
+            ... 'col');
           });
         }
       });
@@ -171,8 +171,8 @@ export function addLandmarks() {
 // Function to add missing ARIA labels and improve accessibility
 export function addMissingAriaLabels() {
   // Fix REACT_041: SVG Accessible Name
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach((el) => {
+  const svgElements = ...
+  ... => {
     if (!el.textContent.trim() && !el.getAttribute('aria-label') && !el.querySelector('title')) {
       const fallbackLabel = el.getAttribute('title') || 'Icon';
       el.setAttribute('aria-label', fallbackLabel);
@@ -180,57 +180,57 @@ export function addMissingAriaLabels() {
   });
   
   // Fix REACT_036: Fake Link - ensure links have proper accessible names
-  const fakeLinks = document.querySelectorAll('[role="link"]');
-  fakeLinks.forEach((el) => {
+  const fakeLinks = ...
+  ... => {
     if (el && !el.textContent.trim() && !el.getAttribute('aria-label')) {
       el.setAttribute('aria-label', 'Activate');
     }
   });
   
-  const searchInput = document.querySelector('.search-form input');
+  const searchInput = ... input');
   if (searchInput) {
-    searchInput.setAttribute('aria-label', 'Search this site');
+    ... 'Search this site');
   }
 }
 
 // NEW FUNCTION: Fix table structure issues (REACT_027)
 export function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table, tableIndex) => {
     // Ensure a caption is present for accessibility
-    let caption = table.querySelector('caption');
+    let caption = ...
     if (!caption) {
-      caption = document.createElement('caption');
+      caption = ...
       caption.textContent = `Table ${tableIndex + 1}`;
       caption.className = 'visually-hidden';
-      table.insertBefore(caption, table.firstChild);
+      ... table.firstChild);
     }
 
     // Ensure thead exists for header rows
-    let thead = table.querySelector('thead');
+    let thead = ...
     if (!thead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         thead = document.createElement('thead');
         table.insertBefore(thead, table.firstChild);
-        thead.appendChild(firstRow);
+        ...
       }
     }
 
     // Ensure tbody exists for data rows
-    let tbody = table.querySelector('tbody');
+    let tbody = ...
     if (!tbody) {
-      tbody = document.createElement('tbody');
-      const rows = Array.from(table.querySelectorAll('tr'));
+      tbody = ...
+      const rows = ...
       if (thead) {
         rows.shift();
       }
       rows.forEach((row) => {
         if (thead && row.parentNode === thead) return;
-        tbody.appendChild(row);
+        ...
       });
       if (thead) table.insertBefore(tbody, thead.nextSibling);
-      else table.appendChild(tbody);
+      else ...
     }
 
     // Assign proper scope attributes to header cells

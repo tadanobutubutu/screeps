@@ -2,31 +2,15 @@ const app = require('./app');
 const config = require('./config');
 
 function initialize() {
-// Preserved existing initialization logic
-console.log('Initializing...');
+    // Preserved existing initialization logic
+    console.log('Initializing...');
 
-// NEW: Added conflict-free logging for confirmation
-console.log('Conflict markers resolved. Main.js syntax validated.');
+    // NEW: Added conflict-free logging for confirmation
+    console.log('Conflict markers resolved. Main.js syntax validated.');
 
-// Accessibility improvements from other branch if applicable
-// (Note: These are client-side changes and may not apply to Node.js environment)
-document.documentElement.setAttribute('lang', 'en');
-
-if (document.readyState === 'complete') {
-    // Add landmark roles
-    const root = document.documentElement;
-    root.setAttribute('role', 'application');
-
-    // ARIA labels for SVGs
-    const logoImage = document.getElementById('logo-img');
-    if (logoImage) logoImage.setAttribute('aria-label', 'Logo');
-
-    const iconImage = document.getElementById('icon-img');
-    if (iconImage) iconImage.setAttribute('aria-label', 'Icon');
-
-    // table scope fix
-    const tableHead = document.querySelector('table thead');
-    if (tableHead) [...tableHead.querySelectorAll('th')].forEach(th => th.setAttribute('scope', 'column'));
+    // Note: The accessibility improvements from the other branch were intended for 
+    // a browser/React environment and are not applicable in this Node.js context.
+    // Those changes should be applied to the relevant React components instead.
 }
 
 module.exports = {

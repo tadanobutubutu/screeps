@@ -246,13 +246,13 @@ export const SettingsIcon = (props) => (
 
 // REACT_041: Utility function to generate accessible SVG favicon data URIs
 // Ensures SVG favicons have proper accessible names via <title> element
-export function createAccessibleFaviconSvg({ 
-  title, 
-  children, 
+export function createAccessibleFaviconSvg({
+  title,
+  children,
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-label="${title}"><title>${title}</title>${children}</svg>`;
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img"><title>${title}</title>${children}</svg>`;
   const encoded = encodeURIComponent(svgContent);
   return `data:image/svg+xml,${encoded}`;
 }
@@ -261,7 +261,7 @@ export function createAccessibleFaviconSvg({
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" x="50%" text-anchor="middle">SD</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="70">S</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
@@ -322,14 +322,4 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${randomPart}`;
-}
-
-// REACT_015: Set the lang attribute on the HTML root element
-export function setHtmlLang(lang) {
-  if (lang) {
-    document.documentElement.lang = lang;
-    return true;
-  }
-  return false;
-}
+  return `${prefix}-${timestamp}-${

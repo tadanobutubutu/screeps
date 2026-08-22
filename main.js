@@ -1,10 +1,28 @@
-// Assuming this is the part of your code that uses the problematic link
-function rotateBack() {
-  // ... (existing code to rotate back)
-}
+tsx
+// app/layout.tsx
+import type { Metadata } from "next";
+import "./globals.css";
 
-// Replace the anchor tag with a button
-// Ensure to maintain the `id` attribute if it's being used elsewhere
-document.getElementById('unrotate').innerHTML = `
-  <button onclick="rotateBack()">rotate back</button>
-`;
+export const metadata: Metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps game",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <link
+          rel="icon"
+          href="data:image/svg+xml, <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2218%22 x=%2250%25%22 text-anchor=%22middle%22>⚒️</text></svg>"
+          aria-hidden="true"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

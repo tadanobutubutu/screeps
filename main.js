@@ -5,7 +5,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 
-// New Functionality (to be added)
 function enhanceAccessibility() {
   // Code to enhance accessibility features
   // For example, adding ARIA roles, keyboard navigation support, etc.
@@ -67,15 +66,22 @@ function enhanceAccessibility() {
 }
 
 // Accessibility utility functions
-export function addAriaLabel(element, label) {
+function addAriaLabel(element, label) {
   if (element) {
     element.setAttribute('aria-label', label);
   }
 }
 
-export function setMainLandmark(mainElement) {
+function setMainLandmark(mainElement) {
   // TODO: Remove the commented line and uncomment mainElement when available
   mainElement.setAttribute('aria-label', 'Main content area');
 }
 
-export default enhanceAccessibility;
+// Export all needed functions
+module.exports = {
+  exampleFunction,
+  config,
+  enhanceAccessibility,
+  addAriaLabel,
+  setMainLandmark,
+};

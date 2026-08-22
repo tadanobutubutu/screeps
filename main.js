@@ -204,7 +204,7 @@ function validateLandmark(landmarkType, label) {
  * Generate accessible name for SVG element
  * @param {string} description - Description of the SVG
  * @param {Object} options - Additional options
- * @returns {Object} Accessible name configuration
+ * @returns {Object} Accessibility name configuration
  */
 function getSvgAccessibleName(description, options = {}) {
   return {
@@ -217,7 +217,7 @@ function getSvgAccessibleName(description, options = {}) {
 /**
  * Check if table structure is accessible
  * @param {Object} tableConfig - Table configuration object
- * @returns {Object} Validation result with issues
+ * @returns {Object} Validation result with errors and warnings
  */
 function validateTableAccessibility(tableConfig) {
   const issues = [];
@@ -357,8 +357,7 @@ function validateLandmarkStructure(componentTree) {
         issues.push({
           rule: 'REACT_017',
           severity: 'warning',
-          message: `Landmark with role="${node.role}" at ${currentPath} is missing an accessible name (aria-label or aria-labelledby)`,
-          path: currentPath
+          message: `Landmark with role="${node.role}" at ${currentPath} is missing an accessible name (aria-label or aria-labelledby)`
         });
       }
     }
@@ -583,8 +582,7 @@ function validateSvgAccessibility(svgs) {
       issues.push({
         rule: 'REACT_041',
         severity: 'warning',
-        message: `SVG at index ${index} is missing an accessible name (aria-label, aria-labelledby, or <title>)`,
-        index
+        message: `SVG at index ${index} is missing an accessible name (aria-label, aria-labelledby, or <title>)`
       });
     }
     
@@ -592,8 +590,7 @@ function validateSvgAccessibility(svgs) {
       issues.push({
         rule: 'REACT_041',
         severity: 'warning',
-        message: `SVG at index ${index} should have role="img" or appropriate graphics role`,
-        index
+        message: `SVG at index ${index} should have role="img" or appropriate graphics role`
       });
     }
     
@@ -602,8 +599,7 @@ function validateSvgAccessibility(svgs) {
       issues.push({
         rule: 'REACT_041',
         severity: 'warning',
-        message: `Decorative SVG at index ${index} should have aria-hidden="true"`,
-        index
+        message: `Decorative SVG at index ${index} should have aria-hidden="true"`
       });
     }
   });

@@ -22,8 +22,6 @@ function newFunction() {
 // No removal or renaming of existing exports
 export { newFunction, existingFunction };
 
-// ... rest of the main.js content ...
-
 // ============================================
 // Accessibility Improvements
 // ============================================
@@ -198,7 +196,7 @@ export const SettingsIcon = (props) => (
   >
     {/* SVG path content */}
   </AccessibleIconSVG>
-);
+};
 
 // REACT_041: Utility function to generate accessible SVG favicon data URIs
 // Ensures SVG favicons have proper accessible names via <title> element

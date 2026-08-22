@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// Placeholder for accessibility-related code changes
+// TODO: Address accessibility issues from insight report: add ARIA attributes
 
 // Uncomment and add mainElement as per the issue
 // mainElement = ...

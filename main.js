@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App aria-label="Main application" />, document.getElementById('root'));
 
 // These are existing code and exports, no changes are made to them
 const anExistingFunction = () => {};

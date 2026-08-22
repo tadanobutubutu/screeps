@@ -4,6 +4,32 @@ import { icons } from "./path/to/icons"; // Adjust the path to the actual import
 // Import the required function
 const { someRequiredFunction } = require('./path/to/someRequiredFunction');
 
+// HTML content for dependency graph and index page
+const dependencyGraphContent = `
+<main>
+    <table id="table-rotated">
+        <!-- Existing table content -->
+    </table>
+</main>
+`;
+
+// For docs/index.html
+const indexContent = `
+<main>
+    <div class="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+        <div class="links">
+            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+    </div>
+</main>
+`;
+
+// Ensure that any functions or methods that read the HTML content use the new wrapped content
+// TODO: Add a note or update relevant functions to use dependencyGraphContent/indexContent where needed
+
 // TODO: Address accessibility issues from insight report:
 const AccessibilityUtils = {
   trapFocus(element) {

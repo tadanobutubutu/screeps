@@ -1,14 +1,11 @@
-// TODO: Add back any required exports that might have been?
+// Accessibility utility functions
+
+// Add lang attribute to HTML root element
+document.documentElement.setAttribute('lang', 'en'); // Adjust to the desired language
 
 /**
- * Adds two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
+ * ... Existing code and functions ...
  */
-function add(a, b) {
-  return a + b;
-}
 
 /**
  * Subtracts b from a
@@ -76,5 +73,11 @@ module.exports = {
   subtract, 
   multiply, 
   divide, 
-  createHtmlElement 
+  createHtmlElement,
+  announceToScreenReader,
+  trapFocus,
+  releaseFocus,
+  setFocusToFirstFocusable,
+  updateFaviconSVG,
+  newFunction
 };

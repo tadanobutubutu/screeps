@@ -1,21 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
 
+// Add a new function that uses ARIA attributes
+function useAccessibleToggle(ref) {
+  const [isExpanded, setExpanded] = useState(false);
+
+  const toggle = () => {
+    setExpanded(!isExpanded);
+  };
+
+  // Use ARIA attributes for accessibility
+  if (ref) {
+    ref.ariaExpanded = isExpanded;
+  }
+
+  return { ref, isExpanded, toggle };
+}
+
 // Add lang attribute to HTML element
 ReactDOM.render(
-  // New Line
-  <html lang="en">
-  <head>
-    ...
-  </head>
-  <body>
-    ...
-    <div id="root"></div>
-  </body>
-  </html>,
-  document.getElementById('root')
+// New Line
+<html lang="en">
+<head>
+  ...
+</head>
+<body>
+  ...
+  <div id="root"></div>
+</body>
+</html>,
+document.getElementById('root')
 );
 
 // Wrap App component with a landmark (banner)

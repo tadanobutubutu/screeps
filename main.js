@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { icons } from "./path/to/icons"; // Adjust the path to the actual import location
 
 // Import the required function
-import { someRequiredFunction } from ... // Adjust the path to the actual import location
+import { someRequiredFunction } from "./utils"; // Adjusted the path to the actual import location
 
 const AppLayout = () => {
   // ... (existing code)

@@ -4,7 +4,7 @@
   // Example:
   // const someVar = require('some-module');
   // function init() { /* ... */ }
-  // module.exports.loop = function() { /* ... */ };
+  // module.exports.loop = function() { /* ... */ }
   // ----- END ORIGINAL CODE -----
 
   // Fix the language attribute on non-accessible elements (unchanged)

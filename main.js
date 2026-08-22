@@ -54,120 +54,7 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   );
 };
 
-export const DependencyGraphTable = ({ data }) => {
-  return (
-    <table>
-      <caption style={{ textAlign: 'left' }}>Dependency relationships visualization</caption>
-      <thead>
-        <tr>
-          {data.columns.map((column, index) => (
-            <th key={index} id={`header-${index}`} scope="col">
-              {column.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
-                {cell}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
-
-export const PageLayout = ({ headerContent, mainContent, navContent, footerContent }) => {
-  return (
-    <>
-      <header id="site-header" role="banner">
-        {headerContent}
-      </header>
-      <nav id="main-navigation" role="navigation" aria-label="Main navigation">
-        {navContent}
-      </nav>
-      <main id="main-content" role="main">
-        {mainContent}
-      </main>
-      <footer id="site-footer" role="contentinfo">
-        {footerContent}
-      </footer>
-    </>
-  );
-};
-
-export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
-  return (
-    <svg
-      aria-label={ariaLabel}
-      role={role}
-      aria-hidden={ariaLabel ? undefined : true}
-      {...props}
-    >
-      {children}
-    </svg>
-  );
-};
-
-export const GraphIcon = (props) => (
-  <AccessibleIconSVG ariaLabel="Dependency graph" {...props}>
-    {/* SVG path content */}
-  </AccessibleIconSVG>
-);
-
-export const SettingsIcon = (props) => (
-  <AccessibleIconSVG ariaLabel="Settings" {...props}>
-    {/* SVG path content */}
-  </AccessibleIconSVG>
-);
-
-// Export all new accessibility-friendly components
-export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIconSVG, GraphIcon, SettingsIcon };
-
-// Missing functions added as requested
-export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
-}
-
-export function formatDate(date, options = {}) {
-  const defaultOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    ...options
-  };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
-}
-
-export function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-export function throttle(func, limit) {
-  let inThrottle;
-  return function(...args) {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-}
-
-// Additional Accessibility Improvements
+// Add new SkipLink, LiveRegion, Modal, ErrorMessage, and RequiredIndicator functions
 export const SkipLink = ({ href = '#main-content', children = 'Skip to main content' }) => {
   return (
     <a
@@ -189,6 +76,7 @@ export const SkipLink = ({ href = '#main-content', children = 'Skip to main cont
       onBlur={(e) => {
         e.currentTarget.style.top = '-40px';
       }}
+      aria-label={children} // ADDed this line to improve accessibility
     >
       {children}
     </a>
@@ -259,11 +147,57 @@ export const RequiredIndicator = () => {
   );
 };
 
+// Export all new accessibility-friendly components
+export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIconSVG, GraphIcon, SettingsIcon, SkipLink, LiveRegion, Modal, ErrorMessage, RequiredIndicator };
+
+// Missing functions added as requested
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
+export function formatDate(date, options = {}) {
+  const defaultOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    ...options
+  };
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+}
+
+export function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+// Additional Accessibility Improvements
+export const AccessiblePage = ({ arg = 'accessible-page' }) => {
+  return <div aria-label={arg} />; // Added this line to help screen readers understand the purpose of the page
+};
+
 // Export all accessibility utilities
 export {
-  SkipLink,
-  LiveRegion,
-  Modal,
-  ErrorMessage,
-  RequiredIndicator
+  generateId,
+  formatDate,
+  debounce,
+  throttle,
+  AccessiblePage
 };

@@ -1,3 +1,5 @@
+Here's the resolved `main.js` content with merged changes:
+
 // Import managers and utilities
 const spawnManager = require('./managers/spawnManager');
 const towerManager = require('./managers/towerManager');

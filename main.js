@@ -1,12 +1,18 @@
 (function (exports, require, module, __filename, __dirname) {
     // Existing code and exports are preserved...
 
-    function myFunction() {
-        console.log("This is my new function!");
+    // Import the axios module
+    const axios = require('axios');
+
+    // Define a new function that uses axios for reaching an API
+    function fetchData() {
+        return axios.get('https://api.example.com/data')
+            .then(response => response.data)
+            .catch(error => console.error(error));
     }
 
-    // Export the function
-    exports.myFunction = myFunction;
+    // Export the new function
+    exports.fetchData = fetchData;
 
     // Additional code to add accessible names to SVGs
 
@@ -63,6 +69,7 @@
     exports.addAccessibleSvg = addAccessibleSvg;
     exports.updateIcons = updateIcons;
     exports.updateRotateBackLink = updateRotateBackLink;
+    exports.fetchData = fetchData;
 
     // Call the function to update the 'rotate back' link on page load
     window.onload = updateRotateBackLink;

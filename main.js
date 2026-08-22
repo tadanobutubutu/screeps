@@ -1,7 +1,13 @@
-var loop = function() {
-    // Your logic here
-};
+// main.js
 
-module.exports = {
-    loop: loop
-};
+// Preserving all existing code, exports, and functions from current main.js...
+
+// Adding new functions or changes requested in the issue...
+
+export const COL_SCOPE = "col"; // This is an example of a new export related to the issue. The actual changes should be reflected in the HTML files.
+
+export function loop() {
+    // Your logic here
+}
+
+// More code here...

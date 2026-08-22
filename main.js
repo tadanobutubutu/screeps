@@ -7,63 +7,63 @@ import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependen
 function addLandmarks() {
   // Add lang attribute to HTML
   const html = document.documentElement;
-  if (html && !html.hasAttribute('lang')) {
-    html.setAttribute('lang', 'en');
+  if (html && ...) {
+    ... 'en');
   }
-  const header = document.querySelector('header');
+  const header = ...
   if (header) {
     header.setAttribute('role', 'banner');
   }
-  const nav = document.querySelector('nav');
+  const nav = ...
   if (nav) {
     nav.setAttribute('role', 'navigation');
   }
-  let mainContent = document.querySelector('main');
+  let mainContent = ...
   if (!mainContent) {
-    mainContent = document.createElement('main');
+    mainContent = ...
     mainContent.setAttribute('role', 'main');
-    const container = document.querySelector('.container');
+    const container = ...
     if (container) {
-      container.appendChild(mainContent);
+      ...
     } else {
-      const table = document.querySelector('table');
+      const table = ...
       if (table) {
-        table.parentNode.insertBefore(mainContent, table);
+        ... table);
       }
     }
-    const headerNode = document.querySelector('header');
-    const navNode = document.querySelector('nav');
+    const headerNode = ...
+    const navNode = ...
     let insertNode = headerNode;
     if (navNode) {
       insertNode = navNode;
     }
     if (insertNode) {
-      insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+      insertNode.parentNode.insertBefore(mainContent, ...
     } else {
-      document.body.insertBefore(mainContent, document.body.firstChild);
+      ... ...
     }
   } else {
     mainContent.setAttribute('role', 'main');
   }
-  const footer = document.querySelector('footer');
+  const footer = ...
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
-  const searchForm = document.querySelector('.search-form');
+  const searchForm = ...
   if (searchForm) {
-    searchForm.setAttribute('role', 'search');
+    ... 'search');
   }
-  const loginLink = document.querySelector('.login-link');
+  const loginLink = ...
   if (loginLink) {
-    loginLink.setAttribute('role', 'link');
+    ... 'link');
   }
   const logoSvg = document.querySelector('.logo svg');
-  if (logoSvg && !logoSvg.hasAttribute('aria-label') && !logoSvg.getAttribute('aria-hidden')) {
-    logoSvg.setAttribute('aria-label', 'Site Logo');
+  if (logoSvg && ... && ... {
+    ... 'Site Logo');
   }
-  const iconSvg1 = document.querySelector('.icon svg');
-  if (iconSvg1 && !iconSvg1.hasAttribute('aria-label') && !iconSvg1.getAttribute('aria-hidden')) {
-    iconSvg1.setAttribute('aria-label', 'Icon 1');
+  const iconSvg1 = ... svg');
+  if (iconSvg1 && ... && ... {
+    ... 'Icon 1');
   }
   const landmarkRoles = [
     { role: 'banner', label: 'Site Header' },
@@ -72,14 +72,14 @@ function addLandmarks() {
     { role: 'contentinfo', label: 'Site Footer' },
     { role: 'search', label: 'Site Search' }
   ];
-  landmarkRoles.forEach((landmark, index) => {
-    const element = document.querySelector(`[role="${landmark.role}"]`);
+  ... index) => {
+    const element = ...
     if (element) {
-      const uniqueId = `landmark-${landmark.role}-${index}`;
+      const uniqueId = ...
       element.setAttribute('aria-labelledby', uniqueId);
-      const existingLabel = document.getElementById(uniqueId);
+      const existingLabel = ...
       if (!existingLabel) {
-        const label = document.createElement('span');
+        const label = ...
         label.id = uniqueId;
         label.textContent = landmark.label;
         label.style.display = 'none';
@@ -87,27 +87,27 @@ function addLandmarks() {
       }
     }
   });
-  if (loginLink && !loginLink.textContent.trim() && !loginLink.hasAttribute('aria-label')) {
-    loginLink.setAttribute('aria-label', 'Login');
+  if (loginLink && !loginLink.textContent.trim() && ... {
+    ... 'Login');
   }
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table) => {
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const thead = ...
+    const tbody = ...
+    const rows = ...
     if (rows.length > 0) {
       rows.forEach((rowHeader, indexHeader) => {
-        const columnCells = rowHeader.querySelectorAll('th, td');
+        const columnCells = ... td');
         const columnHeaders = [];
         tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
           if (!columnHeaders.includes(cell)) {
-            columnHeaders.push(cell);
+            ...
           }
         });
         if (columnCells.length > indexHeader) {
-          columnCells.forEach((headerCell, idx) => {
-            headerCell.setAttribute('id', `${table.id || 'table'}-${indexHeader}-${idx}`);
-            headerCell.setAttribute('scope', 'col');
+          ... idx) => {
+            headerCell.setAttribute('id', `${table.alt || ...
+            ... 'col');
           });
         }
       });
@@ -131,72 +131,70 @@ function addLandmarks() {
 
 // Function to add missing ARIA labels and improve accessibility
 function addMissingAriaLabels() {
-  document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])').forEach(el => {
-    if (!el.textContent.trim() && el.querySelector('svg')) {
+  ... => {
+    if (!el.textContent.trim() && ... {
       const fallbackLabel = el.getAttribute('title') || 'Icon';
       el.setAttribute('aria-label', fallbackLabel);
     }
   });
-  document.querySelectorAll('.interactive-element').forEach(el => {
-    if (el.hasAttribute('onclick') && !el.hasAttribute('aria-label')) {
+  ... => {
+    if ... && ... {
       el.setAttribute('aria-label', 'Activate');
     }
   });
-  const searchInput = document.querySelector('input[type="search"], .search-form input, .search-form button');
-  if (searchInput && !searchInput.hasAttribute('aria-label')) {
-    searchInput.setAttribute('aria-label', 'Search this site');
+  const searchInput = ... .search- form input, .search-form button');
+  if (searchInput && ... {
+    ... 'Search this site');
   }
 }
 
 // NEW FUNCTION: Fix table structure issues (REACT_027)
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
+function ... {
+  const tables = ...
   tables.forEach((table, tableIndex) => {
     // Ensure a caption is present for accessibility
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
+    if ... {
+      const caption = ... caption');
       caption.textContent = `Table ${tableIndex + 1}`;
-      caption.className = 'visually-hidden';
-      table.insertBefore(caption, table.firstChild);
+      caption.className = 'visually- hidden';
+      ... table. firstChild);
     }
 
     // Ensure thead exists for header rows
-    let thead = table.querySelector('thead');
-    if (!thead) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow && firstRow.querySelector('th')) {
+    let thead = ... if (!thead) {
+      const firstRow = table. querySelector('tr');
+      if (firstRow && ... {
         thead = document.createElement('thead');
-        table.insertBefore(thead, table.firstChild);
-        thead.appendChild(firstRow);
+        table.insertBefore(thead, table. firstChild);
+        ...
       }
     }
 
     // Ensure tbody exists for data rows
-    let tbody = table.querySelector('tbody');
+    let tbody = ...
     if (!tbody) {
-      tbody = document.createElement('tbody');
-      const rows = Array.from(table.querySelectorAll('tr'));
-      // Remove header rows that were moved to thead
+      tbody = ...
+      const rows = ... // Remove header rows that were moved to thead
       if (thead) {
-        rows.shift();
+        rows. shift();
       }
-      rows.forEach(row => {
+      rows. forEach(row => {
         // Skip rows already placed in thead
         if (thead && row.parentNode === thead) return;
-        tbody.appendChild(row);
+        ...
       });
       if (thead) table.insertBefore(tbody, thead.nextSibling);
-      else table.appendChild(tbody);
+      else ...
     }
 
     // Assign proper scope attributes to header cells
     const headerCells = table.querySelectorAll('thead th');
     headerCells.forEach((header, idx) => {
-      if (!header.hasAttribute('scope')) {
+      if ... {
         // Determine if header represents a column or a row
         const isFirstColumn = idx === 0;
-        const columnHeaders = Array.from(table.querySelectorAll('thead tr:first-child th'));
-        const isRowHeader = columnHeaders.some(th => th === header && th.cellIndex === 0 && Array.from(table.querySelectorAll('tbody tr td:first-child')).length > 1);
+        const columnHeaders = ... tr: first-child th'));
+        const isRowHeader = columnHeaders.some(th => th === header && th.cellIndex === 0 && ... tr ... > 1);
         header.setAttribute('scope', isRowHeader ? 'row' : 'col');
       }
       if (!header.hasAttribute('id')) {
@@ -211,9 +209,9 @@ function fixTableStructureIssues() {
       const headers = [];
       // Find column header
       const colIndex = cell.cellIndex;
-      const colHeader = table.querySelector(`thead th:nth-child(${colIndex + 1})`);
+      const colHeader = table.querySelector(`thead th: nth-child(${colIndex + 1})`);
       if (colHeader && colHeader.id) {
-        headers.push(colHeader.id);
+        ... headers.push(colHeader.id);
       }
       // Find row header (first cell of the row)
       const rowHeader = cell.closest('tr').querySelector('th');
@@ -226,68 +224,67 @@ function fixTableStructureIssues() {
     });
 
     // Add an ARIA description for the table if not already present
-    const ariaDescId = `table-desc-${tableIndex}`;
-    let ariaDesc = document.getElementById(ariaDescId);
+    const ariaDescId = ...
+    let ariaDesc = ...
     if (!ariaDesc) {
-      ariaDesc = document.createElement('div');
+      ariaDesc = ...
       ariaDesc.id = ariaDescId;
-      ariaDesc.className = 'visually-hidden';
+      ariaDesc.className = 'visually- hidden';
       ariaDesc.textContent = `Table ${tableIndex + 1}`;
-      table.appendChild(ariaDesc);
+      ...
     }
-    if (!table.hasAttribute('aria-describedby')) {
+    if ... {
       table.setAttribute('aria-describedby', ariaDescId);
     }
 
     // Ensure nested tables are also structured correctly
     const nestedTables = table.querySelectorAll('table');
-    nestedTables.forEach(nested => fixNestedTableStructure(nested));
+    nestedTables.forEach(nested => ...
   });
 }
 
 // Helper to apply the same fixes to nested tables
-function fixNestedTableStructure(table) {
+function ... {
   // Re‑apply caption check
-  if (!table.querySelector('caption')) {
-    const caption = document.createElement('caption');
+  if ... {
+    const caption = ...
     caption.textContent = `Nested Table`;
-    caption.className = 'visually-hidden';
-    table.insertBefore(caption, table.firstChild);
+    caption.className = 'visually- hidden';
+    ... table. firstChild);
   }
 
   // Ensure thead/tbody as above (same logic, simplified)
-  let thead = table.querySelector('thead');
+  let thead = ...
   if (!thead) {
     const firstRow = table.querySelector('tr');
-    if (firstRow && firstRow.querySelector('th')) {
+    if (firstRow && ... {
       thead = document.createElement('thead');
-      table.insertBefore(thead, table.firstChild);
-      thead.appendChild(firstRow);
+      table.insertBefore(thead, table. firstChild);
+      ...
     }
   }
 
-  let tbody = table.querySelector('tbody');
+  let tbody = ...
   if (!tbody) {
-    tbody = document.createElement('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    // Remove header rows that were moved to thead
+    tbody = ...
+    const rows = ... // Remove header rows that were moved to thead
     if (thead) {
       rows.shift();
     }
     rows.forEach(row => {
       // Skip rows already placed in thead
       if (thead && row.parentNode === thead) return;
-      tbody.appendChild(row);
+      ...
     });
     if (thead) table.insertBefore(tbody, thead.nextSibling);
-    else table.appendChild(tbody);
+    else ...
   }
 
   // Ensure headers have proper scope and id
   const headerCells = table.querySelectorAll('thead th');
   headerCells.forEach((h, i) => {
-    if (!h.hasAttribute('scope')) {
-      const isRowHeader = table.querySelectorAll('tr th:first-child').length > 1 && i === 0;
+    if ... {
+      const isRowHeader = table.querySelectorAll('tr ... > 1 && i === 0;
       h.setAttribute('scope', isRowHeader ? 'row' : 'col');
     }
     if (!h.hasAttribute('id')) {
@@ -302,3 +299,10 @@ function ensureUniqueLandmarks() {
   const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'search'];
   // ... (rest of the function remains unchanged)
 }
+
+// Export the functions that may be required by dependencies.js
+export {
+  addLandmarks,
+  addMissingAriaLabels,
+  ensureUniqueLandmarks
+};

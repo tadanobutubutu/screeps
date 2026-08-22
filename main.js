@@ -38,7 +38,7 @@
     );
     if (mainElements.length > 1) {
       console.warn('<main> elements detected. Only one <main> element is allowed.');
-      return children.filter((child) => child.type !== mainElement).concat(mainElements[0]);
+      return children.filter((child) => child.type !== mainElement);
     }
     return children;
   };
@@ -46,7 +46,7 @@
   function addLangAttributeToRoot() {
     const rootElement = document.documentElement;
     if (rootElement) {
-      rootElement.setAttribute('lang', 'en');
+      rootElement.lang = 'en';
     }
   }
 
@@ -54,12 +54,18 @@
   addLangAttributeToRoot();
 
   // A new function to remove duplicate <main> elements
-  React.Children.forEach(React.Children.toArray(React.createElement(React.Fragment, {}, children)), (child) => {
+  React.Children.map(children, (child) => {
     const updatedChildren = removeDuplicateMainElements(child.props.children);
     child.props.children = updatedChildren;
   });
 
-  // TODO: Add any required exports that might have been removed
+  // Add back any required exports that might have been removed
+  module.exports = {
+    reactLanguageAttributeFix,
+    EnhancedTable,
+    removeDuplicateMainElements,
+    addLangAttributeToRoot
+  };
 
   // Here's an example of how to export a required function from another file:
   // const { myFunction } = require('./otherFile');

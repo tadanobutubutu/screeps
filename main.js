@@ -1,10 +1,6 @@
 // Import required module(1s) and export the new necessary function(1s) here in main.js
 import React from 'react';
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Fix language for the HTML root element
-
 // Accessibility issues addressed from insight report
 // Added accessibility-related functionality
 
@@ -256,7 +252,7 @@ export function createAccessibleFaviconSvg({
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-labelledby="favicon-title"><title id="favicon-title">${title}</title>${children}</svg>`;
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-label="${title}"><title>${title}</title>${children}</svg>`;
   const encoded = encodeURIComponent(svgContent);
   return `data:image/svg+xml,${encoded}`;
 }
@@ -265,36 +261,39 @@ export function createAccessibleFaviconSvg({
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">SD</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle">SD</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">BUG</text>'
+    children: '<circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="8"/>'
   })
 };
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="contentinfo"], header, nav, main, footer');
+  const landmarks = ['header', 'nav', 'main', 'footer'];
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    const existingId = landmark.id;
-    
-    if (existingId && !seenIds.has(existingId)) {
-      seenIds.add(existingId);
-    } else {
-      // Generate unique ID based on role
-      let counter = 1;
-      let newId = `${role}-${counter}`;
-      while (seenIds.has(newId)) {
-        counter++;
-        newId = `${role}-${counter}`;
+    const elements = container.querySelectorAll(landmark);
+    elements.forEach((el) => {
+      const role = el.getAttribute('role') || landmark;
+      const existingId = el.id;
+      
+      if (existingId && !seenIds.has(existingId)) {
+        seenIds.add(existingId);
+      } else if (!existingId) {
+        // Generate unique ID based on role
+        let counter = 1;
+        let newId = `${role}-${counter}`;
+        while (seenIds.has(newId)) {
+          counter++;
+          newId = `${role}-${counter}`;
+        }
+        el.id = newId;
+        seenIds.add(newId);
       }
-      landmark.id = newId;
-      seenIds.add(newId);
-    }
+    });
   });
   
   return container;
@@ -323,7 +322,7 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}_${timestamp}_${randomPart}`;
+  return `${prefix}-${timestamp}-${randomPart}`;
 }
 
 // REACT_015: Set the lang attribute on the HTML root element

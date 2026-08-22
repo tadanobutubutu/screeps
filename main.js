@@ -122,6 +122,63 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
+// Fixed: Error state uses <section> instead of duplicate <main> landmark
+export const ErrorState = ({ message, onRetry }) => {
+  return (
+    <section aria-labelledby="error-heading" role="alert">
+      <h2 id="error-heading">Error</h2>
+      <p>{message}</p>
+      {onRetry && (
+        <button type="button" onClick={onRetry}>
+          Try again
+        </button>
+      )}
+    </section>
+  );
+};
+
+// Fixed: Success state uses <main> as the primary landmark
+export const SuccessState = ({ data, onEdit }) => {
+  return (
+    <main id="main-content" role="main">
+      <h1>Success</h1>
+      <div>{data}</div>
+      {onEdit && (
+        <button type="button" onClick={onEdit}>
+          Edit
+        </button>
+      )}
+    </main>
+  );
+};
+
+// Fixed: Combined component with proper landmark hierarchy
+export const StatusDisplay = ({ status, errorMessage, successData, onRetry, onEdit }) => {
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={onRetry} />;
+  }
+  
+  return <SuccessState data={successData} onEdit={onEdit} />;
+};
+
+export const DataViewComponent = ({ hasError, errorContent, content }) => {
+  if (hasError) {
+    return (
+      <section aria-labelledby="error-title" role="alert">
+        <h2 id="error-title">Error</h2>
+        {errorContent}
+      </section>
+    );
+  }
+  
+  return (
+    <main id="main-content" role="main">
+      <h1>Data View</h1>
+      {content}
+    </main>
+  );
+};
+
 export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIconSVG, GraphIcon, SettingsIcon };
 
 export function generateId(prefix = 'id') {
@@ -175,4 +232,10 @@ export const SkipLink = ({ href = '#main-content', children = 'Skip to main cont
         color: '#fff',
         padding: '8px',
         zIndex: 100,
-        transition
+        transition: 'top 0.3s'
+      }}
+    >
+      {children}
+    </a>
+  );
+};

@@ -1,8 +1,8 @@
 // Existing code...
 
 // Update google/osv-scanner-action action to v2.5.1
-const GoogleOSVScannerAction = require('google-osv-scanner-action');
-GoogleOSVScannerAction.version = '2.5.1';
+const GoogleOSVScannerAction = ...
+... = '2.5.1';
 
 // Update dependency eslint to v10
 const eslint = require('eslint');
@@ -103,7 +103,7 @@ function getDetectedDependencies() {
     if (!acc[item.ecosystem]) {
       acc[item.ecosystem] = [];
     }
-    acc[item.ecosystem].push(...item.dependencies);
+    acc[item.ecosystem] = acc[item.ecosystem].concat(item.dependencies);
     return acc;
   }, {});
 }
@@ -171,7 +171,7 @@ function fixTableStructure() {
     // Fix th elements with scope attributes
     const ths = table.querySelectorAll('th');
     ths.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         const parentRow = th.closest('tr');
         const parentThead = th.closest('thead');
         if (parentThead) {
@@ -210,7 +210,7 @@ function addLandmarks() {
 function addAccessibleSVGs() {
   if (typeof document === 'undefined') return;
 
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"]):not([aria-label])');
   svgs.forEach((svg, index) => {
     const existingTitle = svg.querySelector('title');
     const existingDesc = svg.querySelector('desc');
@@ -284,7 +284,7 @@ function fixFakeLink() {
       const currentRole = element.getAttribute('role');
       if (currentRole === 'button' || !currentRole) {
         // Add link role and tabindex for keyboard accessibility
-        if (!element.hasAttribute('tabindex')) {
+        if (!element.getAttribute('tabindex')) {
           element.setAttribute('tabindex', '0');
         }
         element.setAttribute('role', 'link');
@@ -308,7 +308,7 @@ function getRequiredDependencies() {
   // Import the required module(s) here
   const requiredDependencyModule = null;
 
-  // Export the required function(s) from the imported module
+  // Export the required function(3) from the imported module
   const functionFromRequiredModule = null;
 
   // Call the function from the required module, if necessary

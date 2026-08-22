@@ -37,7 +37,7 @@ function addDetectedDependencies(ecosystem, dependencies, mainElement) {
   // ...
 }
 
-let mainElement = null; /* Uncomment the mainElement variable */
+let mainElement = null;
 
 /**
  * Retrieves all pending updates
@@ -112,13 +112,11 @@ function fixTableStructure(mainElement) {
 function addLandmarks(mainElement) {
   if (typeof document === 'undefined') return;
 
-  const elementConfigs = [
-    // ...
-  ];
-
-  elementConfigs.forEach(config => {
-    // ...
-  });
+  // Ensure the main element is recognized as the main landmark
+  if (!mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+  // Provide an accessible name for screen readers
   mainElement.setAttribute('aria-label', 'Main content area');
 }
 
@@ -169,6 +167,42 @@ function getRequiredDependencies() {
   const result = functionFromRequiredModule ? functionFromRequiredModule() : null;
 
   return result;
+}
+
+// Initialize the main element and run landmark-related setup
+function initializeMainElement() {
+  if (typeof document === 'undefined') return;
+
+  // Find existing <main> element or create one
+  let mainEl = document.querySelector('main');
+  if (!mainEl) {
+    mainEl = document.createElement('main');
+    document.body.prepend(mainEl);
+  }
+
+  // Ensure primary content (e.g., .container) is inside <main>
+  const container = mainEl.querySelector('.container');
+  if (container && container.parentNode !== mainEl) {
+    mainEl.appendChild(container);
+  }
+
+  // Set ARIA label for the main landmark
+  mainEl.setAttribute('aria-label', 'Main content area');
+
+  // Assign to the module-level variable
+  mainElement = mainEl;
+
+  // Run landmark-related functions that expect mainElement
+  addLandmarks(mainElement);
+  fixTableStructure(mainElement);
+  // Set language attribute on the main element (or appropriate element)
+  const langElement = document.documentElement; // or container, depending on design
+  setLangAttribute(langElement, mainElement);
+}
+
+// Initialize on client-side only
+if (typeof document !== 'undefined') {
+  initializeMainElement();
 }
 
 // Add the new function to the module.exports

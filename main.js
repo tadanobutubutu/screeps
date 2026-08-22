@@ -1,4 +1,3 @@
-<<<<<<< HEAD  
 function init() {  
   // Wait for DOM to be ready  
   document.addEventListener('DOMContentLoaded', function() {  
@@ -26,8 +25,4 @@ function init() {
 // Export for testing (if applicable)  
 if (typeof module !== 'undefined' && module.exports) {  
   module.exports = { init };  
-}  
-=======  
-// See the original file content  
->>>>>>> origin/main  
-```
+}

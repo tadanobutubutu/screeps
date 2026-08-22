@@ -1,7 +1,7 @@
-// Assuming 'renderDependencyGraph' is a function that renders the HTML content
-// including the `<html>` tag with the missing lang attribute.
-
 function renderDependencyGraph() {
+  // Assuming 'renderDependencyGraph' is a function that renders the HTML content
+  // including the <html>` tag with the missing lang attribute.
+
   // Your existing code to generate the HTML content...
 
   // Add the lang attribute to the <html> tag
@@ -15,3 +15,13 @@ function renderDependencyGraph() {
 }
 
 // ... rest of your code
+document.addEventListener('DOMContentLoaded', function() {
+  const unrotateBtn = document.getElementById('unrotate');
+  
+  if (unrotateBtn) {
+    unrotateBtn.addEventListener('click', function() {
+      // Rotate back functionality
+      document.body.style.transform = 'rotate(0deg)';
+    });
+  }
+});

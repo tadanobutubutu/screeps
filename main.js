@@ -13,5 +13,5 @@ ReactDOM.render(
       </body>
     </html>
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );

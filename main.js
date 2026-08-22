@@ -262,3 +262,10 @@ export function generateId(prefix = 'id') {
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
   return ...
 }
+
+// REACT_015: Set the lang attribute on the HTML root element
+export function setHtmlLang(lang) {
+  if (lang) {
+    document.documentElement.lang = lang;
+  }
+}

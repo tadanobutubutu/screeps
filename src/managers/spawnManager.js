@@ -335,8 +335,13 @@ function showSpawnVisual(spawn) {
  * @returns {number}
  */
 function _calcBodyCost(body) {
-    // ⚡ PERFORMANCE OPTIMIZATION: Use pre-defined BODY_COSTS from constants to avoid per-call object allocation.
-    return body.reduce((total, part) => total + (BODY_COSTS[part] || 0), 0);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use a single-pass for loop instead of Array.prototype.reduce
+    // to eliminate function closure allocations and callback overhead per call.
+    let total = 0;
+    for (let i = 0; i < body.length; i++) {
+        total += BODY_COSTS[body[i]] || 0;
+    }
+    return total;
 }
 
 /**

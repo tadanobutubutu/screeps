@@ -1,3 +1,19 @@
+const img = document.getElementById('target'); let rotation = 0;
+
+function rotate() {
+  rotation += 90;
+  img.style.transform = `rotate(${rotation}deg)`;
+}
+
+function rotateBack() {
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
+}
+
+// Attach event listeners
+document.getElementById('rotate').addEventListener('click', rotate);
+document.getElementById('unrotate').addEventListener('click', rotateBack);
+
 /**
  * Adds two numbers together
  * @param {number} a - First number
@@ -41,9 +57,12 @@ function divide(a, b) {
   return a / b;
 }
 
-// Attach event listeners
-document.getElementById('rotate').addEventListener('click', rotate);
-document.getElementById('unrotate').addEventListener('click', rotateBack);
+/**
+ * Main game loop logic
+ */
+function myNewFunction() {
+  // Main game loop logic
+}
 
 // Accessibility utility functions
 
@@ -120,6 +139,8 @@ function setFocusToFirstFocusable(container) {
 
 // Export all functions
 module.exports = {
+  loop: function() { myNewFunction(); },
+  myNewFunction: myNewFunction,
   add,
   subtract,
   multiply,
@@ -129,3 +150,17 @@ module.exports = {
   releaseFocus,
   setFocusToFirstFocusable
 };
+=======
+module.exports = {
+  loop: function() { myNewFunction(); },
+  myNewFunction: myNewFunction,
+  add,
+  subtract,
+  multiply,
+  divide,
+  announceToScreenReader,
+  trapFocus,
+  releaseFocus,
+  setFocusToFirstFocusable
+};
+>>>>>>> origin/main

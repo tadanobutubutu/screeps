@@ -108,19 +108,19 @@ function addLandmarks() {
         }
       });
     }
-  });
-  const headerCells = Array.from(table.querySelectorAll('th, td'));
-  if (headerCells.length === 0) return;
-  const columnIds = [];
-  headerCells.forEach((cell, index) => {
-    const id = `table-column-${index}`;
-    cell.setAttribute('data-col-id', id);
-    columnIds.push(id);
-  });
-  table.querySelectorAll('th, td').forEach((cell, index) => {
-    if (columnIds[index]) {
-      cell.setAttribute('scope', 'col');
-    }
+    const headerCells = Array.from(table.querySelectorAll('th, td'));
+    if (headerCells.length === 0) return;
+    const columnIds = [];
+    headerCells.forEach((cell, index) => {
+      const id = `table-column-${index}`;
+      cell.setAttribute('data-col-id', id);
+      columnIds.push(id);
+    });
+    table.querySelectorAll('th, td').forEach((cell, index) => {
+      if (columnIds[index]) {
+        cell.setAttribute('scope', 'col');
+      }
+    });
   });
 }
 

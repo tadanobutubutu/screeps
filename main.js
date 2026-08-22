@@ -19,9 +19,17 @@ export function addA11yRole(element, role) {
 
 // Existing exported component
 export default function App() {
+  // Ensure that there is only one <main> element in the App component
   return (
     <div>
-      {/* Application UI */}
+      {/* Application UI with only one <main> */}
+      <main>
+        {/* Main content goes here */}
+      </main>
+      {/* Other sections can be wrapped in <section> or <article> */}
+      <section>
+        {/* Secondary content */}
+      </section>
     </div>
   );
 }

@@ -11,7 +11,7 @@
 //   <React.StrictMode>
 //     <App />
 //   </React.StrictMode>,
-//   document.getElementById('root')
+//   ...
 // );
 
 // =======
@@ -30,8 +30,8 @@ import './index.css';
 
 function App() {
   const icons = {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+    icon: ... ... viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 ...
+    apple: ... ... viewBox=%220 0 100 100%22><text y=%22.9em%22 ...
   };
 
   // Function to create an accessible SVG from a data URI
@@ -40,12 +40,14 @@ function App() {
   };
 
   return (
-    <div>
-      {/* Use the createAccessibleSVG function to make the SVGs accessible */}
-      <div>{createAccessibleSVG(icons.icon, 'Screeps Dashboard')}</div>
-      <div>{createAccessibleSVG(icons.apple, 'Screeps Apple Icon')}</div>
-      {/* ... rest of the App component */}
-    </div>
+    <main>
+      <div>
+        {/* Use the createAccessibleSVG function to make the SVGs accessible */}
+        ... 'Screeps Dashboard')}</div>
+        ... 'Screeps Apple Icon')}</div>
+        {/* ... rest of the App component */}
+      </div>
+    </main>
   );
 }
 
@@ -53,5 +55,5 @@ ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );

@@ -15,9 +15,6 @@ const validateAccessibility = (component) => {
   return Object.values(checks).every(check => check);
 };
 
-// Restored export (previously removed)
-export { validateAccessibility };
-
 // Create accessible button component with full ARIA support
 const createAccessibleButton = (props) => {
   const role = typeof props.role === 'string' ? props.role : 'button';
@@ -85,8 +82,6 @@ const addMainElementAriaAttributes = () => {
   }
 };
 
-// Add the new function to the accessibility fixes
-addLangAttribute();
 // Fix for REACT_025: Ensure only one main landmark exists
 const ensureUniqueLandmarks = () => {
   // Query all main elements in the document
@@ -132,8 +127,12 @@ const addLangAttribute = () => {
   }
 };
 
+// Execute accessibility fixes
+addLangAttribute();
+fixLandmarkIssues();
+
 // existing express & Jest upgrades remain unchanged
-const express = require('express');
+const express = require('const express = require('express');
 const expressApp = express();
 if (require.main === module) {
   const app = expressApp;
@@ -146,31 +145,17 @@ const { configure } = require('babel-jest');
 configure.automock = false;
 configure.cacheDirectory = __dirname + '/.cache';
 
-// ... remaining exports
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue };
-
-// Component export
-export default MyComponent;
-
-// Module exports configuration
 module.exports = {
-  jest: {
-    preset: 'ts-jest',
-    configure,
-    cacheDirectory,
-  },
-  eslingConfig,
-  tsConfig,
   validateAccessibility,
   createAccessibleButton,
   createAccessibleInput,
   createAccessibleModal,
   addLangAttribute,
-  fixTableStructure,
   fixLandmarkIssues,
-  addAccessibleNamesToSVGs,
   ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  default: MyComponent,
+  addMainElementAriaAttributes,
+  // Include other exports as needed
+  expressApp,
+  configure,
 };

@@ -1,5 +1,12 @@
-// Accessibility issues from insight report addressed
-// Added accessibility-related functionality
+// main.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Assuming Dashboard is the component that has the issue
+import Dashboard from './components/Dashboard';
+
+// Accessibility-related functions (from HEAD)
 // Import required modules
 import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependencyGraphContent } from './dependencies.js';
 
@@ -248,3 +255,18 @@ export function fixTableStructure() {
     });
   });
 }
+
+// Main React component
+const App = () => {
+  // ... other code ...
+  
+  return (
+    <div>
+      {/* Existing code */}
+      <Dashboard />
+      {/* ... other code */}
+    </div>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));

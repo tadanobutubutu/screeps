@@ -264,17 +264,17 @@ export function createAccessibleFaviconSvg({
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" font-size="10">Dashboard</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="60">📊</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" font-size="10">Bug</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="60">🐛</text>'
   })
 };
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="main"], main, [role="banner"], header, [role="navigation"], nav, [role="contentinfo"], footer');
+  const landmarks = container.querySelectorAll('main, [role="banner"], header, [role="navigation"], nav, [role="contentinfo"], footer');
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {

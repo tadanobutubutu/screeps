@@ -65,9 +65,49 @@ const createAccessibleModal = (props) => {
   };
 };
 
+// Fix REACT_017: Add main landmarks (2 occurrences)
+const fixMainLandmarks = () => {
+  // Check if main landmark already exists
+  const existingMains = document.querySelectorAll('main');
+  
+  // If no main landmarks exist, create one
+  if (existingMains.length === 0) {
+    // Find the primary content areas that need main landmark wrapping
+    const tableRotated = document.getElementById('table-rotated');
+    const qualityMetricsContainer = document.querySelector('.container');
+    
+    // Wrap table-rotated in main if found and not already wrapped
+    if (tableRotated && !tableRotated.closest('main')) {
+      const mainElement = document.createElement('main');
+      mainElement.setAttribute('id', 'main-content');
+      tableRotated.parentNode.insertBefore(mainElement, tableRotated);
+      mainElement.appendChild(tableRotated);
+    }
+    
+    // Wrap quality metrics container in main if found and not already wrapped
+    if (qualityMetricsContainer && !qualityMetricsContainer.closest('main')) {
+      const mainElement = document.createElement('main');
+      mainElement.setAttribute('id', 'main-content');
+      qualityMetricsContainer.parentNode.insertBefore(mainElement, qualityMetricsContainer);
+      mainElement.appendChild(qualityMetricsContainer);
+    }
+    
+    // Generic fallback: find the main content area and wrap it
+    const body = document.body;
+    const mainContent = body.querySelector('table') || body.querySelector('.container') || body.querySelector('[role="main"]');
+    
+    if (mainContent && !mainContent.closest('main')) {
+      const mainElement = document.createElement('main');
+      mainElement.setAttribute('id', 'main-content');
+      mainContent.parentNode.insertBefore(mainElement, mainContent);
+      mainElement.appendChild(mainContent);
+    }
+  }
+};
+
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -79,7 +119,7 @@ const fixTableStructure = () => {
   tables.forEach(table => {
     // Implement table structure fixes here
     // Example: Add a caption or ensure proper headers
-    if (!table.querySelector('caption')) {
+    if (!table.querySelector('caption') && !table.querySelector('thead')) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table Description';
       table.insertBefore(caption, table.firstChild);
@@ -93,7 +133,7 @@ const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (!nav.getAttribute('role') && !nav.hasAttribute('aria-label')) {
       nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Navigation ' + (index + 1));
     }
@@ -106,7 +146,7 @@ const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   svgs.forEach(svg => {
-    if (count < 2 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && svg.getAttribute('role') === 'img') {
+    if (count < 2 && !svg.querySelector('title') && svg.getAttribute('role') === 'img') {
       const title = document.createElement('title');
       title.textContent = 'SVG ' + (count + 1) + ' description';
       title.id = 'svg-title-' + (count + 1);
@@ -151,6 +191,7 @@ const fixFakeLinkIssue = () => {
 };
 
 // Run accessibility fixes
+fixMainLandmarks();
 addLangAttribute();
 fixTableStructure();
 fixLandmarkIssues();
@@ -227,7 +268,7 @@ class MyComponent extends React.Component {
 }
 
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue };
+export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue, fixMainLandmarks };
 
 export default MyComponent;
 
@@ -250,5 +291,6 @@ module.exports = {
   addAccessibleNamesToSVGs,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  fixMainLandmarks,
   default: MyComponent,
 };

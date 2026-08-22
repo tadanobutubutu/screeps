@@ -10,7 +10,8 @@ const FixedLink = () => (
   </a>
 );
 
-// Main component export default function Main() {
+// Main component
+export default function Main() {
   // Define the columns for the table (26 columns total)
   const columns = [
     { Header: 'constants' },
@@ -22,9 +23,12 @@ const FixedLink = () => (
   ];
 
   // Initialize the React Table hook
-  const { getHeaderGroups, getRowProps, getCellProps, columns: allColumns } = useTable(
-    { columns }
-  );
+  const {
+    getHeaderGroups,
+    getRowProps,
+    getCellProps,
+    columns: allColumns,
+  } = useTable({ columns });
 
   // Container with language attribute and unique id for accessibility
   const containerId = 'mainContent-unique';
@@ -42,7 +46,7 @@ const FixedLink = () => (
         <table aria-label="Accessible Table">
           <thead>
             <tr>
-              {allColumns.map(column => (
+              {allColumns.map((column) => (
                 <th key={column.id} scope="col">
                   {column.render?.('Header') ?? column.Header}
                 </th>
@@ -50,9 +54,9 @@ const FixedLink = () => (
             </tr>
           </thead>
           <tbody>
-            {allColumns.map(row => (
+            {allColumns.map((row) => (
               <tr {...row.getRowProps()}>
-                {row.cells.map(cell => (
+                {row.cells.map((cell) => (
                   <td {...cell.getCellProps()}>
                     {cell.render('Cell')}
                   </td>
@@ -62,14 +66,10 @@ const FixedLink = () => (
           </tbody>
         </table>
 
-        {/* Add updated table components and accessibility elements */}
+        {/* Updated table components and accessibility elements */}
         <Logo />
         <MenuIcon />
-        <FixedLink>
-          <main id="mainContent" {...htmlAttributes}>
-            {this.props.children}
-          </main>
-        </FixedLink>
+        <FixedLink>Fake Link</FixedLink>
       </main>
       <footer>Footer</footer>
     </div>

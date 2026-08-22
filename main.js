@@ -5,7 +5,7 @@
 // Placeholder for accessibility-related code changes
 
 // New Functionality (to be added)
-function enhanceAccessibility() {
+export function enhanceAccessibility() {
   // Code to enhance accessibility features
   // For example, adding ARIA roles, keyboard navigation support, etc.
 }

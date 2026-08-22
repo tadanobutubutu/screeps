@@ -71,7 +71,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex}>
                 {cell}
               </td>
             ))}
@@ -131,7 +131,9 @@ export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIco
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 11);
+  return `${prefix}-${timestamp}-${random}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -141,7 +143,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
 }
 
 export function debounce(func, wait) {

@@ -89,7 +89,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex} ...
                 {cell}
               </td>
             ))}
@@ -105,7 +105,7 @@ export const PageLayout = ({
   headerContent, 
   mainContent, 
   navContent, 
-  footerContent  
+  footerContent   
 }) => {
   return (
     <>
@@ -128,7 +128,7 @@ export const PageLayout = ({
   );
 };
 
-// REACT_041: SVG components with accessible names
+// REACT_041: SVG components with accessible name
 export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
   return (
     <svg 
@@ -167,7 +167,7 @@ export {
   DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
-  SettingsIcon  
+  SettingsIcon   
 };
 
 // Missing functions added as requested
@@ -284,7 +284,7 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
         zIndex: 1000
       }}
     >
-      <h2 id="modal-title">{title}</h2>
+      <h2 ...
       {children}
       <button 
         type="button" 

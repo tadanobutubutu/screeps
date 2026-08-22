@@ -1,78 +1,77 @@
-// Import necessary accessibility-related libraries
 import React from 'react';
-import { Component, ReactDOMServer } from 'react';
-import { HTMLAttributes, ReactElement } from 'react';
+import { useTable } from 'react-table';
 
-class Main extends Component {
-  render() {
-    // Add lang attribute to HTML element
-    const htmlAttributes: HTMLAttributes<HTMLDivElement> = {
-      lang: 'en', // Update this with the desired language
-    };
+// Accessibility-related components
+const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
+const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
+const FixedLink = () => (
+  <a href="#" onClick={() => console.warn('Fake Link clicked')}>
+    Fake Link
+  </a>
+);
 
-    // Fix table structure issues (assuming you're using functional components for tables)
-    // For brevity, I'll only show one table with suggested changes
-    const Table = ({ children }) => {
-      // Accessible table structure using semantic HTML components
-      return (
+// Main component export default function Main() {
+  // Define the columns for the table (26 columns total)
+  const columns = [
+    { Header: 'constants' },
+    { Header: 'roomManager' },
+    { Header: 'spawnManager' },
+    { Header: 'towerManager' },
+    { Header: 'builder' },
+    // ... (additional columns up to 26 total)
+  ];
+
+  // Initialize the React Table hook
+  const { getHeaderGroups, getRowProps, getCellProps, columns: allColumns } = useTable(
+    { columns }
+  );
+
+  // Container with language attribute and unique id for accessibility
+  const containerId = 'mainContent-unique';
+  const htmlAttributes = {
+    lang: 'en',
+    id: containerId,
+  };
+
+  return (
+    <div {...htmlAttributes}>
+      {/* Landmarks */}
+      <header id="banner">Header</header>
+      <main id="mainContent">
+        {/* Accessible table structure */}
         <table aria-label="Accessible Table">
           <thead>
             <tr>
-              <th>Header 1</th>
-              <th>Header 2</th>
+              {allColumns.map(column => (
+                <th key={column.id} scope="col">
+                  {column.render?.('Header') ?? column.Header}
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody>{children}</tbody>
+          <tbody>
+            {allColumns.map(row => (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => (
+                  <td {...cell.getCellProps()}>
+                    {cell.render('Cell')}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
-      );
-    };
 
-    // Add landmarks
-    const Landmarks = () => (
-      <>
-        <header id="banner">Header</header>
-        <main id="mainContent">{this.props.children}</main>
-        <footer>Footer</footer>
-      </>
-    );
-
-    // Add accessible names to SVGs
-    // Assuming `logo` and `menuIcon` are the two SVGs needed
-    const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-    const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
-
-    // Ensure unique landmarks
-    // For simplicity, I'll only update the main content, as id="mainContent" already exists
-    const uniqueMainContent = { ...htmlAttributes, id: `${htmlAttributes.id}-unique` };
-
-    // Fix fake link issue
-    // Assuming `fakeLink` is the element causing the issue. Update it as necessary
-    const fixedLink = (
-      <a href="#" onClick={() => console.warn('Fake Link clicked')}>
-        Fake Link
-      </a>
-    );
-
-    return (
-      <div {...htmlAttributes}>
-        <Landmarks>
-          {/* Keep existing code/components as is */}
-          <Table id="existingTable">...</Table>
-          {/* Add updated table with better structure */}
-          <Table id="updatedTable">...</Table>
-          {/* Keep existing SVGs as is */}
-          {Logo()}
-          {MenuIcon()}
-          {fixedLink}
-          {/* Keep existing mainContent as is */}
-          <main id="mainContent" {...uniqueMainContent}>
+        {/* Add updated table components and accessibility elements */}
+        <Logo />
+        <MenuIcon />
+        <FixedLink>
+          <main id="mainContent" {...htmlAttributes}>
             {this.props.children}
           </main>
-        </Landmarks>
-      </div>
-    );
-  }
+        </FixedLink>
+      </main>
+      <footer>Footer</footer>
+    </div>
+  );
 }
-
-// Export the Main component
-export default React.memo(Main);

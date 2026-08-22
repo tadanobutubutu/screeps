@@ -1,44 +1,21 @@
-// TODO: Address accessibility issues from insight report: add ARIA attributes
+tsx
+import React from "react";
+// ... (existing imports)
 
-// Uncomment and add mainElement as per the issue
-// mainElement = ...
-
-/**
- * Adds accessibility attributes to table headers
- * Addresses insight report: ensuring proper scope attributes for screen readers
- * @param {HTMLTableElement} table - The table element to enhance
- */
-function enhanceTableAccessibility(table) {
-  const headers = table.querySelectorAll('th');
-  headers.forEach((header, index) => {
-    if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
-    }
-    
-    // Ensure headers have descriptive text for screen readers
-    const headerContent = header.querySelector('div') || header;
-    if (!header.hasAttribute('aria-label') && !headerContent.textContent.trim()) {
-      header.setAttribute('aria-label', `Column ${index + 1}`);
-    }
-  });
-  return table;
-}
-
-/**
- * Ensures interactive elements have proper ARIA roles
- * @param {HTMLElement} container - Container to scan for interactive elements
- */
-function ensureAccessibilityRoles(container) {
-  const interactiveElements = container.querySelectorAll('button, a, input, select, textarea');
-  interactiveElements.forEach(element => {
-    if (!element.hasAttribute('aria-label') && !element.textContent.trim() && !element.getAttribute('placeholder')) {
-      element.setAttribute('aria-label', 'Interactive element');
-    }
-  });
-  return container;
-}
-
-module.exports = {
-  enhanceTableAccessibility,
-  ensureAccessibilityRoles
+const AppLayout = () => {
+  // ... (existing code)
+  return (
+    <div className="font-default flex font-sans flex-col h-screen overflow-y-auto bg-gray-100 text-gray-600 antialiased">
+      {/* ... (existing components) */}
+      <header className="flex w-full items-center justify-between border-b border-gray-200 p-4 bg-white shadow-sm">
+        {/* ... (existing code) */}
+        <div className="flex items-center justify-center space-x-1">
+          <Icon icon={icons.icon} aria-label="Screeps Dashboard" />
+        </div>
+      </header>
+      {/* ... (existing components) */}
+    </div>
+  );
 };
+
+export default AppLayout;

@@ -9,3 +9,10 @@ export { functionC } from './moduleC';
 
 // ADDING NEW REQUIRED EXPORTS BELOW
 export { additionalFunction } from './moduleD'; // Example of a newly required export
+
+module.exports = {
+  functionA: functionA,
+  functionB: functionBExport,
+  functionC: functionC,
+  additionalFunction: additionalFunction
+};

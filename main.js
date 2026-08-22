@@ -67,7 +67,7 @@
     addLangAttributeToRoot
   };
 
-  // Here's an example of how to export a required function from another file:
+  // Example of how to export a required function from another file:
   // const { myFunction } = require('./otherFile');
   // module.exports = { myFunction };
 })();

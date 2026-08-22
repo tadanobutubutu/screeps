@@ -167,10 +167,12 @@ export {
   DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
-  SettingsIcon  
+  SettingsIcon,
+  AppWrapper,
+  PageLayout  
 };
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
 }

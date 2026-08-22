@@ -13,6 +13,7 @@ module.exports = {
     // Main game loop logic
   },
   updateDependencyGraph: function() {
+    // Main game loop logic
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)

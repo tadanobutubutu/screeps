@@ -8,8 +8,8 @@
 
 const newIcons = {
     ...icons,
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-label=%22Screeps Dashboard%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-label=%22Screeps Apple Logo%22><title>Screeps Apple Logo</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screeps Dashboard" xmlns="http://www.w3.org/2000/svg"><title>Screeps Dashboard</title><text y=".9em" font-size="18" x="50%" text-anchor="middle">Dashboard</text></svg>',
+    apple: '<svg viewBox="0 0 100 100" aria-label="Screeps Apple Logo" xmlns="http://www.w3.org/2000/svg"><title>Screeps Apple Logo</title><text y=".9em" font-size="18" x="50%" text-anchor="middle">Apple</text></svg>'
 };
 
 // Replace the existing icons with the updated version

@@ -256,7 +256,7 @@ export function createAccessibleFaviconSvg({
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-labelledby="favicon-title-${title.replace(/\s+/g, '-').toLowerCase()}"><title id="favicon-title-${title.replace(/\s+/g, '-').toLowerCase()}">${title}</title>${children}</svg>`;
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-labelledby="favicon-title"><title id="favicon-title">${title}</title>${children}</svg>`;
   const encoded = encodeURIComponent(svgContent);
   return `data:image/svg+xml,${encoded}`;
 }
@@ -265,17 +265,17 @@ export function createAccessibleFaviconSvg({
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">📊</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">SD</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">🐛</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">BUG</text>'
   })
 };
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarks = container.querySelectorAll('[role="contentinfo"], header, nav, main, footer');
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {
@@ -323,7 +323,7 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${randomPart}`;
+  return `${prefix}_${timestamp}_${randomPart}`;
 }
 
 // REACT_015: Set the lang attribute on the HTML root element

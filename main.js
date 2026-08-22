@@ -172,7 +172,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -182,7 +182,8 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  const dateObj = date instanceof Date ? date : new Date(date);
+  return dateObj.toLocaleDateString('en-US', defaultOptions);
 }
 
 export function debounce(func, wait) {
@@ -289,45 +290,4 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
       <button 
         type="button" 
         onClick={onClose}
-        aria-label="Close dialog"
-      >
-        Close
-      </button>
-    </div>
-  );
-};
-
-// REACT_054: Accessible error message component
-export const ErrorMessage = ({ id, message }) => {
-  return (
-    <div
-      id={id}
-      role="alert"
-      aria-live="assertive"
-      style={{ color: '#d32f2f' }}
-    >
-      {message}
-    </div>
-  );
-};
-
-// REACT_056: Required field indicator
-export const RequiredIndicator = () => {
-  return (
-    <span 
-      aria-hidden="true"
-      style={{ color: '#d32f2f' }}
-    >
-      *
-    </span>
-  );
-};
-
-// Export all accessibility utilities
-export {
-  SkipLink,
-  LiveRegion,
-  Modal,
-  ErrorMessage,
-  RequiredIndicator
-};
+        aria-label="Close

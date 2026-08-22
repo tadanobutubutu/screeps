@@ -32,4 +32,22 @@
 //   </tbody>
 // </table>
 
-// Your updated main.js file with the changes would look something like this:
+// Export the Button component with the corrected aria-label
+export const Button = () => (
+  <button aria-label="Submit form">Submit</button>
+);
+
+// Export the Table component with scope attributes
+export const Table = () => (
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Age</th>
+      </tr>
+    </thead>
+    <tbody>
+      {/* ... table rows ... */}
+    </tbody>
+  </table>
+);

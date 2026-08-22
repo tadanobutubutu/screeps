@@ -15,16 +15,59 @@ document.documentElement.lang = 'en';
 // REACT_041 fix: Add accessible names to SVGs (via aria-label attributes)
 function renderAccessibleSVG(svgContent, accessibleName, svgId) {
   return `
-    <svg  aria-label="${accessibleName}" id="${svgId || ''}">
+    <svg aria-label="${accessibleName}" id="${svgId || ''}">
       ${svgContent}
     </svg>
+  `;
+}
+
+// REACT_036 fix: Fix fake link issue - create proper accessible link
+function createAccessibleLink(href, text, isExternal = false) {
+  const externalAttrs = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+  return `<a href="${href}"${externalAttrs}>${text}</a>`;
+}
+
+// REACT_027 fix: Render accessible table structure
+function renderAccessibleTable(headers, rows, caption) {
+  const headerCells = headers
+    .map((header, index) => `<th scope="col" id="header-${index}">${header}</th>`)
+    .join('');
+  
+  const tableRows = rows
+    .map((row, rowIndex) => {
+      const cells = row
+        .map((cell, colIndex) => `<td headers="header-${colIndex} row-${rowIndex}">${cell}</td>`)
+        .join('');
+      return `<tr>${cells}</tr>`;
+    })
+    .join('');
+
+  return `
+    <table>
+      <caption>${caption}</caption>
+      <thead>
+        <tr>${headerCells}</tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+  `;
+}
+
+// Function to create accessible button
+function createAccessibleButton(label, onClick, variant = 'primary') {
+  return `
+    <button type="button" class="btn btn-${variant}" aria-label="${label}" onclick="${onClick}">
+      ${label}
+    </button>
   `;
 }
 
 // Function to create accessible landmark structure (addresses REACT_017 & REACT_025)
 function renderLandmarkStructure(content) {
   return `
-    <div id="main" role="main">
+    <div id="main-content" role="main">
       <header role="banner">
         <nav role="navigation" aria-label="Main navigation">
           <!-- Navigation content -->
@@ -49,7 +92,8 @@ function renderApp() {
         'Decorative circle icon',
         'icon-1'
       )}
-      <button type="button" aria-label="Click me">Click me</button>
+      ${createAccessibleButton('Click me', 'handleClick')}
+      ${createAccessibleLink('/about', 'About Us', false)}
     `;
   }
 }

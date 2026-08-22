@@ -32,4 +32,22 @@
   }
 
   // ... Existing code ...
+
+  // New function to replace the fake link with a button for better accessibility
+  function replaceFakeLinkWithButton() {
+    const fakeLink = document.getElementById('unrotate');
+    if (fakeLink) {
+      const button = document.createElement('button');
+      button.textContent = 'rotate back';
+      button.onclick = fakeLink.onclick; // Copy the onclick handler to the new button
+      fakeLink.parentNode.replaceChild(button, fakeLink);
+    }
+  }
+
+  // ... Existing code ...
+
+  // Call the new function to replace the fake link when the script loads
+  replaceFakeLinkWithButton();
+
+  // ... Existing code ...
 })();

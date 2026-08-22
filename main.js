@@ -1,3 +1,1 @@
-// main.js — No changes needed; the REACT_017 issue targets HTML landmark elements in docs/.
-// The fix is applied to docs/dependency-graph.html and docs/index.html by wrapping
-// primary content in a <main> landmark for accessibility.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -60,6 +60,17 @@ function fixTableStructure(table) {
 }
 
 /**
+ * Fix 26 table structure issues for accessibility
+ * Iterates over all table elements and applies fixTableStructure
+ */
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    fixTableStructure(table);
+  });
+}
+
+/**
  * Add main landmark to the page for accessibility
  * Ensures there's exactly one main landmark
  */
@@ -435,6 +446,7 @@ if (document.readyState === 'loading') {
 module.exports = {
   addLangAttribute,
   fixTableStructure,
+  fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,

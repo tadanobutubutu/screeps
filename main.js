@@ -21,7 +21,7 @@ export default function MainPage() {
           </nav>
         </header>
 
-        <main role="main" id="main-content">
+        <main id="main-content">
           <h1>Welcome to Our Application</h1>
           
           {/* REACT_036 Fix: Use proper anchor tag instead of div/button for links */}

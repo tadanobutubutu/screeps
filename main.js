@@ -74,7 +74,7 @@ module.exports = {
       // React_027: Add scope attribute to th elements
       const thElements = table.querySelectorAll('th');
       thElements.forEach(th => {
-        if (!th.getAttribute('scope')) {
+        if (!th.hasAttribute('scope')) {
           const row = th.closest('tr');
           const thead = th.closest('thead');
           if (thead && row && row.rowIndex === 0) {
@@ -162,7 +162,7 @@ module.exports = {
         svg.id = svgId;
       }
       const titleId = `${svgId}-title`;
-      const existingTitle = svg.querySelector('title');
+      const existingTitle = svg.querySelector(`#${titleId}`);
       if (!existingTitle) {
         const title = document.createElement('title');
         title.id = titleId;

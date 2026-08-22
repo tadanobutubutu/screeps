@@ -15,28 +15,28 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('header, [role="banner"]');
+    const banners = document.querySelectorAll('[role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('nav, [role="navigation"]');
+    const navigations = document.querySelectorAll('nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;
       }
     });
 
-    const mains = document.querySelectorAll('main, [role="main"]');
+    const mains = document.querySelectorAll('[role="main"]');
     mains.forEach((main, index) => {
       if (!main.id) {
         main.id = `main-${index + 1}`;
       }
     });
 
-    const footers = document.querySelectorAll('footer, [role="contentinfo"]');
+    const footers = document.querySelectorAll('[role="contentinfo"]');
     footers.forEach((footer, index) => {
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
@@ -114,59 +114,63 @@ module.exports = {
     // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg, index) => {
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
       const ariaLabel = svg.getAttribute('aria-label');
+      const ariaHidden = svg.getAttribute('aria-hidden');
       
-      if (!hasTitle && !hasDesc && !ariaLabel) {
-        // Find title or desc element if present
-        const titleElement = svg.querySelector('title');
-        const descElement = svg.querySelector('desc');
-        let accessibleName = "SVG Image";
-        if (titleElement) {
-          accessibleName = titleElement.textContent;
-        } else if (descElement) {
-          accessibleName = descElement.textContent;
-        }
-        // Add aria-labelledby attribute to associate a description with the SVG
-        const svgId = svg.id || `svg-${index + 1}`;
-        if (!svg.id) {
-          svg.id = svgId;
-        }
-        const titleId = `${svgId}-title`;
-        if (!hasTitle) {
-          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-          title.id = titleId;
-          title.textContent = accessibleName;
-          svg.insertBefore(title, svg.firstChild);
-        }
-        svg.setAttribute('aria-labelledby', titleId);
+      // Skip if SVG already has an accessible name or is hidden from screen readers
+      if (hasTitle || hasDesc || ariaLabel || ariaHidden === 'true') {
+        return;
       }
+      
+      // Find title or desc element if present
+      const titleElement = svg.querySelector('title');
+      const descElement = svg.querySelector('desc');
+      let accessibleName = "SVG Image";
+      if (titleElement) {
+        accessibleName = titleElement.textContent;
+      } else if (descElement) {
+        accessibleName = descElement.textContent;
+      }
+      // Add aria-labelledby attribute to associate a description with the SVG
+      const svgId = svg.id || `svg-${index + 1}`;
+      if (!svg.id) {
+        svg.id = svgId;
+      }
+      const titleId = `${svgId}-title`;
+      if (!hasTitle) {
+        const title = document.createElement('title');
+        title.id = titleId;
+        title.textContent = accessibleName;
+        svg.insertBefore(title, svg.firstChild);
+      }
+      svg.setAttribute('aria-labelledby', titleId);
     });
 
     // React_017: Add IDs to other landmark elements
-    const headers = document.querySelectorAll('header:not([id])');
+    const headers = document.querySelectorAll('header');
     headers.forEach((header, index) => {
       if (!header.id) {
         header.id = `header-${index + 1}`;
       }
     });
 
-    const footers = document.querySelectorAll('footer:not([id])');
+    const footers = document.querySelectorAll('footer');
     footers.forEach((footer, index) => {
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
       }
     });
 
-    const navs = document.querySelectorAll('nav:not([id])');
+    const navs = document.querySelectorAll('nav');
     navs.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `nav-${index + 1}`;
       }
     });
 
-    const asides = document.querySelectorAll('aside:not([id])');
+    const asides = document.querySelectorAll('aside');
     asides.forEach((aside, index) => {
       if (!aside.id) {
         aside.id = `aside-${index + 1}`;

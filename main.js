@@ -1,54 +1,24 @@
 (() => {
   // ... Existing code ...
 
-  // New function to fix table structure issues
-  function fixTableStructureIssues() {
-    $('table').each((index, table) => {
-      const $table = $(table);
-      const headers = $table.find('thead th');
-      const rows = $table.find('tbody tr');
-
-      // Ensure table has thead and tbody
-      if (!$table.find('thead').length) {
-        const $firstRow = $table.find('tr').first();
-        if ($firstRow.length) {
-          $table.prepend('<thead></thead>');
-          $firstRow.children().each(function() {
-            $table.find('thead').append($(this).clone());
-          });
-          $firstRow.detach();
-          $table.append('<tbody></tbody>');
-          $table.find('tbody').append($firstRow);
-        }
-      }
-
-      // Add scope attribute to header cells
-      $table.find('thead th').each(function() {
-        $(this).attr('scope', 'col');
-      });
-
-      // Ensure headers match the number of cells in the first row
-      if (headers.length !== rows[0].children.length) {
-        throw new Error('Table headers and rows do not match in length');
-      }
-
-      // Ensure each row has the same number of cells as headers
-      for (let i = 1; i < rows.length; i++) {
-        if (rows[i].children.length !== headers.length) {
-          throw new Error(`Mismatched header and row cells at row ${i + 1}`);
-        }
-      }
-
-      // Validate table structure
-      try {
-        validateTableStructure($table);
-      } catch (e) {
-        console.warn('Table structure validation error:', e.message);
-      }
+  // New function to add missing scope to td elements
+  function addScopeToTds() {
+    $('table tbody td').each(function() {
+      $(this).attr('scope', 'row');
     });
   }
 
-  // ... Existing functions ...
+  // New function to validate if all table rows have a scope attribute on their td elements
+  function validateRowScope() {
+    $('table tbody tr').each((index, row) => {
+      const $row = $(row);
+      const cells = $row.find('td');
+
+      if (!cells.all('[scope="row"]').length) {
+        throw new Error(`Missing scope="row" attribute on TDs of row ${index + 1}`);
+      }
+    });
+  }
 
   // Add the new functions to exports
   module.exports = {
@@ -59,6 +29,22 @@
     addScopeToThs,
     validateTableStructure,
     fixTableStructureIssues,
+    addScopeToTds,
+    validateRowScope,
     ensureUniqueLandmarks
   };
+
+  // Call the newly added functions (replace 'fixTableStructureIssues()' with 'fixTableStructureIssues(), addScopeToTds(), validateRowScope()' in the wrap function if needed)
+  function wrapMainFunction() {
+    // ... Existing wrapMainFunction code ...
+
+    // Instead of only calling fixTableStructureIssues, call multiple functions separated by semicolons
+    // This example assumes that you want to call the new functions as well
+    fixTableStructureIssues();
+    addScopeToTds();
+    validateRowScope();
+  }
+
+  //Start main function
+  wrapMainFunction();
 })();

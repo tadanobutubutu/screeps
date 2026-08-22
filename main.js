@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 // Accessibility improvements implemented in this file
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -23,7 +26,7 @@ const createAccessibleButton = (props) => {
   const role = typeof props.role === 'string' ? props.role : 'button';
   const ariaLabel = props.ariaLabel || 'Button';
   const ariaPressed = props.isPressed || false;
-  const ariaDisabled = props.disabled || false;
+  constariaDisabled = props.disabled || false;
   const onKeyDown = props.onKeyDown || ((e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -87,11 +90,10 @@ const addMainElementAriaAttributes = () => {
 
 // Add the new function to the accessibility fixes
 addLangAttribute();
-// Fix for REACT_025: Ensure only one main landmark exists
 const ensureUniqueLandmarks = () => {
   // Query all main elements in the document
   const mainElements = Array.from(document.querySelectorAll('[role="main"]'));
-  
+
   if (mainElements.length > 1) {
     // Keep the first main element as the primary landmark
     // Convert additional main elements to section elements with appropriate aria-label
@@ -99,17 +101,17 @@ const ensureUniqueLandmarks = () => {
       const mainElement = mainElements[i];
       const section = document.createElement('section');
       section.setAttribute('aria-label', 'Secondary content region');
-      
+
       // Preserve all child content
       while (mainElement.firstChild) {
         section.appendChild(mainElement.firstChild);
       }
-      
+
       // Preserve any existing id or class attributes
       if (mainElement.id) {
         section.id = mainElement.id;
       }
-      
+
       // Replace the main element with section in the DOM
       mainElement.replaceWith(section);
     }
@@ -129,6 +131,9 @@ const addLangAttribute = () => {
     if (!htmlElement.hasAttribute('lang')) {
       htmlElement.setAttribute('lang', 'en');
     }
+
+    // Integrated pull request changes
+    htmlElement.setAttribute('lang', 'en'); // Changed language to 'en'
   }
 };
 
@@ -174,3 +179,6 @@ module.exports = {
   fixFakeLinkIssue,
   default: MyComponent,
 };
+```
+
+This file integrates the changes from both branches, addressing accessibility issues, adding the lang attribute to the HTML root element, and keeping the existing functionality.

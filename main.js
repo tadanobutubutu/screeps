@@ -1,7 +1,7 @@
 // main.js - Entry point for the application
 // This file preserves all existing functionality.
 // The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.
-// No code changes to main.js are required based on this issue.
+// No code changes to main. js are required based on this issue.
 // Existing tests in /tests/ must continue to pass.
 
 module.exports = {
@@ -22,7 +22,7 @@ module.exports = {
     // This function ensures that landmark elements have proper labeling for accessibility
     const landmarkSelectors = ['header:not([role])', 'footer:not([role])', 'nav:not([role])', 'main:not([role])', '[role="banner"]', '[role="main"]', '[role="contentinfo"]'];
     
-    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
+    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
     const landmarkCounts = {};
     
     allLandmarks.forEach(landmark => {
@@ -33,7 +33,7 @@ module.exports = {
       landmarkCounts[key] = (landmarkCounts[key] || 0) + 1;
     });
     
-    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
+    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
     const tagCounts = {};
     
     secondPassLandmarks.forEach(landmark => {

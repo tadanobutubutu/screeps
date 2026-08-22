@@ -36,17 +36,18 @@ export const AccessibleIcon = ({ name, iconType, className = '' }) => {
     // Add more icon mappings as needed
   };
 
-  const accessibleIconName = `Icon: ${name}`;
+  const iconTitleId = `icon-title-${name}`;
 
   return (
     <svg
+      xmlns="http://www.w3.org/2000/svg"
       className={className}
       role="img"
-      aria-label={accessibleIconName}
-      ...
+      aria-labelledby={iconTitleId}
       viewBox="0 0 24 24"
       fill="currentColor"
     >
+      <title id={iconTitleId}>{name}</title>
       {iconMap[iconType] || iconMap.close}
     </svg>
   );
@@ -60,7 +61,7 @@ export const AccessibleTable = ({ caption, headers, rows, className = '' }) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} ...
+            <th key={index} scope="col">{header}</th>
           ))}
         </tr>
       </thead>
@@ -80,7 +81,7 @@ export const AccessibleTable = ({ caption, headers, rows, className = '' }) => {
 // Accessible Landmark Components (REACT_017, REACT_025)
 export const AccessibleHeader = ({ children, logoAlt = "Home" }) => {
   return (
-    <header role="banner">
+    <header>
       <a href="/" aria-label={logoAlt}>
         {/* Logo content */}
       </a>
@@ -101,7 +102,7 @@ export const AccessibleMain = ({ children, id = "main-content" }) => {
 
 export const AccessibleFooter = ({ children }) => {
   return (
-    <footer role="contentinfo">
+    <footer>
       {children}
     </footer>
   );

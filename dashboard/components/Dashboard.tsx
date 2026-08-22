@@ -1058,6 +1058,7 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
+                    role="status"
                     aria-live="polite"
                     style={{
                         position: 'fixed',

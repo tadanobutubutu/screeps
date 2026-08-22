@@ -40,7 +40,7 @@ export function ErrorDisplay({ error, onRetry, onCopy, copied }) {
       <h1 id="error-title" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
       <pre
         tabIndex={0}
-        aria-label="エラーメッセージ詳細"
+        aria-labelledby="error-title"
         style={{
           color: '#c53030',
           backgroundColor: '#fff5f5',
@@ -116,7 +116,7 @@ export function AccessibleIcon({ name }) {
   );
 }
 
-// Fix for REACT_036: Semantic links instead of divs with onClick
+// Fix for REACT_036: Semantic links instead of divs with [ADDRESS]
 export function SemanticLinks({ href, children, onClick }) {
   if (href) {
     return <a href={href} onClick={onClick}>{children}</a>;

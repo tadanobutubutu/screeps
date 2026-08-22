@@ -8,3 +8,10 @@ function rotateBack() {
 document.getElementById('unrotate').innerHTML = `
   <button onclick="rotateBack()">rotate back</button>
 `;
+
+// Wrap the primary content in <main> for accessibility
+document.querySelector('main').innerHTML = `
+  <main>
+    ${document.querySelector('main').innerHTML}
+  </main>
+`;

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Assuming that 'import React' and 'ReactDOM' are defined elsewhere in your project
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -52,6 +49,3 @@ ReactDOM.render(
 );
 
 // ... rest of your main.js file ...
-```
-
-This resolved version integrates the added components and their primary content under the respective `<main>` elements. It combines the `DocsDependencyGraph` and `DocsIndex` sections since they didn't have any additional changes besides the addition of `<main>` elements.

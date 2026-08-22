@@ -1,7 +1,6 @@
 // main.js - Main game loop entry point
 
-// TODO: Add back any required exports that might have been?
-// ... (rest of your existing code remains unchanged)
+// TODO: Import required module(s) and export the new necessary function(s) here, and add back any required exports
 
 // New function to be exported as per the issue
 const myNewFunction = function() {
@@ -164,7 +163,7 @@ module.exports = {
         svg.id = svgId;
       }
       const titleId = `${svgId}-title`;
-      if (!titleElement) {
+      if (!hasTitle) {
         const title = document.createElement('title');
         title.id = titleId;
         title.textContent = accessibleName;

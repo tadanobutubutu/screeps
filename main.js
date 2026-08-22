@@ -43,7 +43,7 @@ function makeApiCall(endpoint) {
 function setLangAttribute(lang, targetDoc) {
   const doc = targetDoc || document;
   if (doc.documentElement) {
-    doc.documentElement.setAttribute("lang", lang || "en");
+    doc.documentElement.lang = lang || "en";
   }
 }
 
@@ -72,7 +72,7 @@ function addSvgAccessibleName(svgElement, title, description) {
   
   // Add title element for screen reader support
   const titleId = "svg-title-" + Math.random().toString(36).substr(2, 9);
-  const titleEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
+  const titleEl = document.createElement("title");
   titleEl.id = titleId;
   titleEl.textContent = title || "";
   svgElement.insertBefore(titleEl, svgElement.firstChild);
@@ -83,10 +83,10 @@ function addSvgAccessibleName(svgElement, title, description) {
   // Optionally add desc for more detail
   if (description) {
     const descId = "svg-desc-" + Math.random().toString(36).substr(2, 9);
-    const descEl = document.createElementNS("http://www.w3.org/2000/svg", "desc");
+    const descEl = document.createElement("desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.appendChild(descEl);
+    svgElement.insertBefore(descEl, svgElement.firstChild.nextSibling);
     
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
     svgElement.setAttribute("aria-labelledby", currentAriaLabelledby + " " + titleId + " " + descId);

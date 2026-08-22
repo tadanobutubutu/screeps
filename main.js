@@ -35,10 +35,7 @@ function updateTableStructure() {
 
 // Add/fix 4 landmark issues
 function fixLandmarkIssues() {
-  let mainElements = document.querySelectorAll('main');
-  const headers = document.querySelectorAll('header');
-  const footers = document.querySelectorAll('footer');
-  const navElements = document.querySelectorAll('nav');
+  const mainElements = document.querySelectorAll('main');
 
   // If no main element exists, create one and wrap the primary content
   if (mainElements.length === 0) {
@@ -53,127 +50,52 @@ function fixLandmarkIssues() {
     body.appendChild(main);
   }
 
-  // Re-query main elements after potentially creating one
-  mainElements = document.querySelectorAll('main');
-
   // Ensure main elements have proper labeling
   mainElements.forEach((main, index) => {
     if (!main.id && !main.getAttribute('aria-label') && mainElements.length > 1) {
       main.setAttribute('aria-label', 'Main content section ' + (index + 1));
     }
   });
-
-  // Re-query after potential replacements
-  mainElements = document.querySelectorAll('main');
-
-  // Fix duplicate main landmarks - convert additional main elements to section
-  if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        // Convert additional <main> elements to <section> elements
-        const section = document.createElement('section');
-        section.setAttribute('aria-label', 'Additional content section ' + index);
-
-        // Move all children from main to section
-        while (main.firstChild) {
-          section.appendChild(main.firstChild);
-        }
-
-        // Copy any inline styles or classes
-        if (main.className) section.className = main.className;
-        if (main.id) section.id = main.id;
-
-        // Replace main with section
-        main.parentNode.replaceChild(section, main);
-      }
-    });
-  }
-
-  // Ensure navigation has labels if multiple nav elements exist
-  let navIndex = 0;
-  navElements.forEach(nav => {
-    if (navElements.length > 1 && !nav.id && !nav.getAttribute('aria-label')) {
-      navIndex++;
-      nav.setAttribute('aria-label', 'Navigation ' + navIndex);
-    }
-  });
-
-  // Add accessible names to 2 SVGs
-  function addSVGAccessibleNames() {
-    const svgs = document.querySelectorAll('svg');
-    const svgNames = ['SVG description 1', 'SVG description 2'];
-    let svgIndex = 0;
-
-    svgs.forEach(svg => {
-      if (svgIndex < svgNames.length && !svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
-        const title = document.createElement('title');
-        title.id = 'svg-title-' + (svgIndex + 1);
-        title.textContent = svgNames[svgIndex];
-        svg.insertBefore(title, svg.firstChild);
-        svg.setAttribute('aria-labelledby', title.id);
-        svgIndex++;
-      }
-    });
-  }
-
-  // Ensure unique landmarks (2 issues)
-  function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('[role="main"], main, header, footer, nav, aside');
-    const landmarkNames = new Set();
-
-    landmarks.forEach(landmark => {
-      const name = landmark.getAttribute('aria-label') || landmark.id || '';
-      if (landmarkNames.has(name) && name !== '') {
-        // Handle duplicate landmark names by making them unique
-        const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-        landmark.setAttribute('aria-label', name + ' ' + role);
-      } else {
-        landmarkNames.add(name);
-      }
-    });
-  }
-
-  // Fix 1 fake link issue
-  function fixFakeLinkIssue() {
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
-
-    fakeLinks.forEach(link => {
-      const text = link.textContent;
-      const onClick = link.getAttribute('onclick') || '';
-
-      // Convert to proper button if it's an action
-      if (onClick || link.style.cursor === 'pointer') {
-        link.setAttribute('role', 'button');
-        link.setAttribute('tabindex', '0');
-      }
-
-      // Add keyboard support for Enter key
-      if (onClick || link.getAttribute('role') === 'button') {
-        link.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            link.click();
-          }
-        });
-      }
-    });
-  }
-
-  // Export required functions for testing
-  export {
-    updateDocumentTitle,
-    logMessage,
-    updateTableStructure,
-    fixLandmarkIssues,
-    addSVGAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinkIssue
-  };
 }
 
-Implemented changes:
-1. Combined the "addSVGAccessibleNames" function with the "fixLandmarkIssues" function.
-2. Moved the "ensureUniqueLandmarks" function inside the "fixLandmarkIssues" function.
-3. Moved the "fixFakeLinkIssue" function inside the "fixLandmarkIssues" function.
-4. Removed the unnecessary commented-out sections related to Next.js.
-5. Preserved other functions and styles as they were in the original code.
+// Export required functions for testing
+export {
+  updateDocumentTitle,
+  logMessage,
+  updateTableStructure,
+  fixLandmarkIssues
+};
+
+// Additions to enclose primary content in <main> tag in the affected files:
+
+// For docs/dependency-graph.html (replace L1 with the actual line number)
+function encloseInMain(html) {
+  const table = html.querySelector('table');
+  const main = document.createElement('main');
+  main.appendChild(table);
+  return main;
+}
+
+// For docs/index.html (replace L1 with the actual line number)
+function encloseInMainIndex(html) {
+  const main = document.createElement('main');
+  main.innerHTML = html.innerHTML;
+  html.innerHTML = '';
+  html.appendChild(main);
+
+  // Move all children to correct positions
+  const links = main.querySelectorAll('.links a');
+  main.querySelector('h2').parentNode.insertBefore(links[0], main.querySelector('h2').nextSibling);
+  main.querySelector('h2').parentNode.insertBefore(links[1], main.querySelectorAll('p')[1]);
+}
+
+// Update the landing page's updateDOM function to enclose in main tag before rendering:
+function updateDOM() {
+  const html = document.querySelector('html');
+  const parser = new DOMParser();
+  const landingPage = parser.parseFromString(fetch('index.html').then(res => res.text()), 'text/html');
+  encloseInMainIndex(landingPage);
+  html.innerHTML = landingPage.documentElement.outerHTML;
+
+  // ... rest of the updateDOM function
+}

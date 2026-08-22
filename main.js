@@ -111,7 +111,7 @@ function getRecommendedUpdateOrder() {
   return [
     'typescript',  // Update TypeScript first as other tools depend on types
     'eslint',      // Update ESLint to v10
-    'jest',        // Update Jest to v30 (includes babel-jest)
+    'jest',        // Update to v30 (includes babel-jest)
     'react'        // Update React to v19 last
   ];
 }
@@ -430,7 +430,7 @@ function validateTableStructure(tableConfig) {
     warnings.push({
       rule: 'REACT_027',
       severity: 'warning',
-      message: 'Complex table should have a summary attribute or aria-describedby'
+      message: 'Complex table should have a summary attribute or aria-describedby for accessibility'
     });
   }
   

@@ -53,7 +53,7 @@ const createAccessibleInput = (props) => {
   };
 };
 
-// Create accessible modal/dialog
+// Create accessible modal/dialog (updated content)
 const createAccessibleModal = (props) => {
   return {
     ...props,
@@ -61,6 +61,7 @@ const createAccessibleModal = (props) => {
     'aria-modal': true,
     'aria-labelledby': props.titleId,
     'aria-describedby': props.descriptionId,
+    'aria-hidden': props.hidden || false,
     tabIndex: -1,
   };
 };
@@ -69,13 +70,13 @@ const createAccessibleModal = (props) => {
 const fixMainLandmarks = () => {
   // Check if main landmark already exists
   const existingMains = document.querySelectorAll('main');
-  
+
   // If no main landmarks exist, create one
   if (existingMains.length === 0) {
     // Find the primary content areas that need main landmark wrapping
     const tableRotated = document.getElementById('table-rotated');
     const qualityMetricsContainer = document.querySelector('.container');
-    
+
     // Wrap table-rotated in main if found and not already wrapped
     if (tableRotated && !tableRotated.closest('main')) {
       const mainElement = document.createElement('main');
@@ -83,7 +84,7 @@ const fixMainLandmarks = () => {
       tableRotated.parentNode.insertBefore(mainElement, tableRotated);
       mainElement.appendChild(tableRotated);
     }
-    
+
     // Wrap quality metrics container in main if found and not already wrapped
     if (qualityMetricsContainer && !qualityMetricsContainer.closest('main')) {
       const mainElement = document.createElement('main');
@@ -91,14 +92,14 @@ const fixMainLandmarks = () => {
       qualityMetricsContainer.parentNode.insertBefore(mainElement, qualityMetricsContainer);
       mainElement.appendChild(qualityMetricsContainer);
     }
-    
-    // Generic fallback: find the main content area and wrap it
+
+    // Generic fallback: find the main content area and wrap it (updated ID parameter)
     const body = document.body;
     const mainContent = body.querySelector('table') || body.querySelector('.container') || body.querySelector('[role="main"]');
-    
+
     if (mainContent && !mainContent.closest('main')) {
       const mainElement = document.createElement('main');
-      mainElement.setAttribute('id', 'main-content');
+      mainElement.setAttribute('id', 'mainContentArea');
       mainContent.parentNode.insertBefore(mainElement, mainContent);
       mainElement.appendChild(mainContent);
     }
@@ -113,8 +114,14 @@ const addLangAttribute = () => {
   }
 };
 
-// Fix 26 table structure issues
+// Fix 26 table structure issues (moved to separate function)
 const fixTableStructure = () => {
+  fixTableIssue1();
+  fixTableIssue2();
+  // ... additional fixes
+};
+
+function fixTableIssue1() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Implement table structure fixes here
@@ -124,11 +131,19 @@ const fixTableStructure = () => {
       caption.textContent = 'Table Description';
       table.insertBefore(caption, table.firstChild);
     }
-    // ... additional fixes
   });
-};
+}
 
-// Fix 4 landmark issues
+function fixTableIssue2() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (table.querySelector('thead') && table.querySelector('tbody') && !table.hasAttribute('aria-labelledby')) {
+      table.setAttribute('aria-labelledby', table.querySelector('thead').getAttribute('id') || '');
+    }
+  });
+}
+
+// Fix 4 landmark issues (updated content)
 const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
   const navs = document.querySelectorAll('nav');
@@ -138,10 +153,16 @@ const fixLandmarkIssues = () => {
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Navigation ' + (index + 1));
     }
   });
+
+  // Example: Add a search landmark
+  const search = document.querySelector('[role="search"]');
+  if (search) {
+    search.setAttribute('aria-labelledby', search.querySelector('label').textContent);
+  }
   // ... additional landmarks
 };
 
-// Add accessible names to 2 SVGs
+// Add accessible names to 2 SVGs (updated content)
 const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
@@ -157,7 +178,7 @@ const addAccessibleNamesToSVGs = () => {
   });
 };
 
-// Ensure unique landmarks (2 issues)
+// Ensure unique landmarks (2 issues) (updated content)
 const ensureUniqueLandmarks = () => {
   // Example: Ensure navigation landmark is unique
   const navs = document.querySelectorAll('nav');
@@ -176,16 +197,12 @@ const ensureUniqueLandmarks = () => {
 const fixFakeLinkIssue = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
-    if (link.tagName === 'A') {
-      // Check if it's a fake link (e.g., no href or javascript: href)
-      const href = link.getAttribute('href');
-      if (!href || href === '#' || href.indexOf('javascript:') === 0) {
-        link.setAttribute('role', 'button');
-        link.setAttribute('tabindex', '0');
-        link.addEventListener('click', (event) => {
-          event.preventDefault();
-        });
-      }
+    if (link.tagName === 'A' && !link.hasAttribute('href')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+      });
     }
   });
 };
@@ -198,99 +215,3 @@ fixLandmarkIssues();
 addAccessibleNamesToSVGs();
 ensureUniqueLandmarks();
 fixFakeLinkIssue();
-
-import express from 'express';
-
-const expressApp = express();
-
-if (require.main === module) {
-  const app = expressApp;
-  // ... rest of the existing code
-}
-
-// ... rest of the existing exports
-
-// Upgrade jest to v30 (`babel-jest` and `jest`)
-const { configure } = require('babel-jest');
-
-configure.automock = false;
-
-configure.cacheDirectory = __dirname + '/.cache';
-
-// Upgrade eslint to v10
-const eslingConfig = {
-  rules: {
-    // ... existing rules
-    'no-var': 'error',
-  },
-};
-
-// Upgrade TypeScript to v7
-const tsConfig = {
-  compilerOptions: {
-    target: 'es6',
-    module: 'esnext',
-  },
-};
-
-// Upgrade React to v19
-const React = require('react');
-
-class MyComponent extends React.Component {
-  // ... existing component code
-  static ariaRole = 'button';
-
-  handleKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      // ... handle click
-    }
-  };
-
-  render() {
-    // ... existing render method code
-    // Add additional ARIA attributes to the component as needed
-    const { isPressed, disabled, label, onClick, className, type, children } = this.props;
-    return (
-      <button
-        role="button"
-        aria-label={label || 'My Button'}
-        aria-pressed={isPressed || false}
-        aria-disabled={disabled || false}
-        onClick={onClick}
-        className={className}
-        type={type || 'button'}
-      >
-        {children}
-      </button>
-    );
-  }
-}
-
-// Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue, fixMainLandmarks };
-
-export default MyComponent;
-
-// Export all required modules
-module.exports = {
-  jest: {
-    preset: 'ts-jest',
-    configure,
-    cacheDirectory,
-  },
-  eslingConfig,
-  tsConfig,
-  validateAccessibility,
-  createAccessibleButton,
-  createAccessibleInput,
-  createAccessibleModal,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addAccessibleNamesToSVGs,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  fixMainLandmarks,
-  default: MyComponent,
-};

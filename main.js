@@ -39,8 +39,8 @@
       (child) => child.type === mainElement
     );
     if (mainElements.length > 1) {
-      console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
-      return React.cloneElement(mainElements[0], { children: mainElements.slice(1) });
+      console.warn('<main> elements detected. Only one <main> element is allowed.');
+      return children.filter((child) => child.type !== mainElement).concat(mainElements[0]);
     }
     return children;
   };

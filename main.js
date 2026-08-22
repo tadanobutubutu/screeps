@@ -20,7 +20,13 @@ const db = {
   disconnect: () => console.log('Database disconnected')
 };
 
-// TODO: Add back any required exports that might have been?
+// New function for accessibility check
+function accessibilityCheck(req, res, next) {
+  // Dummy implementation of an accessibility check
+  console.log('Accessibility check triggered');
+  // Add actual accessibility check logic here if needed
+  next();
+}
 
 // Route handlers
 const homeRoute = (req, res) => {
@@ -49,6 +55,9 @@ function initialize() {
   app.get('/status', statusRoute);
   app.use(errorHandler);
   
+  // Add accessibility check middleware
+  app.use(accessibilityCheck);
+  
   return app;
 }
 
@@ -73,6 +82,7 @@ module.exports = {
   homeRoute,
   statusRoute,
   errorHandler,
+  accessibilityCheck,
   PORT,
   ENV
 };

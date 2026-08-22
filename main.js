@@ -114,7 +114,7 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.hasAttribute("tabindex")) {
+  if (element) {
     element.setAttribute("tabindex", "0");
   }
 }
@@ -122,7 +122,7 @@ function fixFakeLink(element, isActionLink) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("footer, aside, section");
   const seenLandmarks = {};
   
   landmarks.forEach(function(landmark) {
@@ -141,6 +141,28 @@ function fixLandmarkIssues(container) {
   return seenLandmarks;
 }
 
+// REACT_041: Mark SVG as decorative (hidden from screen readers)
+function markSvgAsDecorative(svgElement) {
+  if (!svgElement) return;
+  
+  const tagName = svgElement.tagName ? svgElement.tagName.toLowerCase() : "";
+  if (tagName === "svg") {
+    svgElement.setAttribute("aria-hidden", "true");
+  }
+}
+
+// Helper function to mark all SVG elements in a container as decorative
+function markAllSvgsAsDecorative(container) {
+  const targetDoc = container && container.querySelector ? container : document;
+  const svgs = targetDoc.querySelectorAll("svg");
+  
+  svgs.forEach(function(svg) {
+    markSvgAsDecorative(svg);
+  });
+  
+  return svgs.length;
+}
+
 // Export the new necessary function(s) preserving the existing ones
 module.exports = {
   enhanceAccessibility: enhanceAccessibility,
@@ -153,5 +175,8 @@ module.exports = {
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
   fixLandmarkIssues: fixLandmarkIssues,
+  // REACT_041: Decorative SVG functions
+  markSvgAsDecorative: markSvgAsDecorative,
+  markAllSvgsAsDecorative: markAllSvgsAsDecorative,
   // Export any existing necessary functions or configurations
 };

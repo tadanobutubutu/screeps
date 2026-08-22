@@ -1,6 +1,5 @@
-Here is the resolved `main.js` file:
+'use strict';
 
-```javascript
 // Error: No main.js content was provided in the request.
 
 // Please provide the actual contents of main.js so I can:
@@ -18,7 +17,6 @@ Here is the resolved `main.js` file:
 document.getElementById('primary-content').innerHTML = `
   <main>
     ${document.getElementById('primary-content').innerHTML}
-  </main>
 `;
 
 // Replace the anchor element with a button and reattach click event listener
@@ -45,5 +43,6 @@ function rotateBack() {
   });
 }
 
+// Export for CommonJS and ES modules
+module.exports = { rotateBack };
 export { rotateBack };
-```

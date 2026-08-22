@@ -87,11 +87,35 @@ module.exports = {
       });
     });
 
-    // Ensure main content is wrapped in proper landmarks (React_017)
-    const main = document.querySelector('main') || document.querySelector('[role="main"]');
-    if (main && !main.id) {
-      main.id = 'main-content';
-    }
+    // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    let mainFound = false;
+    mainElements.forEach((main, index) => {
+      if (!mainFound) {
+        // Keep the first main as the primary landmark
+        if (!main.id) {
+          main.id = 'main-content';
+        }
+        mainFound = true;
+      } else {
+        // Convert subsequent main elements to sections to avoid duplicate landmarks
+        const section = document.createElement('section');
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        // Preserve any attributes (except role) from the original main
+        Array.from(main.attributes).forEach(attr => {
+          if (attr.name !== 'role') {
+            section.setAttribute(attr.name, attr.value);
+          }
+        });
+        // Ensure the converted section has a unique ID
+        if (!section.id) {
+          section.id = `section-${index}`;
+        }
+        main.parentNode.replaceChild(section, main);
+      }
+    });
 
     // Ensure all clickable elements that navigate have proper accessible roles (React_025, React_036)
     const linksWithoutHref = document.querySelectorAll('a:not([href])');

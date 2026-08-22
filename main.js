@@ -3,7 +3,31 @@
 // Accessibility fix for REACT_025: Ensure unique landmarks
 const uniqueLandmarks = () => {
   // Implementation to ensure all landmarks have unique IDs
-  return true;
+  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const existingIds = new Set();
+  
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      existingIds.add(landmark.id);
+    }
+  });
+  
+  return (element) => {
+    if (!element) return false;
+    
+    if (!element.id) {
+      let counter = 1;
+      let newId = `landmark-${counter}`;
+      while (existingIds.has(newId)) {
+        counter++;
+        newId = `landmark-${counter}`;
+      }
+      element.id = newId;
+      existingIds.add(newId);
+    }
+    
+    return true;
+  };
 };
 
 // PRESERVE all existing code, exports, and functions from current main.js

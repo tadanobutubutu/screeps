@@ -47,8 +47,6 @@
   };
   module.exports.removeDuplicateMainElements = removeDuplicateMainElements;
 
-  // ----- END NEW CODE-----
-
   // Add lang attribute to the root element
   function addLangAttributeToRoot() {
     const rootElement = document.documentElement;

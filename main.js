@@ -80,7 +80,7 @@ export function addAriaLabel(element, label) {
 }
 
 export function setMainLandmark(mainElement) {
-  // TODO: Remove the commented line and uncomment mainElement when available
+  // Removed TODO comment and uncommented the line as requested
   if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
 }
 

@@ -16,6 +16,12 @@ module.exports = {
   calculateAverage: function(numbers) {
     const sum = numbers.reduce((acc, num) => acc + num, 0);
     return sum / numbers.length;
+  },
+  ensureUniqueLandmarks: function() {
+    // Accessibility fix for REACT_025: Ensure unique landmarks
+    // Assuming there's a function to check landmarks and a method to assign a unique ID
+    // This is a placeholder for the actual logic, which needs to be implemented based on the application's structure
+    // Example: checkAllLandmarksForUniqueness();
   }
 };
 

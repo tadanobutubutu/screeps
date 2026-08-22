@@ -128,32 +128,65 @@ export function fixTableStructureIssues(tables) {
   }));
 }
 
-// REACT_025: Function to ensure unique landmarks
-export function ensureUniqueLandmarks(container) {
-  const landmarks = ...
-  const seenIds = new Set();
+// REACT_025: Component with single <main> landmark and conditional content
+// This fixes the issue where error and success states each had their own <main>
+// Now uses ONE <main> element with conditional inner content via aria-live
+export const StatusPage = ({ status, errorMessage, successContent, isLoading }) => {
+  // Single main landmark for this component
+  return (
+    <main id="main-content" role="main" aria-live="polite">
+      {isLoading && (
+        <div className="loading-state" role="status" aria-busy="true">
+          Loading...
+        </div>
+      )}
+      
+      {status === 'error' && (
+        <article className="error-state" role="alert">
+          <h1>Error</h1>
+          <p>{errorMessage || 'An error occurred'}</p>
+        </article>
+      )}
+      
+      {status === 'success' && (
+        <article className="success-state">
+          <h1>Success</h1>
+          {successContent}
+        </article>
+      )}
+    </main>
+  );
+};
+
+// REACT_025: Alternative component pattern using section instead of multiple mains
+// For cases where the component might be nested inside a parent with <main>
+export const ContentPanel = ({ type, title, content, errorContent }) => {
+  // Use section instead of main when component is nested
+  // This prevents duplicate main landmarks in the page
+  if (type === 'error') {
+    return (
+      <section 
+        id="error-panel" 
+        aria-labelledby="error-title"
+        className="error-panel"
+      >
+        <h2 id="error-title">Error</h2>
+        {errorContent}
+      </section>
+    );
+  }
   
-  landmarks.forEach(landmark => {
-    const role = ...
-    let existingId = landmark.id;
-    
-    if (existingId && !seenIds.has(existingId)) {
-      seenIds.add(existingId);
-    } else {
-      // Generate unique ID based on role
-      let counter = 1;
-      let newId = `${role}-${counter}`;
-      while (seenIds.has(newId)) {
-        counter++;
-        newId = `${role}-${counter}`;
-      }
-      landmark.id = newId;
-      seenIds.add(newId);
-    }
-  });
-  
-  return container;
-}
+  return (
+    <section 
+      id="content-panel"
+      aria-labelledby="content-title"
+      className="content-panel"
+    >
+      <h2 id="content-title">{title}</h2>
+      {content}
+    </section>
+  );
+};
 
 // REACT_017 & REACT_025: Landmark structure with unique identifiers
 export const PageLayout = ({ 
@@ -223,21 +256,48 @@ export function createAccessibleFaviconSvg({
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" ...
-  return ...
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}"><title>${title}</title>${children}</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
 }
 
 // REACT_041: Predefined accessible favicon generators for the project
 export const faviconGenerators = {
-  screepsDashboard: () => ...
+  screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" ...
+    children: '<text y=".9em" font-size="10">Dashboard</text>'
   }),
-  screepsBug: () => ...
+  screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" ...
+    children: '<text y=".9em" font-size="10">Bug</text>'
   })
 };
+
+// REACT_025: Function to ensure unique landmarks
+export function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="main"], main, [role="banner"], header, [role="navigation"], nav, [role="contentinfo"], footer');
+  const seenIds = new Set();
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.tagName.toLowerCase();
+    let existingId = landmark.id;
+    
+    if (existingId && !seenIds.has(existingId)) {
+      seenIds.add(existingId);
+    } else {
+      // Generate unique ID based on role
+      let counter = 1;
+      let newId = `${role}-${counter}`;
+      while (seenIds.has(newId)) {
+        counter++;
+        newId = `${role}-${counter}`;
+      }
+      landmark.id = newId;
+      seenIds.add(newId);
+    }
+  });
+  
+  return container;
+}
 
 // Export all new accessibility-friendly components
 export { 
@@ -253,14 +313,16 @@ export {
   fixTableStructureIssues,
   ensureUniqueLandmarks,
   createAccessibleFaviconSvg,
-  faviconGenerators
+  faviconGenerators,
+  StatusPage,
+  ContentPanel
 };
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return ...
+  return `${prefix}-${timestamp}-${randomPart}`;
 }
 
 // REACT_015: Set the lang attribute on the HTML root element

@@ -89,7 +89,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex} ...
                 {cell}
               </td>
             ))}
@@ -160,19 +160,54 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
-// Export all new accessibility-friendly components
+// REACT_041: Favicon SVG with aria-hidden for decorative icons
+export const FaviconSVG = ({ children, ...props }) => {
+  return (
+    <svg 
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+};
+
+/**
+ * Adds accessibility attributes to an SVG string for favicon use
+ * @param {string} svgString - The SVG string to modify
+ * @returns {string} - SVG string with aria-hidden="true" added
+ */
+export const makeFaviconAccessible = (svgString) => {
+  if (!svgString || typeof svgString !== 'string') {
+    return svgString;
+  }
+  
+  // Check if aria-hidden is already present
+  if (svgString.includes('aria-hidden')) {
+    return svgString;
+  }
+  
+  // Add aria-hidden and focusable to opening svg tag
+  return svgString.replace(
+    /<svg([^>]*?)>/i,
+    '<svg$1 aria-hidden="true" focusable="false">'
+  );
+};
+
 export { 
   RotateBackButton, 
   FakeLinkAsButton, 
   DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
-  SettingsIcon  
+  SettingsIcon,
+  FaviconSVG
 };
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return ... 9)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -182,7 +217,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new ... ...
 }
 
 export function debounce(func, wait) {
@@ -284,7 +319,7 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
         zIndex: 1000
       }}
     >
-      <h2 id="modal-title">{title}</h2>
+      <h2 ...
       {children}
       <button 
         type="button" 

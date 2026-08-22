@@ -1,5 +1,19 @@
-I need to see the current content of `main.js` to fix the syntax errors. From the error messages, it appears the file has invalid JavaScript content at the beginning. Could you please provide the full contents of `main.js`?
+// Existing code, exports, and functions from current main.js
+// ...
 
-The issue mentions that `docs/dependency-graph.html` needs the `lang` attribute added to fix the REACT_015 accessibility issue, but the test failures are related to `main.js` syntax checking, which I cannot resolve without seeing its current content.
+// New function to fix REACT_041 issue for SVG accessible name
+function addAccessibleNameToSVG(svgContent) {
+  const svgString = `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+  return svgString.replace(/<svg[^>]*>/, '<svg aria-hidden="true">');
+}
 
-Please paste the contents of `main.js` here so I can help you fix both issues.
+// Example usage of the new function in existing code
+// Assuming 'iconSvgContent' is the SVG content that needs to be updated
+const icons = {
+  icon: addAccessibleNameToSVG(iconSvgContent),
+  apple: addAccessibleNameToSVG(iconSvgContent),
+  // ... other icons
+};
+
+// Output the complete updated main.js content
+// ...

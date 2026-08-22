@@ -7,8 +7,6 @@ async function main() {
     try {
         const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
         await generateDependencyGraph(outputPath);
-        // Add the lang attribute to the HTML document tag for better screen reader support
-        document.documentElement.lang = 'en';
         console.log('Dependency graph generated successfully!');
     } catch (error) {
         console.error('Error generating dependency graph:', error);

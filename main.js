@@ -170,10 +170,3 @@ function fixLandmarkIssues() {
     fixFakeLinkIssue
   };
 }
-
-Implemented changes:
-1. Combined the "addSVGAccessibleNames" function with the "fixLandmarkIssues" function.
-2. Moved the "ensureUniqueLandmarks" function inside the "fixLandmarkIssues" function.
-3. Moved the "fixFakeLinkIssue" function inside the "fixLandmarkIssues" function.
-4. Removed the unnecessary commented-out sections related to Next.js.
-5. Preserved other functions and styles as they were in the original code.

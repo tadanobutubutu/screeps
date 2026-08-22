@@ -1,1 +1,32 @@
-import React from 'react'; import ReactDOM from 'react-dom'; const App = () => { return ( // ... other JSX content <button id="unrotate" onClick={() => { /* Rotate back logic here */ }}>rotate back</button> // ... other JSX content ); }; ReactDOM.render(<App />, document.getElementById('root')); const nextJest = require('next/jest') createJestConfig = nextJest({ dir: './', })(require('./jest.config')) module.exports = createJestConfig({ moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1', }, testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/build/'], transform: { '^\\.+\\.(js|jsx|ts|tsx)$': 'babel-jest', }, transformIgnorePatterns: [ '/node_modules/', '^.+\\.module\\.(css|sass|scss)$', ], setupFilesAfterEnv: ['<rootDir>/jest.setup.js'], testEnvironment: 'jest-environment-jsdom', collectCoverageFrom: [ 'src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts', '!src/**/*.stories.@(js|jsx|ts|tsx)', ], })
+// Main game loop for Screeps
+module.exports.loop = function() {
+  // Spawn basic harvester if we have enough energy
+  if (Game.spawns['Spawn1'] && Game.spawns['Spawn1'].energy >= 200) {
+    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], null, {role: 'harvester'});
+  }
+  // Iterate through all creeps and perform actions based on role
+  for (var name in Game.creeps) {
+    var creep = Game.creeps[name];
+    if (creep.memory.role === 'harvester') {
+      // Find dropped energy and pick it up
+      var sources = creep.room.find(FIND_SOURCES);
+      if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(sources[0]);
+      }
+    }
+  }
+  // Clean up dead creeps from memory
+  for (var name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
+  }
+  // New accessibility improvement: Add keyboard event listener for accessibility
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'h') {
+      // Example action: Toggle visibility of helpful elements
+      // This is a placeholder for the actual accessibility feature
+      console.log('Accessibility feature toggled by "h" key');
+    }
+  });
+};

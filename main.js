@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { icons } from "./path/to/icons"; // Adjust the path to the actual import location
 
 // Import the required function
-import { someRequiredFunction } from ... // Adjust the path to the actual import location
+import { someRequiredFunction } from "./path/to/someRequiredFunction"; // Adjust the path to the actual import location
 
 const AppLayout = () => {
   // ... (existing code)
@@ -26,3 +26,136 @@ export { someRequiredFunction };
 export function setLangAttribute(lang = 'en') {
   document.documentElement.lang = lang;
 }
+
+// Accessible SVG Icon Component with unique accessible names (REACT_041)
+export const AccessibleIcon = ({ name, iconType, className = '' }) => {
+  const iconMap = {
+    search: icons.search,
+    menu: icons.menu,
+    close: icons.close,
+    // Add more icon mappings as needed
+  };
+
+  const accessibleIconName = `Icon: ${name}`;
+
+  return (
+    <svg
+      className={className}
+      role="img"
+      aria-label={accessibleIconName}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      {iconMap[iconType] || iconMap.close}
+    </svg>
+  );
+};
+
+// Accessible Table Component with proper structure (REACT_027)
+export const AccessibleTable = ({ caption, headers, rows, className = '' }) => {
+  return (
+    <table className={className}>
+      {caption && <caption>{caption}</caption>}
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+// Accessible Landmark Components (REACT_017, REACT_025)
+export const AccessibleHeader = ({ children, logoAlt = "Home" }) => {
+  return (
+    <header role="banner">
+      <a href="/" aria-label={logoAlt}>
+        {/* Logo content */}
+      </a>
+      <nav aria-label="Main navigation">
+        {children}
+      </nav>
+    </header>
+  );
+};
+
+export const AccessibleMain = ({ children, id = "main-content" }) => {
+  return (
+    <main id={id} tabIndex="-1">
+      {children}
+    </main>
+  );
+};
+
+export const AccessibleFooter = ({ children }) => {
+  return (
+    <footer role="contentinfo">
+      {children}
+    </footer>
+  );
+};
+
+// Accessible Navigation with unique landmark (REACT_025)
+export const AccessibleNav = ({ children, label = "Footer navigation" }) => {
+  return (
+    <nav aria-label={label}>
+      {children}
+    </nav>
+  );
+};
+
+// Accessible Link Component to fix fake link issues (REACT_036)
+export const AccessibleLink = ({ href, onClick, children, className = '', isExternal = false }) => {
+  // If it has an href, it's a real link
+  const isRealLink = href && href !== '#' && !onClick;
+  
+  if (isRealLink) {
+    return (
+      <a 
+        href={href} 
+        className={className}
+        {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
+      >
+        {children}
+      </a>
+    );
+  }
+  
+  // If it triggers an action without navigation, it should be a button
+  return (
+    <button 
+      type="button"
+      onClick={onClick} 
+      className={className}
+    >
+      {children}
+    </button>
+  );
+};
+
+// Accessible Button Component (alternative to AccessibleLink for actions)
+export const AccessibleButton = ({ onClick, children, className = '', disabled = false, ariaLabel }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={className}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </button>
+  );
+};

@@ -13,17 +13,18 @@ module.exports = {
     // Main game loop logic
   },
   updateDependencyGraph: function() {
+    // Main game loop logic
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('[role="banner"]');
+    const banners = document.querySelectorAll('banner, [role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('nav');
+    const navigations = document.querySelectorAll('navigation, nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;

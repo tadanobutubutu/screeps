@@ -2,6 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 const Main = () => {
+  // New function to display a progress indicator
+  const displayProgressIndicator = () => {
+    return (
+      <svg aria-label="Progress indicator">
+        <circle cx="50" cy="50" r="40" stroke="black" strokeWidth="3" fill="none" />
+        <circle cx="50" cy="50" r="30" stroke="blue" strokeWidth="3" fill="none" />
+      </svg>
+    );
+  };
+
   return (
     <div lang="international">
       {/* Sample table with proper structure */}
@@ -30,6 +40,9 @@ const Main = () => {
 
       {/* Fake link with descriptive label */}
       <a href="#top" aria-label="Navigate to top of page">Go to top</a>
+
+      {/* New progress indicator */}
+      {displayProgressIndicator()}
     </div>
   );
 };

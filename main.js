@@ -34,12 +34,11 @@ export function createArticleHTML({ id, label, children }) {
 
 // Function to add lang attribute to HTML element
 export function addLangToHtml(html) {
-  return html.replace(/(<html[^>]*?)(\s|>)/i, (match, tagStart, afterTag) => {
-    const hasLang = /lang\s*=/.test(tagStart);
-    if (hasLang) {
+  return html.replace(/<([hH][tT][mM][lL])([^>]*)>/, (match, tagName, attrs) => {
+    if (/\blang\s*=/.test(attrs)) {
       return match;
     }
-    return `${tagStart} lang="en"${afterTag}`;
+    return `<${tagName}${attrs} lang="en">`;
   });
 }
 

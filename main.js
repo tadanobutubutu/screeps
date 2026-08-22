@@ -2,6 +2,9 @@
 // Added accessibility-related functionality
 // Import required modules
 import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependencyGraphContent } from './dependencies.js';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
 // Function to add landmark roles and fix landmark issues
 function addLandmarks() {
@@ -302,3 +305,21 @@ function ensureUniqueLandmarks() {
   const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'search'];
   // ... (rest of the function remains unchanged)
 }
+
+// Add accessibility features when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  addLandmarks();
+  addMissingAriaLabels();
+  fixTableStructureIssues();
+  // Call unique landmark logic if it were fully implemented
+});
+
+// React rendering entry point
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <main>
+      <App />
+    </main>
+  </React.StrictMode>
+);

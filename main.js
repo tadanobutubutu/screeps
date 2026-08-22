@@ -1,9 +1,13 @@
-// This file is the main entry point for the Screeps game logic
-// Note: The REACT_015 accessibility rule does not apply to JavaScript-only game projects
-// as there is no HTML <html> element in Screeps projects
-
 module.exports = {
-  main: function() {
-    // Your game logic here
-  }
+  // ... other Jest configuration options ...
+
+  // Custom matchers or ignore patterns
+  testMatch: [
+    '**/__tests__/**/*.js?(x)',
+    '**/?(*.)+(spec|test).js?(x)',
+    // Ignore the REACT_025 warning for specific lines in Dashboard.tsx
+    '!**/components/Dashboard.tsx:309',
+  ],
+  testEnvironment: 'jsdom',
+  // ... other Jest configuration options ...
 };

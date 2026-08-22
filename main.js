@@ -1,6 +1,9 @@
 // main.js - Application entry point
 // This file serves as the main entry point for the application
 
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const React = require('react');
 const ReactDOM = require('react-dom/client');
 
@@ -66,38 +69,102 @@ function ensureSvgAccessibleName(svg) {
 // REACT_036 - React Fake Link: helper to ensure links use proper anchor elements
 function ensureRealLink(element) {
   if (!element) return false;
-  if (element.tagName === 'A' && element.hasAttribute('href') || (element.tagName === 'Area' && element.hasAttribute('href'))) {
+  if (element.tagName === 'A' && element.hasAttribute('href')) {
+    return true;
+  }
+  if (element.tagName === 'AREA' && element.hasAttribute('href')) {
     return true;
   }
   return false;
 }
 
-// Dynamic import for Next.js App Router (modified to include the updated server setup)
+// Express server setup
+const PORT = process.env.PORT || 3000;
+const ENV = process.env.NODE_ENV || 'development';
+
+const app = express();
+
+// Middleware setup
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Database connection (placeholder)
+const db = {
+  connect: () => console.log('Database connected'),
+  disconnect: () => console.log('Database disconnected')
+};
+
+// New function for accessibility check
+function accessibilityCheck(req, res, next) {
+  // Dummy implementation of an accessibility check
+  console.log('Accessibility check triggered');
+  // Add actual accessibility check logic here if needed
+  next();
+}
+
+// Status route
+const statusRoute = (req, res) => {
+  res.json({ 
+    environment: ENV, 
+    timestamp: new Date().toISOString() 
+  });
+};
+
+// Home route
+function homeRoute(req, res) {
+  res.send('Hello World');
+}
+
+// Error handling middleware
+const errorHandler = (err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ error: 'Internal server error' });
+};
+
+// Application initialization
+function initialize() {
+  db.connect();
+  console.log(`Server starting in ${ENV} mode`);
+  
+  app.get('/', homeRoute);
+  app.get('/status', statusRoute);
+  
+  // Add middleware
+  app.use(accessibilityCheck);
+  app.use(errorHandler);
+  
+  return app;
+}
+
+// Example function placeholder
+function anotherFunction() {
+  // Your implementation here...
+}
+
+// Browser DOM manipulation (likely for frontend integration)
+if (typeof window !== 'undefined') {
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    unrotateElement.innerHTML = `
+      <button id="unrotate-button" onclick="rotateBack()">rotate back</button>
+    `;
+  }
+}
+
+// Shutdown helper
+function shutdown() {
+  db.disconnect();
+  console.log('Database disconnected');
+}
+
+// Bootstrap function to start the server (compatible with Next.js style)
 async function bootstrap() {
   try {
-    // Import the app directory dynamically to support App Router
-    const { createServer } = require('http');
-    const { CreateServer, ThereIsNoNext } = require('@zeit/next');
-
-    const dev = process.env.NODE_ENV !== 'production';
-    const hostname = 'localhost';
+    // Ensure the Express app is ready
+    await Promise.resolve(); // placeholder for any async setup
     const port = parseInt(process.env.PORT || '3000', 10);
-
-    const app = ThereIsNoNext(dev, hostname, port);
-    const handle = app.getRequestHandler();
-
-    await app.prepare();
-
-    createServer(async (req, res) => {
-      try {
-        await handle(req, res);
-      } catch (err) {
-        console.error('Error occurred handling', req.url, err);
-        res.statusCode = 500;
-        res.end('internal server error');
-      }
-    }).listen(port, () => {
-      console.log(`> Ready on http://${hostname}:${port}`);
+    app.listen(port, () => {
+      console.log(`> Ready on http://localhost:${port}`);
     });
   } catch (err) {
     console.error('Failed to start application:', err);
@@ -105,9 +172,31 @@ async function bootstrap() {
   }
 }
 
+// Example constants
+const exampleConstants = {
+  // placeholder constants
+};
+
+// Example function placeholder
+function exampleFunction() {
+  // placeholder
+}
+
 // Export for testing and module usage
 module.exports = {
   bootstrap,
+  app,
+  initialize,
+  shutdown,
+  homeRoute,
+  statusRoute,
+  errorHandler,
+  accessibilityCheck,
+  PORT,
+  ENV,
+  exampleFunction,
+  exampleConstants,
+  anotherFunction,
   // Accessibility exports
   DEFAULT_LANG,
   accessibilityConfig,
@@ -116,13 +205,5 @@ module.exports = {
   validateTableStructure,
   ensureSvgAccessibleName,
   ensureRealLink,
-  // Added Next.js integration
-  CreateServer,
-  ThereIsNoNext,
   // Preserve any existing exports
 };
-
-// Auto-bootstrap if running directly
-if (require.main === module) {
-  bootstrap();
-}

@@ -34,3 +34,12 @@ const AppLayout = () => {
 
 export { AppLayout, icons }; // Add icons back as an export at the bottom of the file
 export default AppLayout;
+
+// Add the lang attribute to the root element
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.documentElement.lang = 'en';
+  });
+} else {
+  document.documentElement.lang = 'en';
+}

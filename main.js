@@ -3,14 +3,6 @@
 
 // Updated main.js content with the required changes
 /*
-<<<<<<< HEAD
-<script src="path/to/your/javascript.js"></script>
-=======
-
-// The following script tag is replaced with a comment to prevent syntax errors
-// <script src="path/to/your/javascript.js"></script>
-
-// Adding the correct script tag with lang attribute
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -21,5 +13,4 @@
   <script src="path/to/your/javascript.js"></script>
 </body>
 </html>
->>>>>>> origin/main
 */

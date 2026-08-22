@@ -28,3 +28,36 @@ export function addSvgAccessibleNames() {
 export function fixFakeLinks() {
   // Replace non-navigable anchors with buttons for REACT_036
 }
+
+// ADD BELOW FOR THE MISSING EXPORTS
+
+export const LANDMARK_ROLES = {
+  BANNER: 'banner',
+  NAVIGATION: 'navigation',
+  MAIN: 'main',
+  CONTENTINFO: 'contentinfo',
+  COMPLEMENTARY: 'complementary',
+  SEARCH: 'search'
+};
+
+export const SVG_ACCESSIBILITY_ATTRIBUTES = {
+  ROLE_IMG: 'img',
+  ARIA_LABEL: 'aria-label',
+  ROLE_PRESENTATION: 'presentation'
+};
+
+export function createAccessibleSvg(title, description) {
+  return {
+    role: 'img',
+    'aria-label': title,
+    children: {
+      title: { children: title },
+      desc: { children: description }
+    }
+  };
+}
+
+export function isSemanticLandmark(element) {
+  const semanticLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  return semanticLandmarks.includes(element.toLowerCase());
+}

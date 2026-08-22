@@ -1,7 +1,9 @@
+// FILENAME: main.js
 // main.js - Entry point for the application
 // This file preserves all existing functionality.
 // The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.
 // Existing tests in /tests/ must continue to pass.
+// Beginner Overview: The existing code needs to be preserved in the main.js file, while adding new functions requested in the issue. The new functions should not remove or rename the existing exports.
 
 const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
@@ -9,7 +11,6 @@ const ensureUniqueLandmarks = function() {
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
   const landmarks = document.querySelectorAll('footer, header, section, article');
   const seenIds = new Set();
-  
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
@@ -21,7 +22,6 @@ const ensureUniqueLandmarks = function() {
       landmark.id = id;
     }
     seenIds.add(id);
-    
     // Add ARIA attributes for accessibility
     if (landmark.tagName === 'SECTION' && !landmark.getAttribute('aria-label')) {
       landmark.setAttribute('aria-label', 'region');
@@ -94,20 +94,35 @@ const enhanceFocusVisibility = function() {
     *:focus-visible {
       outline: 2px solid #005fcc;
       outline-offset: 2px;
-    }
-  `;
+    }`;
   document.head.appendChild(style);
 };
 
 const addSvgAccessibleNames = function() {
   // Add accessible names to 2 SVGs from the insight report
-  const svgLogo = document.querySelector('.logo svg, [class*="logo"] svg, svg.logo');
-  if (svgLogo && !svgLogo.getAttribute('aria-label') && !svgLogo.getAttribute('aria-labelledby')) {
-    svgLogo.setAttribute('aria-label', 'Logo');
+  const logoSelector = '.logo svg, [class*="logo"] svg, svg.logo';
+  const navIconSelector = '.nav svg, [class*="nav"] svg, svg.nav-icon';
+  let logoNodes = [];
+  for (const selector of [logoSelector, navIconSelector]) {
+    const nodes = document.querySelectorAll(selector);
+    for (const node of nodes) {
+      if (logoNodes.includes(node)) continue;
+      logoNodes.push(node);
+    }
   }
-  const svgNav = document.querySelector('.nav svg, [class*="nav"] svg, svg.nav-icon');
-  if (svgNav && !svgNav.getAttribute('aria-label') && !svgNav.getAttribute('aria-labelledby')) {
-    svgNav.setAttribute('aria-label', 'Navigation icon');
+  if (logoNodes.length > 0) {
+    for (const i of [0, 1]) {
+      const svgNode = logoNodes[i];
+      if (svgNode) {
+        if (!svgNode.getAttribute('aria-label') && !svgNode.getAttribute('aria-labelledby')) {
+          if (i === 0) {
+            svgNode.setAttribute('aria-label', 'Language selector');
+          } else {
+            svgNode.setAttribute('aria-label', 'Navigation icon');
+          }
+        }
+      }
+    }
   }
 };
 
@@ -134,20 +149,21 @@ const fixFakeLinkIssue = function() {
 
 const fixHashLinkToButton = function() {
   // Fix REACT_036: Convert <a href="#"> to <button> for in-page actions
-  const link = document.querySelector('a[href="#"]');
-  if (link && link.tagName === 'A' && link.getAttribute('href') === '#') {
-    const button = document.createElement('button');
-    // Copy all attributes except href
-    const attrs = link.attributes;
-    for (let i = 0; i < attrs.length; i++) {
-      const attr = attrs[i];
-      if (attr.name !== 'href') {
-        button.setAttribute(attr.name, attr.value);
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach((link) => {
+    if (link.tagName === 'A' && link.getAttribute('href') === '#') {
+      const button = document.createElement('button');
+      const attrs = link.attributes;
+      for (let i of Array.from({length: attrs.length})) {
+        const attr = attrs[i];
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
       }
+      button.textContent = link.textContent;
+      link.parentNode.replaceChild(button, link);
     }
-    button.textContent = link.textContent;
-    link.parentNode.replaceChild(button, link);
-  }
+  });
 };
 
 const addressAccessibilityIssues = function() {
@@ -158,22 +174,16 @@ const addressAccessibilityIssues = function() {
   // - REACT_025: Ensure unique landmarks (2 issues)
   // - REACT_036: Fix 1 fake link issue
   // - REACT_027: Fix 26 table structure issues
-
   // Add lang attribute to HTML element
   document.documentElement.lang = 'en';
-
   // Ensure unique landmarks
   ensureUniqueLandmarks();
-
   // Fix table structure issues
   fixTableStructure();
-
   // Add accessible names to SVGs
   addSvgAccessibleNames();
-
   // Fix fake link issue
   fixFakeLinkIssue();
-
   // Fix hash link to button for in-page actions (REACT_036)
   fixHashLinkToButton();
 };
@@ -189,7 +199,6 @@ const calculateAverage = function(numbers) {
 };
 
 // New functions to address specific accessibility tasks mentioned in the insight report
-
 const addLangAttribute = function(lang = 'en') {
   // REACT_015: Add lang attribute to HTML element
   document.documentElement.lang = lang;
@@ -223,11 +232,12 @@ const runAllAccessibilityFixes = function() {
   fixTableStructure();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
-  fixHashLinkToButton(); // Fix REACT_036
+  fixHashLinkToButton();
 };
 
+// Export newly added accessibility functions
 module.exports = {
-  // Existing exports would be preserved here
+  // Preserve existing exports
   newExport: function() {
     // Add your new function logic here
   },
@@ -236,12 +246,10 @@ module.exports = {
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   addressAccessibilityIssues: addressAccessibilityIssues,
   enhanceFocusVisibility: enhanceFocusVisibility,
-
-  // Newly added exports for accessibility functions
+  // Newly added exports
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
-  runAllAccessibilityFixes: runAllAccessibilityFixes,
-  
+  runAllAccessibilityFixes: runAllAccessibilityIssues,
   // Export newly added necessary functions
   fixTableStructure: fixTableStructure,
   addSvgAccessibleNames: addSvgAccessibleNames,

@@ -77,28 +77,37 @@ module.exports = {
     // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+
       if (!svg.hasAttribute('aria-labelledby')) {
         // Find title or desc element if present
         const titleElement = svg.querySelector('title');
         const descElement = svg.querySelector('desc');
         let accessibleName = "SVG Image";
-        if (titleElement) {
+        if (titleElement && titleElement.textContent) {
           accessibleName = titleElement.textContent;
-        } else if (descElement) {
+        } else if (descElement && descElement.textContent) {
           accessibleName = descElement.textContent;
         }
+
         // Add aria-labelledby attribute to associate a description with the SVG
         const svgId = svg.id || `svg-${Math.random().toString(36).substr(2, 9)}`;
         if (!svg.id) {
           svg.id = svgId;
         }
         const titleId = `${svgId}-title`;
+        let title = svg.querySelector('title');
         if (!title) {
-          const title = document.createElementNS('http://www.w3.org/2000/svg', titleId);
+          title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title.id = titleId;
           title.textContent = accessibleName;
           svg.insertBefore(title, svg.firstChild);
+        } else {
+          title.id = titleId;
         }
-        svg.setAttribute('aria-labelledby', `${svgId}-title`);
+        svg.setAttribute('aria-labelledby', titleId);
       }
     });
 

@@ -18,6 +18,22 @@ const Layout = ({ children }) => {
         {/* SVG content */}
       </svg>
       {/* ... other components ... */}
+      
+      {/* Rotate back button - use button for in-page actions */}
+      <button 
+        id="unrotate" 
+        type="button"
+        onClick={() => {
+          // Rotate back functionality
+          const svg = document.querySelector('svg');
+          if (svg) {
+            svg.style.transform = 'rotate(0deg)';
+          }
+        }}
+      >
+        rotate back
+      </button>
+      
       {children}
     </div>
   );

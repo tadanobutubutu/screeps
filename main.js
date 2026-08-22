@@ -14,6 +14,7 @@ export default function Main() {
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
       
@@ -25,6 +26,11 @@ export default function Main() {
         {/* Bad: <div onClick={handleClick}>Click me</div> */}
         <button type="button" onClick={() => console.log('clicked')}>
           Submit Form
+        </button>
+        
+        {/* REACT_036: Use button for in-page actions (formerly fake link) */}
+        <button id="unrotate" type="button" onClick={() => console.log('rotate back clicked')}>
+          rotate back
         </button>
         
         {/* REACT_041: SVG with accessible name */}
@@ -45,7 +51,7 @@ export default function Main() {
             <tr>
               <th scope="col">Plan</th>
               <th scope="col">Price</th>
-              <th scope="col">Features</th>
+              <th scope="col">Support</th>
             </tr>
           </thead>
           <tbody>

@@ -28,6 +28,9 @@ export function anotherFunction() {
   // Another existing function code
 }
 
+// Export the enhanceAccessibility function
+export { enhanceAccessibility };
+
 // Accessibility-related changes
 // Assuming the insight report suggested improvements like adding ARIA roles
 enhanceAccessibility();

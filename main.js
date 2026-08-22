@@ -49,9 +49,7 @@ if (typeof document !== 'undefined') {
 
 // Export functions for testing (preserve existing exports)
 export {
-  renderAccessibleTable,
   renderAccessibleSVG,
   renderLandmarkStructure,
-  createAccessibleButton,
   renderApp
 };

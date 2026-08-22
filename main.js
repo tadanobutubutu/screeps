@@ -104,7 +104,7 @@ function rotateBack() {
 }
 
 // Export the function so it remains accessible to other modules
-export { rotateBack };
+export { rotateBack, renderTable };
 
 // ... [any other existing exports and functions] ...
 

@@ -1,7 +1,7 @@
 // TODO: Address accessibility issues from insight report:
 // Placeholder for accessibility-related code changes
 
-// Added back required exports
+// Added back required imports
 import React from 'react';
 
 // Preserved existing code
@@ -172,4 +172,5 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}

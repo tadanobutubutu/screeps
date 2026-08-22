@@ -1,4 +1,3 @@
-// main.js - Main game loop entry point
 module.exports = {
   loop: function() {
     // Main game loop logic
@@ -23,6 +22,30 @@ module.exports = {
   },
   fixAccessibility: function() {
     // Ensure tables have proper thead and tbody structure (React_027)
+    const tableHeaders = document.querySelectorAll('th');
+    tableHeaders.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Add lang attribute to HTML (React_015)
+    const root = document.documentElement;
+    const currentLang = root.getAttribute('lang');
+    if (!currentLang) {
+      root.setAttribute('lang', 'en');
+    }
+
+    // Convert the 'rotate back' anchor to a button (Fixes REACT_036)
+    const rotateBackLink = document.querySelector('a[href="#unrotate"], a.rotate-back, a#rotate-back');
+    if (rotateBackLink) {
+      const button = document.createElement('button');
+      button.id = 'unrotate';
+      button.textContent = 'rotate back';
+      rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+    }
+
+    // Fix table structure issues (React_027)
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
       if (!table.querySelector('thead')) {
@@ -35,9 +58,8 @@ module.exports = {
       }
       if (!table.querySelector('tbody')) {
         const tbody = document.createElement('tbody');
-        while (table.children.length > 1) {
-          tbody.appendChild(table.children[1]);
-        }
+        const rows = Array.from(table.children).slice(1);
+        rows.forEach(row => tbody.appendChild(row));
         table.appendChild(tbody);
       }
     });
@@ -47,6 +69,29 @@ module.exports = {
     if (main && !main.id) {
       main.setAttribute('id', 'main-content');
     }
+
+    // Add accessible names to 2 SVGs (React_041)
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+      const svgId = svg.id || `svg-${Math.random().toString(36).substr(2, 9)}`;
+      if (!svg.id) {
+        svg.id = svgId;
+      }
+      const titleId = `${svgId}-title`;
+      let title = svg.querySelector('title');
+      if (!title) {
+        title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.id = titleId;
+        title.textContent = 'SVG Image';
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        title.id = titleId;
+      }
+      svg.setAttribute('aria-labelledby', titleId);
+    });
 
     // Ensure all clickable elements that navigate have proper accessible roles (React_025)
     const linksWithoutHref = document.querySelectorAll('a:not([href])');
@@ -66,28 +111,19 @@ module.exports = {
       }
     });
 
-    // Add accessible names to SVGs (React_041)
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
+    // Add unique IDs to landmark elements (React_025)
+    const banners = document.querySelectorAll('[role="banner"]');
+    banners.forEach((banner, index) => {
+      if (!banner.id) {
+        banner.id = `banner-${index + 1}`;
       }
-      // Add aria-labelledby attribute to associate a description with the SVG
-      const svgId = svg.id || `svg-${Math.random().toString(36).substr(2, 9)}`;
-      if (!svg.id) {
-        svg.id = svgId;
+    });
+
+    const navigations = document.querySelectorAll('nav');
+    navigations.forEach((nav, index) => {
+      if (!nav.id) {
+        nav.id = `navigation-${index + 1}`;
       }
-      const titleId = `${svgId}-title`;
-      let title = svg.querySelector('title');
-      if (!title) {
-        title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.id = titleId;
-        title.textContent = 'SVG Image';
-        svg.insertBefore(title, svg.firstChild);
-      } else {
-        title.id = titleId;
-      }
-      svg.setAttribute('aria-labelledby', titleId);
     });
   }
 };

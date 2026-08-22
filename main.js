@@ -26,7 +26,7 @@ const DEPENDENCY_UPDATES = {
 };
 
 // Check compatibility between dependencies
-function checkDependencyCompatibility(dep1, dep1Version, dep2, dep2Version) {
+function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   const compatibilityMatrix = {
     'jest+typescript': { min: '5.0', max: '7.0' },
     'jest+react': { min: '18.0', max: '19.0' },
@@ -39,7 +39,7 @@ function checkDependencyCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/[\^~]?(\d+)/);
+    const match = version.match(/^(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -61,7 +61,7 @@ function validateDependencies(dependencies) {
   const warnings = [];
   
   if (dependencies.jest && dependencies.typescript) {
-    const result = checkDependencyCompatibility(
+    const result = checkCompatibility(
       'jest', dependencies.jest,
       'typescript', dependencies.typescript
     );
@@ -71,12 +71,12 @@ function validateDependencies(dependencies) {
   }
   
   if (dependencies.eslint && dependencies.typescript) {
-    const result = checkDependencyCompatibility(
+    const result = checkCompatibility(
       'eslint', dependencies.eslint,
       'typescript', dependencies.typescript
     );
     if (!result.compatible) {
-      warnings.push(result.reason);
+      errors.push(result.reason);
     }
   }
   
@@ -133,7 +133,7 @@ function processDependencyUpdates() {
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
-  checkDependencyCompatibility,
+  checkCompatibility,
   validateDependencies,
   getRecommendedUpdateOrder,
   hasBreakingChanges,
@@ -146,10 +146,10 @@ if (require.main === module) {
   const updates = processDependencyUpdates();
   
   updates.forEach(update => {
-    console.log(`${update.dependency}:`);
+    console.log(`[${update.dependency.toUpperCase()}]`);
     console.log(`  ${update.from} → ${update.to}`);
     if (update.breaking.hasBreaking) {
-      console.log(`  ⚠️  ${update.breaking.note}`);
+      console.log(`  WARNING: ${update.breaking.note}`);
     }
     console.log();
   });

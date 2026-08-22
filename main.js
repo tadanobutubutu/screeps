@@ -15,4 +15,13 @@ module.exports.loop = function () {
             roleUpgrader.run(creep);
         }
     }
+
+    // Replace the anchor tag with a button for in-page action
+    var rotateBackButton = document.getElementById('unrotate');
+    if (rotateBackButton) {
+        rotateBackButton.onclick = function() {
+            // Add your logic here for the "rotate back" action
+            console.log('Rotating back...');
+        };
+    }
 };

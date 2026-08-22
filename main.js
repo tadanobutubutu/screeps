@@ -46,5 +46,16 @@
     return children;
   };
 
-  // ----- END NEW CODE -----
+  // ----- END NEW CODE-----
+
+  // Add lang attribute to the root element
+  function addLangAttributeToRoot() {
+    const rootElement = document.documentElement;
+    if (!rootElement.hasAttribute('lang')) {
+      rootElement.setAttribute('lang', 'en');
+    }
+  }
+
+  // Call the function to add lang attribute to the root element
+  addLangAttributeToRoot();
 })();

@@ -5,17 +5,38 @@ import { icons } from "./path/to/icons"; // Adjust the path to the actual import
 import { someRequiredFunction } from ... // Adjust the path to the actual import location
 
 const AppLayout = () => {
-  // ... (existing code)
-
   // Set the HTML lang attribute for accessibility (REACT_015)
   useEffect(() => {
     document.documentElement.lang = 'en';
   }, []);
 
-  // ... (existing code)
+  if (isError) {
+    return (
+      <div className="error-container">
+        <section>
+          <h1>Something went wrong</h1>
+          <p>{errorMessage}</p>
+          <button onClick={handleRetry}>Try Again</button>
+        </section>
+      </div>
+    );
+  }
+
+  if (isSuccess) {
+    return (
+      <main>
+        {/* ... (existing success markup) */}
+      </main>
+    );
+  }
+
+  return (
+    <div className="loading-container">
+      <p>Loading...</p>
+    </div>
+  );
 };
 
-// Keep the current exports for AppLayout and icons
 export { AppLayout, icons };
 export default AppLayout;
 

@@ -54,6 +54,68 @@ function addLandmarkRole(element, landmarkType) {
   }
 }
 
+// REACT_017: Ensure page has a <main> landmark for accessibility
+function ensureMainLandmark(container) {
+  const doc = container && container.querySelector ? container : document;
+  
+  // Check if a <main> element already exists
+  let mainElement = doc.querySelector("main");
+  
+  if (mainElement) {
+    // Already has a main element, ensure it has proper role
+    addLandmarkRole(mainElement, "main");
+    return mainElement;
+  }
+  
+  // Find common primary content selectors and wrap in <main>
+  const primaryContentSelectors = [
+    "[role='main']",
+    "#main",
+    "#content",
+    "#primary",
+    ".main-content",
+    ".main",
+    "article",
+    ".content",
+    "table#table-rotated"
+  ];
+  
+  for (const selector of primaryContentSelectors) {
+    const content = doc.querySelector(selector);
+    if (content) {
+      // Create a main element
+      mainElement = doc.createElement("main");
+      
+      // If the content is a table or the main content container, add proper attributes
+      if (content.tagName && content.tagName.toLowerCase() === "table") {
+        // Wrap table in main
+        mainElement.appendChild(content);
+      } else if (content.parentNode) {
+        // Replace the content's parent wrapper with main, keeping content inside
+        const parent = content.parentNode;
+        parent.insertBefore(mainElement, content);
+        mainElement.appendChild(content);
+      } else {
+        // Just add role to existing content wrapper
+        addLandmarkRole(content, "main");
+        return content;
+      }
+      
+      // Ensure the main landmark is unique (only one per page)
+      ensureUniqueLandmark(mainElement, "main", "Main content");
+      
+      return mainElement;
+    }
+  }
+  
+  // If no primary content found, create an empty main element as fallback
+  mainElement = doc.createElement("main");
+  mainElement.setAttribute("id", "main-content");
+  ensureUniqueLandmark(mainElement, "main", "Main content");
+  
+  return mainElement;
+}
+
 // REACT_025: Ensure unique landmark by adding unique role/label combination
 function ensureUniqueLandmark(element, landmarkType, label) {
   if (element && element.setAttribute) {
@@ -114,7 +176,7 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.hasAttribute("tabindex")) {
+  if (!element.getAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }
@@ -122,7 +184,7 @@ function fixFakeLink(element, isActionLink) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("header, footer, aside, section, nav, main");
   const seenLandmarks = {};
   
   landmarks.forEach(function(landmark) {
@@ -150,6 +212,7 @@ module.exports = {
   setLangAttribute: setLangAttribute,
   addLandmarkRole: addLandmarkRole,
   ensureUniqueLandmark: ensureUniqueLandmark,
+  ensureMainLandmark: ensureMainLandmark,
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
   fixLandmarkIssues: fixLandmarkIssues,

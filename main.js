@@ -29,14 +29,14 @@ module.exports = {
       }
     });
 
-    const mains = document.querySelectorAll('[role="main"]');
+    const mains = document.querySelectorAll('main');
     mains.forEach((main, index) => {
       if (!main.id) {
         main.id = `main-${index + 1}`;
       }
     });
 
-    const footers = document.querySelectorAll('[role="contentinfo"]');
+    const footers = document.querySelectorAll('footer');
     footers.forEach((footer, index) => {
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
@@ -88,7 +88,7 @@ module.exports = {
     });
 
     // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
-    const mainElements = document.querySelectorAll('main, [role="main"]');
+    const mainElements = document.querySelectorAll('[role="main"], main');
     let mainFound = false;
     mainElements.forEach((main, index) => {
       if (!mainFound) {

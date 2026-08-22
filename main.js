@@ -13,4 +13,8 @@ const fixedSvg2 = originalSvg2.replace('</svg>', ' aria-hidden="true"</svg>');
 
 // Export the fixed SVGs for use in the application (preserving any existing exports
 // by merging; here we export the fixed icons as a new module entry)
-module.exports = { fixedSvg1, fixedSvg2 };
+module.exports = {
+  ...exports, // Preserve existing exports
+  fixedSvg1,
+  fixedSvg2
+};

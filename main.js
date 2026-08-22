@@ -96,33 +96,35 @@ function addSvgAccessibleName(svgElement, title, description) {
   }
 }
 
-// REACT_036: Fix fake links by adding proper link behavior or role
+// REACT_036: Fix fake links by converting to button or adding proper role
 function fixFakeLink(element, isActionLink) {
   if (!element) return;
 
   if (isActionLink) {
-    // Mark as button if it's an action, not navigation
+    // Convert to button if it's an in-page action, not navigation
     element.setAttribute("role", "button");
+    element.setAttribute("tabindex", "0");
+    // Remove href to prevent default anchor behavior
+    element.removeAttribute("href");
   } else {
     // Ensure it's a proper anchor if it's a link
     if (element.tagName && element.tagName.toLowerCase() === "a") {
-      // Already an anchor, just ensure it has href
+      // Already an anchor, just ensure it has proper href
       if (!element.getAttribute("href")) {
         element.setAttribute("href", "#");
       }
     }
-  }
-
-  // Add tabindex to make keyboard accessible
-  if (typeof element.setAttribute === "function") {
-    element.setAttribute("tabindex", "0");
+    // Add tabindex to make keyboard accessible
+    if (typeof element.setAttribute === "function") {
+      element.setAttribute("tabindex", "0");
+    }
   }
 }
 
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {

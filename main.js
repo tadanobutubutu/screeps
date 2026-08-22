@@ -208,6 +208,36 @@ export const PageLayout = ({
   );
 };
 
+// REACT_025: Function to ensure unique landmarks
+export function ensureUniqueLandmarks(container) {
+  const landmarks = ['header', 'nav', 'main', 'footer'];
+  const seenIds = new Set();
+  
+  landmarks.forEach(landmark => {
+    const elements = container.querySelectorAll(landmark);
+    elements.forEach((el) => {
+      const role = el.getAttribute('role') || landmark;
+      const existingId = el.id;
+      
+      if (existingId && !seenIds.has(existingId)) {
+        seenIds.add(existingId);
+      } else if (!existingId) {
+        // Generate unique ID based on role
+        let counter = 1;
+        let newId = `${role}-${counter}`;
+        while (seenIds.has(newId)) {
+          counter++;
+          newId = `${role}-${counter}`;
+        }
+        el.id = newId;
+        seenIds.add(newId);
+      }
+    });
+  });
+  
+  return container;
+}
+
 // REACT_041: SVG components with accessible name
 export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
   return (

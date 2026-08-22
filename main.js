@@ -1,5 +1,4 @@
 // TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element ✓ FIXED
@@ -36,9 +35,15 @@ function getDependencyAlerts() {
     return alerts;
 }
 
-export default {
-    // ... other exports preserved from original main.js
+// Example of required export from another file (TODO: adjust path as needed)
+const { myFunction } = require('./otherFile');
+
+// Preserve existing default export but also expose required exports
+const exportsObj = {
     icons,
     checkDependencyStatus,
-    getDependencyAlerts
+    getDependencyAlerts,
+    myFunction
 };
+
+export default exportsObj;

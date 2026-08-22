@@ -1,24 +1,19 @@
 import React from 'react';
 
-// Accessibility issues addressed from insight report
-// Added accessibility-related functionality
+// Accessibility improvements and additional helper functions
 
-// Added back required imports
-// Preserved existing code
+// Existing code preserved
 function existingFunction() {
   // ... existing code ...
 }
 
-// Preserved exports
-export { existingFunction };
-
-// Added new function or changes as requested
+// New functionality integrating both changes
 function newFunction() {
   // ... new code ...
 }
 
-// No removal or renaming of existing exports
-export { newFunction, existingFunction };
+// Combined exports of both old and new features
+export { existingFunction, newFunction };
 
 // ============================================
 // Accessibility Improvements
@@ -318,4 +313,5 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${
+  return `${prefix}-${timestamp}-${randomPart}`;
+}

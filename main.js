@@ -1,6 +1,10 @@
 // Import required module(1s) and export the new necessary function(1s) here in main.js
 import React from 'react';
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// Fix language for the HTML root element
+
 // Accessibility issues addressed from insight report
 // Added accessibility-related functionality
 
@@ -27,6 +31,17 @@ export { newFunction, existingFunction };
 // ============================================
 // Accessibility Improvements
 // ============================================
+
+// REACT_015: Component to set lang attribute on HTML root element
+export const HtmlLangProvider = ({ lang, children }) => {
+  React.useEffect(() => {
+    if (lang) {
+      document.documentElement.lang = lang;
+    }
+  }, [lang]);
+
+  return children;
+};
 
 // REACT_015: Wrapper component with lang attribute for HTML element
 export const AppWrapper = ({ lang, children }) => {
@@ -115,11 +130,11 @@ export function fixTableStructureIssues(tables) {
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role]');
+  const landmarks = ...
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = ...
     let existingId = landmark.id;
     
     if (existingId && !seenIds.has(existingId)) {
@@ -208,19 +223,19 @@ export function createAccessibleFaviconSvg({
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}"><title>${title}</title>${children}</svg>`;
-  return `data:image/svg+xml;base64,${btoa(svgContent)}`;
+  const svgContent = `<svg xmlns="${xmlns}" ...
+  return ...
 }
 
 // REACT_041: Predefined accessible favicon generators for the project
 export const faviconGenerators = {
-  screepsDashboard: () => createAccessibleFaviconSvg({
+  screepsDashboard: () => ...
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" font-size="90">D</text>'
+    children: '<text y=".9em" ...
   }),
-  screepsBug: () => createAccessibleFaviconSvg({
+  screepsBug: () => ...
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" font-size="90">B</text>'
+    children: '<text y=".9em" ...
   })
 };
 
@@ -233,6 +248,7 @@ export {
   GraphIcon,
   SettingsIcon,
   AppWrapper,
+  HtmlLangProvider,
   PageLayout,
   fixTableStructureIssues,
   ensureUniqueLandmarks,
@@ -244,5 +260,5 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${randomPart}`;
+  return ...
 }

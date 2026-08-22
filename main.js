@@ -17,14 +17,14 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('[role="banner"]');
+    const banners = document.querySelectorAll('banner, [role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('nav');
+    const navigations = document.querySelectorAll('navigation, nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;
@@ -48,9 +48,8 @@ module.exports = {
   fixAccessibility: function() {
     // REACT_015: Add lang attribute to HTML element
     const htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-    }
+    // Ensure the language attribute is always set to 'en' for accessibility
+    htmlElement.setAttribute('lang', 'en');
 
     // Ensure tables have proper thead and tbody structure (React_027)
     const tables = document.querySelectorAll('table');

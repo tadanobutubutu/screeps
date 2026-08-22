@@ -5,5 +5,9 @@ module.exports = {
   bar: function() {
     // existing code
   },
-  // ... other exports
+  // the new function requested in the issue
+  baz: function() {
+    // add your new function implementation here
+  },
+  // ... other exports if any
 };

@@ -121,7 +121,41 @@ function fixTableStructure() {
 // This is a placeholder for the actual fix. The actual fix would depend on the landmarks.
 // Example: Add ARIA roles to landmarks.
 function addLandmarks() {
-  // Implementation goes here
+  // Find all primary content areas that need <main> landmarks
+  // The issue indicates 2 occurrences where content needs to be wrapped in <main>
+  const contentSelectors = [
+    'table#table-rotated',              // Primary data table
+    '.container > h2'                   // Quality & Metrics Reports section
+  ];
+  
+  // Track which elements have been wrapped to avoid duplicates
+  const processedElements = new Set();
+  
+  contentSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    
+    elements.forEach(element => {
+      // Skip if already processed or if the element already has a <main> parent
+      if (processedElements.has(element) || element.closest('main')) {
+        return;
+      }
+      
+      // Create <main> landmark element
+      const mainElement = document.createElement('main');
+      
+      // Insert the <main> element before the current element
+      element.parentNode.insertBefore(mainElement, element);
+      
+      // Move the element inside the <main> landmark
+      mainElement.appendChild(element);
+      
+      // Mark as processed to avoid duplicate wrapping
+      processedElements.add(element);
+    });
+  });
+  
+  // Return the number of landmarks added for verification
+  return processedElements.size;
 }
 
 // Add accessible names to 2 SVGs

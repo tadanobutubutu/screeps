@@ -22,27 +22,29 @@ export default function Main() {
   } = useTable({ columns });
 
   return (
-    <table>
-      <thead>
-        {getHeaderGroups().map(headerGroup => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map(column => (
-              <th key={column.id} scope="col">
-                {column.render('Header')}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {allColumns.map(row => (
-          <tr {...row.getRowProps()}>
-            {row.cells.map(cell => (
-              <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <main>
+      <table>
+        <thead>
+          ... => (
+            <tr ...
+              ... => (
+                <th key={column.id} scope="col">
+                  {column.render('Header')}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {allColumns.map(row => (
+            <tr {...row.getRowProps()}>
+              {row.cells.map(cell => (
+                <td ...
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
   );
 }

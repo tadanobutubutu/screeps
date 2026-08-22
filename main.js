@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code ...
 
 // New function requested in the issue
@@ -28,22 +25,21 @@ function updateEslintVersion() {
   // Update eslint to version 10
 }
 
-// Function to rotate back (combining both versions)
+// Function to rotate back
 function rotateBack() {
   // Insert your rotation back logic here
 }
 
-// Modified button for rotation back (combining both versions)
+// Fixed button for rotation back - Changed from <a href="#"> to <button> for accessibility
 (() => {
   const multiButton = document.getElementById('unrotate');
 
-  if (multiButton.nodeName === 'A') {
-    multiButton.addEventListener('click', rotateBack);
-    multiButton.outerHTML = `<button id="unrotate" onclick="rotateBack()">rotate back</button>`;
-  } else if (multiButton.nodeName === 'BUTTON') {
+  if (multiButton && multiButton.nodeName === 'A') {
+    const onclickAttr = multiButton.getAttribute('onclick');
+    multiButton.outerHTML = `<button id="unrotate"${onclickAttr ? ` onclick="${onclickAttr}"` : ''}>rotate back</button>`;
+  } else if (multiButton && multiButton.nodeName === 'BUTTON') {
     // No need to change anything for the existing button element
   }
 })();
 
 // Existing code ...
-```

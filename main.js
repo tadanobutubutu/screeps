@@ -141,6 +141,15 @@ function fixLandmarkIssues(container) {
   return seenLandmarks;
 }
 
+// Set the language attribute for accessibility
+if (document && document.documentElement) {
+  document.documentElement.lang = 'en';
+}
+
+// NEW: Add lang="en" to the root element per REACT_015
+// This ensures screen readers correctly identify the document language
+// See: https://github.com/tadanobutubutu/screeps/blob/main/docs/dependency-graph.html#L2
+
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
   // Existing exports preserved unchanged

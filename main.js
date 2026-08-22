@@ -53,7 +53,7 @@ module.exports = {
     // Ensure main content is wrapped in proper landmarks (React_017)
     const main = document.querySelector('main') || document.querySelector('[role="main"]');
     if (main && !main.id) {
-      main.setAttribute('id', 'main-content');
+      main.id = 'main-content';
     }
 
     // Ensure all clickable elements that navigate have proper accessible roles (React_025)
@@ -93,12 +93,13 @@ module.exports = {
           svg.id = svgId;
         }
         const titleId = `${svgId}-title`;
-        if (!title) {
-          const title = document.createElementNS('http://www.w3.org/2000/svg', titleId);
+        if (!svg.querySelector('title')) {
+          const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title.id = titleId;
           title.textContent = accessibleName;
           svg.insertBefore(title, svg.firstChild);
         }
-        svg.setAttribute('aria-labelledby', `${svgId}-title`);
+        svg.setAttribute('aria-labelledby', titleId);
       }
     });
 

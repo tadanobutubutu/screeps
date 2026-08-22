@@ -165,6 +165,61 @@ function fixRotateBackLink(container) {
   return rotateBackLink;
 }
 
+// NEW FUNCTION: Convert fake action links to proper buttons (REACT_036 fix)
+function convertFakeLinksToButtons(container) {
+  const targetDoc = container && container.querySelector ? container : document;
+  const fakeLinks = targetDoc.querySelectorAll("a[href='#'], a[href='']");
+  
+  fakeLinks.forEach(function(link) {
+    // Skip if already processed or not an anchor tag
+    if (!link.tagName || link.tagName.toLowerCase() !== "a" || link.dataset.processed === "true") {
+      return;
+    }
+    
+    // Mark as processed to prevent multiple conversions
+    link.dataset.processed = "true";
+    
+    const button = targetDoc.createElement("button");
+    
+    // Transfer attributes
+    const id = link.getAttribute("id");
+    if (id) {
+      button.setAttribute("id", id);
+    }
+    
+    const className = link.getAttribute("class");
+    if (className) {
+      button.setAttribute("class", className);
+    }
+    
+    // Transfer text content
+    button.textContent = link.textContent;
+    
+    // Transfer event listeners by cloning the node (this is a simplified approach)
+    // Note: This won't copy event listeners attached via addEventListener
+    // For a complete solution, you'd need to reattach all event listeners manually
+    const events = link.events || {};
+    Object.keys(events).forEach(function(eventType) {
+      events[eventType].forEach(function(handler) {
+        button.addEventListener(eventType, handler);
+      });
+    });
+    
+    // Set aria-label if needed
+    if (!button.getAttribute("aria-label")) {
+      button.setAttribute("aria-label", button.textContent.trim());
+    }
+    
+    // Set button type
+    button.setAttribute("type", "button");
+    
+    // Replace the link with the button
+    if (link.parentNode) {
+      link.parentNode.replaceChild(button, link);
+    }
+  });
+}
+
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
@@ -205,6 +260,7 @@ module.exports = {
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
   fixRotateBackLink: fixRotateBackLink,
+  convertFakeLinksToButtons: convertFakeLinksToButtons,
   fixLandmarkIssues: fixLandmarkIssues,
 
   // Added back missing exports

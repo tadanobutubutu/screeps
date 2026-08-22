@@ -1,1 +1,1 @@
-const { create } = require('twig'); // ... rest of existing main.js code unchanged ... document.addEventListener('DOMContentLoaded', function() { const unrotateBtn = document.getElementById('unrotate'); if (unrotateBtn) { unrotateBtn.addEventListener('click', function(e) { e.preventDefault(); // Reset rotation logic here document.body.style.transform = 'rotate(0deg)';
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

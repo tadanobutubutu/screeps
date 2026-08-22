@@ -1,24 +1,3 @@
-// No changes needed to main.js - this issue relates to HTML landmark accessibility in docs/index.html
-// The fix should be applied directly to the HTML file by wrapping content in <main> tags
-
-// Example of what the HTML fix should look like for docs/index.html:
-
-/*
-BEFORE:
-<div class="container">
-    <h2>Quality & Metrics Reports</h2>
-    ...
-</div>
-
-AFTER:
-<main>
-    <div class="container">
-        <h2>Quality & Metrics Reports</h2>
-        ...
-    </div>
-</main>
-*/
-
 // Import managers
 const spawnManager = require('./managers/spawnManager');
 const towerManager = require('./managers/towerManager');
@@ -130,3 +109,4 @@ console.log(`[${new Date().toISOString()}] Bot started - CPU Limit: ${Game.cpu.l
 if (Memory.stats) {
     console.log(`GCL: ${Game.gcl.level}, GPL: ${Game.gpl.level}, Credits: ${Game.market.credits}`);
 }
+```

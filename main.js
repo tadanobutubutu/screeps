@@ -1,18 +1,17 @@
 import React, { useEffect } from "react";
 import { icons } from "./path/to/icons"; // Adjust the path to the actual import location
 
-
 // Import the required function
-const { someRequiredFunction } = ...
+import { someRequiredFunction } from 'path/to/the/someRequiredFunction'; // Adjust the path to the actual import location
 
 const AppLayout = () => {
   // ... (existing code)
-  
+
   // Set the HTML lang attribute for accessibility (REACT_015)
   useEffect(() => {
     document.documentElement.lang = 'en';
   }, []);
-  
+
   // ... (existing code)
 };
 

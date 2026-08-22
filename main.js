@@ -7,7 +7,7 @@
 
   // New function to add scope attribute to th elements
   function addScopeToTh(elements) {
-    elements.each(function(index, element) {
+    elements.forEach((element) => {
       if ($(element).prop('tagName') === 'TH') {
         $(element).attr('scope', 'col');
       }
@@ -15,13 +15,16 @@
   }
 
   // New function to replace the fake link with a button for better accessibility
-  function replaceFakeLinkWithButton() {
-    const fakeLink = $('#unrotate');
+  function replaceFakeLinkWithButton(dependencyGraphContent) {
+    // Use dependencyGraphContent if provided, otherwise fall back to global selector
+    const content = dependencyGraphContent ? $(dependencyGraphContent) : $(document);
+    const fakeLink = content.find('#unrotate');
     if (fakeLink.length) {
       const button = $('<button/>', { text: 'rotate back' });
       button.on('click', fakeLink.click); // Copy the click event handler to the new button
       fakeLink.replaceWith(button);
     }
+    return content;
   }
 
   // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
@@ -32,7 +35,7 @@
   // ... Existing code ...
 
   // Call the new function to replace the fake link when the script loads
-  replaceFakeLinkWithButton();
+  // Usage: replaceFakeLinkWithButton(dependencyGraphContent) or replaceFakeLinkWithButton(indexContent)
 
   // ... Existing code ...
 

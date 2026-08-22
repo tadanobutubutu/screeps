@@ -226,7 +226,7 @@ module.exports.someFunction = someModule.someFunction;
 const otherModule = require('./otherModule');
 module.exports.someOtherFunction = otherModule.someOtherFunction;
 
-// ... (Repeat the process for any additional required modules)
+// Add any additional required modules
 
 // Set lang attribute on HTML element to address accessibility issue
 if (typeof document !== 'undefined') {

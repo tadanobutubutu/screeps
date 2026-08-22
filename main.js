@@ -237,6 +237,20 @@ function validateTableAccessibility(tableConfig) {
 }
 
 /**
+ * Generate scope attribute recommendation for table cells
+ * @param {string} cellType - Type of table cell ('th' or 'td')
+ * @param {boolean} isHeader - Whether the cell is a header
+ * @param {string} orientation - Orientation of the header ('row' or 'col')
+ * @returns {string} Recommended scope attribute value
+ */
+function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
+  if (cellType === 'th' && isHeader) {
+    return `scope="${orientation}"`;
+  }
+  return '';
+}
+
+/**
  * Check if link has accessible text (not a "fake link")
  * @param {string} linkText - Text content of the link
  * @param {Object} context - Additional context for the link
@@ -273,6 +287,7 @@ module.exports = {
   validateLandmark,
   getSvgAccessibleName,
   validateTableAccessibility,
+  getTableScopeRecommendation,
   validateLinkAccessibility
 };
 

@@ -68,49 +68,64 @@ const FixedLink = () => (
 // Main component
 export function Main() {
   // Define columns (up to 26)
-  const columns = [
-    { Header: 'constants' },
-    { Header: 'roomManager' },
-    { Header: 'spawnManager' },
-    { Header: 'towerManager' },
-    { Header: 'builder' },
-    // ...additional columns
-  ];
+  const columns = React.useMemo(
+    () => [
+      { Header: 'constants' },
+      { Header: 'roomManager' },
+      { Header: 'spawnManager' },
+      { Header: 'towerManager' },
+      { Header: 'builder' },
+      // ...additional columns
+    ],
+    []
+  );
+
+  const data = React.useMemo(() => [
+    // Sample data rows matching columns
+    { constants: 'value1', roomManager: 'value2', spawnManager: 'value3', towerManager: 'value4', builder: 'value5' },
+    // ...additional rows
+  ], []);
 
   const {
-    getHeaderGroups,
-    getRowProps,
-    getCellProps,
-    columns: allColumns,
-  } = useTable({ columns });
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({ columns, data });
 
   // Add lang attribute to root element
   addLangAttributeToRoot();
 
   return (
-    <div {...htmlAttributes}>
+    <div>
       <header id="banner">Header</header>
       <main id="mainContent">
-        <table aria-label="Accessible Table">
+        <table {...getTableProps()} aria-label="Accessible Table">
           <thead>
-            <tr>
-              {allColumns.map((column) => (
-                <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {allColumns.map((row) => (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>
-                    {cell.render('Cell')}
-                  </td>
+            {headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps()} key={column.id} scope="col">
+                    {column.render('Header')}
+                  </th>
                 ))}
               </tr>
             ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map(row => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map(cell => (
+                    <td {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

@@ -127,5 +127,6 @@ module.exports = {
     updateReactToV19,
     addScopeToTableHeaders,
     addLangAttribute,
-    addMainLandmark
+    addMainLandmark,
+    main
 };

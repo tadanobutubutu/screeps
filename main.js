@@ -5,6 +5,10 @@
 // `exampleConstants` object. Keep them as they are.
 
 // Add the function that was required:
+function rotateBack() {
+  // Your implementation here...
+}
+
 function anotherFunction() {
   // Your implementation here...
 }
@@ -20,4 +24,5 @@ module.exports = {
   exampleFunction,
   exampleConstants,
   anotherFunction,
+  rotateBack,
 };

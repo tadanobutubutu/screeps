@@ -7,12 +7,40 @@ const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
   // This addresses REACT_017: Add/fix 4 landmark issues
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
-  // ...
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+  const seenIds = new Set();
+  
+  landmarks.forEach((landmark) => {
+    let id = landmark.id;
+    if (!id) {
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      landmark.id = id;
+    }
+    if (seenIds.has(id)) {
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      landmark.id = id;
+    }
+    seenIds.add(id);
+  });
 };
 
 const enhanceFocusVisibility = function() {
   // Function to enhance focus visibility for keyboard navigation
-  // ...
+  const style = document.createElement('style');
+  style.textContent = `
+    *:focus {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+    *:focus:not(:focus-visible) {
+      outline: none;
+    }
+    *:focus-visible {
+      outline: 2px solid #005fcc;
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(style);
 };
 
 const addressAccessibilityIssues = function() {

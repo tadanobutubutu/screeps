@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { icons } from "./path/to/icons"; // Adjust the path to the actual import location
 
 // Import the required function
-import { someRequiredFunction } from "./path/to/someRequiredFunction"; // Adjust the path to the actual import location
+import { someRequiredFunction } from ... // Adjust the path to the actual import location
 
 const AppLayout = () => {
   // ... (existing code)
@@ -43,7 +43,7 @@ export const AccessibleIcon = ({ name, iconType, className = '' }) => {
       className={className}
       role="img"
       aria-label={accessibleIconName}
-      xmlns="http://www.w3.org/2000/svg"
+      ...
       viewBox="0 0 24 24"
       fill="currentColor"
     >
@@ -60,7 +60,7 @@ export const AccessibleTable = ({ caption, headers, rows, className = '' }) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -156,6 +156,23 @@ export const AccessibleButton = ({ onClick, children, className = '', disabled =
       aria-label={ariaLabel}
     >
       {children}
+    </button>
+  );
+};
+
+// Accessible Unrotate Button to fix REACT_036 - "React Fake Link"
+// The "rotate back" action is an in-page action that doesn't navigate anywhere,
+// so it should use a button instead of a link with href="#"
+export const AccessibleUnrotateButton = ({ onClick, className = '' }) => {
+  return (
+    <button
+      id="unrotate"
+      type="button"
+      onClick={onClick}
+      className={className}
+      aria-label="Rotate back"
+    >
+      rotate back
     </button>
   );
 };

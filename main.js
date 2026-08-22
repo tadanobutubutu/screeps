@@ -68,80 +68,231 @@ const createAccessibleModal = (props) => {
 
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English; adjust as needed
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en'); // Assuming English; adjust as needed
+    }
   }
 };
 
 // Fix 26 table structure issues
 const fixTableStructure = () => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Implement table structure fixes here
-    // Example: Add a caption or ensure proper headers
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table Description';
-      table.appendChild(caption);
-    }
-    // ... additional fixes
-  });
+  if (typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      // Check if table has a caption
+      let caption = table.querySelector('caption');
+      if (!caption) {
+        caption = document.createElement('caption');
+        table.insertBefore(caption, table.firstChild);
+      }
+      
+      // Ensure proper th elements with scope attributes
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          // Determine if header is for a column or row
+          const row = th.parentElement;
+          const cellIndex = Array.from(row.cells).indexOf(th);
+          const firstCellInRow = row.querySelector('th') === th;
+          
+          if (firstCellInRow && row.parentElement.tagName === 'TBODY') {
+            th.setAttribute('scope', 'row');
+          } else if (!firstCellInRow || row.parentElement.tagName === 'THEAD') {
+            th.setAttribute('scope', 'col');
+          }
+        }
+      });
+      
+      // Add id attributes to headers for td association
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row, rowIndex) => {
+        const cells = row.querySelectorAll('th, td');
+        cells.forEach((cell, cellIndex) => {
+          if (cell.tagName === 'TH' && !cell.id) {
+            cell.id = `${table.id || 'table'}-header-${rowIndex}-${cellIndex}`;
+          }
+        });
+      });
+    });
+  }
 };
 
 // Add/fix 4 landmark issues
 const addLandmarkIssues = () => {
-  // Example: Add a navigation landmark
-  const nav = document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.setAttribute('aria-label', 'Main navigation');
-  document.body.insertBefore(nav, document.body.firstChild);
-  // ... additional landmarks
+  if (typeof document !== 'undefined') {
+    // Add main landmark if missing
+    let mainElement = document.querySelector('main');
+    if (!mainElement) {
+      mainElement = document.querySelector('[role="main"]');
+    }
+    if (!mainElement) {
+      const existingMain = document.querySelector('div#content, div#main, div.container');
+      if (existingMain && !existingMain.querySelector('main, [role="main"]')) {
+        const main = document.createElement('main');
+        main.setAttribute('role', 'main');
+        while (existingMain.firstChild) {
+          main.appendChild(existingMain.firstChild);
+        }
+        existingMain.appendChild(main);
+      }
+    } else if (!mainElement.getAttribute('role')) {
+      mainElement.setAttribute('role', 'main');
+    }
+
+    // Ensure navigation has proper labels
+    const navElements = document.querySelectorAll('nav');
+    navElements.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+        const isPrimary = index === 0;
+        nav.setAttribute('aria-label', isPrimary ? 'Main navigation' : `Secondary navigation ${index}`);
+      }
+    });
+
+    // Add header/main/footer landmarks if missing
+    if (!document.querySelector('header, [role="banner"]')) {
+      const potentialHeader = document.querySelector('.header, .site-header, #header');
+      if (potentialHeader) {
+        potentialHeader.setAttribute('role', 'banner');
+      }
+    }
+
+    if (!document.querySelector('footer, [role="contentinfo"]')) {
+      const potentialFooter = document.querySelector('.footer, .site-footer, #footer');
+      if (potentialFooter) {
+        potentialFooter.setAttribute('role', 'contentinfo');
+      }
+    }
+
+    // Add aside for complementary content
+    const asides = document.querySelectorAll('aside');
+    asides.forEach(aside => {
+      if (!aside.getAttribute('role') || aside.getAttribute('role') !== 'complementary') {
+        aside.setAttribute('role', 'complementary');
+      }
+      if (!aside.getAttribute('aria-label') && !aside.getAttribute('aria-labelledby')) {
+        aside.setAttribute('aria-label', 'Complementary content');
+      }
+    });
+  }
 };
 
 // Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label')) {
-      svg.setAttribute('aria-label', 'SVG description');
-    }
-  });
+  if (typeof document !== 'undefined') {
+    const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+    svgs.forEach((svg, index) => {
+      // Skip SVGs that already have titles or are decorative
+      const hasTitle = svg.querySelector('title');
+      const hasRoleImg = svg.getAttribute('role') === 'img';
+      const isDecorative = svg.getAttribute('aria-hidden') === 'true';
+      
+      if (!hasTitle && !isDecorative) {
+        // Add a title element for screen readers
+        const title = document.createElement('title');
+        title.textContent = svg.getAttribute('alt') || `SVG illustration ${index + 1}`;
+        title.id = `svg-title-${index}`;
+        
+        if (svg.firstChild) {
+          svg.insertBefore(title, svg.firstChild);
+        } else {
+          svg.appendChild(title);
+        }
+        
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-labelledby', title.id);
+      }
+    });
+  }
 };
 
 // Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
-  // Example: Ensure navigation landmark is unique
-  const navs = document.querySelectorAll('nav');
-  if (navs.length > 1) {
-    navs.forEach((nav, index) => {
-      if (index > 0) {
-        nav.remove();
-      }
-    });
+  if (typeof document !== 'undefined') {
+    // Ensure only one main landmark
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    if (mainElements.length > 1) {
+      mainElements.forEach((main, index) => {
+        if (index > 0) {
+          main.removeAttribute('role');
+          main.removeAttribute('aria-label');
+        }
+      });
+    }
+
+    // Ensure only one banner landmark
+    const banners = document.querySelectorAll('header, [role="banner"]');
+    if (banners.length > 1) {
+      banners.forEach((banner, index) => {
+        if (index > 0) {
+          banner.removeAttribute('role');
+        }
+      });
+    }
   }
-  // ... additional unique landmark fixes
 };
 
 // Fix 1 fake link issue
 const fixFakeLinkIssue = () => {
-  const links = document.querySelectorAll('a[href="#"]');
-  links.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabIndex', '0');
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
+  if (typeof document !== 'undefined') {
+    // Find elements that look like links but are not anchor tags
+    const fakeLinks = document.querySelectorAll(
+      'div[onclick^="location"], span[onclick], button:not(a button), ' +
+      '[role="link"]:not(a), .fake-link:not(a), [data-href]'
+    );
+    
+    fakeLinks.forEach(element => {
+      const tagName = element.tagName.toLowerCase();
+      const isAnchor = tagName === 'a';
+      const hasHref = element.hasAttribute('href');
+      const hasOnClick = element.hasAttribute('onclick') || element.onclick;
+      
+      if (!isAnchor && hasOnClick) {
+        // Check if it looks like a link (cursor style or link-like appearance)
+        const computedStyle = window.getComputedStyle(element);
+        const hasLinkStyle = computedStyle.cursor === 'pointer' || 
+                           computedStyle.textDecoration === 'underline';
+        
+        if (hasLinkStyle || element.classList.contains('link') || 
+            element.getAttribute('role') === 'link') {
+          // Convert to proper button or add proper link attributes
+          element.setAttribute('role', 'button');
+          element.setAttribute('tabIndex', '0');
+          
+          // Add keyboard support if not present
+          if (!element.onkeydown) {
+            element.addEventListener('keydown', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                element.click();
+              }
+            });
+          }
+        }
+      }
     });
-  });
+  }
 };
 
 // Run accessibility fixes
-addLangAttribute();
-fixTableStructure();
-addLandmarkIssues();
-addAccessibleNamesToSVGs();
-ensureUniqueLandmarks();
-fixFakeLinkIssue();
+const runAccessibilityFixes = () => {
+  addLangAttribute();
+  fixTableStructure();
+  addLandmarkIssues();
+  addAccessibleNamesToSVGs();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+};
+
+// Auto-run on DOM ready if in browser environment
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAccessibilityFixes);
+  } else {
+    runAccessibilityFixes();
+  }
+}
 
 // Current existing code (preserve all existing code, exports, and functions)
 
@@ -189,46 +340,34 @@ class MyComponent extends React.Component {
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      ...
+      // ... handle key press
     }
   };
 
   render() {
     // ... existing render method code
     // Add additional ARIA attributes to the component as needed
+    const { isPressed, disabled, label, onClick, children, className, type, ...rest } = this.props;
     return (
       <button
         role="button"
-        aria-label={this.props.label || 'My Button'}
-        'aria-pressed': props.isPressed || false
-        'aria-disabled': props.disabled || false
-        onClick={this.props.onClick}
-        className={this.props.className}
-        type={this.props.type || 'button'}
+        aria-label={label || 'My Button'}
+        aria-pressed={isPressed || false}
+        aria-disabled={disabled || false}
+        onClick={onClick}
+        className={className}
+        type={type || 'button'}
+        {...rest}
       >
-        {this.props.children}
+        {children}
       </button>
     );
   }
 }
 
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal };
+export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, runAccessibilityFixes };
 
 export default MyComponent;
 
-// Export all required modules
-module.exports = {
-  jest: {
-    preset: 'ts-jest',
-    configure,
-    cacheDirectory,
-  },
-  eslingConfig,
-  tsConfig,
-  validateAccessibility,
-  createAccessibleButton,
-  createAccessibleInput,
-  createAccessibleModal,
-  default: MyComponent,
-};
+//

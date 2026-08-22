@@ -3,7 +3,6 @@ module.exports = {
   loop: function() {
     // Main game loop logic
   },
-  // New function to handle the table structure issue
   updateDependencyGraph: function() {
     const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(header => {
@@ -11,5 +10,10 @@ module.exports = {
         header.setAttribute('scope', 'col');
       }
     });
+    // Convert the 'rotate back' anchor to a button
+    const rotateBackLink = document.getElementById('unrotate');
+    if (rotateBackLink) {
+      rotateBackLink.outerHTML = '<button id="unrotate">rotate back</button>';
+    }
   }
 };

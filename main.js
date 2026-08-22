@@ -18,7 +18,7 @@ export function renderDashboard() {
   // REACT_017: Proper landmark structure with unique labels
   // REACT_025: Ensure unique landmarks - using aria-label for uniqueness
   
-  const appContainer = document.getElementById('app');
+  const appContainer = ...
   if (!appContainer) return;
 
   appContainer.innerHTML = `
@@ -26,14 +26,14 @@ export function renderDashboard() {
       <nav role="navigation" aria-label="Main navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
+          <li><a ...
         </ul>
       </nav>
     </header>
 
     <main role="main" aria-label="Main content">
-      <section aria-labelledby="stats-heading">
-        <h2 id="stats-heading">Statistics</h2>
+      <section ...
+        <h2 ...
         
         <!-- REACT_027: Fixed table structure with proper th, caption, and scope -->
         <table>
@@ -47,12 +47,12 @@ export function renderDashboard() {
           </thead>
           <tbody>
             <tr>
-              <th scope="row">January</th>
+              <th ...
               <td>$10,000</td>
               <td>-</td>
             </tr>
             <tr>
-              <th scope="row">February</th>
+              <th ...
               <td>$12,000</td>
               <td>+20%</td>
             </tr>
@@ -64,7 +64,7 @@ export function renderDashboard() {
           <thead>
             <tr>
               <th scope="col">Metric</th>
-              <th scope="col">Value</th>
+              <th ...
             </tr>
           </thead>
           <tbody>
@@ -80,12 +80,12 @@ export function renderDashboard() {
         </table>
       </section>
 
-      <section aria-labelledby="chart-heading">
-        <h2 id="chart-heading">Performance Charts</h2>
+      <section ...
+        <h2 ... Charts</h2>
         
         <!-- REACT_041: Added accessible names to SVGs -->
         <svg role="img" aria-label="Bar chart showing quarterly performance" 
-             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+             ... viewBox="0 0 400 200">
           <title>Quarterly Performance Chart</title>
           <rect x="50" y="100" width="50" height="100" aria-label="Q1: 50%"></rect>
           <rect x="150" y="50" width="50" height="150" aria-label="Q2: 75%"></rect>
@@ -94,7 +94,7 @@ export function renderDashboard() {
         </svg>
 
         <svg role="img" aria-label="Line graph showing trend over time" 
-             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+             ... viewBox="0 0 400 200">
           <title>Trend Over Time</title>
           <polyline points="0,150 100,120 200,100 300,80 400,50" 
                     fill="none" stroke="blue" stroke-width="2"
@@ -103,7 +103,7 @@ export function renderDashboard() {
       </section>
 
       <section aria-labelledby="links-heading">
-        <h2 id="links-heading">Quick Links</h2>
+        <h2 ... Links</h2>
         <!-- REACT_036: Fixed fake link - proper anchor with href -->
         <a href="/reports" class="btn">View Full Report</a>
         <a href="/export" class="btn">Export Data</a>

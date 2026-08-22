@@ -42,7 +42,7 @@ const Table = ({ columns, data }) => {
       <caption>Data table showing results</caption>
       <thead>
         {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr {...headerGroup.getHeaderProps()}>
             {headerGroup.headers.map(column => (
               <th {...column.getHeaderProps()} scope="col">
                 {column.render('Header')}
@@ -107,7 +107,7 @@ const Page = ({ children }) => (
         </ul>
       </nav>
     </header>
-    <main role="main" id="main-content">{/* add role attribute for unique landmark */}
+    <main role="main" id="main-content" aria-label="Main content">
       {children}
     </main>
     <footer role="contentinfo">

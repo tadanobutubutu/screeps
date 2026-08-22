@@ -1,7 +1,7 @@
 // main.js
 
 // Importing required dependencies and extending the existing code
-// (You might have to add specific libraries depending on your project)
+// (You might have specific libraries depending on your project)
 import React from 'react';
 import PropTypes from 'prop-types';
 

@@ -141,6 +141,9 @@ function fixLandmarkIssues(container) {
   return seenLandmarks;
 }
 
+// Apply the language attribute to the HTML element on script load
+setLangAttribute('en');
+
 // Export the new necessary function(s) preserving the existing ones
 module.exports = {
   enhanceAccessibility: enhanceAccessibility,

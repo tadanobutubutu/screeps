@@ -256,7 +256,7 @@ export function createAccessibleFaviconSvg({
   viewBox = '0 0 100 100',
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
-  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-label="${title}"><title>${title}</title>${children}</svg>`;
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}" role="img" aria-labelledby="favicon-title"><title id="favicon-title">${title}</title>${children}</svg>`;
   const encoded = encodeURIComponent(svgContent);
   return `data:image/svg+xml,${encoded}`;
 }
@@ -265,22 +265,22 @@ export function createAccessibleFaviconSvg({
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80" fill="currentColor">S</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">S</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80" fill="currentColor">X</text>'
+    children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">B</text>'
   })
 };
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-    let existingId = landmark.id;
+    const existingId = landmark.id;
     
     if (existingId && !seenIds.has(existingId)) {
       seenIds.add(existingId);
@@ -330,5 +330,7 @@ export function generateId(prefix = 'id') {
 export function setHtmlLang(lang) {
   if (lang) {
     document.documentElement.lang = lang;
+    return true;
   }
+  return false;
 }

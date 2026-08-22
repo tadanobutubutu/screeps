@@ -14,8 +14,31 @@ function addLandmarks() {
         nav.setAttribute('role', 'navigation');
     }
 
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
+    let mainContent = document.querySelector('main');
+    if (!mainContent) {
+        mainContent = document.createElement('main');
+        mainContent.setAttribute('role', 'main');
+        const container = document.querySelector('.container');
+        if (container) {
+            mainContent.appendChild(container);
+        } else {
+            const table = document.querySelector('table');
+            if (table) {
+                mainContent.appendChild(table);
+            }
+        }
+        const headerNode = document.querySelector('header');
+        const navNode = document.querySelector('nav');
+        let insertNode = headerNode;
+        if (navNode) {
+            insertNode = navNode;
+        }
+        if (insertNode) {
+            insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+        } else {
+            document.body.appendChild(mainContent);
+        }
+    } else {
         mainContent.setAttribute('role', 'main');
     }
 

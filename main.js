@@ -81,6 +81,32 @@
         return fakeLinks.length;
     }
 
+    // Function to process all tables in a document or element
+    function processTables(rootElement) {
+        if (!rootElement) rootElement = document;
+        const tables = rootElement.querySelectorAll('table');
+        tables.forEach(function(table) {
+            addScopeToTableHeaders(table);
+        });
+        return tables.length;
+    }
+
+    // Function to update the 'rotate back' link on page load
+    function updateRotateBackLink() {
+        const rotateBackLinks = document.querySelectorAll('.rotate-back-link, [data-action="rotate-back"]');
+        rotateBackLinks.forEach(function(link) {
+            link.setAttribute('aria-label', 'Return to previous view');
+        });
+    }
+
+    // Function to add the 'lang' attribute to the <html> element
+    function setHtmlLanguage() {
+        const htmlEl = document.documentElement;
+        if (!htmlEl.getAttribute('lang')) {
+            htmlEl.setAttribute('lang', 'en');
+        }
+    }
+
     // Process all tables in a document or element
     function processTables(rootElement) {
         if (!rootElement) rootElement = document;
@@ -99,17 +125,26 @@
         });
     }
 
+    // Ensure the HTML element has a language attribute
+    function setHtmlLanguage() {
+        const htmlEl = document.documentElement;
+        if (!htmlEl.getAttribute('lang')) {
+            htmlEl.setAttribute('lang', 'en');
+        }
+    }
+
+    // Call the function to update the 'rotate back' link and set language on page load
+    window.onload = function () {
+        updateRotateBackLink();
+        setHtmlLanguage();
+    };
+
     // Export the new functions
     exports.addAccessibleSvg = addAccessibleSvg;
     exports.updateIcons = updateIcons;
     exports.fixFakeLinks = fixFakeLinks;
     exports.accessibilityChecker = accessibilityChecker;
-
-    // Call the function to update the 'rotate back' link on page load
-    window.onload = updateRotateBackLink;
-
-    exports.addScopeToTableHeaders = addScopeToTableHeaders;
-    module.exports.processTables = processTables;
+    exports.setHtmlLanguage = setHtmlLanguage;
 
     // Additional accessibility functions from origin/main, integrated as standalone utilities
 

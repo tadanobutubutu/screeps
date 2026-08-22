@@ -21,3 +21,11 @@
 **Optimization:** Perform the `room.find()` with the filter once per tick and cache the resulting array directly on the `room` object (e.g., `room._injuredCreeps`). Subsequent creeps can then pass this pre-filtered array directly to `findClosestByRange(cachedArray)`, bypassing the redundant global retrieval and filtering steps.
 
 **Impact:** Benchmarks demonstrated a ~15x CPU reduction (286ms -> 18ms for 10,000 iterations) when 10 healers scan for injured creeps in the same tick, and a ~3x reduction for finding defenders.
+
+## 2026-08-20 - Single-Pass Loop for Body Cost Calculations
+**Learning:** Calling `Array.prototype.reduce` in `_calcBodyCost` during spawn manager queue construction allocates callback function instances and incurs method dispatch overhead on every body cost evaluation. Replacing `.reduce()` with a single-pass `for` loop eliminates closure allocations and method call overhead in spawn queue evaluation routines.
+**Action:** Use standard `for` loops instead of `.reduce()` for array summations in high-frequency spawn manager routines.
+
+## 2026-08-22 - Hoisting Position Method Verification in Target Search Loops
+**Learning:** Checking method presence (such as `typeof creep.pos.getRangeTo === 'function'`) inside structure search loops evaluates property lookups and type checks repeatedly per element per creep tick. Hoisting the boolean validation flag outside the loop reduces CPU overhead during spatial target scanning.
+**Action:** Always hoist object and method verification checks outside high-frequency iterations in Screeps role loops.

@@ -15,3 +15,13 @@ module.exports = {
   Bar,
   initialize
 };
+
+// Adding the lang attribute to the root element of the HTML document
+module.exports = {
+  ...module.exports,
+  render: (element) => {
+    const rootElement = document.getElementById('root');
+    rootElement.lang = 'en';
+    // ... existing render logic ...
+  }
+};

@@ -203,6 +203,26 @@ function addLandmarks() {
       el.setAttribute('role', config.role);
     });
   });
+
+  // Fix missing <main> landmark for REACT_017 (2 occurrences)
+  if (!document.querySelector('main') && document.body) {
+    const body = document.body;
+    const nodesToWrap = [];
+    Array.from(body.childNodes).forEach(node => {
+      if (node.nodeType === 1) {
+        const tag = node.tagName.toLowerCase();
+        if (tag !== 'header' && tag !== 'nav' && tag !== 'footer' && tag !== 'aside' && tag !== 'script' && tag !== 'style') {
+          nodesToWrap.push(node);
+        }
+      }
+    });
+    if (nodesToWrap.length > 0) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      body.insertBefore(main, nodesToWrap[0]);
+      nodesToWrap.forEach(node => main.appendChild(node));
+    }
+  }
 }
 
 // Add accessible names to SVGs
@@ -299,6 +319,40 @@ function fixFakeLink() {
   });
 }
 
+// Fix missing <main> landmark (REACT_017) — 2 occurrences
+// Wrap primary content in <main> so it can be skipped to
+function fixMainLandmark() {
+  if (typeof document === 'undefined') return;
+
+  let main = document.querySelector('main');
+  if (main) {
+    main.setAttribute('role', 'main');
+    return;
+  }
+
+  const body = document.body;
+  if (!body) return;
+
+  const childNodes = Array.from(body.childNodes);
+  const nodesToWrap = [];
+  childNodes.forEach(node => {
+    if (node.nodeType === 1) {
+      const tag = node.tagName.toLowerCase();
+      if (tag !== 'header' && tag !== 'nav' && tag !== 'footer' && tag !== 'aside' && tag !== 'script' && tag !== 'style') {
+        nodesToWrap.push(node);
+      }
+    }
+  });
+
+  if (nodesToWrap.length === 0) return;
+
+  main = document.createElement('main');
+  main.setAttribute('role', 'main');
+
+  body.insertBefore(main, nodesToWrap[0]);
+  nodesToWrap.forEach(node => main.appendChild(node));
+}
+
 // TODO: Import required module(s) and export the new necessary function(s) here
 
 /**
@@ -326,5 +380,6 @@ module.exports = {
   addLandmarks,
   addAccessibleSVGs,
   ensureUniqueLandmarks,
-  fixFakeLink
+  fixFakeLink,
+  fixMainLandmark
 };

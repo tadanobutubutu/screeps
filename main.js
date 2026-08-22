@@ -2,7 +2,6 @@
  * Main entry point for dependency management and configuration
  * Handles updates for: jest, typescript, react, eslint, and other dependencies
  */
-
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

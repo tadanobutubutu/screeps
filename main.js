@@ -15,7 +15,7 @@ const AppLayout = () => {
   // ... (existing code)
 };
 
-// Keep the current exports for AppLayout and icons
+Keep the current exports for AppLayout and icons
 export { AppLayout, icons };
 export default AppLayout;
 

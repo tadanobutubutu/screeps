@@ -1,7 +1,7 @@
 // Existing code...
 
 // Update google/osv-scanner-action action to v2.5.1
-const GoogleOSVScannerAction = require('google-osv-scanner-action');
+const GoogleOSVScannerAction = require('@google/osv-scanner-action');
 GoogleOSVScannerAction.version = '2.5.1';
 
 // Update dependency eslint to v10
@@ -132,7 +132,9 @@ function generateSummary() {
 
 // Adding lang attribute to HTML element
 function setLangAttribute(element) {
-  if (element && element.setAttribute) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', 'en');
+  } else if (element && element.setAttribute) {
     element.setAttribute('lang', 'en');
   }
 }
@@ -252,7 +254,8 @@ function ensureUniqueLandmarks() {
   landmarkRoles.forEach(role => {
     const landmarks = document.querySelectorAll(`[role="${role}"]`);
     landmarks.forEach(landmark => {
-      const count = ++landmarkCounts[role];
+      const count = landmarkCounts[role] + 1;
+      landmarkCounts[role] = count;
 
       // First landmark of type is fine without modification
       if (count > 1) {

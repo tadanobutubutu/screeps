@@ -1,21 +1,4 @@
-// Assuming main.js has some imports and other code that is not related to the issue.
-// Here's a simplified example of how the relevant section might look with conflict markers removed.
-
-// Before the change:
-// <a id="unrotate" href="#">rotate back</a>
-// =======
-// <button id="unrotate">rotate back</button>
-// >>>>>>> origin/main
-
-// After the change:
-// <button id="unrotate">rotate back</button>
-
-// Any other code in main.js remains unchanged.
-
-/**
- * Main application entry point
- */
-
+// Main application entry point
 function initializeApp() {
     const mainElement = document.querySelector('main');
     if (mainElement) {
@@ -36,6 +19,17 @@ function init() {
     return main;
 }
 
+// Function to remove duplicate <main> elements and ensure only one <main> is present
+function ensureSingleMain() {
+    const allMainElements = document.querySelectorAll('main');
+    if (allMainElements.length > 1) {
+        // Remove all but the first <main> element
+        allMainElements.slice(1).forEach((main) => {
+            main.remove();
+        });
+    }
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initializeApp, getMainContent, init };
+    module.exports = { initializeApp, getMainContent, init, ensureSingleMain };
 }

@@ -1,57 +1,36 @@
-// main.js
-
-// Original code (if present) with conflict markers
-// <<<<<<< HEAD
-// import React from 'react';
-// import ReactDOM from 'react-dom';
-// import App from './App';
-// import './index.css';
-
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>,
-//   ...
-// );
-
-// =======
-// ... (conflict markers here)
-// >>>>>>> branch-name
-
-// New changes based on the issue to add aria-label or aria-hidden="true" to SVG elements
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import './index.css';
 
-// Assuming that the App component uses the icons from the icons object
-// and we need to modify it to include accessibility for SVGs
+ReactDOM.render(
+  <React.StrictMode>
+    <App
+      ariaLabel="Screeps Dashboard"
+      appleAriaLabel="Screeps Apple Icon"
+    />
+  </React.StrictMode>,
+  ...
+);
 
-function App() {
+function App({
+  ariaLabel,
+  appleAriaLabel,
+}) {
   const icons = {
-    icon: ... ... viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 ...
-    apple: ... ... viewBox=%220 0 100 100%22><text y=%22.9em%22 ...
+    icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em">...</text></svg>`,
+    apple: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em">...</text></svg>`
   };
 
-  // Function to create an accessible SVG from a data URI
   const createAccessibleSVG = (dataURI, ariaLabel) => {
     return <img src={dataURI} alt={ariaLabel} />;
   };
 
   return (
     <main>
-      {/* Use the createAccessibleSVG function to make the SVGs accessible */}
-      <div>{createAccessibleSVG(icons.icon, 'Screeps Dashboard')}</div>
-      <div>{createAccessibleSVG(icons.apple, 'Screeps Apple Icon')}</div>
-      {/* ... rest of the App component */}
+      <div>{createAccessibleSVG(icons.icon, ariaLabel)}</div>
+      <div>{createAccessibleSVG(icons.apple, appleAriaLabel)}</div>
+      {/* ... rest of the App component ... */}
     </main>
   );
 }
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  ...
-);

@@ -150,6 +150,38 @@ const fixFakeLinkIssue = () => {
   });
 };
 
+// Create accessible SVG data URI for favicons (fixes REACT_041)
+const createAccessibleSVGFavicon = (options = {}) => {
+  const {
+    label = 'Screeps Dashboard',
+    emoji = '🐛',
+    viewBox = '0 0 100 100',
+    fontSize = '90',
+    y = '.9em',
+    hidden = false
+  } = options;
+
+  const titleElement = hidden ? '' : `<title>${label}</title>`;
+  const ariaHidden = hidden ? ' aria-hidden="true"' : '';
+  const role = hidden ? '' : ' role="img"';
+
+  const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${role}${ariaHidden}>${titleElement}<text y="${y}" font-size="${fontSize}">${emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+};
+
+// Generate fixed favicon configurations for layout.tsx files
+const getFixedFaviconConfigs = () => {
+  return {
+    dashboard: {
+      icon: createAccessibleSVGFavicon({ label: 'Screeps Dashboard' }),
+    },
+    app: {
+      icon: createAccessibleSVGFavicon({ label: 'Screeps App' }),
+      apple: createAccessibleSVGFavicon({ label: 'Screeps App' }),
+    },
+  };
+};
+
 // Run accessibility fixes
 addLangAttribute();
 fixTableStructure();
@@ -227,7 +259,7 @@ class MyComponent extends React.Component {
 }
 
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue };
+export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue, createAccessibleSVGFavicon, getFixedFaviconConfigs };
 
 export default MyComponent;
 
@@ -250,5 +282,7 @@ module.exports = {
   addAccessibleNamesToSVGs,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  createAccessibleSVGFavicon,
+  getFixedFaviconConfigs,
   default: MyComponent,
 };

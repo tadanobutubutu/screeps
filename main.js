@@ -4,11 +4,6 @@
 // No code changes to main.js are required based on this issue.
 // Existing tests in /tests/ must continue to pass.
 
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-
 module.exports = {
   // Existing exports would be preserved here
   newExport: function() {
@@ -24,9 +19,38 @@ module.exports = {
   },
   ensureUniqueLandmarks: function() {
     // Accessibility fix for REACT_025: Ensure unique landmarks
-    // Assuming there's a function to check landmarks and a method to assign a unique ID
-    // This is a placeholder for the actual logic, which needs to be implemented based on the application's structure
-    // Example: ...
+    // This function ensures that landmark elements have proper labeling for accessibility
+    const landmarkSelectors = ['header:not([role])', 'footer:not([role])', 'nav:not([role])', 'aside:not([role])', 'main:not([role])', '[role="banner"]', '[role="navigation"]', '[role="complementary"]', '[role="main"]', '[role="contentinfo"]'];
+    
+    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const landmarkCounts = {};
+    
+    allLandmarks.forEach(landmark => {
+      const tagName = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role');
+      const key = role || tagName;
+      
+      landmarkCounts[key] = (landmarkCounts[key] || 0) + 1;
+    });
+    
+    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const tagCounts = {};
+    
+    secondPassLandmarks.forEach(landmark => {
+      const tagName = landmark.tagName.toLowerCase();
+      const role = landmark.getAttribute('role');
+      const key = role || tagName;
+      
+      if (!landmark.id && !landmark.getAttribute('aria-label')) {
+        if (landmarkCounts[key] > 1) {
+          tagCounts[key] = (tagCounts[key] || 0) + 1;
+          landmark.setAttribute('aria-label', `${key}-${tagCounts[key]}`);
+        } else if (tagName === 'header' || tagName === 'footer') {
+          tagCounts[key] = (tagCounts[key] || 0) + 1;
+          landmark.setAttribute('aria-label', `${key}-${tagCounts[key]}`);
+        }
+      }
+    });
   }
 };
 

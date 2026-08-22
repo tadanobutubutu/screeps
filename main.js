@@ -16,12 +16,16 @@ export default function Layout({ children }) {
 
                 const dashboardLayoutSvg = document.querySelector('dashboard-app-layout svg');
                 if (dashboardLayoutSvg) {
-                  dashboardLayoutSvg.setAttribute('aria-label', 'Dashboard icon');
+                  dashboardLayout Svg.setAttribute('aria-label', 'Dashboard icon');
                 }
               });
             `
           }}
         />
+        {/* Update the `icons` object in this component to include aria-label for the favicon SVG */}
+        <icons aria-label="Screeps Dashboard Icon">
+          {/* In your original code, 'icons' is probably defined somewhere in your components */}
+        </icons>
       </>
     );
   }

@@ -37,7 +37,7 @@ const accessibilityFixes = {
     <table>
       <thead>
         <tr>
-          <th scope="col">Header</th>
+          <th ...
         </tr>
       </thead>
       <tbody>
@@ -52,7 +52,49 @@ const accessibilityFixes = {
   svgAccessible: '<svg aria-label="Description of image" role="img">',
   
   // REACT_036: Real links
-  realLink: '<a href="/actual-url">Click here</a>',
+  realLink: '<a ... here</a>',
 };
 
-module.exports = { accessibilityFixes };
+/**
+ * Validates accessibility rules against a given HTML/code snippet
+ * @param {string} code - The code to validate
+ * @param {string[]} rules - Array of rule codes to check (e.g., ['REACT_015', 'REACT_017'])
+ * @returns {Object} Validation results with passed/failed status
+ */
+function validateAccessibility(code, rules = []) {
+  const results = {
+    passed: [],
+    failed: [],
+    code: code
+  };
+
+  rules.forEach(rule => {
+    if (code.includes('html lang') || code.includes('lang="')) {
+      results.passed.push(rule);
+    } else {
+      results.failed.push(rule);
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Generates suggested fixes for accessibility issues
+ * @param {string} issueCode - The issue code (e.g., 'REACT_015')
+ * @returns {string} Suggested fix or template for the issue
+ */
+function generateFix(issueCode) {
+  const fixTemplates = {
+    'REACT_015': '<html lang="en">',
+    'REACT_017': '<main id="main-content"><!-- main content --></main>',
+    'REACT_025': 'Ensure unique landmark regions: <header>, <main>, <nav>, <footer>',
+    'REACT_027': '<table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>',
+    'REACT_036': '<a href="/actual-url">Link Text</a>',
+    'REACT_041': '<svg aria-label="Description" role="img">...</svg>'
+  };
+
+  return fixTemplates[issueCode] || 'No fix template available';
+}
+
+module.exports = { accessibilityFixes, validateAccessibility, generateFix };

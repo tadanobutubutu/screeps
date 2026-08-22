@@ -1,7 +1,5 @@
-// Before update:
-export const calculateScore = (player) => {
-  return player.creeps.reduce((sum, creep) => sum + creep.carry.energy, 0);
-};
+import { useState } from 'react';
+import Link from 'next/link';
 
 export const moveCreep = (creep, targetPos) => {
   creep.moveTo(targetPos, { reusePath: 5 });
@@ -41,8 +39,8 @@ export default function Main() {
           <table>
             <thead>
               <tr>
-                <th ...
-                <th ...
+                <th scope="col">Item</th>
+                <th scope="col">Value</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>

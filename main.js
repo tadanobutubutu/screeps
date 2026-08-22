@@ -1,6 +1,10 @@
+Here is the resolved file content:
+
+```javascript
 import React from 'react';
 import ReactTable from 'react-table';
 import './Table.css';
+import { dependencyGraphContent, indexContent } from './constants';
 
 // -----------------------------------------------------------------------------
 // Sample data (unchanged)
@@ -54,6 +58,20 @@ const columns = [
 ];
 
 // -----------------------------------------------------------------------------
+// New function to render dependency graph
+// -----------------------------------------------------------------------------
+function DependencyGraph() {
+  return (React.createElement("div", { dangerouslySetInnerHTML: { __html: dependencyGraphContent } }));
+}
+
+// -----------------------------------------------------------------------------
+// New function to render index content
+// -----------------------------------------------------------------------------
+function IndexContent() {
+  return (React.createElement("div", { dangerouslySetInnerHTML: { __html: indexContent } }));
+}
+
+// -----------------------------------------------------------------------------
 // Table header component (preserved structure, only scope added)
 // -----------------------------------------------------------------------------
 function TableHeader() {
@@ -79,6 +97,9 @@ function App() {
   return (
     <div className="App">
       {tableInstance}
+      {/* Add the dependency graph and index content to the App */}
+      <DependencyGraph />
+      <IndexContent />
     </div>
   );
 }
@@ -87,3 +108,6 @@ function App() {
 // Export (unchanged)
 // -----------------------------------------------------------------------------
 export default App;
+```
+
+This solution maintains both updates: integrates the new react components to display a dependency graph and index content, while also preserving the existing data table and the structure of the main `App` component. The new functions and modifications to the original code have been marked with comments for better readability.

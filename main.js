@@ -1,50 +1,43 @@
 (() => {
   // ... Existing code ...
 
-  // Require the necessary modules. We are using jQuery in the example.
-  // You should import the relevant module according to your requirements.
-  const $ = require('jquery');
-
   // New function to add scope attribute to th elements
-  function addScopeToTh(elements) {
+  function addScopeToTh(element) {
+    if ($(element).prop('tagName') === 'TH') {
+      $(element).attr('scope', 'col');
+    }
+  }
+
+  // Function to add scope attribute to multiple th elements
+  function addScopeToThs(elements) {
     elements.forEach((element) => {
-      if ($(element).prop('tagName') === 'TH') {
-        $(element).attr('scope', 'col');
-      }
+      addScopeToTh(element);
     });
   }
 
-  // New function to replace the fake link with a button for better accessibility
-  function replaceFakeLinkWithButton(dependencyGraphContent) {
-    // Use dependencyGraphContent if provided, otherwise fall back to global selector
-    const content = dependencyGraphContent ? $(dependencyGraphContent) : $(document);
-    const fakeLink = content.find('#unrotate');
-    if (fakeLink.length) {
-      const button = $('<button/>', { text: 'rotate back' });
-      button.on('click', fakeLink.click); // Copy the click event handler to the new button
-      fakeLink.replaceWith(button);
+  // New function to validate table structure
+  function validateTableStructure(table) {
+    const headers = table.find('thead th');
+    const rows = table.find('tbody tr');
+
+    if (headers.length !== rows[0].children.length) {
+      throw new Error('Table headers and rows do not match in length');
     }
-    return content;
+
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i].children.length !== headers.length) {
+        throw new Error(`Mismatched header and row cells at row ${i + 1}`);
+      }
+    }
   }
 
-  // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
-  function addScopeToThs(elements) {
-    addScopeToTh(elements);
-  }
-
-  // ... Existing code ...
-
-  // Call the new function to replace the fake link when the script loads
-  // Usage: replaceFakeLinkWithButton(dependencyGraphContent) or replaceFakeLinkWithButton(indexContent)
-
-  // ... Existing code ...
-
-  // Export the new functions
+  // Add the new validateTableStructure function
   module.exports = {
     wrapContentInMain,
     addScopeToTh,
     createTableHeaders,
     replaceFakeLinkWithButton,
-    addScopeToThs  // Add the new export
+    addScopeToThs,
+    validateTableStructure  // Add the new export
   };
 })();

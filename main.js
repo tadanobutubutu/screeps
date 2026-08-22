@@ -122,6 +122,37 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
+// Utility to create accessible decorative SVG for favicons and icons
+export const AccessibleFaviconSVG = ({ children, title = 'Decorative icon', ...props }) => {
+  return (
+    <svg aria-hidden="true" focusable="false" {...props}>
+      <title>{title}</title>
+      {children}
+    </svg>
+  );
+};
+
+// Wrapper for inline SVG strings to add accessible name
+export const createAccessibleIcon = (svgString, accessibleName) => {
+  // Insert aria-label or title into the SVG string for accessibility
+  if (accessibleName) {
+    // Check if there's already a <title> element
+    if (svgString.includes('<title>')) {
+      return svgString;
+    }
+    // Add title after opening svg tag
+    return svgString.replace(
+      '<svg',
+      `<svg aria-label="${accessibleName}"`
+    );
+  }
+  // For decorative icons, add aria-hidden
+  if (!svgString.includes('aria-hidden')) {
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
+  }
+  return svgString;
+};
+
 export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIconSVG, GraphIcon, SettingsIcon };
 
 export function generateId(prefix = 'id') {
@@ -135,7 +166,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Date(date).toLocaleDateString('en-US', defaultOptions);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
 }
 
 export function debounce(func, wait) {
@@ -175,4 +206,10 @@ export const SkipLink = ({ href = '#main-content', children = 'Skip to main cont
         color: '#fff',
         padding: '8px',
         zIndex: 100,
-        transition
+        transition: 'top 0.3s'
+      }}
+    >
+      {children}
+    </a>
+  );
+};

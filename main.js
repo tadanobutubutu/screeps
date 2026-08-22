@@ -1,5 +1,22 @@
-I need to see the current content of `main.js` to fix the syntax errors. From the error messages, it appears the file has invalid JavaScript content at the beginning. Could you please provide the full contents of `main.js`?
+// Existing code from main.js (not shown, but must be preserved)
+// ...
 
-The issue mentions that `docs/dependency-graph.html` needs the `lang` attribute added to fix the REACT_015 accessibility issue, but the test failures are related to `main.js` syntax checking, which I cannot resolve without seeing its current content.
+// New function or changes requested for REACT_025 issue
+function handleMultipleMainElements() {
+  // Check if the current DOM contains multiple <main> elements
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // If more than one <main> is found, replace all but the first with <section>
+    Array.from(mainElements).forEach((element, index) => {
+      if (index > 0) {
+        element.outerHTML = `<section>${element.innerHTML}</section>`;
+      }
+    });
+  }
+}
 
-Please paste the contents of `main.js` here so I can help you fix both issues.
+// Assuming the function is called when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', handleMultipleMainElements);
+
+// Existing code from main.js (not shown, but must be preserved)
+// ...

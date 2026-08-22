@@ -141,6 +141,32 @@ function fixLandmarkIssues(container) {
   return seenLandmarks;
 }
 
+// NEW: Ensure a <main> landmark exists and is uniquely identified
+function addMissingMainLandmark(container) {
+  const targetDoc = container && container.querySelector ? container : document;
+  let mainEl = targetDoc.querySelector('main');
+
+  if (!mainEl) {
+    mainEl = targetDoc.createElement('main');
+    mainEl.setAttribute('role', 'main');
+
+    // Ensure the landmark role/label combination is unique
+    const uniqueLabel = 'Main content area';
+    ensureUniqueLandmark(mainEl, 'main', uniqueLabel);
+
+    // Insert the <main> element as the first child of <body> if it exists,
+    // otherwise append it to the document element.
+    const body = targetDoc.body;
+    if (body) {
+      body.insertBefore(mainEl, body.firstChild);
+    } else {
+      targetDoc.documentElement.appendChild(mainEl);
+    }
+  }
+
+  return mainEl;
+}
+
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
   // Existing exports preserved unchanged
@@ -153,4 +179,7 @@ module.exports = {
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
   fixLandmarkIssues: fixLandmarkIssues,
+
+  // New export for ensuring a <main> landmark
+  addMissingMainLandmark: addMissingMainLandmark,
 };

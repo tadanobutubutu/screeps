@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Layout = ({ children }) => {
+const [PERSON_NAME] = ({ children }) => {
   return (
     <div>
       {/* ... other components ... */}
@@ -22,4 +22,4 @@ const Layout = ({ children }) => {
 };
 
 // TODO: Add back any required exports that might have been? - Removed export statement
-export default Layout;
+export default [PERSON_NAME];

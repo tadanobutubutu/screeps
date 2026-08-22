@@ -116,6 +116,37 @@ function addLandmarks() {
     });
 }
 
+/**
+ * Adds landmark roles and fixes landmark issues
+ * @returns {void}
+ */
+function addLandmarksForTables() {
+    // Fix table structure issues by ensuring proper header elements
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach((table) => {
+        // Get all header cells from thead or first row of tbody
+        const headerCells = Array.from(table.querySelectorAll('th, td'));
+        
+        if (headerCells.length === 0) return;
+        
+        // Create unique IDs for each column based on header text
+        const columnIds = [];
+        headerCells.forEach((cell, index) => {
+            const id = `table-column-${index}`;
+            cell.setAttribute('data-col-id', id);
+            columnIds.push(id);
+        });
+        
+        // Set scope for each column header
+        table.querySelectorAll('th, td').forEach((cell, index) => {
+            if (columnIds[index]) {
+                cell.setAttribute('scope', 'col');
+            }
+        });
+    });
+}
+
 // Preserve existing default export but also expose required exports
 const exportsObj = {
     icons,

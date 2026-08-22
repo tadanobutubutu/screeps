@@ -5,8 +5,13 @@
 // `exampleConstants` object. Keep them as they are.
 
 // Add the function that was required:
-function anotherFunction() {
+function rotateBack() {
   // Your implementation here...
+  // Example: Rotate the element with id 'unrotate' back to its original state
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    unrotateElement.style.transform = 'rotate(0deg)';
+  }
 }
 
 const unrotateElement = document.getElementById('unrotate');
@@ -20,4 +25,5 @@ module.exports = {
   exampleFunction,
   exampleConstants,
   anotherFunction,
+  rotateBack, // Exporting the new function to make it available outside of this module
 };

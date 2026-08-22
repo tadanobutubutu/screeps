@@ -15,15 +15,21 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('banner');
+    const banners = document.querySelectorAll('header, [role="banner"]');
     banners.forEach((banner, index) => {
+      if (!banner.getAttribute('role')) {
+        banner.setAttribute('role', 'banner');
+      }
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('navigation');
+    const navigations = document.querySelectorAll('nav, [role="navigation"]');
     navigations.forEach((nav, index) => {
+      if (!nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+      }
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;
       }
@@ -31,6 +37,9 @@ module.exports = {
 
     const mains = document.querySelectorAll('main');
     mains.forEach((main, index) => {
+      if (!main.getAttribute('role')) {
+        main.setAttribute('role', 'main');
+      }
       if (!main.id) {
         main.id = `main-${index + 1}`;
       }
@@ -38,6 +47,9 @@ module.exports = {
 
     const footers = document.querySelectorAll('footer');
     footers.forEach((footer, index) => {
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
       }
@@ -144,9 +156,12 @@ module.exports = {
       }
     });
 
-    // React_017: Add IDs to other landmark elements
+    // React_017: Add landmark roles and fix landmark issues
     const headers = document.querySelectorAll('header');
     headers.forEach((header, index) => {
+      if (!header.getAttribute('role')) {
+        header.setAttribute('role', 'banner');
+      }
       if (!header.id) {
         header.id = `header-${index + 1}`;
       }
@@ -154,6 +169,9 @@ module.exports = {
 
     const footerElements = document.querySelectorAll('footer');
     footerElements.forEach((footer, index) => {
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
       }
@@ -161,6 +179,9 @@ module.exports = {
 
     const navs = document.querySelectorAll('nav');
     navs.forEach((nav, index) => {
+      if (!nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+      }
       if (!nav.id) {
         nav.id = `nav-${index + 1}`;
       }
@@ -168,6 +189,9 @@ module.exports = {
 
     const asides = document.querySelectorAll('aside');
     asides.forEach((aside, index) => {
+      if (!aside.getAttribute('role')) {
+        aside.setAttribute('role', 'complementary');
+      }
       if (!aside.id) {
         aside.id = `aside-${index + 1}`;
       }

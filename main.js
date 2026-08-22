@@ -59,7 +59,7 @@ function ensureMainLandmark(container) {
   const targetDoc = container && container.querySelector ? container : document;
   
   // Check if main landmark already exists
-  let mainElement = targetDoc.querySelector("[role='main']");
+  let mainElement = targetDoc.querySelector("main");
   
   if (!mainElement) {
     // Create main landmark for accessibility
@@ -151,7 +151,7 @@ function fixFakeLink(element, isActionLink) {
 // REACT_036: Fix the rotate back fake link
 function fixRotateBackLink(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const rotateBackLink = targetDoc.querySelector(".rotate-back, [data-action='rotate-back']");
+  const rotateBackLink = targetDoc.querySelector(".rotate-back, [data-rotate-back]");
   
   if (rotateBackLink && rotateBackLink.tagName && rotateBackLink.tagName.toLowerCase() === "a") {
     // Check if it's a hash-only href (fake link)
@@ -168,12 +168,13 @@ function fixRotateBackLink(container) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section, header");
+  const landmarks = targetDoc.querySelectorAll("main, footer, aside, section, header, nav");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {
     const role = landmark.getAttribute("role") || landmark.tagName.toLowerCase();
     const label = landmark.getAttribute("aria-label") || "";
+
     const key = role + "-" + label;
 
     if (seenLandmarks[key]) {

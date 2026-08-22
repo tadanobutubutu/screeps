@@ -200,6 +200,30 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
+// REACT_041: Utility function to generate accessible SVG favicon data URIs
+// Ensures SVG favicons have proper accessible names via <title> element
+export function createAccessibleFaviconSvg({ 
+  title, 
+  children, 
+  viewBox = '0 0 100 100',
+  xmlns = 'http://www.w3.org/2000/svg'
+}) {
+  const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}"><title>${title}</title>${children}</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+}
+
+// REACT_041: Predefined accessible favicon generators for the project
+export const faviconGenerators = {
+  screepsDashboard: () => createAccessibleFaviconSvg({
+    title: 'Screeps Dashboard',
+    children: '<text y=".9em" font-size="90">🐛</text>'
+  }),
+  screepsBug: () => createAccessibleFaviconSvg({
+    title: 'Screeps Bug Icon',
+    children: '<text y=".9em" font-size="90">🐛</text>'
+  })
+};
+
 // Export all new accessibility-friendly components
 export { 
   RotateBackButton, 
@@ -211,7 +235,9 @@ export {
   AppWrapper,
   PageLayout,
   fixTableStructureIssues,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  createAccessibleFaviconSvg,
+  faviconGenerators
 };
 
 // Missing functions added as requested

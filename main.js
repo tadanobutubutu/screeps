@@ -3,8 +3,11 @@
 // Import required modules
 import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependencyGraphContent } from './dependencies.js';
 
+// Export required functions that might have been removed
+export { addLandmarks, addMissingAriaLabels, fixTableStructure };
+
 // Function to add landmark roles and fix landmark issues
-function addLandmarks() {
+export function addLandmarks() {
   // Add lang attribute to HTML (REACT_015)
   const html = document.documentElement;
   if (html) {
@@ -54,12 +57,12 @@ function addLandmarks() {
     footer.setAttribute('role', 'contentinfo');
   }
   
-  const searchForm = document.querySelector('form[role="search"], form.search');
+  const searchForm = document.querySelector('form.search');
   if (searchForm) {
     searchForm.setAttribute('role', 'search');
   }
   
-  const loginLink = document.querySelector('.login-link, a[href*="login"]');
+  const loginLink = document.querySelector('a[href*="login"]');
   if (loginLink) {
     loginLink.setAttribute('role', 'link');
   }
@@ -72,7 +75,7 @@ function addLandmarks() {
     logoSvg.setAttribute('role', 'img');
   }
   
-  const iconSvg1 = document.querySelector('.icon-1 svg');
+  const iconSvg1 = document.querySelector('.icon svg');
   if (iconSvg1) {
     const title = document.createElement('title');
     title.textContent = 'Icon 1';
@@ -91,9 +94,9 @@ function addLandmarks() {
   landmarkRoles.forEach((landmark, index) => {
     const element = document.querySelector(`[role="${landmark.role}"]`);
     if (element) {
-      const uniqueId = `landmark-${landmark.role}-${index}`;
+      const uniqueId = `landmark-label-${index}`;
       element.setAttribute('aria-labelledby', uniqueId);
-      const existingLabel = document.getElementById(uniqueId);
+      const existingLabel = element.querySelector(`#${uniqueId}`);
       if (!existingLabel) {
         const label = document.createElement('span');
         label.id = uniqueId;
@@ -112,10 +115,10 @@ function addLandmarks() {
   tables.forEach((table) => {
     const thead = table.querySelector('thead');
     const tbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
     if (rows.length > 0) {
       rows.forEach((rowHeader, indexHeader) => {
-        const columnCells = Array.from(rowHeader.querySelectorAll('td'));
+        const columnCells = Array.from(tbody.querySelectorAll('tr td')).filter((cell) => cell.cellIndex === indexHeader);
         const columnHeaders = [];
         tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
           if (!columnHeaders.includes(cell)) {
@@ -123,8 +126,8 @@ function addLandmarks() {
           }
         });
         if (columnCells.length > indexHeader) {
-          columnHeaders.forEach((headerCell, idx) => {
-            headerCell.setAttribute('id', `${table.alt || 'table'}-header-${idx}`);
+          columnCells.forEach((headerCell, idx) => {
+            headerCell.setAttribute('id', `${table.alt || 'table'}-${indexHeader}-${idx}`);
             headerCell.setAttribute('scope', 'col');
           });
         }
@@ -149,7 +152,7 @@ function addLandmarks() {
 }
 
 // Function to add missing ARIA labels and improve accessibility
-function addMissingAriaLabels() {
+export function addMissingAriaLabels() {
   // Fix REACT_041: SVG Accessible Name
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach((el) => {
@@ -167,14 +170,14 @@ function addMissingAriaLabels() {
     }
   });
   
-  const searchInput = document.querySelector('.search-form input, .search-form button');
+  const searchInput = document.querySelector('input[type="search"], .search-form button');
   if (searchInput) {
     searchInput.setAttribute('aria-label', 'Search this site');
   }
 }
 
 // NEW FUNCTION: Fix table structure issues (REACT_027)
-function fixTableStructure() {
+export function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table, tableIndex) => {
     // Ensure a caption is present for accessibility
@@ -205,7 +208,7 @@ function fixTableStructure() {
       if (thead) {
         rows.shift();
       }
-      rows.forEach(row => {
+      rows.forEach((row) => {
         if (thead && row.parentNode === thead) return;
         tbody.appendChild(row);
       });
@@ -218,4 +221,13 @@ function fixTableStructure() {
     headerCells.forEach((header, idx) => {
       if (!header.hasAttribute('scope')) {
         const isFirstColumn = idx === 0;
-        const columnHeaders = table.querySelectorAll('tbody
+        const columnHeaders = table.querySelectorAll('tbody tr').length;
+        if (isFirstColumn && columnHeaders > 1) {
+          header.setAttribute('scope', 'row');
+        } else {
+          header.setAttribute('scope', 'col');
+        }
+      }
+    });
+  });
+}

@@ -8,3 +8,8 @@ function rotateBack() {
 document.getElementById('unrotate').innerHTML = `
   <button onclick="rotateBack()">rotate back</button>
 `;
+
+// Update the table headers to include the scope attribute
+document.querySelectorAll('th').forEach(th => {
+  th.setAttribute('scope', 'col');
+});

@@ -185,11 +185,8 @@ function fixTableStructureIssues() {
         if (thead && row.parentNode === thead) return;
         tbody.appendChild(row);
       });
-      if (thead) {
-        table.insertBefore(tbody, thead.nextSibling);
-      } else {
-        table.appendChild(tbody);
-      }
+      if (thead) table.insertBefore(tbody, thead.nextSibling);
+      else table.appendChild(tbody);
     }
 
     // Assign proper scope attributes to header cells
@@ -273,8 +270,12 @@ function fixNestedTableStructure(table) {
   if (!tbody) {
     tbody = document.createElement('tbody');
     const rows = Array.from(table.querySelectorAll('tr'));
-    if (thead) rows.shift(); // skip header row removed earlier
+    // Remove header rows that were moved to thead
+    if (thead) {
+      rows.shift();
+    }
     rows.forEach(row => {
+      // Skip rows already placed in thead
       if (thead && row.parentNode === thead) return;
       tbody.appendChild(row);
     });
@@ -298,4 +299,6 @@ function fixNestedTableStructure(table) {
 
 // NEW FUNCTION: Ensure unique landmarks (REACT_025)
 function ensureUniqueLandmarks() {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'search', '
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'search'];
+  // ... (rest of the function remains unchanged)
+}

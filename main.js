@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code ...
 
 // New function requested in the issue
@@ -45,5 +42,17 @@ function rotateBack() {
   }
 })();
 
+// Wrap the primary content in <main> to address the REACT_017 issue
+function wrapPrimaryContentWithMain() {
+  const primaryContent = document.querySelector('div.container');
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+  }
+}
+
+// Call the function to wrap the primary content with <main>
+wrapPrimaryContentWithMain();
+
 // Existing code ...
-```

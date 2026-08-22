@@ -4,7 +4,7 @@
 
 // New function to be exported as per the issue
 const myNewFunction = function() {
-  // your new function logic goes here
+  console.log("Executing myNewFunction...");
 };
 
 module.exports = {

@@ -113,7 +113,7 @@ export function fixTableStructureIssues(tables) {
 
 // REACT_025: Function to ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role]');
+  const landmarks = document.querySelectorAll('[role]');
   const seenIds = new Set();
   
   landmarks.forEach(landmark => {

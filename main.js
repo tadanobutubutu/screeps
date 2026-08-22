@@ -4,16 +4,7 @@
 // - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark(), validateLandmark(), validateUniqueLandmarks(), validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames(), getSvgAccessibleName(), createSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue(), validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), validateLinkOrButton(), createAccessibleLink())
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateUniqueLandmarks(), and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), and createAccessibleLink())
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue(), validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), and createAccessibleLink())
 
 /**
  * Add lang attribute to the HTML element for accessibility
@@ -392,6 +383,35 @@ function createAccessibleLink(options = {}) {
 }
 
 /**
+ * Fix fake link issues with href="#" that lack accessible name
+ */
+function fixFakeLinkHrefIssue() {
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach(link => {
+    const hasName = link.textContent.trim() ||
+                    link.hasAttribute('aria-label') ||
+                    link.hasAttribute('aria-labelledby');
+    if (!hasName) {
+      const buttonText = link.textContent.trim() ||
+                         (link.hasAttribute('aria-label') ? link.getAttribute('aria-label') : 'Link');
+      const button = createInPageButton(buttonText, e => {
+        e.preventDefault();
+        link.click();
+      });
+      // Preserve any onclick behavior by invoking the original click
+      const onclick = link.getAttribute('onclick');
+      if (onclick) {
+        button.addEventListener('click', e => {
+          e.preventDefault();
+          link.click();
+        });
+      }
+      link.parentNode.replaceChild(button, link);
+    }
+  });
+}
+
+/**
  * Initialize all accessibility fixes
  */
 function initAccessibility() {
@@ -402,6 +422,7 @@ function initAccessibility() {
   addSvgAccessibleNames();
   ensureUniqueLandmarks();
   fixFakeLinkIssue();
+  fixFakeLinkHrefIssue(); // new fix for href="#" fake links
 }
 
 // Auto-initialize if document is ready

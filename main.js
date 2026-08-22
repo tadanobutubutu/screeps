@@ -1,5 +1,3 @@
-// TODO: Add back any required exports that might have been?
-
 /**
  * Adds two numbers together
  * @param {number} a - First number
@@ -42,6 +40,10 @@ function divide(a, b) {
   }
   return a / b;
 }
+
+// Attach event listeners
+document.getElementById('rotate').addEventListener('click', rotate);
+document.getElementById('unrotate').addEventListener('click', rotateBack);
 
 // Accessibility utility functions
 
@@ -115,24 +117,6 @@ function setFocusToFirstFocusable(container) {
     focusableElements[0].focus();
   }
 }
-
-// Existing code preserved
-const img = document.getElementById('target');
-let rotation = 0;
-
-function rotate() {
-    rotation += 90;
-    img.style.transform = `rotate(${rotation}deg)`;
-}
-
-function rotateBack() {
-    rotation = 0;
-    img.style.transform = `rotate(0deg)`;
-}
-
-// Attach event listeners
-document.getElementById('rotate').addEventListener('click', rotate);
-document.getElementById('unrotate').addEventListener('click', rotateBack);
 
 // Export all functions
 module.exports = {

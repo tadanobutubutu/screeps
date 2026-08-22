@@ -8,20 +8,55 @@
 // - REACT_027: Add scope attribute to th elements
 
 // Fix language for the HTML root element
-
-const validateAccessibility = (component) => {
-    const checks = {
-        hasAriaLabel: !!component.ariaLabel,
-        hasRole: !!component.role,
-        hasTabIndex: component.tabIndex !== undefined,
-        hasKeyboardSupport: !!component.onKeyDown,
-        hasScreenReaderText: !!component.screenReaderText,
-    };
-    return Object.values(checks).every(check => check);
+const addLangAttribute = () => {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        const htmlElement = document.documentElement;
+        const currentLang = htmlElement.getAttribute('lang');
+        if (!currentLang) {
+            htmlElement.setAttribute('lang', 'en');
+        }
+    }
 };
 
+// Fix for REACT_015: Add lang attribute to HTML element
+addLangAttribute();
+
+// Fix for REACT_041: Add accessible names to 2 SVGs
+const addAccessibleNamesToSVGs = () => {
+    if (typeof document !== 'undefined') {
+        const svgs = document.querySelectorAll('svg');
+        
+        svgs.forEach((svg, index) => {
+            // Check if SVG already has an accessible name
+            const hasAriaLabel = svg.getAttribute('aria-label');
+            const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+            const hasTitle = svg.querySelector('title');
+            
+            if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+                // Add a title element for accessibility
+                const title = document.createElement('title');
+                title.textContent = `SVG Icon ${index + 1}`;
+                title.id = `svg-title-${index + 1}`;
+                
+                // Insert title as first child
+                if (svg.firstChild) {
+                    svg.insertBefore(title, svg.firstChild);
+                } else {
+                    svg.appendChild(title);
+                }
+                
+                // Associate the title with aria-labelledby
+                svg.setAttribute('aria-labelledby', title.id);
+            }
+        });
+    }
+};
+
+// Fix for REACT_041: Add accessible names to 2 SVGs
+addAccessibleNamesToSVGs();
+
 // Restored export (previously removed)
-export { validateAccessibility };
+export { addLangAttribute, addAccessibleNamesToSVGs };
 
 // Create accessible button component with full ARIA support
 const createAccessibleButton = (props) => {
@@ -146,91 +181,6 @@ const addMainElementAriaAttributes = () => {
     }
 };
 
-// Fix for REACT_015: Add lang attribute to HTML element
-const addLangAttribute = () => {
-    if (typeof document !== 'undefined' && document.documentElement) {
-        const htmlElement = document.documentElement;
-        const currentLang = htmlElement.getAttribute('lang');
-        if (!currentLang) {
-            htmlElement.setAttribute('lang', 'en');
-        }
-    }
-};
-
-// Fix for REACT_036: Fix 1 fake link issue
-// A "fake link" is an anchor or button element that doesn't have proper href or button behavior
-const fixFakeLinkIssue = () => {
-    if (typeof document !== 'undefined') {
-        // Find all anchors without href that look like links
-        const fakeLinks = document.querySelectorAll('a:not([href])');
-        
-        fakeLinks.forEach((link) => {
-            const styles = window.getComputedStyle(link);
-            const isClickable = styles.cursor === 'pointer' || link.classList.contains('link');
-            
-            if (isClickable) {
-                // Convert to proper button if it acts as a link
-                if (link.tagName === 'A') {
-                    link.setAttribute('role', 'button');
-                    
-                    // Add keyboard support if missing
-                    if (!link.onclick && link.addEventListener) {
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            // Handle click appropriately
-                        });
-                    }
-                    
-                    // Ensure tabindex for keyboard navigation
-                    if (link.tabIndex === -1 || link.tabIndex === undefined) {
-                        link.tabIndex = 0;
-                    }
-                    
-                    // Add accessible name if text is not descriptive
-                    const linkText = link.textContent.trim();
-                    if (linkText && linkText.length < 3) {
-                        const ariaLabel = link.getAttribute('aria-label');
-                        if (!ariaLabel) {
-                            link.setAttribute('aria-label', 'Interactive link');
-                        }
-                    }
-                }
-            }
-        });
-    }
-};
-
-// Fix for REACT_041: Add accessible names to 2 SVGs
-const addAccessibleNamesToSVGs = () => {
-    if (typeof document !== 'undefined') {
-        const svgs = document.querySelectorAll('svg');
-        
-        svgs.forEach((svg, index) => {
-            // Check if SVG already has an accessible name
-            const hasAriaLabel = svg.getAttribute('aria-label');
-            const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
-            const hasTitle = svg.querySelector('title');
-            
-            if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
-                // Add a title element for accessibility
-                const title = document.createElement('title');
-                title.textContent = `SVG Icon ${index + 1}`;
-                title.id = `svg-title-${index + 1}`;
-                
-                // Insert title as first child
-                if (svg.firstChild) {
-                    svg.insertBefore(title, svg.firstChild);
-                } else {
-                    svg.appendChild(title);
-                }
-                
-                // Associate the title with aria-labelledby
-                svg.setAttribute('aria-labelledby', title.id);
-            }
-        });
-    }
-};
-
 // Fix for REACT_027: Add scope attribute to th elements
 const fixTableStructure = () => {
     if (typeof document !== 'undefined') {
@@ -316,3 +266,5 @@ const fixReactLandmarks = () => {
     if (typeof document !== 'undefined') {
         // Find tables with id="table-rotated" that aren't inside a main element
         const rotatedTable = document.querySelector('table#table-rotated');
+    }
+};

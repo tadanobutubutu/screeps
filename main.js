@@ -320,3 +320,5 @@ export function generateId(prefix = 'id') {
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
   return `${prefix}-${timestamp}-${randomPart}`;
 }
+// Export statement for the new function
+export { generateId, existingFunction, newFunction };

@@ -1,48 +1,3 @@
-// TODO: Add back any required exports that might have been?
-
-/**
- * Adds two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
- */
-function add(a, b) {
-  return a + b;
-}
-
-/**
- * Subtracts b from a
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Difference of a and b
- */
-function subtract(a, b) {
-  return a - b;
-}
-
-/**
- * Multiplies two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Product of a and b
- */
-function multiply(a, b) {
-  return a * b;
-}
-
-/**
- * Divides a by b
- * @param {number} a - Dividend
- * @param {number} b - Divisor
- * @returns {number} Quotient of a and b
- */
-function divide(a, b) {
-  if (b === 0) {
-    throw new Error('Division by zero');
-  }
-  return a / b;
-}
-
 // Accessibility utility functions
 
 /**
@@ -117,25 +72,6 @@ function setFocusToFirstFocusable(container) {
 }
 
 // Export all functions
-module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  announceToScreenReader,
-  trapFocus,
-  releaseFocus,
-  setFocusToFirstFocusable
-};
-
-// Add aria-label to SVGs in app/layout.tsx and dashboard/app/layout.tsx
-const updateFaviconSVG = (icon) => {
-  return icon.replace(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg".*?>/g, (svg) => {
-    return svg.replace(/<title>(.*?)<\/title>/, '<title>Screeps Dashboard</title>').replace(/<text.*?>(.*?)<\/text>/, '<title>Screeps Dashboard</title>');
-  });
-};
-
-// Update icons with accessible SVG
 module.exports = {
   add,
   subtract,

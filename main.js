@@ -83,5 +83,5 @@ export function setMainLandmark(mainElement) {
   if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
 }
 
-// <-- ADD EXPORT STATEMENT HERE -->
+// Export statement
 export default enhanceAccessibility;

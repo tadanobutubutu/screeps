@@ -105,8 +105,29 @@ global.utils = utils;
 global.constants = constants;
 
 // Console log startup
-console.log(`[${new Date().toISOString()}] Bot started - CPU Limit: ${Game.cpu.limit}, Bucket: ${Game.cpu.bucket}`);
-if (Memory.stats) {
-    console.log(`GCL: ${Game.gcl.level}, GPL: ${Game.gpl.level}, Credits: ${Game.market.credits}`);
+console.log(`[${new Date().toISOString()}] Bot started - CPU Limit: ${Game.cpu.limit}, Bucket: ${Game.gcl.level}, GPL: ${Game.gpl.level}, Credits: ${Game.market.credits}`);
+
+/**
+ * Validates SVG accessibility compliance
+ * @param {Object} svgProps - Props from an SVG element
+ * @returns {{compliant: boolean, issues: string[]}}
+ */
+export function validateSvgAccessibility(svgProps) {
+  const issues = [];
+
+  const hasAriaHidden = svgProps?.ariaHidden === true;
+  const hasAriaLabel = svgProps?.ariaLabel !== undefined;
+  const hasRole = svgProps?.role === 'img';
+  const hasTitleChild =
+    svgProps?.children &&
+    svgProps.children.some(c => c.type === 'title') ||
+    svgProps?.type === 'title';
+
+  const isCompliant = hasAriaHidden || hasAriaLabel || hasRole || hasTitleChild;
+
+  if (!isCompliant) {
+    issues.push('SVG has no accessible name and is not hidden');
+  }
+
+  return { compliant: isCompliant, issues };
 }
-```

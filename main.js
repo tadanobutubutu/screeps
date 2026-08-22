@@ -21,7 +21,6 @@ const createAccessibleButton = (text, id) => {
 
 // Example of using the createAccessibleButton function
 const myButton = createAccessibleButton('Click me', 'myButtonId');
-document.body.appendChild(myButton);
 
 // New function for handling React 19 updates
 function handleReact19Update() {
@@ -67,11 +66,11 @@ function fixReactSVGAccessibility() {
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
-        // Add aria-hidden="true" to SVG elements (favicon, etc.)
+        // Add aria-hidden="true" to SVG elements (favicon, etc.) that don't already have it
         content = content.replace(
           /<svg([^>]*?)>/gi,
           (match, attrs) => {
-            if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label') && !attrs.includes('<title')) {
+            if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label')) {
               return `<svg aria-hidden="true"${attrs}>`;
             }
             return match;
@@ -110,7 +109,7 @@ function fixReactLandmarkIssues() {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (content.includes('{children}') && !content.includes('<main') && !content.includes('</main>')) {
+        if (content.includes('{children}') && !content.includes('<main')) {
           // Replace {children} with <main>{children}</main>
           content = content.replace(
             /\{children\}/g,
@@ -134,10 +133,10 @@ function fixReactLandmarkIssues() {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (content.includes('<body') && content.includes('</body>') && !content.includes('<main') && !content.includes('</main>')) {
+        if (content.includes('<body') && !content.includes('<main')) {
           // Wrap content between <body> tags in <main> tags
           content = content.replace(
-            /<body([^>]*)>([\s\S]*)<\/body>/gi,
+            /<body([^>]*)>([\s\S]*?)<\/body>/g,
             (match, attrs, bodyContent) => {
               return `<body${attrs}><main>${bodyContent}</main></body>`;
             }
@@ -172,7 +171,7 @@ function addLangAttribute() {
         content = content.replace(
           /<html([^>]*)>/g,
           (match, attrs) => {
-            if (!attrs.includes('lang')) {
+            if (!attrs.includes('lang=')) {
               return `<html lang="en"${attrs}>`;
             }
             return match;
@@ -205,12 +204,12 @@ function fixTableStructureIssues() {
         
         // Add <thead> and <tbody> to tables if missing
         content = content.replace(
-          /<table([^>]*)>([\s\S]*?)(<\/table>)/gi,
-          (match, attrs, tableContent, closeTag) => {
+          /<table([^>]*)>([\s\S]*?)<\/table>/g,
+          (match, attrs, tableContent) => {
             // Only wrap if there's no thead or tbody
             if (!tableContent.includes('<thead') && !tableContent.includes('<tbody')) {
               // Simple heuristic: first row becomes thead, rest becomes tbody
-              const rows = tableContent.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+              const rows = tableContent.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) || [];
               if (rows.length > 0) {
                 const theadRow = rows[0];
                 const tbodyRows = rows.slice(1).join('');
@@ -263,7 +262,7 @@ function fixFakeLinkIssues() {
         
         // Replace <div onclick> pseudo-links with <a href> or proper buttons
         content = content.replace(
-          /<div([^>]*?)onclick([^>]*?)>/gi,
+          /<div([^>]*)onclick([^>]*)>/g,
           (match, before, after) => {
             // Convert to button element
             return `<button${before}${after}>`;
@@ -272,10 +271,10 @@ function fixFakeLinkIssues() {
         
         // Ensure links have proper href attributes
         content = content.replace(
-          /<a([^>]*?)>([\s\S]*?)<\/a>/gi,
-          (match, attrs, rest) => {
-            if (!attrs.includes('href') && !attrs.includes('onclick')) {
-              return `<a href="#${attrs}">${rest}</a>`;
+          /<a([^>]*)href=""/g,
+          (match, attrs) => {
+            if (!attrs.includes('href')) {
+              return `<a href="#"`;
             }
             return match;
           }
@@ -301,10 +300,4 @@ exports.handleJest30Update = handleJest30Update;
 exports.handleEslint10Update = handleEslint10Update;
 exports.handleTypeScript7Update = handleTypeScript7Update;
 exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
-exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
-exports.addLangAttribute = addLangAttribute;
-exports.fixTableStructureIssues = fixTableStructureIssues;
-exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-exports.fixFakeLinkIssues = fixFakeLinkIssues;
-
-// ... rest of the existing code remains unchanged
+exports.fixReactLandmarkIssues = fixReactLandmark

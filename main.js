@@ -14,7 +14,7 @@ function addLandmarks() {
         nav.setAttribute('role', 'navigation');
     }
 
-    let mainContent = document.querySelector('main');
+    const mainContent = document.querySelector('main');
     if (!mainContent) {
         const container = document.querySelector('.container');
         const table = document.querySelector('table');
@@ -51,7 +51,10 @@ function addLandmarks() {
             }
         }
     } else {
-        mainContent.setAttribute('role', 'main');
+        mainContent = document.querySelector('main');
+        if (mainContent) {
+            mainContent.setAttribute('role', 'main');
+        }
     }
 
     const footer = document.querySelector('footer');
@@ -197,13 +200,13 @@ function addLandmarksForTables() {
 
 // Preserve existing default export but also expose required exports
 const exportsObj = {
-    icons,
-    checkDependencyStatus,
-    getDependencyAlerts,
     addLandmarks,
     addLandmarksForTables,
     wrapContentInMain,
-    myFunction
+    myFunction,
+    icons,
+    checkDependencyStatus,
+    getDependencyAlerts
 };
 
 export default exportsObj;

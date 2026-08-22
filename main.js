@@ -22,9 +22,9 @@ export default function Layout({ children }) {
             `
           }}
         />
-        {/* Update the `icons` object in this component to include aria-label for the favicon SVG */}
+        {/* Update the \`icons\` object in this component to include aria-label for the favicon SVG */}
         <icons aria-label="Screeps Dashboard Icon">
-          {/* In your original code, 'icons' is probably defined somewhere in your components */}
+          {/* In your original code, \`icons\` is probably defined somewhere in your components */}
         </icons>
       </>
     );
@@ -32,4 +32,4 @@ export default function Layout({ children }) {
 
   // Development mode - render children without the accessibility script
   return <>{children}</>;
-}
+}>

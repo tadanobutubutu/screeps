@@ -9,10 +9,10 @@ const Layout = ({ children }) => {
         height="16" 
         viewBox="0 0 16 16" 
         role="img"
-        aria-labelledby="svg-icon-title"
+        ...
         focusable="false"
       >
-        <title id="svg-icon-title">Icon</title>
+        <title ...
         {/* SVG content */}
       </svg>
       {/* ... other components ... */}

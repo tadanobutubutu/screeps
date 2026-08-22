@@ -46,4 +46,3 @@ const uniqueLandmarks = () => {
 // ----- END ORIGINAL CODE -----
 
 export { newFunction, class1, function1, Object1, uniqueLandmarks };
-</arg_value>

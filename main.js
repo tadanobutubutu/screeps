@@ -80,8 +80,7 @@ function clearAllUpdates() {
 
 /**
  * Generates a summary report of all dependency updates
- * @returns {Object} Summary of all updates
- */
+ * @returns {Object} Summary of all updates */
 function generateSummary() {
   return {
     pendingCount: dependencyUpdates.pending.length,

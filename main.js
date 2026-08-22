@@ -20,9 +20,9 @@ module.exports = {
   ensureUniqueLandmarks: function() {
     // Accessibility fix for REACT_025: Ensure unique landmarks
     // This function ensures that landmark elements have proper labeling for accessibility
-    const landmarkSelectors = ['header:not([role])', 'footer:not([role])', 'nav:not([role])', 'aside:not([role])', 'main:not([role])', '[role="banner"]', '[role="navigation"]', '[role="complementary"]', '[role="main"]', '[role="contentinfo"]'];
+    const landmarkSelectors = ['header:not([role])', 'footer:not([role])', 'nav:not([role])', 'main:not([role])', '[role="banner"]', '[role="main"]', '[role="contentinfo"]'];
     
-    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
     const landmarkCounts = {};
     
     allLandmarks.forEach(landmark => {
@@ -33,7 +33,7 @@ module.exports = {
       landmarkCounts[key] = (landmarkCounts[key] || 0) + 1;
     });
     
-    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
     const tagCounts = {};
     
     secondPassLandmarks.forEach(landmark => {
@@ -41,14 +41,12 @@ module.exports = {
       const role = landmark.getAttribute('role');
       const key = role || tagName;
       
-      if (!landmark.id && !landmark.getAttribute('aria-label')) {
-        if (landmarkCounts[key] > 1) {
-          tagCounts[key] = (tagCounts[key] || 0) + 1;
-          landmark.setAttribute('aria-label', `${key}-${tagCounts[key]}`);
-        } else if (tagName === 'header' || tagName === 'footer') {
-          tagCounts[key] = (tagCounts[key] || 0) + 1;
-          landmark.setAttribute('aria-label', `${key}-${tagCounts[key]}`);
-        }
+      if (!landmark.id && landmarkCounts[key] > 1) {
+        tagCounts[key] = (tagCounts[key] || 0) + 1;
+        landmark.id = key + '-' + tagCounts[key];
+      } else if ((tagName === 'header' || tagName === 'footer') && landmarkCounts[key] > 1) {
+        tagCounts[key] = (tagCounts[key] || 0) + 1;
+        landmark.id = key + '-' + tagCounts[key];
       }
     });
   }

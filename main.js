@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code ...
 
 // New function requested in the issue
@@ -46,4 +43,10 @@ function rotateBack() {
 })();
 
 // Existing code ...
-```
+
+// Update th elements to include scope attribute
+document.querySelectorAll('th').forEach(th => {
+  th.setAttribute('scope', 'col');
+});
+
+// Existing code ...

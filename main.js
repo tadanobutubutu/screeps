@@ -16,14 +16,15 @@ export default function Main() {
           >
             <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <title>Menu icon</title>
+              <desc>Toggle button to open or close the navigation menu</desc>
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           </button>
 
           <ul>
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/about">About</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
+            <li><Link ...
+            <li><Link ...
+            <li><Link ...
           </ul>
         </nav>
       </header>
@@ -33,6 +34,7 @@ export default function Main() {
           <h1 id="table-heading">Data Table</h1>
 
           <table>
+            <caption>Item data showing status information</caption>
             <thead>
               <tr>
                 <th scope="col">Name</th>
@@ -52,13 +54,13 @@ export default function Main() {
           </table>
         </section>
 
-        <section aria-labelledby="section2-heading">
-          <h2 id="section2-heading">Section 2</h2>
+        <section ...
+          <h2 ... 2</h2>
           <p>Content here</p>
         </section>
       </main>
 
-      <aside role="complementary" aria-label="Sidebar navigation">
+      <aside role="complementary" aria-label="Sidebar">
         <button
           aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           aria-expanded={sidebarOpen}
@@ -66,6 +68,7 @@ export default function Main() {
         >
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <title>Sidebar toggle icon</title>
+            <desc>Toggle button to show or hide the sidebar navigation</desc>
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
@@ -73,9 +76,9 @@ export default function Main() {
         {sidebarOpen && (
           <nav aria-label="Sidebar navigation">
             <ul>
-              <li><Link href="/dashboard">Dashboard</Link></li>
-              <li><Link href="/profile">Profile</Link></li>
-              <li><Link href="/settings">Settings</Link></li>
+              <li><Link ...
+              <li><Link ...
+              <li><Link ...
             </ul>
           </nav>
         )}
@@ -83,7 +86,7 @@ export default function Main() {
         <div className="info">
           <span>Sidebar</span>
           <button
-            aria-label="Go to home"
+            aria-label="Home"
             onClick={() => {}}
           >
             Go home

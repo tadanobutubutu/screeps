@@ -20,7 +20,7 @@ function updateTableStructure() {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('th, td');
       cells.forEach((cell, cellIndex) => {
         if (cell.tagName === 'TH') {
           // Check if this is a column header (first row) or row header (first cell in a row)
@@ -113,7 +113,7 @@ function addSVGAccessibleNames() {
   let svgIndex = 0;
 
   svgs.forEach(svg => {
-    if (svgIndex < svgNames.length && !svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
+    if (svgIndex < svgNames.length && !svg.querySelector('title') && !svg.getAttribute('aria-label')) {
       const title = document.createElement('title');
       title.id = 'svg-title-' + (svgIndex + 1);
       title.textContent = svgNames[svgIndex];
@@ -126,7 +126,7 @@ function addSVGAccessibleNames() {
 
 // Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, footer, nav, aside');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, main');
   const landmarkNames = new Set();
 
   landmarks.forEach(landmark => {
@@ -143,7 +143,7 @@ function ensureUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
 
   fakeLinks.forEach(link => {
     const text = link.textContent;

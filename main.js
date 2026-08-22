@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+export const moveCreep = (creep, targetPos) => {
+  creep.moveTo(targetPos, { reusePath: 5 });
+};
+
 export default function Main() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -21,11 +25,11 @@ export default function Main() {
           </button>
 
           <ul>
-            <li><Link ...</li>
-            <li><Link ...</li>
-            <li><Link ...</li>
-          </ul>
-        </nav>
+            <li><Link href="/">Home</Link>
+            <li><Link href="/about">About</Link>
+            <li><Link href="/contact">Contact</Link>
+            </ul>
+          </nav>
       </header>
 
       <main role="main">
@@ -35,8 +39,8 @@ export default function Main() {
           <table>
             <thead>
               <tr>
-                <th ...</th>
-                <th ...</th>
+                <th scope="col">Item</th>
+                <th scope="col">Value</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>
@@ -52,8 +56,8 @@ export default function Main() {
           </table>
         </section>
 
-        <section ...>
-          <h2 ...>2</h2>
+        <section aria-labelledby="section-title">
+          <h2>Section Title</h2>
           <p>Content here</p>
         </section>
       </main>
@@ -73,11 +77,12 @@ export default function Main() {
         {sidebarOpen && (
           <nav aria-label="Sidebar navigation">
             <ul>
-              <li><Link ...</li>
-              <li><Link ...</li>
-              <li><Link ...</li>
-            </ul>
-          </nav>
+              <li><Link href="/">Home</Link>
+              <li><Link href="/profile">Profile</Link>
+              <li><Link href="/settings">Settings</Link>
+              </ul>
+            </nav>
+          </aside>
         )}
 
         <div className="info">

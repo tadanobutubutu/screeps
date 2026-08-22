@@ -33,30 +33,18 @@
 
   // ----- BEGIN NEW CODE (changes requested) -----
   // Add any new code here that addresses the open checks
-  // For example, to address the mainElement, you might require it here:
-  // const mainElement = require('./mainElement');
 
-  // Adding ARIA attributes to the EnhancedTable component
-  const EnhancedTableWithARIA = ({ children }) => {
-    // Clone the children with the role attribute added for accessibility
-    const tableElement = React.cloneElement(children, { role: 'table' });
-
-    // Assuming we have a function that can add ARIA attributes based on the data provided
-    const addARIAAttributes = (element, attributes) => {
-      // Logic to add ARIA attributes to the element
-      // This is a placeholder function and should be replaced with actual implementation
-      Object.keys(attributes).forEach((key) => {
-        element.props[key] = attributes[key];
-      });
-    };
-
-    // Example usage of addARIAAttributes function
-    // const ariaAttributes = { 'aria-label': 'My table' };
-    // addARIAAttributes(tableElement, ariaAttributes);
-
-    return tableElement;
+  // Adding a function to remove multiple <main> elements from the component tree
+  const removeDuplicateMainElements = (children) => {
+    const mainElements = React.Children.toArray(children).filter(
+      (child) => child.type === 'main'
+    );
+    if (mainElements.length > 1) {
+      console.warn('Duplicate <main> elements detected. Only one <main> element is allowed.');
+      return React.cloneElement(mainElements[0], { children: mainElements.slice(1) });
+    }
+    return children;
   };
-  module.exports.EnhancedTableWithARIA = EnhancedTableWithARIA;
 
   // ----- END NEW CODE -----
 })();

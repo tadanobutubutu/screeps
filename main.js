@@ -1,9 +1,7 @@
 // FILENAME: main.js
-// main.js - Entry point for the application
-// This file preserves all existing functionality.
-// The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.
-// Existing tests in /tests/ must continue to pass.
-// Beginner Overview: The existing code needs to be preserved in the main.js file, while adding new functions requested in the issue. The new functions should not remove or rename the existing exports.
+// Main entry point for the Screeps bot application
+// Preserves existing functionality while addressing GitHub issues including dependency updates and accessibility improvements
+// Existing tests in /tests/ must continue to pass
 
 const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
@@ -94,35 +92,20 @@ const enhanceFocusVisibility = function() {
     *:focus-visible {
       outline: 2px solid #005fcc;
       outline-offset: 2px;
-    }`;
+    }
+  `;
   document.head.appendChild(style);
 };
 
 const addSvgAccessibleNames = function() {
   // Add accessible names to 2 SVGs from the insight report
-  const logoSelector = '.logo svg, [class*="logo"] svg, svg.logo';
-  const navIconSelector = '.nav svg, [class*="nav"] svg, svg.nav-icon';
-  let logoNodes = [];
-  for (const selector of [logoSelector, navIconSelector]) {
-    const nodes = document.querySelectorAll(selector);
-    for (const node of nodes) {
-      if (logoNodes.includes(node)) continue;
-      logoNodes.push(node);
-    }
+  const svgLogo = document.querySelector('.logo svg, [class*="logo"] svg, svg.logo');
+  if (svgLogo && !svgLogo.getAttribute('aria-label') && !svgLogo.getAttribute('aria-labelledby')) {
+    svgLogo.setAttribute('aria-label', 'Logo');
   }
-  if (logoNodes.length > 0) {
-    for (const i of [0, 1]) {
-      const svgNode = logoNodes[i];
-      if (svgNode) {
-        if (!svgNode.getAttribute('aria-label') && !svgNode.getAttribute('aria-labelledby')) {
-          if (i === 0) {
-            svgNode.setAttribute('aria-label', 'Language selector');
-          } else {
-            svgNode.setAttribute('aria-label', 'Navigation icon');
-          }
-        }
-      }
-    }
+  const svgNav = document.querySelector('.nav svg, [class*="nav"] svg, svg.nav-icon');
+  if (svgNav && !svgNav.getAttribute('aria-label') && !svgNav.getAttribute('aria-labelledby')) {
+    svgNav.setAttribute('aria-label', 'Navigation icon');
   }
 };
 
@@ -176,14 +159,19 @@ const addressAccessibilityIssues = function() {
   // - REACT_027: Fix 26 table structure issues
   // Add lang attribute to HTML element
   document.documentElement.lang = 'en';
+
   // Ensure unique landmarks
   ensureUniqueLandmarks();
+
   // Fix table structure issues
   fixTableStructure();
+
   // Add accessible names to SVGs
   addSvgAccessibleNames();
+
   // Fix fake link issue
   fixFakeLinkIssue();
+
   // Fix hash link to button for in-page actions (REACT_036)
   fixHashLinkToButton();
 };
@@ -235,7 +223,6 @@ const runAllAccessibilityFixes = function() {
   fixHashLinkToButton();
 };
 
-// Export newly added accessibility functions
 module.exports = {
   // Preserve existing exports
   newExport: function() {
@@ -246,10 +233,10 @@ module.exports = {
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   addressAccessibilityIssues: addressAccessibilityIssues,
   enhanceFocusVisibility: enhanceFocusVisibility,
-  // Newly added exports
+  // Newly added exports for accessibility functions
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
-  runAllAccessibilityFixes: runAllAccessibilityIssues,
+  runAllAccessibilityFixes: runAllAccessibilityFixes,
   // Export newly added necessary functions
   fixTableStructure: fixTableStructure,
   addSvgAccessibleNames: addSvgAccessibleNames,

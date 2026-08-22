@@ -24,4 +24,103 @@ export function accessibilityFixesNeeded() {
   };
 }
 
+// Error display component - fixed for REACT_025
+// Changed <main> to <section> to avoid duplicate landmark issue
+export function ErrorDisplay({ error, onCopy, onRetry, copied = false, refreshing = false }) {
+  const [errCopyHover, setErrCopyHover] = React.useState(false);
+  const [errRetryHover, setErrRetryHover] = React.useState(false);
+
+  const copyErr = () => {
+    if (onCopy) onCopy(error);
+  };
+
+  const fetchStats = (retry) => {
+    if (onRetry) onRetry();
+  };
+
+  return (
+    <section 
+      aria-labelledby="error-heading"
+      style={{ padding: '2rem', fontFamily: 'monospace' }}
+    >
+      <h1 
+        id="error-heading"
+        style={{ color: '#b71c1c' }}
+      >
+        ⚠️ エラー
+      </h1>
+      <pre
+        tabIndex={0}
+        aria-label="エラーメッセージ詳細"
+        style={{
+          color: '#c53030',
+          backgroundColor: '#fff5f5',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflow: 'auto',
+        }}
+      >
+        {error}
+      </pre>
+      <button
+        onClick={copyErr}
+        onMouseEnter={() => setErrCopyHover(true)}
+        onMouseLeave={() => setErrCopyHover(false)}
+        onFocus={() => setErrCopyHover(true)}
+        onBlur={() => setErrCopyHover(false)}
+        aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+        title={copied ? 'コピー済み' : 'エラーをコピー'}
+        style={{
+          backgroundColor: copied ? '#155d27' : '#004b73',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease-in-out',
+          transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+          boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+          filter: errCopyHover ? 'brightness(1.1)' : 'none',
+        }}
+      >
+        {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+      </button>
+      <button
+        onClick={() => fetchStats(true)}
+        disabled={refreshing}
+        onMouseEnter={() => setErrRetryHover(true)}
+        onMouseLeave={() => setErrRetryHover(false)}
+        onFocus={() => setErrRetryHover(true)}
+        onBlur={() => setErrRetryHover(false)}
+        aria-label={refreshing ? '再読み込み中' : '再試行'}
+        style={{
+          backgroundColor: errRetryHover ? '#004b73' : '#0066aa',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: refreshing ? 'not-allowed' : 'pointer',
+          opacity: refreshing ? 0.6 : 1,
+          marginLeft: '0.5rem',
+          transition: 'all 0.2s ease-in-out',
+        }}
+      >
+        {refreshing ? '🔄 再読み込み中...' : '🔄 再試行'}
+      </button>
+    </section>
+  );
+}
+
+// Success display component - uses section instead of main
+export function SuccessDisplay({ children }) {
+  return (
+    <section 
+      aria-labelledby="content-heading"
+      style={{ padding: '2rem' }}
+    >
+      {children}
+    </section>
+  );
+}
+
 export default accessibilityFixesNeeded;

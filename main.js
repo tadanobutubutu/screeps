@@ -49,6 +49,33 @@ module.exports = {
         landmark.id = key + '-' + tagCounts[key];
       }
     });
+  },
+
+  // New function to address accessibility issue from insight report
+  enhanceFocusVisibility: function() {
+    // Add a class to the body when keyboard navigation is detected
+    // This allows CSS to style :focus-visible appropriately
+    let useKeyboard = false;
+
+    const handleKeyDown = function() {
+      if (!useKeyboard) {
+        document.body.classList.add('js-using-keyboard');
+        useKeyboard = true;
+      }
+    };
+
+    const handleMouseDown = function() {
+      if (useKeyboard) {
+        document.body.classList.remove('js-using-keyboard');
+        useKeyboard = false;
+      }
+    };
+
+    if (document.addEventListener) {
+      document.addEventListener('keydown', handleKeyDown, true);
+      document.addEventListener('mousedown', handleMouseDown, true);
+      document.addEventListener('touchstart', handleMouseDown, true);
+    }
   }
 };
 

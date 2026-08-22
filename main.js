@@ -4,7 +4,7 @@ const nextJest = require('next/jest')
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './',
-})(require('./jest.config'))
+})
 
 module.exports = createJestConfig({
   // Add more config options here
@@ -24,6 +24,5 @@ module.exports = createJestConfig({
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/**/*.stories.@(js|jsx|ts|tsx)',
   ],
 })

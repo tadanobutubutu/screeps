@@ -7,24 +7,24 @@ const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
   // This addresses REACT_017: Add/fix 4 landmark issues
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
-  const landmarks = document.querySelectorAll('main, aside, footer, header, section, article');
+  const landmarks = document.querySelectorAll('aside, footer, header, section, article');
   const seenIds = new Set();
   
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     if (seenIds.has(id)) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     seenIds.add(id);
     
     // Add ARIA attributes for accessibility
-    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-      landmark.setAttribute('aria-label', landmark.tagName.toLowerCase());
+    if (landmark.tagName === 'SECTION' && !landmark.getAttribute('aria-label')) {
+      landmark.setAttribute('role', 'region');
     }
   });
 };
@@ -96,7 +96,7 @@ const addSvgAccessibleNames = function() {
   if (svgLogo && !svgLogo.getAttribute('aria-label') && !svgLogo.getAttribute('aria-labelledby')) {
     svgLogo.setAttribute('aria-label', 'Logo');
   }
-  const svgNav = document.querySelector('nav svg, [class*="nav"] svg, svg.nav-icon');
+  const svgNav = document.querySelector('.nav svg, [class*="nav"] svg, svg.nav-icon');
   if (svgNav && !svgNav.getAttribute('aria-label') && !svgNav.getAttribute('aria-labelledby')) {
     svgNav.setAttribute('aria-label', 'Navigation icon');
   }
@@ -149,6 +149,9 @@ const addressAccessibilityIssues = function() {
 
   // Enhance focus visibility for keyboard navigation
   enhanceFocusVisibility();
+  
+  // Add main landmark to fix REACT_017
+  addMainLandmark();
 };
 
 const setLanguageAttribute = function(lang) {
@@ -173,23 +176,30 @@ const addMainLandmark = function() {
   let main = document.querySelector('main');
   if (!main) {
     main = document.createElement('main');
-    document.body.prepend(main);
+    // Find the first child of body and wrap it in main
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(main, body.firstChild);
+    } else {
+      body.appendChild(main);
+    }
   }
-  // Optionally add role if missing
-  if (!main.hasAttribute('role')) {
+  // Ensure role attribute is set if not already
+  if (!main.getAttribute('role')) {
     main.setAttribute('role', 'main');
   }
+  return main;
 };
 
-const addressAccessibilityImprovements = function() {
+const runAllAccessibilityFixes = function() {
   // Aggregate all accessibility improvements
   addLangAttribute();
   addMainLandmark();
   ensureUniqueLandmarks();
   fixTableStructure();
+  enhanceFocusVisibility();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
-  enhanceFocusVisibility();
 };
 
 module.exports = {
@@ -206,9 +216,9 @@ module.exports = {
   // Newly added exports for accessibility functions
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
-  addressAccessibilityImprovements: addressAccessibilityImprovements
+  runAllAccessibilityFixes: runAllAccessibilityFixes
 };
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
-addressAccessibilityImprovements();
+addressAccessibilityIssues();

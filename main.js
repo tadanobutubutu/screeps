@@ -9,7 +9,20 @@ const tableHeaders = [
     value: 'Room Manager',
     scope: 'col'
   },
-  // ... other headers with scope: 'col' added
+  {
+    label: 'src/managers/spawnManager.js',
+    value: 'Spawn Manager',
+    scope: 'col'
+  },
+  {
+    label: 'src/managers/towerManager.js',
+    value: 'Tower Manager',
+    scope: 'col'
+  },
+  {
+    label: 'src/roles/builder.js',
+    value: 'Builder',
+    scope: 'col'
+  },
+  // ... add scope: 'col' to all other headers
 ];
-
-// The rest of the main.js content would remain unchanged.

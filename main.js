@@ -1,6 +1,3 @@
-Here is the resolved version of the `main.js` file with Git conflict markers removed:
-
-```javascript
 // Accessibility-fixes: main.js
 // This file has been updated to address the listed accessibility issues.
 
@@ -33,14 +30,6 @@ function renderLandmarkStructure(content) {
   `;
 }
 
-// Add REACT_026 fix: Ensure each section and document title have proper aria-label
-function setDocumentTitleAndSectionsAriaLabels() {
-  document.title = "Screeps Bot - Main";
-  Array.from(document.querySelectorAll("section")).forEach((section) => {
-    section.setAttribute("aria-label", section.getAttribute("id") || "Unnamed section");
-  });
-}
-
 // Main render function
 function renderApp() {
   var appContent = document.getElementById('app');
@@ -50,7 +39,6 @@ function renderApp() {
       ' + renderAccessibleSVG('Decorative circle icon', 'icon-1') + '\
       <button type="button" aria-label="Click me">Click me</button>\
     ');
-    setDocumentTitleAndSectionsAriaLabels();
   }
 }
 
@@ -59,15 +47,11 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', renderApp);
 }
 
-// Export functions for testing (preserve existing exports and add new ones)
+// Export functions for testing (preserve existing exports)
 export {
-  renderAccessibleTable,
   renderAccessibleSVG,
   renderLandmarkStructure,
   createAccessibleButton,
   renderApp,
   setDocumentTitleAndSectionsAriaLabels
 };
-```
-
-This resolved version of `main.js` includes the fixes for the listed accessibility issues. It integrates changes from both branches, including the usage of a single `<main>` landmark with `aria-label`, and a new function to correctly set aria-labels on each section and document title. Furthermore, it exports previously existing functions and adds newly created ones to facilitate testing.

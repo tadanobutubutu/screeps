@@ -21,6 +21,11 @@ const ensureUniqueLandmarks = function() {
       landmark.id = id;
     }
     seenIds.add(id);
+    
+    // Add ARIA attributes for accessibility
+    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', landmark.tagName.toLowerCase());
+    }
   });
 };
 
@@ -172,4 +177,4 @@ module.exports = {
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
-addressAccessibilityIssues();
+addressAccessibilityImprovements();

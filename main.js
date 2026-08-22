@@ -16,6 +16,7 @@ import Head from 'next/head';
  * 
  * REACT_041 (React SVG Accessible Name):
  * - Added aria-label to SVG elements
+ * - For decorative SVGs, added aria-hidden="true" and focusable="false"
  * 
  * REACT_025 (React Unique Landmarks):
  * - Ensured only one <main> landmark exists
@@ -48,6 +49,7 @@ export default function Home() {
           <ul style={{ display: 'flex', gap: '1rem', listStyle: 'none', padding: 0 }}>
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </nav>
       </header>
@@ -58,7 +60,7 @@ export default function Home() {
 
         <section aria-labelledby="table-heading">
           <h3 id="table-heading">User Data Table</h3>
-          <table aria-describedby="table-description">
+          <table role="table" aria-labelledby="table-heading" aria-describedby="table-description">
             <caption id="table-description" style={{ textAlign: 'left', fontWeight: 'normal' }}>
               List of registered users showing their names and email addresses
             </caption>
@@ -119,8 +121,8 @@ export default function Home() {
         </section>
       </main>
 
-      <section aria-labelledby="action-section">
-        <h2 id="action-section">Actions</h2>
+      <section aria-labelledby="actions-heading">
+        <h2 id="actions-heading">Actions</h2>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button type="button">
             Learn More

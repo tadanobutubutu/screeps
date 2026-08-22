@@ -1,4 +1,4 @@
-// Import required module(1s) and export the new necessary function(1s) here in main.js
+// Import required module and export the new necessary function here in main.js
 import React from 'react';
 
 // Accessibility issues addressed from insight report

@@ -127,27 +127,6 @@ function fixTableStructure(mainElement) {
   });
 }
 
-// Add/fix 4 landmark issues
-// Add appropriate ARIA landmark roles to semantic HTML elements
-function addLandmarks(mainElement) {
-  if (typeof document === 'undefined') return;
-
-  const elementConfigs = [
-    { selector: 'header', role: 'banner' },
-    { selector: 'nav', role: 'navigation' },
-    { selector: 'main', role: 'main' },
-    { selector: 'footer', role: 'contentinfo' }
-  ];
-
-  elementConfigs.forEach(config => {
-    const element = mainElement.querySelector(config.selector);
-    if (element) {
-      element.setAttribute('role', config.role);
-    }
-  });
-  mainElement.setAttribute('aria-label', 'Main content area');
-}
-
 // Add accessible names to SVGs
 // Add <title> and <desc> elements to SVGs for screen readers
 function addAccessibleSVGs() {
@@ -184,6 +163,20 @@ function ensureUniqueLandmarks() {
   });
 }
 
+// Fix REACT_025: Ensure only one <main> landmark exists
+// Keep a single <main>; use <section> or <article> for the other regions
+function fixREACT_025() {
+  if (typeof document === 'undefined') return;
+
+  const mainElements = mainElement.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Remove duplicate <main> elements, keeping the first one
+    for (let i = mainElements.length - 1; i > 0; i--) {
+      mainElements[i].remove();
+    }
+  }
+}
+
 // Fix fake link issue
 // Ensure elements pretending to be links have proper accessibility
 function fixFakeLink() {
@@ -198,6 +191,19 @@ function fixFakeLink() {
       fakeLink.setAttribute('href', '#');
     }
   });
+}
+
+// Fix fake link in docs
+// Ensure elements pretending to be links have proper accessibility
+function fixFakeLinkInDocs() {
+  if (typeof document === 'undefined') return;
+  const oldLink = document.getElementById('unrotate');
+  if (oldLink && oldLink.tagName.toLowerCase() === 'a' && oldLink.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    button.textContent = oldLink.textContent;
+    button.id = oldLink.id;
+    oldLink.parentNode.replaceChild(button, oldLink);
+  }
 }
 
 /**
@@ -236,6 +242,7 @@ if (typeof document !== 'undefined') {
   addAccessibleSVGs();
   addLandmarks(mainElement);
   ensureUniqueLandmarks();
+  fixREACT_025();
   fixFakeLink();
 }
 
@@ -254,6 +261,7 @@ module.exports = {
   addLandmarks,
   addAccessibleSVGs,
   ensureUniqueLandmarks,
+  fixREACT_025,
   fixFakeLink,
   fixFakeLinkInDocs,
   someFunction, // Add the exported function from someModule

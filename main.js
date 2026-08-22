@@ -26,4 +26,11 @@ module.exports = createJestConfig({
     '!src/**/*.d.ts',
     '!src/**/*.stories.@(js|jsx|ts|tsx)',
   ],
+  // New config for handling the REACT_025 warning
+  transformIgnorePatterns: [
+    // ... existing patterns
+    '^(?!.*\\.(jsx|tsx|js|jsx)$)', // Ensure Jest does not transform non-JSX files
+  ],
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'], // Ensure Jest knows to look for these file extensions
+  testMatch: ['**/*.(spec|test).(js|jsx|ts|tsx)'], // Match test files by convention
 })

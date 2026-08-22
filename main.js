@@ -250,7 +250,7 @@ function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
 }
 
 /**
- * Check if link has accessible text (not a "fake link")
+ * Check for accessible text in a link (avoid fake links)
  * @param {string} linkText - Text content of the link
  * @param {Object} context - Additional context for the link
  * @returns {Object} Validation result
@@ -781,6 +781,16 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Generate the root HTML element with a language attribute
+ * Addresses REACT_015: React Language Attribute
+ * @returns {string} HTML root tag including lang attribute
+ */
+function getHtmlRootTag() {
+  const lang = getFullLangAttribute('en');
+  return `<html lang="${lang}">`;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -807,7 +817,8 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  getHtmlRootTag
 };
 
 // Run if executed directly

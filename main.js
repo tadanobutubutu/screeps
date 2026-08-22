@@ -4,8 +4,6 @@
 
 // New function to enhance accessibility (example)
 function enhanceAccessibility(element) {
-  // Accessible enhancement of the provided element
-  // For example, adding ARIA attributes
   if (element.hasAttribute) {
     element.setAttribute("aria-label", "Custom accessibility label");
   }
@@ -14,7 +12,6 @@ function enhanceAccessibility(element) {
 // Ensure the provided element is a string that can be converted to a DOM element
 function ensureElement(input) {
   if (typeof input === "string") {
-    // Convert string selector to DOM element
     if (typeof document !== "undefined" && document.querySelector) {
       return document.querySelector(input);
     }
@@ -26,14 +23,12 @@ function ensureElement(input) {
 // Import the required module for API calls
 const api = {
   callApi: function(endpoint) {
-    // Placeholder for API call implementation
     return fetch(endpoint);
   }
 };
 
 // New function for making API calls using the imported API module
 function makeApiCall(endpoint) {
-  // Example usage of the imported API module
   return api.callApi(endpoint);
 }
 
@@ -57,25 +52,19 @@ function addLandmarkRole(element, landmarkType) {
 // REACT_017: Ensure main landmark exists for accessibility
 function ensureMainLandmark(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  
-  // Check if main landmark already exists
   let mainElement = targetDoc.querySelector("main");
-  
+
   if (!mainElement) {
-    // Create main landmark for accessibility
     mainElement = targetDoc.createElement("main");
-    
-    // Try to find the body or main content area to wrap
     const body = targetDoc.body || targetDoc.querySelector("body");
     if (body && body.firstChild) {
-      // Move body children into main
       while (body.firstChild) {
         mainElement.appendChild(body.firstChild);
       }
       body.appendChild(mainElement);
     }
   }
-  
+
   return mainElement;
 }
 
@@ -95,19 +84,15 @@ function addSvgAccessibleName(svgElement, title, description) {
     return;
   }
 
-  // Generate unique IDs for accessibility
   const titleId = "svg-title-" + Math.random().toString(36).substr(2, 11);
 
-  // Add title element for screen reader support
   const titleEl = document.createElement("title");
   titleEl.id = titleId;
   titleEl.textContent = title || "";
   svgElement.insertBefore(titleEl, svgElement.firstChild);
 
-  // Link title to SVG with aria-labelledby
   svgElement.setAttribute("aria-labelledby", titleId);
 
-  // Optionally add desc for more detail
   if (description) {
     const descId = "svg-desc-" + Math.random().toString(36).substr(2, 11);
     const descEl = document.createElement("desc");
@@ -115,7 +100,6 @@ function addSvgAccessibleName(svgElement, title, description) {
     descEl.textContent = description;
     svgElement.insertBefore(descEl, svgElement.firstChild);
 
-    // Update aria-labelledby to include both title and description
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
     svgElement.setAttribute("aria-labelledby", currentAriaLabelledby + " " + titleId + " " + descId);
   }
@@ -126,19 +110,15 @@ function fixFakeLink(element, isActionLink) {
   if (!element) return;
 
   if (isActionLink) {
-    // Mark as button if it's an action, not navigation
     element.setAttribute("role", "button");
   } else {
-    // Ensure it's a proper anchor if it's a link
     if (element.tagName && element.tagName.toLowerCase() === "a") {
-      // Already an anchor, just ensure it has href
       if (!element.getAttribute("href")) {
         element.setAttribute("href", "#");
       }
     }
   }
 
-  // Add tabindex to make keyboard accessible
   if (typeof element.setAttribute === "function") {
     element.setAttribute("tabindex", "0");
   }
@@ -156,7 +136,6 @@ function fixLandmarkIssues(container) {
     const key = role + "-" + label;
 
     if (seenLandmarks[key]) {
-      // Duplicate landmark found - make unique
       ensureUniqueLandmark(landmark, role, label + " " + (seenLandmarks[key]++));
     } else {
       seenLandmarks[key] = 1;
@@ -174,10 +153,8 @@ ensureMainLandmark();
 
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
-  // Existing exports preserved unchanged
   ...module.exports,
 
-  // New accessibility functions
   setLangAttribute: setLangAttribute,
   addLandmarkRole: addLandmarkRole,
   ensureMainLandmark: ensureMainLandmark,

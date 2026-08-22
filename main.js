@@ -46,25 +46,35 @@ function addLandmarks() {
         iconSvg1.setAttribute('aria-label', 'Icon 1');
     }
 
-    // Ensure unique landmarks, assuming there are only these 6 components
-    const uniqueIds = ['unique1', 'unique2', 'unique3', 'unique4', 'unique5', 'unique6'];
-    const roleAssignments = ['banner', 'navigation', 'main', 'contentinfo'];
+    // Ensure unique landmarks - include all landmark roles
+    const landmarkRoles = [
+        { role: 'banner', label: 'Site Header' },
+        { role: 'navigation', label: 'Main Navigation' },
+        { role: 'main', label: 'Main Content' },
+        { role: 'contentinfo', label: 'Site Footer' },
+        { role: 'search', label: 'Site Search' }
+    ];
     
-    for (let i = 0; i < roleAssignments.length; i++) {
-        const roleName = roleAssignments[i];
-        const element = document.querySelector(`[role="${roleName}"]`);
+    landmarkRoles.forEach((landmark, index) => {
+        const element = document.querySelector(`[role="${landmark.role}"]`);
         if (element) {
-            element.setAttribute('aria-labelledby', uniqueIds[i]);
+            const uniqueId = `landmark-${landmark.role}-${index}`;
+            element.setAttribute('aria-labelledby', uniqueId);
 
-            const existingLabel = element.querySelector(`#${uniqueIds[i]}`);
+            const existingLabel = element.querySelector(`#${uniqueId}`);
             if (!existingLabel) {
                 const label = document.createElement('span');
-                label.id = uniqueIds[i];
-                label.textContent = roleName === 'banner' ? 'Site Header' : (roleName === 'navigation' ? 'Main Navigation' : (roleName === 'main' ? 'Main Content' : 'Site Footer'));
+                label.id = uniqueId;
+                label.textContent = landmark.label;
                 label.style.display = 'none';
                 element.insertBefore(label, element.firstChild);
             }
         }
+    });
+    
+    // Ensure login link has accessible name if it's just an icon
+    if (loginLink && !loginLink.textContent.trim() && !loginLink.getAttribute('aria-label')) {
+        loginLink.setAttribute('aria-label', 'Login');
     }
 }
 

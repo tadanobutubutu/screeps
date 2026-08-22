@@ -712,6 +712,7 @@ function createAccessibleLink(config) {
   
   if (external) {
     props.accessibility['aria-label'] = `${props.accessibility['aria-label'] || text} (opens in new tab)`;
+
     props.target = '_blank';
     props.rel = 'noopener noreferrer';
   }

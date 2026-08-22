@@ -16,14 +16,14 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('banner');
+    const banners = document.querySelectorAll('banner, [role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('navigation');
+    const navigations = document.querySelectorAll('navigation, nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;
@@ -75,7 +75,7 @@ module.exports = {
       // React_027: Add scope attribute to th elements
       const thElements = table.querySelectorAll('th');
       thElements.forEach(th => {
-        if (!th.getAttribute('scope')) {
+        if (!th.hasAttribute('scope')) {
           const row = th.closest('tr');
           const thead = th.closest('thead');
           if (thead && row && row.rowIndex === 0) {
@@ -88,7 +88,7 @@ module.exports = {
     });
 
     // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
-    const mainElements = document.querySelectorAll('main');
+    const mainElements = document.querySelectorAll('[role="main"], main');
     let mainFound = false;
     mainElements.forEach((main, index) => {
       if (!mainFound) {
@@ -163,16 +163,13 @@ module.exports = {
         svg.id = svgId;
       }
       const titleId = `${svgId}-title`;
-      const existingTitle = svg.querySelector('title');
-      if (!existingTitle) {
+      if (!titleElement) {
         const title = document.createElement('title');
         title.id = titleId;
         title.textContent = accessibleName;
         svg.insertBefore(title, svg.firstChild);
       }
-      if (!ariaLabel) {
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+      svg.setAttribute('aria-labelledby', titleId);
     });
 
     // React_017: Add IDs to other landmark elements
@@ -183,8 +180,8 @@ module.exports = {
       }
     });
 
-    const footerElements = document.querySelectorAll('footer');
-    footerElements.forEach((footer, index) => {
+    const footers = document.querySelectorAll('footer');
+    footers.forEach((footer, index) => {
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
       }

@@ -1,7 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-
 // Your existing code before the conflict markers
 
 // New code or changes requested in the issue
@@ -10,6 +6,10 @@ function newFunction() {
 }
 
 // Render the App component
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

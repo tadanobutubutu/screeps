@@ -17,3 +17,6 @@ function renderContent() {
 
 // Export existing functionality
 module.exports = { app, renderContent };
+
+// Add the lang attribute to the HTML root element
+document.documentElement.lang = 'en';

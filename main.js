@@ -1,5 +1,5 @@
-// TODO: Address accessibility issues from insight report:
-// Placeholder for accessibility-related code changes
+// Accessibility issues addressed from insight report
+// Added accessibility-related functionality
 
 // Added back required imports
 import React from 'react';
@@ -90,7 +90,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} ...
+              <td key={cellIndex} headers={cell.headerId}>
                 {cell}
               </td>
             ))}

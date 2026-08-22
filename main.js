@@ -46,7 +46,7 @@ const fixTableStructure = function() {
       table.prepend(thead);
     }
     // Ensure tbody exists
-    let tbody = table.querySelector('tbody');
+    let tbody = document.querySelector('tbody');
     if (!tbody) {
       tbody = document.createElement('tbody');
       // Move the first row (if any) into tbody
@@ -132,6 +132,23 @@ const fixFakeLinkIssue = function() {
   });
 };
 
+const fixHashLinkToButton = function() {
+  // Fix REACT_036: Convert <a href="#"> to <button> for in-page actions
+  const link = document.getElementById('unrotate');
+  if (link && link.tagName === 'A' && link.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    // Copy all attributes except href
+    const attrs = link.attributes;
+    for (let i = 0; i < attrs.length; i++) {
+      const attr = attrs[i];
+      if (attr.name !== 'href') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    }
+    link.parentNode.replaceChild(button, link);
+  }
+};
+
 const addressAccessibilityIssues = function() {
   // Address accessibility issues from insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -155,6 +172,9 @@ const addressAccessibilityIssues = function() {
 
   // Fix fake link issue
   fixFakeLinkIssue();
+
+  // Fix hash link to button for in-page actions (REACT_036)
+  fixHashLinkToButton();
 };
 
 const setLanguageAttribute = function(lang) {
@@ -203,6 +223,7 @@ const runAllAccessibilityFixes = function() {
   enhanceFocusVisibility();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
+  fixHashLinkToButton(); // Fix REACT_036
 };
 
 module.exports = {

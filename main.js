@@ -7,7 +7,13 @@
   // module.exports.loop = function() { /* ... */ };
   // ----- END ORIGINAL CODE -----
 
-  // Add new function or changes requested in the issue
+  // Add new function for react-table structure
+  const EnhancedTable = ({ children }) => {
+    return React.cloneElement(children, { role: 'table' });
+  };
+  module.exports.EnhancedTable = EnhancedTable;
+
+  // Fix the language attribute on non-accessible elements
   function reactLanguageAttributeFix(element) {
     if (element && element.props && element.props.lang) {
       console.warn('Language attribute detected on non-accessible element');
@@ -16,7 +22,7 @@
     }
   }
 
-  // Example usage of the new function
+  // Example usage of the new functions
   // Assuming there's a component that uses the lang attribute incorrectly
   // const MyComponent = (props) => {
   //   reactLanguageAttributeFix(props);

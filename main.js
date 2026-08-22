@@ -13,5 +13,10 @@ module.exports = {
   // ... existing exports ...
   Foo,
   Bar,
-  initialize
+  initialize,
+  // Add the new fix for the React SVG Accessible Name issue
+  fixReactSVGAccessibleName: (svgString) => {
+    // Replace the SVG string with an accessible version
+    return svgString.replace(/<svg /g, '<svg aria-hidden="true" ');
+  }
 };

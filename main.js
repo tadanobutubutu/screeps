@@ -8,3 +8,6 @@ document.getElementById('unrotate').addEventListener('click', function() {
   // Your logic to rotate back goes here
   console.log('Rotating back...');
 });
+
+// Exporting the necessary functions or variables if needed
+export {};

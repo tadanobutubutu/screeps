@@ -29,7 +29,7 @@ const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
   // This addresses REACT_017: Add/fix 4 landmark issues
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
-  const landmarks = document.querySelectorAll('aside, footer, header, section, article');
+  const landmarks = document.querySelectorAll('footer, header, section, article');
   const seenIds = new Set();
   
   landmarks.forEach((landmark) => {
@@ -46,7 +46,7 @@ const ensureUniqueLandmarks = function() {
     
     // Add ARIA attributes for accessibility
     if (landmark.tagName === 'SECTION' && !landmark.getAttribute('aria-label')) {
-      landmark.setAttribute('role', 'region');
+      landmark.setAttribute('aria-label', 'region');
     }
   });
 };
@@ -95,7 +95,7 @@ const fixTableStructure = function() {
     table.querySelectorAll('thead th, tbody th').forEach((headerCell) => {
       const isColumnHeader = headerCell.closest('thead');
       const scopeValue = isColumnHeader ? 'col' : 'row';
-      if (!headerCell.hasAttribute('scope')) {
+      if (!headerCell.getAttribute('scope')) {
         headerCell.setAttribute('scope', scopeValue);
       }
     });
@@ -154,6 +154,24 @@ const fixFakeLinkIssue = function() {
   });
 };
 
+const fixHashLinkToButton = function() {
+  // Fix REACT_036: Convert <a href="#"> to <button> for in-page actions
+  const link = document.querySelector('a[href="#"]');
+  if (link && link.tagName === 'A' && link.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    // Copy all attributes except href
+    const attrs = link.attributes;
+    for (let i = 0; i < attrs.length; i++) {
+      const attr = attrs[i];
+      if (attr.name !== 'href') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    }
+    button.textContent = link.textContent;
+    link.parentNode.replaceChild(button, link);
+  }
+};
+
 const addressAccessibilityIssues = function() {
   // Address accessibility issues from insight report:
   // - REACT_015: Add lang attribute to HTML element
@@ -177,6 +195,9 @@ const addressAccessibilityIssues = function() {
 
   // Fix fake link issue
   fixFakeLinkIssue();
+
+  // Fix hash link to button for in-page actions (REACT_036)
+  fixHashLinkToButton();
 };
 
 const setLanguageAttribute = function(lang) {
@@ -222,9 +243,9 @@ const runAllAccessibilityFixes = function() {
   addMainLandmark();
   ensureUniqueLandmarks();
   fixTableStructure();
-  enhanceFocusVisibility();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
+  fixHashLinkToButton(); // Fix REACT_036
 };
 
 module.exports = {
@@ -241,7 +262,13 @@ module.exports = {
   // Newly added exports for accessibility functions
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
-  runAllAccessibilityFixes: runAllAccessibilityFixes
+  runAllAccessibilityFixes: runAllAccessibilityFixes,
+  
+  // Export newly added necessary functions
+  fixTableStructure: fixTableStructure,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  fixFakeLinkIssue: fixFakeLinkIssue,
+  fixHashLinkToButton: fixHashLinkToButton
 };
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements

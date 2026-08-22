@@ -8,7 +8,7 @@
   // module.exports.loop = function() { /* ... */ }
   // ----- END ORIGINAL CODE -----
 
-  const { mainElement } = require('./mainElement');
+  const { mainElement } = React;
 
   // Fix the language attribute on non-accessible elements (unchanged)
   function reactLanguageAttributeFix(element) {
@@ -22,12 +22,11 @@
   const EnhancedTable = ({ children }) => {
     return React.cloneElement(children, { role: 'table' });
   };
-  module.exports.EnhancedTable = EnhancedTable;
 
   // Example usage of the new functions
   // Assuming there's a component that uses the lang attribute incorrectly
   // const MyComponent = (props) => {
-  //   reactLanguageAttributeFix(props);
+  //   ...
   //   // Rest of the component...
   // };
   // module.exports.MyComponent = MyComponent;
@@ -36,20 +35,19 @@
   // Add your changes here
 
   const removeDuplicateMainElements = (children) => {
-    const mainElements = React.Children.toArray(children).filter(
+    const mainElements = children.filter(
       (child) => child.type === mainElement
     );
     if (mainElements.length > 1) {
-      console.warn('Duplicate <main> elements detected. Only one <main> element is allowed.');
+      console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
       return React.cloneElement(mainElements[0], { children: mainElements.slice(1) });
     }
     return children;
   };
-  module.exports.removeDuplicateMainElements = removeDuplicateMainElements;
 
   function addLangAttributeToRoot() {
     const rootElement = document.documentElement;
-    if (!rootElement.hasAttribute('lang')) {
+    if (rootElement) {
       rootElement.setAttribute('lang', 'en');
     }
   }

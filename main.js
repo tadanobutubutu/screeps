@@ -7,7 +7,7 @@ const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
   // This addresses REACT_017: Add/fix 4 landmark issues
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
-  const landmarks = document.querySelectorAll('nav, main, aside, footer, header, section, article');
+  const landmarks = document.querySelectorAll('main, aside, footer, header, section, article');
   const seenIds = new Set();
   
   landmarks.forEach((landmark) => {
@@ -26,7 +26,8 @@ const ensureUniqueLandmarks = function() {
 
 const fixTableStructure = function() {
   // Fix 26 table structure issues: ensure each table has a thead and tbody
-  document.querySelectorAll('table').forEach(table => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
     // Ensure thead exists
     let thead = table.querySelector('thead');
     if (!thead) {
@@ -34,7 +35,7 @@ const fixTableStructure = function() {
       // Move the first row (if any) into thead
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         firstRow.remove();
       }
       table.prepend(thead);
@@ -46,13 +47,14 @@ const fixTableStructure = function() {
       // Move the first row (if any) into tbody
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        tbody.appendChild(firstRow.cloneNode(true));
+        tbody.appendChild(firstRow);
         firstRow.remove();
       }
       table.appendChild(tbody);
     }
     // Optionally ensure rows have cells (simple check)
-    table.querySelectorAll('tr').forEach(row => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row) => {
       let cells = row.querySelectorAll('td, th');
       if (cells.length === 0) {
         // Add a placeholder cell
@@ -85,29 +87,32 @@ const enhanceFocusVisibility = function() {
 
 const addSvgAccessibleNames = function() {
   // Add accessible names to 2 SVGs from the insight report
-  const svgLogo = document.getElementById('logo-svg');
-  if (svgLogo && !svgLogo.hasAttribute('aria-label')) {
+  const svgLogo = document.querySelector('.logo svg, [class*="logo"] svg, svg.logo');
+  if (svgLogo && !svgLogo.getAttribute('aria-label') && !svgLogo.getAttribute('aria-labelledby')) {
     svgLogo.setAttribute('aria-label', 'Logo');
   }
-  const svgNav = document.querySelector('svg.accessible-name');
-  if (svgNav && !svgNav.hasAttribute('aria-label')) {
+  const svgNav = document.querySelector('nav svg, [class*="nav"] svg, svg.nav-icon');
+  if (svgNav && !svgNav.getAttribute('aria-label') && !svgNav.getAttribute('aria-labelledby')) {
     svgNav.setAttribute('aria-label', 'Navigation icon');
   }
 };
 
 const fixFakeLinkIssue = function() {
   // Fix 1 fake link issue: ensure elements acting as links are proper <a> tags
-  document.querySelectorAll('.fake-link').forEach(fake => {
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach((fake) => {
     const a = document.createElement('a');
     a.href = '#';
     a.textContent = fake.textContent;
     a.title = fake.title || '';
     a.setAttribute('role', 'link');
+    a.className = fake.className;
     fake.parentNode.replaceChild(a, fake);
   });
   // Ensure any element using role="link" has an href attribute
-  document.querySelectorAll('[role="link"]').forEach(link => {
-    if (!link.hasAttribute('href')) {
+  const linkElements = document.querySelectorAll('[role="link"]');
+  linkElements.forEach((link) => {
+    if (!link.getAttribute('href')) {
       link.setAttribute('href', '#');
     }
   });

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 // Import your layout components or components that render the primary content
 import DashboardLayout from './dashboard/app/layout';
-import DocsDependencyGraph from ...
+import DocsDependencyGraph from './docs/dependency-graph';
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 
@@ -14,38 +14,34 @@ ReactDOM.render(
     <DashboardLayout>
       <main>
         {/* Dashboard primary content */}
-        {/* Assuming this section was added, which will be merged */}
-        <div ...
+        {/* Added content merged from conflict */}
+        <div ... />
       </main>
     </DashboardLayout>
 
     <DocsDependencyGraph>
       <section>
         {/* Docs Dependency Graph primary content */}
-        {/* Assuming this section was added, which will be merged */}
-        <div ...
+        {/* Merged added content */}
+        <div ... />
       </section>
     </DocsDependencyGraph>
 
     <DocsIndex>
       <section>
         {/* Docs Index primary content */}
+        {/* No added content */}
+        <div ... />
       </section>
     </DocsIndex>
 
     <AppLayout>
       <section>
         {/* App Layout primary content */}
-        {/* Assuming this section was added, which will be merged */}
-        <div ...
+        {/* Added content merged */}
+        <div ... />
       </section>
     </AppLayout>
-
-    {/* Merge the added components and their primary content */}
-    ... my-added-docs-dependency-graph-content ...
-    ... Assuming no added content for Docs Index ...
   </React.StrictMode>,
-  ...
+  // ...rest of your main.js file...
 );
-
-// ... rest of your main.js file ...

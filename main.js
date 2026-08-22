@@ -18,3 +18,6 @@ module.exports = {
     document.documentElement.lang = lang;
   }
 };
+
+// Set default language attribute for the HTML root element
+document.documentElement.lang = 'en';

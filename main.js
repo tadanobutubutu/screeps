@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+export function rotateBack() {
+  // ... some code to rotate back ...
+}
+
+// HTML output
+function renderGraph() {
+  return (
+    <div>
+      {/* ... other elements ... */}
+      <a id="unrotate" href="#" onClick={rotateBack}>rotate back</a>
+      {/* ... other elements ... */}
+    </div>
+  );
+}

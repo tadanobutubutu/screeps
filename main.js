@@ -1,8 +1,7 @@
 // Existing code...
 
 // Update google/osv-scanner-action action to v2.5.1
-const GoogleOSVScannerAction = ...
-... = '2.5.1';
+const GoogleOSVScannerActionVersion = '2.5.1';
 
 // Update dependency eslint to v10
 const eslint = require('eslint');
@@ -119,8 +118,7 @@ function clearAllUpdates() {
 
 /**
  * Generates a summary report of all dependency updates
- * @returns {Object} Summary of all updates
- */
+ * @returns {Object} Summary of all updates */
 function generateSummary() {
   return {
     pendingCount: dependencyUpdates.pending.length,

@@ -44,6 +44,13 @@
     }
   }
 
+  // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
+  function addScopeToThs(elements) {
+    elements.each(function() {
+      addScopeToTh($(this));
+    });
+  }
+
   // ... Existing code ...
 
   // Call the new function to replace the fake link when the script loads
@@ -56,6 +63,7 @@
     wrapContentInMain,
     addScopeToTh,
     createTableHeaders,
-    replaceFakeLinkWithButton
+    replaceFakeLinkWithButton,
+    addScopeToThs  // Add the new export
   };
 })();

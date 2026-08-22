@@ -148,19 +148,7 @@ module.exports = {
   announceToScreenReader,
   trapFocus,
   releaseFocus,
-  setFocusToFirstFocusable
+  setFocusToFirstFocusable,
+  rotate,
+  rotateBack
 };
-=======
-module.exports = {
-  loop: function() { myNewFunction(); },
-  myNewFunction: myNewFunction,
-  add,
-  subtract,
-  multiply,
-  divide,
-  announceToScreenReader,
-  trapFocus,
-  releaseFocus,
-  setFocusToFirstFocusable
-};
->>>>>>> origin/main

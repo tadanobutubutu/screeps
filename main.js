@@ -1,10 +1,10 @@
-export const metadata = {
-  icons: {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-  },
+module.exports.loop = function () {
+  // Main game loop - actual implementation in other modules
+  // This is a minimal valid JavaScript entry point
+  console.log('Screeps bot initialized');
 };
 
-export default function RootLayout({ children }) {
-  return children;
-}
+// Export any necessary functions for testing
+module.exports.init = function () {
+  return 'initialized';
+};

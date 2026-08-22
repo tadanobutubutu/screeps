@@ -5,6 +5,13 @@
 // Existing tests in /tests/ must continue to pass.
 // Beginner Overview: The existing code needs to be preserved in the main.js file, while adding new functions requested in the issue. The new functions should not remove or rename the existing exports.
 
+// TODO: Address accessibility issues from insight report
+// - Add lang attribute to HTML element
+addLangAttribute();
+
+// Function to ensure unique landmarks across the application
+// This addresses REACT_017: Add/fix 4 landmark issues
+// This addresses REACT_025: Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = function() {
   // Function to ensure unique landmarks across the application
   // This addresses REACT_017: Add/fix 4 landmark issues

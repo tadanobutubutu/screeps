@@ -11,6 +11,9 @@ export default function Main() {
     { Header: 'src/managers/towerManager.js' },
     { Header: 'src/roles/builder.js' },
     // ... (additional columns up to 26 total)
+    { Header: 'src/other1.js' },
+    { Header: 'src/other2.js' },
+    // Add remaining columns as needed to reach 26
   ];
 
   // Initialize the React Table hook
@@ -25,9 +28,9 @@ export default function Main() {
     <main>
       <table>
         <thead>
-          ... => (
-            <tr ...
-              ... => (
+          {getHeaderGroups().map(group => (
+            <tr {...group.getRowProps()}>
+              {group.headers.map(column => (
                 <th key={column.id} scope="col">
                   {column.render('Header')}
                 </th>
@@ -39,7 +42,7 @@ export default function Main() {
           {allColumns.map(row => (
             <tr {...row.getRowProps()}>
               {row.cells.map(cell => (
-                <td ...
+                <td key={cell.id}>{cell.render('Cell')}</td>
               ))}
             </tr>
           ))}

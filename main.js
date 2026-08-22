@@ -118,6 +118,11 @@ export function createNavigationLink(href, children) {
   };
 }
 
+// Add export for functions
+export { add, subtract, multiply, divide };
+
+// The following functions were added in the conflicting change, and they seem to be compatible with the changes above:
+
 /**
  * Adds two numbers together
  * @param {number} a - First number
@@ -160,16 +165,3 @@ function divide(a, b) {
   }
   return a / b;
 }
-
-// Export all functions and components
-module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  createHtmlElement,
-  createTable,
-  createSvgIcon,
-  createPageLayout,
-  createNavigationLink
-};

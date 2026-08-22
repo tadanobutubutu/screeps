@@ -10,6 +10,7 @@ const myNewFunction = function() {
 module.exports = {
   loop: function() {
     // Main game loop logic
+    myNewFunction();
   },
   myNewFunction: myNewFunction
 };

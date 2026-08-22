@@ -62,7 +62,7 @@ module.exports = {
           table.insertBefore(thead, table.firstChild);
         }
       }
-      
+
       const existingTbody = table.querySelector('tbody');
       if (!existingTbody) {
         const tbody = document.createElement('tbody');
@@ -71,7 +71,7 @@ module.exports = {
         }
         table.appendChild(tbody);
       }
-      
+
       // React_027: Add scope attribute to th elements
       const thElements = table.querySelectorAll('th');
       thElements.forEach(th => {
@@ -107,6 +107,7 @@ module.exports = {
           }
         });
         button.setAttribute('type', 'button');
+        button.removeAttribute('tabindex');
         link.parentNode.replaceChild(button, link);
       }
     });
@@ -129,12 +130,12 @@ module.exports = {
           accessibleName = descElement.textContent;
         }
         // Add aria-labelledby attribute to associate a description with the SVG
-        const svgId = svg.id || `svg-${index + 1}`;
+        const svgId = svg.id || `svg-${Math.random().toString(36).substr(2, 9)}`;
         if (!svg.id) {
           svg.id = svgId;
         }
         const titleId = `${svgId}-title`;
-        if (!hasTitle) {
+        if (!svg.querySelector('title')) {
           const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
           title.id = titleId;
           title.textContent = accessibleName;

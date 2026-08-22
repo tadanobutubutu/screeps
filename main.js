@@ -155,11 +155,13 @@ function addAccessibleSVGs() {
 
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
+    // Add accessible name via aria-label and provide descriptive <title> and <desc>
+    svg.setAttribute('aria-label', 'Dashboard icon');
     const title = document.createElement('title');
-    title.textContent = 'Descriptive title for SVG';
+    title.textContent = 'Dashboard icon';
     svg.appendChild(title);
     const desc = document.createElement('desc');
-    desc.textContent = 'Description of SVG content';
+    desc.textContent = 'Dashboard icon';
     svg.appendChild(desc);
   });
 }

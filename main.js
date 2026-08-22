@@ -13,7 +13,7 @@ export default function Main() {
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
+          <li><a ...
         </ul>
       </nav>
       
@@ -43,14 +43,14 @@ export default function Main() {
           <caption>Pricing Plans</caption>
           <thead>
             <tr>
-              <th scope="col">Plan</th>
+              <th ...
               <th scope="col">Price</th>
-              <th scope="col">Features</th>
+              <th ...
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th scope="row">Basic</th>
+              <th ...
               <td>$9.99</td>
               <td>Standard support</td>
             </tr>

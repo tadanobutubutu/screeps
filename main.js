@@ -26,4 +26,6 @@ module.exports = createJestConfig({
     '!src/**/*.d.ts',
     '!src/**/*.stories.@(js|jsx|ts|tsx)',
   ],
+  // Add a new testPathIgnorePattern to ignore the SVG files causing the issue
+  testPathIgnorePatterns: ['/.*\\.(svg)$'],
 })

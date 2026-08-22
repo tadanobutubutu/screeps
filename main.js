@@ -45,6 +45,7 @@
     }
     return children;
   };
+  module.exports.removeDuplicateMainElements = removeDuplicateMainElements;
 
   // ----- END NEW CODE-----
 

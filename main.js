@@ -23,15 +23,13 @@ const Dashboard: React.FC = () => {
   // Render the main content based on the state
   return (
     <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      <main>
+      <main role="main" aria-label="ダッシュボード">
         {/* Render the main content for the success state */}
         {!error && (
           <div>
             {/* ... success state content ... */}
           </div>
         )}
-      </main>
-      <main>
         {/* Render the main content for the error state */}
         {error && (
           <div>
@@ -39,6 +37,7 @@ const Dashboard: React.FC = () => {
             <pre
               tabIndex={0}
               aria-label="エラーメッセージ詳細"
+              aria-live="polite"
               style={{
                 color: '#c53030',
                 backgroundColor: '#fff5f5',
@@ -56,6 +55,7 @@ const Dashboard: React.FC = () => {
               onFocus={() => setErrCopyHover(true)}
               onBlur={() => setErrCopyHover(false)}
               aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+              aria-pressed={copied}
               title={copied ? 'コピー済み' : 'エラーをコピー'}
               style={{
                 backgroundColor: copied ? '#155d27' : '#004b73',
@@ -77,6 +77,8 @@ const Dashboard: React.FC = () => {
               disabled={refreshing}
               onMouseEnter={() => setErrRetryHover(true)}
               onMouseLeave={() => setErrRetryHover(false)}
+              aria-label="エラー发生后重新获取统计数据"
+              aria-busy={refreshing}
             >
               {/* ... retry button content ... */}
             </button>

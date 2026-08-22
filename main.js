@@ -16,6 +16,11 @@ module.exports = {
   setLanguageAttribute: function(lang) {
     // Assuming the document object is available in the global scope
     document.documentElement.lang = lang;
+  },
+  // New export
+  calculateAverage: function(numbers) {
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    return sum / numbers.length;
   }
 };
 

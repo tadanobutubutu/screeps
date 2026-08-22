@@ -6,9 +6,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { Layout } from './Layout';
 
+// Wrap the primary content in <main> to comply with the REACT_017 rule
 ReactDOM.render(
   <React.StrictMode>
-    <Layout />
+    <main>
+      <Layout />
+    </main>
   </React.StrictMode>,
   document.getElementById('root')
 );

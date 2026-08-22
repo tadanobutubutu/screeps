@@ -1,6 +1,3 @@
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
-
 // main.js - Entry point for the application
 // This file preserves all existing functionality.
 // The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.

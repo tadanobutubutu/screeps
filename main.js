@@ -68,6 +68,15 @@ const fixTableStructure = function() {
         row.appendChild(placeholder);
       }
     });
+    // Add scope attributes to header cells for accessibility
+    // Column headers use scope="col", row headers use scope="row"
+    table.querySelectorAll('thead th, tbody th').forEach((headerCell) => {
+      const isColumnHeader = headerCell.closest('thead');
+      const scopeValue = isColumnHeader ? 'col' : 'row';
+      if (!headerCell.hasAttribute('scope')) {
+        headerCell.setAttribute('scope', scopeValue);
+      }
+    });
   });
 };
 
@@ -146,12 +155,6 @@ const addressAccessibilityIssues = function() {
 
   // Fix fake link issue
   fixFakeLinkIssue();
-
-  // Enhance focus visibility for keyboard navigation
-  enhanceFocusVisibility();
-  
-  // Add main landmark to fix REACT_017
-  addMainLandmark();
 };
 
 const setLanguageAttribute = function(lang) {
@@ -191,8 +194,8 @@ const addMainLandmark = function() {
   return main;
 };
 
+// Aggregate all accessibility improvements
 const runAllAccessibilityFixes = function() {
-  // Aggregate all accessibility improvements
   addLangAttribute();
   addMainLandmark();
   ensureUniqueLandmarks();

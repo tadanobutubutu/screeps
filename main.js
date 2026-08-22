@@ -36,8 +36,9 @@ function renderDependencyDashboard(options = {}) {
   const pendingCount = options.pendingUpdates?.length || 0;
   const detectedCount = options.detectedDependencies?.length || 0;
   
+  // Ensure that only one <main> element is used
   mainContent.innerHTML = `
-    <div id="dependency-dashboard">
+    <main id="dependency-dashboard">
       <h1>Dependency Dashboard</h1>
       <div class="dashboard-stats">
         <p>Pending Updates: <strong>${pendingCount}</strong></p>
@@ -47,7 +48,7 @@ function renderDependencyDashboard(options = {}) {
         ${pendingCount > 0 ? '<button id="unrotate">rotate back</button>' : ''}
       </div>
       <!-- Dependency dashboard content goes here -->
-    </div>
+    </main>
   `;
   
   // Add click handler for the rotate back button

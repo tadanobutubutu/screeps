@@ -61,12 +61,13 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
         {children}
       </button>
     );
+  } else {
+    return (
+      <a href={href} onClick={onClick} {...props}>
+        {children}
+      </a>
+    );
   }
-  return (
-    <a href={href} onClick={onClick} {...props}>
-      {children}
-    </a>
-  );
 };
 
 // REACT_027 & REACT_025: Example of a table component with corrected accessibility
@@ -89,7 +90,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex}>
+              <td key={cellIndex} headers={`header-${cellIndex}`}>
                 {cell}
               </td>
             ))}
@@ -100,12 +101,49 @@ export const DependencyGraphTable = ({ data }) => {
   );
 };
 
+// REACT_027: Function to fix table structure issues
+export function fixTableStructureIssues(tables) {
+  return tables.map((table, tableIndex) => ({
+    ...table,
+    caption: table.caption || `Table ${tableIndex + 1}`,
+    hasHeaderRow: table.hasHeaderRow !== false,
+    headers: table.headers || []
+  }));
+}
+
+// REACT_025: Function to ensure unique landmarks
+export function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role]');
+  const seenIds = new Set();
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    let existingId = landmark.id;
+    
+    if (existingId && !seenIds.has(existingId)) {
+      seenIds.add(existingId);
+    } else {
+      // Generate unique ID based on role
+      let counter = 1;
+      let newId = `${role}-${counter}`;
+      while (seenIds.has(newId)) {
+        counter++;
+        newId = `${role}-${counter}`;
+      }
+      landmark.id = newId;
+      seenIds.add(newId);
+    }
+  });
+  
+  return container;
+}
+
 // REACT_017 & REACT_025: Landmark structure with unique identifiers
 export const PageLayout = ({ 
   headerContent, 
   mainContent, 
   navContent, 
-  footerContent  
+  footerContent   
 }) => {
   return (
     <>
@@ -169,10 +207,14 @@ export {
   GraphIcon,
   SettingsIcon,
   AppWrapper,
-  PageLayout  
+  PageLayout,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks
 };
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 9);
+  return `${prefix}-${timestamp}-${randomPart}`;
 }

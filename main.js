@@ -67,7 +67,7 @@ const createAccessibleModal = (props) => {
 
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -76,16 +76,45 @@ const addLangAttribute = () => {
 // Fix 26 table structure issues
 const fixTableStructure = () => {
   const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
+  
   tables.forEach(table => {
-    // Implement table structure fixes here
-    // Example: Add a caption or ensure proper headers
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table Description';
-      table.insertBefore(caption, table.firstChild);
-    }
-    // ... additional fixes
+    const rows = table.querySelectorAll('tr');
+    const firstRow = rows[0];
+    
+    // First pass: identify header rows (typically in thead or first row)
+    const headerRows = table.querySelectorAll('thead tr');
+    const hasThead = headerRows.length > 0;
+    
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('th, td');
+      
+      cells.forEach((cell, cellIndex) => {
+        if (cell.tagName === 'TH') {
+          // Check if this th already has a scope attribute
+          if (!cell.hasAttribute('scope')) {
+            // Determine if this is a column header or row header
+            const isInHeaderSection = hasThead ? 
+              row.closest('thead') !== null : 
+              rowIndex === 0;
+            
+            if (isInHeaderSection || cellIndex === 0) {
+              // Column headers (first row or in thead) get scope="col"
+              // Row headers (first column) get scope="row"
+              if (isInHeaderSection) {
+                cell.setAttribute('scope', 'col');
+              } else {
+                cell.setAttribute('scope', 'row');
+              }
+              fixedCount++;
+            }
+          }
+        }
+      });
+    });
   });
+  
+  return fixedCount;
 };
 
 // Fix 4 landmark issues
@@ -93,7 +122,7 @@ const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('role')) {
       nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Navigation ' + (index + 1));
     }
@@ -106,7 +135,7 @@ const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   svgs.forEach(svg => {
-    if (count < 2 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && svg.getAttribute('role') === 'img') {
+    if (count < 2 && !svg.hasAttribute('aria-label') && !svg.querySelector('title') && svg.getAttribute('role') === 'img') {
       const title = document.createElement('title');
       title.textContent = 'SVG ' + (count + 1) + ' description';
       title.id = 'svg-title-' + (count + 1);
@@ -120,7 +149,7 @@ const addAccessibleNamesToSVGs = () => {
 // Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
   // Example: Ensure navigation landmark is unique
-  const navs = document.querySelectorAll('nav');
+  const navs = document.querySelectorAll('nav[role="navigation"]');
   if (navs.length > 1) {
     navs.forEach((nav, index) => {
       if (index > 0) {
@@ -142,7 +171,7 @@ const fixFakeLinkIssue = () => {
       if (!href || href === '#' || href.indexOf('javascript:') === 0) {
         link.setAttribute('role', 'button');
         link.setAttribute('tabindex', '0');
-        link.addEventListener('click', (event) => {
+        link.addEventListener('keydown', (event) => {
           event.preventDefault();
         });
       }

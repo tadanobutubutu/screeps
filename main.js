@@ -1,10 +1,10 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+// Import required module(s) and export the new necessary function(s) here in main.js
+import React from 'react';
 
 // Accessibility issues addressed from insight report
 // Added accessibility-related functionality
 
 // Added back required imports
-import React from 'react';
 
 // Preserved existing code
 function existingFunction() {

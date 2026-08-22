@@ -1,3 +1,7 @@
+// Import required modules
+const fs = require('fs');
+const path = require('path');
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -446,6 +450,22 @@ if (document.readyState === 'loading') {
   initAccessibility();
 }
 
+/**
+ * New function: getFileInfo
+ * Returns information about a file path
+ * @param {string} filePath - The file path
+ * @returns {object} File information
+ */
+function getFileInfo(filePath) {
+  if (!filePath) return null;
+  return {
+    path: path.resolve(filePath),
+    basename: path.basename(filePath),
+    extname: path.extname(filePath),
+    exists: fs.existsSync(filePath)
+  };
+}
+
 module.exports = {
   addLangAttribute,
   fixTableStructure,
@@ -468,5 +488,6 @@ module.exports = {
   validateLinkAccessibility,
   createInPageButton,
   validateLinkOrButton,
-  createAccessibleLink
+  createAccessibleLink,
+  getFileInfo
 };

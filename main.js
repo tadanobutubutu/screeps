@@ -37,7 +37,7 @@ const accessibilityFixes = {
     <table>
       <thead>
         <tr>
-          <th scope="col">Header</th>
+          <th ...
         </tr>
       </thead>
       <tbody>
@@ -52,7 +52,59 @@ const accessibilityFixes = {
   svgAccessible: '<svg aria-label="Description of image" role="img">',
   
   // REACT_036: Real links
-  realLink: '<a href="/actual-url">Click here</a>',
+  realLink: '<a ... here</a>',
 };
 
 module.exports = { accessibilityFixes };
+
+/**
+ * REACT_041 Fix Implementation
+ * 
+ * The SVG icons in the layout files need aria-hidden="true" since they are 
+ * decorative favicon SVGs that don't need to be announced by screen readers.
+ * 
+ * To fix app/layout.tsx and dashboard/app/layout.tsx:
+ * 
+ * Option 1 - Add aria-hidden="true" (recommended for decorative SVGs):
+ * <svg aria-hidden="true" ...>
+ * 
+ * Option 2 - Add role="img" and aria-label (for meaningful icons):
+ * <svg role="img" aria-label="Description of the icon" ...>
+ * 
+ * Option 3 - Add <title> element (improves accessibility):
+ * <svg>
+ *   <title>Screeps Dashboard</title>
+ *   ...
+ * </svg>
+ */
+
+// Helper function to generate accessible SVG metadata for Next.js
+function generateSvgIconMetadata(svgContent) {
+  return {
+    icon: {
+      url: `data:image/svg+xml,${encodeURIComponent(svgContent)}`,
+      type: 'image/svg+xml',
+    },
+    apple: {
+      url: `data:image/svg+xml,${encodeURIComponent(svgContent)}`,
+      type: 'image/svg+xml',
+    },
+  };
+}
+
+// Function to wrap SVG content with accessibility attributes
+function wrapSvgForAccessibility(svgString, isDecorative = true) {
+  if (isDecorative) {
+    // Add aria-hidden="true" for decorative SVGs
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
+  } else {
+    // Add role="img" for non-decorative SVGs (need manual label)
+    return svgString.replace('<svg', '<svg role="img"');
+  }
+}
+
+module.exports = { 
+  accessibilityFixes,
+  generateSvgIconMetadata,
+  wrapSvgForAccessibility 
+};

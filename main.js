@@ -6,4 +6,8 @@
 
 export const COL_SCOPE = "col"; // This is an example of a new export related to the issue. The actual changes should be reflected in the HTML files.
 
+export function loop() {
+    // Your logic here
+}
+
 // More code here...

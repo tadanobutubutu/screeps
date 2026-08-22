@@ -1,4 +1,3 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
 // Import required modules
 import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependencyGraphContent } from './dependencies.js';
 
@@ -146,21 +145,20 @@ function addMissingAriaLabels() {
 
 // NEW FUNCTION: Fix table structure issues (REACT_027)
 function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table, tableIndex) => {
-    // Ensure table has caption if it has meaningful data
+  document.querySelectorAll('table').forEach((table, tableIndex) => {
+    // Ensure a caption is present for accessibility
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = `Table ${tableIndex + 1}`;
-      caption.style.display = 'none';
+      caption.className = 'visually-hidden';
       table.insertBefore(caption, table.firstChild);
     }
 
-    // Ensure thead exists for tables with header rows
+    // Ensure thead exists for header rows
     let thead = table.querySelector('thead');
     if (!thead) {
       const firstRow = table.querySelector('tr');
-      if (firstRow && firstRow.querySelector('th')) {
+      if (firstRow && firstRow.querySelector('th, td')) {
         thead = document.createElement('thead');
         table.insertBefore(thead, table.firstChild);
         thead.appendChild(firstRow);
@@ -171,8 +169,16 @@ function fixTableStructureIssues() {
     let tbody = table.querySelector('tbody');
     if (!tbody) {
       tbody = document.createElement('tbody');
-      const rows = table.querySelectorAll('tr:not(:first-child)');
-      rows.forEach(row => tbody.appendChild(row));
+      const rows = Array.from(table.querySelectorAll('tr'));
+      // Remove header rows that were moved to thead
+      if (thead) {
+        rows.shift();
+      }
+      rows.forEach(row => {
+        // Skip rows already placed in thead
+        if (thead && row.parentNode === thead) return;
+        tbody.appendChild(row);
+      });
       if (thead) {
         thead.parentNode.insertBefore(tbody, thead.nextSibling);
       } else {
@@ -180,79 +186,107 @@ function fixTableStructureIssues() {
       }
     }
 
-    // Fix header cell scope attributes
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach((th, index) => {
-      if (!th.hasAttribute('scope')) {
-        // Determine if column or row header based on context
-        const parentRow = th.closest('tr');
-        const isFirstRow = parentRow === table.querySelector('tr');
-        const hasRowHeaders = table.querySelectorAll('tr th:first-child').length > 1;
-        
-        if (isFirstRow && !hasRowHeaders) {
-          th.setAttribute('scope', 'col');
-        } else if (hasRowHeaders && th === parentRow.querySelector('th:first-child')) {
-          th.setAttribute('scope', 'row');
-        } else {
-          th.setAttribute('scope', 'col');
-        }
+    // Assign proper scope attributes to header cells
+    const headerCells = table.querySelectorAll('thead th');
+    headerCells.forEach((header, idx) => {
+      if (!header.hasAttribute('scope')) {
+        // Determine if header represents a column or a row
+        const isFirstColumn = idx === 0;
+        const columnHeaders = Array.from(table.querySelectorAll('tr th'));
+        const isRowHeader = columnHeaders.some(th => th === header && th.cellIndex === 0 && columnHeaders.filter(c => c.cellIndex === 0).length > 1);
+        header.setAttribute('scope', isRowHeader ? 'row' : 'col');
       }
-      
-      // Add unique IDs for header association
-      if (!th.hasAttribute('id')) {
-        const text = th.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        th.setAttribute('id', `table-${tableIndex}-header-${index}-${text || index}`);
+      if (!header.hasAttribute('id')) {
+        const headerText = header.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        header.setAttribute('id', `table-${tableIndex}-header-${idx}-${headerText || `col${idx}`}`);
       }
     });
 
-    // Associate data cells with headers
-    const dataCells = table.querySelectorAll('td');
-    dataCells.forEach((td, cellIndex) => {
-      const row = td.closest('tr');
-      const rowIndex = Array.from(row.parentNode.children).indexOf(row);
-      const cellIndexInRow = Array.from(row.children).indexOf(td);
-      
-      // Find corresponding header
+    // Associate data cells with their corresponding headers via the headers attribute
+    const dataCells = table.querySelectorAll('tbody td, tbody th');
+    dataCells.forEach(cell => {
       const headers = [];
-      if (thead) {
-        const colHeader = thead.querySelectorAll('th')[cellIndexInRow];
-        if (colHeader && colHeader.hasAttribute('id')) {
-          headers.push(colHeader.id);
-        }
+      // Find column header
+      const colIndex = Array.from(cell.parentNode.children).indexOf(cell);
+      const colHeader = table.querySelector(`thead th:nth-child(${colIndex + 1})`);
+      if (colHeader && colHeader.hasAttribute('id')) {
+        headers.push(colHeader.id);
       }
-      
-      // Check for row header
-      const rowHeader = row.querySelector('th');
+      // Find row header (first cell of the row)
+      const rowHeader = cell.closest('tr').querySelector('th');
       if (rowHeader && rowHeader.hasAttribute('id')) {
         headers.push(rowHeader.id);
       }
-      
-      if (headers.length > 0) {
-        td.setAttribute('headers', headers.join(' '));
+      if (headers.length) {
+        cell.setAttribute('headers', headers.join(' '));
       }
     });
 
-    // Fix nested tables - ensure they have proper structure
+    // Add an ARIA description for the table if not already present
+    const ariaDescId = `table-${tableIndex}-description`;
+    let ariaDesc = document.getElementById(ariaDescId);
+    if (!ariaDesc) {
+      ariaDesc = document.createElement('span');
+      ariaDesc.id = ariaDescId;
+      ariaDesc.className = 'visually-hidden';
+      ariaDesc.textContent = `Table ${tableIndex + 1}`;
+      document.body.appendChild(ariaDesc);
+    }
+    if (!table.hasAttribute('aria-describedby')) {
+      table.setAttribute('aria-describedby', ariaDescId);
+    }
+
+    // Ensure nested tables are also structured correctly
     const nestedTables = table.querySelectorAll('table');
-    nestedTables.forEach((nestedTable, nestedIndex) => {
-      if (!nestedTable.querySelector('caption')) {
-        const caption = document.createElement('caption');
-        caption.textContent = `Nested Table ${nestedIndex + 1}`;
-        caption.style.display = 'none';
-        nestedTable.insertBefore(caption, nestedTable.firstChild);
-      }
-    });
+    nestedTables.forEach(nested => fixTableStructureIssuesHelper(nested));
+  });
+}
 
-    // Ensure proper heading structure in table headers
-    table.querySelectorAll('th').forEach(th => {
-      if (!th.querySelector('h1, h2, h3, h4, h5, h6') && th.textContent.trim()) {
-        // Headers should not contain heading elements, but ensure text is accessible
-        const hasAbbr = th.hasAttribute('abbr');
-        if (!hasAbbr && th.textContent.length > 20) {
-          th.setAttribute('abbr', th.textContent.substring(0, 20) + '...');
-        }
-      }
+// Helper to apply the same fixes to nested tables
+function fixTableStructureIssuesHelper(table) {
+  // Re‑apply caption check
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = `Nested Table`;
+    caption.className = 'visually-hidden';
+    table.insertBefore(caption, table.firstChild);
+  }
+
+  // Ensure thead/tbody as above (same logic, simplified)
+  let thead = table.querySelector('thead');
+  if (!thead) {
+    const firstRow = table.querySelector('tr');
+    if (firstRow && firstRow.querySelector('th')) {
+      thead = document.createElement('thead');
+      table.insertBefore(thead, table.firstChild);
+      thead.appendChild(firstRow);
+    }
+  }
+
+  let tbody = table.querySelector('tbody');
+  if (!tbody) {
+    tbody = document.createElement('tbody');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    if (thead) rows.shift(); // skip header row removed earlier
+    rows.forEach(row => {
+      if (thead && row.parentNode === thead) return;
+      tbody.appendChild(row);
     });
+    if (thead) thead.parentNode.insertBefore(tbody, thead.nextSibling);
+    else table.appendChild(tbody);
+  }
+
+  // Ensure headers have proper scope and id
+  const headerCells = table.querySelectorAll('thead th');
+  headerCells.forEach((h, i) => {
+    if (!h.hasAttribute('scope')) {
+      const isRowHeader = table.querySelectorAll('tr th:first-child').length > 1 && i === 0;
+      h.setAttribute('scope', isRowHeader ? 'row' : 'col');
+    }
+    if (!h.hasAttribute('id')) {
+      const txt = h.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      h.setAttribute('id', `nested-${txt || i}`);
+    }
   });
 }
 
@@ -260,7 +294,7 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'search', 'complementary', 'region'];
   const landmarkCounts = {};
-  
+
   // Count existing landmarks
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);

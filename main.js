@@ -9,7 +9,7 @@ const FaviconSVG = () => (
 
 const AppLayout = () => {
   return (
-    <main>
+    <main lang="en">
       {/* Other components */}
       <link rel="icon" href="favicon.ico" />
       {/* Favicon SVG */}

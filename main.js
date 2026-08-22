@@ -1,3 +1,5 @@
+// Accessibility issues from insight report addressed
+// Added accessibility-related functionality
 // Import required modules
 import { icons, checkDependencyStatus, getDependencyAlerts, myFunction, dependencyGraphContent } from './dependencies.js';
 

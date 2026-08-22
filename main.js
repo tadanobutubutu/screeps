@@ -318,4 +318,5 @@ export {
 export function generateId(prefix = 'id') {
   const timestamp = Date.now();
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  return `${prefix}-${timestamp}-${
+  return `${prefix}-${timestamp}-${randomPart}`;
+}

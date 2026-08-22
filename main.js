@@ -45,6 +45,3 @@ ensureUniqueLandmarks().id = 'uniqueLandmarks'; // Making it available as a stan
 // ----- END ORIGINAL CODE -----
 
 export { newFunction, class1, function1, Object1, ensureUniqueLandmarks };
-```
-
-This resolve accepts both updates while retaining the common logic, ensures that landmarks have unique IDs, and adds accessibility method `ensureUniqueLandmarks()` to the main exports. The specified accessibility issue IDs are preserved for reference.

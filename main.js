@@ -228,16 +228,9 @@ module.exports.someOtherFunction = otherModule.someOtherFunction;
 
 // ... (Repeat the process for any additional required modules)
 
-// Set lang attribute on HTML element to address accessibility issue
-if (typeof document !== 'undefined') {
-  setLangAttribute(document.documentElement, mainElement);
-  fixTableStructure(mainElement);
-  fixFakeLinkInDocs();
-  addAccessibleSVGs();
-  addLandmarks(mainElement);
-  ensureUniqueLandmarks();
-  fixFakeLink();
-}
+// We add these to ensure the functions are available for export
+const someFunction = someModule.someFunction;
+const someOtherFunction = otherModule.someOtherFunction;
 
 // Add the new function to the module.exports
 module.exports = {
@@ -260,3 +253,14 @@ module.exports = {
   someOtherFunction, // Add the exported function from otherModule
   // Add any additional exported functions here
 };
+
+// Set lang attribute on HTML element to address accessibility issue
+if (typeof document !== 'undefined') {
+  setLangAttribute(document.documentElement, mainElement);
+  fixTableStructure(mainElement);
+  fixFakeLinkInDocs();
+  addAccessibleSVGs();
+  addLandmarks(mainElement);
+  ensureUniqueLandmarks();
+  fixFakeLink();
+}

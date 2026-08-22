@@ -11,8 +11,8 @@
 
   // New function to add scope attribute to th elements
   function addScopeToTh(element) {
-    if (element.tagName === 'TH') {
-      element.setAttribute('scope', 'col');
+    if (element.nodeName === "TH") {
+      element.setAttribute("scope", "col");
     }
   }
 
@@ -21,9 +21,9 @@
   // Example usage of addScopeToTh function
   // Assuming there is a function that creates table headers and appends them to the DOM
   function createTableHeaders(headers) {
-    const table = document.createElement('table');
+    const table = document.createElement("table");
     headers.forEach(headerText => {
-      const th = document.createElement('th');
+      const th = document.createElement("th");
       th.textContent = headerText;
       addScopeToTh(th);
       table.appendChild(th);
@@ -35,10 +35,10 @@
 
   // New function to replace the fake link with a button for better accessibility
   function replaceFakeLinkWithButton() {
-    const fakeLink = document.getElementById('unrotate');
+    const fakeLink = document.getElementById("unrotate");
     if (fakeLink) {
-      const button = document.createElement('button');
-      button.textContent = 'rotate back';
+      const button = document.createElement("button");
+      button.textContent = "rotate back";
       button.onclick = fakeLink.onclick; // Copy the onclick handler to the new button
       fakeLink.parentNode.replaceChild(button, fakeLink);
     }
@@ -50,4 +50,12 @@
   replaceFakeLinkWithButton();
 
   // ... Existing code ...
+
+  // Export the new functions
+  module.exports = {
+    wrapContentInMain,
+    addScopeToTh,
+    createTableHeaders,
+    replaceFakeLinkWithButton
+  };
 })();

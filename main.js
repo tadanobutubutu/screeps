@@ -1,4 +1,3 @@
-// Import required module(1s) and export the new necessary function(1s) here in main.js
 import React from 'react';
 
 // Accessibility issues addressed from insight report
@@ -224,20 +223,80 @@ export const faviconGenerators = {
   })
 };
 
-// Export all new accessibility-friendly components
+// Fixed: Error state uses <section> instead of duplicate <main> landmark
+export const ErrorState = ({ message, onRetry }) => {
+  return (
+    <section aria-labelledby="error-heading" role="alert">
+      <h2 id="error-heading">Error</h2>
+      <p>{message}</p>
+      {onRetry && (
+        <button type="button" onClick={onRetry}>
+          Try again
+        </button>
+      )}
+    </section>
+  );
+};
+
+// Fixed: Success state uses <main> as the primary landmark
+export const SuccessState = ({ data, onEdit }) => {
+  return (
+    <main id="main-content" role="main">
+      <h1>Success</h1>
+      <div>{data}</div>
+      {onEdit && (
+        <button type="button" onClick={onEdit}>
+          Edit
+        </button>
+      )}
+    </main>
+  );
+};
+
+// Fixed: Combined component with proper landmark hierarchy
+export const StatusDisplay = ({ status, errorMessage, successData, onRetry, onEdit }) => {
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={onRetry} />;
+  }
+  
+  return <SuccessState data={successData} onEdit={onEdit} />;
+};
+
+export const DataViewComponent = ({ hasError, errorContent, content }) => {
+  if (hasError) {
+    return (
+      <section aria-labelledby="error-title" role="alert">
+        <h2 id="error-title">Error</h2>
+        {errorContent}
+      </section>
+    );
+  }
+  
+  return (
+    <main id="main-content" role="main">
+      <h1>Data View</h1>
+      {content}
+    </main>
+  );
+};
+
 export { 
+  AppWrapper,
   RotateBackButton, 
   FakeLinkAsButton, 
   DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
   SettingsIcon,
-  AppWrapper,
   PageLayout,
   fixTableStructureIssues,
   ensureUniqueLandmarks,
   createAccessibleFaviconSvg,
-  faviconGenerators
+  faviconGenerators,
+  ErrorState,
+  SuccessState,
+  StatusDisplay,
+  DataViewComponent
 };
 
 // Missing functions added as requested
@@ -246,3 +305,58 @@ export function generateId(prefix = 'id') {
   const randomPart = Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
   return `${prefix}-${timestamp}-${randomPart}`;
 }
+
+export function formatDate(date, options = {}) {
+  const defaultOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    ...options
+  };
+  return new Date(date).toLocaleDateString('en-US', defaultOptions);
+}
+
+export function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+export const SkipLink = ({ href = '#main-content', children = 'Skip to main content' }) => {
+  return (
+    <a
+      href={href}
+      className="skip-link"
+      aria-label="Skip to main content"
+      style={{
+        position: 'absolute',
+        top: '-40px',
+        left: '0',
+        background: '#000',
+        color: '#fff',
+        padding: '8px',
+        zIndex: 1000,
+        transition: 'top 0.3s'
+      }}
+    >
+      {children}
+    </a>
+  );
+};

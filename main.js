@@ -32,4 +32,39 @@
 //   </tbody>
 // </table>
 
+// Example of fixing the REACT_017 issue
+// Assuming the page lacks a <main> landmark for primary content
+
+// Before (in docs/index.html):
+// <body>
+//     <header>...</header>
+//     <div class="container">
+//         <h2>Quality & Metrics Reports</h2>
+//         <p>...</p>
+//     </div>
+// </body>
+
+// After (in docs/index.html):
+// <body>
+//     <header>...</header>
+//     <main>
+//         <div class="container">
+//             <h2>Quality & Metrics Reports</h2>
+//             <p>...</p>
+//         </div>
+//     </main>
+// </body>
+
+// Before (in docs/dependency-graph.html):
+// <body>
+//     <table id="table-rotated">...</table>
+// </body>
+
+// After (in docs/dependency-graph.html):
+// <body>
+//     <main>
+//         <table id="table-rotated">...</table>
+//     </main>
+// </body>
+
 // Your updated main.js file with the changes would look something like this:

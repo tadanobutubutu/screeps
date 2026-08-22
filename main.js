@@ -127,3 +127,23 @@ module.exports = {
   releaseFocus,
   setFocusToFirstFocusable
 };
+
+// Add aria-label to SVGs in app/layout.tsx and dashboard/app/layout.tsx
+const updateFaviconSVG = (icon) => {
+  return icon.replace(/<svg xmlns="http:\/\/www.w3.org\/2000\/svg".*?>/g, (svg) => {
+    return svg.replace(/<title>(.*?)<\/title>/, '<title>Screeps Dashboard</title>').replace(/<text.*?>(.*?)<\/text>/, '<title>Screeps Dashboard</title>');
+  });
+};
+
+// Update icons with accessible SVG
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  announceToScreenReader,
+  trapFocus,
+  releaseFocus,
+  setFocusToFirstFocusable,
+  updateFaviconSVG
+};

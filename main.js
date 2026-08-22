@@ -33,3 +33,30 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+'use strict';
+
+// Button replacement for accessibility (anchor -> button)
+const unrotateButton = document.getElementById('unrotate');
+if (unrotateButton) {
+  unrotateButton.outerHTML = `
+    <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">
+      rotate back
+    </button>
+  `;
+  unrotateButton.addEventListener('click', function () {
+    rotateBack();
+  });
+}
+
+// Rotate back animation function
+function rotateBack() {
+  const targets = document.querySelectorAll('.rotate-item');
+  targets.forEach(el => {
+    el.style.transform = 'rotate(0deg)';
+  });
+}
+
+// Export for CommonJS and ES modules
+module.exports = { rotateBack };
+export { rotateBack };

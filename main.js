@@ -1,15 +1,18 @@
 import React from "react";
 import { icons } from "./path/to/icons"; // Adjust the path to the actual import location
-import { someRequiredFunction } from './path/to/someRequiredFunction'; // Add the required function import here
+
+// Import the required function
+const { someRequiredFunction } = require('./path/to/someRequiredFunction');
 
 const AppLayout = () => {
   // ... (existing code)
 };
 
-export { AppLayout, icons, someRequiredFunction }; // Add icons and required function as exports at the bottom of the file
+// Keep the current exports
+export { AppLayout, icons };
 export default AppLayout;
 
-// Import and add the required function
+// Only add the new export for the required function
 export { someRequiredFunction };
 
 // Add the lang attribute to the root element

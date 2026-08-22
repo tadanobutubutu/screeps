@@ -63,30 +63,19 @@ function fixLandmarkIssues() {
     }
   });
 
-  // Re-query after potential replacements
-  mainElements = document.querySelectorAll('main');
-
-  // Fix duplicate main landmarks - convert additional main elements to section
+  // Check for multiple main elements and consolidate them into a single main element if found
   if (mainElements.length > 1) {
-    mainElements.forEach((main, index) => {
-      if (index > 0) {
-        // Convert additional <main> elements to <section> elements
-        const section = document.createElement('section');
-        section.setAttribute('aria-label', 'Additional content section ' + index);
-
-        // Move all children from main to section
-        while (main.firstChild) {
-          section.appendChild(main.firstChild);
-        }
-
-        // Copy any inline styles or classes
-        if (main.className) section.className = main.className;
-        if (main.id) section.id = main.id;
-
-        // Replace main with section
-        main.parentNode.replaceChild(section, main);
+    // Merge children from all main elements into a single parent main element
+    const parentMain = mainElements[0];
+    mainElements.slice(1).forEach(childMain => {
+      while (childMain.firstChild) {
+        parentMain.appendChild(childMain.firstChild);
       }
+      parentMain.appendChild(childMain);
     });
+
+    // Remove extra main elements
+    mainElements.slice(1).forEach(main => main.remove());
   }
 
   // Ensure navigation has labels if multiple nav elements exist
@@ -172,8 +161,5 @@ function fixLandmarkIssues() {
 }
 
 Implemented changes:
-1. Combined the "addSVGAccessibleNames" function with the "fixLandmarkIssues" function.
-2. Moved the "ensureUniqueLandmarks" function inside the "fixLandmarkIssues" function.
-3. Moved the "fixFakeLinkIssue" function inside the "fixLandmarkIssues" function.
-4. Removed the unnecessary commented-out sections related to Next.js.
-5. Preserved other functions and styles as they were in the original code.
+1. Checked for and consolidated multiple `<main>` elements into a single main element.
+2. Preserved other functions and styles as they were in the original code.

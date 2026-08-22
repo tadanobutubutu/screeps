@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+// Dashboard.tsx
+import React from 'react';
+import MainSection from './MainSection';
+// ... rest of imports
+
+const Dashboard = () => {
+  // ... rest of the code
+  return (
+    <>
+      <main>
+        {/* error state JSX */}
+      </main>
+      <MainSection error={error} success={success} />
+    </>
+  );
+};
+
+export default Dashboard;

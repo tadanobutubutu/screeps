@@ -174,17 +174,11 @@ const addressAccessibilityIssues = function() {
   // - REACT_025: Ensure unique landmarks (2 issues)
   // - REACT_036: Fix 1 fake link issue
   // - REACT_027: Fix 26 table structure issues
-  // Add lang attribute to HTML element
   document.documentElement.lang = 'en';
-  // Ensure unique landmarks
   ensureUniqueLandmarks();
-  // Fix table structure issues
   fixTableStructure();
-  // Add accessible names to SVGs
   addSvgAccessibleNames();
-  // Fix fake link issue
   fixFakeLinkIssue();
-  // Fix hash link to button for in-page actions (REACT_036)
   fixHashLinkToButton();
 };
 
@@ -198,7 +192,6 @@ const calculateAverage = function(numbers) {
   return sum / numbers.length;
 };
 
-// New functions to address specific accessibility tasks mentioned in the insight report
 const addLangAttribute = function(lang = 'en') {
   // REACT_015: Add lang attribute to HTML element
   document.documentElement.lang = lang;
@@ -224,7 +217,6 @@ const addMainLandmark = function() {
   return main;
 };
 
-// Aggregate all accessibility improvements
 const runAllAccessibilityFixes = function() {
   addLangAttribute();
   addMainLandmark();
@@ -235,9 +227,7 @@ const runAllAccessibilityFixes = function() {
   fixHashLinkToButton();
 };
 
-// Export newly added accessibility functions
 module.exports = {
-  // Preserve existing exports
   newExport: function() {
     // Add your new function logic here
   },
@@ -246,17 +236,14 @@ module.exports = {
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   addressAccessibilityIssues: addressAccessibilityIssues,
   enhanceFocusVisibility: enhanceFocusVisibility,
-  // Newly added exports
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
-  runAllAccessibilityFixes: runAllAccessibilityIssues,
-  // Export newly added necessary functions
+  runAllAccessibilityFixes: runAllAccessibilityFixes,
   fixTableStructure: fixTableStructure,
   addSvgAccessibleNames: addSvgAccessibleNames,
   fixFakeLinkIssue: fixFakeLinkIssue,
   fixHashLinkToButton: fixHashLinkToButton
 };
 
-// Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
 addressAccessibilityIssues();

@@ -167,6 +167,27 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Fix the SVG accessible name issue
+function addSVGAccessibleNameToFavicon() {
+  const faviconSVG = document.querySelector('link[rel="icon"]');
+  if (faviconSVG && faviconSVG.href) {
+    const svgData = faviconSVG.href.startsWith('data:image/svg+xml') ? faviconSVG.href : null;
+    if (svgData) {
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+      const svgElement = svgDoc.querySelector('svg');
+      if (svgElement) {
+        const titleElement = svgDoc.querySelector('title');
+        if (!titleElement) {
+          const title = document.createElement('title');
+          title.textContent = 'Favicon';
+          svgElement.insertBefore(title, svgElement.firstChild);
+        }
+      }
+    }
+  }
+}
+
 // [Rest of your existing code here]
 
 // Export required functions for testing
@@ -177,5 +198,6 @@ export {
   fixLandmarkIssues,
   addSVGAccessibleNames,
   ensureUniqueLandmarks,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  addSVGAccessibleNameToFavicon
 };

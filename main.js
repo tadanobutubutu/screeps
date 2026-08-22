@@ -9,9 +9,6 @@ const AppLayout = () => {
 export { AppLayout, icons, someRequiredFunction }; // Add icons and required function as exports at the bottom of the file
 export default AppLayout;
 
-// Import and add the required function
-export { someRequiredFunction };
-
 // Add the lang attribute to the root element
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {

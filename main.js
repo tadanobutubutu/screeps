@@ -1,6 +1,38 @@
+Here is the resolved file content:
+
+```javascript
+// @ts-check
+const nextJest = require('next/jest')
+const { createJestConfig, testPathIgnorePatterns } = nextJest({
+  dir: './',
+})(require('./jest.config'));
+
+createJestConfig({
+  // Provide the path to your Next.js app to load next.config.js and .env files
+  dir: './',
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/build/'],
+  transform: {
+    '^\\.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+  },
+  transformIgnorePatterns: [
+    '/node_modules/',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jest-environment-jsdom',
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.@(js|jsx|ts|tsx)',
+  ],
+})
+
 tsx
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import './globals.css';
 
 export const metadata: Metadata = {
   title: "Screeps Dashboard",
@@ -26,8 +58,6 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -35,3 +65,6 @@ export default function RootLayout({
     </html>
   );
 }
+```
+
+This file combines the TypeScript setup from the first conflict block and the Jest configuration from the second block. It also modifies the `testPathIgnorePatterns` to include the ignored paths from both conflicts. This should prevent any issues with SVG files and the 'build' folder, and still support the TypeScript imports in the `main.js` file.

@@ -53,19 +53,11 @@
 
   // Add the new functions to exports
   module.exports = {
-    wrapContentInMain,
-    addScopeToTh,
-    createTableHeaders,
-    replaceFakeLinkWithButton,
-    addScopeToThs,
-    validateTableStructure,
-    fixTableStructureIssues,
-    addScopeToTds,
-    validateRowScope,
-    ensureUniqueLandmarks,
+    // ... Existing exports ...
     addLangAttribute,
     fixLandmarkIssues,
     addAccessibleNamesToSVGs,
+    ensureUniqueLandmarks,
     fixFakeLinkIssues
   };
 

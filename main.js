@@ -13,5 +13,7 @@ module.exports = {
   // ... existing exports ...
   Foo,
   Bar,
-  initialize
+  initialize,
+  // New function or change requested in the issue (if applicable)
+  // Example: fixReactUniqueLandmarks,
 };

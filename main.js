@@ -28,12 +28,79 @@ export default function FaviconComponent() {
 
 // If you are using a script tag to set the favicon, and you have access to modify the script tag:
 // <script type="text/javascript">
-//   document.querySelector("link[rel*='icon']").setAttribute("aria-hidden", "true");
+//   ... "true");
 // </script>
 
 // Please note that if you are using the SVG as a child of a link tag, you should also add aria-hidden to the link:
 // <link rel="icon" href={favicon} aria-hidden="true">
-//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-//     <text y="0.9em" font-size="90">🐛</text>
+//   <svg ... viewBox="0 0 100 100">
+//     <text y="0.9em" ...
 //   </svg>
 // </link>
+
+// FIX: Replace duplicate <main> elements with <section> for accessibility (REACT_025)
+export function ErrorDisplay({ error, copyErr, copied, errCopyHover, setErrCopyHover, fetchStats, refreshing, setErrRetryHover, errRetryHover }) {
+  return (
+    <section
+      aria-labelledby="error-heading"
+      style={{ padding: '2rem', fontFamily: 'monospace' }}
+    >
+      <h2 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h2>
+      <pre
+        tabIndex={0}
+        aria-label="エラーメッセージ詳細"
+        style={{
+          color: '#c53030',
+          backgroundColor: '#fff5f5',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflow: 'auto',
+        }}
+      >
+        {error}
+      </pre>
+      <button
+        onClick={copyErr}
+        onMouseEnter={() => setErrCopyHover(true)}
+        onMouseLeave={() => setErrCopyHover(false)}
+        onFocus={() => setErrCopyHover(true)}
+        onBlur={() => setErrCopyHover(false)}
+        aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+        title={copied ? 'コピー済み' : 'エラーをコピー'}
+        style={{
+          backgroundColor: copied ? '#155d27' : '#004b73',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease-in-out',
+          transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+          boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+          filter: errCopyHover ? 'brightness(1.1)' : 'none',
+        }}
+      >
+        {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+      </button>
+      <button
+        onClick={() => fetchStats(true)}
+        disabled={refreshing}
+        onMouseEnter={() => setErrRetryHover(true)}
+        onMouseLeave={() => setErrRetryHover(false)}
+        aria-label="再試行"
+        style={{
+          backgroundColor: '#004b73',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease-in-out',
+          transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+        }}
+      >
+        🔄 再試行
+      </button>
+    </section>
+  );
+}

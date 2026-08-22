@@ -17,9 +17,7 @@ module.exports = {
   trapFocus,
   releaseFocus,
   setFocusToFirstFocusable,
-  updateFaviconSVG
-  // TODO: Add back any required exports that might have been removed
-  // Here's an example of how to export a required function from another file:
-  // const { myFunction } = require('./myFunction');
-  // module.exports.myFunction = myFunction;
+  updateFaviconSVG,
+  // New function added as per the issue
+  newFunction
 };

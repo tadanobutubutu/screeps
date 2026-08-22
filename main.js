@@ -52,8 +52,6 @@ function addDetectedDependencies(ecosystem, dependencies) {
   }
 }
 
-//TODO: Import required module(s) and export the necessary function(s) here
-
 /**
  * Retrieves all pending updates
  * @returns {Array} List of pending updates
@@ -134,7 +132,7 @@ function fixTableStructure() {
     }
 
     if (!hasTbody) {
-      const rows = table.querySelectorAll('tr');
+      const rows = Array.from(table.querySelectorAll('tr'));
       const tbody = document.createElement('tbody');
       rows.forEach(row => {
         if (row.parentNode === table) {
@@ -151,8 +149,8 @@ function fixTableStructure() {
         const parentRow = th.closest('tr');
         const parentThead = th.closest('thead');
         if (parentThead) {
-          const parentThs = parentRow.querySelectorAll('th');
-          const thIndex = Array.from(parentThs).indexOf(th);
+          const parentThs = Array.from(parentThead.querySelectorAll('th'));
+          const thIndex = parentThs.indexOf(th);
           th.setAttribute('scope', thIndex === 0 ? 'col' : 'col');
         }
       }
@@ -249,7 +247,7 @@ function fixFakeLink() {
   if (typeof document === 'undefined') return;
 
   // Find elements with onclick that use location navigation
-  const fakeLinks = document.querySelectorAll('[onclick*="location"], [onclick*="href"], [role="button"]:not(a)');
+  const fakeLinks = document.querySelectorAll('[onclick*="href"], [onclick*="location"]');
 
   fakeLinks.forEach(element => {
     const onclick = element.getAttribute('onclick') || '';
@@ -260,21 +258,19 @@ function fixFakeLink() {
       const currentRole = element.getAttribute('role');
       if (currentRole === 'button' || !currentRole) {
         // Add link role and tabindex for keyboard accessibility
-        if (!element.hasAttribute('tabindex')) {
-          element.setAttribute('tabindex', '0');
+        if (!currentRole) {
+          element.setAttribute('role', 'link');
         }
 
         // Add descriptive aria-label if missing
         const text = element.textContent.trim();
-        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        if (!text && !element.getAttribute('aria-label')) {
           element.setAttribute('aria-label', text || 'Link');
         }
       }
     }
   });
 }
-
-//TODO: after resolving the issue, update the missing function(s) here
 
 module.exports = {
   addPendingUpdate,
@@ -291,6 +287,5 @@ module.exports = {
   addLandmarks,
   addAccessibleSVGs,
   ensureUniqueLandmarks,
-  fixFakeLink,
-  // TODO: Add missing functions here
+  fixFakeLink
 };

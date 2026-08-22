@@ -568,3 +568,23 @@ function createSvgAccessibilityProps(description, options = {}) {
 /**
  * Validate SVG accessibility in a component tree
  * @param {Array} svgs - Array of SVG element
+ */module.exports = {
+  DEPENDENCY_UPDATES,
+  checkCompatibility,
+  validateDependencies,
+  getRecommendedUpdateOrder,
+  hasBreakingChanges,
+  processDependencyUpdates,
+  getLangAttribute,
+  validateLandmark,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  getTableScopeRecommendation,
+  validateLinkAccessibility,
+  createInPageButton,
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  validateTableStructure,
+  getTableCellAttributes,
+  createSvgAccessibilityProps
+};

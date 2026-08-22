@@ -1,1 +1,3 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+module.exports = function() {
+  // Your screeps logic here
+};

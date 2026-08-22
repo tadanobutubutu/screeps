@@ -1,16 +1,1 @@
-// Original code
-function myFunction() {
-  // existing code
-}
-
-// Conflicting changes
-function myFunction() {
-  // conflicting code
-}
-
-// Resolved code
-function myFunction() {
-  // existing code
-  // conflicting code
-  // Additional code to merge the changes
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

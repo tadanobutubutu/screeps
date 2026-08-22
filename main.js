@@ -209,18 +209,18 @@ export function createAccessibleFaviconSvg({
   xmlns = 'http://www.w3.org/2000/svg'
 }) {
   const svgContent = `<svg xmlns="${xmlns}" viewBox="${viewBox}"><title>${title}</title>${children}</svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+  return `data:image/svg+xml;base64,${btoa(svgContent)}`;
 }
 
 // REACT_041: Predefined accessible favicon generators for the project
 export const faviconGenerators = {
   screepsDashboard: () => createAccessibleFaviconSvg({
     title: 'Screeps Dashboard',
-    children: '<text y=".9em" font-size="90">🐛</text>'
+    children: '<text y=".9em" font-size="90">D</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
     title: 'Screeps Bug Icon',
-    children: '<text y=".9em" font-size="90">🐛</text>'
+    children: '<text y=".9em" font-size="90">B</text>'
   })
 };
 

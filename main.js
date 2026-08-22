@@ -15,5 +15,3 @@ const icons = {
 };
 
 // ... (Preserve the rest of the code)
-
-// Output the complete updated main.js content

@@ -1,6 +1,7 @@
 // main.js - Fixed REACT_025: Only one <main> landmark allowed per page
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 export function Component({ hasError, children, errorContent }) {
   // Return error state with section instead of main
@@ -31,24 +32,27 @@ export function Component({ hasError, children, errorContent }) {
 // Added the App component for rendering the application
 const App = () => {
   return (
-    // Including the rest of the JSX content
-    // ... other JSX content
-    <button id="unrotate" onClick={() => { /* Rotate back logic here */ }}>rotate back</button>
-    // ... other JSX content
+    <div>
+      {/* Including the rest of the JSX content */}
+      {/* ... other JSX content */}
+      <button id="unrotate" onClick={() => { /* Rotate back logic here */ }}>rotate back</button>
+      {/* ... other JSX content */}
+    </div>
   );
 };
 
-// Changed the default export to the App component and wrapped it with Next.js
 ReactDOM.render(<App />, document.getElementById('root'));
-const nextJest = require('next/jest')
-createJestConfig = nextJest({ dir: './', })(require('./jest.config'))
+
+// Added Jest configuration for Next.js
+const nextJest = require('next/jest');
+const createJestConfig = nextJest({ dir: './' })(require('./jest.config'));
 module.exports = createJestConfig({
   // Including the Jest configuration
-  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1', },
+  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/build/'],
-  transform: { '^\\.+\\.(js|jsx|ts|tsx)$': 'babel-jest', },
-  transformIgnorePatterns: [ '/node_modules/', '^.+\\.module\\.(css|sass|scss)$', ],
+  transform: { '^\\.+\\.(js|jsx|ts|tsx)$': 'babel-jest' },
+  transformIgnorePatterns: ['/node_modules/', '^.+\\.module\\.(css|sass|scss)$'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
-  collectCoverageFrom: [ 'src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts', '!src/**/*.stories.@(js|jsx|ts|tsx)', ],
+  collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts', '!src/**/*.stories.@(js|jsx|ts|tsx)'],
 });

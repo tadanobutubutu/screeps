@@ -8,26 +8,12 @@
 
 // Your existing code, exports, and functions...
 
-// Let's add the missing lang attribute and unique landmarks in the HTML:
-
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-const rootElement = document.getElementById('root');
-
-let initialHTML = rootElement.innerHTML;
-const updatedHTML = initialHTML.replace(/<html/, '<html lang="en">');
-rootElement.innerHTML = updatedHTML;
-
-// Let's also add unique IDs for landmarks:
-const uniqueLandmarkId = (1, 2, 3, 4).map((index) => `landmark-${index}`);
-const updatedLandmarkRegex = updatedHTML.replace(
-  /(<landmark>)(.*)(<\/landmark>)/g,
-  (match, startTag, internals, endTag) => {
-    return `${startTag} id=${uniqueLandmarkId[index]} ${endTag}`;
-  }
+// Let's fix the fake link issue:
+const updatedHTML = initialHTML.replace(
+  /<a id="unrotate" href="#">rotate back<\/a>/,
+  '<button id="unrotate">rotate back</button>'
 );
-rootElement.innerHTML = updatedLandmarkRegex;
+rootElement.innerHTML = updatedHTML;
 
 export default function App() {
   // Your existing App component...

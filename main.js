@@ -4,31 +4,25 @@ module.exports = {
     // Main game loop logic
   },
   updateDependencyGraph: function() {
-    const tableHeaders = document.querySelectorAll('th');
-    tableHeaders.forEach(header => {
-      if (!header.hasAttribute('scope')) {
-        header.setAttribute('scope', 'col');
+    // Existing code...
+
+    // Add unique IDs to landmark elements (React_025)
+    const banners = document.querySelectorAll('[role="banner"]');
+    banners.forEach((banner, index) => {
+      if (!banner.id) {
+        banner.id = `banner-${index + 1}`;
       }
     });
 
-    // Add lang attribute to HTML (React_015)
-    const root = document.documentElement;
-    const currentLang = root.getAttribute('lang');
-    if (!currentLang) {
-      root.setAttribute('lang', 'en');
-    }
-
-    // Convert the 'rotate back' anchor to a button (Fixes REACT_036)
-    const rotateBackLink = document.querySelector('a[href="#unrotate"], a.rotate-back, a#rotate-back');
-    if (rotateBackLink) {
-      const button = document.createElement('button');
-      button.id = 'unrotate';
-      button.textContent = 'rotate back';
-      rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
-    }
-
-    // Fix table structure issues (React_027)
-    // Ensure tables have proper thead and tbody structure
+    const navigations = document.querySelectorAll('nav');
+    navigations.forEach((nav, index) => {
+      if (!nav.id) {
+        nav.id = `navigation-${index + 1}`;
+      }
+    });
+  },
+  fixAccessibility: function() {
+    // Ensure tables have proper thead and tbody structure (React_027)
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
       if (!table.querySelector('thead')) {
@@ -48,14 +42,31 @@ module.exports = {
       }
     });
 
-    // Add/fix landmark issues (React_017)
-    // Ensure main content is wrapped in proper landmarks
+    // Ensure main content is wrapped in proper landmarks (React_017)
     const main = document.querySelector('main') || document.querySelector('[role="main"]');
     if (main && !main.id) {
       main.setAttribute('id', 'main-content');
     }
 
-    // Add accessible names to 2 SVGs (React_041)
+    // Ensure all clickable elements that navigate have proper accessible roles (React_025)
+    const linksWithoutHref = document.querySelectorAll('a:not([href])');
+    linksWithoutHref.forEach(link => {
+      const onClickAttr = link.getAttribute('onclick');
+      const tabIndexAttr = link.getAttribute('tabindex');
+      if (onClickAttr || tabIndexAttr !== null) {
+        const button = document.createElement('button');
+        button.innerHTML = link.innerHTML;
+        Array.from(link.attributes).forEach(attr => {
+          if (attr.name !== 'href') {
+            button.setAttribute(attr.name, attr.value);
+          }
+        });
+        button.removeAttribute('tabindex');
+        link.parentNode.replaceChild(button, link);
+      }
+    });
+
+    // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       if (!svg.hasAttribute('role')) {
@@ -77,41 +88,6 @@ module.exports = {
         title.id = titleId;
       }
       svg.setAttribute('aria-labelledby', titleId);
-    });
-
-    // Ensure unique landmarks (2 issues)
-    // Add unique IDs to landmark elements
-    const banners = document.querySelectorAll('[role="banner"]');
-    banners.forEach((banner, index) => {
-      if (!banner.id) {
-        banner.id = `banner-${index + 1}`;
-      }
-    });
-
-    const navigations = document.querySelectorAll('nav');
-    navigations.forEach((nav, index) => {
-      if (!nav.id) {
-        nav.id = `navigation-${index + 1}`;
-      }
-    });
-
-    // Fix fake link issue (React_025)
-    // Ensure all clickable elements that navigate have proper accessible roles
-    const linksWithoutHref = document.querySelectorAll('a:not([href])');
-    linksWithoutHref.forEach(link => {
-      const onClickAttr = link.getAttribute('onclick');
-      const tabIndexAttr = link.getAttribute('tabindex');
-      if (onClickAttr || tabIndexAttr !== null) {
-        const button = document.createElement('button');
-        button.innerHTML = link.innerHTML;
-        Array.from(link.attributes).forEach(attr => {
-          if (attr.name !== 'href') {
-            button.setAttribute(attr.name, attr.value);
-          }
-        });
-        button.removeAttribute('tabindex');
-        link.parentNode.replaceChild(button, link);
-      }
     });
   }
 };

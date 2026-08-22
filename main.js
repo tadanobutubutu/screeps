@@ -3,6 +3,9 @@
  * Handles dependency update notifications and status tracking
  */
 
+// TODO: Address accessibility issues from insight report:
+// Placeholder for accessibility-related code changes
+
 const dependencyUpdates = {
   pending: [],
   blocked: [],
@@ -77,7 +80,7 @@ function getDetectedDependencies() {
     if (!acc[item.ecosystem]) {
       acc[item.ecosystem] = [];
     }
-    acc[item.ecosystem].push(...item.dependencies);
+    acc[item.ecosystem].push(item.dependencies);
     return acc;
   }, {});
 }

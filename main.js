@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 
 // Example of a table component that was present in the original file.
 // All <th> elements now include a scope attribute so that assistive

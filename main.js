@@ -61,7 +61,7 @@ module.exports = {
           table.insertBefore(thead, table.firstChild);
         }
       }
-      
+
       const existingTbody = table.querySelector('tbody');
       if (!existingTbody) {
         const tbody = document.createElement('tbody');
@@ -70,7 +70,7 @@ module.exports = {
         }
         table.appendChild(tbody);
       }
-      
+
       // React_027: Add scope attribute to th elements
       const thElements = table.querySelectorAll('th');
       thElements.forEach(th => {
@@ -84,36 +84,6 @@ module.exports = {
           }
         }
       });
-    });
-
-    // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
-    const mainElements = document.querySelectorAll('main');
-    let mainFound = false;
-    mainElements.forEach((main, index) => {
-      if (!mainFound) {
-        // Keep the first main as the primary landmark
-        if (!main.id) {
-          main.id = 'main-content';
-        }
-        mainFound = true;
-      } else {
-        // Convert subsequent main elements to sections to avoid duplicate landmarks
-        const section = document.createElement('section');
-        while (main.firstChild) {
-          section.appendChild(main.firstChild);
-        }
-        // Preserve any attributes (except role) from the original main
-        Array.from(main.attributes).forEach(attr => {
-          if (attr.name !== 'role') {
-            section.setAttribute(attr.name, attr.value);
-          }
-        });
-        // Ensure the converted section has a unique ID
-        if (!section.id) {
-          section.id = `section-${index}`;
-        }
-        main.parentNode.replaceChild(section, main);
-      }
     });
 
     // Ensure all clickable elements that navigate have proper accessible roles (React_025, React_036)
@@ -141,12 +111,12 @@ module.exports = {
       const hasDesc = svg.querySelector('desc') !== null;
       const ariaLabel = svg.getAttribute('aria-label');
       const ariaHidden = svg.getAttribute('aria-hidden');
-      
+
       // Skip if SVG already has an accessible name or is hidden from screen readers
       if (hasTitle || hasDesc || ariaLabel || ariaHidden === 'true') {
         return;
       }
-      
+
       // Find title or desc element if present
       const titleElement = svg.querySelector('title');
       const descElement = svg.querySelector('desc');

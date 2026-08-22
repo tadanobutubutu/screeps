@@ -19,6 +19,10 @@
  * accessibility issues in a typical React/Next.js application, please let me know.
  */
 
+// Example of how to export a required function from another file:
+const { getRules, createLinter } = require('./rules');
+const { REACT_015, REACT_017, REACT_025, REACT_027, REACT_036, REACT_041 } = require('./constants');
+
 // Example of common accessibility fixes:
 const accessibilityFixes = {
   // REACT_015: Language attribute
@@ -37,7 +41,7 @@ const accessibilityFixes = {
     <table>
       <thead>
         <tr>
-          <th scope="col">Header</th>
+          <th ...
         </tr>
       </thead>
       <tbody>
@@ -52,7 +56,17 @@ const accessibilityFixes = {
   svgAccessible: '<svg aria-label="Description of image" role="img">',
   
   // REACT_036: Real links
-  realLink: '<a href="/actual-url">Click here</a>',
+  realLink: '<a ... here</a>',
 };
 
-module.exports = { accessibilityFixes };
+module.exports = { 
+  accessibilityFixes,
+  getRules,
+  createLinter,
+  REACT_015,
+  REACT_017,
+  REACT_025,
+  REACT_027,
+  REACT_036,
+  REACT_041
+};

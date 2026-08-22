@@ -1,4 +1,3 @@
-tsx
 import React from "react";
 // ... (existing imports)
 
@@ -22,4 +21,5 @@ const AppLayout = () => {
   );
 };
 
+export { AppLayout };
 export default AppLayout;

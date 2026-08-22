@@ -6,7 +6,7 @@ const AppLayout = () => {
   // ... (existing code)
 };
 
-export { AppLayout, icons }; // Add icons back as an export at the bottom of the file
+export { AppLayout, icons, someRequiredFunction }; // Add icons and required function as exports at the bottom of the file
 export default AppLayout;
 
 // Import and add the required function

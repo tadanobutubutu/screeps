@@ -1,11 +1,4 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
+// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>), so I can help resolve them?
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -28,9 +21,13 @@ function fixLandmarkIssues() {
   }
 
   // Ensure nav landmark has a unique accessible label
-  const nav = document.querySelector('nav');
-  if (nav && !nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
-    nav.setAttribute('aria-label', 'Main navigation');
+  const navs = document.querySelectorAll('nav');
+  if (navs.length > 0) {
+    navs.forEach((navEl, index) => {
+      if (!navEl.getAttribute('aria-label') && !navEl.getAttribute('aria-labelledby')) {
+        navEl.setAttribute('aria-label', index === 0 ? 'Primary navigation' : `Secondary navigation ${index + 1}`);
+      }
+    });
   }
 
   // Ensure main landmark has an accessible label
@@ -43,16 +40,6 @@ function fixLandmarkIssues() {
   const footer = document.querySelector('footer');
   if (footer && !footer.getAttribute('aria-label') && !footer.getAttribute('aria-labelledby')) {
     footer.setAttribute('aria-label', 'Content information');
-  }
-
-  // REACT_025: Ensure unique landmarks - if there are multiple nav elements, give each a unique label
-  const navs = document.querySelectorAll('nav');
-  if (navs.length > 1) {
-    navs.forEach((navEl, index) => {
-      if (!navEl.getAttribute('aria-label') && !navEl.getAttribute('aria-labelledby')) {
-        navEl.setAttribute('aria-label', index === 0 ? 'Primary navigation' : `Secondary navigation ${index}`);
-      }
-    });
   }
 }
 
@@ -82,22 +69,27 @@ function fixFakeLinks() {
   const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
   fakeLinks.forEach((el) => {
     const anchor = document.createElement('a');
+
     // Move children
     while (el.firstChild) {
       anchor.appendChild(el.firstChild);
     }
+
     // Copy relevant attributes
     for (const attr of el.attributes) {
       if (attr.name !== 'role' && attr.name !== 'tabindex') {
         anchor.setAttribute(attr.name, attr.value);
       }
     }
+
     // Set href from data-href or existing href, default to '#'
     const href = el.getAttribute('data-href') || el.getAttribute('href') || '#';
     anchor.setAttribute('href', href);
+
     if (el.hasAttribute('tabindex')) {
       anchor.setAttribute('tabindex', el.getAttribute('tabindex'));
     }
+
     el.parentNode.replaceChild(anchor, el);
   });
 }
@@ -114,9 +106,19 @@ function fixAccessibilityIssues() {
 
 // Run fixes if in a browser environment
 if (typeof document !== 'undefined') {
+  // Set a meaningful page title for assistive technologies
+  document.title = 'Main Application';
+
+  // Associate a role with the main content region for screen readers
+  const appElement = document.getElementById('app');
+  if (appElement) {
+    appElement.setAttribute('role', 'main');
+  }
+
   fixAccessibilityIssues();
 }
 
+// Export the accessibility helper functions for Node environments
 module.exports = {
   fixAccessibilityIssues,
   addLangAttribute,
@@ -124,3 +126,19 @@ module.exports = {
   addAccessibleNamesToSVGs,
   fixFakeLinks
 };
+
+/**
+ * Provides accessibility‑friendly styling options for chart components.
+ * Ensures adequate contrast and clear labeling per WCAG guidelines.
+ */
+function getAccessibleChartStyle() {
+  return {
+    axisColor: '#333333',
+    gridColor: '#e0e0e0',
+    textColor: '#000000',
+    fontSize: '14px'
+  };
+}
+
+// Export the chart renderer (if not already done)
+export default { getAccessibleChartStyle };

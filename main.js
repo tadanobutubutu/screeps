@@ -1,22 +1,9 @@
-// Example of a React component that could be used to render the table
-import React from 'react';
-
-const DependencyGraphTable = () => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col"><div>src/constants.js</div></th>
-          <th scope="col"><div>src/managers/roomManager.js</div></th>
-          <th scope="col"><div>src/managers/spawnManager.js</div></th>
-          {/* ... other headers ... */}
-        </tr>
-      </thead>
-      <tbody>
-        {/* ... table rows ... */}
-      </tbody>
-    </table>
-  );
+module.exports.loop = function () {
+  // Main game loop - actual implementation in other modules
+  // This is a minimal valid JavaScript entry point
+  console.log('Screeps bot initialized');
 };
 
-export default DependencyGraphTable;
+module.exports.init = function () {
+  return 'initialized';
+};

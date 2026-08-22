@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code ...
 
 // New function requested in the issue
@@ -35,7 +32,7 @@ function rotateBack() {
 
 // Modified button for rotation back (combining both versions)
 (() => {
-  const multiButton = document.getElementById('unrotate');
+  const multiButton = document.querySelector('selector');
 
   if (multiButton.nodeName === 'A') {
     multiButton.addEventListener('click', rotateBack);
@@ -46,4 +43,3 @@ function rotateBack() {
 })();
 
 // Existing code ...
-```

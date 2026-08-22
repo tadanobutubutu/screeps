@@ -268,7 +268,7 @@ export const faviconGenerators = {
     children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">S</text>'
   }),
   screepsBug: () => createAccessibleFaviconSvg({
-    title: 'Screeps Bug Icon',
+    title: 'Screps Bug Icon',
     children: '<text y=".9em" x="50%" text-anchor="middle" font-size="80">B</text>'
   })
 };

@@ -1,15 +1,11 @@
-Here is the resolved `main.js` file:
-
-```javascript
-// main.js
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// Based on the issue description, replace the extra <main> with <section> for semantic structure
 function App() {
+  const [error, setError] = useState(null);
+
   if (error) {
     return (
       <section aria-labelledby="error-heading">
@@ -18,6 +14,7 @@ function App() {
       </section>
     );
   }
+
   return (
     <main>
       {/* Success content as needed */}
@@ -30,4 +27,3 @@ root.render(
     <App />
   </React.StrictMode>
 );
-```

@@ -34,7 +34,7 @@ export function addLandmarks() {
     } else {
       const table = document.querySelector('table');
       if (table) {
-        table.parentNode.insertBefore(mainContent, table);
+        table.insertBefore(mainContent, table.firstChild);
       }
     }
     const headerNode = document.querySelector('header');
@@ -57,12 +57,12 @@ export function addLandmarks() {
     footer.setAttribute('role', 'contentinfo');
   }
   
-  const searchForm = document.querySelector('form.search');
+  const searchForm = document.querySelector('.search-form');
   if (searchForm) {
     searchForm.setAttribute('role', 'search');
   }
   
-  const loginLink = document.querySelector('a[href*="login"]');
+  const loginLink = document.querySelector('.login-link');
   if (loginLink) {
     loginLink.setAttribute('role', 'link');
   }
@@ -94,7 +94,7 @@ export function addLandmarks() {
   landmarkRoles.forEach((landmark, index) => {
     const element = document.querySelector(`[role="${landmark.role}"]`);
     if (element) {
-      const uniqueId = `landmark-label-${index}`;
+      const uniqueId = `landmark-${index}`;
       element.setAttribute('aria-labelledby', uniqueId);
       const existingLabel = element.querySelector(`#${uniqueId}`);
       if (!existingLabel) {
@@ -118,7 +118,7 @@ export function addLandmarks() {
     const rows = table.querySelectorAll('tr');
     if (rows.length > 0) {
       rows.forEach((rowHeader, indexHeader) => {
-        const columnCells = Array.from(tbody.querySelectorAll('tr td')).filter((cell) => cell.cellIndex === indexHeader);
+        const columnCells = Array.from(rows).filter((cell) => cell.cellIndex === indexHeader);
         const columnHeaders = [];
         tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
           if (!columnHeaders.includes(cell)) {
@@ -127,7 +127,7 @@ export function addLandmarks() {
         });
         if (columnCells.length > indexHeader) {
           columnCells.forEach((headerCell, idx) => {
-            headerCell.setAttribute('id', `${table.alt || 'table'}-${indexHeader}-${idx}`);
+            headerCell.setAttribute('id', `${table.alt || 'table'}-header-${idx}`);
             headerCell.setAttribute('scope', 'col');
           });
         }
@@ -170,7 +170,7 @@ export function addMissingAriaLabels() {
     }
   });
   
-  const searchInput = document.querySelector('input[type="search"], .search-form button');
+  const searchInput = document.querySelector('.search-form input');
   if (searchInput) {
     searchInput.setAttribute('aria-label', 'Search this site');
   }
@@ -219,7 +219,7 @@ export function fixTableStructure() {
     // Assign proper scope attributes to header cells
     const headerCells = table.querySelectorAll('thead th');
     headerCells.forEach((header, idx) => {
-      if (!header.hasAttribute('scope')) {
+      if (header) {
         const isFirstColumn = idx === 0;
         const columnHeaders = table.querySelectorAll('tbody tr').length;
         if (isFirstColumn && columnHeaders > 1) {

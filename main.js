@@ -1,3 +1,6 @@
+Here is the resolved main.js file, integrating both changes:
+
+```javascript
 // Accessibility-fixes: main.js
 // This file has been updated to address the listed accessibility issues.
 
@@ -30,6 +33,14 @@ function renderLandmarkStructure(content) {
   `;
 }
 
+// Add REACT_026 fix: Ensure each section and document title have proper aria-label
+function setDocumentTitleAndSectionsAriaLabels() {
+  document.title = "Screeps Bot - Main";
+  Array.from(document.querySelectorAll("section")).forEach((section) => {
+    section.setAttribute("aria-label", section.getAttribute("id") || "Unnamed section");
+  });
+}
+
 // Main render function
 function renderApp() {
   var appContent = document.getElementById('app');
@@ -39,6 +50,7 @@ function renderApp() {
       ' + renderAccessibleSVG('Decorative circle icon', 'icon-1') + '\
       <button type="button" aria-label="Click me">Click me</button>\
     ');
+    setDocumentTitleAndSectionsAriaLabels();
   }
 }
 
@@ -47,11 +59,13 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', renderApp);
 }
 
-// Export functions for testing (preserve existing exports)
+// Export functions for testing (preserve existing exports and add new ones)
 export {
   renderAccessibleTable,
   renderAccessibleSVG,
   renderLandmarkStructure,
   createAccessibleButton,
-  renderApp
+  renderApp,
+  setDocumentTitleAndSectionsAriaLabels
 };
+```

@@ -1,3 +1,7 @@
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+// Import required modules
+import { icons, checkDependencyStatus, getDependencyAlerts, myFunction } from './dependencies.js';
+
 // Function to add landmark roles and fix landmark issues
 function addLandmarks() {
     // Add lang attribute to HTML
@@ -170,14 +174,5 @@ function addLandmarksForTables() {
     });
 }
 
-// Preserve existing default export but also expose required exports
-const exportsObj = {
-    icons,
-    checkDependencyStatus,
-    getDependencyAlerts,
-    addLandmarks,
-    addLandmarksForTables, // New function to fix table structure issues
-    myFunction
-};
-
-export default exportsObj;
+// Export functions
+export { icons, checkDependencyStatus, getDependencyAlerts, myFunction, addLandmarks, addLandmarksForTables };

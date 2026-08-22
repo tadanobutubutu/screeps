@@ -238,7 +238,7 @@ function addAccessibleSVGs() {
 }
 
 // Ensure unique landmarks (2 issues)
-// Ensure that each landmark has a unique accessible name
+// Ensure that each landmark has a unique accessible name and handle duplicate <main> landmarks
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
@@ -254,13 +254,28 @@ function ensureUniqueLandmarks() {
     landmarks.forEach(landmark => {
       const count = ++landmarkCounts[role];
 
-      // First landmark of type is fine without modification
-      if (count > 1) {
-        const existingLabel = landmark.getAttribute('aria-label');
-        const existingLabelledby = landmark.getAttribute('aria-labelledby');
+      if (role === 'main') {
+        // For main landmarks, we must keep only one. Convert duplicates to region.
+        if (count > 1) {
+          // Change role to region to avoid duplicate main landmarks
+          landmark.setAttribute('role', 'region');
 
-        if (!existingLabel && !existingLabelledby) {
-          landmark.setAttribute('aria-label', `${role} section ${count}`);
+          // Add an accessible name if missing
+          const existingLabel = landmark.getAttribute('aria-label');
+          const existingLabelledby = landmark.getAttribute('aria-labelledby');
+          if (!existingLabel && !existingLabelledby) {
+            landmark.setAttribute('aria-label', `region section ${count - 1}`);
+          }
+        }
+      } else {
+        // For other landmark roles, add accessible name if duplicate
+        if (count > 1) {
+          const existingLabel = landmark.getAttribute('aria-label');
+          const existingLabelledby = landmark.getAttribute('aria-labelledby');
+
+          if (!existingLabel && !existingLabelledby) {
+            landmark.setAttribute('aria-label', `${role} section ${count}`);
+          }
         }
       }
     });

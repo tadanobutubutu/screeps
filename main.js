@@ -16,27 +16,39 @@ function addLandmarks() {
 
     let mainContent = document.querySelector('main');
     if (!mainContent) {
-        mainContent = document.createElement('main');
-        mainContent.setAttribute('role', 'main');
         const container = document.querySelector('.container');
-        if (container) {
-            mainContent.appendChild(container);
-        } else {
-            const table = document.querySelector('table');
-            if (table) {
-                mainContent.appendChild(table);
+        const table = document.querySelector('table');
+        const contentToWrap = container || table;
+        
+        if (contentToWrap) {
+            mainContent = wrapContentInMain(contentToWrap);
+            mainContent.setAttribute('role', 'main');
+            
+            const headerNode = document.querySelector('header');
+            const navNode = document.querySelector('nav');
+            let insertNode = headerNode;
+            if (navNode) {
+                insertNode = navNode;
             }
-        }
-        const headerNode = document.querySelector('header');
-        const navNode = document.querySelector('nav');
-        let insertNode = headerNode;
-        if (navNode) {
-            insertNode = navNode;
-        }
-        if (insertNode) {
-            insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+            if (insertNode) {
+                insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+            } else {
+                document.body.appendChild(mainContent);
+            }
         } else {
-            document.body.appendChild(mainContent);
+            mainContent = document.createElement('main');
+            mainContent.setAttribute('role', 'main');
+            const headerNode = document.querySelector('header');
+            const navNode = document.querySelector('nav');
+            let insertNode = headerNode;
+            if (navNode) {
+                insertNode = navNode;
+            }
+            if (insertNode) {
+                insertNode.parentNode.insertBefore(mainContent, insertNode.nextSibling);
+            } else {
+                document.body.appendChild(mainContent);
+            }
         }
     } else {
         mainContent.setAttribute('role', 'main');
@@ -100,24 +112,26 @@ function addLandmarks() {
         loginLink.setAttribute('aria-label', 'Login');
     }
 
-    // Fix 26 table structure issues
+    // Fix table structure issues
     // Add proper table headers
     const tables = document.querySelectorAll('table');
     tables.forEach((table) => {
         const thead = table.querySelector('thead');
         const tbody = table.querySelector('tbody');
-        const rows = Array.from(thead.rows);
+        const rows = Array.from(thead ? thead.rows : []);
 
         if (rows.length > 0) {
             rows.forEach((rowHeader, indexHeader) => {
                 const columnCells = Array.from(rowHeader.children);
                 const columnHeaders = [];
 
-                tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
-                    if (!columnHeaders.includes(cell)) {
-                        columnHeaders.push(cell);
-                    }
-                });
+                if (tbody) {
+                    tbody.querySelectorAll('tr th, tr td').forEach((cell) => {
+                        if (!columnHeaders.includes(cell)) {
+                            columnHeaders.push(cell);
+                        }
+                    });
+                }
 
                 if (columnHeaders.length > indexHeader) {
                     columnCells.forEach((headerCell) => {
@@ -129,7 +143,7 @@ function addLandmarks() {
         }
     });
 
-    // Fix 1 fake link issue
+    // Fix fake link issue
     const navLinks = document.querySelectorAll('nav a');
     navLinks.forEach((link) => {
         if (!link.href) {
@@ -137,6 +151,17 @@ function addLandmarks() {
             link.setAttribute('role', 'button');
         }
     });
+}
+
+/**
+ * Wraps the given element in a <main> tag and returns the main element.
+ * @param {HTMLElement} element - The element to wrap.
+ * @returns {HTMLElement} The created main element.
+ */
+function wrapContentInMain(element) {
+    const main = document.createElement("main");
+    main.appendChild(element);
+    return main;
 }
 
 /**
@@ -176,7 +201,8 @@ const exportsObj = {
     checkDependencyStatus,
     getDependencyAlerts,
     addLandmarks,
-    addLandmarksForTables, // New function to fix table structure issues
+    addLandmarksForTables,
+    wrapContentInMain,
     myFunction
 };
 

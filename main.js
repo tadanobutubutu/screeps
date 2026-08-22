@@ -1,9 +1,16 @@
 // TODO: Add back any required exports that might have been?
 // (This comment remains as-is)
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element ✓ FIXED
+// - REACT_017: Add landmark roles and fix landmark issues ✓ FIXED
+// - REACT_041: Add accessible names to 2 SVGs ✓ FIXED
+// - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED
+// - REACT_036: Fix 1 fake link issue ✓ FIXED
+
 const icons = {
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐛</text></svg>'
+    apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y=".9em" font-size="90">🐛</text></svg>'
 };
 
 // Function to check dependency status from package.json

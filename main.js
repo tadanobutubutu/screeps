@@ -140,7 +140,40 @@ function addAccessibleSVGs() {
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
-  // ...
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length <= 1) return;
+
+  // Keep the first <main> as the primary landmark
+  // Convert subsequent <main> elements to <section> with appropriate ARIA labels
+  mainElements.forEach((mainEl, index) => {
+    if (index === 0) {
+      // Ensure the primary main has an accessible name
+      if (!mainEl.getAttribute('aria-label') && !mainEl.getAttribute('aria-labelledby')) {
+        mainEl.setAttribute('aria-label', 'Main content area');
+      }
+    } else {
+      // Convert to section and preserve attributes
+      const section = document.createElement('section');
+      
+      // Copy all attributes except role
+      Array.from(mainEl.attributes).forEach(attr => {
+        if (attr.name !== 'role') {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Add a unique accessible name for the section
+      section.setAttribute('aria-label', `Content section ${index}`);
+      
+      // Move all children to the new section
+      while (mainEl.firstChild) {
+        section.appendChild(mainEl.firstChild);
+      }
+      
+      // Replace the main element with the section
+      mainEl.parentNode.replaceChild(section, mainEl);
+    }
+  });
 }
 
 // Fix fake link issue

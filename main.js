@@ -5,6 +5,7 @@ function rotateBack() {
 
 // Replace the anchor tag with a button
 // Ensure to maintain the `id` attribute if it's being used elsewhere
-document.getElementById('unrotate').innerHTML = `
-  <button onclick="rotateBack()">rotate back</button>
+const iconContainer = document.getElementById('icon-container');
+iconContainer.innerHTML = `
+  <button onclick="rotateBack()" aria-label="Rotate back">rotate back</button>
 `;

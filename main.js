@@ -87,6 +87,12 @@ module.exports = {
       });
     });
 
+    // Ensure main content is wrapped in proper landmarks (React_017)
+    const mainLandmark = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (mainLandmark && !mainLandmark.id) {
+      mainLandmark.id = 'main-content';
+    }
+
     // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
     const mainElements = document.querySelectorAll('main, [role="main"]');
     let mainFound = false;

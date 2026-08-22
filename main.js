@@ -8,7 +8,7 @@ import { isArray } from 'lodash';
  * @param {Object} [svgProps] - Optional SVG element props for title child detection
  * @returns {Object} Accessibility props to spread onto <svg>
  */
-export function getSVGAriaProps(isDecorative = false, ariaLabel, svgProps) {
+export function getSvgAccessibilityProps(isDecorative = false, ariaLabel, svgProps) {
   if (isDecorative) {
     return { 'aria-hidden': 'true' };
   }
@@ -17,12 +17,12 @@ export function getSVGAriaProps(isDecorative = false, ariaLabel, svgProps) {
     svgProps &&
     svgProps.children &&
     (isArray(svgProps.children)
-      ? svgProps.children.some(c => c && c.type === 'title')
+      ? svgProps.children.some((c) => c && c.type === 'title')
       : svgProps.children.type === 'title');
 
   if (hasTitleChild || ariaLabel) {
     return {
-      'aria-label': ariaLabel || svgProps?.props?.children,
+      'aria-label': ariaLabel || 'SVG image',
       role: 'img',
     };
   }
@@ -36,16 +36,16 @@ export function getSVGAriaProps(isDecorative = false, ariaLabel, svgProps) {
  * @param {Object} svgProps - Props from an SVG element
  * @returns {{compliant: boolean, issues: string[]}}
  */
-export function validateSVGAccessibility(svgProps) {
+export function validateSvgAccessibility(svgProps) {
   const issues = [];
 
-  const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = svgProps['aria-label'];
-  const hasRole = svgProps.role === 'img';
+  const hasAriaHidden = svgProps?.['aria-hidden'] === 'true';
+  const hasAriaLabel = Boolean(svgProps?.['aria-label']);
+  const hasRole = svgProps?.role === 'img';
   const hasTitleChild =
-    svgProps.children &&
+    svgProps?.children &&
     (isArray(svgProps.children)
-      ? svgProps.children.some(c => c && c.type === 'title')
+      ? svgProps.children.some((c) => c && c.type === 'title')
       : svgProps.children.type === 'title');
 
   const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;

@@ -1,55 +1,133 @@
-import React from 'react';
+const path = require('path');
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
+// Screeps bot entry point
+// This file is executed by the Screeps engine each tick
 
-const MyTableComponent = () => {
-  const updatedHTML = `
-    <table lang="en">
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Data 1</td>
-          <td>Data 2</td>
-          <td>Data 3</td>
-        </tr>
-      </tbody>
-    `;
+// Import core modules
+require('./prototypes/creep');
+require('./prototypes/room');
+require('./prototypes/structure');
+require('./prototypes/spawn');
 
-  // Fix the fake link issue:
-  updatedHTML = updatedHTML.replace(
-    /<a id="unrotate" href="#">rotate back<\/a>/,
-    '<button id="unrotate">rotate back</button>'
-  );
+// Import roles and tasks
+const roleHarvester = require('./roles/harvester');
+const roleUpgrader = require('./roles/upgrader');
+const roleBuilder = require('./roles/builder');
+const roleRepairer = require('./roles/repairer');
+const roleHauler = require('./roles/hauler');
+const roleMiner = require('./roles/miner');
+const roleClaimer = require('./roles/claimer');
+const roleDefender = require('./roles/defender');
+const roleScout = require('./roles/scout');
 
-  return updatedHTML;
+// Import managers
+const spawnManager = require('./managers/spawnManager');
+const towerManager = require('./managers/towerManager');
+const linkManager = require('./managers/linkManager');
+const marketManager = require('./managers/marketManager');
+const intelManager = require('./managers/intelManager');
+const visualManager = require('./managers/visualManager');
+
+// Import utilities
+const utils = require('./utils/utils');
+const constants = require('./utils/constants');
+const profiler = require('./utils/profiler');
+
+// Global error handler
+global._handleError = function(error, context = '') {
+    console.log(`[ERROR] ${context}: ${error.message}`);
+    console.log(error.stack);
+    Game.notify(`[ERROR] ${context}: ${error.message}`);
 };
 
-export default MyTableComponent;
+// Main loop - executed every tick
+module.exports.loop = function() {
+    const startCpu = Game.cpu.getUsed();
+    
+    try {
+        // Run profiler if enabled
+        if (global.PROFILER_ENABLED) {
+            profiler.enable();
+        }
+        
+        // Clean up memory
+        utils.cleanMemory();
+        
+        // Run managers
+        spawnManager.run();
+        towerManager.run();
+        linkManager.run();
+        marketManager.run();
+        intelManager.run();
+        
+        // Run creeps by role
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            
+            try {
+                switch (creep.memory.role) {
+                    case 'harvester':
+                        roleHarvester.run(creep);
+                        break;
+                    case 'upgrader':
+                        roleUpgrader.run(creep);
+                        break;
+                    case 'builder':
+                        roleBuilder.run(creep);
+                        break;
+                    case 'repairer':
+                        roleRepairer.run(creep);
+                        break;
+                    case 'hauler':
+                        roleHauler.run(creep);
+                        break;
+                    case 'miner':
+                        roleMiner.run(creep);
+                        break;
+                    case 'claimer':
+                        roleClaimer.run(creep);
+                        break;
+                    case 'defender':
+                        roleDefender.run(creep);
+                        break;
+                    case 'scout':
+                        roleScout.run(creep);
+                        break;
+                    default:
+                        console.log(`Unknown role: ${creep.memory.role} for creep ${name}`);
+                }
+            } catch (creepError) {
+                global._handleError(creepError, `Creep ${name} (${creep.memory.role})`);
+            }
+        }
+        
+        // Visuals (only if not in simulation and CPU allows)
+        if (!Game.simulation && Game.cpu.getUsed() < Game.cpu.limit * 0.8) {
+            visualManager.run();
+        }
+        
+        // CPU monitoring
+        const cpuUsed = Game.cpu.getUsed() - startCpu;
+        if (cpuGame.cpu.getUsed() > Game.cpu.limit * 0.95) {
+            console.log(`[CPU WARNING] High CPU usage: ${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit}`);
+        }
+        
+        // Profiler output
+        if (global.PROFILER_ENABLED) {
+            profiler.output();
+        }
+        
+    } catch (error) {
+        global._handleError(error, 'Main loop');
+    }
+};
 
-// Your existing code, exports, and functions...
+// Initialize global prototypes on global scope
+global.utils = utils;
+global.constants = constants;
 
-// Let's fix the fake link issue in the App component as well:
-const updatedHTML = rootElement.outerHTML.replace(
-  /<a id="unrotate" href="#">rotate back<\/a>/,
-  '<button id="unrotate">rotate back</button>'
-);
-rootElement.innerHTML = updatedHTML;
-
-export default function App() {
-  // Your existing App component...
+// Console log startup
+console.log(`[${new Date().toISOString()}] Bot started - CPU Limit: ${Game.cpu.limit}, Bucket: ${Game.cpu.bucket}`);
+if (Memory.stats) {
+    console.log(`GCL: ${Game.gcl.level}, GPL: ${Game.gpl.level}, Credits: ${Game.market.credits}`);
 }
-```
-
-This file preserves the original table structure and keeps the functionality, while addressing the fake link issue and adding the `lang` attribute as per the accessibility issues mentioned. The fake link issue is addressed in both `MyTableComponent` and the main `App` component.

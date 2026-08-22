@@ -1,6 +1,9 @@
 // Original Content (preserve this)
 // This is the original content of main.js that must be preserved.
 
+// TODO: Add back any required exports that might have been removed
+// Here is how to export a required function from another file:
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add/fix 4 landmark issues
@@ -8,6 +11,15 @@
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope attribute to th elements
+
+// Accessibility utility functions
+export function addAriaLabel(element, label) {
+  if (element) element.setAttribute('aria-label', label);
+}
+
+export function setMainLandmark(mainElement) {
+  if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
+}
 
 // New Functionality (to be added)
 function enhanceAccessibility() {
@@ -18,33 +30,33 @@ function enhanceAccessibility() {
   const htmlElement = document.documentElement;
   if (htmlElement) htmlElement.lang = 'en';
 
-  const main = document.querySelector('main') || document.getElementsByTagName('main')[0];
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
   if (main) {
     main.setAttribute('role', 'main');
     main.id = main.id || 'main-content';
   }
 
-  const nav = document.querySelector('nav') || document.getElementsByTagName('nav')[0];
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
   if (nav && !nav.getAttribute('aria-label')) nav.setAttribute('aria-label', 'Main navigation');
 
-  const headers = document.getElementsByTagName('header');
+  const headers = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
   for (let i = 1; i < headers.length; i++) {
     if (!headers[i].id) {
       headers[i].id = `header-${i}`;
     }
   }
 
-  const footers = document.getElementsByTagName('footer');
+  const footers = document.querySelectorAll('footer');
   for (let i = 1; i < footers.length; i++) {
     if (!footers[i].id) {
       footers[i].id = `footer-${i}`;
     }
   }
 
-  const svgs = document.getElementsByTagName('svg');
+  const svgs = document.querySelectorAll('svg');
   for (let i = 0; i < svgs.length; i++) {
-    const title = svgs[i].getElementsByTagName('title')[0];
-    if (!title && !svgs[i].getAttribute('aria-label') && !svgs[i].getAttribute('aria-labelledby')) {
+    const title = svgs[i].querySelector('title');
+    if (!title && svgs[i].getAttribute('role') !== 'presentation') {
       const titleElement = document.createElement('title');
       const titleId = `svg-title-${i + 1}`;
       titleElement.id = titleId;
@@ -55,9 +67,9 @@ function enhanceAccessibility() {
     }
   }
 
-  const links = document.querySelectorAll('a:not([href])');
+  const links = document.querySelectorAll('a[href]');
   links.forEach(link => {
-    if (!link.getAttribute('href')) {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === 'javascript:void(0)') {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
       link.addEventListener('click', (event) => {
@@ -74,15 +86,7 @@ function enhanceAccessibility() {
       th.setAttribute('scope', 'col');
     }
   });
+}
 
-  // Accessibility utility functions
-  export function addAriaLabel(element, label) {
-    if (element) element.setAttribute('aria-label', label);
-  }
-
-  export function setMainLandmark(mainElement) {
-    if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
-  }
-
-  // Export the enhanced function
-  export default enhanceAccessibility;
+// Export the enhanced function
+export default enhanceAccessibility;

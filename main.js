@@ -174,5 +174,60 @@ function addLandmarksForTables() {
     });
 }
 
+// Function to add missing ARIA labels and improve accessibility
+function addMissingAriaLabels() {
+    // Ensure all SVG elements have accessible labels
+    document.querySelectorAll('svg').forEach(svg => {
+        if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+            const fallbackLabel = svg.getAttribute('aria-label') || 'Icon';
+            svg.setAttribute('aria-label', fallbackLabel);
+        }
+    });
+
+    // Ensure elements that act as buttons have accessible names
+    document.querySelectorAll('[role="button"]').forEach(el => {
+        if (!el.hasAttribute('aria-label')) {
+            el.setAttribute('aria-label', 'Activate');
+        }
+    });
+
+    // Ensure search inputs have accessible names
+    const searchInput = document.querySelector('.search-form input[type="search"], .search-form button');
+    if (searchInput && !searchInput.hasAttribute('aria-label')) {
+        searchInput.setAttribute('aria-label', 'Search this site');
+    }
+}
+
+/**
+ * Adds landmark roles and fixes landmark issues
+ * @returns {void}
+ */
+function addLandmarksForTables() {
+    // Fix table structure issues by ensuring proper header elements
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach((table) => {
+        // Get all header cells from thead or first row of tbody
+        const headerCells = Array.from(table.querySelectorAll('th, td'));
+        
+        if (headerCells.length === 0) return;
+        
+        // Create unique IDs for each column based on header text
+        const columnIds = [];
+        headerCells.forEach((cell, index) => {
+            const id = `table-column-${index}`;
+            cell.setAttribute('data-col-id', id);
+            columnIds.push(id);
+        });
+        
+        // Set scope for each column header
+        table.querySelectorAll('th, td').forEach((cell, index) => {
+            if (columnIds[index]) {
+                cell.setAttribute('scope', 'col');
+            }
+        });
+    });
+}
+
 // Export functions
-export { icons, checkDependencyStatus, getDependencyAlerts, myFunction, addLandmarks, addLandmarksForTables };
+export { icons, checkDependencyStatus, getDependencyAlerts, myFunction, addLandmarks, addLandmarksForTables, addMissingAriaLabels };

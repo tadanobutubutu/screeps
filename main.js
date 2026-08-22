@@ -1,17 +1,25 @@
-const initialize = require('./path/to/initialize').default;
+// For docs/dependency-graph.html
+const initializeDependencyGraphPage = require('./path/to/initialize-dependency-graph-page').default;
 
-// Ensure you don't modify any existing exports or functions
-// ... Your existing main.js code that shouldn't be changed ...
-
-// Add the missing export(s) that were removed
-// For example, if 'Foo' and 'Bar' were removed:
-const Foo = require('./path/to/Foo').default;
-const Bar = require('./path/to/Bar').default;
-
-// Export them again, preserving existing exports
+// Add the <main> tag and content here
 module.exports = {
   // ... existing exports ...
-  Foo,
-  Bar,
-  initialize
+  initializeDependencyGraphPage,
+  // Replace the content with the <main> tag
+  renderDependencyGraphPage: (content) => {
+    return `<main>${content}</main>`;
+  }
+};
+
+// For docs/index.html
+const initializeIndexPage = require('./path/to/initialize-index-page').default;
+
+// Add the <main> tag and content here
+module.exports = {
+  // ... existing exports ...
+  initializeIndexPage,
+  // Replace the content with the <main> tag
+  renderIndexPage: (content) => {
+    return `<main>${content}</main>`;
+  }
 };

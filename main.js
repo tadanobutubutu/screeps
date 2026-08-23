@@ -782,6 +782,17 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Set the lang attribute on the HTML element
+ * Addresses REACT_015: Add lang attribute to HTML element
+ * @param {string} locale - Locale code (e.g., 'en', 'en-US')
+ */
+function setHtmlLangAttribute(locale = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = getLangAttribute(locale);
+  }
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -808,7 +819,8 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  setHtmlLangAttribute
 };
 
 // Run if executed directly
@@ -824,4 +836,7 @@ if (require.main === module) {
     }
     console.log();
   });
+  
+  // Set HTML lang attribute for accessibility
+  setHtmlLangAttribute();
 }

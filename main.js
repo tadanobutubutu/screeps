@@ -376,3 +376,5 @@ export const initAccessibilityFixes = () => {
     applyAllAccessibilityFixes();
   }
 };
+
+export { class1, function1, Object1 };

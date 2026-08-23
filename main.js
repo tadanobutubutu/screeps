@@ -1,7 +1,7 @@
 // main.js - Entry point for the application
 // This file preserves all existing functionality.
 // The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.
-// No code changes to main. js are required based on this issue.
+// No code changes to main.js are required based on this issue.
 // Existing tests in /tests/ must continue to pass.
 
 module.exports = {
@@ -22,23 +22,23 @@ module.exports = {
     // This function ensures that landmark elements have proper labeling for accessibility
     const landmarkSelectors = ['header:not([role])', 'footer:not([role])', 'nav:not([role])', 'main:not([role])', '[role="banner"]', '[role="main"]', '[role="contentinfo"]'];
     
-    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const allLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
     const landmarkCounts = {};
     
     allLandmarks.forEach(landmark => {
       const tagName = landmark.tagName.toLowerCase();
-      const role = landmark.getAttribute('role');
+      const role = landmark.getAttribute('role') || '';
       const key = role || tagName;
       
       landmarkCounts[key] = (landmarkCounts[key] || 0) + 1;
     });
     
-    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+    const secondPassLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
     const tagCounts = {};
     
     secondPassLandmarks.forEach(landmark => {
       const tagName = landmark.tagName.toLowerCase();
-      const role = landmark.getAttribute('role');
+      const role = landmark.getAttribute('role') || '';
       const key = role || tagName;
       
       if (!landmark.id && landmarkCounts[key] > 1) {

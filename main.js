@@ -6,11 +6,12 @@ module.exports = {
   // Any other existing configurations or code
   // ...
 
-  // Rule changes as requested for REACT_041 React SVG Accessible Name
+  // Rule changes as requested for REACT_036 React Fake Link
   transformIgnorePatterns: [
     // ... any other patterns
     "/node_modules/(?!@react-icons)/",
     "/node_modules/(?!@material-ui)/",
+    "/node_modules/(?!react-router-dom)/", // Assuming React Router DOM is needed for navigation
   ],
 
   // Any additional transformations for the new test cases if necessary

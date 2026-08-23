@@ -52,7 +52,7 @@ function addDetectedDependencies(ecosystem, dependencies) {
   }
 }
 
-//TODO: Import required module(s) and export the necessary function(s) here
+// TODO: Import required module(s) and export the necessary function(s) here
 
 /**
  * Retrieves all pending updates

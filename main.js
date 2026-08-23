@@ -1,13 +1,1 @@
-var loop = function() {
-    // Your logic here
-};
-
-var uniqueMainLandmark = function() {
-    // Ensure only one <main> landmark exists in the rendered tree
-    // Use <section> or <article> for additional regions instead of extra <main> tags
-};
-
-module.exports = {
-    loop: loop,
-    uniqueMainLandmark: uniqueMainLandmark
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

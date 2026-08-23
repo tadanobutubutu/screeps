@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const myTable = `
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Column 1</th>
+        <th>Column 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows would be here -->
+    </tbody>
+  </table>
+`;

@@ -6,8 +6,6 @@ const indexModule = require('./index');
 
 // ... existing code, imports, and functions
 
-// Accessibility: Updated dependencyGraphFunction to use dependencyGraphContent directly
-// with proper accessibility attributes and semantic HTML
 function dependencyGraphFunction() {
   const { dependencyGraphContent } = dependencyGraphModule;
   

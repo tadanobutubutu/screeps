@@ -53,6 +53,19 @@ function addProperLandmarkRegions() {
     // Fixing landmark issues by adding appropriate roles and attributes
     document.documentElement.setAttribute('role', 'document');
     document.body.setAttribute('lang', 'en'); // Ensuring the body has the 'lang' attribute
+
+    // New function for unique landmarks
+    function ensureUniqueLandmarks() {
+        const landmarks = [...document.querySelectorAll('[role="landmark"]')];
+        const landmarkIds = new Set(landmarks.map(landmark => landmark.id || ''));
+
+        if (landmarks.length > landmarkIds.size) {
+            console.warn('Not all landmarks have unique IDs:', [...landmarks].map(landmark => landmark.id || landmark.getAttribute('aria-labelledby')).filter(Boolean));
+        }
+    }
+
+    // Call the new function for unique landmarks
+    ensureUniqueLandmarks();
 }
 
 // Add a fake link fixer
@@ -73,6 +86,14 @@ function newPreservedFunction() {
     console.log('This function was added to preserve the TODO comment.');
 }
 
+// New function for fixing one fake link issue
+function fixOneFakeLinkIssue() {
+    // Find the fake link (with an example ID provided below) and replace its content with an actual link
+    const fakeLink = document.querySelector('a#fake_link_example');
+    fakeLink.textContent = 'Example Link';
+    fakeLink.href = 'https://example.com';
+}
+
 module.exports = {
     initialize,
     getFilePath,
@@ -80,5 +101,6 @@ module.exports = {
     fixTableStructureIssues,
     addProperLandmarkRegions,
     fixFakeLinkIssues,
-    newPreservedFunction
+    newPreservedFunction,
+    fixOneFakeLinkIssue
 };

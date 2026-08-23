@@ -12,3 +12,8 @@ const icons = {
 
 // Rest of the code from main.js
 // ...
+
+document.addEventListener("DOMContentLoaded", function() {
+  const htmlTag = document.documentElement;
+  htmlTag.setAttribute('lang', 'en'); // or the appropriate language code
+});

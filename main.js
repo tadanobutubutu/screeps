@@ -53,7 +53,7 @@ function validateLandmarkStructure(element) {
 }
 
 function getSvgAccessibleName(svgElement) {
-  return svgElement ? svgElement.getAttribute('aria-label') || '' : '';
+  return svgElement ? '' : '';
 }
 
 function createInPageButton(text, onClick) {

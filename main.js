@@ -26,7 +26,7 @@ function addLandmarkRoles() {
   if (mainElement && !mainElement.getAttribute('role')) {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   // Add navigation landmark
   const navElements = document.querySelectorAll('nav');
   navElements.forEach((nav, index) => {
@@ -37,13 +37,13 @@ function addLandmarkRoles() {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
-  
+
   // Add header landmark
   const headerElement = document.querySelector('header');
   if (headerElement && !headerElement.getAttribute('role')) {
     headerElement.setAttribute('role', 'banner');
   }
-  
+
   // Add footer landmark
   const footerElement = document.querySelector('footer');
   if (footerElement && !footerElement.getAttribute('role')) {
@@ -58,12 +58,12 @@ function fixTableAccessibility() {
     // Check if table has proper caption or aria-label
     const hasCaption = table.querySelector('caption');
     const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
-    
+
     if (!hasCaption && !hasAriaLabel) {
       // Add aria-label as fallback
       table.setAttribute('aria-label', 'Data table');
     }
-    
+
     // Ensure proper table structure with th elements
     const headers = table.querySelectorAll('th');
     headers.forEach((th) => {
@@ -88,7 +88,7 @@ function addSvgAccessibleNames() {
     const ariaLabel = svg.getAttribute('aria-label');
     const ariaLabelledby = svg.getAttribute('aria-labelledby');
     const title = svg.querySelector('title');
-    
+
     if (!ariaLabel && !ariaLabelledby) {
       if (title) {
         const titleId = `svg-title-${index}`;
@@ -104,17 +104,15 @@ function addSvgAccessibleNames() {
 // function to ensure unique landmarks (REACT_025)
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'banner', 'contentinfo', 'navigation'];
-  
+
   landmarks.forEach((role) => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        const label = el.getAttribute('aria-label');
-        if (!label) {
-          el.setAttribute('aria-label', `${role} section ${index + 1}`);
-        }
-      });
-    }
+    let count = 0;
+    elements.forEach((el) => {
+      if (!el.getAttribute('aria-label')) {
+        el.setAttribute('aria-label', `${role} section ${++count}`);
+      }
+    });
   });
 }
 
@@ -124,21 +122,21 @@ function fixFakeLinks() {
   links.forEach((link) => {
     const href = link.getAttribute('href');
     const onClick = link.getAttribute('onclick');
-    
+
     // Check if it's a fake link (has onclick but no href or invalid href)
     if (onClick && (!href || href === '#' || href === 'javascript:void(0)')) {
       // Add role="button" to indicate it's actually a button
       if (!link.getAttribute('role')) {
         link.setAttribute('role', 'button');
       }
-      
+
       // Add tabindex to make it keyboard accessible
       if (!link.getAttribute('tabindex')) {
         link.setAttribute('tabindex', '0');
       }
     }
   });
-  
+
   // Also check elements with role="link" that should be buttons
   const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach((link) => {

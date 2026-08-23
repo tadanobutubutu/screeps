@@ -8,13 +8,15 @@ const AppLayout: React.FC = ({ children }) => {
   };
 
   return (
-    <div>
-      {/* Assuming some other components here */}
-      {children}
-      {/* Example of using the icons */}
-      <img src={icons.icon} alt="Screeps Dashboard Icon" />
-      <img src={icons.apple} alt="Screeps Apple Icon" />
-    </div>
+    <main>
+      <div>
+        {/* Assuming some other components here */}
+        {children}
+        {/* Example of using the icons */}
+        <img src={icons.icon} alt="Screeps Dashboard Icon" />
+        <img src={icons.apple} alt="Screeps Apple Icon" />
+      </div>
+    </main>
   );
 };
 

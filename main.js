@@ -94,3 +94,21 @@ export function validateProject(project) {
 
 // Existing export that must be preserved
 export const PROJECT_STATUSES = ['Active', 'Pending', 'Completed', 'Archived'];
+
+// New function to fix table structure issues (REACT_027)
+export const fixTableStructureIssues = (tableData) => {
+  // Implementation to fix table structure issues
+  // This function needs to be implemented as per the insight report requirements
+};
+
+// New function to ensure unique landmarks (REACT_025)
+export const ensureUniqueLandmarks = (landmarks) => {
+  // Implementation to ensure unique landmarks
+  // This function needs to be implemented as per the insight report requirements
+};
+
+// New function to add ARIA label to a fake link issue (REACT_036)
+export const addAriaLabelToMyDiv = (content) => {
+  // Implementation to add ARIA label to a fake link
+  // This function needs to be implemented as per the insight report requirements
+};

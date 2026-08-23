@@ -269,9 +269,3 @@ export function fixTableStructureIssues() {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
   }
 }
-
-// Restored function
-export function restoredFunction(param) {
-  // Implementation that was part of the original code base
-  return param;
-}

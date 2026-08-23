@@ -30,8 +30,14 @@ if (typeof module !== 'undefined' && module.exports) {
   window.main = main;
 }
 
-// Wrap the primary content in <main> for accessibility
+// Function to render the Dependency Dashboard, ensuring only one <main> element is present
 function renderDependencyDashboard() {
+  // Remove any existing <main> elements to prevent duplicates
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    document.body.removeChild(existingMain);
+  }
+
   const mainContent = document.createElement('main');
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
@@ -41,5 +47,5 @@ function renderDependencyDashboard() {
   document.body.appendChild(mainContent);
 }
 
-// Call the function to render the dashboard
+// Call the function to render the dashboard only once
 renderDependencyDashboard();

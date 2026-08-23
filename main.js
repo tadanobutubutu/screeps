@@ -1,16 +1,1 @@
-// Updated main.js content
-/*
-<html lang="en">
-  <head>
-    <!-- existing head content -->
-  </head>
-  <body>
-    <main>
-      <!-- existing content -->
-    </main>
-    <main>
-      <!-- conflicting content -->
-    </main>
-  </body>
-</html>
-*/
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

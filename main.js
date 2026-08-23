@@ -1,1 +1,1 @@
-// TODO: This is the existing code that needs to be preserved
+Please provide the actual content of `main.js` with the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) included so I can resolve the merge conflict for you.

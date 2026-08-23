@@ -314,4 +314,49 @@ function deduplicateLandmarks(landmarks) {
 }
 
 /**
- * Fixes a
+ * Fixes a fake link issue by adding proper href and role attributes.
+ * @param {HTMLElement} element The fake link element to fix
+ * @param {string} href The href to add
+ * @returns {HTMLElement} The fixed link element
+ */
+function fixFakeLink(element, href) {
+  if (!element) {
+    return element;
+  }
+  
+  // Convert fake link to proper anchor element
+  const anchorElement = document.createElement('a');
+  anchorElement.href = href || '#';
+  anchorElement.role = 'link';
+  
+  // Copy over existing attributes
+  if (element.attributes) {
+    Array.from(element.attributes).forEach(attr => {
+      anchorElement.setAttribute(attr.name, attr.value);
+    });
+  }
+  
+  // Copy over existing content
+  if (element.innerHTML) {
+    anchorElement.innerHTML = element.innerHTML;
+  }
+  
+  return anchorElement;
+}
+
+// Export functions for testing
+export {
+  addLangAttribute,
+  processChildrenForLang,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  ensureUniqueLandmarks,
+  validateLandmarkStructure,
+  addAccessibleName,
+  getAccessibleName,
+  createAccessibilityProps,
+  deduplicateLandmarks,
+  fixFakeLink,
+  icons
+};

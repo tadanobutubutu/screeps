@@ -2,6 +2,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+function handleRotateBack() {
+  // New function to handle rotating back behavior
+  console.log('Rotating back');
+}
+
 function App() {
   return (
     <html lang="en">
@@ -17,7 +22,7 @@ function App() {
             {/* Existing App content */}
 
             {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" onClick={() => /* Your existing logic here */}>rotate back</button>
+            <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
 
             {/* Example of adding scope attribute to a <th> element */}
             <table aria-describedby="table-description">
@@ -51,3 +56,6 @@ document.documentElement.lang = 'en';
 
 // Export App component
 export default App;
+
+// Export the new function
+export { handleRotateBack };

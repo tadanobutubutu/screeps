@@ -43,7 +43,7 @@ const DEPENDENCY_UPDATES = {
  * @param {string} dep2Version - Version of second dependency
  * @returns {Object} Compatibility result
  */
-function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
+function checkCompatibility(dep1Version, dep2, dep2Version) {
   const compatibilityMatrix = {
     'jest+typescript': { min: '5.0', max: '7.0' },
     'jest+react': { min: '18.0', max: '19.0' },
@@ -56,7 +56,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/\^?(\d+)\./);
+    const match = version.match(/^(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -124,8 +124,8 @@ function getRecommendedUpdateOrder() {
  * @returns {Object} Breaking change information
  */
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajorMatch = currentVersion.match(/\^?(\d+)\./);
-  const newMajorMatch = newVersion.match(/\^?(\d+)\./);
+  const currentMajorMatch = currentVersion.match(/^(\d+)/);
+  const newMajorMatch = newVersion.match(/^(\d+)/);
   const currentMajor = currentMajorMatch ? currentMajorMatch[1] : '0';
   const newMajor = newMajorMatch ? newMajorMatch[1] : '0';
   
@@ -245,7 +245,7 @@ function validateTableAccessibility(tableConfig) {
  */
 function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
   if (cellType === 'th' && isHeader) {
-    return `scope="${orientation}"`;
+    return orientation;
   }
   return '';
 }

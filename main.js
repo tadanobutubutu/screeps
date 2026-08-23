@@ -2,15 +2,16 @@ import React from 'react';
 import { useTable } from 'react-table';
 
 // Accessibility-related components
-const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
-const FixedLink = () => (
+export const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
+export const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
+export const FixedLink = () => (
   <a href="#" onClick={() => console.warn('Fake Link clicked')}>
     Fake Link
   </a>
 );
 
-// Main component export default function Main() {
+// Main component
+export default function Main() {
   // Define the columns for the table (26 columns total)
   const columns = [
     { Header: 'constants' },
@@ -44,7 +45,7 @@ const FixedLink = () => (
             <tr>
               {allColumns.map(column => (
                 <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
+                  {column.Header}
                 </th>
               ))}
             </tr>

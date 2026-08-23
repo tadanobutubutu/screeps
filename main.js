@@ -45,3 +45,12 @@ const { indexContent } = require('./index');
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
+
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(content) {
+  const main = document.createElement('main');
+  main.innerHTML = content;
+  return main;
+}
+
+module.exports = { wrapPrimaryContentInMain };

@@ -202,3 +202,6 @@ module.exports = {
   },
   myNewFunction: myNewFunction
 };
+
+// Ensure the HTML element has the required language attribute for accessibility
+document.documentElement.setAttribute('lang', 'en');

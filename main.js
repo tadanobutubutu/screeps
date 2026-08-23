@@ -126,6 +126,7 @@ module.exports = {
   fixFakeLinkIssues,
   newPreservedFunction,
   fixOneFakeLinkIssue,
+  ensureUniqueLandmarks,
   fixReactFakeLinkIssue,
   wrapPrimaryContentInMain
 };

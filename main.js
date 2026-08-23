@@ -8,4 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.transform = 'rotate(0deg)';
     });
   }
+
+  // Adding accessibility to SVGs
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 });

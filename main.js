@@ -82,14 +82,29 @@ function ensureUniqueLandmarks() {
     section: document.querySelectorAll('section')
   };
 
-  // Add unique labels to duplicate landmarks
+  // Add unique labels to duplicate landmarks and keep a single <main>
   Object.keys(landmarks).forEach((landmarkType) => {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
-        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-          const label = `${landmarkType} ${index + 1}`;
-          element.setAttribute('aria-label', label);
+        if (landmarkType === 'main' && index > 0) {
+          // Convert extra <main> elements to <section> so only one main landmark remains
+          const section = document.createElement('section');
+          for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            section.setAttribute(attr.name, attr.value);
+          }
+          while (element.firstChild) {
+            section.appendChild(element.firstChild);
+          }
+          if (element.parentNode) {
+            element.parentNode.replaceChild(section, element);
+          }
+        } else {
+          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+            const label = `${landmarkType} ${index + 1}`;
+            element.setAttribute('aria-label', label);
+          }
         }
       });
     }

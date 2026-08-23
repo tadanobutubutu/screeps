@@ -1,7 +1,7 @@
 // Address accessibility issues from insight report
 
 function wrapPrimaryContentInMain(element) {
-  const main = document.querySelector('main') || document.createElement('main');
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
   if (main && element) {
     main.appendChild(element);
   }
@@ -16,7 +16,7 @@ function wrapperFunction(callback, accessibilityInsights) {
 function addressAccessibilityIssues(accessibilityInsights) {
   accessibilityInsights.issues.forEach(issue => {
     // Find the element with the ID that matches the issue
-    const element = document.getElementById(issue.id);
+    const element = document.getElementById(issue.elementId);
 
     // If the element exists, apply the accessibility solution
     if (element) {
@@ -30,7 +30,7 @@ function addressAccessibilityIssues(accessibilityInsights) {
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
-    const element = document.getElementById(landmark.id);
+    const element = document.getElementById(landmark.elementId);
 
     // If the element exists, add the appropriate landmark role
     if (element) {

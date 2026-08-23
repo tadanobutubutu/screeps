@@ -5,7 +5,7 @@
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and fixTableHeadersScope())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark & getSvgAccessibleName())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmark)
@@ -770,7 +770,7 @@ function validateLangAttribute(langValue) {
     });
   } else {
     // Basic BCP 47 validation
-    const langRegex = /^[a-z]{2,3}(-[A-Z]{4})?(-[A-Z]{2}|-\d{3})?(-[a-zA-Z0-9]{5,8})*$/i;
+    const langRegex = /^[a-z]{2,3}(-[A-Z]{4})?(-[A-z]{2}|-\d{3})?(-[a-zA-Z0-9]{5,8})*$/i;
     if (!langRegex.test(langValue)) {
       issues.push({
         rule: 'REACT_015',
@@ -784,6 +784,24 @@ function validateLangAttribute(langValue) {
     valid: issues.length === 0,
     issues
   };
+}
+
+/**
+ * Fix table headers by adding missing scope attributes
+ * Addresses REACT_027: React Table Structure (26 occurrences)
+ * This function automatically adds scope="col" to <th> elements that lack it
+ * @param {string} htmlContent - HTML content to process
+ * @returns {string} Modified HTML with scope attributes added
+ */
+function fixTableHeadersScope(htmlContent) {
+  if (typeof htmlContent !== 'string') return htmlContent;
+  
+  // Replace <th> tags that don't already have a scope attribute
+  // The negative lookahead (?![^>]*\bscope=) ensures we only match <th> without scope
+  return htmlContent.replace(
+    /<th(?![^>]*\bscope=)([^>]*)>/gi,
+    '<th scope="col"$1>'
+  );
 }
 
 // Export all utilities
@@ -812,7 +830,8 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  fixTableHeadersScope
 };
 
 // Run if executed directly

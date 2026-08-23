@@ -1,9 +1,18 @@
-// app/layout.tsx
-export const metadata = {
-  title: 'Screeps Dashboard',
-  description: 'Screeps Dashboard',
-  icons: {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-  },
+x
+import React from 'react';
+
+const Document = ({ children }) => {
+  return (
+    <html>
+      <head>
+        {children.head}
+      </head>
+      <body>
+        <main>{children.body}</main>
+        {children.footer}
+      </body>
+    </html>
+  );
 };
+
+export default Document;

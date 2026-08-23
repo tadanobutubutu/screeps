@@ -5,7 +5,7 @@
 
 // Add the new function with ARIA attributes for accessibility
 function newFunction(element) {
-  element.ariaLabel = 'New Function';
+  element.setAttribute('aria-label', 'New Function');
   // Your implementation here
 }
 

@@ -18,8 +18,8 @@ function App() {
             reports below:
           </p>
           <div className="links">
-            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            <a ... Plato Code Complexity Report</a>
+            <a ... Dependency Graph ...
           </div>
 
           {/* Primary data table */}

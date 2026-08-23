@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+document.addEventListener("DOMContentLoaded", function() {
+  const htmlTag = document.documentElement;
+  htmlTag.setAttribute('lang', 'en'); // or the appropriate language code
+});

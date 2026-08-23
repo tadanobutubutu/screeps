@@ -43,7 +43,7 @@ export default function Main({ children }) {
             <tr>
               {allColumns.map(column => (
                 <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
+                  ... ?? column.Header}
                 </th>
               ))}
             </tr>

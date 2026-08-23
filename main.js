@@ -7,8 +7,12 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: ...
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+// Export the new necessary functions
+export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
 
 function handleRotateBack() {
   // New function to handle rotating back behavior

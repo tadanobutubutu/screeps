@@ -19,19 +19,26 @@ function renderLandmarkStructure(content) {
     <main aria-label="Main content">
       <header role="banner">
         <nav role="navigation" aria-label="Main navigation">
-          <!-- Navigation content -->
         </nav>
       </header>
       ${content}
       <footer role="contentinfo">
-        <!-- Footer content -->
       </footer>
     </main>
   `;
 }
 
+// REACT_015 fix: Provide accessible language for root HTML document
+// This ensures screen readers pick the correct language for the entire document
+function ensureDocumentLanguage() {
+  if (document.documentElement.lang !== 'en') {
+    document.documentElement.lang = 'en';
+  }
+}
+
 // Main render function
 function renderApp() {
+  ensureDocumentLanguage();
   var appContent = document.getElementById('app');
   if (appContent) {
     appContent.innerHTML = renderLandmarkStructure('\
@@ -51,5 +58,6 @@ if (typeof document !== 'undefined') {
 export {
   renderAccessibleSVG,
   renderLandmarkStructure,
-  renderApp
+  renderApp,
+  ensureDocumentLanguage
 };

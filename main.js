@@ -235,7 +235,8 @@ module.exports = {
   getSvgAccessibleName,
   setSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
+  addressReact036Issue
 };
 
 // Address the REACT_036 issue by changing the anchor to a button

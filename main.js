@@ -17,3 +17,15 @@ function addLangAttribute() {
 // call the accessibility improvement functions
 addLangAttribute();
 // call other functions as needed
+
+// New function to simulate button click event for testing purposes
+function simulateButtonClick() {
+  // Simulate clicking an element with a certain selector
+  const button = document.querySelector(".test-button");
+  if (button) {
+    button.click();
+  }
+}
+
+// call the new function as needed
+simulateButtonClick();

@@ -170,7 +170,6 @@ export function validateLandmarkStructure(elements) {
       const role = element.props.role;
       if (role === 'main') mainCount++;
       if (role === 'navigation' || role === 'nav') navCount++;
-    }
   });
 
   return mainCount <= 1;

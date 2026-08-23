@@ -308,7 +308,12 @@ function validateUniqueLandmarks(landmarks) {
   const duplicates = [];
   
   landmarks.forEach((landmark, index) => {
-    const key = `${landmark.type}:${landmark.label || 'unlabeled'}`;
+    let key;
+    if (landmark.type === 'main') {
+      key = 'main';
+    } else {
+      key = `${landmark.type}:${landmark.label || 'unlabeled'}`;
+    }
     if (seen.has(key)) {
       duplicates.push({
         type: landmark.type,

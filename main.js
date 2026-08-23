@@ -52,13 +52,53 @@ function fixFakeLink(node) {
 // Call the fixFakeLink function with the document root
 fixFakeLink(document.body);
 
-// Add the new function requested in the issue
+// New function to ensure unique landmarks (REACT_025.1)
+function ensureUniqueLandmarks() {
+  const uniqueIds = new Set();
+
+  document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"], [role="navigation"]').forEach(element => {
+    const id = element.getAttribute('id');
+
+    if (!id || !uniqueIds.has(id)) {
+      uniqueIds.add(element.id = `unique-${element.role.toLowerCase()}-id`);
+    } else {
+      console.warn(`Warning: Duplicate landmark role found: ${element.role} with id: ${id}`);
+    }
+  });
+}
+
+// Call the function to ensure unique landmarks
+ensureUniqueLandmarks();
+
+// New function to fix 1 fake link issue (REACT_036)
+function fixFakeLinkByHref(node) {
+  if (node.tagName.toLowerCase() === 'a' && !node.href && node.textContent) {
+    node.textContent = node.textContent.trim();
+    if (!/^[a-zA-Z0-9!@#$%^&*(),.?"':_;=+-]$/.test(node.textContent)) {
+      node.href = `#${node.textContent.toLowerCase().split(' ').join('-')}`;
+    }
+  }
+
+  // Recursively check the children nodes
+  if (node.children) {
+    Array.from(node.children).forEach(child => fixFakeLinkByHref(child));
+  }
+}
+
+// Call the fixFakeLinkByHref function with the document root
+fixFakeLinkByHref(document.body);
+
+// Add the new functions requested in the issue
 function newFunction() {
   console.log("This is the new function");
+}
+function anotherNewFunction() {
+  console.log("This is another new function");
 }
 
 // Add back the missing export requested in the issue
 module.exports.newFunction = newFunction;
+module.exports.anotherNewFunction = anotherNewFunction;
 
-// Add the newFunction to the exports
-module.exports = { ...module.exports, newFunction };
+// Add the new functions to the exports
+module.exports = { ...module.exports, newFunction, anotherNewFunction };

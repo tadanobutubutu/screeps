@@ -129,3 +129,60 @@ module.exports = {
   processTsxFile,
   processDirectory
 };
+
+// Import from remote branch for dependency management
+import { 
+  getRecommendedUpdateOrder, 
+  hasBreakingChanges, 
+  processDependencyUpdates,
+  DEPENDENCY_UPDATES,
+  checkCompatibility,
+  validateDependencies,
+  getLangAttribute,
+  validateLandmark,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  getTableScopeRecommendation,
+  validateLinkAccessibility,
+  createInPageButton,
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  validateTableStructure,
+  getTableCellAttributes,
+  createSvgAccessibilityProps,
+  validateSvgAccessibility,
+  validateLinkOrButton,
+  createAccessibleLink,
+  getFullLangAttribute,
+  validateLangAttribute
+} from 'some-module';
+
+// Keep existing exports from HEAD:
+module.exports = {
+  processFile,
+  processTsxFile,
+  processDirectory,
+  getRecommendedUpdateOrder,
+  hasBreakingChanges,
+  processDependencyUpdates,
+  DEPENDENCY_UPDATES,
+  checkCompatibility,
+  validateDependencies,
+  getLangAttribute,
+  validateLandmark,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  getTableScopeRecommendation,
+  validateLinkAccessibility,
+  createInPageButton,
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  validateTableStructure,
+  getTableCellAttributes,
+  createSvgAccessibilityProps,
+  validateSvgAccessibility,
+  validateLinkOrButton,
+  createAccessibleLink,
+  getFullLangAttribute,
+  validateLangAttribute
+};

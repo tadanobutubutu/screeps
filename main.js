@@ -3,6 +3,10 @@
  * Handles updates for: jest, typescript, react, eslint, and other dependencies
  */
 
+// Required modules
+const { execSync } = require('child_process');
+const path = require('path');
+
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility())
@@ -786,6 +790,19 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Execute a shell command and return its output
+ * @param {string} command - Command to execute
+ * @returns {string} Output of the command
+ */
+function executeCommand(command) {
+  try {
+    return execSync(command, { encoding: 'utf8' });
+  } catch (error) {
+    throw new Error(`Command failed: ${error.message}`);
+  }
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -812,7 +829,9 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // New utility function
+  executeCommand
 };
 
 // Run if executed directly

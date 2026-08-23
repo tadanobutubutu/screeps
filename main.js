@@ -25,7 +25,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.hasAttribute('aria-label')) {
+    if (!main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {

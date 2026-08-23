@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
+const fs = require('fs');
+const path = require('path');
 
 function fixDependencyDashboard() {
-  const fs = require('fs');
-  const path = require('path');
   const workflowPath = path.join(__dirname, '.github', 'workflows', 'gitstream.yml');
   if (fs.existsSync(workflowPath)) {
     let content = fs.readFileSync(workflowPath, 'utf8');
@@ -23,6 +23,20 @@ function fixDependencyDashboard() {
 // function init() { /* ... */ }
 // module.exports.loop = function() { /* ... */ }
 // ----- END ORIGINAL CODE-----
+
+// Add the new function to generate HTML with lang attribute
+function generateHtmlWithLang() {
+  const html = `
+<html lang="en">
+<!-- ... Your existing html content ... -->
+</html>
+  `;
+
+  return html;
+}
+
+// Modify the build script to use the new function
+const html = generateHtmlWithLang();
 
 module.exports = app;
 module.exports.fixDependencyDashboard = fixDependencyDashboard;

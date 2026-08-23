@@ -31,32 +31,6 @@ export function getHTMLAttributes() {
   return { ...attributes };
 }
 
-// TODO: Add back any required exports that might have been removed
-
-// Here's an example of how to export a required function from another file:
-// import { someFunction } from './some-file';
-// export { someFunction };
-
-// Add the missing HTML lang attribute to the HTML root element
-// This should be added in the client's build process, not in JavaScript
-// Add this comment to explain it to the developers who are working on the client side
-
-/**
- * Add the missing HTML lang attribute to the HTML root element
- * This should be added in the client's build process
- *
- * Here's an example of how to do it using a React application's HTML template:
- *
- * <Html lang="en">
- *   <Head>
- *     {/* Other head data */}
- *   </Head>
- *   <Body>
- *     {/* Other body content */}
- *   </Body>
- * </Html>
- */
-
 // New functions and changes:
 
 // This function could be used to fix fake link issues in components.
@@ -83,6 +57,28 @@ export function addAccessibleNamesToSVGs() {
   // For example, set the `aria-labelledby` or `aria-describedby` attributes.
 }
 
-// This is a required export due to the missing call in the TODO comment
+// Add the missing HTML lang attribute to the HTML root element
+// This should be added in the client's build process, not in JavaScript
+// Add this comment to explain it to the developers who are working on the client side
+
+/**
+ * Add the missing HTML lang attribute to the HTML root element
+ * This should be added in the client's build process
+ *
+ * Here's an example of how to do it using a React application's HTML template:
+ *
+ * <Html lang="en">
+ *   <Head>
+ *     {/* Other head data */}
+ *   </Head>
+ *   <Body>
+ *     {/* Other body content */}
+ *   </Body>
+ * </Html>
+ */
+
+// Import the missing function from './addHtmlLangToRootElement' as requested in the TODO comment
 import { addHtmlLangToRootElement } from './addHtmlLangToRootElement';
 export { addHtmlLangToRootElement };
+
+// TODO: Add back any required exports that might have been removed

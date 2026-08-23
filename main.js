@@ -245,8 +245,52 @@ function fixTableStructureIssues() {
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   console.log('Ensuring unique landmarks');
-  // In a real implementation, this would modify layout files
-  console.log('Made landmarks unique in app/layout.tsx and dashboard/app/layout.tsx');
+  // Fix duplicate <main> tags in Dashboard components by replacing the second one with <section>
+  
+  const dashboardFiles = [
+    'components/Dashboard.tsx',
+    'dashboard/components/Dashboard.tsx'
+  ];
+
+  dashboardFiles.forEach(file => {
+    try {
+      const filePath = path.join(process.cwd(), file);
+      if (fs.existsSync(filePath)) {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // Find and replace duplicate <main> tags in mutually exclusive branches
+        // The pattern looks for two <main> tags and replaces the second one with <section>
+        // This handles the case where error and success states both have <main> elements
+        content = content.replace(
+          /(<main)([^>]*?)>([\s\S]*?)<\/main>\s*\n\s*<main/g,
+          '$1$2>\3</main>\n  <section'
+        );
+        
+        // Also handle the case where the error/main is second (already fixed first)
+        content = content.replace(
+          /<main/g,
+          (match, offset, string) => {
+            // Count how many <main> tags we've seen
+            const before = string.substring(0, offset);
+            const mainCount = (before.match(/<main/g) || []).length;
+            
+            // Replace second <main> with <section>
+            if (mainCount === 1) {
+              return '<section';
+            }
+            return match;
+          }
+        );
+        
+        fs.writeFileSync(filePath, content);
+        console.log(`Fixed duplicate <main> tags in ${file}`);
+      }
+    } catch (error) {
+      console.error(`Error fixing duplicate landmarks in ${file}:`, error.message);
+    }
+  });
+  
+  console.log('Fixed duplicate <main> tags in Dashboard.tsx files');
 }
 
 // New function to fix fake link issues
@@ -305,3 +349,4 @@ exports.handleEslint10Update = handleEslint10Update;
 exports.handleTypeScript7Update = handleTypeScript7Update;
 exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
 exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;

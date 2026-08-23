@@ -202,6 +202,23 @@ function replaceHashLinksWithButtons(doc) {
   }
 }
 
+/**
+ * Function called to fix table structure issues when the page loads
+ */
+function initializeA11y() {
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addAccessibleNamesToSvgFiles();
+  ensureUniqueLandmarks();
+  replaceHashLinksWithButtons();
+}
+
+// Call the initializeA11y function when the DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  initializeA11y();
+});
+
 // Export functions for testing and module usage
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {

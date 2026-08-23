@@ -1,5 +1,3 @@
-import Head from 'next/head';
-
 export function newFunction() {
   // Your implementation here
 }
@@ -15,8 +13,8 @@ export default function Main() {
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a ...
-          <li><a ...
+          <li><a ...>
+          <li><a ...>
         </ul>
       </nav>
       
@@ -51,14 +49,14 @@ export default function Main() {
           <caption>Pricing Plans</caption>
           <thead>
             <tr>
-              <th ...
+              <th ...>
               <th scope="col">Price</th>
               <th scope="col">Support</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th ...
+              <th ...>
               <td>$9.99</td>
               <td>Standard support</td>
             </tr>

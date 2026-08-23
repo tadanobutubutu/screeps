@@ -121,8 +121,8 @@ const validateTableStructureAndScopeTh = () => {
 // module.exports.loop = function() { /* ... */ }
 // ----- END ORIGINAL CODE -----
 
-// Re-add the removed exports here: import { class1, function1, Object1 } from './path/ to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink };
+// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
@@ -154,5 +154,80 @@ const fixFakeLink = () => {
   link.parentNode.replaceChild(button, link);
 };
 
-// Run the fix once the DOM is ready
-document.addEventListener('DOMContentLoaded', fixFakeLink);
+// ==== NEW CODE TO ADDRESS REACT_025 (Unique Landmarks) ====
+// Wrap primary content in a <main> element to ensure unique landmarks
+// This helps screen reader users navigate the page structure
+
+const wrapPrimaryContentInMain = () => {
+  // Check if main element already exists to avoid duplication
+  const existingMain = document.querySelector('main');
+  if (existingMain) return;
+
+  // Find the primary content container
+  // Looking for common primary content patterns
+  const primaryContentSelectors = [
+    '#primary-content',
+    '#main-content',
+    '#content',
+    '.primary-content',
+    '.main-content',
+    '[role="main"]'
+  ];
+
+  let primaryContent = null;
+  for (const selector of primaryContentSelectors) {
+    const element = document.querySelector(selector);
+    if (element && !element.closest('main')) {
+      primaryContent = element;
+      break;
+    }
+  }
+
+  // If no specific primary content selector found, 
+  // wrap the first content section that appears after header/hero sections
+  if (!primaryContent) {
+    const bodyChildren = Array.from(document.body.children);
+    const headerElements = document.querySelectorAll('header, .hero, .banner');
+    
+    // Find content that comes after typical header elements
+    for (const child of bodyChildren) {
+      const isHeader = Array.from(headerElements).some(header => 
+        header.contains(child) || header === child
+      );
+      
+      if (!isHeader && child.textContent.trim() && !child.closest('main')) {
+        // Skip navigation, aside, and footer elements
+        const tagName = child.tagName.toLowerCase();
+        if (!['NAV', 'ASIDE', 'FOOTER', 'HEADER'].includes(tagName)) {
+          primaryContent = child;
+          break;
+        }
+      }
+    }
+  }
+
+  // If we found primary content, wrap it in a main element
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    
+    // If the primary content has a role="main" attribute, remove it since <main> has implicit role
+    if (primaryContent.hasAttribute('role') && primaryContent.getAttribute('role') === 'main') {
+      primaryContent.removeAttribute('role');
+    }
+    
+    // Get the parent of the primary content
+    const parent = primaryContent.parentNode;
+    if (parent) {
+      // Insert main element before the primary content
+      parent.insertBefore(mainElement, primaryContent);
+      // Move the primary content inside the main element
+      mainElement.appendChild(primaryContent);
+    }
+  }
+};
+
+// Run the fixes once the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  fixFakeLink();
+  wrapPrimaryContentInMain();
+});

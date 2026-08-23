@@ -180,7 +180,7 @@ export const validateNavigationLandmark = () => {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
-});
+};
 
 // Unique landmarks validation
 export const validateUniqueLandmarks = () => {

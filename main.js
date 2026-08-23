@@ -1,5 +1,3 @@
-// ... existing code for REACT_027 ...
-
 // REACT_037 - React Boolean Prop Check
 // Check if boolean props have a declared default value
 // Improve maintainability and avoid errors
@@ -11,11 +9,9 @@ const RULE_NAME_BOOLEAN_PROP = 'REACT_037';
 const SEVERITY_WARNING_BOOLEAN_PROP = 1; // warning severity
 
 module.exports = {
-  // ... existing code for REACT_027 and REACT_036 ...
-
   create(context) {
     // Function to check if a JSX attribute is a boolean prop with no default value
-    function isBooleanPropMissingDefaultValue(node) {
+    function isBooleanPropWithoutDefault(node) {
       return node.type === 'JSXAttribute' &&
              node.name.name === 'is' &&
              !node.value.type;
@@ -23,7 +19,7 @@ module.exports = {
 
     return {
       JSXAttribute(node) {
-        if (isBooleanPropMissingDefaultValue(node)) {
+        if (isBooleanPropWithoutDefault(node)) {
           context.report({
             node,
             message: `Add a default value for the boolean prop 'is' to improve maintainability and avoid errors`,

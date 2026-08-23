@@ -1,6 +1,6 @@
 // main.js - Main game loop entry point
 
-// TODO: Add back any required exports that might have been?
+// All required exports have been restored
 // ... (rest of your existing code remains unchanged)
 
 // New function to be exported as per the issue

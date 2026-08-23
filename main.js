@@ -1,9 +1,7 @@
-// TODO: This is the existing code that needs to be preserved
-
 // Import your accessibilityInsights object here, if needed
 
 function wrapPrimaryContentInMain(element) {
-  const main = document.querySelector('main');
+  const main = document.createElement('main');
   if (main && element) {
     main.appendChild(element);
   }
@@ -50,7 +48,7 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
 processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 
 // Wrap the primary content element in the main container
-wrapPrimaryContentInMain(document.body);
+wrapPrimaryContentInMain(accessibilityInsights.primaryContent);
 
 // ... existing exports and functions may remain in main.js
 

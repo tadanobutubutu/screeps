@@ -10,6 +10,7 @@ function App() {
         <h1>Screeps</h1>
       </header>
 
+      {/* Updated to use a single <main> element */}
       <main>
         <div className="container">
           <h2>Quality & Metrics Reports</h2>

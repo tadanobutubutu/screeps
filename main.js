@@ -75,3 +75,5 @@ const FixedLink = () => (
     </div>
   );
 }
+
+export default Main;

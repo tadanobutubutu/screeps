@@ -44,6 +44,3 @@ const templates = {
 };
 
 module.exports = templates;
-```
-
-This version of the file includes the existing templates, the new functions added in the new branch (`someFunction`, `anotherFunction`), the function from the original branch (`missingFunction`) that was missing in the new branch, and the new function `ensureUniqueMain`. This resolution preserves the functionality of all changes and it doesn't introduce any syntax errors or style inconsistencies.

@@ -1,10 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-
-// ... existing functionality ...
+// ... existing functions preserved ...
 
 // New functions added to address TODO at line 78
 const addLangAttribute = (htmlContent = '', lang = 'en') => {
@@ -87,7 +81,9 @@ const addAriaLabelToMyDiv = (htmlContent = '') => {
   );
 };
 
-// ... existing functions preserved: ...
+// Fix table structure issues and update SVG accessible names will be added separately
+
+// ... existing exports if any ...
 
 module.exports = {
   mainFunc,

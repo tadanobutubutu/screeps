@@ -335,4 +335,12 @@ export const createInPageButton = (link) => {
 };
 
 // Create accessible link
-export const createAccessibleLink = (element
+export const createAccessibleLink = (element, href = '#') => {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = element.textContent;
+  if (element.getAttribute('aria-label')) {
+    link.setAttribute('aria-label', element.getAttribute('aria-label'));
+  }
+  return link;
+};

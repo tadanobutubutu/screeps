@@ -64,7 +64,8 @@ const fixTableStructureIssues = () => {
     }
 
     // Add scope attribute to all th elements for accessibility
-    table.querySelectorAll('th').forEach(th => {
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
       if (!th.hasAttribute('scope')) {
         th.setAttribute('scope', 'col');
       }
@@ -96,11 +97,11 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role === 'navigation' ? 'nav' : role === 'search' ? 'search' : role}`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
-        const existingRole = elements[i].getAttribute('data-secondary-role') || role;
+        const existingRole = elements[i].getAttribute('role') || role;
         elements[i].setAttribute('role', `${existingRole}-${i + 1}`);
       }
     }
@@ -115,7 +116,7 @@ const fixFakeLinkIssues = () => {
     const href = link.getAttribute('href');
     if (!href || href === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && link.querySelector('img')) {
+      if (!link.textContent.trim() && link.querySelector('img')) {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }

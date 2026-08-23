@@ -1,13 +1,1 @@
-// Example of how to dynamically add the scope attribute to th elements
-const tableElements = document.querySelectorAll('th');
-tableElements.forEach((th) => {
-  th.setAttribute('scope', 'col');
-});
-
-// import React from 'react';
-
-// const MyComponent = () => {
-//   return <div lang="en">Content here</div>;
-// };
-
-// export default MyComponent;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

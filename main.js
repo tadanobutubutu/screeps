@@ -120,9 +120,9 @@ function getAccessibleLabel(element) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  const ariaLabelledby = ...
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = ...
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) {
       return labelElement.textContent;
     }

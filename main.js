@@ -6,6 +6,13 @@
 
 // ... existing functionality ...
 
+// Example fix for the React Fake Link issue:
+// Change the HTML from:
+// <a id="unrotate" href="#">rotate back</a>
+// To:
+// <button id="unrotate">rotate back</button>
+// And update any JavaScript handlers accordingly
+
 // New functions added to address TODO at line 78
 const addLangAttribute = (htmlContent = '', lang = 'en') => {
   if (typeof htmlContent !== 'string') {
@@ -34,7 +41,7 @@ const addMainLandmark = (htmlContent = '') => {
   // Add role="main" to the most appropriate container or wrap main content
   return htmlContent.replace(
     /(<body[^>]*>)([\s\S]*)(<\/body>)/,
-    '$1$2<div role="main">$3</div>'
+    '$1<main>$2</main>$3'
   );
 };
 

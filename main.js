@@ -26,7 +26,20 @@ function addressAccessibilityIssues(accessibilityInsights) {
   });
 }
 
-// New function to address requested changes
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  const uniqueLandmarks = new Set();
+  landmarks.forEach(landmark => {
+    if (!uniqueLandmarks.has(landmark.role)) {
+      uniqueLandmarks.add(landmark.role);
+    } else {
+      console.warn(`Warning: Duplicate landmark role: ${landmark.role}`);
+    }
+  });
+  return uniqueLandmarks.size === landmarks.length;
+}
+
+// New function to address requested changes for REACT_025
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
@@ -38,6 +51,12 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
       // You can add more landmark roles as needed
     }
   });
+
+  // Ensure unique landmarks
+  if (!ensureUniqueLandmarks(accessibilityInsights.landmarks)) {
+    throw new Error('Error: Duplicate landmark roles found');
+  }
+
   callback(accessibilityInsights);
 }
 

@@ -340,5 +340,6 @@ export {
   getAccessibleName,
   createAccessibilityProps,
   deduplicateLandmarks,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  icons,
 };

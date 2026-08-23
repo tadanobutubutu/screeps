@@ -1,16 +1,4 @@
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (This should be added in the client's build process, not in JavaScript)
-// - REACT_027: Fix 26 table structure issues (Add scope attributes to <th> elements)
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_025: Ensure unique landmarks
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks
-// - REACT_036: Fix 1 fake link issue
-
-// Import the missing function from ... as requested in the TODO comment
-import { addHtmlLangToRootElement } from './accessibility-utils.js';
 export { addHtmlLangToRootElement };
-
 
 // REACT_036: Fix fake link issues
 export function fixFakeLinks() {
@@ -62,7 +50,6 @@ export function fixTableStructure() {
   });
 }
 
-
 // REACT_017: Add landmarks
 export function addLandmarks() {
   const landmarks = ['header', 'nav', 'main', 'footer'];
@@ -75,7 +62,6 @@ export function addLandmarks() {
     });
   });
 }
-
 
 // REACT_025: Ensure unique landmarks
 export function addUniqueLandmarks() {
@@ -91,32 +77,6 @@ export function addUniqueLandmarks() {
       labelSet.add(existingLabel);
     }
   });
-}
-
-// REACT_041: Add accessible names to 2 SVGs with unique aria-labels
-export function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  const svg1 = svgs[0];
-  const svg2 = svgs[1];
-  if (svg1 && svg2) {
-    svg1.setAttribute('aria-label', 'SVG Icon 1');
-    svg2.setAttribute('aria-label', 'SVG Icon 2');
-    // Attach titles if not present
-    const existingTitle1 = svg1.querySelector('title');
-    const existingTitle2 = svg2.querySelector('title');
-    const title1 = existingTitle1 || document.createElement('title');
-    const title2 = existingTitle2 || document.createElement('title');
-    if (!existingTitle1) {
-      title1.textContent = 'Icon 1';
-      svg1.insertBefore(title1, svg1.firstChild);
-      title1.setAttribute('id', title1.id || 'svg-title-1');
-    }
-    if (!existingTitle2) {
-      title2.textContent = 'Icon 2';
-      svg2.insertBefore(title2, svg2.firstChild);
-      title2.setAttribute('id', title2.id || 'svg-title-2');
-    }
-  }
 }
 
 // React_017 new function: Validate Landmark Structure
@@ -190,32 +150,6 @@ export function addMainLandmark() {
 
 // REACT_027: Add scope attributes to header cells in tables
 export function addScopeToHeaderCells() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach((th) => {
-      // Check if it's in the first row (column header) or first column (row header)
-      const row = th.parentElement;
-      if (!row) return;
-      const cells = Array.from(row.children);
-      const cellIndex = cells.indexOf(th);
-      const rowIndex = Array.from(table.querySelectorAll('tr')).indexOf(row);
-      const isFirstRow = rowIndex === 0;
-      const isFirstColumn = cellIndex === 0;
-
-      if (isFirstRow && th.textContent.trim()) {
-        // Column header
-        th.setAttribute('scope', 'col');
-      } else if (isFirstColumn && rowIndex > 0 && th.textContent.trim()) {
-        // Potential row header (e.g., in the first column of each row)
-        th.setAttribute('scope', 'row');
-      }
-    });
-  });
-}
-
-// REACT_027: Fix table structure issues (NEW FUNCTION fixTableStructureIssues)
-export function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headerCells = table.querySelectorAll('th');

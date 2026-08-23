@@ -69,39 +69,7 @@ export const addScopeToTableHeaders = () => {
   });
 };
 
-// Rotate back function for unrotate button
-export const rotateBack = () => {
-  // Placeholder for rotate back functionality
-  console.log('Rotate back action triggered');
-};
-
-// Function to validate table accessibility
-export const validateTableAccessibility = (table) => {
-  const issues = [];
-  // Check if table has proper structure
-  if (!table.tHead) {
-    issues.push('Table missing thead element');
-  }
-  if (!table.tBODY) {
-    issues.push('Table missing tbody element');
-  }
-  // Check for headers
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      issues.push('Header missing scope attribute');
-    }
-  });
-  return issues;
-};
-
-// Function to fix table structure and add scope to <th> elements
-export const fixTableStructure = () => {
-  // ... (Existing fixTableStructure function)
-};
-
-// ===== NEW CODE TO ADDRESS REACT_027 (Table Structure Issues) =====
-// Additional table structure validation and fixes for REACT_027
+// New code to address REACT_027 (Table Structure Issues)
 export const validateTableStructure = () => {
   // Implementation for handling additional table structure issues
   console.log('Validating table structure for REACT_027...');
@@ -133,8 +101,7 @@ export const validateTableStructure = () => {
   return issues;
 };
 
-// ===== NEW CODE TO ADDRESS REACT_041 (SVG Accessible Names) =====
-// Helper function to get SVG accessible name
+// New code to address REACT_041 (SVG Accessible Names)
 export const getSvgAccessibleName = (svg) => {
   const title = svg.querySelector('title');
   const desc = svg.querySelector('desc');
@@ -142,7 +109,6 @@ export const getSvgAccessibleName = (svg) => {
   return title?.textContent || desc?.textContent || ariaLabel || '';
 };
 
-// Helper function to create SVG accessibility props
 export const getSvgAccessibleProps = (svg) => {
   const props = {};
   // Get accessible name
@@ -160,8 +126,7 @@ export const getSvgAccessibleProps = (svg) => {
   return props;
 };
 
-// ===== NEW CODE TO ADDRESS REACT_017 (Landmark Issues) =====
-// Banner landmark validation
+// New code to address REACT_017 (Landmark Issues)
 export const validateLandmark = () => {
   const banner = document.querySelector('[role="banner"], header');
   if (!banner) {
@@ -172,7 +137,6 @@ export const validateLandmark = () => {
   }
 };
 
-// Navigation landmark validation
 export const validateNavigationLandmark = () => {
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
@@ -182,7 +146,6 @@ export const validateNavigationLandmark = () => {
   });
 };
 
-// Unique landmarks validation
 export const validateUniqueLandmarks = () => {
   // Check for duplicate landmarks
   const landmarks = document.querySelectorAll('main, article, [role="contentinfo"], [role="complementary"], [role="search"]');
@@ -200,7 +163,6 @@ export const validateUniqueLandmarks = () => {
   });
 };
 
-// Landmark structure validation
 export const validateLandmarkStructure = () => {
   const structureIssues = [];
   // Check banner placement
@@ -218,8 +180,7 @@ export const validateLandmarkStructure = () => {
   return structureIssues;
 };
 
-// ===== NEW CODE TO ADDRESS REACT_025 (React Unique Landmarks) =====
-// Fix for duplicate <main> landmarks - converts extra main elements to <section>
+// New code to address REACT_025 (React Unique Landmarks)
 export const fixDuplicateMainLandmarks = () => {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
@@ -235,6 +196,11 @@ export const fixDuplicateMainLandmarks = () => {
           section.setAttribute(attr.name, attr.value);
         }
       });
+      // Add aria-label for accessibility if label exists
+      const ariaLabel = main.getAttribute('aria-label');
+      if (ariaLabel) {
+        section.setAttribute('aria-label', ariaLabel);
+      }
       // Move all child nodes to the section
       while (main.firstChild) {
         section.appendChild(main.firstChild);
@@ -245,13 +211,11 @@ export const fixDuplicateMainLandmarks = () => {
   }
 };
 
-// Helper function to get unique main landmark
 export const getUniqueMainLandmark = () => {
   const mainElements = document.querySelectorAll('main');
   return mainElements.length === 1 ? mainElements[0] : null;
 };
 
-// Helper function to convert duplicate main to section with aria-label
 export const convertDuplicateMainToSection = (mainElement, label) => {
   if (!mainElement || mainElement.tagName !== 'MAIN') {
     return null;
@@ -276,7 +240,6 @@ export const convertDuplicateMainToSection = (mainElement, label) => {
   return section;
 };
 
-// Function to validate that only one main landmark exists
 export const validateSingleMainLandmark = () => {
   const mainElements = document.querySelectorAll('main');
   return {
@@ -286,7 +249,6 @@ export const validateSingleMainLandmark = () => {
   };
 };
 
-// Function to wrap primary content in a <main> element if it's not already wrapped
 export const wrapPrimaryContentInMain = () => {
   // Check if a main element already exists
   const existingMain = document.querySelector('main');

@@ -56,7 +56,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/\^?(\d+)\./);
+    const match = version.match(/^(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -86,7 +86,7 @@ function validateDependencies(dependencies) {
       'jest', dependencies.jest,
       'typescript', dependencies.typescript
     );
-    if (!result.compatible) {
+    if (result.reason) {
       errors.push(result.reason);
     }
   }
@@ -96,7 +96,7 @@ function validateDependencies(dependencies) {
       'eslint', dependencies.eslint,
       'typescript', dependencies.typescript
     );
-    if (!result.compatible) {
+    if (result.reason) {
       errors.push(result.reason);
     }
   }
@@ -124,8 +124,8 @@ function getRecommendedUpdateOrder() {
  * @returns {Object} Breaking change information
  */
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajorMatch = currentVersion.match(/\^?(\d+)\./);
-  const newMajorMatch = newVersion.match(/\^?(\d+)\./);
+  const currentMajorMatch = currentVersion.match(/^(\d+)/);
+  const newMajorMatch = newVersion.match(/^(\d+)/);
   const currentMajor = currentMajorMatch ? currentMajorMatch[1] : '0';
   const newMajor = newMajorMatch ? newMajorMatch[1] : '0';
   
@@ -201,10 +201,12 @@ function validateLandmark(landmarkType, label) {
 }
 
 /**
- * Generate accessible name for SVG element
+ * Generate accessible name for SVG element (REACT_041)
  * @param {string} description - Description of the SVG
  * @param {Object} options - Additional options
- * @returns {Object} Accessible name configuration
+ * @param {string} options.role - ARIA role (default: 'img')
+ * @param {boolean} options.ariaHidden - Whether to hide from screen readers
+ * @returns {Object} Accessible name configuration with role, aria-label, and aria-hidden
  */
 function getSvgAccessibleName(description, options = {}) {
   return {
@@ -223,11 +225,11 @@ function validateTableAccessibility(tableConfig) {
   const issues = [];
   
   if (tableConfig.hasHeaders && !tableConfig.scope) {
-    issues.push('REACT_027: Table headers should have scope attributes');
+    issues.push('Table headers should have scope attributes');
   }
   
-  if (tableConfig.hasHeaders && !tableConfig.caption) {
-    issues.push('REACT_027: Tables should have captions for accessibility');
+  if (tableConfig.needsCaption && !tableConfig.caption) {
+    issues.push('Tables should have captions for accessibility');
   }
   
   return {
@@ -245,7 +247,7 @@ function validateTableAccessibility(tableConfig) {
  */
 function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
   if (cellType === 'th' && isHeader) {
-    return `scope="${orientation}"`;
+    return orientation;
   }
   return '';
 }

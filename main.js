@@ -1,11 +1,9 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_017: Add/fix 4 landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_025: Ensure unique landmarks (Updated code added below)
 // - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
@@ -123,7 +121,7 @@ const validateTableStructureAndScopeTh = () => {
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
+export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain, fixLandmarkIssues };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
@@ -222,8 +220,50 @@ const wrapPrimaryContentInMain = () => {
   }
 };
 
+// ==== NEW CODE TO ADDRESS REACT_017 (Landmark Issues) ====
+// Add/fix 4 landmark issues: banner, navigation, contentinfo, and main landmarks
+
+const fixLandmarkIssues = () => {
+  // 1. Banner landmark: role="banner"
+  let banner = document.querySelector('[role="banner"]');
+  if (!banner) {
+    const header = document.querySelector('header');
+    if (header) {
+      header.setAttribute('role', 'banner');
+      banner = header;
+    }
+  }
+
+  // 2. Navigation landmarks: role="navigation" for nav elements
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach(nav => {
+    if (!nav.hasAttribute('role') || nav.getAttribute('role') !== 'navigation') {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+
+  // 3. Contentinfo landmark: role="contentinfo"
+  let contentinfo = document.querySelector('[role="contentinfo"]');
+  if (!contentinfo) {
+    const footer = document.querySelector('footer');
+    if (footer) {
+      footer.setAttribute('role', 'contentinfo');
+      contentinfo = footer;
+    }
+  }
+
+  // 4. Main landmark: role="main"
+  let mainElement = document.querySelector('main');
+  if (mainElement) {
+    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
+      mainElement.setAttribute('role', 'main');
+    }
+  }
+};
+
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   fixFakeLink();
   wrapPrimaryContentInMain();
+  fixLandmarkIssues();
 });

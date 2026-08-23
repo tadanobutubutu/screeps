@@ -1,78 +1,53 @@
-// Import necessary accessibility-related libraries
 import React from 'react';
-import { Component, ReactDOMServer } from 'react';
-import { HTMLAttributes, ReactElement } from 'react';
+import { Component } from 'react';
 
 class Main extends Component {
   render() {
-    // Add lang attribute to HTML element
-    const htmlAttributes: HTMLAttributes<HTMLDivElement> = {
-      lang: 'en', // Update this with the desired language
-    };
+    // Fix table structure issues with semantic HTML
+    const Table = ({ id, children }) => (
+      <table id={id} aria-label="Accessible Data Table">
+        <thead>
+          <tr>
+            <th scope="col">Header 1</th>
+            <th scope="col">Header 2</th>
+          </tr>
+        </thead>
+        <tbody>
+          {children}
+        </tbody>
+      </table>
+    );
 
-    // Fix table structure issues (assuming you're using functional components for tables)
-    // For brevity, I'll only show one table with suggested changes
-    const Table = ({ children }) => {
-      // Accessible table structure using semantic HTML components
-      return (
-        <table aria-label="Accessible Table">
-          <thead>
-            <tr>
-              <th>Header 1</th>
-              <th>Header 2</th>
-            </tr>
-          </thead>
-          <tbody>{children}</tbody>
-        </table>
-      );
-    };
-
-    // Add landmarks
+    // Add landmarks with unique IDs
     const Landmarks = () => (
       <>
         <header id="banner">Header</header>
-        <main id="mainContent">{this.props.children}</main>
-        <footer>Footer</footer>
+        <nav id="navigation" aria-label="Main">Navigation</nav>
+        <main id="main-content">
+          {this.props.children}
+        </main>
+        <footer id="contentinfo">Footer</footer>
       </>
     );
 
-    // Add accessible names to SVGs
-    // Assuming `logo` and `menuIcon` are the two SVGs needed
-    const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-    const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
-
-    // Ensure unique landmarks
-    // For simplicity, I'll only update the main content, as id="mainContent" already exists
-    const uniqueMainContent = { ...htmlAttributes, id: `${htmlAttributes.id}-unique` };
-
-    // Fix fake link issue
-    // Assuming `fakeLink` is the element causing the issue. Update it as necessary
-    const fixedLink = (
-      <a href="#" onClick={() => console.warn('Fake Link clicked')}>
-        Fake Link
-      </a>
+    // Fix SVG accessible names
+    const Logo = () => (
+      <svg 
+        width="100" 
+        height="100" 
+        viewBox="0 0 100 100"
+        aria-label="Company Logo"
+      >
+        <circle cx="50" cy="50" r="40" fill="#333" />
+      </svg>
     );
 
-    return (
-      <div {...htmlAttributes}>
-        <Landmarks>
-          {/* Keep existing code/components as is */}
-          <Table id="existingTable">...</Table>
-          {/* Add updated table with better structure */}
-          <Table id="updatedTable">...</Table>
-          {/* Keep existing SVGs as is */}
-          {Logo()}
-          {MenuIcon()}
-          {fixedLink}
-          {/* Keep existing mainContent as is */}
-          <main id="mainContent" {...uniqueMainContent}>
-            {this.props.children}
-          </main>
-        </Landmarks>
-      </div>
-    );
-  }
-}
-
-// Export the Main component
-export default React.memo(Main);
+    const MenuIcon = () => (
+      <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24"
+        aria-label="Menu Icon"
+      >
+        <rect width="24" height="4" fill="#000" />
+        <

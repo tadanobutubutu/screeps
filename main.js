@@ -37,9 +37,18 @@ class Main extends Component {
     );
 
     // Add accessible names to SVGs
-    // Assuming `logo` and `menuIcon` are the two SVGs needed
-    const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-    const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
+    const Logo = () => (
+      <img
+        src="/logo.svg"
+        alt="Accessible Name for Logo" // Add a descriptive alt attribute
+      />
+    );
+    const MenuIcon = () => (
+      <img
+        src="/menu.svg"
+        alt="Accessible Name for Menu Icon" // Add a descriptive alt attribute
+      />
+    );
 
     // Ensure unique landmarks
     // For simplicity, I'll only update the main content, as id="mainContent" already exists

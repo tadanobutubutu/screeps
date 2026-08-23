@@ -1,6 +1,3 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-=======
-// main.js - Accessible Next.js Page
 import { Html, Head, Main, NextScript } from 'next/document';
 import ScreepsBot from '../ScreepsBot';
 
@@ -139,9 +136,3 @@ const styles = `
 
 // CSS to be added to globals.css
 export const accessibilityStyles = styles;
-
-// Add Screeps Bot import statement
-import ScreepsBot from '../ScreepsBot';
-```
-
-This resolved the Git merge conflict by integrating the changes from both branches and adding an additional link to open the `ScreepsBot` in the Header section of the `main.js` file.

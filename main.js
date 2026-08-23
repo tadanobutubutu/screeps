@@ -1,15 +1,19 @@
-// Hypothetical main.js content with conflict markers
-/*
-<<<<<<< HEAD
+// main.js - Cleaned version with conflicts resolved
+// Preserves all existing structure from HEAD (original branch)
+
+const mainContent = `
   <main>
     <!-- existing content -->
   </main>
+`;
+
+const secondaryContent = `
   <main>
     <!-- conflicting content -->
   </main>
-=======
-  <main>
-    <!-- conflicting content -->
-  </main>
->>>>>>> branch-name
-*/
+`;
+
+module.exports = {
+  mainContent,
+  secondaryContent
+};

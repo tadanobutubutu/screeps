@@ -1,5 +1,5 @@
 // TODO: Address accessibility issues from insight report:
-// Placeholder for accessibility-related code changes
+// TODO: This is the existing code that needs to be preserved
 
 // Accessibility utilities for common patterns
 const AccessibilityUtils = {
@@ -77,7 +77,7 @@ const AccessibilityUtils = {
         case 'Enter':
         case ' ':
           e.preventDefault();
-          onSelect(items[currentIndex], currentIndex);
+          onSelect && onSelect(currentIndex);
           break;
         case 'Home':
           e.preventDefault();
@@ -90,7 +90,7 @@ const AccessibilityUtils = {
         default:
           return;
       }
-      items[currentIndex]?.focus();
+      e.target.dataset.index = currentIndex;
     };
 
     return { handleKeyDown, setIndex: (index) => { currentIndex = index; } };
@@ -100,10 +100,10 @@ const AccessibilityUtils = {
 // Initialize accessibility features
 function initializeAccessibility() {
   // Ensure skip link functionality
-  const skipLink = document.querySelector('a[href^="#"]');
+  const skipLink = document.querySelector('.skip-link a, a.skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
-      const targetId = skipLink.getAttribute('href').substring(1);
+      const targetId = skipLink.getAttribute('href').slice(1);
       const target = document.getElementById(targetId);
       if (target) {
         target.tabIndex = -1;
@@ -114,10 +114,12 @@ function initializeAccessibility() {
 
   // Add reduced motion support
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  document.documentElement.setAttribute('data-reduced-motion', prefersReducedMotion.matches);
+  const reducedMotion = prefersReducedMotion.matches;
+  
+  document.documentElement.style.setProperty('--motion-reduced', reducedMotion ? '1' : '0');
   
   prefersReducedMotion.addEventListener('change', (e) => {
-    document.documentElement.setAttribute('data-reduced-motion', e.matches);
+    document.documentElement.style.setProperty('--motion-reduced', e.matches ? '1' : '0');
   });
 }
 

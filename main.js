@@ -4,6 +4,7 @@ module.exports = {
     // Main game loop logic
   },
   updateDependencyGraph: function() {
+    // Add scope attribute to table headers
     const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(header => {
       if (!header.hasAttribute('scope')) {
@@ -19,11 +20,14 @@ module.exports = {
     }
 
     // Convert the 'rotate back' anchor to a button (Fixes REACT_036)
-    const rotateBackLink = document.querySelector('a[href="#unrotate"], a.rotate-back, a#rotate-back');
+    const rotateBackLink = document.querySelector('a.rotate-back, a#rotate-back');
     if (rotateBackLink) {
       const button = document.createElement('button');
       button.id = 'unrotate';
       button.textContent = 'rotate back';
+      if (rotateBackLink.onclick) {
+        button.onclick = rotateBackLink.onclick;
+      }
       rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
     }
 
@@ -50,7 +54,7 @@ module.exports = {
 
     // Add/fix landmark issues (React_017)
     // Ensure main content is wrapped in proper landmarks
-    const main = document.querySelector('main') || document.querySelector('[role="main"]');
+    const main = document.querySelector('main') || document.getElementById('main');
     if (main && !main.id) {
       main.setAttribute('id', 'main-content');
     }
@@ -58,7 +62,7 @@ module.exports = {
     // Add accessible names to 2 SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
-      if (!svg.hasAttribute('role')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
       // Add aria-labelledby attribute to associate a description with the SVG
@@ -69,7 +73,7 @@ module.exports = {
       const titleId = `${svgId}-title`;
       let title = svg.querySelector('title');
       if (!title) {
-        title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title = document.createElement('title');
         title.id = titleId;
         title.textContent = 'SVG Image';
         svg.insertBefore(title, svg.firstChild);
@@ -81,7 +85,7 @@ module.exports = {
 
     // Ensure unique landmarks (2 issues)
     // Add unique IDs to landmark elements
-    const banners = document.querySelectorAll('[role="banner"]');
+    const banners = document.querySelectorAll('banner');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
@@ -109,7 +113,6 @@ module.exports = {
             button.setAttribute(attr.name, attr.value);
           }
         });
-        button.removeAttribute('tabindex');
         link.parentNode.replaceChild(button, link);
       }
     });

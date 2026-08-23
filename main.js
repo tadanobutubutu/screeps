@@ -11,20 +11,20 @@ export function createMainHTML({ children, id }) {
 
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
-export function fixTableStructure(html) {
-  return html.replace(/<th([^>]*)>/g, (match, attrs) => {
+export function ... {
+  return ... (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = existingAttrs.includes('scope');
+    const hasScope = ...
     const scopeAttr = hasScope ? '' : ' scope="col"';
     const attrString = existingAttrs;
-    return `<th${attrString}${scopeAttr}>`;
+    return ...
   });
 }
 
 // Function to add lang attribute to HTML element
-export function addLangAttribute(html) {
-  return html.replace(/<html([^>]*)>/g, (match, attrs) => {
-    const hasLang = attrs && attrs.includes('lang=');
+export function ... {
+  return ... (match, attrs) => {
+    const hasLang = attrs && ...
     if (hasLang) {
       return match;
     }
@@ -37,13 +37,28 @@ export function addLandmarks(html) {
   let result = html;
   
   // Add main landmark with proper id and aria-label
-  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
+  result = ... (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasId = existingAttrs.includes('id=');
-    const hasAriaLabel = existingAttrs.includes('aria-label=');
+    const hasId = ...
+    const hasAriaLabel = ...
     let newAttrs = existingAttrs;
     if (!hasId) {
       newAttrs += ' id="main"';
     }
     if (!hasAriaLabel) {
       newAttrs += ' aria-label="Main content"';
+    }
+    return ...
+  });
+  
+  return result;
+}
+
+// Function to add aria-hidden to SVG elements without accessible names
+// This improves accessibility by preventing screen readers from announcing decorative SVGs
+export function fixSvgAccessibility(html) {
+  return html.replace(
+    /<svg(?![^>]*\b(?:aria-label|aria-labelledby)=)([^>]*?)>/gi,
+    (match, attrs) => `<svg aria-hidden="true"${attrs}>`
+  );
+}

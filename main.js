@@ -19,7 +19,7 @@ const Main = ({ data }) => {
   // ... rest of your existing code
 
   // REACT_027: Fix 26 table structure issues
-  // Assuming you have tables with issues and you can apply appropriatearia-label, aria-describedby, etc. properties.
+  // Assuming you have tables with issues and you can apply appropriate aria-label, aria-describedby, etc. properties.
 
   // ... rest of your existing code
 
@@ -53,7 +53,7 @@ const Main = ({ data }) => {
   //   <title>Screeps Dashboard</title>
   //   <text y=".9em" ...>
   //   ...
-  // </svg>
+  //   </svg>
   
   // Option 2: Use aria-hidden="true" if decorative (no meaningful content)
   // <svg aria-hidden="true" ...>...</svg>
@@ -62,7 +62,7 @@ const Main = ({ data }) => {
   // <svg aria-labelledby="svg-title-1" ...>
   //   <title id="svg-title-1">Screeps Dashboard</title>
   //   ...
-  // </svg>
+  //   </svg>
 
   // ... rest of your existing code
 

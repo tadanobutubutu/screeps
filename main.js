@@ -1,3 +1,7 @@
+const existingCode = 'some code that should be preserved';
+
+// main.js
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
@@ -225,6 +229,45 @@ const wrapPrimaryContentInMain = () => {
     }
   }
 };
+
+    <button type="button" onclick="handleClick()">
+      Click me instead of using fake link
+    </button>
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>John Doe</td>
+          <td>john@example.com</td>
+          <td>Developer</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <footer role="contentinfo">
+    <p>&copy; 2024 Company Name</p>
+  </footer>
+</body>
+</html>
+  `;
+}
+
+export function handleClick() {
+  console.log('Button clicked');
+}
+
+// Preserve existing functionality
+export default renderApp;
+
+const anotherExistingCode = 'more code that should be preserved';
 
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

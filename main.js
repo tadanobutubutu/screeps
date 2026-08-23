@@ -1,15 +1,15 @@
 // Import your accessibilityInsights object here, if needed
 
 function wrapPrimaryContentInMain(element) {
-  const main = document.createElement('main');
+  const main = document.querySelector('main') || document.createElement('main');
   if (main && element) {
     main.appendChild(element);
   }
 }
 
 // Reusable wrapper function to address accessibility issues
-function wrapperFunction(accessibilityInsights) {
-  processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
+function wrapperFunction(callback, accessibilityInsights) {
+  processAccessibilityIssues(callback, accessibilityInsights);
 }
 
 // Assuming the function takes the insights object and processes it to address any issues
@@ -30,7 +30,7 @@ function addressAccessibilityIssues(accessibilityInsights) {
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
-    const element = document.getElementById(landmark.id);
+    const element = document.querySelector(landmark.selector);
 
     // If the element exists, add the appropriate landmark role
     if (element) {
@@ -38,14 +38,13 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
       // You can add more landmark roles as needed
     }
   });
-  callback(accessibilityInsights); // Move the callback to here
+  callback(accessibilityInsights);
 }
 
 // Wrap the existing addressAccessibilityIssues function with the new processAccessibilityIssues wrapper function
 processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 
 // Wrap the primary content element in the main container
-wrapPrimaryContentInMain(element);
 
 // ... existing exports and functions may remain in main.js
 

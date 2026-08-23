@@ -14,6 +14,8 @@ const AppLayout: React.FC = ({ children }) => {
       {/* Example of using the icons */}
       <img src={icons.icon} alt="Screeps Dashboard Icon" />
       <img src={icons.apple} alt="Screeps Apple Icon" />
+      {/* Fixing the issue with the fake link */}
+      <button id="unrotate" onClick={() => {/* logic to rotate back */}}>rotate back</button>
     </div>
   );
 };

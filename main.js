@@ -86,7 +86,7 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
@@ -130,6 +130,32 @@ const enhanceAccessibility = () => {
   ensureUniqueLandmarks();
   fixFakeLinkIssues();
 };
+
+// Combined initialization function
+const initializeAccessibility = () => {
+  enhanceAccessibility();
+  initUnrotate();
+  initDomEnhancements();
+};
+
+// Update the module.exports object
+module.exports.Dashboard = Dashboard;
+module.exports.myFunction = myFunction;
+module.exports.myMissingFunction1 = myMissingFunction1;
+module.exports.myMissingFunction2 = myMissingFunction2;
+module.exports.myNewFunction = myNewFunction;
+module.exports.myNewFunction2 = myNewFunction2;
+module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports.enhancedAccessibility = enhancedAccessibility;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.fixTableStructureIssues = fixTableStructureIssues;
+module.exports.addMainLandmark = addMainLandmark;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
+module.exports.initUnrotate = initUnrotate;
+module.exports.initDomEnhancements = initDomEnhancements;
+module.exports.initializeAccessibility = initializeAccessibility;
 
 // Alias for compatibility with origin/main naming
 const enhancedAccessibility = enhanceAccessibility;
@@ -175,29 +201,3 @@ const initDomEnhancements = () => {
     }
   });
 };
-
-// Combined initialization function
-const initializeAccessibility = () => {
-  enhanceAccessibility();
-  initUnrotate();
-  initDomEnhancements();
-};
-
-// Update the module.exports object
-module.exports.Dashboard = Dashboard;
-module.exports.myFunction = myFunction;
-module.exports.myMissingFunction1 = myMissingFunction1;
-module.exports.myMissingFunction2 = myMissingFunction2;
-module.exports.myNewFunction = myNewFunction;
-module.exports.myNewFunction2 = myNewFunction2;
-module.exports.enhanceAccessibility = enhanceAccessibility;
-module.exports.enhancedAccessibility = enhancedAccessibility;
-module.exports.addLangAttribute = addLangAttribute;
-module.exports.fixTableStructureIssues = fixTableStructureIssues;
-module.exports.addMainLandmark = addMainLandmark;
-module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-module.exports.initUnrotate = initUnrotate;
-module.exports.initDomEnhancements = initDomEnhancements;
-module.exports.initializeAccessibility = initializeAccessibility;

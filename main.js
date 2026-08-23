@@ -5,7 +5,7 @@ import React from 'react';
 
 const Layout = ({ children }) => {
   return (
-    <div>
+    <div lang="en">
       {/* ... other components ... */}
       <svg 
         width="16" 
@@ -17,8 +17,6 @@ const Layout = ({ children }) => {
         <title>Icon</title>
         {/* SVG content */}
       </svg>
-      {/* ... other components ... */}
-      
       {/* Rotate back button - use button for in-page actions */}
       <button 
         id="unrotate" 

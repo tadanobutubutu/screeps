@@ -2,9 +2,7 @@ import React from 'react';
 import { useTable } from 'react-table';
 
 // TODO: Add back any required exports that might have been removed
-// Here is an example of how to export a required function from another module:
-// Import functions from other modules if needed
-// const { someFunction } = require('./utils');
+const restoredModule = require('./utils');
 
 // Existing code and exports
 export function existingFunction1() {
@@ -20,19 +18,8 @@ export function newFunction1() {
 
 export const newConst1 = 'new value';
 
-// ----- BEGIN ORIGINAL CODE (restored) -----
-// Some of the original exports and utilities that were inadvertently removed
-export function restoredFunction(param) {
-  // Implementation that was part of the original code base
-  return param;
-}
-
-export const LEGACY_CONSTANT = 'legacy_constant';
-
-// Example of a required module export that was stripped
-const restoredModule = {};
+// FIX: Add back the stripped module export
 export default restoredModule;
-// ----- END ORIGINAL CODE -----
 
 // Fix the language attribute on non-accessible elements (updated)
 export function reactLanguageAttributeFix(element) {
@@ -276,7 +263,7 @@ export function fixTableStructureIssues() {
 
 // Ensure each landmark element has a unique identifier for accessibility
 export function assignUniqueLandmarkIds() {
-  const landmarkRoles = ['header','nav','main','footer','article','aside','section','complementary','banner','contentinfo','navigation','search'];
+  const landmarkRoles = ['header','nav','main','footer','article','aside','section'];
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, idx) => {

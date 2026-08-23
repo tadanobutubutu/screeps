@@ -29,7 +29,7 @@ export function addSvgAccessibleNames() {
                 svg.setAttribute('role', 'img');
             }
         }
-    });
+    };
 }
 
 // - REACT_036: Fix 1 fake link issue

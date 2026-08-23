@@ -122,6 +122,7 @@ const validateTableStructureAndScopeTh = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+
 export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
@@ -183,18 +184,18 @@ const wrapPrimaryContentInMain = () => {
     }
   }
 
-  // If no specific primary content selector found, 
+  // If no specific primary content selector found,
   // wrap the first content section that appears after header/hero sections
   if (!primaryContent) {
     const bodyChildren = Array.from(document.body.children);
     const headerElements = document.querySelectorAll('header, .hero, .banner');
-    
+
     // Find content that comes after typical header elements
     for (const child of bodyChildren) {
-      const isHeader = Array.from(headerElements).some(header => 
+      const isHeader = Array.from(headerElements).some(header =>
         header.contains(child) || header === child
       );
-      
+
       if (!isHeader && child.textContent.trim() && !child.closest('main')) {
         // Skip navigation, aside, and footer elements
         const tagName = child.tagName.toLowerCase();
@@ -209,12 +210,7 @@ const wrapPrimaryContentInMain = () => {
   // If we found primary content, wrap it in a main element
   if (primaryContent) {
     const mainElement = document.createElement('main');
-    
-    // If the primary content has a role="main" attribute, remove it since <main> has implicit role
-    if (primaryContent.hasAttribute('role') && primaryContent.getAttribute('role') === 'main') {
-      primaryContent.removeAttribute('role');
-    }
-    
+
     // Get the parent of the primary content
     const parent = primaryContent.parentNode;
     if (parent) {

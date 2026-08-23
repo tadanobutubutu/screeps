@@ -3,8 +3,8 @@ import Head from 'next/head';
 
 // Helper function to create accessible SVG icons
 export const createAccessibleSVG = (iconName, viewBox = "0 0 24 24", className = "icon") => (
-  <svg viewBox={viewBox} className={className} role="img" aria-labelledby={`${iconName}-title`}>
-    <title id={`${iconName}-title`}>{iconName}</title>
+  <svg viewBox={viewBox} className={className} role="img" aria-label={iconName}>
+    <title>{iconName}</title>
   </svg>
 );
 
@@ -72,6 +72,11 @@ export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
   );
 };
 
+// New function to add lang attribute to HTML element (REACT_015)
+export const addLangAttribute = (lang = 'en') => {
+  return { lang };
+};
+
 // Main component
 export default function Home({ projects }) {
   // Define the columns for the table
@@ -82,60 +87,59 @@ export default function Home({ projects }) {
   ];
 
   return (
-    <>
+    <div lang="en">
       <Head>
-        <html lang="en" />
+        <title>Project Manager</title>
       </Head>
       
-      <div className="page-container">
-        <header role="banner">
-          <h1>Accessibility Fixed Page</h1>
-        </header>
+      <header role="banner">
+        <h1>Accessibility Fixed Page</h1>
+      </header>
 
-        <main role="main">
-          <nav role="navigation" aria-label="Main navigation">
-            <ul>
-              <li><a href="/">Home</a></li>
-              <li><a href="/projects">Projects</a></li>
-            </ul>
-          </nav>
+      <main>
+        <nav role="navigation" aria-label="Main navigation">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/projects">Projects</a></li>
+          </ul>
+        </nav>
 
-          <section aria-labelledby="projects-heading">
-            <h2 id="projects-heading">Projects</h2>
+        <section aria-labelledby="projects-heading">
+          <h2 id="projects-heading">Projects</h2>
             
-            <table role="table">
-              <thead>
-                <tr>
-                  {columns.map((col, index) => (
-                    <th key={index} scope="col">{col.Header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {projects && projects.map((project) => (
-                  <tr key={project.id}>
-                    <td>{project.name}</td>
-                    <td>{project.status}</td>
-                    <td>{project.updated}</td>
-                  </tr>
+          <table>
+            <caption>Project List</caption>
+            <thead>
+              <tr>
+                {columns.map((col, index) => (
+                  <th key={index} scope="col">{col.Header}</th>
                 ))}
-              </tbody>
-            </table>
-          </section>
+              </tr>
+            </thead>
+            <tbody>
+              {projects && projects.map((project) => (
+                <tr key={project.id}>
+                  <td>{project.name}</td>
+                  <td>{project.status}</td>
+                  <td>{project.updated}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
-          <section aria-labelledby="icons-heading">
-            <h2 id="icons-heading">Accessible Icons</h2>
-            <div className="icons-container">
-              <createAccessibleSVG iconName="Settings" />
-              <createAccessibleSVG iconName="Home" />
-            </div>
-          </section>
-        </main>
+        <section aria-labelledby="icons-heading">
+          <h2 id="icons-heading">Accessible Icons</h2>
+          <div className="icons-container">
+            <createAccessibleSVG iconName="Settings" />
+            <createAccessibleSVG iconName="Home" />
+          </div>
+        </section>
+      </main>
 
-        <footer role="contentinfo">
-          <p>&copy; 2024 Project Manager</p>
-        </footer>
-      </div>
-    </>
+      <footer role="contentinfo">
+        <p>&copy; 2024 Project Manager</p>
+      </footer>
+    </div>
   );
 }

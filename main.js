@@ -1,7 +1,6 @@
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// Fix language for the HTML root element
 
 export const metadata = {
   title: 'Screeps Dashboard',
@@ -12,3 +11,7 @@ export const metadata = {
     apple: { url: 'data:image/svg+xml', href: ... ... viewBox="0 0 100 100"><title>Screeps Dashboard Apple Icon</title><circle cx="50" cy="50" r="40" ... },
   },
 };
+
+export function getHtmlLang() {
+  return metadata.htmlLang;
+}

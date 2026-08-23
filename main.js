@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // Import the myFunction from the required file
 import myFunction from './myFunction';
 
@@ -37,10 +40,10 @@ const enhanceAccessibility = () => {
 
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    svg.setAttribute('aria-labelledby', 'svgLabel1');
+    svg.setAttribute('aria-label', 'svgLabel1');
   });
 
-  const navigation = document.querySelector('#navigation');
+  const navigation = document.querySelector('nav');
   navigation.setAttribute('role', 'navigation');
 
   const links = document.querySelectorAll('a');

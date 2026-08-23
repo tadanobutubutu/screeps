@@ -12,6 +12,22 @@ var htmlContent = `<html lang="en">
 </head>
 <body>
   <script src="main.js"></script>
+  <!-- Adding scope attribute to all th elements -->
+  <table>
+    <thead>
+      <tr>
+        <th scope="col"><div>src/constants.js</div></th>
+        <th scope="col"><div>src/managers/roomManager.js</div></th>
+        <th scope="col"><div>src/managers/spawnManager.js</div></th>
+        <th scope="col"><div>src/managers/towerManager.js</div></th>
+        <th scope="col"><div>src/roles/builder.js</div></th>
+        <!-- Additional headers with scope="col" -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table rows here -->
+    </tbody>
+  </table>
 </body>
 </html>`;
 

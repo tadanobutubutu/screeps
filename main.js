@@ -42,7 +42,7 @@ class Main extends Component {
 
     // Ensure unique landmarks
     // For simplicity, I'll only update the main content, as id="mainContent" already exists
-    const uniqueMainContent = { ...htmlAttributes, id: ... };
+    const uniqueMainContent = { ...htmlAttributes, id: "mainContent" };
 
     // Fix fake link issue
     // Assuming `fakeLink` is the element causing the issue. Update it as necessary

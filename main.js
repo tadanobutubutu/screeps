@@ -9,6 +9,11 @@ import React from 'react';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+// Initialize application logic
+document.addEventListener('DOMContentLoaded', () => {
+  addressAccessibilityIssues();
+});
+
 // Fix REACT_015: Add proper lang attribute to HTML element
 export function createHtmlElement(language = 'en') {
   // Existing function with the addition of the critical lang attribute
@@ -214,4 +219,7 @@ const addressAccessibilityIssues = function() {
   setLanguageAttribute('en');
 };
 
-// ... (The remaining code from original main.js)
+// Set language attribute on HTML root element
+function setLanguageAttribute(lang) {
+  document.documentElement.lang = lang;
+}

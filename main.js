@@ -128,7 +128,7 @@ export const validateTableStructure = () => {
     const caption = table.querySelector('caption');
     if (headers.length > 0 && !caption) {
       issues.push(`Table ${index + 1}: Missing caption for table with headers`);
-    });
+    }
   });
   return issues;
 };
@@ -282,4 +282,30 @@ export const validateSingleMainLandmark = () => {
     isValid: mainElements.length <= 1,
     message: mainElements.length > 1 ? 'Duplicate main landmarks found' : 'No issues found'
   };
+};
+
+// Function to wrap primary content in a <main> element if it's not already wrapped
+export const wrapPrimaryContentInMain = () => {
+  // Check if a main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain; // Already wrapped, no need to do anything
+  }
+
+  // Attempt to find primary content - this selector may need adjustment based on actual markup
+  const primaryContent = document.querySelector('body > *:not(header):not(nav):not(footer):not(main)');
+
+  if (!primaryContent) {
+    console.log('No primary content found to wrap in main.');
+    return null;
+  }
+
+  // Create a new main element
+  const mainElement = document.createElement('main');
+
+  // Move the primary content into the main element
+  primaryContent.parentNode.replaceChild(mainElement, primaryContent);
+  mainElement.appendChild(primaryContent);
+
+  return mainElement;
 };

@@ -8,6 +8,13 @@ const Dashboard = () => {
 module.exports.Dashboard = Dashboard; // Preserve existing default export
 module.exports.myFunction = myFunction; // Add the new export for myFunction
 
+// Note: dependencyGraphContent and indexContent should be used when rendering
+// dependency graph visualizations or index pages. These content modules provide
+// the necessary structure and data for those components.
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (should be set in index.html or document head)
 // - REACT_017: Add/fix 4 landmark issues (ensure proper use of <header>, <main>, <nav>, <footer>)

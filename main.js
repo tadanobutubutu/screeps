@@ -1,4 +1,9 @@
 const dashboardComponents = require('./dashboard/components/Dashboard');
 
-// Preserving existing main.js structure and content
-module.exports = dashboardComponents;
+// Ensuring there is only one <main> element in the rendered tree
+const Dashboard = dashboardComponents.default;
+
+module.exports = {
+  ...dashboardComponents,
+  Dashboard: Dashboard,
+};

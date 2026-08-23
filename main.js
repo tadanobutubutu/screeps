@@ -21,9 +21,9 @@ export default function Main() {
           </button>
 
           <ul>
-            <li><Link ...
-            <li><Link ...
-            <li><Link ...
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+            <li><Link href="/services">Services</Link></li>
           </ul>
         </nav>
       </header>
@@ -35,8 +35,8 @@ export default function Main() {
           <table>
             <thead>
               <tr>
-                <th scope="col"...
-                <th scope="col"...
+                <th scope="col">Item</th>
+                <th scope="col">Value</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>
@@ -52,9 +52,9 @@ export default function Main() {
           </table>
         </section>
 
-        <section ...
-          <h2 ... 2</h2>
-          <p>Content here</p>
+        <section>
+          <h2>Content here</h2>
+          <p>Content text</p>
         </section>
       </main>
 
@@ -73,9 +73,9 @@ export default function Main() {
         {sidebarOpen && (
           <nav aria-label="Sidebar navigation">
             <ul>
-              <li><Link ...
-              <li><Link ...
-              <li><Link ...
+              <li><Link href="/about">About</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
+              <li><Link href="/services">Services</Link></li>
             </ul>
           </nav>
         )}

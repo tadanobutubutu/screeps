@@ -15,6 +15,10 @@ function App() {
           <h1 id="main-heading">Application Content</h1>
           <div className="app-content">
             {/* Existing App content */}
+
+            {/* Replace this anchor tag with a button for the "rotate back" functionality */}
+            <button id="unrotate" onClick={() => /* Your existing logic here */}>rotate back</button>
+
             {/* Example of adding scope attribute to a <th> element */}
             <table aria-describedby="table-description">
               <caption id="table-description">Data table with accessible headers</caption>

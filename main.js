@@ -77,7 +77,7 @@ function addLangAttribute() {
 
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
-  const mainElement = document.querySelector('[role="main"]');
+  const mainElement = document.querySelector('main, [role="main"]');
   if (!mainElement) {
     const main = document.createElement('main');
     main.setAttribute('role', 'main');
@@ -87,7 +87,7 @@ function addMainLandmark() {
 
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
-  const mainElement = document.querySelector('[role="main"]');
+  const mainElement = document.querySelector('main, [role="main"]');
   if (!mainElement) {
     console.error('No main landmark found in the document.');
     return false;
@@ -101,7 +101,7 @@ function validateLandmarkRoles() {
   const foundLandmarks = {};
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
-    const tagElements = role === 'navigation' ? Array.from(document.querySelectorAll(role)) : [];
+    const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
     const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
     foundLandmarks[role] = totalCount;
   });
@@ -126,9 +126,9 @@ function validateLandmarkRoles() {
 
 // NEW: Fix fake link issues - ensure links have proper href and buttons use button element
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach(link => {
-    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       // Check if it's a fake link (looks like a button)
       const role = link.getAttribute('role');
       const hasButtonStyling = window.getComputedStyle(link).display === 'inline-block' || 
@@ -137,7 +137,7 @@ function fixFakeLinks() {
         // Convert to proper button
         link.setAttribute('role', 'button');
         if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
-          console.warn('Button-like link missing accessible name');
+          console.warn('Button link missing accessible name');
         }
       }
     }
@@ -156,9 +156,9 @@ function fixLandmarkIssues() {
   }
   
   // Ensure navigation elements have proper labels
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   navElements.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
@@ -166,7 +166,7 @@ function fixLandmarkIssues() {
   // Ensure complementary landmarks are properly marked
   const asides = document.querySelectorAll('aside, [role="complementary"]');
   asides.forEach(aside => {
-    if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+    if (!aside.getAttribute('aria-label') && !aside.getAttribute('aria-labelledby')) {
       aside.setAttribute('aria-label', 'Complementary content');
     }
   });

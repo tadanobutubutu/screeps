@@ -6,13 +6,13 @@ document.getElementById('myButton').setAttribute('aria-pressed', 'false');
 // New function to handle button click
 function handleButtonClick() {
   const button = document.getElementById('myButton');
-  button.setAttribute('aria-pressed', 'true');
+  button.setAttribute('aria-pressed', button.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
 }
 
 // New function to ensure that the HTML has a lang attribute
 function addHtmlLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', 'en'); // Change this to the desired language
+  html.dataset.lang = 'en'; // Change this to the desired language
 }
 
 // Initialize the HTML lang attribute
@@ -31,7 +31,7 @@ document.getElementById('myButton').addEventListener('click', handleButtonClick)
 // Import dependencyGraphContent if it is used in the code
 const { dependencyGraphContent } = require('./dependencyGraph');
 
-// Similarly, if needed, add the index view function and its imports for the indexContent
+// If you need to handle any cases where indexContent is used, add this function and imports as needed:
 function renderIndexView() {
   const indexElement = document.getElementById('indexView');
   const { indexContent } = require('./index');
@@ -41,7 +41,7 @@ function renderIndexView() {
 // If indexContent is used, import it.
 const { indexContent } = require('./index');
 
-// TODO: Add back any required exports that might have been removed
+// TODO: Add any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };

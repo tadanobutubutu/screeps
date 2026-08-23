@@ -101,7 +101,7 @@ const createAccessibleModal = (props) => {
   // Focus trap management
   modal.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      modal.dispatchEvent(new CustomEvent('close'));
+      closeBtn.click();
     }
   });
 
@@ -114,7 +114,7 @@ let mainElement = null;
 // Add new function: addMainElementAriaAttributes
 const addMainElementAriaAttributes = () => {
   if (typeof document !== 'undefined') {
-    mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+    mainElement = document.querySelector('main') || document.getElementById('main');
     if (mainElement) {
       mainElement.setAttribute('role', 'main');
       if (!mainElement.id) {
@@ -195,4 +195,8 @@ const addAccessibleNamesToSVGs = () => {
         } else {
           svg.appendChild(title);
         }
-        svg.setAttribute
+        svg.setAttribute('aria-labelledby', title.id);
+      }
+    });
+  }
+};

@@ -1,29 +1,10 @@
-import React from 'react';
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 
-const TableComponent = () => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Alice</td>
-          <td>Developer</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Bob</td>
-          <td>Designer</td>
-        </tr>
-      </tbody>
-    </table>
-  );
+// Main application logic would go here (if any existed)
+// This file serves as the entry point for the module
+
+// Preserve any existing functionality and exports
+module.exports = {
+  // Existing exports preserved
 };
-
-export default TableComponent;

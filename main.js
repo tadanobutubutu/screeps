@@ -139,7 +139,7 @@ function addMainLandmark(element) {
  * @returns {boolean} True if at least one landmark exists
  */
 function validateLandmark(doc) {
-  const landmarks = doc.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
   const validLandmarkRoles = [
     'banner', 'navigation', 'main', 'complementary', 
     'contentinfo', 'search', 'form'
@@ -152,7 +152,7 @@ function validateLandmark(doc) {
   }
   
   // Also check for native HTML5 landmark elements
-  const nativeLandmarks = doc.querySelectorAll('nav, main, aside, footer');
+  const nativeLandmarks = document.querySelectorAll('nav, main, aside, footer');
   return nativeLandmarks.length > 0;
 }
 
@@ -183,7 +183,7 @@ function ensureUniqueLandmarks(landmarks) {
  */
 function validateLandmarkStructure(doc) {
   const errors = [];
-  const landmarks = doc.querySelectorAll('main, [role="main"]');
+  const landmarks = document.querySelectorAll('main, [role="main"]');
   
   // Ensure exactly one main landmark
   if (landmarks.length === 0) {
@@ -193,7 +193,7 @@ function validateLandmarkStructure(doc) {
   }
   
   // Check for proper landmark nesting
-  const headerElements = doc.querySelectorAll('[role="banner"]');
+  const headerElements = document.querySelectorAll('[role="banner"]');
   headerElements.forEach(header => {
     const parent = header.parentElement;
     if (parent && (parent.tagName === 'ARTICLE' || parent.tagName === 'ASIDE' || parent.getAttribute?.('role') === 'complementary')) {
@@ -203,7 +203,7 @@ function validateLandmarkStructure(doc) {
   
   // Check for unique landmark labels
   const landmarkLabels = {};
-  const labeledLandmarks = doc.querySelectorAll('[aria-labelledby]');
+  const labeledLandmarks = document.querySelectorAll('[aria-labelledby]');
   labeledLandmarks.forEach(landmark => {
     const label = landmark.getAttribute('aria-labelledby') || '';
     if (landmarkLabels[label]) {

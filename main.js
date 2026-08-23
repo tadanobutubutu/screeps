@@ -16,21 +16,53 @@ function getFilePath(filename) {
 
 // Address accessibility issues as per insight report
 function makeElementAccessible(element) {
-    // TODO: Implement tangible solution to make specified element accessible according to the report
-    // For now, a placeholder function as we don't have specific details on the element or report
-    console.log('Making element accessible with placeholder function');
+    if (element.tagName.toLowerCase() === 'html') {
+        element.setAttribute('lang', 'en'); // Assuming 'en' as default language
+    } else if (element.tagName.toLowerCase() === 'svg') {
+        element.setAttribute('aria-label', 'SVG description'); // Placeholder description
+    }
 }
 
 // Implement fixTableStructureIssues to fix table structure issues
 function fixTableStructureIssues() {
-    // TODO: Implement fixTableStructureIssues();
-    console.log('Implementing fixTableStructureIssues()');
-    // Placeholder implementation to avoid breaking tests
+    const tables = document.getElementsByTagName('table');
+    for (let table of tables) {
+        for (let i = 0; i < table.rows.length; i++) {
+            for (let j = 0; j < table.rows[i].cells.length; j++) {
+                let cell = table.rows[i].cells[j];
+                if (cell.tagName.toLowerCase() === 'th') {
+                    if (!cell.hasAttribute('scope')) {
+                        cell.setAttribute('scope', 'col');
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Add proper landmark regions for improved accessibility
 function addProperLandmarkRegions() {
-    console.log('Adding proper landmark regions for accessibility');
+    const mainContent = document.getElementById('main-content');
+    const navigation = document.getElementById('navigation');
+    const footer = document.getElementById('footer');
+
+    if (mainContent) mainContent.setAttribute('role', 'main');
+    if (navigation) navigation.setAttribute('role', 'navigation');
+    if (footer) footer.setAttribute('role', 'contentinfo');
+
+    // Fixing landmark issues by adding appropriate roles and attributes
+    document.body.setAttribute('role', 'document');
+    document.body.setAttribute('lang', 'en'); // Ensuring the body has the 'lang' attribute
+}
+
+// Add a fake link fixer
+function fixFakeLinkIssues() {
+    const links = document.getElementsByTagName('a');
+    for (let link of links) {
+        if (link.rel === 'noopener noreferrer' && !link.href) {
+            link.style.display = 'none'; // Hide fake links
+        }
+    }
 }
 
 module.exports = {
@@ -38,5 +70,6 @@ module.exports = {
     getFilePath,
     makeElementAccessible,
     fixTableStructureIssues,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    fixFakeLinkIssues
 };

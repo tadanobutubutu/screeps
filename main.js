@@ -9,6 +9,6 @@ module.exports.someFunction = function() {
   return 'some value';
 };
 
-module.exports.anotherFunction = function(arg) {
+module.exports.processArg = function(arg) {
   return arg;
 };

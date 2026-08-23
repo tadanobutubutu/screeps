@@ -4,14 +4,14 @@
 // Address accessibility issues from insight report
 
 function wrapPrimaryContentInMain(element) {
-  const main = document.querySelector('main') || document.querySelector('[role="main"]');
+  const main = document.querySelector('main') || document.createElement('main');
   if (main && element) {
     main.appendChild(element);
   }
 }
 
 // Reusable wrapper function to address accessibility issues
-function wrapperFunction(callback, accessibilityInsights) {
+function wrapperFunction(accessibilityInsights, callback) {
   processAccessibilityIssues(callback, accessibilityInsights);
 }
 
@@ -19,7 +19,7 @@ function wrapperFunction(callback, accessibilityInsights) {
 function addressAccessibilityIssues(accessibilityInsights) {
   accessibilityInsights.issues.forEach(issue => {
     // Find the element with the ID that matches the issue
-    const element = document.getElementById(issue.elementId);
+    const element = document.getElementById(issue.id);
 
     // If the element exists, apply the accessibility solution
     if (element) {
@@ -43,9 +43,10 @@ function ensureUniqueLandmarks(landmarks) {
 }
 
 // Add missing scope attributes to <th> elements for accessibility
-function addMissingScopeToHeaders() {
+function addMissingScopeAttributes(table) {
   // Select all <th> elements that do not already have a scope attribute
-  document.querySelectorAll('th:not([scope])').forEach(el => {
+  const headers = (table || document).querySelectorAll('th:not([scope])');
+  headers.forEach(el => {
     // Apply a default scope of "col" (column header)
     el.setAttribute('scope', 'col');
   });
@@ -55,7 +56,7 @@ function addMissingScopeToHeaders() {
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
-    const element = document.getElementById(landmark.elementId);
+    const element = document.getElementById(landmark.id);
 
     // If the element exists, add the appropriate landmark role
     if (element) {
@@ -78,7 +79,134 @@ processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 // Wrap the primary content element in the main container
 
 // Add missing scope attributes to table header cells (fixes REACT_027)
-addMissingScopeToHeaders();
+function validateTableAccessibility(table) {
+  const issues = [];
+  const thElements = (table || document).querySelectorAll('th');
+  
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      issues.push({
+        element: th,
+        issue: 'Missing scope attribute on table header',
+        solution: 'col'
+      });
+    }
+  });
+  
+  return { valid: issues.length === 0, issues };
+}
+
+function validateTableStructure(table) {
+  const issues = [];
+  const rows = (table || document).querySelectorAll('tr');
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      issues.push({
+        row: rowIndex,
+        issue: 'Empty table row'
+      });
+    }
+  });
+  
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute(element) {
+  return element ? element.getAttribute('lang') : null;
+}
+
+function getFullLangAttribute(element) {
+  const lang = getLangAttribute(element);
+  if (lang && lang.includes('-')) {
+    return lang;
+  }
+  return lang ? `${lang}-en` : 'en';
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmark(element) {
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const role = element ? element.getAttribute('role') : null;
+  return role && validRoles.includes(role);
+}
+
+function validateLandmarkStructure(document) {
+  const landmarks = (document || window.document).querySelectorAll('[role]');
+  const issues = [];
+  const mainLandmarks = [];
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (role === 'main') {
+      mainLandmarks.push(landmark);
+    }
+  });
+  
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      issue: 'Multiple main landmarks found',
+      count: mainLandmarks.length
+    });
+  }
+  
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svg) {
+  const title = svg ? svg.querySelector('title') : null;
+  const ariaLabel = svg ? svg.getAttribute('aria-label') : null;
+  const ariaLabelledby = svg ? svg.getAttribute('aria-labelledby') : null;
+  
+  if (ariaLabel) return ariaLabel;
+  if (ariaLabelledby) {
+    const titleElement = document.getElementById(ariaLabelledby);
+    return titleElement ? titleElement.textContent : null;
+  }
+  if (title) return title.textContent;
+  
+  return null;
+}
+
+function setSvgAccessibleName(svg, name) {
+  if (!svg) return false;
+  
+  // First check if there's already a title element
+  let title = svg.querySelector('title');
+  
+  if (!title) {
+    title = document.createElement('title');
+    svg.insertBefore(title, svg.firstChild);
+  }
+  
+  title.textContent = name;
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', name);
+  
+  return true;
+}
+
+// REACT_036: Fix fake link issue
+function createInPageButton(text, action) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.setAttribute('type', 'button');
+  if (typeof action === 'function') {
+    button.addEventListener('click', action);
+  }
+  return button;
+}
+
+function createAccessibleLink(href, text) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('role', 'link');
+  return link;
+}
 
 // ... existing exports and functions may remain in main.js
 
@@ -87,12 +215,23 @@ module.exports = {
   addressAccessibilityIssues,
   processAccessibilityIssues,
   wrapperFunction,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addMissingScopeAttributes,
+  validateTableAccessibility,
+  validateTableStructure,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink
 };
 
 // Address the REACT_036 issue by changing the anchor to a button
 function addressReact036Issue() {
-  const element = document.getElementById('unrotate');
+  const element = document.querySelector('a.fake-link');
   if (element) {
     element.innerHTML = '<button id="unrotate">rotate back</button>';
     const newButton = element.querySelector('button');

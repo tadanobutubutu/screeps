@@ -32,6 +32,7 @@ export function getHTMLAttributes() {
 }
 
 // TODO: Add back any required exports that might have been removed
+
 // Here's an example of how to export a required function from another file:
 // import { someFunction } from './some-file';
 // export { someFunction };
@@ -81,3 +82,7 @@ export function addAccessibleNamesToSVGs() {
   // Logic to add accessible names to SVGs goes here.
   // For example, set the `aria-labelledby` or `aria-describedby` attributes.
 }
+
+// This is a required export due to the missing call in the TODO comment
+import { addHtmlLangToRootElement } from './addHtmlLangToRootElement';
+export { addHtmlLangToRootElement };

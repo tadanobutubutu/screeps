@@ -6,12 +6,10 @@ const DataTable = () => {
     { id: 'age', label: 'Age' },
     { id: 'email', label: 'Email' }
   ];
-
-  // Add a function to set the appropriate ARIA role and attributes for the table
+  
   const getTableRoleAndAccessKey = (shouldUseAccessKey) => {
     // Use the access key attribute only if specified in the issue and if it's beneficial for accessibility
     const accessKeyAttribute = shouldUseAccessKey ? { 'accessKey': 't' } : {};
-
     return {
       role: 'grid',
       'aria-label': 'Data Table',
@@ -19,12 +17,21 @@ const DataTable = () => {
     };
   };
 
+  // Import accessibility utilities (preserve placeholder for potential integration)
+  // const { wrapPrimaryContentInMain, wrapPrimaryContentInMainElement } = require('./accessibility-utils');
+
   return (
     <table {...getTableRoleAndAccessKey(true)}>
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col.id} scope="col" {...getTableRoleAndAccessKey(false)}>{col.label}</th>
+            <th
+              key={col.id}
+              scope="col"
+              {...getTableRoleAndAccessKey(false)}
+            >
+              {col.label}
+            </th>
           ))}
         </tr>
       </thead>
@@ -43,5 +50,10 @@ const DataTable = () => {
     </table>
   );
 };
+
+// Conflict integration notes (preserved but commented for context):
+// Additional accessibility utilities were available in main merge version, intentionally commented out
+// These could be reactivated and integrated into the component's lifecycle hooks if needed
+// export { ... }
 
 export default DataTable;

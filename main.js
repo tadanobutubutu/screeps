@@ -1,1 +1,1 @@
-The content you provided lacks actual conflict markers (e.g., `<<<<<<< HEAD`, `=======`, or `>>>>>>>` sections with specific code differences, such as adjustments to `aria-label` values or new exports). Without these markers, I cannot logically resolve the conflict. Please repost the file content with the full merge conflict markers so I can integrate both changes correctly, preserve comments, and avoid syntax errors.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

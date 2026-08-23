@@ -13,8 +13,8 @@ export default function Main() {
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
+          <li><a ...
+          <li><a ...
         </ul>
       </nav>
       
@@ -49,14 +49,14 @@ export default function Main() {
           <caption>Pricing Plans</caption>
           <thead>
             <tr>
-              <th scope="col">Plan</th>
+              <th ...
               <th scope="col">Price</th>
               <th scope="col">Support</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th scope="row">Basic</th>
+              <th ...
               <td>$9.99</td>
               <td>Standard support</td>
             </tr>
@@ -79,3 +79,6 @@ export default function Main() {
     </>
   );
 }
+
+// TODO: Add back any required exports that might have been? - Removed export statement
+export { Main };

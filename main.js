@@ -1,11 +1,1 @@
-// <<< START OF CONFLICT >>>
-// The original code from one branch before the merge conflict
-function someFunction() {
-  // ... code ...
-}
-
-// The changes from another branch before the merge conflict
-// - Add lang attribute to HTML element
-document.documentElement.lang = 'en';
-
-// <<< END OF CONFLICT >>>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

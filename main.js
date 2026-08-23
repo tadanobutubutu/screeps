@@ -1,5 +1,3 @@
-// optionally merge all changes, ripple effects may occur while testing
-// or choose the 'git checkout --theirs' command to keep all changes in main.js
 import Head from 'next/head';
 
 export default function Main() {
@@ -80,5 +78,4 @@ export default function Main() {
   );
 }
 
-// TODO: Add back any required exports that might have been? - Removed export statement
 export { Main };

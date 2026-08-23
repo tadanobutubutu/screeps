@@ -16,8 +16,8 @@ function newFunction(element) {
       row.querySelectorAll('td').forEach(cell => {
         cell.setAttribute('role', 'gridcell');
         // Ensure unique accessible names for header cells
-        const cells = row.querySelectorAll('td');
-        const cellIndex = Array.from(cells).indexOf(cell);
+        const cells = Array.from(row.querySelectorAll('td'));
+        const cellIndex = cells.indexOf(cell);
         const headerCell = element.querySelector(`thead th:nth-child(${cellIndex + 1})`);
         if (headerCell) {
           const headerText = headerCell.textContent.trim();
@@ -39,7 +39,7 @@ function newFunction(element) {
   // Add/fix 4 landmark issues (REACT_017)
   const landmarks = ['banner', 'navigation', 'main', 'contentinfo'];
   let landmarkIndex = 0;
-  document.querySelectorAll('header, nav, main, footer').forEach(landmark => {
+  element.querySelectorAll('[role="nav"], [role="main"], [role="complementary"], [role="banner"]').forEach(landmark => {
     if (landmark && landmarkIndex < landmarks.length) {
       landmark.setAttribute('role', landmarks[landmarkIndex++]);
     }
@@ -47,14 +47,14 @@ function newFunction(element) {
 
   // Fix 1 fake link issue (REACT_036)
   // Find all anchor elements without href and set them as buttons instead
-  document.querySelectorAll('a:not([href])').forEach(link => {
+  element.querySelectorAll('a:not([href])').forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
   });
 
   // Add accessible names to 2 SVGs (REACT_041)
   // Assume we have two SVG elements
-  const svgs = document.querySelectorAll('svg');
+  const svgs = element.querySelectorAll('svg');
   svgs.filter((svg, index) => index === 0 || index === 1)
       .forEach((svg, index) => {
         if (svg) {
@@ -72,7 +72,7 @@ function newFunction(element) {
       });
 
   // Ensure unique landmarks (REACT_025) - Updated code added below
-  const landmarkCollection = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarkCollection = element.querySelectorAll('[role="main"], [role="contentinfo"]');
   const countByRole = new Map();
 
   landmarkCollection.forEach(landmark => {

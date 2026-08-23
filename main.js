@@ -2,9 +2,9 @@ import React from 'react';
 
 const DataTable = () => {
   const columns = [
-    { id: 'name', label: 'Name' },
-    { id: 'age', label: 'Age' },
-    { id: 'email', label: 'Email' }
+    { id: 'name', label: 'Name', accessibilityLabel: 'Name Column' },
+    { id: 'age', label: 'Age', accessibilityLabel: 'Age Column' },
+    { id: 'email', label: 'Email', accessibilityLabel: 'Email Column' }
   ];
 
   return (
@@ -12,7 +12,7 @@ const DataTable = () => {
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col.id} scope="col">{col.label}</th>
+            <th key={col.id} scope="col" aria-label={col.accessibilityLabel}>{col.label}</th>
           ))}
         </tr>
       </thead>

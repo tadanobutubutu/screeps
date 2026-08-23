@@ -42,3 +42,20 @@ module.exports = {
   cleanup,
   getStatus
 };
+
+// Updated for REACT_027 issue - adding scope attribute to th elements
+module.exports = {
+  ...module.exports,
+  updateTableStructure: function() {
+    // Assuming this function is intended to update the table structure
+    // Example usage would be to replace existing th elements in a table
+    // with th elements that include the scope attribute
+    // This is a mock-up function, actual implementation would depend on the structure of the tables
+    const tableElements = document.querySelectorAll('table th');
+    tableElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  }
+};

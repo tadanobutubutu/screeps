@@ -1,20 +1,32 @@
 // Example exports in main.js
 module.exports.function1 = function1;
 module.exports.function2 = function2;
+<<<<<<< HEAD
 module.exports.newFunction = newFunction;
-
+=======
+>>>>>>> origin/main
+}
+   
 // New function to fix table structure issues
 function fixTableStructureIssues() {
   // Implementation to fix table structure issues
-  // This is a placeholder function. Actual implementation would depend on the table structure and content.
+  <<<<<<< HEAD
+    // Implementation to fix table structure issues
+  =======
+  }
+>>>>>>> origin/main
 }
-
+   
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks
-  // This is a placeholder function. Actual implementation would depend on the landmarks used in the application.
+  <<<<<<< HEAD
+    // Implementation to ensure unique landmarks
+  =======
+  }
+  >>>>>>> origin/main
 }
-
+   
 // Function to add accessible name to SVGs
 function addAccessibleNameToSVGs() {
   // Assuming `icons` is an object containing SVG strings
@@ -25,12 +37,16 @@ function addAccessibleNameToSVGs() {
 
   // Iterate over each SVG and add an aria-label or title
   Object.keys(icons).forEach(key => {
-    let svgString = icons[key];
-    let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${key} Icon">`);
-    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, `<title>${key} Icon</title></svg>`);
-    icons[key] = modifiedSVGString;
+    let modifiedSVGString = icons[key];
+    <<<<<<< HEAD
+      let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${key} Icon">`);
+      modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, `<title>${key} Icon</title></svg>`);
+    =======
+      let modifiedSVGString = icons[key].replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard">`);
+      modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, '<title>Screeps Dashboard</title></svg>');
+    >>>>>>> origin/main
   });
-
+  
   return icons;
 }
 

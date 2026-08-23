@@ -3,12 +3,13 @@ import { useTable } from 'react-table';
 
 // Add ARIA attributes to improve accessibility
 export function addAriaAttributes() {
-  const mainElement = document.querySelector('#mainContent');
+  const mainElement = document.querySelector('main');
   if (mainElement) {
-    if (!mainElement.hasAttribute('role')) {
+    if (!mainElement.getAttribute('role')) {
       mainElement.setAttribute('role', 'main');
     }
-    if (!mainElement.hasAttribute('aria-label')) {
+    if (!mainElement.id) {
+      mainElement.id = 'main-content';
       mainElement.setAttribute('aria-label', 'Main content');
     }
   }
@@ -36,13 +37,17 @@ export const newConst1 = 'new value';
 export default restoredModule;
 
 // Fix the language attribute on non-accessible elements (updated)
-export function reactLanguageAttributeFix(element) {
-  if (element && element.props) {
-    const langAttr = element.props.lang;
+export function reactLanguageAttributeFix(reactElement) {
+  if (reactElement && reactElement.props) {
+    const langAttr = reactElement.props.lang;
     if (langAttr) {
       console.warn(`Language attribute detected on non-accessible element: ${langAttr}`);
+      return React.cloneElement(reactElement, {
+        lang: 'en'
+      });
     }
   }
+  return reactElement;
 }
 
 // Add new function for react-table structure
@@ -68,19 +73,20 @@ export function removeDuplicateMainElements(children) {
 // Add lang attribute to the root element (new change)
 export function addLangAttributeToRoot() {
   const rootElement = document.documentElement;
-  if (rootElement && !rootElement.getAttribute('lang')) {
+  if (rootElement && !rootElement.hasAttribute('lang')) {
     rootElement.setAttribute('lang', 'en');
   }
 }
 
 // Add accessibility functions
 export function addressAccessibilityIssues(elements) {
+  const validElements = [];
   elements.forEach((element) => {
     if (element && element.props && element.props.children) {
-      return [element];
+      validElements.push(element);
     }
   });
-  return [];
+  return validElements;
 }
 
 // Call the function to address accessibility issues
@@ -95,8 +101,8 @@ const mainContent = React.createElement('main', { id: 'mainContent' });
       console.log('Accessibility issues addressed');
     }
     // Apply additional accessibility fixes
-    addLangAttributeToRoot();
-    assignUniqueLandmarkIds();
+    fixAccessibilityIssues();
+    fixDuplicateMainIssue();
     fixFakeLinkIssue();
   }, 0);
 })();
@@ -122,8 +128,8 @@ export function validateTableAccessibility(tableElement) {
   if (!tableElement || !tableElement.props) {
     return false;
   }
-  const hasAriaLabel = tableElement.props['aria-label'];
-  const hasAriaLabelledBy = tableElement.props['aria-labelledby'];
+  const hasAriaLabel = tableElement.props['aria-label'] || tableElement.props['ariaLabel'];
+  const hasAriaLabelledBy = tableElement.props['aria-labelledby'] || tableElement.props['ariaLabelledBy'];
   return !!(hasAriaLabel || hasAriaLabelledBy);
 }
 
@@ -138,10 +144,10 @@ export function validateTableStructure(tableElement) {
     : [];
 
   const hasThead = children.some(child =>
-    child && child.type === 'thead'
+    child && (child.type === 'thead' || (child.type === 'thead' && child))
   );
   const hasTbody = children.some(child =>
-    child && child.type === 'tbody'
+    child && (child.type === 'tbody' || (child.type === 'tbody' && child))
   );
 
   return !!(hasThead && hasTbody);
@@ -157,7 +163,7 @@ export function validateLandmark(element) {
   return landmarkRoles.includes(role);
 }
 
-export function validateLandmarkStructure(elements) {
+export function validateUniqueLandmarks(elements) {
   if (!elements || !Array.isArray(elements)) {
     return false;
   }
@@ -170,6 +176,7 @@ export function validateLandmarkStructure(elements) {
       const role = element.props.role;
       if (role === 'main') mainCount++;
       if (role === 'navigation' || role === 'nav') navCount++;
+    }
   });
 
   return mainCount <= 1;
@@ -210,7 +217,7 @@ export function getSvgAccessibleName(svgElement) {
 }
 
 // Accessible link and button creators
-export function createInPageButton(linkText, onClick) {
+export function createAccessibleButton(linkText, onClick) {
   return React.createElement('button', {
     type: 'button',
     onClick: onClick,
@@ -234,7 +241,7 @@ export function createAccessibleLink(href, linkText, isExternal = false) {
 
 // Main content wrapper function
 export function wrapPrimaryContentInMain() {
-  const mainContent = document.querySelector('main');
+  const mainContent = document.getElementById('mainContent');
   if (mainContent) {
     const newMain = document.createElement('main');
     newMain.id = 'primaryContent';
@@ -260,10 +267,10 @@ export function assignLandmarkRoles() {
 }
 
 // Fix table structure issues
-export function fixTableStructureIssues() {
+export function fixAccessibilityIssues() {
   // Add lang attribute to the root element if missing
   const rootElement = document.documentElement;
-  if (rootElement && !rootElement.getAttribute('lang')) {
+  if (rootElement && !rootElement.hasAttribute('lang')) {
     rootElement.setAttribute('lang', 'en');
   }
 
@@ -275,13 +282,13 @@ export function fixTableStructureIssues() {
 }
 
 // Ensure each landmark element has a unique identifier for accessibility
-export function assignUniqueLandmarkIds() {
+export function ensureUniqueLandmarkIds() {
   const landmarkRoles = ['header','nav','main','footer','article','aside','section'];
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     elements.forEach((el, idx) => {
       if (!el.id) {
-        el.id = `landmark-${role}-${idx + 1}`;
+        el.id = `${role}-${idx + 1}`;
       }
     });
   });
@@ -289,24 +296,34 @@ export function assignUniqueLandmarkIds() {
 
 // Address potential fake link accessibility issue
 export function fixFakeLinkIssue() {
-  document.querySelectorAll('a[href="#"]').forEach(link => {
-    if (!link.hasAttribute('role')) {
+  const links = document.querySelectorAll('a:not([href])');
+  links.forEach(link => {
+    if (link) {
       link.setAttribute('role', 'button');
-      link.setAttribute('tabIndex', '-1');
+      link.setAttribute('tabindex', '0');
     }
   });
+}
+
+// Fix duplicate main elements issue
+export function fixDuplicateMainIssue() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
+  }
 }
 
 // Wrap primary content in <main> landmark as suggested
 export function wrapContentInMain() {
   const rootElement = document.documentElement;
-  const mainElements = rootElement.querySelectorAll('main');
+  const mainElements = document.querySelectorAll('main');
 
   if (mainElements.length === 0) {
     // Wrap the <body> in <main> if there's no <main> element
     const body = document.body;
     const newMain = document.createElement('main');
-    newMain.appendChild(body);
+    newMain.id = 'main-content';
+    newMain.setAttribute('role', 'main');
     rootElement.insertBefore(newMain, body);
   }
 }

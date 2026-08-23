@@ -9,8 +9,8 @@
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
   }
 };
@@ -26,7 +26,7 @@ const addAccessibleNamesToSVGs = () => {
       svg.insertBefore(titleElement, svg.firstChild);
       
       // Add aria-labelledby attribute to link the title
-      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
       titleElement.id = titleId;
       svg.setAttribute('aria-labelledby', titleId);
     }
@@ -37,11 +37,11 @@ const addAccessibleNamesToSVGs = () => {
 const addScopeToTableHeaders = () => {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
+    if (!header.getAttribute('scope')) {
       // Check if the th is in the first row (column headers) or first column (row headers)
       const row = header.parentElement;
-      const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-      const cellIndex = Array.from(row.cells).indexOf(header);
+      const rowIndex = row.rowIndex;
+      const cellIndex = header.cellIndex;
       
       if (rowIndex === 0) {
         header.setAttribute('scope', 'col');
@@ -57,7 +57,7 @@ const addScopeToTableHeaders = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  const fakeLinks = document.querySelectorAll('.fake-link, [role="link"]');
   fakeLinks.forEach(link => {
     if (!link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
@@ -83,8 +83,8 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarks).forEach(([tag, landmark]) => {
-    const elements = document.querySelectorAll(tag);
+  Object.entries(landmarks).forEach(([landmark]) => {
+    const elements = document.querySelectorAll(landmark);
     elements.forEach(element => {
       const currentRole = element.getAttribute('role');
       if (currentRole !== landmark) {
@@ -174,7 +174,7 @@ const fixTableStructureIssues = () => {
       let hasTbody = table.querySelector('tbody');
       let hasTfoot = table.querySelector('tfoot');
 
-      // If no thead but there are headers, wrap first row(s) in thead
+      // If no thead but there are headers, wrap first row( s) in thead
       if (!hasThead) {
         const firstRow = rows[0];
         const firstRowHeaders = firstRow.querySelectorAll('th');
@@ -203,7 +203,7 @@ const fixTableStructureIssues = () => {
       }
     }
 
-    // Fix header-cell associations using headers attribute
+    // Fix header- cell associations using headers attribute
     const allCells = table.querySelectorAll('td, th');
     allCells.forEach(cell => {
       // If cell has headers attribute, ensure it's valid
@@ -222,7 +222,7 @@ const fixTableStructureIssues = () => {
   });
 };
 
-// PRESERVE all existing code, exports, and functions from current main.js
+// PRESERVE all existing code, exports, and functions from current main. js
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Example:
 // const someVar = require('some-module');
@@ -230,55 +230,5 @@ const fixTableStructureIssues = () => {
 // module.exports.loop = function() { /* ... */ }
 // ----- END ORIGINAL CODE -----
 
-// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, addScopeToTableHeaders, fixTableStructureIssues };
-
-// TODO: Implement ...
-const addProperLandmarkRegions = () => {
-  // Implementation to add proper ARIA roles and properties for accessibility
-  // as well as unique IDs for landmark regions
-  const landmarkElements = document.querySelectorAll('nav, main, header, footer, aside, section, article');
-  let landmarkCounter = 0;
-
-  landmarkElements.forEach(element => {
-    landmarkCounter++;
-
-    // Add unique ID if not present
-    if (!element.id) {
-      const tagName = element.tagName.toLowerCase();
-      element.id = tagName + '-' + landmarkCounter;
-    }
-
-    // Ensure proper ARIA role
-    const tagName = element.tagName.toLowerCase();
-    const roleMap = {
-      'nav': 'navigation',
-      'main': 'main',
-      'header': 'banner',
-      'footer': 'contentinfo',
-      'aside': 'complementary',
-      'section': 'region',
-      'article': 'article'
-    };
-
-    if (roleMap[tagName] && !element.getAttribute('role')) {
-      element.setAttribute('role', roleMap[tagName]);
-    }
-
-    // Add aria-label if no existing labeling mechanism
-    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby') && !element.querySelector('h1, h2, h3, h4, h5, h6')) {
-      const defaultLabels = {
-        'nav': 'Navigation',
-        'main': 'Main content',
-        'header': 'Header',
-        'footer': 'Footer',
-        'aside': 'Related content',
-        'section': 'Section',
-        'article': 'Article'
-      };
-      if (defaultLabels[tagName]) {
-        element.setAttribute('aria-label', defaultLabels[tagName]);
-      }
-    }
-  });
-};
+// Re-add the removed exports here: import { class1, function1, Object1 } from './path/ to/module';
+export { class1, function1, Object1, unique

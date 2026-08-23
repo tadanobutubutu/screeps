@@ -194,10 +194,37 @@ function ensureUniqueLandmarks() {
   const seenRoles = new Map();
   document.querySelectorAll('[role]').forEach(element => {
     const role = element.getAttribute('role');
-    if (role && !seenRoles.has(role)) {
-      seenRoles.set(role, element);
-    } else if (role && seenRoles.has(role)) {
-      element.removeAttribute('role');
+    if (role) {
+      if (seenRoles.has(role)) {
+        element.removeAttribute('role');
+      } else {
+        seenRoles.set(role, element);
+      }
+    }
+  });
+}
+
+// Add accessible names to SVGs (REACT_041)
+function addSvgAccessibleNames() {
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('title')) {
+      const title = svg.getAttribute('data-title') || svg.getAttribute('alt') || svg.querySelector('title');
+      const label = title ? title.textContent || title : 'Graphic';
+      svg.setAttribute('aria-label', label);
+    }
+  });
+}
+
+// Fix fake links (REACT_036)
+function fixFakeLinks() {
+  document.querySelectorAll('[role="link"]:not(a), span[class*="link"], div[class*="link"]').forEach(el => {
+    if (el.getAttribute('role') === 'link' && el.tagName.toLowerCase() !== 'a') {
+      el.removeAttribute('role');
+    }
+    if (el.tagName.toLowerCase() !== 'a' && (el.getAttribute('tabindex') || el.style.cursor === 'pointer')) {
+      el.removeAttribute('tabindex');
+      el.style.cursor = '';
+      el.style.textDecoration = '';
     }
   });
 }
@@ -226,5 +253,7 @@ module.exports = {
     });
   },
   addLangAttribute,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks
 };

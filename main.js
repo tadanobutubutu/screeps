@@ -19,5 +19,5 @@ module.exports = {
   setFocusToFirstFocusable,
   updateFaviconSVG,
   // New function added as per the issue
-  newFunction
+  newFunction,
 };

@@ -1,6 +1,3 @@
-// Complete updated main.js content goes here
-
-// Sample React application addressing accessibility issues
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 

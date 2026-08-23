@@ -9,3 +9,8 @@ module.exports.existingFunction = function () {
 module.exports.anotherFunction = function () {
   // Function body
 };
+
+// Adding a new function
+module.exports.newFunction = function () {
+  // Function body of the new function goes here
+};

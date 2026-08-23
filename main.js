@@ -171,7 +171,7 @@ export function renderIndexVisualization() {
   if (indexContainer) {
     indexContainer.innerHTML = '';
     const indexElement = indexContent();
-    indexContainer.appendChild(indexElement);
+    indexContainer.innerHTML = indexElement;
   }
 }
 export function fixAccessibilityIssues() {
@@ -248,22 +248,6 @@ export function renderContentVisualization() {
   if (contentContainer) {
     contentContainer.innerHTML = '';
     const contentElement = indexContent();
-    contentContainer.appendChild(contentElement);
-  }
-}
-export function renderIndexVisualization() {
-  const indexContainer = document.getElementById('index-view');
-  if (indexContainer) {
-    indexContainer.innerHTML = '';
-    const indexElement = indexContent();
-    indexContainer.innerHTML = indexElement;
-  }
-}
-export function renderContentVisualization() {
-  const contentContainer = document.getElementById('primary-content');
-  if (contentContainer) {
-    contentContainer.innerHTML = '';
-    const contentElement = indexContent();
     contentContainer.innerHTML = contentElement;
   }
 }
@@ -297,3 +281,10 @@ function initializeApp() {
   renderContentVisualization();
 }
 initializeApp();
+
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+// module.exports = { myFunction };
+const { restoredFunction1, restoredConst1 } = require('./restoredModule');
+export { restoredFunction1, restoredConst1 };

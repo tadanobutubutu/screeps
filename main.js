@@ -95,44 +95,6 @@ export const createLandmark = (element, landmarkType, id) => {
   });
 };
 
-// New function to add proper landmark regions (REACT_XXXX)
-export const addProperLandmarkRegions = (elements) => {
-  const landmarkMap = {
-    header: { role: 'banner', id: 'header' },
-    nav: { role: 'navigation', id: 'main-navigation' },
-    main: { role: 'main', id: 'main-content' },
-    footer: { role: 'contentinfo', id: 'footer' }
-  };
-  
-  if (!elements || !Array.isArray(elements)) return elements;
-  
-  return elements.map((child) => {
-    if (!child) return child;
-    if (child.props && child.props.landmark) {
-      const { type, id } = child.props.landmark;
-      if (landmarkMap[type]) {
-        return React.cloneElement(child, {
-          role: landmarkMap[type].role,
-          id: id || landmarkMap[type].id
-        });
-      }
-    }
-    return child;
-  }).map((child) => {
-    if (!child || !child.props) return child;
-    
-    const childType = child.type;
-    let props = { ...child.props };
-    
-    if (childType === 'header' || childType === 'div' || childType === 'main') {
-      props.role = props.role || childType;
-      props.id = props.id || '';
-    }
-    
-    return React.cloneElement(child, props);
-  });
-};
-
 // Add back required exports that might have been removed
 export { default } from './main';
 
@@ -168,3 +130,6 @@ export default function Home({ projects }) {
     </div>
   );
 }
+
+// Export consolidated list of utility functions
+export { fixTableStructureIssues, ensureUniqueLandmarks, addAriaLabelToFakeLink, addLangAttribute, wrapPrimaryContentInMain, addAccessibleNameToSVG, createLandmark, addProperLandmarkRegions };

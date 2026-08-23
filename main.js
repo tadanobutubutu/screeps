@@ -121,7 +121,15 @@ export const createLandmark = (element, landmarkType, id) => {
 
 // Functions to validate landmark structure and accessibility (REACT_017)
 export const validateLandmark = (landmarkType) => {
-  const validLandmarks = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form'];
+  const validLandmarks = [
+    'banner',
+    'navigation',
+    'main',
+    'contentinfo',
+    'complementary',
+    'search',
+    'form'
+  ];
   return validLandmarks.includes(landmarkType);
 };
 
@@ -168,25 +176,24 @@ export default function Home({ projects }) {
     <div>
       <Head>
         <title>Dependency Graph</title>
+        <htmlAttrs lang="en" />
       </Head>
-      <html lang="en">
-        <body>
-          <main role="main">
-            <div ... __html: dependencyGraphContent }} />
-            <div ... __html: indexContent }} />
-            <button
-              id="unrotate"
-              ...
-              aria-label="Rotate back"
-            >
-              rotate back
-            </button>
-            {projects && projects.map && projects.map((project) => (
-              <div ...
-            ))}
-          </main>
-        </body>
-      </html>
+      <body>
+        <main role="main">
+          <div ... __html: dependencyGraphContent }} />
+          <div ... __html: indexContent }} />
+          <button
+            id="unrotate"
+            ...
+            aria-label="Rotate back"
+          >
+            rotate back
+          </button>
+          {projects && projects.map && projects.map((project) => (
+            <div ...
+          ))}
+        </main>
+      </body>
     </div>
   );
 }

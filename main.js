@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect } from 'react';
 
 function Header() {
   // ... existing code here
@@ -38,7 +39,6 @@ function FakeLinkFixed() {
 
 // NEW: Add lang attribute to HTML element using React's useEffect
 function addLangAttribute() {
-  import { useEffect } from 'react';
   useEffect(() => {
     document.documentElement.lang = 'en';
   }, []);
@@ -46,21 +46,19 @@ function addLangAttribute() {
 
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
-  import { useEffect } from 'react';
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    const mainElement = ...
     if (!mainElement) {
-      const main = document.createElement('main');
-      document.body.insertBefore(main, document.body.firstChild);
+      const main = ...
+      ... ...
     }
   }, []);
 }
 
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
-  import { useEffect } from 'react';
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    const mainElement = ...
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -70,14 +68,13 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks using React's useEffect
-function validateLandmarkRoles() {
-  import { useEffect } from 'react';
+function ... {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
-      const elements = Array.from(document.querySelectorAll(` .${role}`));
-      const tagElements = document.getElementsByTagName(role);
+      const elements = ... .${role}`));
+      const tagElements = ...
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -94,8 +91,8 @@ function validateLandmarkRoles() {
 // ... existing functions specific to DOM manipulation
 
 // Helper function to get SVG accessible name
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+function ... {
+  if (!svgElement || ... !== 'svg') {
     return null;
   }
   // ... existing logic ...

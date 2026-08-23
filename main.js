@@ -6,9 +6,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 
-// TODO: Add back any required exports that might have been removed
-// Here is an example of how to export a required function from another file:
-
 // EXISTING AND PRESERVED CODE ...
 
 // NEW FUNCTION: Fix table structure issues

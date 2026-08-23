@@ -1,57 +1,47 @@
-// Import your accessibilityInsights object here, if needed
+import React from 'react';
 
-function wrapPrimaryContentInMain(element) {
-  const main = document.createElement('main');
-  if (main && element) {
-    main.appendChild(element);
-  }
-}
+const DataTable = () => {
+  const columns = [
+    { id: 'name', label: 'Name' },
+    { id: 'age', label: 'Age' },
+    { id: 'email', label: 'Email' }
+  ];
 
-// Reusable wrapper function to address accessibility issues
-function wrapperFunction(accessibilityInsights) {
-  processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
-}
+  // Add a function to set the appropriate ARIA role and attributes for the table
+  const getTableRoleAndAccessKey = (shouldUseAccessKey) => {
+    // Use the access key attribute only if specified in the issue and if it's beneficial for accessibility
+    const accessKeyAttribute = shouldUseAccessKey ? { 'accessKey': 't' } : {};
 
-// Assuming the function takes the insights object and processes it to address any issues
-function addressAccessibilityIssues(accessibilityInsights) {
-  accessibilityInsights.issues.forEach(issue => {
-    // Find the element with the ID that matches the issue
-    const element = document.getElementById(issue.id);
+    return {
+      role: 'grid',
+      'aria-label': 'Data Table',
+      ...accessKeyAttribute
+    };
+  };
 
-    // If the element exists, apply the accessibility solution
-    if (element) {
-      element.setAttribute('aria-label', issue.solution);
-      // You can add more solutions as needed
-    }
-  });
-}
-
-// New function to address requested changes
-function processAccessibilityIssues(callback, accessibilityInsights) {
-  accessibilityInsights.landmarks.forEach(landmark => {
-    // Find the element with the ID that matches the landmark
-    const element = document.getElementById(landmark.id);
-
-    // If the element exists, add the appropriate landmark role
-    if (element) {
-      element.setAttribute('role', landmark.role);
-      // You can add more landmark roles as needed
-    }
-  });
-  callback(accessibilityInsights); // Move the callback to here
-}
-
-// Wrap the existing addressAccessibilityIssues function with the new processAccessibilityIssues wrapper function
-processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
-
-// Wrap the primary content element in the main container
-wrapPrimaryContentInMain(element);
-
-// ... existing exports and functions may remain in main.js
-
-module.exports = {
-  wrapPrimaryContentInMain,
-  addressAccessibilityIssues,
-  processAccessibilityIssues,
-  wrapperFunction
+  return (
+    <table {...getTableRoleAndAccessKey(true)}>
+      <thead>
+        <tr>
+          {columns.map((col) => (
+            <th key={col.id} scope="col" {...getTableRoleAndAccessKey(false)}>{col.label}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alice</td>
+          <td>25</td>
+          <td>alice@example.com</td>
+        </tr>
+        <tr>
+          <td>Bob</td>
+          <td>30</td>
+          <td>bob@example.com</td>
+        </tr>
+      </tbody>
+    </table>
+  );
 };
+
+export default DataTable;

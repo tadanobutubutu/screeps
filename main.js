@@ -1,5 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
+var loop = require('./src/loop');
 
+<<<<<<< HEAD
 // Existing exports and functions preserved here...
 
 /**
@@ -293,7 +294,9 @@ module.exports = {
   getTableScopeRecommendation,
   validateLinkAccessibility,
   // DOM manipulation utility
-  wrapInMain
+  wrapInMain,
+  // Export loop as required by the incoming change
+  loop
 };
 
 // Run if executed directly
@@ -310,3 +313,8 @@ if (require.main === module) {
     console.log();
   });
 }
+=======
+module.exports = {
+    loop: loop
+};
+>>>>>>> origin/main

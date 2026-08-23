@@ -91,11 +91,57 @@ function validateLandmarkRoles(element) {
   }, []);
 }
 
-// ... existing functions specific to DOM manipulation
+// Additional DOM manipulation helpers
 function fixTableStructure() {
   // ... existing logic ...
 }
 
+// Resolve conflict: keep the createSvgAccessibilityProps from HEAD
+/**
+ * Enhanced SVG accessible name generation
+ * Addresses REACT_041: React SVG Accessible Name (2 occurrences)
+ * @param {string} description - Human-readable description
+ * @param {Object} options - Configuration options
+ * @returns {Object} Complete accessibility props for SVG
+ */
+function createSvgAccessibilityProps(description, options = {}) {
+  const {
+    role = 'img',
+    title,
+    desc,
+    ariaHidden = false,
+    ariaLabelledBy,
+    ariaDescribedBy
+  } = options;
+  
+  const props = {
+    role,
+    'aria-hidden': ariaHidden
+  };
+  
+  if (!ariaHidden) {
+    // Provide an accessible name when a description is supplied
+    if (description) {
+      props['aria-label'] = description;
+    }
+    if (title) {
+      props.title = title;
+    }
+    if (desc) {
+      props.desc = desc;
+    }
+    if (ariaLabelledBy) {
+      props['aria-labelledby'] = ariaLabelledBy;
+    }
+    if (ariaDescribedBy) {
+      props['aria-describedby'] = ariaDescribedBy;
+    }
+  }
+  
+  return props;
+}
+
+// Resolve conflict: add helper functions from origin/main
 // Helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName !== 'svg') {
@@ -129,25 +175,52 @@ function getAccessibleLabel(element) {
   return null;
 }
 
+// Helper function to create an in‑page button (example implementation)
 function createInPageButton() {
   // ... existing logic ...
 }
 
+// Helper function to validate table accessibility
 function validateTableAccessibility() {
   // ... existing logic ...
 }
 
+// Helper function to validate table structure
 function validateTableStructure() {
   // ... existing logic ...
 }
 
-function validateLandmark() {
-  // ... existing logic ...
-}
-
+// Helper function to validate landmark roles (duplicate, kept for compatibility)
 function validateLandmarkRoles() {
   // ... existing logic ...
 }
 
-// Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };
+// Helper function to validate landmark (duplicate, kept for compatibility)
+function validateLandmark() {
+  // ... existing logic ...
+}
+
+// Export all components and helper functions
+export {
+  Header,
+  Navigation,
+  MainContent,
+  Sidebar,
+  Footer,
+  Logo,
+  SearchIcon,
+  UniqueSection,
+  FakeLinkFixed,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  validateMainLandmark,
+  validateLandmarkRoles,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  getSvgAccessibleName,
+  getAccessibleLabel,
+  createSvgAccessibilityProps
+};

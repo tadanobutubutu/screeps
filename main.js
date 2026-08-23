@@ -1,12 +1,9 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// Import the myFunction from the required file
 import myFunction from './myFunction';
-
-// Import the missing functions from the required files
 import myMissingFunction1 from './myMissingFunction1';
 import myMissingFunction2 from './myMissingFunction2';
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -89,7 +86,7 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(role === 'main' ? 'main' : `[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
@@ -192,9 +189,9 @@ module.exports.myFunction = myFunction;
 module.exports.myMissingFunction1 = myMissingFunction1;
 module.exports.myMissingFunction2 = myMissingFunction2;
 module.exports.myNewFunction = myNewFunction;
+module.exports.myNewFunction2 = myNewFunction2;
 module.exports.enhanceAccessibility = enhanceAccessibility;
 module.exports.enhancedAccessibility = enhancedAccessibility;
-module.exports.myNewFunction2 = myNewFunction2;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 module.exports.addMainLandmark = addMainLandmark;

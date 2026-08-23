@@ -1,3 +1,6 @@
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
 // Address accessibility issues from insight report
 
 function wrapPrimaryContentInMain(element) {
@@ -71,5 +74,6 @@ module.exports = {
   wrapPrimaryContentInMain,
   addressAccessibilityIssues,
   processAccessibilityIssues,
-  wrapperFunction
+  wrapperFunction,
+  ensureUniqueLandmarks
 };

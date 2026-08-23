@@ -102,5 +102,30 @@ function addAriaLabelToMyDiv() {
   }
 }
 
+// NEW FUNCTION: Set language attribute on HTML element
+function setLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// NEW FUNCTION: Fix fake link issue
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.hasAttribute('href')) {
+      link.setAttribute('href', '#');
+    }
+  });
+}
+
+// Execute functions after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  setLangAttribute();
+  fixFakeLinkIssue();
+  fixTableStructureIssues();
+  ensureUniqueLandmarks();
+  addSvgAccessibleNames();
+  addAriaLabelToMyDiv();
+});
+
 // EXPORT new functions
 export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };

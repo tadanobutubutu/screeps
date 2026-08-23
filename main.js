@@ -71,7 +71,7 @@ export const fixTableStructureIssues = (tableData) => {
   const columns = Object.keys(firstRow);
   const headerCells = columns.map((column, index) => ({
     key: column,
-    header: column.replace(/([A-Z])/g, ' $1').trim().replace(/^./, str => str.toUpperCase()),
+    header: column,
     index: index
   }));
   
@@ -113,6 +113,9 @@ export const wrapPrimaryContentInMain = (content) => {
   return <main>{content}</main>;
 };
 
+// Add back required exports that might have been removed
+export { default } from './main';
+
 // Main component
 export default function Home({ projects }) {
   // Define the columns for the table
@@ -149,51 +152,4 @@ export default function Home({ projects }) {
         <h1>Accessibility Fixed Page</h1>
       </header>
 
-      <nav role="navigation" aria-label="Main navigation" id="main-navigation">
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/projects">Projects</a></li>
-          <li><a href="/about">About</a></li>
-        </ul>
-      </nav>
-
-      <main id="main-content">
-        <section>
-          <h2>Project List</h2>
-          
-          <table>
-            <caption>Project List</caption>
-            <thead>
-              <tr>
-                {columns.map((col, index) => (
-                  <th key={index} scope="col">{col.Header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {projects && projects.map((project) => (
-                <tr key={project.id}>
-                  <td>{project.name}</td>
-                  <td>{project.status}</td>
-                  <td>{project.updated}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section>
-          <h2 id="icons-heading">Accessible Icons</h2>
-          <div className="icons-container">
-            {createAccessibleSVG("home icon", "0 0 24 24", "icon")}
-            {createAccessibleSVG("settings icon", "0 0 24 24", "icon")}
-          </div>
-        </section>
-      </main>
-
-      <footer role="contentinfo" id="footer">
-        <p>&copy; 2024 Project Manager</p>
-      </footer>
-    </div>
-  );
-}
+      <nav role

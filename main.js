@@ -49,10 +49,19 @@ export { addHtmlLangToRootElement };
 // React_017 new function: Validate Landmark Structure
 export function validateLandmarkStructure() {
   // Logic to validate landmark structure goes here.
-  // For example, check that landmarks have a relevant 'role' and required 'properties'.
 }
 
 // React_017 new function: Validate Unique Landmarks
 export function validateUniqueLandmarks() {
   // Logic to check all landmarks for uniqueness based on their 'aria-label' goes here.
+}
+
+// Add functions for REACT_017 as requested:
+export function addLandmarkRoleAndProperties() {
+  // Logic to add relevant roles and required properties to landmarks.
+}
+
+// Add function for REACT_036:
+export function fixLinkNavigationalBehavior() {
+  // Logic to ensure that fake links navigate appropriately (e.g., open in new tab or download a file).
 }

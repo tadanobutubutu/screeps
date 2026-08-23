@@ -1,4 +1,4 @@
-// Import your accessibilityInsights object here, if needed
+// Address accessibility issues from insight report
 
 function wrapPrimaryContentInMain(element) {
   const main = document.querySelector('main') || document.createElement('main');
@@ -30,7 +30,7 @@ function addressAccessibilityIssues(accessibilityInsights) {
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
-    const element = document.querySelector(landmark.selector);
+    const element = document.getElementById(landmark.id);
 
     // If the element exists, add the appropriate landmark role
     if (element) {

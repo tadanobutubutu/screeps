@@ -11,6 +11,7 @@ module.exports = {
     // ... any other patterns
     "/node_modules/(?!@react-icons)/",
     "/node_modules/(?!@material-ui)/",
+    ".*\\.svg",
   ],
 
   // Any additional transformations for the new test cases if necessary

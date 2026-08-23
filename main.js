@@ -35,6 +35,20 @@ export function addAriaLabelToMyDiv() {
     }
 }
 
+// Newly added function...
+export function addUniqueIdToAccessibleElements() {
+    const accessibleElements = document.querySelectorAll('[aria-label]');
+
+    let elementIndex = 1;
+    accessibleElements.forEach((element) => {
+        if (element.getAttribute('id')) return; // Skip elements with an id attribute
+
+        const currentId = `${element.nodeName.toLowerCase()}-${elementIndex}`;
+        element.setAttribute('id', currentId);
+        elementIndex++;
+    });
+}
+
 // Update main.js with the added functions and wrap the primary content in <main>
 export function wrapPrimaryContentInMain() {
     const mainContent = document.querySelector('.container'); // Assuming the primary content is within a div with class 'container'
@@ -64,7 +78,7 @@ export function fixTableStructureIssues() {
                 const tbody = document.createElement('tbody');
                 thead.appendChild(firstRow);
                 table.insertBefore(thead, table.firstChild);
-                
+
                 // Move remaining rows to tbody
                 let currentNode = thead.nextSibling;
                 while (currentNode) {
@@ -77,7 +91,7 @@ export function fixTableStructureIssues() {
                 table.appendChild(tbody);
             }
         }
-        
+
         // Ensure cells have proper scope attributes
         const headerCells = table.querySelectorAll('th');
         headerCells.forEach(th => {
@@ -111,6 +125,36 @@ export function ensureUniqueLandmarks() {
     });
 }
 
+// Newly added function...
+export function addAriaLabelToDuplicateLandmarks() {
+    const duplicateLandmarks = document.querySelectorAll(
+        ':not([id]):not([aria-label])',
+    );
+    let labelCounter = 1;
+
+    duplicateLandmarks.forEach((element) => {
+        const elementName = element.nodeName.toLowerCase();
+        const duplicateElements = document.querySelectorAll(
+            `:not([id]):not([aria-label]):not([${elementName}])`,
+        );
+
+        let uniqueId = false;
+
+        duplicateElements.forEach((duplicateElement) => {
+            if (element.getAttribute('id') === duplicateElement.getAttribute('id')) {
+                uniqueId = true;
+            }
+        });
+
+        if (!uniqueId) {
+            element.setAttribute(
+                'aria-label',
+                `${elementName}-${labelCounter++}`,
+            );
+        }
+    });
+}
+
 // Call the functions to address accessibility issues
 addLangAttribute();
 addSvgAccessibleNames();
@@ -118,5 +162,7 @@ addAriaLabelToMyDiv();
 addMainLandmark();
 fixTableStructureIssues();
 ensureUniqueLandmarks();
+addAriaLabelToDuplicateLandmarks();
+addUniqueIdToAccessibleElements();
 
 // ... (other existing code, exports, and functions from main.js)

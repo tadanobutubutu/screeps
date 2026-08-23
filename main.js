@@ -5,8 +5,8 @@
 import myFunction from './myFunction';
 
 // Import the missing functions from the required files
-import myMissingFunction1 from ...;
-import myMissingFunction2 from ...
+import myMissingFunction1 from './myMissingFunction1';
+import myMissingFunction2 from './myMissingFunction2';
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -57,7 +57,7 @@ const fixTableStructureIssues = () => {
         rows.forEach((row, index) => {
           // Skip if this row was moved to thead
           if (index > 0 || !table.querySelector('thead')) {
-            tbody.appendChild(row);
+            tbody.appendChild(row.cloneNode(true));
           }
         });
         table.appendChild(tbody);
@@ -70,7 +70,9 @@ const fixTableStructureIssues = () => {
 const addMainLandmark = () => {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
-    main.setAttribute('role', 'main');
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
   });
 };
 
@@ -86,9 +88,9 @@ const addSvgAccessibleNames = () => {
       svg.insertBefore(title, svg.firstChild);
     }
     svg.setAttribute('role', 'img');
-    const ariaLabel = svg.getAttribute('aria-label') || svg.querySelector('title')?.textContent || '';
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', ariaLabel);
+    const ariaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
+    if (!ariaLabel && !svg.querySelector('title')) {
+      svg.setAttribute('aria-label', `SVG icon ${svgIndex + 1}`);
     }
     svgIndex++;
   });
@@ -96,9 +98,16 @@ const addSvgAccessibleNames = () => {
 
 // Function to ensure unique landmarks
 const ensureUniqueLandmarks = () => {
-  const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
-  landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role === 'navigation' ? 'nav' : role === 'search' ? 'search' : role}`);
+  const landmarks = [
+    { role: 'main', selector: 'main' },
+    { role: 'navigation', selector: 'nav' },
+    { role: 'banner', selector: 'header' },
+    { role: 'contentinfo', selector: 'footer' },
+    { role: 'complementary', selector: 'aside' },
+    { role: 'search', selector: '[role="search"]' }
+  ];
+  landmarks.forEach(({ role, selector }) => {
+    const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (index > 0) {
@@ -108,7 +117,7 @@ const ensureUniqueLandmarks = () => {
           } else if (role === 'search') {
             // Keep search but ensure proper labeling
             const searchInput = element.querySelector('input');
-            if (searchInput && !searchInput.getAttribute('aria-label')) {
+            if (searchInput && !searchInput.hasAttribute('aria-label')) {
               searchInput.setAttribute('aria-label', 'Search');
             }
           }
@@ -149,10 +158,10 @@ const enhanceAccessibility = () => {
 
 // Update the module.exports object
 module.exports.Dashboard = Dashboard;
-module.exports = myFunction;
-module.exports = myMissingFunction1;
-module.exports = myMissingFunction2;
-module.exports = myNewFunction;
-module.exports = myNewFunction2;
-module.exports = myNewFunction3;
-module.exports = enhanceAccessibility;
+module.exports.myFunction = myFunction;
+module.exports.myMissingFunction1 = myMissingFunction1;
+module.exports.myMissingFunction2 = myMissingFunction2;
+module.exports.myNewFunction = myNewFunction;
+module.exports.myNewFunction2 = myNewFunction2;
+module.exports.myNewFunction3 = myNewFunction3;
+module.exports.enhanceAccessibility = enhanceAccessibility;

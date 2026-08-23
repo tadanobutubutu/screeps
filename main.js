@@ -1,4 +1,4 @@
-// TODO: Add back any required exports that might have been?
+// TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 module.exports = {
@@ -14,5 +14,12 @@ module.exports = {
     if (htmlElement && !htmlElement.hasAttribute('lang')) {
       htmlElement.setAttribute('lang', 'en'); // Default to English
     }
+  },
+  // New function as per issue request
+  processRequest: function(request) {
+    // Process the request in some way
+    console.log('Processing request:', request);
+    // Return processed request
+    return request;
   }
 };

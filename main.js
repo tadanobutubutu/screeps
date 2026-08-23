@@ -90,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], area[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
@@ -115,3 +115,26 @@ function addLangAttribute(lang = 'en') {
     document.documentElement.lang = lang;
   }
 }
+
+// REACT_017: Add main landmark to page
+function addMainLandmark(id = 'main-content') {
+  if (typeof document !== 'undefined') {
+    const main = document.createElement('main');
+    main.setAttribute('id', id);
+    document.body.appendChild(main);
+    return main;
+  }
+}
+
+module.exports = {
+  app,
+  addLandmark,
+  addAccessibleSvgName,
+  ensureUniqueLandmarkIds,
+  setFakeLinkAsVisible,
+  addAccessibleLabel,
+  announceToScreenReader,
+  trapFocus,
+  addLangAttribute,
+  addMainLandmark
+};

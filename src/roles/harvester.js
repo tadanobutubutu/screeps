@@ -122,13 +122,11 @@ function _findDroppedEnergy(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
     let bestDrop = null;
     let minDistance = Infinity;
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY) {
-            const dist =
-                creep.pos && typeof creep.pos.getRangeTo === 'function'
-                    ? creep.pos.getRangeTo(r)
-                    : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestDrop = r;
@@ -148,13 +146,11 @@ function _findAvailableContainer(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
     let bestContainer = null;
     let minDistance = Infinity;
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store[RESOURCE_ENERGY] >= 100) {
-            const dist =
-                creep.pos && typeof creep.pos.getRangeTo === 'function'
-                    ? creep.pos.getRangeTo(c)
-                    : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(c) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestContainer = c;
@@ -226,18 +222,19 @@ function _deliver(creep) {
  */
 function _findPrimaryTarget(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
-    // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
+    // Hoist getRangeTo method check outside target search loop.
     const needingEnergy = cache.getStructuresNeedingEnergy(creep.room);
 
     let closestSpawnExt = null;
     let minSpawnExtDist = Infinity;
     let closestTower = null;
     let minTowerDist = Infinity;
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < needingEnergy.length; i++) {
         const s = needingEnergy[i];
         const type = s.structureType;
-        const dist = creep.pos.getRangeTo(s);
+        const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
 
         // 1. スポーン・エクステンションの優先探索
         if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {
@@ -270,11 +267,12 @@ function _findContainerTarget(creep) {
     const containers = cache.getContainers(creep.room);
     let closestContainer = null;
     let minContainerDist = Infinity;
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
-            const dist = creep.pos.getRangeTo(c);
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(c) : 0;
             if (dist < minContainerDist) {
                 minContainerDist = dist;
                 closestContainer = c;

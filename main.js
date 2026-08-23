@@ -147,18 +147,24 @@ export default function Home({ projects }) {
       <Head>
         <title>Dependency Graph</title>
       </Head>
-      <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
-      <div dangerouslySetInnerHTML={{ __html: indexContent }} />
-      <button 
-        id="unrotate" 
-        onClick={handleRotateBack}
-        aria-label="Rotate back"
-      >
-        rotate back
-      </button>
-      {projects && projects.map && projects.map((project) => (
-        <div key={project.id}>{project.name}</div>
-      ))}
+      <html lang="en">
+        <body>
+          <main role="main">
+            <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+            <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+            <button 
+              id="unrotate" 
+              onClick={handleRotateBack}
+              aria-label="Rotate back"
+            >
+              rotate back
+            </button>
+            {projects && projects.map && projects.map((project) => (
+              <div key={project.id}>{project.name}</div>
+            ))}
+          </main>
+        </body>
+      </html>
     </div>
   );
 }

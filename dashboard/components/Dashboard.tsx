@@ -470,8 +470,6 @@ export default function Dashboard() {
                             </span>
                         </label>
                         <kbd
-                            className="interactive-hint"
-                            tabIndex={0}
                             aria-label="キーボードショートカット Alt + R キーでダッシュボードの更新ができます"
                             title="Alt + R キーで更新できます"
                             style={{
@@ -482,7 +480,6 @@ export default function Dashboard() {
                                 fontSize: '0.7rem',
                                 color: '#4a5568',
                                 boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                cursor: 'help',
                             }}
                         >
                             Alt + R
@@ -766,8 +763,6 @@ export default function Dashboard() {
                             }}
                         >
                             <kbd
-                                className="interactive-hint"
-                                tabIndex={0}
                                 aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"
                                 title="Alt + S キーで検索入力にフォーカスできます"
                                 style={{
@@ -778,7 +773,6 @@ export default function Dashboard() {
                                     fontSize: '0.7rem',
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                    cursor: 'help',
                                 }}
                             >
                                 Alt + S
@@ -957,8 +951,6 @@ export default function Dashboard() {
                 }}
             >
                 <kbd
-                    className="interactive-hint"
-                    tabIndex={0}
                     aria-label="キーボードショートカット Alt + D キーで生データの表示・非表示を切り替えられます"
                     title="Alt + D キーで表示・非表示を切り替えられます"
                     style={{
@@ -969,7 +961,6 @@ export default function Dashboard() {
                         fontSize: '0.7rem',
                         color: '#4a5568',
                         boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                        cursor: 'help',
                         marginTop: '0.15rem',
                     }}
                 >
@@ -1067,6 +1058,7 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
+                    role="status"
                     aria-live="polite"
                     style={{
                         position: 'fixed',

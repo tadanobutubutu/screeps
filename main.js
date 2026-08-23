@@ -306,22 +306,28 @@ function createInPageButton(text, onClick) {
 function validateUniqueLandmarks(landmarks) {
   const seen = new Map();
   const duplicates = [];
-  
+
   landmarks.forEach((landmark, index) => {
-    const key = `${landmark.type}:${landmark.label || 'unlabeled'}`;
+    // Create a stable key that includes the label only when it is non‑empty.
+    // When the label is empty (or undefined) we treat each landmark as unique
+    // to avoid false‑positive duplicate warnings for mutually exclusive <main>
+    // elements that appear in different conditional branches.
+    const labelKey = landmark.label ? landmark.label : `${landmark.type}-${index}`;
+    const key = `${landmark.type}:${labelKey}`;
+
     if (seen.has(key)) {
       duplicates.push({
         type: landmark.type,
         label: landmark.label,
         firstIndex: seen.get(key),
         duplicateIndex: index,
-        message: `REACT_025: Duplicate landmark "${landmark.type}" with label "${landmark.label || 'unlabeled'}"`
+        message: `REACT_025: Duplicate landmark "${landmark.type}" with label "${landmark.label}"`
       });
     } else {
       seen.set(key, index);
     }
   });
-  
+
   return {
     valid: duplicates.length === 0,
     duplicates,
@@ -338,12 +344,12 @@ function validateUniqueLandmarks(landmarks) {
 function validateLandmarkStructure(componentTree) {
   const issues = [];
   const landmarks = [];
-  
+
   function traverse(node, path = '') {
     if (!node) return;
-    
+
     const currentPath = path ? `${path} > ${node.type || 'unknown'}` : (node.type || 'root');
-    
+
     // Check for landmark roles
     if (node.role && ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'search'].includes(node.role)) {
       landmarks.push({
@@ -351,7 +357,7 @@ function validateLandmarkStructure(componentTree) {
         label: node['aria-label'] || node['aria-labelledby'] || null,
         path: currentPath
       });
-      
+
       // Check for missing accessible name on landmarks
       if (!node['aria-label'] && !node['aria-labelledby']) {
         issues.push({
@@ -361,7 +367,7 @@ function validateLandmarkStructure(componentTree) {
         });
       }
     }
-    
+
     // Check for HTML5 landmark elements without explicit roles
     const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
     if (html5Landmarks.includes(node.type) && !node.role) {
@@ -370,7 +376,7 @@ function validateLandmarkStructure(componentTree) {
         label: node['aria-label'] || node['aria-labelledby'] || null,
         path: currentPath
       });
-      
+
       if (!node['aria-label'] && !node['aria-labelledby'] && node.type !== 'header' && node.type !== 'footer') {
         issues.push({
           rule: 'REACT_017',
@@ -380,15 +386,15 @@ function validateLandmarkStructure(componentTree) {
         });
       }
     }
-    
+
     // Traverse children
     if (node.children && Array.isArray(node.children)) {
       node.children.forEach(child => traverse(child, currentPath));
     }
   }
-  
+
   traverse(componentTree);
-  
+
   // Check for multiple main landmarks
   const mainLandmarks = landmarks.filter(l => l.role === 'main');
   if (mainLandmarks.length > 1) {
@@ -399,7 +405,7 @@ function validateLandmarkStructure(componentTree) {
       paths: mainLandmarks.map(l => l.path)
     });
   }
-  
+
   return {
     valid: issues.length === 0,
     issues,
@@ -416,7 +422,7 @@ function validateLandmarkStructure(componentTree) {
 function validateTableStructure(tableConfig) {
   const issues = [];
   const warnings = [];
-  
+
   // Check for table caption
   if (!tableConfig.caption) {
     issues.push({
@@ -425,7 +431,7 @@ function validateTableStructure(tableConfig) {
       message: 'Table is missing a <caption> element for accessibility'
     });
   }
-  
+
   // Check for table summary (for complex tables)
   if (tableConfig.isComplex && !tableConfig.summary) {
     warnings.push({
@@ -434,7 +440,7 @@ function validateTableStructure(tableConfig) {
       message: 'Complex table should have a summary attribute or aria-describedby'
     });
   }
-  
+
   // Validate headers
   if (tableConfig.headers && tableConfig.headers.length > 0) {
     tableConfig.headers.forEach((header, index) => {
@@ -445,7 +451,7 @@ function validateTableStructure(tableConfig) {
           message: `Header cell at index ${index} is missing scope attribute (should be "col" or "row")`
         });
       }
-      
+
       if (header.isRowHeader && header.scope !== 'row') {
         issues.push({
           rule: 'REACT_027',
@@ -453,7 +459,7 @@ function validateTableStructure(tableConfig) {
           message: `Row header at index ${index} should have scope="row"`
         });
       }
-      
+
       if (header.isColumnHeader && header.scope !== 'col') {
         issues.push({
           rule: 'REACT_027',
@@ -463,7 +469,7 @@ function validateTableStructure(tableConfig) {
       }
     });
   }
-  
+
   // Check for header-row association in data tables
   if (tableConfig.hasDataCells && (!tableConfig.headers || tableConfig.headers.length === 0)) {
     issues.push({
@@ -472,7 +478,7 @@ function validateTableStructure(tableConfig) {
       message: 'Data table must have header cells (<th>) associated with data cells'
     });
   }
-  
+
   // Check for proper row structure
   if (tableConfig.rows) {
     tableConfig.rows.forEach((row, rowIndex) => {
@@ -485,7 +491,7 @@ function validateTableStructure(tableConfig) {
       }
     });
   }
-  
+
   return {
     valid: issues.length === 0,
     issues,
@@ -500,22 +506,22 @@ function validateTableStructure(tableConfig) {
  */
 function getTableCellAttributes(cellConfig) {
   const attrs = {};
-  
+
   if (cellConfig.isHeader) {
     attrs.scope = cellConfig.scope || (cellConfig.orientation === 'row' ? 'row' : 'col');
     attrs.role = 'columnheader';
-    
+
     if (cellConfig.id) {
       attrs.id = cellConfig.id;
     }
   } else if (cellConfig.headers) {
     attrs.headers = cellConfig.headers.join(' ');
   }
-  
+
   if (cellConfig.abbr) {
     attrs.abbr = cellConfig.abbr;
   }
-  
+
   return attrs;
 }
 
@@ -535,34 +541,34 @@ function createSvgAccessibilityProps(description, options = {}) {
     ariaLabelledBy,
     ariaDescribedBy
   } = options;
-  
+
   const props = {
     role,
     'aria-hidden': ariaHidden
   };
-  
+
   if (!ariaHidden) {
     if (description) {
       props['aria-label'] = description;
     }
-    
+
     if (title) {
       props.title = title;
     }
-    
+
     if (desc) {
       props.desc = desc;
     }
-    
+
     if (ariaLabelledBy) {
       props['aria-labelledby'] = ariaLabelledBy;
     }
-    
+
     if (ariaDescribedBy) {
       props['aria-describedby'] = ariaDescribedBy;
     }
   }
-  
+
   return props;
 }
 
@@ -573,11 +579,11 @@ function createSvgAccessibilityProps(description, options = {}) {
  */
 function validateSvgAccessibility(svgs) {
   const issues = [];
-  
+
   svgs.forEach((svg, index) => {
     const hasAccessibleName = svg['aria-label'] || svg['aria-labelledby'] || (svg.title && svg.title.trim());
     const hasRole = svg.role === 'img' || svg.role === 'graphics-document' || svg.role === 'graphics-symbol';
-    
+
     if (!hasAccessibleName && !svg['aria-hidden']) {
       issues.push({
         rule: 'REACT_041',
@@ -585,7 +591,7 @@ function validateSvgAccessibility(svgs) {
         message: `SVG at index ${index} is missing an accessible name (aria-label, aria-labelledby, or <title>)`
       });
     }
-    
+
     if (!hasRole && !svg['aria-hidden']) {
       issues.push({
         rule: 'REACT_041',
@@ -593,7 +599,7 @@ function validateSvgAccessibility(svgs) {
         message: `SVG at index ${index} should have role="img" or appropriate graphics role`
       });
     }
-    
+
     // Check for decorative SVGs that should be hidden
     if (svg.isDecorative && !svg['aria-hidden']) {
       issues.push({
@@ -603,7 +609,7 @@ function validateSvgAccessibility(svgs) {
       });
     }
   });
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -619,13 +625,13 @@ function validateSvgAccessibility(svgs) {
 function validateLinkOrButton(element) {
   const issues = [];
   const recommendations = [];
-  
+
   const href = element.href;
   const onClick = element.onClick;
   const role = element.role;
   const tagName = element.tagName?.toLowerCase();
   const text = element.text?.trim();
-  
+
   // Check for fake links (anchor tags used as buttons)
   if (tagName === 'a' || role === 'link') {
     if (!href || href === '#' || href === 'javascript:void(0)' || href.startsWith('javascript:')) {
@@ -639,7 +645,7 @@ function validateLinkOrButton(element) {
         reason: 'Element has click handler but no valid href. Replace <a> with <button> for better accessibility.'
       });
     }
-    
+
     if (!text && !element['aria-label'] && !element['aria-labelledby']) {
       issues.push({
         rule: 'REACT_036',
@@ -648,7 +654,7 @@ function validateLinkOrButton(element) {
       });
     }
   }
-  
+
   // Check for buttons that should be links
   if (tagName === 'button' || role === 'button') {
     if (href && href !== '#' && !href.startsWith('javascript:')) {
@@ -663,7 +669,7 @@ function validateLinkOrButton(element) {
       });
     }
   }
-  
+
   // Check for elements with click handlers but no semantic role
   if (onClick && !tagName && !role) {
     issues.push({
@@ -676,7 +682,7 @@ function validateLinkOrButton(element) {
       reason: 'Interactive elements must have a semantic role for screen readers.'
     });
   }
-  
+
   // Check for keyboard accessibility
   if (onClick && !element.onKeyDown && (tagName === 'div' || tagName === 'span' || role === 'button')) {
     issues.push({
@@ -685,7 +691,7 @@ function validateLinkOrButton(element) {
       message: 'Custom button element missing keyboard event handler (Enter/Space). Add onKeyDown for accessibility.'
     });
   }
-  
+
   return {
     valid: issues.length === 0,
     issues,
@@ -700,31 +706,31 @@ function validateLinkOrButton(element) {
  */
 function createAccessibleLink(config) {
   const { href, text, ariaLabel, external, download, onClick } = config;
-  
+
   const props = {
     href: href || '#',
     text: text || '',
     accessibility: {}
   };
-  
+
   if (ariaLabel) {
     props.accessibility['aria-label'] = ariaLabel;
   }
-  
+
   if (external) {
     props.accessibility['aria-label'] = `${props.accessibility['aria-label'] || text} (opens in new tab)`;
     props.target = '_blank';
     props.rel = 'noopener noreferrer';
   }
-  
+
   if (download) {
     props.download = download;
   }
-  
+
   if (onClick) {
     props.onClick = onClick;
   }
-  
+
   return props;
 }
 
@@ -738,15 +744,15 @@ function createAccessibleLink(config) {
  */
 function getFullLangAttribute(language = 'en', region = '', script = '') {
   let lang = language;
-  
+
   if (script) {
     lang += `-${script}`;
   }
-  
+
   if (region) {
     lang += `-${region}`;
   }
-  
+
   return lang;
 }
 
@@ -757,7 +763,7 @@ function getFullLangAttribute(language = 'en', region = '', script = '') {
  */
 function validateLangAttribute(langValue) {
   const issues = [];
-  
+
   if (!langValue || langValue.trim() === '') {
     issues.push({
       rule: 'REACT_015',
@@ -775,7 +781,7 @@ function validateLangAttribute(langValue) {
       });
     }
   }
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -815,7 +821,7 @@ module.exports = {
 if (require.main === module) {
   console.log('Processing dependency updates...\n');
   const updates = processDependencyUpdates();
-  
+
   updates.forEach(update => {
     console.log(`Updating ${update.dependency}:`);
     console.log(`  ${update.from} → ${update.to}`);

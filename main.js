@@ -150,6 +150,16 @@ function wrapMainTags(htmlContent) {
   return htmlContent;
 }
 
+// New function to fix 26 table structure issues
+function fixTableStructureIssues(htmlContent) {
+  return validateTableAccessibility(validateTableStructure(htmlContent));
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks(htmlContent) {
+  return validateLandmark(validateLandmarkStructure(htmlContent));
+}
+
 // Export wrapMainTags function
 module.exports = {
   // ... existing exports ...
@@ -163,5 +173,7 @@ module.exports = {
   getSvgAccessibleName,
   createAccessibleLink,
   createInPageButton,
-  addAccessibleNameToSVGs // New export
+  addAccessibleNameToSVGs,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks
 };

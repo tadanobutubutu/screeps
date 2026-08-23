@@ -316,3 +316,61 @@ export function CreateAside(props) {
     }
   };
 }
+
+// Fix REACT_017: Add comprehensive landmark elements to main layout components
+// Ensure we have exactly 4 landmark regions: banner (header), navigation (nav), main content, contentinfo (footer)
+export function MainLayout(props) {
+  return {
+    type: 'div',
+    props: {
+      className: 'main-layout',
+      children: [
+        // Header landmark/banners
+        CreateHeader({
+          label: props.headerLabel || 'Site header',
+          className: 'layout-header',
+          children: props.headerContent
+        }),
+        // Navigation landmark
+        CreateNav({
+          label: props.navLabel || 'Main navigation',
+          className: 'layout-nav',
+          children: props.navContent
+        }),
+        // Main content landmark
+        wrapPrimaryContentInMain(props.mainContent, {
+          ariaLabel: props.mainLabel || 'Main content',
+          className: 'layout-main'
+        }),
+        // Footer landmark/contentinfo
+        CreateFooter({
+          label: props.footerLabel || 'Site footer',
+          className: 'layout-footer',
+          children: props.footerContent
+        })
+      ]
+    }
+  };
+}
+
+// Fix REACT_041: Ensure all SVG components have accessible names
+// Adding title elements as fallback for better screen reader support
+export function createSvgIconWithTitle(iconName, children = []) {
+  return {
+    type: 'svg',
+    props: {
+      'aria-label': iconName,
+      role: 'img',
+      focusable: 'false',
+      children: [
+        {
+          type: 'title',
+          props: {
+            children: [iconName]
+          }
+        },
+        ...children
+      ]
+    }
+  };
+}

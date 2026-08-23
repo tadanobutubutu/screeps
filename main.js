@@ -9,6 +9,15 @@ function handleButtonClick() {
   button.setAttribute('aria-pressed', 'true');
 }
 
+// New function to ensure that the HTML has a lang attribute
+function addHtmlLangAttribute() {
+  const html = document.documentElement;
+  html.setAttribute('lang', 'en'); // Change this to the desired language
+}
+
+// Initialize the HTML lang attribute
+addHtmlLangAttribute();
+
 // Identify the function that renders dependency graphs and modify it to import and use dependencyGraphContent
 function renderDependencyGraph() {
   const graphElement = document.getElementById('dependencyGraph');
@@ -31,8 +40,6 @@ function renderIndexView() {
 
 // If indexContent is used, import it.
 const { indexContent } = require('./index');
-
-// Note: The above examples are just placeholders and should be replaced with the actual function names, content usage, and the correct file paths.
 
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file

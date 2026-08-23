@@ -155,7 +155,7 @@ function validateLandmark(htmlContent) {
 }
 
 // Validate landmark structure - ensures proper landmark nesting and structure
-// This addresses REACT_025: React Unique Landmarks and REACT_017: React Landmarks
+// This addresses REACT_025: React Unique Landmarks
 function validateLandmarkStructure(htmlContent) {
   // Ensure proper landmark nesting and structure
   let modifiedContent = htmlContent;
@@ -225,7 +225,7 @@ function createAccessibleLink(url, text, options = {}) {
   const { className = '', target = '_self', rel = '', ariaLabel = '' } = options;
 
   let relAttr = rel;
-  If (!relAttr && target === '_blank') {
+  if (!relAttr && target === '_blank') {
     relAttr = 'noopener noreferrer';
   }
 
@@ -347,26 +347,4 @@ function wrapPrimaryContentInMain(htmlContent) {
   if (bodyMatch) {
     const bodyContent = bodyMatch[1];
     // Wrap the body content in a main tag
-    return `<main>${bodyContent}</main>`;
-  }
-  // Fallback: wrap everything in main
-  return `<main>${htmlContent}</main>`;
-}
-
-// Main function to process HTML content and address accessibility issues
-// This function integrates all accessibility fixes
-function processAccessibilityIssues(htmlContent) {
-  let processedContent = htmlContent;
-  
-  // Apply REACT_015: Add lang attribute to HTML element
-  processedContent = addLangAttribute(processedContent);
-  
-  // Apply REACT_017: Add/fix landmark issues
-  processedContent = validateLandmark(processedContent);
-  processedContent = validateLandmarkStructure(processedContent);
-  
-  // Apply REACT_025/RE
-}
-
-// Export required functions for tests
-export { processAccessibilityIssues, wrapPrimaryContentInMain };
+    return `<main>${bodyContent}</main>

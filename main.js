@@ -79,7 +79,7 @@ function addAccessibleName(svgElement, accessibleName) {
   }
 
   // Ensure role="img" is set
-  if (!svgElement.hasAttribute('role')) {
+  if (!svgElement.getAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
 

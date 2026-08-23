@@ -240,7 +240,7 @@ export const validateLandmarkStructure = () => {
     if (!nav.getAttribute('aria-label') && navs.length > 1) {
       console.log('Navigation landmark in invalid location - missing label');
     }
-  });
+  );
 };
 
 // ===== NEW CODE TO ADDRESS REACT_025 (React Unique Landmarks) =====
@@ -393,6 +393,24 @@ export const initAccessibilityFixes = () => {
   } else {
     applyAllAccessibilityFixes();
   }
+};
+
+// Added to match the TODO comment functions
+export const fixTableStructureIssues = () => {
+  addScopeToTableHeaders();
+  fixTableStructure();
+};
+
+export const ensureUniqueLandmarks = () => {
+  fixDuplicateMainLandmarks();
+};
+
+export const addSvgAccessibleNames = () => {
+  addAccessibleNamesToSVGs();
+};
+
+export const fixFakeLinkIssue = () => {
+  fixFakeLinks();
 };
 
 export { class1, function1, Object1 };

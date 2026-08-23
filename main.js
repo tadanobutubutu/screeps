@@ -3,7 +3,6 @@
 // main.js - Entry point for the application with accessibility fixes for React components
 import React from 'react';
 import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
 
 function processData(data) {
     if (!data) {
@@ -123,7 +122,7 @@ export function createSvgIcon(iconName, children = []) {
     };
 }
 
-// New: Ensure accessible names for up to two SVG icons
+// Fix REACT_041: Ensure accessible names for up to two SVG icons
 function ensureSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
     const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')).slice(0, 2);
@@ -156,7 +155,7 @@ export function ensureUniqueLandmarks(container = document) {
     });
 }
 
-// New: Fix fake link issue
+// Fix REACT_036: Fix fake link issue
 function fixFakeLinks() {
     document.querySelectorAll('a[href="#"]').forEach(link => {
         link.href = 'javascript:void(0)';
@@ -165,7 +164,7 @@ function fixFakeLinks() {
     });
 }
 
-// New: Add proper landmark regions
+// Fix REACT_017: Add proper landmark regions
 export function addLandmarkRegions(container = document) {
     let headerId = 'landmark-header';
     let navId = 'landmark-nav';
@@ -271,30 +270,7 @@ export function addTableScopeAttributes(container = document) {
     });
 }
 
-// New: Enhance focus visibility for keyboard navigation
-function enhanceFocusVisibility() {
-    // Add a class to body when user navigates with keyboard
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-            document.body.classList.add('keyboard-nav');
-        }
-    });
-    // Remove the class when mouse is used
-    document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-    });
-}
-
-const addressAccessibilityIssues = function() {
-    ensureSvgAccessibleNames();
-    ensureUniqueLandmarks();
-    addLandmarkRegions();
-    addTableScopeAttributes();
-    fixFakeLinks();
-    setLanguageAttribute('en');
-    enhanceFocusVisibility();
-};
-
+// Fix REACT_015: Set language attribute on HTML element
 function setLanguageAttribute(lang) {
     document.documentElement.lang = lang;
 }
@@ -321,8 +297,32 @@ function applyLandmarkRoles() {
     }
 }
 
+// New: Enhance focus visibility for keyboard navigation
+function enhanceFocusVisibility() {
+    // Add a class to body when user navigates with keyboard
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            document.body.classList.add('keyboard-nav');
+        }
+    });
+    // Remove the class when mouse is used
+    document.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-nav');
+    });
+}
+
+const addressAccessibilityIssues = function() {
+    ensureSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    addLandmarkRegions();
+    addTableScopeAttributes();
+    fixFakeLinks();
+    setLanguageAttribute('en');
+    applyLandmarkRoles();
+    enhanceFocusVisibility();
+};
+
 // Export the created landmark components
 export { addressAccessibilityIssues };
 // Re-export imported content that might be required
 export { dependencyGraphContent, indexContent };
-// Already existing exports are preserved

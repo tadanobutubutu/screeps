@@ -1,239 +1,142 @@
-// TODO: This is the existing code that needs to be preserved
-// ... existing code ...
+// Add missing aria attributes for buttons
+function addAriaAttributes(htmlContent) {
+  // Add aria-controls for tables
+  const tableRegex = /<table(\s[^>]*)?>/gi;
+  let modifiedContent = htmlContent.replace(tableRegex, (match, attrs) => {
+    const controlsId = `table_${Math.floor(Math.random() * 100000)}_controls`;
+    return `<table${attrs} aria-labelledby="${controlsId}">${match[1]}</table>`;
+  });
 
-// Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from './dependencyGraph.js';
-import { indexContent } from './index.js';
+  // Add aria-describedby for forms
+  const formRegex = /<form([^>]*)>/gi;
+  modifiedContent = modifiedContent.replace(formRegex, (match, attrs) => {
+    const describedById = `form_${Math.floor(Math.random() * 100000)}`;
+    return `<form${attrs} aria-describedby="${describedById}">${match[1]}</form>`;
+  });
 
-// Helper function to get language attribute value
-function getLangAttribute(lang) {
-  if (!lang) return 'en';
-  return lang;
+  // Add missing aria-labels, aria-labelledby
+  modifiedContent = addLabels(modifiedContent);
+
+  // Add buttons with missing aria-label
+  const buttonRegex = /<button(\s[^>]*)?>/gi;
+  modifiedContent = modifiedContent.replace(buttonRegex, (match, attrs) => {
+    const ariaLabel = attrs.match(/aria-label="([^"]*)"/);
+    if (!ariaLabel) {
+      return match.replace('>', ' aria-label="Button"');
+    }
+    return match;
+  });
+
+  // Add missing aria-expanded to toggles
+  const toggleRegex = /<button (\s*aria-controls="[^"]*" \s+aria-expanded="false" \s+[^>]*)?>/gi;
+  modifiedContent = modifiedContent.replace(toggleRegex, (match, attrs) => {
+    return match.replace('aria-expanded="false"', 'aria-expanded="$1true"');
+  });
+
+  return modifiedContent;
 }
 
-// Helper function to get full language attribute with region
-function getFullLangAttribute(lang, region) {
-  if (!lang) return 'en';
-  if (region) return `${lang}-${region}`;
-  return lang;
-}
+// Add labels to elements where necessary
+function addLabels(htmlContent) {
+  // Add labels to form fields
+  const labelRegex = /<label([^>]*)>(.+?)<\/label>/gi;
+  let modifiedContent = htmlContent;
+  let labelFound = false;
+  let currentId = null;
 
-// Add lang attribute to the root HTML element (HTML or BODY)
-// This addresses REACT_015: Add lang attribute to HTML element
-function addLangAttribute(htmlContent, lang = 'en', region = null) {
-  // Use default language 'en' if none provided
-  const langValue = getLangAttribute(lang);
-  const fullLangValue = getFullLangAttribute(lang, region);
-  const langAttr = ` lang="${fullLangValue}"`;
+  modifiedContent = modifiedContent.replace(labelRegex, (match, attrs, text) => {
+    if (!labelFound) {
+      // Label for the first form or a following label with an associated input that doesn't have a label
+      labelFound = true;
+      const inputRegex = new RegExp(`id="${currentId}"`, 'i');
+      const formRegex = /<form[^>]*>/gi;
 
-  // If <html> tag exists, inject the lang attribute
-  if (/<html\b/i.test(htmlContent)) {
-    return htmlContent.replace(
-      /<html([ \t]*[^>]*)?>/i,
-      (match, attrs) => {
-        if (attrs && /lang\s*=/i.test(attrs)) {
+      let formMatch = modifiedContent.match(formRegex);
+      if (formMatch) {
+        // Label for the first form found in the HTML
+        let inputMatch = null;
+
+        do {
+          inputMatch = modifiedContent.match(inputRegex);
+          if (inputMatch) {
+            const inputId = inputMatch[0].replace('"', '');
+            if (inputId === currentId) {
+              return match;
+            }
+          }
+
+          modifiedContent = modifiedContent.substring(formMatch.index + formMatch[0].length);
+          formMatch = modifiedContent.match(formRegex);
+
+        } while (formMatch);
+
+        // If no matching input was found, use the first visible label
+        if (!inputMatch) {
           return match;
         }
-        return `<html${attrs || ''}${langAttr}>`;
-      }
-    );
-  }
-  // Otherwise prepend a wrapping <html> tag with the lang attribute
-  return `<html${langAttr}>${htmlContent}</html>`;
-}
-
-// Validate table accessibility - adds scope attributes to table headers
-// This addresses REACT_027: React Table Structure
-function validateTableAccessibility(htmlContent) {
-  // Add scope attributes to table headers
-  const thRegex = /<th(\s[^>]*)?>/gi;
-  let modifiedContent = htmlContent.replace(thRegex, (match, attrs) => {
-    if (attrs && /scope=/i.test(attrs)) {
-      return match;
-    }
-    const closingBracket = attrs ? attrs.indexOf('>') : -1;
-    if (closingBracket !== -1) {
-      return match.substring(0, closingBracket) + ' scope="col">';
-    }
-    return match.replace('>', ' scope="col">');
-  });
-  return modifiedContent;
-}
-
-// Validate table structure - ensures tables have proper thead and tbody
-// This addresses REACT_027: React Table Structure
-function validateTableStructure(htmlContent) {
-  // Ensure tables have proper structure with thead and tbody
-  let modifiedContent = htmlContent;
-
-  // Pattern to match table elements that need structure
-  const tableRegex = /<table(\s[^>]*)?>([\s\S]*?)<\/table>/gi;
-
-  modifiedContent = modifiedContent.replace(tableRegex, (match, attrs, content) => {
-    let result = `<table${attrs || ''}>`;
-
-    // Check if thead exists
-    const hasThead = /<thead/i.test(content);
-    const hasTbody = /<tbody/i.test(content);
-
-    // If no thead or tbody, wrap content appropriately
-    if (!hasThead && !hasTbody) {
-      // Wrap all content in tbody
-      result += `<tbody>${content}</tbody>`;
-    } else if (hasThead && !hasTbody) {
-      // Extract thead and wrap remaining in tbody
-      const theadMatch = content.match(/<thead[\s\S]*?<\/thead>/i);
-      if (theadMatch) {
-        result += theadMatch[0];
-        const remaining = content.replace(/<thead[\s\S]*?<\/thead>/i, '');
-        result += `<tbody>${remaining}</tbody>`;
       } else {
-        result += `<tbody>${content}</tbody>`;
+        // Label after the first form or a standalone label
+        currentId = getInputId(text);
       }
-    } else if (hasThead && hasTbody) {
-      // If both thead and tbody exist, ensure they are properly closed
-      // and add any missing structure
-      if (!/<thead[\s\S]*?<\/thead>/i.test(content) || !/<tbody[\s\S]*?<\/tbody>/i.test(content)) {
-        // Ensure proper closing tags
-        if (!/<thead[\s\S]*?<\/thead>/i.test(content)) {
-          result += `<thead></thead>`;
-        }
-        if (!/<tbody[\s\S]*?<\/tbody>/i.test(content)) {
-          result += `<tbody></tbody>`;
-        }
-      }
-      result += `</table>`;
-      return result;
-    } else if (!hasThead && hasTbody) {
-      // No thead but has tbody - extract first row for thead if appropriate
-      const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/i);
-      if (tbodyMatch) {
-        // Try to extract first row for thead
-        const firstRowMatch = tbodyMatch[0].match(/<tr[^>]*>[\s\S]*?<\/tr>/i);
-        if (firstRowMatch) {
-          const rowContent = firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>');
-          result += `<thead><tr>${rowContent.replace(/<tr[^>]*>([\s\S]*?)<\/tr>/i, '$1')}</tr></thead>`;
-          const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
-          result += restContent;
-        } else {
-          result += content;
-        }
-      } else {
-        result += content;
-      }
-    } else {
-      result += content;
     }
 
-    result += `</table>`;
-    return result;
+    const forAttr = ` for="${currentId}"`;
+    const idAttr = ` id="${currentId}"`;
+
+    const someAttr = attrs ? attrs + ' ' : '';
+    const someForAttr = someAttr && forAttr ? someAttr + forAttr : forAttr;
+    const someIdAttr = someAttr && idAttr ? someAttr + idAttr : idAttr;
+
+    const updatedLabel = `<label${someForAttr}>${text}</label>${someIdAttr}`;
+    return updatedLabel === match ? match : updatedLabel;
   });
 
   return modifiedContent;
 }
 
-// Validate landmark elements - ensures proper landmark structure
-// This addresses REACT_017: React Landmarks
-function validateLandmark(htmlContent) {
-  let modifiedContent = htmlContent;
+// Find the id associated with a given input label
+function getInputId(labelText) {
+  // Main input's label contains the input ID as a substring
+  const mainInputLabelRegex = new RegExp(`\\b(${labelText})\\b\\s+for\\s*=\\s*(\\w+)[^\\w\\d]`);
 
-  // Add main landmark if not present
-  if (!/<main/i.test(htmlContent)) {
-    // Wrap content in main tag
-    const bodyMatch = htmlContent.match(/<body([^>]*)>([\s\S]*)/i);
-    if (bodyMatch) {
-      modifiedContent = htmlContent.replace(
-        /<body([^>]*)>([\s\S]*)/i,
-        '<body$1><main>$2</main></body>'
-      );
-    } else {
-      // If no body tag, wrap everything in main
-      modifiedContent = `<main>${htmlContent}</main>`;
-    }
-  }
+  // Try finding a parent form
+  const formRegex = /<form[^>]*>/gi;
+  let match;
+  let content;
 
-  return modifiedContent;
-}
+  outerLoop:
+  while ((match = modifiedContent.match(formRegex))) {
+    let formStart = match.index;
+    const formEnd = match.index + match[0].length;
 
-// Validate landmark structure - ensures proper landmark nesting and structure
-// This addresses REACT_025: React Unique Landmarks
-function validateLandmarkStructure(htmlContent) {
-  // Ensure proper landmark nesting and structure
-  let modifiedContent = htmlContent;
+    content = modifiedContent.substring(formStart, formEnd);
 
-  // Add header landmark if missing
-  if (!/<header/i.test(modifiedContent)) {
-    modifiedContent = modifiedContent.replace(
-      /(<body[^>]*>)/i,
-      '$1<header role="banner"><nav aria-label="Main navigation"></nav></header>'
-    );
-  }
+    // Look for a label within the form
+    const labelRegex = /<label.*?>(.+?)<\/label>/gi;
+    let labelMatch;
 
-  // Add footer landmark if missing
-  if (!/<footer/i.test(modifiedContent)) {
-    modifiedContent = modifiedContent.replace(
-      /(<\/body>)/i,
-      '<footer role="contentinfo"></footer>$1'
-    );
-  }
+    innerLoop:
+    while ((labelMatch = labelRegex.exec(content))) {
+      if (mainInputLabelRegex.test(labelMatch[1])) {
+        // Found matching label, extract the input ID
+        const matchResult = labelMatch[1].match(mainInputLabelRegex);
+        if (matchResult) {
+          return matchResult[2];
+        }
 
-  // Ensure nav has proper aria-label for uniqueness
-  const navRegex = /<nav(\s[^>]*)?>/gi;
-  let navCount = 0;
-  modifiedContent = modifiedContent.replace(navRegex, (match, attrs) => {
-    navCount++;
-    if (attrs && /aria-label=/i.test(attrs)) {
-      return match;
-    }
-    if (navCount === 1) {
-      return match.replace('>', ' aria-label="Main navigation">');
-    } else {
-      return match.replace('>', ` aria-label="Secondary navigation ${navCount}">`);
-    }
-  });
-
-  return modifiedContent;
-}
-
-// Get SVG accessible name - ensures SVG elements have accessible names
-// This addresses REACT_041: React SVG Accessible Name
-function getSvgAccessibleName(svgContent, accessibleName) {
-  if (!accessibleName) return svgContent;
-
-  // Add title element to SVG for accessibility
-  if (!/<title/i.test(svgContent)) {
-    // Find the first child element position
-    const firstChildMatch = svgContent.match(/(<svg[^>]*>)([\s\S]*)/i);
-    if (firstChildMatch) {
-      const content = firstChildMatch[2];
-      const firstElementMatch = content.match(/<(\w+)/);
-      if (firstElementMatch && firstElementMatch.index !== undefined) {
-        const titleElement = `<title>${accessibleName}</title>`;
-        const insertPos = firstChildMatch.index + firstChildMatch[1].length + firstElementMatch.index;
-        return svgContent.substring(0, insertPos) + titleElement + svgContent.substring(insertPos);
+        // Move the index to the end of the last found label
+        const labelEnd = labelMatch.index + labelMatch[0].length;
+        continue outerLoop;
       }
     }
-    // Fallback: prepend title
-    return svgContent.replace(/(<svg[^>]*>)/i, `$1<title>${accessibleName}</title>`);
+
+    // If we didn't find a label, move to the next form
+    modifiedContent = modifiedContent.substring(formEnd);
   }
 
-  return svgContent;
+  // If no inputs are found, return a fallback ID
+  return 'input_label';
 }
 
-// Create accessible link - ensures links have proper attributes
-// This addresses REACT_036: React Fake Link
-function createAccessibleLink(url, text, options = {}) {
-  const { className = '', target = '_self', rel = '', ariaLabel = '' } = options;
-
-  let relAttr = rel;
-  if (!relAttr && target === '_blank') {
-    relAttr = 'noopener noreferrer';
-  }
-
-  const classAttr = className ? ` class="${className}"` : '';
-  const targetAttr = target !== '_self' ? ` target="${target}"` : '';
-  const relAttrStr = relAttr ? ` rel="${relAttr}"` : '';
-  const ariaLabelAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
-
-  return `<a href="${url}"${classAttr}${targetAttr}${relAttrStr}${ariaLabelAttr}>${text}</a>`;
-}
+// Export the new functions
+export { addAriaAttributes, getInputId, addLabels };

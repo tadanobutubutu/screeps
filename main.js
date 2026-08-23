@@ -46,4 +46,13 @@ export function addAccessibleNamesWithUniqueLabels() {
 import { addHtmlLangToRootElement } from './addHtmlLangToRootElement';
 export { addHtmlLangToRootElement };
 
-// TODO: Add back any required exports that might have been removed
+// React_017 new function: Validate Landmark Structure
+export function validateLandmarkStructure() {
+  // Logic to validate landmark structure goes here.
+  // For example, check that landmarks have a relevant 'role' and required 'properties'.
+}
+
+// React_017 new function: Validate Unique Landmarks
+export function validateUniqueLandmarks() {
+  // Logic to check all landmarks for uniqueness based on their 'aria-label' goes here.
+}

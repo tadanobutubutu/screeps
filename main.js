@@ -3,7 +3,7 @@ import { class1, function1, Object1 } from './path/to/module';
 import { unique } from './utils';
 import dependencyGraphContent from './dependencyGraphContent';
 import indexContent from './indexContent';
-export { unique };
+export { unique, rotateBack, toggleRotation };
 
 // Helper function to get lang attribute value
 export const getLangAttribute = () => {
@@ -28,7 +28,7 @@ export const getFullLangAttribute = () => {
 export const addLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (htmlElement && htmlElement.getAttribute('lang') !== 'en') {
-    ... 'en');
+    htmlElement.setAttribute('lang', 'en');
   }
 };
 
@@ -42,7 +42,7 @@ export const addAccessibleNamesToSVGs = () => {
       titleElement.textContent = 'Accessible title for SVG ' + (index + 1);
       svg.insertBefore(titleElement, svg.firstChild);
     }
-    if ... {
+    if (svg.getAttribute('role') !== 'img') {
       svg.setAttribute('role', 'img');
     }
     const titleId = 'svg-title-' + index;
@@ -71,24 +71,21 @@ export const addScopeToTableHeaders = () => {
 
 // Rotate back function for unrotate button
 export const rotateBack = () => {
-  // Placeholder for rotate back functionality
-  console.log('Rotate back action triggered');
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
 };
 
 // Function to validate table accessibility
 export const validateTableAccessibility = (table) => {
   const issues = [];
   // Check if table has proper structure
-  if (!table.tHead) {
-    issues.push('Table missing thead element');
-  }
-  if (!table.tBODY) {
-    issues.push('Table missing tbody element');
+  if (!table.tHead || !table.tBODY) {
+    issues.push('Table missing either thead or tbody element');
   }
   // Check for headers
   const headers = ...
   headers.forEach(th => {
-    if ... {
+    if (!th.hasAttribute('scope')) {
       issues.push('Header missing scope attribute');
     }
   });
@@ -111,16 +108,13 @@ export const validateTableStructure = () => {
     // Check for proper table structure
     const thead = table.tHead;
     const tbody = table.tBODY;
-    if (!thead) {
-      issues.push(`Table ${index + 1}: Missing thead element`);
-    }
-    if (!tbody) {
-      issues.push(`Table ${index + 1}: Missing tbody element`);
+    if (!thead || !tbody) {
+      issues.push(`Table ${index + 1}: Missing either thead or tbody element`);
     }
     // Check that all th elements have scope attributes
     const headers = ...
     headers.forEach((th, thIndex) => {
-      if ... {
+      if (!th.hasAttribute('scope')) {
         issues.push(`Table ${index + 1}, Header ${thIndex + 1}: Missing scope attribute`);
       }
     });
@@ -220,11 +214,10 @@ export const validateLandmarkStructure = () => {
 
 // ===== NEW CODE TO ADDRESS REACT_025 (React Unique Landmarks) =====
 // Fix for duplicate <main> landmarks - converts extra main elements to <section>
-export const ... = () => {
+export const removeDuplicateMainElements = () => {
   const mainElements = ...
   if (mainElements.length > 1) {
     // Keep the first main landmark as is
-    const mainElementsArray = ...
     ... index) => {
       // Create a section element to replace the duplicate main
       const section = ...

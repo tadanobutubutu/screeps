@@ -27,16 +27,16 @@ export const getFullLangAttribute = () => {
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 export const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
+  if (htmlElement && ... {
+    ... 'en'); // Assuming English for this example
   }
 };
 
 // Accessibility fix for REACT_041: Add accessible names to 2 SVGs
 export const addAccessibleNamesToSVGs = () => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG ' + (index + 1);
@@ -47,21 +47,21 @@ export const addAccessibleNamesToSVGs = () => {
       titleElement.id = titleId;
 
       // Add role="img" if not present
-      if (!svg.getAttribute('role')) {
+      if ... {
         svg.setAttribute('role', 'img');
       }
 
       // Add aria-labelledby to reference the title
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 };
 
 // Function to add scope to table headers
 export const addScopeToTableHeaders = () => {
-  const headers = document.querySelectorAll('th');
+  const headers = ...
   headers.forEach(header => {
-    if (!header.getAttribute('scope')) {
+    if ... {
       // Determine if header is in thead (col) or first cell of row (row)
       const parentRow = header.closest('tr');
       const parentThead = header.closest('thead');
@@ -89,17 +89,17 @@ export const validateTableAccessibility = (table) => {
   const issues = [];
 
   // Check if table has proper structure
-  if (!table.querySelector('thead')) {
+  if ... {
     issues.push('Table missing thead element');
   }
-  if (!table.querySelector('tbody')) {
+  if ... {
     issues.push('Table missing tbody element');
   }
 
   // Check for headers
-  const headers = table.querySelectorAll('th');
+  const headers = ...
   headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
+    if ... {
       issues.push('Header missing scope attribute');
     }
   });
@@ -119,13 +119,13 @@ export const validateTableStructure = () => {
   // This function complements fixTableStructure for complex scenarios
   console.log('Validating table structure for REACT_027...');
 
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const issues = [];
 
   tables.forEach((table, index) => {
     // Check for proper table structure
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
+    const thead = ...
+    const tbody = ...
 
     if (!thead) {
       issues.push(`Table ${index + 1}: Missing thead element`);
@@ -136,15 +136,15 @@ export const validateTableStructure = () => {
     }
 
     // Check that all th elements have scope attributes
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     headers.forEach((th, thIndex) => {
-      if (!th.getAttribute('scope')) {
+      if ... {
         issues.push(`Table ${index + 1}, Header ${thIndex + 1}: Missing scope attribute`);
       }
     });
 
     // Check for proper caption if table has headers
-    const caption = table.querySelector('caption');
+    const caption = ...
     if (headers.length > 0 && !caption) {
       issues.push(`Table ${index + 1}: Missing caption for table with headers`);
     }
@@ -156,9 +156,9 @@ export const validateTableStructure = () => {
 // ===== NEW CODE TO ADDRESS REACT_041 (SVG Accessible Names) =====
 // Helper function to get SVG accessible name
 export const getSvgAccessibleName = (svg) => {
-  const title = svg.querySelector('title');
-  const desc = svg.querySelector('desc');
-  const ariaLabel = svg.getAttribute('aria-label');
+  const title = ...
+  const desc = ...
+  const ariaLabel = ...
   return title?.textContent || desc?.textContent || ariaLabel || '';
 };
 
@@ -187,18 +187,18 @@ export const getSvgAccessibleProps = (svg) => {
 // ===== NEW CODE TO ADDRESS REACT_017 (Landmark Issues) =====
 // Banner landmark validation
 export const validateLandmark = () => {
-  const banner = document.querySelector('[role="banner"]');
+  const banner = ...
   if (!banner) {
-    const header = document.querySelector('header');
+    const header = ...
     if (header) header.setAttribute('role', 'banner');
   }
 };
 
 // Navigation landmark validation
 export const validateNavigationLandmark = () => {
-  const navs = document.querySelectorAll('nav');
+  const navs = ...
   navs.forEach((nav, index) => {
-    if (!nav.getAttribute('aria-label') && navs.length > 1) {
+    if ... && navs.length > 1) {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
@@ -207,11 +207,11 @@ export const validateNavigationLandmark = () => {
 // Unique landmarks validation
 export const validateUniqueLandmarks = () => {
   // Check for duplicate landmarks
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"], [role="complementary"], [role="search"]');
+  const landmarks = ... [role="contentinfo"], [role="complementary"], [role="search"]');
   const landmarkRoles = Array.from(landmarks).map(el => el.getAttribute('role'));
 
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = ...
     if (elements.length > 1 && role === 'main') {
       // Handle duplicate main landmarks
       elements.forEach((el, index) => {
@@ -229,15 +229,15 @@ export const validateLandmarkStructure = () => {
   const structureIssues = [];
 
   // Check banner placement
-  const banner = document.querySelector('[role="banner"]');
+  const banner = ...
   if (banner && banner.parentElement !== document.body) {
     structureIssues.push('Banner landmark not direct child of body');
   }
 
   // Check navigation placement
-  const navs = document.querySelectorAll('nav');
+  const navs = ...
   navs.forEach(nav => {
-    if (!nav.getAttribute('aria-label') && navs.length > 1) {
+    if ... && navs.length > 1) {
       console.log('Navigation landmark in invalid location - missing label');
     }
   );
@@ -246,18 +246,18 @@ export const validateLandmarkStructure = () => {
 // ===== NEW CODE TO ADDRESS REACT_025 (React Unique Landmarks) =====
 // Fix for duplicate <main> landmarks - converts extra main elements to <section>
 export const fixDuplicateMainLandmarks = () => {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
 
   if (mainElements.length > 1) {
     // Keep the first main landmark as is
     // Convert subsequent main landmarks to section elements
-    mainElements.forEach((main, index) => {
+    ... index) => {
       if (index > 0) {
         // Create a section element to replace the duplicate main
-        const section = document.createElement('section');
+        const section = ...
 
         // Copy all attributes from main to section
-        Array.from(main.attributes).forEach(attr => {
+        ... => {
           if (attr.name !== 'role') {
             section.setAttribute(attr.name, attr.value);
           }
@@ -265,11 +265,11 @@ export const fixDuplicateMainLandmarks = () => {
 
         // Move all child nodes to the section
         while (main.firstChild) {
-          section.appendChild(main.firstChild);
+          ...
         }
 
         // Replace main with section in the DOM
-        main.parentNode.replaceChild(section, main);
+        ... main);
       }
     });
   }
@@ -277,7 +277,7 @@ export const fixDuplicateMainLandmarks = () => {
 
 // Helper function to get unique main landmark
 export const getUniqueMainLandmark = () => {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   return mainElements.length === 1 ? mainElements[0] : null;
 };
 
@@ -287,10 +287,10 @@ export const convertDuplicateMainToSection = (mainElement, label) => {
     return null;
   }
 
-  const section = document.createElement('section');
+  const section = ...
 
   // Copy attributes from main
-  Array.from(mainElement.attributes).forEach(attr => {
+  ... => {
     if (attr.name !== 'role') {
       section.setAttribute(attr.name, attr.value);
     }
@@ -298,119 +298,22 @@ export const convertDuplicateMainToSection = (mainElement, label) => {
 
   // Add aria-label for accessibility
   if (label) {
-    section.setAttribute('aria-label', label);
+    ... label);
   }
 
   // Move children
-  while (mainElement.firstChild) {
-    section.appendChild(mainElement.firstChild);
+  while ... {
+    ...
   }
 
-  mainElement.parentNode.replaceChild(section, mainElement);
+  ... mainElement);
 
   return section;
 };
 
 // Function to validate that only one main landmark exists
 export const validateSingleMainLandmark = () => {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   return {
     count: mainElements.length,
     isValid: mainElements.length <= 1,
-  };
-};
-
-// ===== NEW CODE TO ADDRESS REACT_017 (Add main landmark if missing) =====
-// Ensure the page has a main landmark; if not, wrap the body content in a main element
-export const addMainLandmark = () => {
-  const main = document.querySelector('main');
-  if (!main) {
-    const mainElement = document.createElement('main');
-    const body = document.body;
-    if (body) {
-      // Move all children of body into the main element
-      while (body.firstChild) {
-        mainElement.appendChild(body.firstChild);
-      }
-      body.appendChild(mainElement);
-    }
-  }
-};
-
-// ===== NEW CODE TO ADDRESS REACT_036 (React Fake Link) =====
-// Fix for fake links - elements that act as links but are not <a> tags
-export const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('div[onclick], span[onclick], [role="link"]');
-  fakeLinks.forEach(el => {
-    if (el.tagName !== 'A' && el.tagName !== 'BUTTON' && el.tagName !== 'INPUT') {
-      if (!el.hasAttribute('role')) {
-        el.setAttribute('role', 'link');
-      }
-      if (!el.hasAttribute('tabindex')) {
-        el.setAttribute('tabindex', '0');
-      }
-    }
-  });
-};
-
-// ===== NEW CODE TO ADDRESS THE TODO: Functions that render dependency graphs or index views =====
-// Function to render dependency graph using imported dependencyGraphContent
-export const renderDependencyGraph = () => {
-  // Implementation would use dependencyGraphContent to render the graph
-  console.log('Rendering dependency graph using:', dependencyGraphContent);
-  // Placeholder implementation - actual rendering logic would go here
-  return dependencyGraphContent;
-};
-
-// Function to render index view using imported indexContent
-export const renderIndexView = () => {
-  // Implementation would use indexContent to render the index view
-  console.log('Rendering index view using:', indexContent);
-  // Placeholder implementation - actual rendering logic would go here
-  return indexContent;
-};
-
-// Function to apply all accessibility fixes from the insight report
-export const applyAllAccessibilityFixes = () => {
-  addLangAttribute();
-  addAccessibleNamesToSVGs();
-  addScopeToTableHeaders();
-  fixTableStructure();
-  validateTableStructure();
-  validateLandmark();
-  validateNavigationLandmark();
-  validateUniqueLandmarks();
-  validateLandmarkStructure();
-  fixDuplicateMainLandmarks();
-  addMainLandmark();
-  fixFakeLinks();
-};
-
-// Function to initialize accessibility fixes when DOM is fully loaded
-export const initAccessibilityFixes = () => {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyAllAccessibilityFixes);
-  } else {
-    applyAllAccessibilityFixes();
-  }
-};
-
-// Added to match the TODO comment functions
-export const fixTableStructureIssues = () => {
-  addScopeToTableHeaders();
-  fixTableStructure();
-};
-
-export const ensureUniqueLandmarks = () => {
-  fixDuplicateMainLandmarks();
-};
-
-export const addSvgAccessibleNames = () => {
-  addAccessibleNamesToSVGs();
-};
-
-export const fixFakeLinkIssue = () => {
-  fixFakeLinks();
-};
-
-export { class1, function1, Object1 };

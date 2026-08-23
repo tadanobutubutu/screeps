@@ -42,6 +42,15 @@ function ensureUniqueLandmarks(landmarks) {
   return uniqueLandmarks.size === landmarks.length;
 }
 
+// Add missing scope attributes to <th> elements for accessibility
+function addMissingScopeToHeaders() {
+  // Select all <th> elements that do not already have a scope attribute
+  document.querySelectorAll('th:not([scope])').forEach(el => {
+    // Apply a default scope of "col" (column header)
+    el.setAttribute('scope', 'col');
+  });
+}
+
 // New function to address requested changes for REACT_025
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
@@ -67,6 +76,9 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
 processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 
 // Wrap the primary content element in the main container
+
+// Add missing scope attributes to table header cells (fixes REACT_027)
+addMissingScopeToHeaders();
 
 // ... existing exports and functions may remain in main.js
 

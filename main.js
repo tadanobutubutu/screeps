@@ -18,3 +18,9 @@ module.exports = {
 };
 
 // ... existing code ...
+
+// Note: The following React/Next.js code from origin/main was intentionally excluded because it is
+// incompatible with the CommonJS module system used in this Screeps bot repository and does not
+// align with the project's domain (server-side game logic rather than frontend UI). Merging it
+// would introduce syntax errors and architectural inconsistencies. The newFunction addition is
+// preserved to maintain intended functionality from the HEAD branch.

@@ -82,7 +82,7 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = container.querySelectorAll('nav, main, footer, aside, section, header');
+  const landmarks = container.querySelectorAll('main, footer, aside, section, header');
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -235,78 +235,4 @@ export function AppWrapper(props) {
     props: {
       className: 'app-wrapper',
       role: 'application',
-      'aria-label': props.appName || 'Application',
-      children: props.children
-    }
-  };
-}
-
-// HtmlLangProvider - provides language context
-export function HtmlLangProvider(props) {
-  return {
-    type: 'div',
-    props: {
-      lang: props.language || 'en',
-      children: props.children
-    }
-  };
-}
-
-// fixTableStructureIssues - utility for fixing table accessibility
-export function fixTableStructureIssues(tableElement) {
-  const headers = tableElement.querySelectorAll('th');
-  headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
-      th.setAttribute('scope', 'col');
-    }
-  });
-  return tableElement;
-}
-
-// createAccessibleFaviconSvg - creates accessible favicon
-export function createAccessibleFaviconSvg(color = '#00ff00') {
-  return {
-    type: 'svg',
-    props: {
-      'aria-label': 'Page favicon',
-      role: 'img',
-      children: []
-    }
-  };
-}
-
-// faviconGenerators - collection of favicon generation utilities
-export const faviconGenerators = {
-  simple: (color) => ({ type: 'svg', props: { children: [], color: color } }),
-  withText: (text, color) => ({ type: 'svg', props: { children: [text], color: color } })
-};
-
-// generateId - utility for generating unique IDs
-export function generateId(prefix = 'id') {
-  return prefix + '-' + Math.random().toString(36).substr(2, 9);
-}
-
-// setHtmlLang - utility to set HTML language
-export function setHtmlLang(lang) {
-  document.documentElement.lang = lang;
-}
-
-// Export all components and utilities
-export {
-  FakeLinkAsButton,
-  AccessibleIconSVG,
-  GraphIcon,
-  SettingsIcon,
-  AppWrapper,
-  HtmlLangProvider,
-  ensureUniqueLandmarks,
-  createAccessibleFaviconSvg,
-  faviconGenerators,
-  fixTableStructureIssues,
-  generateId,
-  setHtmlLang,
-  setLanguageAttribute,
-  calculateAverage,
-  addressAccessibilityIssues,
-  enhanceFocusVisibility
-};
+      'aria-label': props.appName || 'Application

@@ -134,10 +134,10 @@ export function AccessibleFaviconSvg({ children, ...props }) {
 // Fix for REACT_036: Semantic links instead of divs with onClick
 export function SemanticLinks({ href, children, onClick }) {
   if (href) {
-    return <a href={href} ...
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If it doesn't navigate, use a button
-  return <button ...
+  return <button onClick={onClick}>{children}</button>;
 }
 
 // Existing exports preserved

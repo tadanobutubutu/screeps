@@ -11,9 +11,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-// Export the new necessary functions
-export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
-
 function handleRotateBack() {
   // New function to handle rotating back behavior
   console.log('Rotating back');

@@ -1,6 +1,1 @@
-// Main module entry point
-var loop = require('./src/loop');
-
-module.exports = {
-    loop: loop
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -16,3 +16,25 @@
 // </svg>
 
 // For "fake links", ensure they have proper button/link semantics or role attributes:
+// Example:
+// <div role="button" tabindex="0">Click me</div>
+
+// Addressing REACT_027: Fix 26 table structure issues
+
+// Example of a function that can be used to fix table headers
+function addScopeToTableHeaders() {
+  // Select all table headers in the document
+  const headers = document.querySelectorAll('th');
+
+  // Loop through each header and add the scope attribute
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Call the function to add scope to all headers
+addScopeToTableHeaders();
+
+// ... rest of your main.js content

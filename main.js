@@ -1,6 +1,7 @@
 // Import required module(s) and export the new necessary function(s) here in main.js
 import { class1, function1, Object1 } from './path/to/module';
 import { unique } from './utils';
+export { unique };
 
 // Helper function to get lang attribute value
 export const getLangAttribute = () => {

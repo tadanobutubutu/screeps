@@ -89,7 +89,88 @@ function createLiveRegion(regionName = 'status', politeness = 'polite') {
     return liveRegion;
 }
 
-// Existing exports with the new function added
+// New function to fix table structure issues (REACT_027)
+function fixTableStructureIssues(table) {
+    if (!table) return null;
+
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = table.getAttribute('aria-label') || 'Table';
+        table.insertBefore(caption, table.firstChild);
+    }
+
+    // Add scope attributes to header cells
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+            // Determine scope based on position
+            const isFirstRow = th.parentNode.rowIndex === 0;
+            th.setAttribute('scope', isFirstRow ? 'col' : 'row');
+        }
+    });
+
+    // Ensure proper structure: add role="table" if missing
+    if (!table.hasAttribute('role')) {
+        table.setAttribute('role', 'table');
+    }
+
+    return table;
+}
+
+// New function to ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks() {
+    const landmarkRoles = [
+        'main', 'navigation', 'banner', 'contentinfo', 'search',
+        'complementary', 'form', 'region', 'article', 'section',
+        'aside', 'figure', 'footer', 'header', 'nav'
+    ];
+
+    // Handle explicit role attributes
+    landmarkRoles.forEach(role => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
+        if (elements.length > 1) {
+            elements.forEach((el, idx) => {
+                if (!el.hasAttribute('aria-label')) {
+                    el.setAttribute('aria-label', `${role} ${idx + 1}`);
+                }
+            });
+        }
+    });
+
+    // Handle implicit landmarks via tags
+    const implicitMap = {
+        'main': 'main',
+        'navigation': 'nav',
+        'banner': 'header',
+        'contentinfo': 'footer',
+        'search': '[role="search"]',
+        'complementary': 'aside',
+        'form': '[role="form"]',
+        'region': '[role="region"]',
+        'article': 'article',
+        'section': 'section',
+        'aside': 'aside',
+        'figure': 'figure',
+        'footer': 'footer',
+        'header': 'header',
+        'nav': 'nav'
+    };
+
+    Object.keys(implicitMap).forEach(role => {
+        const selector = implicitMap[role];
+        const elements = document.querySelectorAll(selector);
+        if (elements.length > 1) {
+            elements.forEach((el, idx) => {
+                if (!el.hasAttribute('aria-label')) {
+                    el.setAttribute('aria-label', `${role} ${idx + 1}`);
+                }
+            });
+        }
+    });
+}
+
+// Existing exports with the new functions added
 module.exports = {
     existingFunction,
     wrapContentWithMain,
@@ -98,4 +179,6 @@ module.exports = {
     setAccessiblePageTitle,
     createLiveRegion,
     getMainElement, // Export the required function that may have been removed
+    fixTableStructureIssues,
+    ensureUniqueLandmarks
 };

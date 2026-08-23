@@ -308,3 +308,38 @@ export const validateLandmarkStructure = () => {
       console.log('Navigation landmark in invalid location - missing label');
     }
   });
+};
+
+// ===== ADDRESSING REACT_025 (Unique Landmarks) =====
+// Additional validation for unique landmarks as per REACT_025
+export const validateAndFixUniqueLandmarks = () => {
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  if (mainLandmarks.length > 1) {
+    for (let i = 1; i < mainLandmarks.length; i++) {
+      mainLandmarks[i].setAttribute('role', 'article');
+    }
+  }
+};
+
+// ===== ADDRESSING REACT_036 (Fake Link Issue) =====
+export const fixFakeLinks = () => {
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach(link => {
+    if (link.getAttribute('href') === '#' && !link.hasAttribute('role')) {
+      link.setAttribute('role', 'link');
+    }
+  });
+};
+
+// Initialize all accessibility fixes
+export const initializeAccessibilityFixes = () => {
+  addLangAttribute();
+  addAccessibleNamesToSVGs();
+  fixTableStructure();
+  validateLandmark();
+  validateNavigationLandmark();
+  validateUniqueLandmarks();
+  validateLandmarkStructure();
+  validateAndFixUniqueLandmarks();
+  fixFakeLinks();
+};

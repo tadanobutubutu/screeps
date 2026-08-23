@@ -53,6 +53,9 @@ const EnhancedTable = ({ children }) => {
   return React.cloneElement(children, { role: 'table' });
 };
 
+// Export the EnhancedTable component
+export { EnhancedTable };
+
 // Update the duplicateMainElements function to include the original changes
 export function removeDuplicateMainElements(children) {
   const mainElements = children.filter(
@@ -63,7 +66,7 @@ export function removeDuplicateMainElements(children) {
     return React.cloneElement(mainElements[0], { children: mainElements.slice(1) });
   }
   return children;
-};
+}
 
 // Add lang attribute to the root element (new change)
 export function addLangAttributeToRoot() {
@@ -81,7 +84,7 @@ export function addressAccessibilityIssues(elements) {
     }
   });
   return [];
-};
+}
 
 // Call the function to address accessibility issues
 const mainContent = React.createElement('main', { id: 'mainContent' });

@@ -1,6 +1,3 @@
-// Screeps Game - Main Entry Point
-// This file should only contain JavaScript code for the Screeps game
-
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');

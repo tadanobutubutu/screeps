@@ -28,7 +28,7 @@ const App = () => {
 
 // Initializing the app
 const app = express();
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...);
 
 // Add/fix 4 landmark issues
 // Assuming we have a function to check landmarks, it would be called here.
@@ -60,3 +60,5 @@ fixFakeLink();
 
 // Exporting the app for testing
 export default app;
+export { App };
+export { app };

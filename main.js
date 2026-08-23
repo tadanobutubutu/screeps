@@ -4,7 +4,6 @@
 // ... (code before conflict markers)
 
 // <<<<<<< HEAD
-// Code that contains the issue
 import React from 'react';
 import icons from './icons';
 

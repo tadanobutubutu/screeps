@@ -7,6 +7,9 @@
 function newFunction(element) {
   element.setAttribute('aria-label', 'New Function');
   // Your implementation here
+
+  // Add landmark role for the element
+  element.setAttribute('role', 'region');
 }
 
 // Wrap the new function in a getter to make it accessible as a property on the module object

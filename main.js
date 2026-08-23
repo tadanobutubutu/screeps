@@ -1,15 +1,1 @@
-import Head from 'next/head';
-
-export default function Main() {
-  return (
-    <>
-      <Head>
-        <html lang="en" />
-      </Head>
-      
-      {/* ... rest of the existing JSX code ... */}
-      
-      {/* Add or modify any additional JSX as necessary */}
-    </>
-  );
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

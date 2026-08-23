@@ -106,6 +106,34 @@ async function addMainLandmark() {
     }
 }
 
+/**
+ * Fixes SVG icons for accessibility by adding aria-hidden="true".
+ * Addresses the two occurrences mentioned in the issue.
+ */
+async function addAriaHiddenToSvgIcons() {
+    const fs = require('fs');
+    const path = require('path');
+    const files = [
+        path.join(__dirname, 'app', 'layout.tsx'),
+        path.join(__dirname, 'dashboard', 'app', 'layout.tsx')
+    ];
+    for (const file of files) {
+        if (fs.existsSync(file)) {
+            const content = fs.readFileSync(file, 'utf8');
+            // Add aria-hidden="true" to the favicon SVG if not already present
+            const updated = content.replace(
+                'data:image/svg+xml,<svg>',
+                'data:image/svg+xml,<svg aria-hidden="true"'
+            );
+            // Write back only if a change was made
+            if (updated !== content) {
+                fs.writeFileSync(file, updated);
+            }
+        }
+    }
+    console.log('Added aria-hidden="true" to SVG icons in layout files.');
+}
+
 // Export utilities for testing
 module.exports = {
     generateDependencyGraph,
@@ -114,5 +142,6 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
+    addAriaHiddenToSvgIcons,
     main
 };

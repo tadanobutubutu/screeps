@@ -75,12 +75,12 @@ function validateLandmarkRoles() {
   return Object.values(foundLandmarks).every(count => count === 1);
 }
 
-// ... already existing functions specific to DOM manipulation
-
 // Additional exports if needed (e. g., functions for testing)
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
-  FakeLinkFixed, addLangAttribute, fixTableStructure,
-  validateMainLandmark, validateLandmarkRoles, validateMainLandmark, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
+  FakeLinkFixed,
+  fixTableStructure,
+  validateTableStructure,
+  validateLandmarkRoles,
+  validateMainLandmark
 };

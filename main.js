@@ -137,7 +137,7 @@ export default function Home({ projects }) {
       <main id="main-content">
         <section>
           <h2>Project List</h2>
-            
+          
           <table>
             <caption>Project List</caption>
             <thead>

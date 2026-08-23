@@ -10,8 +10,5 @@ const icons = {
   apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
 };
 
-// Rest of the code from main.js
-// ...
-
 // Ensure that the rest of the code remains unchanged
 // ...

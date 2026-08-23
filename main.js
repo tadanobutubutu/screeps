@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ... existing code ...
 // main.js - Entry point for the application with accessibility fixes for React components
 import React from 'react';
 import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
@@ -22,7 +24,7 @@ function normalizeItem(item) {
     if (typeof item === 'object' && item !== null) {
         const normalized = {};
         for (const key in item) {
-            if (Object.prototype.hasOwnProperty.call(item, key)) {
+            if (item.hasOwnProperty(key)) {
                 normalized[key] = normalizeItem(item[key]);
             }
         }
@@ -123,12 +125,12 @@ export function createSvgIcon(iconName, children = []) {
 
 // New: Ensure accessible names for up to two SVG icons
 function ensureSvgAccessibleNames() {
-    const svgs = document.querySelectorAll('svg[data-icon-name]');
-    const toFix = Array.from(svgs).filter(svg => !svg.hasAttribute('aria-label')).slice(0, 2);
+    const svgs = document.querySelectorAll('svg');
+    const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')).slice(0, 2);
     toFix.forEach(svg => {
-        const name = svg.getAttribute('data-icon-name');
+        const name = svg.getAttribute('data-icon-name') || 'Icon';
         svg.setAttribute('aria-label', name);
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        const title = document.createElement('title');
         title.textContent = name;
         svg.insertBefore(title, svg.firstChild);
     });
@@ -164,7 +166,7 @@ function fixFakeLinks() {
 }
 
 // New: Add proper landmark regions
-export function addProperLandmarkRegions(container = document) {
+export function addLandmarkRegions(container = document) {
     let headerId = 'landmark-header';
     let navId = 'landmark-nav';
     let mainId = 'landmark-main';
@@ -249,7 +251,7 @@ export function addProperLandmarkRegions(container = document) {
 }
 
 // Fix REACT_027 - Add scope attributes to table headers
-export function fixTableStructureIssues(container = document) {
+export function addTableScopeAttributes(container = document) {
     const tables = container.querySelectorAll('table');
     tables.forEach(table => {
         const columnHeaders = table.querySelectorAll('thead th');
@@ -261,7 +263,7 @@ export function fixTableStructureIssues(container = document) {
 
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
-            const firstCell = row.querySelector('th');
+            const firstCell = row.querySelector('td');
             if (firstCell && !firstCell.hasAttribute('scope')) {
                 firstCell.setAttribute('scope', 'row');
             }
@@ -272,25 +274,25 @@ export function fixTableStructureIssues(container = document) {
 // New: Enhance focus visibility for keyboard navigation
 function enhanceFocusVisibility() {
     // Add a class to body when user navigates with keyboard
-    document.body.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
-            document.body.classList.add('keyboard-navigation');
+            document.body.classList.add('keyboard-nav');
         }
     });
     // Remove the class when mouse is used
-    document.body.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-navigation');
+    document.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-nav');
     });
 }
 
 const addressAccessibilityIssues = function() {
-    enhanceFocusVisibility();
-    ensureUniqueLandmarks();
-    applyLandmarkRoles();
     ensureSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    addLandmarkRegions();
+    addTableScopeAttributes();
     fixFakeLinks();
     setLanguageAttribute('en');
-    fixTableStructureIssues();
+    enhanceFocusVisibility();
 };
 
 function setLanguageAttribute(lang) {

@@ -19,9 +19,9 @@ function fixTableStructureIssues() {
         const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
         const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
         if (rowIndex === 0) {
-          th.setAttribute('scope', 'col');
-        } else if (cellIndex === 0) {
           th.setAttribute('scope', 'row');
+        } else if (cellIndex === 0) {
+          th.setAttribute('scope', 'col');
         }
       }
     }

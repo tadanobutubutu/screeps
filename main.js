@@ -90,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], area[href], input:not([disabled]), button:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
@@ -121,7 +121,6 @@ function addMainLandmark(id = 'main-content') {
   if (typeof document !== 'undefined') {
     const main = document.createElement('main');
     main.setAttribute('id', id);
-    document.body.insertBefore(main, document.body.firstChild);
     return main;
   }
 }
@@ -136,6 +135,53 @@ function addScopeToHeaderCells(table, scope = 'col') {
   }
 }
 
+// REACT_036: Convert fake links (href="#") to accessible buttons
+function fixFakeLink(fakeLink) {
+  if (!fakeLink || fakeLink.tagName !== 'A') return null;
+  
+  const href = fakeLink.getAttribute('href');
+  if (href !== '#') return null;
+
+  // Create a proper button element to replace the fake link
+  const button = document.createElement('button');
+  
+  // Copy relevant attributes from the link
+  if (fakeLink.id) button.id = fakeLink.id;
+  if (fakeLink.className) button.className = fakeLink.className;
+  if (fakeLink.textContent) button.textContent = fakeLink.textContent;
+  
+  // Copy inline styles if any
+  const inlineStyles = fakeLink.getAttribute('style');
+  if (inlineStyles) button.setAttribute('style', inlineStyles);
+  
+  // Copy data attributes
+  Array.from(fakeLink.attributes).forEach(attr => {
+    if (attr.name.startsWith('data-')) {
+      button.setAttribute(attr.name, attr.value);
+    }
+  });
+
+  // Replace the fake link with the button
+  fakeLink.parentNode.replaceChild(button, fakeLink);
+  
+  return button;
+}
+
+// Find and fix all fake links in the document
+function fixAllFakeLinks() {
+  if (typeof document === 'undefined') return [];
+  
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fixedElements = [];
+  
+  fakeLinks.forEach((link) => {
+    const fixed = fixFakeLink(link);
+    if (fixed) fixedElements.push(fixed);
+  });
+  
+  return fixedElements;
+}
+
 module.exports = {
   app,
   addLandmark,
@@ -147,5 +193,7 @@ module.exports = {
   trapFocus,
   addLangAttribute,
   addMainLandmark,
-  addScopeToHeaderCells
+  addScopeToHeaderCells,
+  fixFakeLink,
+  fixAllFakeLinks
 };

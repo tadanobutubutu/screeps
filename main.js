@@ -17,9 +17,9 @@ import { indexContent } from './indexContent';
 // Existing function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
   if (!tableData) return null;
-  
+
   const { rows = [], caption } = tableData;
-  
+
   // Ensure proper table structure with thead and tbody
   return {
     ...tableData,
@@ -33,21 +33,21 @@ export const fixTableStructureIssues = (tableData) => {
 // New function to ensure unique landmarks (REACT_025)
 export const ensureUniqueLandmarks = (landmarks) => {
   if (!landmarks || !Array.isArray(landmarks)) return [];
-  
+
   const seenIds = new Set();
-  
+
   return landmarks.map((landmark) => {
     let { id } = landmark;
     let suffix = 1;
     const baseId = id;
-    
+
     while (seenIds.has(id)) {
       id = `${baseId}-${suffix}`;
       suffix++;
     }
-    
+
     seenIds.add(id);
-    
+
     return {
       ...landmark,
       id
@@ -87,7 +87,7 @@ export const wrapPrimaryContentInMain = (content) => {
 // New function to add accessible names to SVGs (REACT_041)
 export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
   if (!svgElement) return null;
-  
+
   return React.cloneElement(svgElement, {
     'aria-label': accessibleName,
     role: 'img'
@@ -114,9 +114,9 @@ export const createLandmark = (element, landmarkType, id) => {
     search: 'search',
     form: 'form'
   };
-  
+
   const role = landmarkRoles[landmarkType] || landmarkType;
-  
+
   return React.cloneElement(element, {
     role,
     id: id || `${landmarkType}-landmark`
@@ -178,8 +178,8 @@ export default function Home({ projects }) {
           <main role="main">
             <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
             <div dangerouslySetInnerHTML={{ __html: indexContent }} />
-            <button 
-              id="unrotate" 
+            <button
+              id="unrotate"
               onClick={handleRotateBack}
               aria-label="Rotate back"
             >
@@ -196,14 +196,14 @@ export default function Home({ projects }) {
 }
 
 // Consolidated list of utility functions
-export { 
-  fixTableStructureIssues, 
-  ensureUniqueLandmarks, 
-  addAriaLabelToFakeLink, 
-  addLangAttribute, 
-  getLangAttribute, 
+export {
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addAriaLabelToFakeLink,
+  addLangAttribute,
+  getLangAttribute,
   getFullLangAttribute,
-  wrapPrimaryContentInMain, 
+  wrapPrimaryContentInMain,
   createLandmark,
   getSvgAccessibleName,
   getSvgAriaLabel,
@@ -212,5 +212,5 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
 };

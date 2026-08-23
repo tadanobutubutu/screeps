@@ -17,9 +17,7 @@ import { indexContent } from './indexContent';
 // Existing function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
   if (!tableData) return null;
-
   const { rows = [], caption } = tableData;
-
   // Ensure proper table structure with thead and tbody
   return {
     ...tableData,
@@ -33,21 +31,16 @@ export const fixTableStructureIssues = (tableData) => {
 // New function to ensure unique landmarks (REACT_025)
 export const ensureUniqueLandmarks = (landmarks) => {
   if (!landmarks || !Array.isArray(landmarks)) return [];
-
   const seenIds = new Set();
-
   return landmarks.map((landmark) => {
     let { id } = landmark;
     let suffix = 1;
     const baseId = id;
-
     while (seenIds.has(id)) {
-      id = ...
+      id = `${baseId}-${suffix}`;
       suffix++;
     }
-
     seenIds.add(id);
-
     return {
       ...landmark,
       id
@@ -87,7 +80,6 @@ export const wrapPrimaryContentInMain = (content) => {
 // New function to add accessible names to SVGs (REACT_041)
 export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
   if (!svgElement) return null;
-
   return React.cloneElement(svgElement, {
     'aria-label': accessibleName,
     role: 'img'
@@ -103,7 +95,7 @@ export const getSvgAriaLabel = (label) => {
   return label || 'SVG graphic';
 };
 
-// New function to add landmark attributes to elements (REACT_017)
+// New function to create a landmark element
 export const createLandmark = (element, landmarkType, id) => {
   const landmarkRoles = {
     banner: 'banner',
@@ -114,19 +106,17 @@ export const createLandmark = (element, landmarkType, id) => {
     search: 'search',
     form: 'form'
   };
-
   const role = landmarkRoles[landmarkType] || landmarkType;
-
   return React.cloneElement(element, {
     role,
     id: id || `${landmarkType}-landmark`
   });
 };
 
-// Functions to validate landmark structure and accessibility (REACT_017)
+// Functions to validate landmark accessibility
 export const validateLandmark = (landmarkType) => {
   const validLandmarks = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form'];
-  return ...
+  return validLandmarks.includes(landmarkType);
 };
 
 export const validateLandmarkStructure = (element) => {
@@ -142,7 +132,7 @@ export const validateTableAccessibility = (tableData) => {
 
 export const validateTableStructure = (tableData) => {
   if (!tableData || !tableData.rows || tableData.rows.length < 2) return false;
-  return !!tableData.headerRow && ...
+  return !!tableData.headerRow && true;
 };
 
 // Functions related to creating in-page buttons and accessible links (REACT_036)
@@ -176,17 +166,17 @@ export default function Home({ projects }) {
       <html lang="en">
         <body>
           <main role="main">
-            <div ... __html: dependencyGraphContent }} />
-            <div ... __html: indexContent }} />
-            <button
-              id="unrotate"
-              ...
+            <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+            <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+            <button 
+              id="unrotate" 
+              onClick={handleRotateBack}
               aria-label="Rotate back"
             >
               rotate back
             </button>
             {projects && projects.map && projects.map((project) => (
-              <div ...
+              <div key={project.id}>{project.name}</div>
             ))}
           </main>
         </body>
@@ -213,5 +203,5 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   createInPageButton,
-  createAccessibleLink,
+  createAccessibleLink
 };

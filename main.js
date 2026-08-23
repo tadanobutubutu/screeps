@@ -54,17 +54,19 @@
   addLangAttributeToRoot();
 
   // A new function to remove duplicate <main> elements
-  React.Children.map(children, (child) => {
+  const updateChildMainElements = (child) => {
     const updatedChildren = removeDuplicateMainElements(child.props.children);
     child.props.children = updatedChildren;
-  });
+    return child;
+  };
 
   // Add back any required exports that might have been removed
   module.exports = {
     reactLanguageAttributeFix,
     EnhancedTable,
     removeDuplicateMainElements,
-    addLangAttributeToRoot
+    addLangAttributeToRoot,
+    updateChildMainElements
   };
 
   // Here's an example of how to export a required function from another file:

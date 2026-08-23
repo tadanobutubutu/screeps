@@ -1,7 +1,3 @@
-// Assuming the original main.js looks something like this:
-// (This is just a hypothetical example; your actual code may vary.)
-
-// Importing dependencies
 import express from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';

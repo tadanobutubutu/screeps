@@ -6,7 +6,7 @@ const Dashboard = () => {
 };
 
 module.exports.Dashboard = Dashboard; // Preserve existing default export
-... = myFunction; // Add the new export for myFunction
+module.exports.myFunction = myFunction; // Add the new export for myFunction
 
 // Note: dependencyGraphContent and indexContent should be used when rendering
 // dependency graph visualizations or index pages. These content modules provide

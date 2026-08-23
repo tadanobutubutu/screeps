@@ -1,1 +1,75 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import Head from 'next/head';
+
+export default function Main() {
+  return (
+    <>
+      <Head>
+        <html lang="en" />
+      </Head>
+
+      {/* REACT_017: Ensure proper landmarks */}
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      {/* REACT_017 & REACT_025: Main landmark (one per page) */}
+      <main id="main-content">
+        <h1>Welcome to Our Site</h1>
+
+        {/* Merged: REACT_036 & REACT_027 */}
+        {/* Use proper semantic elements and proper table structure */}
+        <button type="button" onClick={() => console.log('clicked')}>
+          Submit Form
+        </button>
+        <button id="unrotate" type="button" onClick={() => console.log('rotate back clicked')}>
+          rotate back
+        </button>
+        <svg
+          role="img"
+          aria-label="Close dialog"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" />
+        </svg>
+        <table>
+          <caption>Pricing Plans</caption>
+          <thead>
+            <tr>
+              <th scope="col">Plan</th>
+              <th scope="col">Price</th>
+              <th scope="col">Support</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Basic</th>
+              <td>$9.99</td>
+              <td>Standard support</td>
+            </tr>
+            <tr>
+              <th scope="row">Pro</th>
+              <td>$19.99</td>
+              <td>Priority support</td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+
+      {/* REACT_017 & REACT_025: Footer landmark */}
+      <footer role="contentinfo">
+        <nav aria-label="Footer navigation">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </nav>
+      </footer>
+    </>
+  );
+}
+
+export { Main };

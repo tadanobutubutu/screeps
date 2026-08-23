@@ -1,1 +1,1 @@
-import React from 'react'; import ReactDOM from 'react-dom'; import DependencyGraph from './docs/dependency-graph.html'; import IndexPage from './docs/index.html'; function App() { return ( <div> <main> <DependencyGraph /> </main> <main> <IndexPage /> </main> </div> ); } ReactDOM.render(<App />, document.getElementById('root'));
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

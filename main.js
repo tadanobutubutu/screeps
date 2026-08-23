@@ -1,15 +1,16 @@
-// Hypothetical main.js content with conflict markers
+// Updated main.js content
 /*
-<<<<<<< HEAD
-  <main>
-    <!-- existing content -->
-  </main>
-  <main>
-    <!-- conflicting content -->
-  </main>
-=======
-  <main>
-    <!-- conflicting content -->
-  </main>
->>>>>>> branch-name
+<html lang="en">
+  <head>
+    <!-- existing head content -->
+  </head>
+  <body>
+    <main>
+      <!-- existing content -->
+    </main>
+    <main>
+      <!-- conflicting content -->
+    </main>
+  </body>
+</html>
 */

@@ -6,6 +6,21 @@ function App() {
     <main role="main">
       <div className="app-container">
         {/* Existing App content */}
+        {/* Example of adding scope attribute to a <th> element */}
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"><div>src/constants.js</div></th>
+              <th scope="col"><div>src/managers/roomManager.js</div></th>
+              <th scope="col"><div>src/managers/spawnManager.js</div></th>
+              <th scope="col"><div>src/managers/towerManager.js</div></th>
+              {/* ... other headers ... */}
+            </tr>
+          </thead>
+          <tbody>
+            {/* ... table rows ... */}
+          </tbody>
+        </table>
       </div>
     </main>
   );

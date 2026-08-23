@@ -4,7 +4,7 @@
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
@@ -33,53 +33,10 @@ const addAccessibleNamesToSVGs = () => {
   });
 };
 
-// Accessibility fix for REACT_027: Add scope="col" or scope="row" to <th> elements
-const addScopeToTableHeaders = () => {
-  const headers = document.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.getAttribute('scope')) {
-      // Check if the th is in the first row (column headers) or first column (row headers)
-      const row = header.parentElement;
-      const rowIndex = row.rowIndex;
-      const cellIndex = header.cellIndex;
-
-      if (rowIndex === 0) {
-        header.setAttribute('scope', 'col');
-      } else if (cellIndex === 0) {
-        header.setAttribute('scope', 'row');
-      } else {
-        // Default to col for ambiguous cases
-        header.setAttribute('scope', 'col');
-      }
-    }
-  });
-};
-
 // Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
 // Note: Since we are dealing with a generic implementation, we will assume that
 // the landmarks are already present in the DOM and we just need to add unique IDs.
-const uniqueLandmarks = () => {
-  // Implementation to ensure all landmarks have unique IDs
-  const existingIds = new Set();
-  const landmarks = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'];
-
-  return (element) => {
-    if (!element) return false;
-
-    if (!element.id) {
-      let counter = 1;
-      let newId = element.tagName.toLowerCase() + '-' + counter;
-      while (existingIds.has(newId)) {
-        counter++;
-        newId = element.tagName.toLowerCase() + '-' + counter;
-      }
-      element.id = newId;
-      existingIds.add(newId);
-    }
-
-    return true;
-  };
-};
+const ensureUniqueLandmarkIds = uniqueLandmarks();
 
 // Function to validate table structure and add scope to <th> elements
 const validateTableStructureAndScopeTh = () => {

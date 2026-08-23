@@ -400,6 +400,16 @@ function validateLandmarkStructure(componentTree) {
     });
   }
   
+  // Check for at least one main landmark (REACT_017)
+  const hasMain = landmarks.some(l => l.role === 'main');
+  if (!hasMain) {
+    issues.push({
+      rule: 'REACT_017',
+      severity: 'warning',
+      message: 'Page is missing a <main> landmark. Add a main landmark to wrap primary content.'
+    });
+  }
+  
   return {
     valid: issues.length === 0,
     issues,
@@ -766,7 +776,7 @@ function validateLangAttribute(langValue) {
     });
   } else {
     // Basic BCP 47 validation
-    const langRegex = /^[a-z]{2,3}(-[A-Z]{4})?(-[A-Z]{2}|-\d{3})?(-[a-zA-Z0-9]{5,8})*$/i;
+    const langRegex = /^[a-z]{2,3}(-[A-Z]{4})?(-[A-zA-Z]{2}|-\d{3})?(-[a-zA-Z0-9]{5,8})*$/i;
     if (!langRegex.test(langValue)) {
       issues.push({
         rule: 'REACT_015',

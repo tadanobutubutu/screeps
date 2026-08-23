@@ -17,6 +17,22 @@ function addressAccessibilityIssues(accessibilityInsights) {
   });
 }
 
-// TODO: Call the addressAccessibilityIssues function with the appropriate insights object to address any accessibility issues
+// TODO: Implement addProperLandmarkRegions(); function
+function addProperLandmarkRegions(accessibilityInsights) {
+  // Implement the logic to add proper landmark regions based on the insights
+  accessibilityInsights.landmarks.forEach(landmark => {
+    // Find the element with the ID that matches the landmark
+    const element = document.getElementById(landmark.elementId);
+
+    // If the element exists, add the appropriate landmark role
+    if (element) {
+      element.setAttribute('role', landmark.role);
+      // You can add more landmark roles as needed
+    }
+  });
+}
+
+// Call the addressAccessibilityIssues function with the appropriate insights object to address any accessibility issues
+addressAccessibilityIssues(accessibilityInsights);
 
 // ... existing code, exports, and functions in main.js

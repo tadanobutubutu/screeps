@@ -6,8 +6,8 @@ export function rotateBack() {
 
 // - REACT_015: Add lang attribute to HTML element
 export function addLangAttribute() {
-    const html = document.querySelector('html');
-    if (html) {
+    const html = document.documentElement;
+    if (html && !html.getAttribute('lang')) {
         html.setAttribute('lang', 'en');
     }
 }
@@ -16,29 +16,36 @@ export function addLangAttribute() {
 export function addSvgAccessibleNames() {
     // Find SVG elements in app/layout.tsx and dashboard/app/layout.tsx
     const svg1 = document.querySelector('svg');
-    if (svg1) {
-        svg1.setAttribute('aria-hidden', 'true');
+    if (svg1 && !svg1.getAttribute('aria-label') && !svg1.getAttribute('aria-labelledby')) {
+        svg1.setAttribute('aria-label', 'Application logo');
+        svg1.setAttribute('role', 'img');
     }
     const svg2 = document.querySelectorAll('svg')[1];
-    if (svg2) {
-        svg2.setAttribute('aria-hidden', 'true');
+    if (svg2 && !svg2.getAttribute('aria-label') && !svg2.getAttribute('aria-labelledby')) {
+        svg2.setAttribute('aria-label', 'Navigation icon');
+        svg2.setAttribute('role', 'img');
     }
 }
 
 // - REACT_036: Fix 1 fake link issue
 export function fixFakeLink() {
-    const link = document.querySelector('a[href="#]');
-    if (link) {
-        link.setAttribute("href", "#"); // replace "#" with the appropriate URL
-        if (!link.getAttribute('aria-label')) {
-            link.setAttribute('aria-label', 'Accessible link description');
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
+            if (!href || href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
+                link.setAttribute("href", "#main-content");
+                if (!link.textContent.trim() || link.textContent === link.getAttribute('href')) {
+                    link.setAttribute('aria-label', 'Skip to main content');
+                }
+            }
         }
-    }
+    });
 }
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = document.querySelectorAll('button, a, input');
+    const accessibleElements = document.querySelectorAll('a, input, button');
 
     let elementIndex = 1;
     accessibleElements.forEach((element) => {
@@ -58,17 +65,27 @@ export function wrapPrimaryContentInMain() {
         while (mainContent.firstChild) {
             mainTag.appendChild(mainContent.firstChild);
         }
-        mainContent.appendChild(mainTag);
+        mainContent.parentNode.replaceChild(mainTag, mainContent);
     }
 }
 
 // - REACT_017: Add/fix 2 landmark issues
 export function addMainLandmark() {
     // Implementation for adding main landmark
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length === 0) {
+        const main = document.createElement('main');
+        const body = document.body;
+        if (body.firstChild) {
+            body.insertBefore(main, body.firstChild);
+        } else {
+            body.appendChild(main);
+        }
+    }
 }
 
 // - REACT_027: Fix 26 table structure issues
-export function fixTableStructures() {
+export function fixTableStructureIssues() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         // Ensure tables have proper structure
@@ -79,7 +96,6 @@ export function fixTableStructures() {
                 const tbody = document.createElement('tbody');
                 thead.appendChild(firstRow);
                 table.insertBefore(thead, table.firstChild);
-                table.appendChild(tbody);
 
                 // Move remaining rows to tbody
                 let currentNode = thead.nextSibling;
@@ -90,6 +106,7 @@ export function fixTableStructures() {
                     }
                     currentNode = nextNode;
                 }
+                table.appendChild(tbody);
             }
         }
 
@@ -113,87 +130,3 @@ export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
         const elements = document.querySelectorAll(role);
-        if (elements.length > 1) {
-            let counter = 1;
-            elements.forEach((el, index) => {
-                if (index > 0) {
-                    const ariaLabel = el.getAttribute('aria-label') || `${role}-${counter}`;
-                    el.setAttribute('aria-label', ariaLabel);
-                    counter++;
-                }
-            });
-        }
-    });
-}
-
-// Newly added function...
-export function addAriaLabelsToDuplicates() {
-    const duplicateLandmarks = document.querySelectorAll('header, nav, main, footer, aside');
-    let labelCounter = 1;
-
-    duplicateLandmarks.forEach(element => {
-        const elementName = element.nodeName.toLowerCase();
-        const duplicateElements = document.querySelectorAll(elementName);
-
-        let uniqueId = false;
-
-        duplicateElements.forEach(el => {
-            if (element.getAttribute('id') === el.getAttribute('id')) {
-                uniqueId = true;
-            }
-        });
-
-        if (!uniqueId) {
-            element.setAttribute(
-                'aria-label',
-                `${elementName}-${labelCounter}`
-            );
-        }
-    });
-}
-
-// - REACT_025: Fix multiple main landmarks by converting extras to sections
-export function fixMultipleMainLandmarks() {
-    const mainElements = document.querySelectorAll('main');
-    if (mainElements.length > 1) {
-        mainElements.forEach((main, index) => {
-            if (index > 0) {
-                // Create a section element to replace additional main elements
-                const section = document.createElement('section');
-                section.setAttribute('aria-label', `Section ${index + 1}`);
-                
-                // Copy all child nodes to the new section
-                while (main.firstChild) {
-                    section.appendChild(main.firstChild);
-                }
-                
-                // Copy any inline styles from main to section
-                if (main.style.cssText) {
-                    section.style.cssText = main.style.cssText;
-                }
-                
-                // Copy any class names
-                if (main.className) {
-                    section.className = main.className;
-                }
-                
-                // Replace main with section
-                main.parentNode.replaceChild(section, main);
-            }
-        });
-    }
-}
-
-// Call the functions to address accessibility issues
-addLangAttribute();
-addSvgAccessibleNames();
-fixFakeLink();
-addAccessibleIds();
-wrapPrimaryContentInMain();
-addMainLandmark();
-fixTableStructures();
-ensureUniqueLandmarks();
-addAriaLabelsToDuplicates();
-fixMultipleMainLandmarks();
-
-// ... (other existing code, exports, and functions from main.js)

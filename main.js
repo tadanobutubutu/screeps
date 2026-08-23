@@ -26,7 +26,9 @@ const enhanceAccessibility = () => {
   });
 
   const mainContent = document.querySelector('main');
-  mainContent.setAttribute('role', 'main');
+  if (mainContent) {
+    mainContent.setAttribute('role', 'main');
+  }
 
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -34,7 +36,9 @@ const enhanceAccessibility = () => {
   });
 
   const navigation = document.querySelector('#navigation');
-  navigation.setAttribute('role', 'navigation');
+  if (navigation) {
+    navigation.setAttribute('role', 'navigation');
+  }
 
   const links = document.querySelectorAll('a');
   links.forEach(link => {
@@ -44,10 +48,24 @@ const enhanceAccessibility = () => {
   });
 };
 
-// Update the module.exports object
+// Accessibility fix for rotate button - ensures semantic HTML
+const initUnrotateButton = () => {
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    unrotateElement.addEventListener('click', function() {
+      const image = document.getElementById('target-image');
+      if (image) {
+        image.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+};
+
+// Export all functions
 module.exports.Dashboard = Dashboard;
 module.exports.myFunction = myFunction;
 module.exports.myMissingFunction1 = myMissingFunction1;
 module.exports.myMissingFunction2 = myMissingFunction2;
 module.exports.myNewFunction = myNewFunction;
 module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports.initUnrotateButton = initUnrotateButton;

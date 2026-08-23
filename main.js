@@ -54,9 +54,125 @@ module.exports = {
         footer.id = `footer-${index + 1}`;
       }
     });
+
+    // Ensure all clickable elements that navigate have proper accessible roles (React_025, React_036)
+    const linksWithoutHref = document.querySelectorAll('a:not([href])');
+    linksWithoutHref.forEach(link => {
+      const onClickAttr = link.getAttribute('onclick');
+      const tabIndexAttr = link.getAttribute('tabindex');
+      if (onClickAttr || (tabIndexAttr !== null && tabIndexAttr !== undefined)) {
+        const button = document.createElement('button');
+        button.innerHTML = link.innerHTML;
+        Array.from(link.attributes).forEach(attr => {
+          if (attr.name !== 'href') {
+            button.setAttribute(attr.name, attr.value);
+          }
+        });
+        button.setAttribute('type', 'button');
+        link.parentNode.replaceChild(button, link);
+      }
+    });
+
+    // REACT_036: Replace fake links (href="#") with buttons for accessibility
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.innerHTML = link.innerHTML;
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      link.parentNode.replaceChild(button, link);
+    });
+
+    // Add accessible names to SVGs (React_041)
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg, index) => {
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
+      const ariaLabel = svg.getAttribute('aria-label');
+      const ariaHidden = svg.getAttribute('aria-hidden');
+
+      // Skip if SVG already has an accessible name or is hidden from screen readers
+      if (hasTitle || hasDesc || ariaLabel || ariaHidden === 'true') {
+        return;
+      }
+
+      // Find title or desc element if present
+      const titleElement = svg.querySelector('title');
+      const descElement = svg.querySelector('desc');
+      let accessibleName = "SVG Image";
+      if (titleElement) {
+        accessibleName = titleElement.textContent;
+      } else if (descElement) {
+        accessibleName = descElement.textContent;
+      }
+      // Add aria-labelledby attribute to associate a description with the SVG
+      const svgId = svg.id || `svg-${index + 1}`;
+      if (!svg.id) {
+        svg.id = svgId;
+      }
+      const titleId = `${svgId}-title`;
+      const existingTitle = svg.querySelector(`#${titleId}`);
+      if (!existingTitle) {
+        const title = document.createElement('title');
+        title.id = titleId;
+        title.textContent = accessibleName;
+        svg.insertBefore(title, svg.firstChild);
+      }
+      if (!ariaLabel) {
+        svg.setAttribute('aria-labelledby', titleId);
+      }
+    });
+
+    // React_017: Add landmark roles and fix landmark issues
+    const headers = document.querySelectorAll('header');
+    headers.forEach((header, index) => {
+      if (!header.getAttribute('role')) {
+        header.setAttribute('role', 'banner');
+      }
+      if (!header.id) {
+        header.id = `header-${index + 1}`;
+      }
+    });
+
+    const footerElements = document.querySelectorAll('footer');
+    footerElements.forEach((footer, index) => {
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
+      if (!footer.id) {
+        footer.id = `footer-${index + 1}`;
+      }
+    });
+
+    const navs = document.querySelectorAll('nav');
+    navs.forEach((nav, index) => {
+      if (!nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+      }
+      if (!nav.id) {
+        nav.id = `nav-${index + 1}`;
+      }
+    });
+
+    const asides = document.querySelectorAll('aside');
+    asides.forEach((aside, index) => {
+      if (!aside.getAttribute('role')) {
+        aside.setAttribute('role', 'complementary');
+      }
+      if (!aside.id) {
+        aside.id = `aside-${index + 1}`;
+      }
+    });
+
+    // Call the new function here, for example:
+    myNewFunction();
   },
   fixAccessibility: function() {
-    // REACT_015: Add lang attribute to HTML element
+    // React_015: Add lang attribute to HTML element
     const htmlElement = document.documentElement;
     // Ensure the language attribute is always set to 'en' for accessibility
     htmlElement.setAttribute('lang', 'en');
@@ -114,6 +230,20 @@ module.exports = {
         button.setAttribute('type', 'button');
         link.parentNode.replaceChild(button, link);
       }
+    });
+
+    // REACT_036: Replace fake links (href="#") with buttons for accessibility
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.innerHTML = link.innerHTML;
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      link.parentNode.replaceChild(button, link);
     });
 
     // Add accessible names to SVGs (React_041)

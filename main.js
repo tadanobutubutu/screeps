@@ -99,7 +99,7 @@ export function createTable(headers, rows) {
                                     props: {
                                         children: [cell]
                                     }
-                                })
+                                }))
                             }
                         }))
                     }
@@ -269,6 +269,20 @@ export function fixTableStructureIssues(container = document) {
     });
 }
 
+// New: Enhance focus visibility for keyboard navigation
+function enhanceFocusVisibility() {
+    // Add a class to body when user navigates with keyboard
+    document.body.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            document.body.classList.add('keyboard-navigation');
+        }
+    });
+    // Remove the class when mouse is used
+    document.body.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-navigation');
+    });
+}
+
 const addressAccessibilityIssues = function() {
     enhanceFocusVisibility();
     ensureUniqueLandmarks();
@@ -285,8 +299,24 @@ function setLanguageAttribute(lang) {
 
 // Ensure landmark roles are applied
 function applyLandmarkRoles() {
-    // Assuming the landmark components are added to the DOM and setting roles
-    // This part may need additional logic to attach the components
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+        header.setAttribute('role', 'banner');
+    }
+    const navs = document.querySelectorAll('nav');
+    navs.forEach(nav => {
+        if (!nav.hasAttribute('role')) {
+            nav.setAttribute('role', 'navigation');
+        }
+    });
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+        main.setAttribute('role', 'main');
+    }
+    const footer = document.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+    }
 }
 
 // Export the created landmark components

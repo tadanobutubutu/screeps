@@ -313,6 +313,30 @@ const enhanceFocusVisibility = function() {
   document.head.appendChild(style);
 };
 
+// NEW: Fix REACT_027 - Add scope attribute to table header cells
+// Adds scope="col" to <th> elements in <thead> and scope="row" to first <th> in each <tbody> row
+export function fixTableHeaders(container = document) {
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    // Fix column headers in thead
+    const columnHeaders = table.querySelectorAll('thead th');
+    columnHeaders.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Fix row headers in tbody (first th in each row)
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const firstCell = row.querySelector('th');
+      if (firstCell && !firstCell.hasAttribute('scope')) {
+        firstCell.setAttribute('scope', 'row');
+      }
+    });
+  });
+}
+
 const addressAccessibilityIssues = function() {
   // Function to address accessibility issues:
   // - REACT_015: Add lang attribute (already handled)
@@ -339,6 +363,9 @@ const addressAccessibilityIssues = function() {
 
   // Fix REACT_015: Set language attribute on HTML root element
   setLanguageAttribute('en');
+
+  // Fix REACT_027: Add scope attributes to table headers
+  fixTableHeaders();
 };
 
 // Set language attribute on HTML root element

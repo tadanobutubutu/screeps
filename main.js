@@ -37,41 +37,44 @@ export default function Main() {
     id: containerId,
   };
 
+  // Wrap entire component in HTML tag with lang attribute
   return (
-    <div {...htmlAttributes}>
-      {/* Landmarks */}
-      <header id="banner">Header</header>
-      <main id="mainContent">
-        {/* Accessible table structure */}
-        <table aria-label="Accessible Table">
-          <thead>
-            <tr>
-              {allColumns.map((column) => (
-                <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {allColumns.map((row) => (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>
-                    {cell.render('Cell')}
-                  </td>
+    <html lang="en">
+      <div {...htmlAttributes}>
+        {/* Landmarks */}
+        <header id="banner">Header</header>
+        <main id="mainContent">
+          {/* Accessible table structure */}
+          <table aria-label="Accessible Table">
+            <thead>
+              <tr>
+                {allColumns.map((column) => (
+                  <th key={column.id} scope="col">
+                    {column.render?.('Header') ?? column.Header}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {allColumns.map((row) => (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <td {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {/* Updated table components and accessibility elements */}
-        <Logo />
-        <MenuIcon />
-        <FixedLink>Fake Link</FixedLink>
-      </main>
-      <footer>Footer</footer>
-    </div>
+          {/* Updated table components and accessibility elements */}
+          <Logo />
+          <MenuIcon />
+          <FixedLink>Fake Link</FixedLink>
+        </main>
+        <footer>Footer</footer>
+      </div>
+    </html>
   );
 }

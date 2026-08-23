@@ -1,7 +1,7 @@
 // main.js - Fixed version with git conflict markers removed
 
 // The following script tag is replaced with a comment to prevent syntax errors
-// <script ...
+// <script ...>
 
 // Adding the correct script tag with lang attribute
 var htmlContent = `<html lang="en">
@@ -11,6 +11,9 @@ var htmlContent = `<html lang="en">
   <title>Document</title>
 </head>
 <body>
+  <main> <!-- Correct usage of a single main element -->
+    <!-- Other content here -->
+  </main>
   <script src="main.js"></script>
 </body>
 </html>`;

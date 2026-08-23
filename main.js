@@ -147,31 +147,26 @@ module.exports = {
         return;
       }
       
-      // Find title or desc element if present
-      const titleElement = svg.querySelector('title');
-      const descElement = svg.querySelector('desc');
+      // Find text element content to use as accessible name
+      const textElement = svg.querySelector('text');
       let accessibleName = "SVG Image";
-      if (titleElement) {
-        accessibleName = titleElement.textContent;
-      } else if (descElement) {
-        accessibleName = descElement.textContent;
+      if (textElement && textElement.textContent) {
+        accessibleName = textElement.textContent;
       }
-      // Add aria-labelledby attribute to associate a description with the SVG
+      
+      // Add title element for accessibility
+      const title = document.createElement('title');
+      title.textContent = accessibleName;
+      svg.insertBefore(title, svg.firstChild);
+      
+      // Add id to SVG for aria-labelledby association
       const svgId = svg.id || `svg-${index + 1}`;
       if (!svg.id) {
         svg.id = svgId;
       }
-      const titleId = `${svgId}-title`;
-      const existingTitle = svg.querySelector(`#${titleId}`);
-      if (!existingTitle) {
-        const title = document.createElement('title');
-        title.id = titleId;
-        title.textContent = accessibleName;
-        svg.insertBefore(title, svg.firstChild);
-      }
-      if (!ariaLabel) {
-        svg.setAttribute('aria-labelledby', titleId);
-      }
+      
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', svgId);
     });
 
     // React_017: Add IDs to other landmark elements

@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
         type="button"
         onClick={() => {
           // Rotate back functionality
-          const svg = document.querySelector('svg');
+          const svg = ...
           if (svg) {
             svg.style.transform = 'rotate(0deg)';
           }

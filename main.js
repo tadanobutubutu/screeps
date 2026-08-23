@@ -786,6 +786,16 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Wrap content in a <main> landmark for accessibility
+ * Addresses REACT_017: React Landmarks (missing main landmark)
+ * @param {string} content - HTML content to wrap
+ * @returns {string} Content wrapped in <main> tag
+ */
+function wrapContentInMain(content) {
+  return `<main>${content}</main>`;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -812,7 +822,8 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  wrapContentInMain
 };
 
 // Run if executed directly

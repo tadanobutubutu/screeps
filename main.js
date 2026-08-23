@@ -1,8 +1,7 @@
-module.exports = {
+{
   roleController: require('./role.controller'),
   spawnController: require('./spawn.controller'),
   // ... other existing code
-
   icons: {
     creep: {
       prototype: 'creep',
@@ -31,13 +30,15 @@ module.exports = {
     var nameLength = 20;
     var tabLength = nameLength - text.length;
     if(actualCharacter[text]) {
-      return "  " + text + Array(tabLength + 2).join(' ');
+      return " " + text + Array(tabLength + 2).join(' ');
     } else if (actualCharacter[text.toLowerCase()]) {
-      return "  " + text.toLowerCase() + Array(tabLength + 2).join(' ');
+      return " " + text.toLowerCase() + Array(tabLength + 2).join(' ');
     } else {
       return false;
     }
   },
   mod: require('./handler'),
-  config: require('./config')
-};
+  config: require('./config'),
+  React: React,
+  useEffect: useEffect
+}

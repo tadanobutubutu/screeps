@@ -27,7 +27,7 @@ export const addLangAttribute = (lang = 'en') => {
 
 // New function to wrap primary content in a main element
 export const wrapPrimaryContentInMain = (content) => {
-  // (existing code)
+  return <main role="main" id="main-content">{content}</main>;
 };
 
 // New function to add accessible names to SVGs (REACT_041)

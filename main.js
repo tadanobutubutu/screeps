@@ -94,10 +94,9 @@ function newFunction(element) {
     }
   });
 
-  // ... existing ARIA attributes
-  element.setAttribute('aria-label', 'New Function');
-  element.setAttribute('role', 'region');
   // Your implementation here
+  // Example: Log a message to the console to indicate the function has been called
+  console.log('newFunction has been called with element:', element);
 }
 
 // ... existing code ...

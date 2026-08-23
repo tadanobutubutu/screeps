@@ -334,7 +334,7 @@ export const fixDuplicateMainLandmarks = () => {
         }
         
         // Replace main with section in the DOM
-        main.parentNode.replaceChild(section, main);
+        mainParentNode.replaceChild(section, main);
       }
     });
   }
@@ -408,14 +408,4 @@ export const addMainLandmark = () => {
 // Fix for fake links - elements that act as links but are not <a> tags
 export const fixFakeLinks = () => {
   const fakeLinks = document.querySelectorAll('div[onclick], span[onclick], [role="link"]');
-  fakeLinks.forEach(el => {
-    if (el.tagName !== 'A' && el.tagName !== 'BUTTON' && el.tagName !== 'INPUT') {
-      if (!el.hasAttribute('role')) {
-        el.setAttribute('role', 'link');
-      }
-      if (!el.hasAttribute('tabindex')) {
-        el.setAttribute('tabindex', '0');
-      }
-    }
-  });
-};
+  fakeLinks

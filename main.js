@@ -77,7 +77,7 @@ function fixTableStructure() {
         ...table.props,
       }, [
         React.createElement('caption', { key: 'caption' }, captionText),
-        table.props.children,
+        ...React.Children.toArray(table.props.children)
       ]);
     },
     
@@ -94,11 +94,11 @@ function fixTableStructure() {
     },
     
     ensureTheadTbody: (table) => {
-      const children = table.props.children;
+      const children = React.Children.toArray(table.props.children);
       let hasThead = false;
       let hasTbody = false;
       
-      React.Children.forEach(children, child => {
+      React.Children.forEach(table.props.children, child => {
         if (child && child.type === 'thead') hasThead = true;
         if (child && child.type === 'tbody') hasTbody = true;
       });
@@ -131,7 +131,7 @@ function addMainLandmark(element) {
  * @returns {boolean} True if at least one landmark exists
  */
 function validateLandmark(doc) {
-  const landmarks = doc.querySelectorAll('[role]');
+  const landmarks = doc.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
   const validLandmarkRoles = [
     'banner', 'navigation', 'main', 'complementary', 
     'contentinfo', 'search', 'form'
@@ -158,7 +158,7 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   
   landmarks.forEach(landmark => {
-    const identifier = landmark.id || landmark.getAttribute?.('role') || JSON.stringify(landmark);
+    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
     if (!seen.has(identifier)) {
       seen.add(identifier);
       unique.push(landmark);
@@ -195,9 +195,9 @@ function validateLandmarkStructure(doc) {
   
   // Check for unique landmark labels
   const landmarkLabels = {};
-  const labeledLandmarks = doc.querySelectorAll('[role][aria-label]');
+  const labeledLandmarks = doc.querySelectorAll('[aria-label], [aria-labelledby]');
   labeledLandmarks.forEach(landmark => {
-    const label = landmark.getAttribute('aria-label');
+    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
     if (landmarkLabels[label]) {
       errors.push(`Duplicate landmark label: "${label}". Labels should be unique.`);
     }
@@ -264,7 +264,7 @@ function getAccessibleName(svgElement) {
   // Check for aria-labelledby reference
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const titleElement = svgElement.ownerDocument.getElementById(ariaLabelledby);
+    const titleElement = document.getElementById(ariaLabelledby);
     if (titleElement) {
       return titleElement.textContent;
     }
@@ -318,59 +318,7 @@ function fixFakeLinkIssue(element) {
     return element;
   }
   
-  const isFakeLink = element.tagName === 'a' && !element.href && !element.getAttribute('onclick');
+  const isFakeLink = element.tagName === 'a' && !element.href && !element.getAttribute('href');
   const hasButtonRole = element.getAttribute('role') === 'button';
   
-  if (isFakeLink || (hasButtonRole && element.tagName !== 'BUTTON')) {
-    // Convert to proper button element
-    const button = document.createElement('button');
-    button.innerHTML = element.innerHTML;
-    button.className = element.className;
-    button.onclick = element.onclick;
-    
-    // Copy all attributes except href
-    Array.from(element.attributes).forEach(attr => {
-      if (attr.name !== 'href') {
-        button.setAttribute(attr.name, attr.value);
-      }
-    });
-    
-    // Ensure proper button semantics
-    button.setAttribute('role', 'button');
-    button.removeAttribute('href');
-    
-    return button;
-  }
-  
-  return element;
-}
-
-/**
- * Validates link accessibility.
- * @param {HTMLAnchorElement} link Anchor element to validate
- * @returns {Object} Validation result with isValid and errors
- */
-function validateLinkAccessibility(link) {
-  const errors = [];
-  
-  if (!link) {
-    return { isValid: false, errors: ['Link is null or undefined'] };
-  }
-  
-  // Check for accessible text
-  const linkText = link.textContent.trim();
-  const ariaLabel = link.getAttribute('aria-label');
-  
-  if (!linkText && !ariaLabel) {
-    errors.push('Link has no accessible name. Add text content or aria-label.');
-  }
-  
-  // Check for proper href
-  const href = link.getAttribute('href');
-  if (!href || href === '#' || href === '') {
-    errors.push('Link has no valid href attribute.');
-  }
-  
-  // Check for proper focusability
-  if (link.getAttribute('tabindex') === '-1' && !href) {
-    errors.push('
+  if (isFakeLink || (hasButtonRole && element.tag

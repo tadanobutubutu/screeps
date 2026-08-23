@@ -1,45 +1,44 @@
 import React from 'react';
 
 function Header() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function Navigation() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function MainContent() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function Sidebar() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function Footer() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function Logo() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function SearchIcon() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function UniqueSection() {
-  // ... already existing code here
+  // ... existing code here
 }
 
 function FakeLinkFixed() {
-  // ... already existing code here
+  // ... existing code here
 }
 
-// Address accessibility issues from insight report:
-// ... already existing functions
+// ... existing functions
 
-// NEW: Add lang attribute to HTML element. This function can be implemented in setupTests.js or globally in a JS file
+// NEW: Add lang attribute to HTML element
 function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
@@ -51,18 +50,23 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  // ... 'banner');
+  const mainElement = document.createElement('main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
 }
 
 // NEW: Validate main landmark
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  // ...
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    console.error('No main landmark found in the document.');
+    return false;
+  }
+  // Additional validation logic can be added here if needed
+  return true;
 }
 
 // NEW: Validate unique landmarks
 function validateLandmarkRoles() {
-  // Ensure landmarks like Header, Navigation, MainContent, Sidebar, Footer are unique
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   const foundLandmarks = {};
 
@@ -77,9 +81,9 @@ function validateLandmarkRoles() {
   return Object.values(foundLandmarks).every(count => count === 1);
 }
 
-// ... already existing functions specific to DOM manipulation
+// ... existing functions specific to DOM manipulation
 
-// Additional exports if needed (e. g., functions for testing)
+// Additional exports if needed (e.g., functions for testing)
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,

@@ -14,6 +14,12 @@ function rotateBack() {
     img.style.transform = `rotate(0deg)`;
 }
 
+// New function requested in the issue
+function resetRotation() {
+    rotation = 0;
+    img.style.transform = `rotate(0deg)`;
+}
+
 // Attach event listeners
 document.getElementById('rotate').addEventListener('click', rotate);
 document.getElementById('unrotate').addEventListener('click', rotateBack);

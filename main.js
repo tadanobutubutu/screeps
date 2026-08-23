@@ -24,3 +24,6 @@ function wrapPrimaryContentInMain() {
 
 // Call the function to wrap the primary content in a <main> landmark
 wrapPrimaryContentInMain();
+
+// Adding the lang attribute to the root HTML element
+document.documentElement.lang = 'en';

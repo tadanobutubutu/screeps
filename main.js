@@ -16,20 +16,30 @@ function getFilePath(filename) {
 
 // Address accessibility issues as per insight report
 function makeElementAccessible(element) {
+    if (!element || !element.tagName) return;
+    
     if (element.tagName.toLowerCase() === 'html') {
         element.setAttribute('lang', 'en'); // Assuming 'en' as default language
     } else if (element.tagName.toLowerCase() === 'svg') {
         element.setAttribute('aria-label', 'SVG description'); // Placeholder description
     }
+    
+    if (element.tagName && element.tagName.toLowerCase() === 'th') {
+        if (i === 0) {
+            cell.setAttribute('scope', 'col');
+        }
+    }
 }
 
 // Implement fixTableStructureIssues to fix table structure issues
 function fixTableStructureIssues() {
-    const tables = document.querySelectorAll('table');
+    const tables = document.getElementsByTagName('table');
+    
     for (let table of tables) {
         for (let i = 0; i < table.rows.length; i++) {
             for (let j = 0; j < table.rows[i].cells.length; j++) {
                 let cell = table.rows[i].cells[j];
+                
                 if (cell.tagName.toLowerCase() === 'th') {
                     if (!cell.hasAttribute('scope')) {
                         cell.setAttribute('scope', 'col');
@@ -56,12 +66,11 @@ function addProperLandmarkRegions() {
 
     // New function for unique landmarks
     function ensureUniqueLandmarks() {
-        const landmarks = [...document.querySelectorAll('[role="landmark"]')];
-        const landmarkIds = new Set(landmarks.map(landmark => landmark.id || ''));
+        const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"]');
+        const landmarkIds = new Set([...landmarks].map(landmark => landmark.id || ''));
 
         if (landmarks.length > landmarkIds.size) {
-            console.warn('Not all landmarks have unique IDs:', [...landmarks].map(landmark => landmark.id || landmark.getAttribute('aria-labelledby')).filter(Boolean));
-        }
+            console.warn('Not all landmarks have unique IDs:', [...landmarks].map(landmark => landmark.id || 'no-id'));
     }
 
     // Call the new function for unique landmarks
@@ -87,7 +96,6 @@ function newPreservedFunction() {
 
 // New function for fixing one fake link issue
 function fixOneFakeLinkIssue() {
-    // Find the fake link (with an example ID provided below) and replace its content with an actual link
     const fakeLink = document.querySelector('a#fake_link_example');
     fakeLink.textContent = 'Example Link';
     fakeLink.href = 'https://example.com';

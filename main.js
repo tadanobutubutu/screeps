@@ -73,7 +73,7 @@ export function createSvgIcon(iconName, children = []) {
 }
 
 // Fix REACT_025 & REACT_017: Use semantic landmark elements with unique labels
-export function createPageLayout(children) {
+export function createPageLayout(children = {}) {
   return {
     type: 'div',
     props: {
@@ -124,23 +124,23 @@ export function createNavigationLink(href, children) {
 }
 
 // Ensure unique landmarks across the application
-export function ensureUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="main"], [role="contentinfo"], header, nav, main, footer');
+export function ensureUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="contentinfo"], [role="banner"], header, nav, main, footer');
   const seenIds = new Set();
   
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     if (seenIds.has(id)) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     seenIds.add(id);
   });
-};
+}
 
 const enhanceFocusVisibility = function() {
   // Function to enhance focus visibility for keyboard navigation

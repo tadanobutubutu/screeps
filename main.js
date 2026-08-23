@@ -26,4 +26,12 @@ function rotateBack() {
   });
 }
 
-export { rotateBack };
+// Adding the new function to wrap the content in a main element if it's not already wrapped
+function ensureMainLandmark() {
+  const primaryContent = document.getElementById('primary-content');
+  if (!primaryContent.querySelector('main')) {
+    primaryContent.innerHTML = `<main>${primaryContent.innerHTML}</main>`;
+  }
+}
+
+export { rotateBack, ensureMainLandmark };

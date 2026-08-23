@@ -1,4 +1,3 @@
-bash
 // Create a function to generate the html string with the lang attribute
 function generateHtmlWithLang() {
   const html = `

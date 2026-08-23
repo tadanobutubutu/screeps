@@ -283,3 +283,20 @@ export function fixFakeLinkIssue() {
     }
   });
 }
+
+// Wrap primary content in <main> landmark as suggested
+export function wrapContentInMain() {
+  const rootElement = document.documentElement;
+  const mainElements = rootElement.querySelectorAll('main');
+  
+  if (mainElements.length === 0) {
+    // Wrap the <body> in <main> if there's no <main> element
+    const body = document.body;
+    const newMain = document.createElement('main');
+    newMain.appendChild(body);
+    rootElement.insertBefore(newMain, body);
+  }
+}
+
+// Call the function to wrap content in <main> landmark
+wrapContentInMain();

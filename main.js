@@ -13,7 +13,7 @@ module.exports.loop = function() {
         }
     }
 
-    // If no spawners, stop
+    // If no spawns, stop
     if(Object.keys(Game.spawns).length === 0) {
         console.log('No spawns available');
         return;

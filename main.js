@@ -7,6 +7,8 @@ async function main() {
     try {
         const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
         await generateDependencyGraph(outputPath);
+        // Replace the fake link with a button for better accessibility
+        replaceFakeLink(outputPath);
         // Add the lang attribute to the HTML document tag for better screen reader support
         document.documentElement.lang = 'en';
         console.log('Dependency graph generated successfully!');
@@ -18,6 +20,20 @@ async function main() {
 
 if (require.main === module) {
     main();
+}
+
+/**
+ * Replaces a hash‑only <a> link with an equivalent <button> element
+ * to avoid “dead link” warnings and improve keyboard/screen‑reader behavior.
+ * @param {string} filePath - Path to the HTML file to patch
+ */
+function replaceFakeLink(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const fixedContent = content.replace(
+        /<a id="unrotate" href="#">rotate back<\/a>/,
+        '<button type="button" id="unrotate">rotate back</button>'
+    );
+    fs.writeFileSync(filePath, fixedContent);
 }
 
 /**
@@ -114,5 +130,6 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
-    main
+    main,
+    replaceFakeLink,
 };

@@ -3,9 +3,20 @@ import React, { useState } from 'react';
 const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-  const copyErr = () => {};
-  const fetchStats = () => {};
+  const copyErr = () => {
+    navigator.clipboard.writeText(error).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+    });
+  };
+
+  const fetchStats = () => {
+    // Existing fetchStats logic
+  };
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'monospace' }}>

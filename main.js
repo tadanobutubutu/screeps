@@ -93,6 +93,10 @@ const mainContent = React.createElement('main', { id: 'mainContent' });
     if (mainContentElements.length > 0) {
       console.log('Accessibility issues addressed');
     }
+    // Apply additional accessibility fixes
+    addLangAttributeToRoot();
+    assignUniqueLandmarkIds();
+    fixFakeLinkIssue();
   }, 0);
 })();
 
@@ -268,4 +272,27 @@ export function fixTableStructureIssues() {
   if (mainElements.length > 1) {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
   }
+}
+
+// Ensure each landmark element has a unique identifier for accessibility
+export function assignUniqueLandmarkIds() {
+  const landmarkRoles = ['header','nav','main','footer','article','aside','section','complementary','banner','contentinfo','navigation','search'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, idx) => {
+      if (!el.id) {
+        el.id = `landmark-${role}-${idx + 1}`;
+      }
+    });
+  });
+}
+
+// Address potential fake link accessibility issue
+export function fixFakeLinkIssue() {
+  document.querySelectorAll('a[href="#"]').forEach(link => {
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabIndex', '-1');
+    }
+  });
 }

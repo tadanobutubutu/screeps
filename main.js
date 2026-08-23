@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTable } from 'react-table';
-import dependencyGraphContent from './dependencyGraphContent';
-import indexContent from './indexContent';
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 
 // Add ARIA attributes to improve accessibility
 export function addAriaAttributes() {
@@ -108,7 +108,7 @@ export function validateTableStructure(tableElement) {
   return !!(hasThead && hasTbody);
 }
 export function validateLandmark(element) {
-  const landmarkRoles = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section', 'complementary', 'banner', 'contentinfo', 'navigation', 'search'];
+  const landmarkRoles = ['header', 'nav', 'main', 'article', 'aside', 'section', 'complementary', 'banner', 'contentinfo', 'navigation', 'search'];
   if (!element || !element.props) {
     return false;
   }

@@ -128,4 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // EXPORT new functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };
+export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv, setLangAttribute, fixFakeLinkIssue };

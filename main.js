@@ -328,6 +328,145 @@ function fixFakeLinkIssue(element) {
   return element;
 }
 
+/**
+ * Fixes duplicate main landmarks by converting excess <main> elements to <section> or <article>.
+ * Ensures only one <main> landmark exists in the document.
+ * @param {Document|Element} root Root element to search for main landmarks
+ * @param {Object} options Configuration options
+ * @param {string} options.replacementTag Tag to replace excess main elements with ('section' or 'article')
+ * @param {boolean} options.preserveFirst Whether to preserve the first main element found (default: true)
+ * @returns {Object} Result with fixed count and details
+ */
+function fixDuplicateMainLandmarks(root, options = {}) {
+  if (!root) {
+    return { fixed: 0, details: [] };
+  }
+
+  const { replacementTag = 'section', preserveFirst = true } = options;
+  const validReplacementTags = ['section', 'article', 'div'];
+  const tag = validReplacementTags.includes(replacementTag) ? replacementTag : 'section';
+
+  const mainElements = root.querySelectorAll('main, [role="main"]');
+  const details = [];
+  let fixed = 0;
+
+  if (mainElements.length <= 1) {
+    return { fixed: 0, details: ['No duplicate main landmarks found.'] };
+  }
+
+  mainElements.forEach((mainEl, index) => {
+    // Skip the first main element if preserveFirst is true
+    if (preserveFirst && index === 0) {
+      details.push(`Preserved main landmark at index 0: ${mainEl.tagName.toLowerCase()}`);
+      return;
+    }
+
+    // Convert to replacement tag
+    const newElement = document.createElement(tag);
+    
+    // Copy attributes except role="main"
+    Array.from(mainEl.attributes).forEach(attr => {
+      if (attr.name === 'role' && attr.value === 'main') {
+        // Don't copy role="main"
+        return;
+      }
+      newElement.setAttribute(attr.name, attr.value);
+    });
+
+    // Add a class to identify converted elements
+    const existingClass = newElement.getAttribute('class') || '';
+    newElement.setAttribute('class', `${existingClass} converted-from-main`.trim());
+
+    // Move children
+    while (mainEl.firstChild) {
+      newElement.appendChild(mainEl.firstChild);
+    }
+
+    // Replace in DOM
+    if (mainEl.parentNode) {
+      mainEl.parentNode.replaceChild(newElement, mainEl);
+    }
+
+    fixed++;
+    details.push(`Converted main landmark at index ${index} to <${tag}>`);
+  });
+
+  return { fixed, details };
+}
+
+/**
+ * React component helper to ensure only one main landmark is rendered.
+ * Wraps children and ensures only the first main element remains as main,
+ * converting subsequent ones to section elements.
+ * @param {React.ReactNode} children Child elements
+ * @param {Object} props Additional props
+ * @returns {React.ReactElement} Wrapper element with fixed landmarks
+ */
+function UniqueMainLandmark({ children, ...props }) {
+  const childrenArray = React.Children.toArray(children);
+  let mainFound = false;
+
+  const processedChildren = childrenArray.map(child => {
+    if (!React.isValidElement(child)) {
+      return child;
+    }
+
+    const childType = child.type;
+    const isMain = childType === 'main' || 
+      (typeof childType === 'string' && childType.toLowerCase() === 'main') ||
+      child.props?.role === 'main';
+
+    if (isMain) {
+      if (mainFound) {
+        // Convert to section
+        return React.cloneElement(child, {
+          ...child.props,
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML: child.props.dangerouslySetInnerHTML,
+        }, 
+        // Convert main to section by changing the type
+        // We need to create a new element with section type
+        React.Children.map(child.props.children, c => c)
+        );
+      }
+      mainFound = true;
+    }
+
+    return child;
+  });
+
+  // Return a fragment or wrapper div with processed children
+  return React.createElement(
+    'div',
+    { ...props, 'data-unique-main-landmark': 'true' },
+    processedChildren
+  );
+}
+
+/**
+ * Server-side/DOM helper to fix duplicate main landmarks in HTML string.
+ * @param {string} html HTML string to process
+ * @param {Object} options Configuration options
+ * @returns {string} Fixed HTML string
+ */
+function fixDuplicateMainLandmarksInHTML(html, options = {}) {
+  if (!html || typeof html !== 'string') {
+    return html;
+  }
+
+  const { replacementTag = 'section' } = options;
+  const validReplacementTags = ['section', 'article', 'div'];
+  const tag = validReplacementTags.includes(replacementTag) ? replacementTag : 'section';
+
+  // Parse HTML (simple approach for server-side)
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  
+  const result = fixDuplicateMainLandmarks(doc.body, { replacementTag: tag, preserveFirst: true });
+  
+  return doc.body.innerHTML;
+}
+
 export {
   addLangAttribute,
   processChildrenWithLang,
@@ -341,6 +480,9 @@ export {
   createAccessibilityProps,
   deduplicateLandmarks,
   fixFakeLinkIssue,
+  fixDuplicateMainLandmarks,
+  UniqueMainLandmark,
+  fixDuplicateMainLandmarksInHTML,
   icons,
 };
 
@@ -364,6 +506,9 @@ if (typeof module !== 'undefined' && module.exports) {
     createAccessibilityProps,
     deduplicateLandmarks,
     fixFakeLinkIssue,
+    fixDuplicateMainLandmarks,
+    UniqueMainLandmark,
+    fixDuplicateMainLandmarksInHTML,
     icons,
   };
 }

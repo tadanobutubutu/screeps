@@ -17,3 +17,6 @@ function rotateBack() {
 // Attach event listeners
 document.getElementById('rotate').addEventListener('click', rotate);
 document.getElementById('unrotate').addEventListener('click', rotateBack);
+
+// Add the lang attribute to the root element
+document.documentElement.lang = 'en';

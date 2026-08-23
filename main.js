@@ -101,7 +101,7 @@ const createAccessibleModal = (props) => {
   // Focus trap management
   modal.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      modal.dispatchEvent(new CustomEvent('close'));
+      modal.style.display = 'none';
     }
   });
 
@@ -141,38 +141,53 @@ const addLangAttribute = () => {
   }
 };
 
-// Fix for REACT_036: Fix 1 fake link issue
+// Fix for REACT_036: Replace fake links (hash-only hrefs) with buttons
 const fixFakeLinkIssue = () => {
   if (typeof document !== 'undefined') {
-    // Find all anchors without href that look like links
-    const fakeLinks = document.querySelectorAll('a:not([href])');
-    fakeLinks.forEach((link) => {
-      const styles = window.getComputedStyle(link);
-      const isClickable = styles.cursor === 'pointer' || link.classList.contains('link');
-      if (isClickable) {
-        // Convert to proper button if it acts as a link
-        if (link.tagName === 'A') {
-          link.setAttribute('role', 'button');
-          // Add keyboard support if missing
-          if (!link.onclick && link.addEventListener) {
-            link.addEventListener('click', (e) => {
-              e.preventDefault();
-              // Handle click appropriately
-            });
-          }
-          // Ensure tabindex for keyboard navigation
-          if (link.tabIndex === -1 || link.tabIndex === undefined) {
-            link.tabIndex = 0;
-          }
-          // Add accessible name if text is not descriptive
-          const linkText = link.textContent.trim();
-          if (linkText && linkText.length < 3) {
-            const ariaLabel = link.getAttribute('aria-label');
-            if (!ariaLabel) {
-              link.setAttribute('aria-label', 'Interactive link');
-            }
-          }
+    // Find all anchors with hash-only href that don't navigate anywhere
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+      // Create a button to replace the fake link
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = link.textContent;
+      
+      // Copy className if it exists
+      if (link.className) {
+        button.className = link.className;
+      }
+      
+      // Copy id if it exists
+      if (link.id) {
+        button.id = link.id;
+      }
+      
+      // Copy any onclick handlers
+      if (link.onclick) {
+        button.onclick = link.onclick;
+      }
+      
+      // Copy any aria-label
+      const ariaLabel = link.getAttribute('aria-label');
+      if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+      }
+      
+      // Copy any inline styles
+      if (link.style.cssText) {
+        button.style.cssText = link.style.cssText;
+      }
+      
+      // Copy any data attributes
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name.startsWith('data-')) {
+          button.setAttribute(attr.name, attr.value);
         }
+      });
+      
+      // Replace the link with the button
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
       }
     });
   }
@@ -195,4 +210,8 @@ const addAccessibleNamesToSVGs = () => {
         } else {
           svg.appendChild(title);
         }
-        svg.setAttribute
+        svg.setAttribute('aria-labelledby', title.id);
+      }
+    });
+  }
+};

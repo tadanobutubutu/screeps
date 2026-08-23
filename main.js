@@ -53,6 +53,19 @@ function divide(a, b) {
   return a / b;
 }
 
+// Add a new function for addressing accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport() {
+  // Example implementation, should be replaced with actual logic based on the insight report
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.hasAttribute('aria-label')) {
+      // Assume we can generate a label based on the button's text content
+      const label = button.textContent.trim() || 'Button';
+      addAriaLabel(button, label);
+    }
+  });
+}
+
 // Add a new function for adding `aria-label` to buttons
 function addAriaLabel(elem, label) {
   if (elem) {
@@ -78,7 +91,7 @@ module.exports = {
   multiply,
   divide,
   addAriaLabel, // Include the new function in the exports
-  // Add the updated th element with scope attribute here
+  addressAccessibilityIssuesFromInsightReport, // Include the new function in the exports
   updateTableHeaders: function() {
     const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(header => {

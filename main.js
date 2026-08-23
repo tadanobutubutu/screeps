@@ -18,6 +18,8 @@ function addLangAttribute(element) {
   React.Children.forEach(element, child => {
     if (child && child.type !== 'string' && child.props) {
       child.props.className += ' jsx-lang-en';
+      // Add lang attribute to indicate language of the element
+      child.props.lang = 'en';
     }
   });
 }

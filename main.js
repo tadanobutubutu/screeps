@@ -82,17 +82,17 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = ... footer, aside, section, header');
+  const landmarks = container.querySelectorAll('main, nav, footer, aside, section, header');
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
-      id = 'landmark-' + ... 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     if (seenIds.has(id)) {
-      id = 'landmark-' + ... 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     seenIds.add(id);
@@ -101,7 +101,7 @@ export function ensureUniqueLandmarks(container = document) {
 
 const enhanceFocusVisibility = function() {
   // Function to enhance focus visibility for keyboard navigation
-  const style = ...
+  const style = document.createElement('style');
   style.textContent = `
     *:focus {
       outline: 2px solid #005fcc;
@@ -115,7 +115,7 @@ const enhanceFocusVisibility = function() {
       outline-offset: 2px;
     }
   `;
-  ...
+  document.head.appendChild(style);
 };
 
 const addressAccessibilityIssues = function() {
@@ -125,7 +125,7 @@ const addressAccessibilityIssues = function() {
   // - REACT_041: Already handled with the createSvgIcon function
 
   // Enhance focus visibility for keyboard navigation
-  ...
+  enhanceFocusVisibility();
 
   // Ensure unique landmarks (pass document as container)
   ensureUniqueLandmarks();
@@ -142,7 +142,7 @@ const calculateAverage = function(numbers) {
 };
 
 // Updated: DependencyGraphTable now uses dependencyGraphContent module
-export function ... {
+export function DependencyGraphTable() {
   const content = dependencyGraphContent.getContent();
   return {
     type: 'div',
@@ -204,7 +204,7 @@ export function SettingsIcon(props) {
 }
 
 // AccessibleIconSVG - wrapper for accessible SVG icons
-export function ... {
+export function AccessibleIconSVG(props) {
   return {
     type: 'svg',
     props: {
@@ -216,7 +216,7 @@ export function ... {
 }
 
 // FakeLinkAsButton - accessibility fix for styled links
-export function ... {
+export function FakeLinkAsButton(props) {
   return {
     type: 'button',
     props: {
@@ -235,7 +235,7 @@ export function AppWrapper(props) {
     props: {
       className: 'app-wrapper',
       role: 'application',
-      'aria-label': props.appName || 'Application
+      'aria-label': props.appName || 'Application'
     }
   };
 }

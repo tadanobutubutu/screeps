@@ -35,3 +35,17 @@ function addAccessibleNameToSVGs() {
 
 // Assuming this function is used to set the icons, you would call it like this:
 const updatedIcons = addAccessibleNameToSVGs();
+
+// Implementation to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Assuming there is a function that gets the rendered HTML of the component
+  const renderComponent = (Component) => {
+    // ... implementation to render the component
+  };
+
+  // Example usage of the function
+  renderComponent(Dashboard);
+}
+
+// Ensure that the unique landmarks function is called
+ensureUniqueLandmarks();

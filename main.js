@@ -13,9 +13,9 @@ export function addAriaAttributes() {
     }
   }
 }
-addAriaAttributes();
 
 // Existing code and exports
+addAriaAttributes();
 const restoredModule = require('./utils');
 
 // Existing code and exports
@@ -73,7 +73,7 @@ export function addLangAttributeToRoot() {
   }
 }
 
-// Add addressAccessibilityIssues function
+// Add accessibility functions
 export function addressAccessibilityIssues(elements) {
   elements.forEach((element) => {
     if (element && element.props && element.props.children) {
@@ -138,10 +138,10 @@ export function validateTableStructure(tableElement) {
     : [];
 
   const hasThead = children.some(child =>
-    child && child.type && child.type === 'thead'
+    child && child.type === 'thead'
   );
   const hasTbody = children.some(child =>
-    child && child.type && child.type === 'tbody'
+    child && child.type === 'tbody'
   );
 
   return !!(hasThead && hasTbody);
@@ -302,7 +302,7 @@ export function fixFakeLinkIssue() {
 export function wrapContentInMain() {
   const rootElement = document.documentElement;
   const mainElements = rootElement.querySelectorAll('main');
-  
+
   if (mainElements.length === 0) {
     // Wrap the <body> in <main> if there's no <main> element
     const body = document.body;

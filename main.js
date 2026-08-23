@@ -128,7 +128,7 @@ export function validateUniqueLandmarks(elements) {
       if (role === 'navigation' || role === 'nav') navCount++;
     }
   });
-  return mainCount <= 1;
+  return mainCount <= 1 && navCount <= 1; // Updated for nav accessibility
 }
 export function getSvgAccessibleName(svgElement) {
   if (!svgElement || !svgElement.props) {
@@ -183,54 +183,62 @@ export function fixAccessibilityIssues() {
   if (mainElements.length > 1) {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
   }
-}
-export function ensureUniqueLandmarkIds() {
-  const landmarkRoles = ['header','nav','main','footer','article','aside','section'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
-    elements.forEach((el, idx) => {
-      if (!el.id) {
-        el.id = `${role}-${idx + 1}`;
+
+  // Add the following functions to address the remaining accessibility issues:
+  // Assign landmark roles and ensure unique landmark ids
+  const assignLandmarkRoles = () => {
+    const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
+    const allElements = document.querySelectorAll(landmarks.join(', '));
+    allElements.forEach((element) => {
+      if (element) {
+        const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+        if (!element.getAttribute('role') && landmarks.includes(tagName)) {
+          element.setAttribute('role', tagName);
+        }
+        if (!element.id) {
+          element.id = `${tagName}-${element.dataset.id || 1}`;
+        }
       }
     });
-  });
+  };
+
+  const ensureUniqueLandmarkIds = () => {
+    const landmarkRoles = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
+    landmarkRoles.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((el, idx) => {
+        if (!el.id) {
+          el.id = `${role}-${idx + 1}`;
+        }
+      });
+    });
+  };
+
+  assignLandmarkRoles();
+  ensureUniqueLandmarkIds();
 }
-export function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a:not([href])');
-  links.forEach(link => {
-    if (link) {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-    }
-  });
-}
-export function wrapPrimaryContentInMain() {
-  const mainContent = document.getElementById('mainContent');
-  if (mainContent) {
-    const newMain = document.createElement('main');
-    newMain.id = 'primaryContent';
-    newMain.appendChild(mainContent);
-    return newMain;
+export function ensureUniqueLandmarks(elements) {
+  if (!elements || !Array.isArray(elements)) {
+    return false;
   }
-  return null;
-}
-export function assignLandmarkRoles() {
-  const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
-  const allElements = document.querySelectorAll(landmarks.join(', '));
-  allElements.forEach((element) => {
-    if (element) {
-      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-      if (!element.getAttribute('role') && landmarks.includes(tagName)) {
-        element.setAttribute('role', tagName);
-      }
+  let mainCount = 0;
+  let navCount = 0;
+  elements.forEach(element => {
+    if (element && element.props) {
+      const role = element.props.role;
+      if (role === 'main') mainCount++;
+      if (role === 'navigation' || role === 'nav') navCount++;
     }
   });
+  return mainCount <= 1 && navCount <= 1;
 }
 export function fixDuplicateMainIssue() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
   }
+  // Remove the wrappedPrimaryContentInMain function since it's not required anymore
+  // wrapPrimaryContentInMain();
 }
 export function wrapContentInMain() {
   const rootElement = document.documentElement;
@@ -242,6 +250,8 @@ export function wrapContentInMain() {
     newMain.setAttribute('role', 'main');
     rootElement.insertBefore(newMain, body);
   }
+  // Remove the wrapMain function since it's not required anymore
+  // wrapMain();
 }
 export function renderContentVisualization() {
   const contentContainer = document.getElementById('primary-content');
@@ -279,6 +289,8 @@ function initializeApp() {
   renderIndexVisualization();
   renderTableStructuralCompliance();
   renderContentVisualization();
+  assignLandmarkRoles();
+  ensureUniqueLandmarkIds();
 }
 initializeApp();
 

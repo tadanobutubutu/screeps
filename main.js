@@ -1,6 +1,6 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (This should be added in the client's build process, not in JavaScript)
-// - REACT_027: Fix 26 table structure issues (Assuming this was fixed and new function is not needed)
+// - REACT_027: Fix 26 table structure issues (Add scope attributes to <th> elements)
 // - REACT_017: Add/fix 4 landmark issues
 // - REACT_025: Ensure unique landmarks
 // - REACT_041: Add accessible names to 2 SVGs
@@ -129,5 +129,33 @@ export function addMainLandmark() {
   }
 }
 
+// REACT_027: Add scope attributes to header cells in tables
+export function addScopeAttributesToHeaders() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((th, index) => {
+      // Check if it's in the first row (column header) or first column (row header)
+      const rowIndex = Array.from(th.parentNode.children).indexOf(th);
+      const isFirstRow = rowIndex === 0;
+
+      if (isFirstRow) {
+        // Column header
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      } else {
+        // Potential row header (e.g., in the first column of each row)
+        if (rowIndex === 0 && !th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'row');
+        }
+      }
+    });
+  });
+}
+
 // Call the function to add the <main> landmark
 addMainLandmark();
+
+// Call the function to fix table structure accessibility issues
+addScopeAttributesToHeaders();

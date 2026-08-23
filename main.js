@@ -1,49 +1,40 @@
-// Current main.js content not provided.
-// Please paste the contents of main.js (and any other affected files)
-// so I can make the necessary changes to fix the REACT_025 issue.
+const fs = require('fs');
+const path = require('path');
 
-// Based on the issue description, the fix involves:
-// 1. Keeping only ONE <main> landmark in the component
-// 2. Replacing the other <main> with <section> or <article> for semantic structure
-
-// Example fix pattern (adjust based on your actual code):
-
-// BEFORE (problematic - multiple <main> landmarks):
-/*
-function Component() {
-  if (error) {
-    return (
-      <main>  // ❌ This should be <section> or <article>
-        <h1>Error</h1>
-        ...
-      </main>
-    );
-  }
-  return (
-    <main>  // ✅ Keep this as <main>
-      ...success content...
-    </main>
-  );
+// Function to add scope attribute to th elements
+function addScopeToTh(fileContent) {
+  return fileContent.replace(/<th\b[^>]*>/g, (match) => {
+    // Check if the th already has a scope attribute
+    if (match.includes('scope="')) {
+      return match;
+    }
+    // Add scope="col" or scope="row" based on the context
+    // For example, if you have a way to determine the type of header, you could do:
+    // return match.replace('<th', '<th scope="col"');
+    // For simplicity, we'll just add scope="col" here
+    return match.replace('<th', '<th scope="col"');
+  });
 }
-*/
 
-// AFTER (fixed - only one <main> landmark):
-/*
-function Component() {
-  if (error) {
-    return (
-      <section aria-labelledby="error-heading">  // ✅ Use <section> instead
-        <h1 id="error-heading">エラー</h1>
-        ...
-      </section>
-    );
-  }
-  return (
-    <main>
-      ...success content...
-    </main>
-  );
+// Function to process a single file
+function processFile(filePath) {
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = addScopeToTh(fileContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
 }
-*/
 
-// Please provide the actual file contents so I can apply the fix.
+// List of files to process
+const filesToProcess = [
+  'docs/dependency-graph.html',
+  // ... add other affected files here
+];
+
+// Process each file
+filesToProcess.forEach((filePath) => {
+  const fullPath = path.join(__dirname, filePath);
+  if (fs.existsSync(fullPath)) {
+    processFile(fullPath);
+  } else {
+    console.error(`File not found: ${filePath}`);
+  }
+});

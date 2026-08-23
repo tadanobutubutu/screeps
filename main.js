@@ -33,7 +33,7 @@ export const fixTableStructureIssues = (tableData) => {
 
 // New function to ensure unique landmarks (REACT_025)
 export const ensureUniqueLandmarks = (landmarks) => {
-  if (!landmarks || !Array.isArray(landlands)) return [];
+  if (!landmarks || !Array.isArray(landmarks)) return [];
   
   const seenIds = new Set();
   
@@ -152,7 +152,7 @@ export const SettingsIcon = (props) => (
   >
     {/* SVG path content */}
   </AccessibleIconSVG>
-});
+);
 
 // REACT_025: Ensure unique landmarks
 const uniqueLandmarks = () => {
@@ -286,29 +286,25 @@ export default function Home({ projects }) {
   };
 
   return (
-    <div>
+    <>
       <Head>
         <title>Dependency Graph</title>
       </Head>
-      <html lang="en">
-        <body>
-          <main role="main">
-            <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
-            <div dangerouslySetInnerHTML={{ __html: indexContent }} />
-            <button 
-              id="unrotate" 
-              onClick={handleRotateBack}
-              aria-label="Rotate back"
-            >
-              rotate back
-            </button>
-            {projects && projects.map && projects.map((project) => (
+      <main role="main">
+        <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+        <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+        <button 
+          id="unrotate" 
+          onClick={handleRotateBack}
+          aria-label="Rotate back"
+        >
+          rotate back
+        </button>
+        {projects && projects.map && projects.map((project) => (
               <div key={project.id}>{project.name}</div>
             ))}
-          </main>
-        </body>
-      </html>
-    </div>
+      </main>
+    </>
   );
 }
 

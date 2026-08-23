@@ -811,6 +811,35 @@ module.exports = {
   validateLangAttribute
 };
 
+// Export named exports for ES module consumers
+export {
+  DEPENDENCY_UPDATES,
+  checkCompatibility,
+  validateDependencies,
+  getRecommendedUpdateOrder,
+  hasBreakingChanges,
+  processDependencyUpdates,
+  // Accessibility helper exports
+  getLangAttribute,
+  validateLandmark,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  getTableScopeRecommendation,
+  validateLinkAccessibility,
+  createInPageButton,
+  // New accessibility functions
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  validateTableStructure,
+  getTableCellAttributes,
+  createSvgAccessibilityProps,
+  validateSvgAccessibility,
+  validateLinkOrButton,
+  createAccessibleLink,
+  getFullLangAttribute,
+  validateLangAttribute
+};
+
 // Run if executed directly
 if (require.main === module) {
   console.log('Processing dependency updates...\n');

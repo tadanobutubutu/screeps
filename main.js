@@ -4,7 +4,6 @@ export function rotateBack() {
     // Placeholder for actual rotate back logic
 }
 
-// In case the missing exports are the ones related to accessibility issues, add them as follows:
 // - REACT_015: Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', 'en');
 

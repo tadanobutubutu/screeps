@@ -75,11 +75,10 @@ module.exports = {
       const thElements = table.querySelectorAll('th');
       thElements.forEach(th => {
         if (!th.hasAttribute('scope')) {
-          const row = th.closest('tr');
           const thead = th.closest('thead');
-          if (thead && row && row.rowIndex === 0) {
+          if (thead) {
             th.setAttribute('scope', 'col');
-          } else if (!thead) {
+          } else {
             th.setAttribute('scope', 'row');
           }
         }

@@ -4,7 +4,7 @@ import { configure } from 'jest';
 import 'babel-jest';
 import 'babel-preset-react-app';
 import 'eslint';
-import express from 'react';
+import express from 'express';
 import { moduleExports } from './moduleExports';
 
 // Configure Jest
@@ -315,11 +315,6 @@ export const faviconGenerators = {
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames(), getSvgAccessibleName(), createSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue(), validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), createAccessibleLink())
-
-// Assuming the original main.js looks something like this:
-// (This is just a hypothetical example; your actual code may vary.)
-
-// Importing dependencies
 
 // App component
 const App = () => {

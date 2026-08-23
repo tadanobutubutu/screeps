@@ -46,23 +46,23 @@ export function fixFakeLink() {
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = document.querySelectorAll('[role="button"], [role="link"], button, a');
+    const accessibleElements = document.querySelectorAll('[role="link"], button, a');
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = `accessible-id-${Math.random().toString(36).substr(2, 9)}`;
+        const currentId = `accessible-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         element.setAttribute('id', currentId);
     });
 }
 
 // TODO: Implement wrapPrimaryContentInMain function
 export function wrapPrimaryContentInMain() {
-    const mainContent = document.querySelector('[role="main"], main, #main-content, .main-content');
+    const mainContent = document.querySelector('main, #main-content, .main-content');
     if (mainContent && mainContent.parentElement && mainContent.parentElement.tagName !== 'MAIN') {
         const mainTag = document.createElement('main');
         mainTag.setAttribute('role', 'main');
-        mainContent.parentNode.insertBefore(mainTag, mainContent);
         mainTag.appendChild(mainContent);
+        document.body.insertBefore(mainTag, document.body.firstChild);
     }
 }
 
@@ -71,7 +71,7 @@ export { renderDependencyGraph };
 
 export function addMainLandmark() {
     // Implementation for adding main landmark
-    const mainElements = document.querySelectorAll('main');
+    const mainElements = document.querySelectorAll('main, [role="main"]');
     if (mainElements.length === 0) {
         const main = document.createElement('main');
         main.setAttribute('role', 'main');
@@ -88,7 +88,7 @@ export function addMainLandmark() {
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
-        const elements = document.querySelectorAll(`${role}, [role="${role}"]`);
+        const elements = document.querySelectorAll(`[role="${role}"]`);
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {
@@ -104,7 +104,55 @@ export function ensureUniqueLandmarks() {
     });
 }
 
-// TODO: Implement function for fixing table structure issues (REACT_027)
+// - REACT_027: Fix table structure issues
+export function fixTableStructure() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+        // Check if table has headers
+        const headers = table.querySelectorAll('th');
+        const hasHeaders = headers.length > 0;
+        
+        if (!hasHeaders) {
+            // Check first row for header cells
+            const firstRow = table.querySelector('tr');
+            if (firstRow) {
+                const cells = firstRow.querySelectorAll('td');
+                cells.forEach((cell) => {
+                    const th = document.createElement('th');
+                    th.setAttribute('scope', 'col');
+                    while (cell.firstChild) {
+                        th.appendChild(cell.firstChild);
+                    }
+                    cell.parentNode.replaceChild(th, cell);
+                });
+            }
+        } else {
+            // Add scope attributes to existing headers
+            headers.forEach((header) => {
+                if (!header.hasAttribute('scope')) {
+                    const parent = header.parentElement;
+                    if (parent && parent.tagName === 'TR') {
+                        const siblings = Array.from(parent.children);
+                        const headerIndex = siblings.indexOf(header);
+                        const firstRow = table.querySelector('tr');
+                        if (firstRow && firstRow === parent) {
+                            header.setAttribute('scope', 'col');
+                        } else {
+                            header.setAttribute('scope', 'row');
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ensure proper table structure
+        if (!table.querySelector('caption')) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Data table';
+            table.insertBefore(caption, table.firstChild);
+        }
+    });
+}
 
 // TODO: Implement function for adding proper landmark regions
 export function addLandmarkRegions() {
@@ -176,7 +224,7 @@ export function addressAccessibilityIssues() {
     addLandmarkRegions();
 
     // - Fix table structure issues
-    // TODO: Implement ...
+    fixTableStructure();
 
     // - Add proper landmark regions
     // TODO: Implement ...

@@ -11,7 +11,9 @@ var htmlContent = `<html lang="en">
   <title>Document</title>
 </head>
 <body>
-  <script src="main.js"></script>
+  <main>
+    <script src="main.js"></script>
+  </main>
 </body>
 </html>`;
 

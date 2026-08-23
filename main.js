@@ -27,8 +27,13 @@ const addAccessibleNameToSVG = function(svgElement) {
   }
 };
 
-const myFunction = require('./myFunction'); // Add this line to import the required function from another file
-module.exports.myFunction = myFunction; // Export the imported function
+// Add this line to import the required function from another file
+const myExportedFunction = require('./myFunction').someExportedFunction;
+
+// Export the imported function with the desired name
+module.exports.myFunction = function() {
+  return myExportedFunction;
+};
 
 module.exports = {
   someFunction: function() {

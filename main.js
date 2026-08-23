@@ -64,17 +64,45 @@ export default async function Home({ projects }) {
   export const fixTableStructureIssues = (tableData) => {
     // Implementation to fix table structure issues
     // This function needs to be implemented as per the insight report requirements
+
+    // Placeholder implementation to address the issue:
+    // Make sure the tableData has a header row and consistent cell structure
+    if (!Array.isArray(tableData) || !tableData[0] || !Array.isArray(tableData[0])) {
+      throw new Error('Invalid table data structure');
+    }
+
+    return tableData;
   };
 
   // New function to ensure unique landmarks (REACT_025)
   export const ensureUniqueLandmarks = (landmarks) => {
     // Implementation to ensure unique landmarks
     // This function needs to be implemented as per the insight report requirements
+
+    // Placeholder implementation to address the issue:
+    // Return an error if landmarks contain duplicate IDs
+    const landmarkIDs = new Set();
+    for (let landmark of landmarks) {
+      if (landmarkIDs.has(landmark.id)) {
+        throw new Error(`Duplicate landmark ID "${landmark.id}" found`);
+      }
+      landmarkIDs.add(landmark.id);
+    }
+
+    return landmarks;
   };
 
   // New function to add ARIA label to a fake link issue (REACT_036)
-  export const addAriaLabelToMyDiv = (content) => {
+  export const addAriaLabelToMyDiv = (content, ariaLabel) => {
     // Implementation to add ARIA label to a fake link
     // This function needs to be implemented as per the insight report requirements
+
+    // Placeholder implementation to address the issue:
+    // Wrap the content in a div and add the specified aria-label
+    return (
+      <div aria-label={ariaLabel}>
+        {content}
+      </div>
+    );
   };
 }

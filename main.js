@@ -47,3 +47,11 @@ module.exports = {
   addAccessibleNameToSVG,
   myFunction // Include the newly exported function in the main module exports
 };
+
+// Additional function or change requested in the issue
+const ensureUniqueMainElement = function() {
+  // Logic to ensure only one <main> element exists in the document
+  // This could involve traversing the DOM or using a library that helps manage the main element
+};
+
+module.exports.ensureUniqueMainElement = ensureUniqueMainElement;

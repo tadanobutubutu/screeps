@@ -1,9 +1,1 @@
-// app/layout.tsx
-export const metadata = {
-  title: 'Screeps Dashboard',
-  description: 'Screeps Dashboard',
-  icons: {
-    icon: ... ... viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 ...
-    apple: ... ... viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 ...
-  },
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

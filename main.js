@@ -343,3 +343,27 @@ export {
   fixFakeLinkIssue,
   icons,
 };
+
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
+// const { myFunction } = require('./myFunction');
+// module.exports.myFunction = myFunction;
+
+// CommonJS exports for Jest/Node.js compatibility
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addLangAttribute,
+    processChildrenWithLang,
+    fixTableStructure,
+    addMainLandmark,
+    validateLandmark,
+    ensureUniqueLandmarks,
+    validateLandmarkStructure,
+    addAccessibleNameToSVG,
+    getAccessibleName,
+    createAccessibilityProps,
+    deduplicateLandmarks,
+    fixFakeLinkIssue,
+    icons,
+  };
+}

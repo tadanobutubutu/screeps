@@ -3,5 +3,9 @@ var loop = function() {
 };
 
 module.exports = {
-    loop: loop
+    loop: loop,
+    // New function or changes requested here
+    newFunction: function() {
+        // New function logic here
+    }
 };

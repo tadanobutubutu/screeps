@@ -62,7 +62,7 @@ function ensureUniqueLandmarkIds(elements) {
 
 function setFakeLinkAsVisible(link) {
   if (link) {
-    link.setAttribute('aria-hidden', 'true');
+    link.setAttribute('aria-hidden', 'false');
     link.setAttribute('role', 'button');
   }
 }
@@ -90,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], area[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
@@ -115,3 +115,7 @@ function addLangAttribute(lang = 'en') {
     document.documentElement.lang = lang;
   }
 }
+
+// TO DO: Apply the new functions to the relevant elements (this is beyond the scope of this task)
+
+module.exports = app;

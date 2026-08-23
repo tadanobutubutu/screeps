@@ -1,44 +1,122 @@
-// Original main.js content
-// ...
+const styles = {
+  wrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+    backgroundColor: "#f5f5f5",
+    fontFamily: "Arial, sans-serif",
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    padding: "2rem",
+    maxWidth: "400px",
+    textAlign: "center",
+  },
+  title: {
+    fontSize: "1.5rem",
+    marginBottom: "1rem",
+    color: "#333",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+  },
+  input: {
+    padding: "0.75rem",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "1rem",
+  },
+  button: {
+    padding: "0.75rem",
+    backgroundColor: "#007bff",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    fontSize: "1rem",
+    cursor: "pointer",
+  },
+  errorWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+    backgroundColor: "#f5f5f5",
+    fontFamily: "Arial, sans-serif",
+  },
+  errorCard: {
+    backgroundColor: "white",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    padding: "2rem",
+    maxWidth: "400px",
+    textAlign: "center",
+  },
+  errorTitle: {
+    fontSize: "1.5rem",
+    marginBottom: "1rem",
+    color: "#333",
+  },
+  errorMessage: {
+    color: "#666",
+    marginBottom: "1.5rem",
+  },
+  successTitle: {
+    fontSize: "1.5rem",
+    marginBottom: "1rem",
+    color: "#333",
+  },
+  successMessage: {
+    color: "#666",
+    marginBottom: "1.5rem",
+  },
+};
 
-// New changes to fix the REACT_027 issue
-// Add the scope attribute to the <th> elements where it's missing
-// Assuming the structure of the table and the <th> elements is as follows:
-// <table>
-//   <thead>
-//     <tr>
-//       <th>Header 1</th>
-//       <th>Header 2</th>
-//       <!-- More headers -->
-//     </tr>
-//   </thead>
-//   <tbody>
-//     <!-- Table rows -->
-//   </tbody>
-// </table>
+export function FormComponent({ hasError, isSuccess }) {
+  if (hasError) {
+    return (
+      <section style={styles.errorWrapper}>
+        <article style={styles.errorCard}>
+          <h1 style={styles.errorTitle}>Error</h1>
+          <p style={styles.errorMessage}>
+            An error occurred. Please try again later.
+          </p>
+        </article>
+      </section>
+    );
+  }
 
-// Example of how to add the scope attribute to the <th> elements
-// <th scope="col">Header 1</th>
-// <th scope="col">Header 2</th>
-// <!-- Add scope="col" to all other headers as needed -->
+  if (isSuccess) {
+    return (
+      <main style={styles.wrapper}>
+        <div style={styles.card}>
+          <h1 style={styles.successTitle}>Success</h1>
+          <p style={styles.successMessage}>
+            Your form has been submitted successfully!
+          </p>
+        </div>
+      </main>
+    );
+  }
 
-// Update the table headers in the codebase to include the scope attribute
-// For example, if the headers are defined in a separate file or imported, update those as well
-
-// Updated main.js content with the changes
-// ...
-// <table>
-//   <thead>
-//     <tr>
-//       <th scope="col">Header 1</th>
-//       <th scope="col">Header 2</th>
-//       <!-- Add scope="col" to all other headers as needed -->
-//     </tr>
-//   </thead>
-//   <tbody>
-//     <!-- Table rows -->
-//   </tbody>
-// </table>
-// ...
-// // Rest of the main.js content
-// ...
+  return (
+    <main style={styles.wrapper}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Login</h1>
+        <form style={styles.form}>
+          <input type="text" placeholder="Username" style={styles.input} />
+          <input type="password" placeholder="Password" style={styles.input} />
+          <button type="submit" style={styles.button}>
+            Submit
+          </button>
+        </form>
+      </div>
+    </main>
+  );
+}

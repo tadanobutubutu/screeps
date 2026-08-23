@@ -1,17 +1,1 @@
-tsx
-const MainComponent = () => {
-  // Your main content here
-};
-
-// Render the main component
-export const Dashboard = () => {
-  // Error handling and success states
-  // ...
-
-  return (
-    <>
-      {isError ? <ErrorContent /> : isSuccess ? <SuccessContent /> : null}
-      <main>{MainComponent()}</main>
-    </>
-  );
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

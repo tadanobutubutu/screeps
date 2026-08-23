@@ -62,7 +62,7 @@ export const addLangAttribute = (lang = 'en') => {
 
 // New function to wrap primary content in a main element
 export const wrapPrimaryContentInMain = (content) => {
-  return <main role="main">{content}</main>;
+  return <main>{content}</main>;
 };
 
 // New function to add accessible names to SVGs (REACT_041)
@@ -94,9 +94,6 @@ export const createLandmark = (element, landmarkType, id) => {
     id: id || `${landmarkType}-landmark`
   });
 };
-
-// Add back required exports that might have been removed
-export { default } from './main';
 
 // Main component
 export default function Home({ projects }) {
@@ -132,4 +129,4 @@ export default function Home({ projects }) {
 }
 
 // Export consolidated list of utility functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addAriaLabelToFakeLink, addLangAttribute, wrapPrimaryContentInMain, addAccessibleNameToSVG, createLandmark, addProperLandmarkRegions };
+export { fixTableStructureIssues, ensureUniqueLandmarks, addAriaLabelToFakeLink, addLangAttribute, wrapPrimaryContentInMain, createLandmark };

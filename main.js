@@ -16,8 +16,8 @@ const icons = {
  */
 function addLangToHtml() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    if ... {
-      ... 'en');
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
     }
   }
 }
@@ -48,9 +48,9 @@ function processChildrenForLang(element) {
   }
 
   if (element.props && element.props.children) {
-    const processedChildren = ... child => {
+    const processedChildren = React.Children.map(element.props.children, child => {
       if (child && typeof child === 'object' && child !== null && child.props) {
-        return ...
+        return processChildrenForLang(child);
       }
       return child;
     });
@@ -79,12 +79,12 @@ function addAccessibleNameToSVG(svgElement, accessibleName) {
   }
 
   // Ensure role="img" is set
-  if ... {
-    ... 'img');
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
   }
 
   // Set aria-label for accessible name
-  ... accessibleName);
+  svgElement.setAttribute('aria-label', accessibleName);
 
   return svgElement;
 }
@@ -100,22 +100,22 @@ function getSVGAccessibleName(svgElement) {
   }
 
   // Check for aria-label
-  const ariaLabel = ...
+  const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
 
   // Check for aria-labelledby reference
-  const ariaLabelledby = ...
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const titleElement = ...
+    const titleElement = document.getElementById(ariaLabelledby);
     if (titleElement) {
       return titleElement.textContent;
     }
   }
 
   // Fallback to title element
-  const titleElement = ...
+  const titleElement = svgElement.querySelector('title');
   if (titleElement) {
     return titleElement.textContent;
   }
@@ -154,10 +154,10 @@ function deduplicateLandmarks(landmarks) {
   const seen = new Set();
 
   landmarks.forEach(landmark => {
-    const id = landmark.id || ...
+    const id = landmark.id || landmark.name || JSON.stringify(landmark);
     if (!seen.has(id)) {
       seen.add(id);
-      ...
+      unique.push(landmark);
     }
   });
 
@@ -182,7 +182,7 @@ function fixFakeLinkIssue(element, href) {
 
   // Copy over existing attributes
   if (element.attributes) {
-    ... => {
+    Array.from(element.attributes).forEach(attr => {
       anchorElement.setAttribute(attr.name, attr.value);
     });
   }

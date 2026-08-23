@@ -44,7 +44,7 @@ const FixedLink = () => (
             <tr>
               {allColumns.map(column => (
                 <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
+                  ... ?? column.Header}
                 </th>
               ))}
             </tr>
@@ -75,3 +75,6 @@ const FixedLink = () => (
     </div>
   );
 }
+
+export { Logo, MenuIcon, FixedLink };
+export default Main;

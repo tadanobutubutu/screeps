@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const express = require('express');
 const app = express();
 
@@ -19,7 +16,6 @@ function fixDependencyDashboard() {
   }
 }
 
-// Generate the html string with the lang attribute and the new accessibility functions
 function generateHtmlWithLang() {
   const html = `
 <html lang="en">
@@ -29,9 +25,6 @@ function generateHtmlWithLang() {
 
   return html;
 }
-
-// Import the new accessibility functions
-const { addLandmark, setSVGAccessibleName, ensureUniqueLandmarkIds, setFakeLinkAsVisible, addAccessibleLabel, announceToScreenReader, trapFocus } = require('./accessibility');
 
 // Accessibility middleware for ARIA live regions and focus management
 app.use((req, res, next) => {
@@ -57,36 +50,155 @@ app.use((req, res, next) => {
     }
   };
 
+  // Helper to add lang attribute to HTML element (REACT_015)
+  res.locals.addLangAttribute = function(lang = 'en') {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
+  };
+
   next();
 });
 
+// New functions for addressing accessibility issues
+function addLandmark(element, role = 'banner', id) {
+  if (!id) id = element.id || 'landmark-' + Date.now();
+  element.setAttribute('role', role);
+  element.setAttribute('id', id);
+}
+
+function addAccessibleSvgName(svg, name) {
+  if (svg && svg.firstChild && svg.firstChild.nodeName === 'svg') {
+    addAccessibleLabel(svg, name);
+  }
+}
+
+function setSVGAccessibleName(svg, name) {
+  if (svg) {
+    if (svg.firstChild && svg.firstChild.nodeName === 'svg') {
+      addAccessibleLabel(svg, name);
+    } else {
+      addAccessibleLabel(svg, name);
+    }
+  }
+}
+
+function ensureUniqueLandmarkIds(elements) {
+  const ids = new Set();
+  elements.forEach((element) => {
+    if (!element) return;
+    const id = element.id;
+    if (ids.has(id)) {
+      const index = ids.size + 1;
+      element.id = id + '-' + index;
+    }
+    ids.add(element.id);
+  });
+}
+
+function setFakeLinkAsVisible(link) {
+  if (link) {
+    link.setAttribute('aria-hidden', 'false');
+    link.setAttribute('role', 'button');
+  }
+}
+
+// Helper function to add accessible labels to elements
+function addAccessibleLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+    element.setAttribute('role', 'button');
+  }
+  return element;
+}
+
+// Helper function to announce content changes to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  if (typeof document === 'undefined') return;
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+// Helper to trap focus within a container (for modals)
+function trapFocus(container) {
+  if (!container || typeof container.querySelectorAll !== 'function') return;
+  const focusableElements = container.querySelectorAll(
+    'a[href], area[href], input:not([disabled]), button:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        if (lastElement && lastElement.focus) lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        if (firstElement && firstElement.focus) firstElement.focus();
+      }
+    }
+  });
+}
+
 // Apply the new functions to the relevant elements
 app.get('/', (req, res) => {
-  // ... Your existing route code ...
+  // Existing route code can send the generated HTML
+  const html = generateHtmlWithLang();
 
-  // Add accessibility to the rendered HTML
-  const { body } = res;
-  addLandmark(body, 'banner');
-  setSVGAccessibleName(body.querySelector('svg'), ' dependency graph');
-  ensureUniqueLandmarkIds([body.querySelector('.table-of-contents'), body.querySelector('section.content')]);
-  setFakeLinkAsVisible(body.querySelector('.btn-download'));
-  body.querySelectorAll('.btn').forEach((btn) => addAccessibleLabel(btn, btn.textContent));
+  // Add accessibility to the rendered HTML when in a DOM environment
+  if (typeof document !== 'undefined') {
+    try {
+      const body = document.body || document.querySelector('body');
+      if (body) {
+        addLandmark(body, 'banner');
+        const svg = body.querySelector('svg');
+        if (svg) setSVGAccessibleName(svg, ' dependency graph');
+        const elements = [
+          body.querySelector('.table-of-contents'),
+          body.querySelector('section.content')
+        ].filter(Boolean);
+        ensureUniqueLandmarkIds(elements);
+        const btnDownload = body.querySelector('.btn-download');
+        if (btnDownload) setFakeLinkAsVisible(btnDownload);
+        body.querySelectorAll('.btn').forEach((btn) => {
+          addAccessibleLabel(btn, btn.textContent || '');
+        });
+      }
+    } catch (e) {
+      // Ignore DOM manipulation errors in server-only contexts
+    }
+  }
 
-  res.send(body);
+  res.send(html);
 });
 
-// Modify the build script to use the new function and add the fixDependencyDashboard function
+// Modify the build script to use the new function
 const html = generateHtmlWithLang();
-
-// ... other operations to write the html to the docs/dependency-graph.html file ...
+try {
+  const docsDir = path.join(__dirname, 'docs');
+  if (!fs.existsSync(docsDir)) fs.mkdirSync(docsDir, { recursive: true });
+  fs.writeFileSync(path.join(docsDir, 'dependency-graph.html'), html, 'utf8');
+} catch (e) {
+  // Optional build step
+}
 
 // Export the new functions and the fixDependencyDashboard function
 module.exports = {
   app,
   fixDependencyDashboard,
+  generateHtmlWithLang,
+  addLandmark,
+  addAccessibleSvgName,
+  setSVGAccessibleName,
+  ensureUniqueLandmarkIds,
+  setFakeLinkAsVisible,
+  addAccessibleLabel,
   announceToScreenReader,
   trapFocus
 };
-```
-
-The file combines both changes, integrating the new accessibility features with the `fixDependencyDashboard` function. Accessibility features are applied to the relevant HTML elements in the `/` route, and the build script is modified to use the new `generateHtmlWithLang` function while also including the `fixDependencyDashboard` function for export.

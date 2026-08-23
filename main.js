@@ -352,6 +352,65 @@ function wrapPrimaryContentInMain(htmlContent) {
   return `<main>${htmlContent}</main>`;
 }
 
+// DataTable component - provides an accessible data table with proper ARIA attributes
+// This integrates the React-inspired component with our accessibility utilities
+function DataTable() {
+  const columns = [
+    { id: 'name', label: 'Name' },
+    { id: 'age', label: 'Age' },
+    { id: 'email', label: 'Email' }
+  ];
+
+  // Add a function to set the appropriate ARIA role and attributes for the table
+  const getTableRoleAndAccessKey = (shouldUseAccessKey) => {
+    // Use the access key attribute only if specified in the issue and if it's beneficial for accessibility
+    const accessKeyAttribute = shouldUseAccessKey ? { 'accessKey': 't' } : {};
+
+    return {
+      role: 'grid',
+      'aria-label': 'Data Table',
+      ...accessKeyAttribute
+    };
+  };
+
+  // Build the table HTML string with proper accessibility attributes
+  const tableAttrs = getTableRoleAndAccessKey(true);
+  const attrsString = Object.entries(tableAttrs)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(' ');
+
+  let tableHtml = `<table ${attrsString}>`;
+  
+  // Build header
+  tableHtml += '<thead><tr>';
+  columns.forEach(col => {
+    const thAttrs = getTableRoleAndAccessKey(false);
+    const thAttrsString = Object.entries(thAttrs)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(' ');
+    tableHtml += `<th scope="col" ${thAttrsString}>${col.label}</th>`;
+  });
+  tableHtml += '</tr></thead>';
+
+  // Build body with sample data
+  tableHtml += '<tbody>';
+  const sampleData = [
+    { name: 'Alice', age: 25, email: 'alice@example.com' },
+    { name: 'Bob', age: 30, email: 'bob@example.com' }
+  ];
+  
+  sampleData.forEach(row => {
+    tableHtml += '<tr>';
+    tableHtml += `<td>${row.name}</td>`;
+    tableHtml += `<td>${row.age}</td>`;
+    tableHtml += `<td>${row.email}</td>`;
+    tableHtml += '</tr>';
+  });
+  tableHtml += '</tbody></table>';
+
+  return tableHtml;
+}
+
 // Main function to process HTML content and address accessibility issues
 // This function integrates all accessibility fixes
 function processAccessibilityIssues(htmlContent) {
@@ -504,7 +563,8 @@ export {
   processAccessibilityIssues,
   addressAccessibilityIssues,
   anotherExport,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  DataTable
 };
 
 // ... existing code ...

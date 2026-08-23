@@ -420,3 +420,29 @@ export const fixFakeLinks = () => {
     }
   });
 };
+
+// ===== NEW CODE TO ADDRESS ACCESSIBILITY INSIGHT REPORT (Line 2 TODO) =====
+// Function to apply all accessibility fixes from the insight report
+export const applyAllAccessibilityFixes = () => {
+  addLangAttribute();
+  addAccessibleNamesToSVGs();
+  addScopeToTableHeaders();
+  fixTableStructure();
+  validateTableStructure();
+  validateLandmark();
+  validateNavigationLandmark();
+  validateUniqueLandmarks();
+  validateLandmarkStructure();
+  fixDuplicateMainLandmarks();
+  addMainLandmark();
+  fixFakeLinks();
+};
+
+// Function to initialize accessibility fixes when DOM is fully loaded
+export const initAccessibilityFixes = () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyAllAccessibilityFixes);
+  } else {
+    applyAllAccessibilityFixes();
+  }
+};

@@ -286,3 +286,6 @@ export const wrapPrimaryContentInMain = () => {
   body.appendChild(main);
   return main;
 };
+
+// Initialize accessibility fixes
+addLangAttribute();

@@ -269,5 +269,51 @@ function addSvgAccessibleNames(htmlContent, defaultName = 'Decorative image') {
   return modifiedContent;
 }
 
+// Create accessible div link - converts fake links to real links
+// This addresses REACT_036: React Fake Link
+function createAccessibleDivLink(url, text, options = {}) {
+  // Ensure we're creating a real anchor tag, not a fake link
+  return createAccessibleLink(url, text, options);
+}
+
+// Fix fake links - converts div or span with onClick to anchor tags
+// This addresses REACT_036: React Fake Link
+function fixFakeLinks(htmlContent) {
+  let modifiedContent = htmlContent;
+  
+  // Replace div or span with onClick that act like links with real anchor tags
+  // Match elements with onClick that contain href-like patterns
+  const fakeLinkRegex = /<(div|span)([^>]*onClick[^>]*)>([\s\S]*?)<\/\1>/gi;
+  
+  modifiedContent = modifiedContent.replace(fakeLinkRegex, (match, tagName, attrs, content) => {
+    // Check if it has an onClick that looks like a link
+    const onClickMatch = attrs.match(/onClick\s*=\s*["']([^"']*)/i);
+    if (!onClickMatch) return match;
+    
+    const onClickValue = onClickMatch[1];
+    let url = '#';
+    let newAttrs = attrs.replace(/onClick\s*=\s*["'][^"']*["']/gi, '');
+    
+    // Look for any href-like pattern in onClick
+    const urlMatch = onClickValue.match(/(?:window\.)?(?:location\.href|location|router|navigate)[^;]*['"]([^'"]+)['"]/i);
+    if (urlMatch) {
+      url = urlMatch[1];
+    }
+    
+    // Look for direct URL assignment
+    const directUrlMatch = onClickValue.match(/['"](https?:\/\/[^"']+)['"]/i);
+    if (directUrlMatch) {
+      url = directUrlMatch[1];
+    }
+    
+    // Clean up attrs to avoid duplicates
+    newAttrs = newAttrs.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '').trim();
+    
+    return `<a href="${url}"${newAttrs ? ' ' + newAttrs : ''}>${content}</a>`;
+  });
+  
+  return modifiedContent;
+}
+
 // Wrap main tags function (now also injects lang attribute)
 // This addresses

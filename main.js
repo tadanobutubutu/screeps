@@ -69,7 +69,7 @@ export const fixTableStructureIssues = (tableData) => {
   const columns = Object.keys(firstRow);
   const headerCells = columns.map((column, index) => ({
     key: column,
-    header: column.charAt(0).toUpperCase() + column.slice(1).replace(/([A-Z])/g, ' $1'),
+    header: column.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
     index: index
   }));
   
@@ -150,8 +150,8 @@ export default function Home({ projects }) {
       <nav role="navigation" aria-label="Main navigation" id="main-navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/projects">Projects</a></li>
           <li><a href="/about">About</a></li>
+          <li><a href="/projects">Projects</a></li>
         </ul>
       </nav>
 

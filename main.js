@@ -25,7 +25,6 @@ function getStatus() {
 // Combine all exports
 module.exports = {
   version: module.exports.version,
-  main,
   initialize,
   cleanup,
   getStatus

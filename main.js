@@ -53,7 +53,7 @@ const fixTableStructureIssues = () => {
     if (!table.querySelector('tbody')) {
       const rows = table.querySelectorAll('tr');
       if (rows.length > 0) {
-        const tbody = document.createElement('tbody');
+        const tbody = document.createElement('tbody = document.createElement('tbody');
         rows.forEach((row, index) => {
           // Skip if this row was moved to thead
           if (index > 0 || !table.querySelector('thead')) {
@@ -165,3 +165,9 @@ module.exports.myNewFunction = myNewFunction;
 module.exports.myNewFunction2 = myNewFunction2;
 module.exports.myNewFunction3 = myNewFunction3;
 module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.fixTableStructureIssues = fixTableStructureIssues;
+module.exports.addMainLandmark = addMainLandmark;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;

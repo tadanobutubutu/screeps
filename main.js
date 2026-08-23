@@ -33,7 +33,9 @@ const myNewFunction3 = () => {
 
 // Function to add lang attribute to HTML element
 const addLangAttribute = () => {
-  document.documentElement.lang = 'en';
+  if (document.documentElement) {
+    document.documentElement.lang = 'en';
+  }
 };
 
 // Function to fix table structure issues
@@ -45,19 +47,20 @@ const fixTableStructureIssues = () => {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerRow = firstRow.cloneNode(true);
-        thead.appendChild(headerRow);
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
     if (!table.querySelector('tbody')) {
       const rows = table.querySelectorAll('tr');
       if (rows.length > 0) {
-        const tbody = document.createElement('tbody = document.createElement('tbody');
+        const tbody = document.createElement('tbody');
         rows.forEach((row, index) => {
-          // Skip if this row was moved to thead
-          if (index > 0 || !table.querySelector('thead')) {
-            tbody.appendChild(row.cloneNode(true));
+          // Skip if this row was moved to thead (it's already a child of thead now)
+          if (row.parentElement !== table || index > 0 || table.querySelector('thead') !== row.parentElement) {
+            if (row.parentElement !== tbody) {
+              tbody.appendChild(row);
+            }
           }
         });
         table.appendChild(tbody);
@@ -68,12 +71,18 @@ const fixTableStructureIssues = () => {
 
 // Function to add main landmark
 const addMainLandmark = () => {
-  const mainElements = document.querySelectorAll('main');
+  let mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
-    if (!main.hasAttribute('role')) {
+    if (!main.getAttribute('role')) {
       main.setAttribute('role', 'main');
     }
   });
+  // If no main element exists, create one around the main content
+  if (mainElements.length === 0) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.insertBefore(main, document.body.firstChild);
+  }
 };
 
 // Function to add accessible names to SVGs
@@ -116,8 +125,8 @@ const ensureUniqueLandmarks = () => {
             element.removeAttribute('role');
           } else if (role === 'search') {
             // Keep search but ensure proper labeling
-            const searchInput = element.querySelector('input');
-            if (searchInput && !searchInput.hasAttribute('aria-label')) {
+            const searchInput = element.querySelector('input[type="search"], input[type="text"]');
+            if (searchInput && !searchInput.getAttribute('aria-label') && !searchInput.getAttribute('placeholder')) {
               searchInput.setAttribute('aria-label', 'Search');
             }
           }
@@ -150,7 +159,7 @@ const enhanceAccessibility = () => {
   // Implement accessibility improvements based on insight report
   addLangAttribute();
   fixTableStructureIssues();
-  addMainLandmark(); // Add main landmark
+  addMainLandmark();
   addSvgAccessibleNames();
   ensureUniqueLandmarks();
   fixFakeLinkIssues();

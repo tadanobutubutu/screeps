@@ -31,7 +31,7 @@ function addressAccessibilityIssues(accessibilityInsights) {
   });
 }
 
-// Implement the new function to address requested changes
+// New function to address requested changes
 function processAccessibilityIssues(callback, accessibilityInsights) {
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
@@ -43,6 +43,7 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
       // You can add more landmark roles as needed
     }
   });
+  callback(accessibilityInsights); // Move the callback to here
 }
 
 // Wrap the existing addressAccessibilityIssues function with the new processAccessibilityIssues wrapper function

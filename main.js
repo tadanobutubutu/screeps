@@ -242,10 +242,23 @@ function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
   let modifiedContent = htmlContent;
   let match;
 
-  // Loop through all SVG elements and add accessible name if missing
-  while ((match = svgRegex.exec(modifiedContent)) !== null) {
-    const svgOpenTag = match[1];
-    const svgInnerContent = match[2];
+  // Collect all matches first to avoid issues with modifying content during iteration
+  const matches = [];
+  while ((match = svgRegex.exec(htmlContent)) !== null) {
+    matches.push({
+      fullMatch: match[0],
+      openTag: match[1],
+      content: match[2],
+      index: match.index,
+      endIndex: match.index + match[0].length
+    });
+  }
+
+  // Process matches in reverse order to preserve indices when replacing
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const m = matches[i];
+    const svgOpenTag = m.openTag || '';
+    const svgInnerContent = m.content;
 
     // Check if SVG already has a title, aria-label, or aria-hidden
     const hasTitle = /<title/i.test(svgInnerContent);
@@ -280,8 +293,10 @@ function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
 
     // Add accessible name using title element
     const titleElement = `<title>${accessibleName}</title>`;
-    const insertPos = svgOpenTag.indexOf('>');
-    modifiedContent = modifiedContent.substring(0, insertPos) + titleElement + modifiedContent.substring(insertPos);
+    const closingBracketIndex = svgOpenTag.indexOf('>');
+    const newSvg = `<svg${svgOpenTag.substring(0, closingBracketIndex)}>${titleElement}${svgInnerContent}</svg>`;
+    
+    modifiedContent = modifiedContent.substring(0, m.index) + newSvg + modifiedContent.substring(m.endIndex);
   }
 
   return modifiedContent;
@@ -298,6 +313,31 @@ function getPascalCaseFromCamelCase(str) {
   return str.replace(/(?:^\w|(?<\w)\w)/g, function (match) {
     return match.toUpperCase();
   });
+}
+
+// Main function to process HTML content and address accessibility issues
+// This function integrates all accessibility fixes
+function processAccessibilityIssues(htmlContent) {
+  let processedContent = htmlContent;
+  
+  // Apply REACT_015: Add lang attribute to HTML element
+  processedContent = addLangAttribute(processedContent);
+  
+  // Apply REACT_017: Add/fix landmark issues
+  processedContent = validateLandmark(processedContent);
+  processedContent = validateLandmarkStructure(processedContent);
+  
+  // Apply REACT_041: Add accessible names to SVGs
+  processedContent = addSvgAccessibleName(processedContent);
+  
+  // Apply REACT_036: Fix fake link issues
+  // This is handled by createAccessibleLink when creating links
+  
+  // Apply table accessibility improvements
+  processedContent = validateTableAccessibility(processedContent);
+  processedContent = validateTableStructure(processedContent);
+  
+  return processedContent;
 }
 
 // TODO: Add any other missing exports that might have been?

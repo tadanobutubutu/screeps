@@ -5,11 +5,8 @@ const Dashboard = () => {
   // Existing Dashboard code
 };
 
-// Assuming myFunction is the name of the function you want to export
-const { myFunction } = myFunction; // Extract the myFunction from the imported object
-
 module.exports.Dashboard = Dashboard; // Preserve existing default export
-... = myFunction; // Add the new export for myFunction
+module.exports.myFunction = myFunction; // Add the new export for myFunction
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (should be set in index.html or document head)

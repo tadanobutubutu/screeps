@@ -1,36 +1,56 @@
+// Address accessibility issues from insight report
 // Add missing aria attributes for buttons
 function addAriaAttributes(htmlContent) {
   // Add aria-controls for tables
-  const tableRegex = /<table(\s[^>]*)?>/gi;
+  const tableRegex = /<table([^>]*)>/gi;
   let modifiedContent = htmlContent.replace(tableRegex, (match, attrs) => {
-    const controlsId = `table_${Math.floor(Math.random() * 100000)}_controls`;
-    return `<table${attrs} aria-labelledby="${controlsId}">${match[1]}</table>`;
+    const controlsId = `table_controls_${Math.floor(Math.random() * 100000)}`;
+    return `<table${attrs} aria-controls="${controlsId}">`;
   });
 
   // Add aria-describedby for forms
   const formRegex = /<form([^>]*)>/gi;
   modifiedContent = modifiedContent.replace(formRegex, (match, attrs) => {
-    const describedById = `form_${Math.floor(Math.random() * 100000)}`;
-    return `<form${attrs} aria-describedby="${describedById}">${match[1]}</form>`;
+    const describedById = `form_desc_${Math.floor(Math.random() * 100000)}`;
+    return `<form${attrs} aria-describedby="${describedById}">`;
   });
 
   // Add missing aria-labels, aria-labelledby
-  modifiedContent = addLabels(modifiedContent);
+  modifiedContent = modifiedContent.replace(/<section([^>]*)>/gi, (match, attrs) => {
+    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
+      const sectionLabel = `section_${Math.floor(Math.random() * 100000)}`;
+      return `<section${attrs} aria-labelledby="${sectionLabel}">`;
+    }
+    return match;
+  });
 
   // Add buttons with missing aria-label
-  const buttonRegex = /<button(\s[^>]*)?>/gi;
-  modifiedContent = modifiedContent.replace(buttonRegex, (match, attrs) => {
-    const ariaLabel = attrs.match(/aria-label="([^"]*)"/);
-    if (!ariaLabel) {
-      return match.replace('>', ' aria-label="Button"');
+  const buttonRegex = /<button([^>]*)>([^<]*)<\/button>/gi;
+  modifiedContent = modifiedContent.replace(buttonRegex, (match, attrs, text) => {
+    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby') && !attrs.includes('aria-describedby')) {
+      const buttonText = text.trim();
+      const ariaLabel = buttonText || `Button ${Math.floor(Math.random() * 1000)}`;
+      return match.replace('>', ` aria-label="${ariaLabel}">`);
     }
     return match;
   });
 
   // Add missing aria-expanded to toggles
-  const toggleRegex = /<button (\s*aria-controls="[^"]*" \s+aria-expanded="false" \s+[^>]*)?>/gi;
-  modifiedContent = modifiedContent.replace(toggleRegex, (match, attrs) => {
-    return match.replace('aria-expanded="false"', 'aria-expanded="$1true"');
+  const toggleRegex = /<button([^>]*)aria-controls=["']([^"']*)["']([^>]*)>/gi;
+  modifiedContent = modifiedContent.replace(toggleRegex, (match, before, controlsId, after) => {
+    if (!before.includes('aria-expanded') && !after.includes('aria-expanded')) {
+      return `<button${before}aria-controls="${controlsId}"${after} aria-expanded="false">`;
+    }
+    return match;
+  });
+
+  // Add role="img" to icons without accessible text
+  const iconRegex = /<i([^>]*)class=["']([^"']*fa[^"']*)["']([^>]*)>/gi;
+  modifiedContent = modifiedContent.replace(iconRegex, (match, before, classes, after) => {
+    if (!before.includes('aria-label') && !after.includes('aria-label') && !classes.includes('sr-only')) {
+      return `<i${before}class="${classes}"${after} aria-hidden="true">`;
+    }
+    return match;
   });
 
   return modifiedContent;
@@ -39,7 +59,7 @@ function addAriaAttributes(htmlContent) {
 // Add labels to elements where necessary
 function addLabels(htmlContent) {
   // Add labels to form fields
-  const labelRegex = /<label([^>]*)>(.+?)<\/label>/gi;
+  const labelRegex = /<label([^>]*)>([^<]*)<\/label>/gi;
   let modifiedContent = htmlContent;
   let labelFound = false;
   let currentId = null;
@@ -48,25 +68,28 @@ function addLabels(htmlContent) {
     if (!labelFound) {
       // Label for the first form or a following label with an associated input that doesn't have a label
       labelFound = true;
-      const inputRegex = new RegExp(`id="${currentId}"`, 'i');
+      const inputRegex = new RegExp('<input[^>]*>', 'i');
       const formRegex = /<form[^>]*>/gi;
 
-      let formMatch = modifiedContent.match(formRegex);
+      let formMatch = formRegex.exec(modifiedContent);
       if (formMatch) {
         // Label for the first form found in the HTML
         let inputMatch = null;
 
         do {
-          inputMatch = modifiedContent.match(inputRegex);
+          inputMatch = inputRegex.exec(modifiedContent);
           if (inputMatch) {
-            const inputId = inputMatch[0].replace('"', '');
-            if (inputId === currentId) {
-              return match;
+            const inputIdMatch = inputMatch[0].match(/id=["']([^"']*)["']/);
+            if (inputIdMatch) {
+              const inputId = inputIdMatch[1];
+              if (inputId === currentId) {
+                return match;
+              }
             }
           }
 
-          modifiedContent = modifiedContent.substring(formMatch.index + formMatch[0].length);
-          formMatch = modifiedContent.match(formRegex);
+          modifiedContent = modifiedContent.replace(inputMatch[0], inputMatch[0] + ' aria-label="' + text.trim() + '"');
+          formMatch = formRegex.exec(modifiedContent);
 
         } while (formMatch);
 
@@ -81,13 +104,13 @@ function addLabels(htmlContent) {
     }
 
     const forAttr = ` for="${currentId}"`;
-    const idAttr = ` id="${currentId}"`;
+    const idAttr = ` id="${currentId}_label"`;
 
     const someAttr = attrs ? attrs + ' ' : '';
     const someForAttr = someAttr && forAttr ? someAttr + forAttr : forAttr;
     const someIdAttr = someAttr && idAttr ? someAttr + idAttr : idAttr;
 
-    const updatedLabel = `<label${someForAttr}>${text}</label>${someIdAttr}`;
+    const updatedLabel = `<label${someForAttr}${someIdAttr}>${text}</label>`;
     return updatedLabel === match ? match : updatedLabel;
   });
 
@@ -97,7 +120,7 @@ function addLabels(htmlContent) {
 // Find the id associated with a given input label
 function getInputId(labelText) {
   // Main input's label contains the input ID as a substring
-  const mainInputLabelRegex = new RegExp(`\\b(${labelText})\\b\\s+for\\s*=\\s*(\\w+)[^\\w\\d]`);
+  const mainInputLabelRegex = new RegExp('for=["\']([^"\']*)["\']', 'i');
 
   // Try finding a parent form
   const formRegex = /<form[^>]*>/gi;
@@ -105,23 +128,23 @@ function getInputId(labelText) {
   let content;
 
   outerLoop:
-  while ((match = modifiedContent.match(formRegex))) {
+  while ((match = formRegex.exec(mainInputLabelRegex))) {
     let formStart = match.index;
     const formEnd = match.index + match[0].length;
 
-    content = modifiedContent.substring(formStart, formEnd);
+    content = htmlContent.substring(formStart, formEnd);
 
     // Look for a label within the form
-    const labelRegex = /<label.*?>(.+?)<\/label>/gi;
+    const labelRegex = /<label[^>]*>([^<]*)<\/label>/gi;
     let labelMatch;
 
     innerLoop:
     while ((labelMatch = labelRegex.exec(content))) {
-      if (mainInputLabelRegex.test(labelMatch[1])) {
+      if (labelText.includes(labelMatch[1])) {
         // Found matching label, extract the input ID
-        const matchResult = labelMatch[1].match(mainInputLabelRegex);
+        const matchResult = labelMatch[0].match(/for=["\']([^"\']*)["\']/);
         if (matchResult) {
-          return matchResult[2];
+          return matchResult[1];
         }
 
         // Move the index to the end of the last found label
@@ -131,7 +154,7 @@ function getInputId(labelText) {
     }
 
     // If we didn't find a label, move to the next form
-    modifiedContent = modifiedContent.substring(formEnd);
+    modifiedContent = modifiedContent.replace(formRegex, '');
   }
 
   // If no inputs are found, return a fallback ID

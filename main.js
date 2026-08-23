@@ -195,6 +195,52 @@ function fixFakeLinkIssue(element, href) {
   return anchorElement;
 }
 
+// New functions to fix React landmark issues
+/**
+ * Creates an HTML element with role "banner".
+ */
+function createBannerLandmark() {
+  const banner = document.createElement('div');
+  banner.setAttribute('role', 'banner');
+  return banner;
+}
+
+/**
+ * Creates an HTML element with role "main".
+ */
+function createMainLandmark() {
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  return main;
+}
+
+/**
+ * Creates an HTML element with role "navigation".
+ */
+function createNavigationLandmark() {
+  const navigation = document.createElement('nav');
+  navigation.setAttribute('role', 'navigation');
+  return navigation;
+}
+
+/**
+ * Creates an HTML element with role "complementary".
+ */
+function createComplementaryLandmark() {
+  const complementary = document.createElement('aside');
+  complementary.setAttribute('role', 'complementary');
+  return complementary;
+}
+
+/**
+ * Creates an HTML element with role "footer".
+ */
+function createFooterLandmark() {
+  const footer = document.createElement('footer');
+  footer.setAttribute('role', 'footer');
+  return footer;
+}
+
 // Export functions for testing
 export {
   addLangAttribute,
@@ -206,4 +252,9 @@ export {
   fixFakeLinkIssue,
   icons,
   addLangToHtml,
+  createBannerLandmark,
+  createMainLandmark,
+  createNavigationLandmark,
+  createComplementaryLandmark,
+  createFooterLandmark,
 };

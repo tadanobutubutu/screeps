@@ -14,8 +14,8 @@ const targetElements = [
 // function to add the 'lang' attribute to the HTML element
 function addLangAttribute() {
   const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Set the language to English for example
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
 }
 
@@ -55,6 +55,11 @@ function addLandmarkRoles() {
 function fixTableAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
+    // Add explicit table role for ARIA compliance
+    if (!table.getAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
+
     // Check if table has proper caption or aria-label
     const hasCaption = table.querySelector('caption');
     const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
@@ -76,6 +81,30 @@ function fixTableAccessibility() {
           th.setAttribute('scope', 'row');
         }
       }
+      // Add explicit columnheader role for ARIA
+      if (!th.getAttribute('role')) {
+        th.setAttribute('role', 'columnheader');
+      }
+    });
+
+    // Add row roles and gridcell roles for body cells
+    const bodyRows = table.querySelectorAll('tbody tr');
+    bodyRows.forEach((row) => {
+      if (!row.getAttribute('role')) {
+        row.setAttribute('role', 'row');
+      }
+      row.querySelectorAll('td, th').forEach((cell) => {
+        if (!cell.getAttribute('role')) {
+          cell.setAttribute('role', 'gridcell');
+        }
+        // Ensure accessible names for cells by referencing header
+        const cellIndex = Array.from(row.querySelectorAll('td, th')).indexOf(cell);
+        const headerCell = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+        if (headerCell && !cell.getAttribute('aria-label')) {
+          const headerText = headerCell.textContent.trim();
+          cell.setAttribute('aria-label', `Column ${headerText}`);
+        }
+      });
     });
   });
 }
@@ -86,16 +115,17 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const ariaLabel = svg.getAttribute('aria-label');
     const ariaLabelledby = svg.getAttribute('aria-labelledby');
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
 
     if (!ariaLabel && !ariaLabelledby) {
-      if (title) {
-        const titleId = `svg-title-${index}`;
-        title.setAttribute('id', titleId);
-        svg.setAttribute('aria-labelledby', titleId);
-      } else {
-        svg.setAttribute('aria-label', `Icon ${index + 1}`);
+      if (!title) {
+        title = document.createElement('title');
+        svg.insertBefore(title, svg.firstChild);
       }
+      const titleId = `svg-title-${index}`;
+      title.id = titleId;
+      title.textContent = title.textContent || `Icon ${index + 1}`;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -149,18 +179,13 @@ function fixFakeLinks() {
   });
 }
 
-// function to ensure that landmark roles are not duplicated
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'banner', 'contentinfo', 'navigation'];
-  landmarks.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    let count = 0;
-    elements.forEach((el) => {
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', `${role} section ${++count}`);
-      }
-    });
-  });
+// New function to simulate button click event for testing purposes
+function simulateButtonClick(selector) {
+  // Simulate clicking an element with a certain selector
+  const button = document.querySelector(selector);
+  if (button) {
+    button.click();
+  }
 }
 
 // call the accessibility improvement functions
@@ -170,15 +195,6 @@ fixTableAccessibility();
 addSvgAccessibleNames();
 ensureUniqueLandmarks();
 fixFakeLinks();
-
-// New function to simulate button click event for testing purposes
-function simulateButtonClick(selector) {
-  // Simulate clicking an element with a certain selector
-  const button = document.querySelector(selector);
-  if (button) {
-    button.click();
-  }
-}
 
 // Export functions for testing
 export {

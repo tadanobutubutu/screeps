@@ -5,9 +5,9 @@ import { useTable } from 'react-table';
 const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
 const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
 const FixedLink = () => (
-  <a href="#" onClick={() => console.warn('Fake Link clicked')}>
+  <button href="#" onClick={() => console.warn('Fake Link clicked')}>
     Fake Link
-  </a>
+  </button>
 );
 
 // Main component

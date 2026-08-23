@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report
 // TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
 const dependencyGraphModule = require('./dependency-graph');

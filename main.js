@@ -16,4 +16,9 @@ function rotateBack() {
 
 // Attach event listeners
 document.getElementById('rotate').addEventListener('click', rotate);
+// Replace the anchor with a button for better accessibility
 document.getElementById('unrotate').addEventListener('click', rotateBack);
+
+// New accessibility improvement: Replace the anchor with a button
+const unrotateAnchor = document.getElementById('unrotate');
+unrotateAnchor.outerHTML = `<button id="unrotate" onclick="rotateBack()">rotate back</button>`;

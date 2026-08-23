@@ -1,9 +1,1 @@
-const dashboardComponents = require('./dashboard/components/Dashboard');
-
-// Ensuring there is only one <main> element in the rendered tree
-const Dashboard = dashboardComponents.default;
-
-module.exports = {
-  ...dashboardComponents,
-  Dashboard: Dashboard,
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

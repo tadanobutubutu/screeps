@@ -321,8 +321,18 @@ function fixFakeLinkIssue(element) {
   const isFakeLink = element.tagName === 'a' && !element.href && !element.getAttribute('href');
   const hasButtonRole = element.getAttribute('role') === 'button';
   
-  if (isFakeLink || (hasButtonRole && element.tag
+  if (isFakeLink || (hasButtonRole && element.tagName === 'a')) {
+    if (!element.getAttribute('tabIndex')) {
+      element.setAttribute('tabIndex', '0');
+    }
+    if (!element.getAttribute('role')) {
+      element.setAttribute('role', 'button');
+    }
+  }
+  
+  return element;
 }
+
 export {
   addLangAttribute,
   processChildrenWithLang,

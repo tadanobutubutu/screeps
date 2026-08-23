@@ -121,8 +121,18 @@ function addMainLandmark(id = 'main-content') {
   if (typeof document !== 'undefined') {
     const main = document.createElement('main');
     main.setAttribute('id', id);
-    document.body.appendChild(main);
+    document.body.insertBefore(main, document.body.firstChild);
     return main;
+  }
+}
+
+// REACT_027: Add scope attribute to table header cells
+function addScopeToHeaderCells(table, scope = 'col') {
+  if (table && typeof document !== 'undefined') {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((th) => {
+      th.setAttribute('scope', scope);
+    });
   }
 }
 
@@ -136,5 +146,6 @@ module.exports = {
   announceToScreenReader,
   trapFocus,
   addLangAttribute,
-  addMainLandmark
+  addMainLandmark,
+  addScopeToHeaderCells
 };

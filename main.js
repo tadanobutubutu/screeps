@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const { someFunction } = require('./utils');
 const { anotherFunction } = require('./helpers');
 
@@ -104,6 +101,3 @@ function processDependencyUpdates() {
 
   return results;
 }
-```
-
-The code now exports the functions from the original `main.js` as well as the merged accessibility helper functions and the `processDependencyUpdates` function. The accessibility-related functions were moved to the imported files in order to avoid cluttering the main file.

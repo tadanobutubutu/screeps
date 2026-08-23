@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming main.js is not the HTML file but includes an import of the HTML file.
+import indexHTML from './index.html';
+
+export default indexHTML;

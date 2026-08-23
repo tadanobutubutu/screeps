@@ -202,7 +202,13 @@ function replaceHashLinksWithButtons(doc) {
   }
 }
 
-// Export functions for testing and module usage
+// Apply the main landmark fix to the current document
+addMainLandmark(document);
+
+/**
+ * Export functions for testing and module usage
+ * @module accessibilityFixes
+ */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     addLangAttribute: addLangAttribute,

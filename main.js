@@ -1,7 +1,4 @@
-// Example of how `main.js` might be updated to address the issue.
-
-// Assuming `TableComponent` is a React component that renders a table,
-// you would update the table headers within this component like so:
+// Updated main.js content to include the <main> landmark where necessary
 
 import React from 'react';
 import { constants, roomManager } from './src'; // Add the necessary imports
@@ -9,19 +6,20 @@ import { constants, roomManager } from './src'; // Add the necessary imports
 class TableComponent extends React.Component {
   render() {
     return (
-      <table>
-        <thead>
-          <tr>
-            {/* Assuming the headers are static, you would update each <th> like this */}
-            <th scope="col"><div>{constants.SCRIPT_NAME}</div></th>
-            <th scope="col"><div>{roomManager.ROOM_MANAGER_NAME}</div></th>
-            {/* ... other headers ... */}
-          </tr>
-        </thead>
-        <tbody>
-          {/* Table rows would go here */}
-        </tbody>
-      </table>
+      <main>
+        <table id="table-rotated">
+          <thead>
+            <tr>
+              <th scope="col"><div>{constants.SCRIPT_NAME}</div></th>
+              <th scope="col"><div>{roomManager.ROOM_MANAGER_NAME}</div></th>
+              {/* ... other headers ... */}
+            </tr>
+          </thead>
+          <tbody>
+            {/* Table rows would go here */}
+          </tbody>
+        </table>
+      </main>
     );
   }
 }

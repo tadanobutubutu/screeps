@@ -13,6 +13,22 @@ function getFullLangAttribute(lang, region) {
   return lang;
 }
 
+// Add lang attribute to the root HTML element (HTML or BODY)
+// This addresses REACT_015: Add lang attribute to HTML element
+function addLangAttributeToHtml(htmlContent) {
+  // Use default language 'en' if none provided
+  const langValue = getLangAttribute('en');
+  const fullLangValue = getFullLangAttribute('en', null);
+  const langAttr = ` lang="${fullLangValue}"`;
+
+  // If <html> tag exists, inject the lang attribute
+  if (/<html\b/i.test(htmlContent)) {
+    return htmlContent.replace(/<html\b/gi, `<html${langAttr}`);
+  }
+  // Otherwise prepend a wrapping <html> tag with the lang attribute
+  return `<html${langAttr}>${htmlContent}</html>`;
+}
+
 // Validate table accessibility
 function validateTableAccessibility(htmlContent) {
   // Add scope attributes to table headers
@@ -135,8 +151,11 @@ function addAccessibleNameToSVGs(htmlContent) {
   return modifiedContent;
 }
 
-// Wrap main tags function
+// Wrap main tags function (now also injects lang attribute)
 function wrapMainTags(htmlContent) {
+  // Inject lang attribute into the root element first
+  htmlContent = addLangAttributeToHtml(htmlContent);
+  
   // Check if the HTML content already has <main> tag
   const isMainTagExists = /<main[\s>]/i.test(htmlContent);
 
@@ -174,6 +193,6 @@ module.exports = {
   createAccessibleLink,
   createInPageButton,
   addAccessibleNameToSVGs,
-  fixTableStructureIssues,
+  fixTableStructureIsses,
   ensureUniqueLandmarks
 };

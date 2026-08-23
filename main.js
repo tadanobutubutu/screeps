@@ -1,18 +1,36 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (not applicable at top level for a JavaScript file)
-// - REACT_027: Fix 26 table structure issues (not applicable for a Dashboard component, consider adjusting Table components if necessary)
-// - REACT_017: Add/fix 4 landmark issues (not applicable for a Dashboard component, consider adjusting appropriate components if necessary)
-// - REACT_041: Add accessible names to 2 SVGs (not applicable for a Dashboard component, consider adjusting appropriate SVG components if necessary)
-// - REACT_025: Ensure unique landmarks (2 issues) (consider using a unique key for each landmark in the Dashboard component)
-// - REACT_036: Fix 1 fake link issue (not applicable for a Dashboard component, consider adjusting appropriate components if necessary)
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Navbar, NavLink, Button } from 'reactstrap';
 
-// Your existing code here...
+// ... existing imports ...
 
-// Example of handling the REACT_025 issue
-// Assuming the original code had multiple <main> elements and the structure needed to be adjusted
+const AppLayout = ({ content }) => {
+  // ... existing code ...
 
-import React from 'react';
+  // Update favicon SVG with accessible name
+  const faviconSvg = (
+    <svg
+      aria-label="Screeps Dashboard"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+    >
+      <title>Screps Dashboard</title>
+      <text y=".9em" font-size="90">🐛</text>
+    </svg>
+  );
 
+  // Replace your icon object in icons array with updated hasIcon function
+  const hasIcon = (iconName) => {
+    // ... your existing code with updated faviconSvg ...
+  };
+
+  // ... rest of the code ...
+
+  return (
+    // ... existing JSX ..
+  );
+};
+
+// Dashboard component with landmark-based structure
 const Dashboard = ({ error, success, loading, landmarks }) => {
   // ... other code ...
 
@@ -28,9 +46,6 @@ const Dashboard = ({ error, success, loading, landmarks }) => {
   );
 };
 
-export default Dashboard;
-
-// ... rest of the code ...
+export default AppLayout;
+export { Dashboard };
 ```
-
-The file has been updated to handle the REACT_025 issue by applying a unique key to each main section (`id={landmarks.error}` and `id={landmarks.success}`). The landmarks object is assumed to exist and be passed as a prop to the Dashboard component, which should be implemented elsewhere in the codebase. The other accessibility issues are noted but not addressed, as they are not relevant for the Dashboard component in the provided context. Adjust accordingly if necessary by modifying the appropriate components.

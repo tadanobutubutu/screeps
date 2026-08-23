@@ -50,21 +50,16 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  const mainElement = ...
+  const mainElement = document.querySelector('main');
   if (!mainElement) {
-    const main = ...
-    const firstChild = ...
-    if (firstChild) {
-      ... firstChild);
-    } else {
-      ...
-    }
+    const main = document.createElement('main');
+    document.body.insertBefore(main, document.body.firstChild);
   }
 }
 
 // NEW: Validate main landmark
 function validateMainLandmark() {
-  const mainElement = ...
+  const mainElement = document.querySelector('main');
   if (!mainElement) {
     console.error('No main landmark found in the document.');
     return false;
@@ -73,20 +68,25 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks
-function ... {
+function validateLandmarkRoles() {
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const elements = ... + role + '"]');
-    const tagElements = ...
+    const elements = Array.from(document.querySelectorAll('.' + role + ']'));
+    const tagElements = document.getElementsByTagName(role);
     const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
     if (totalCount > 0) {
-      foundLandmarks[role] = ... || 0) + totalCount;
+      foundLandmarks[role] = totalCount;
     }
   });
 
-  return ... => count === 1);
+  if (foundLandmarks.main > 1) {
+    console.error('More than one "main" landmark found.');
+    return false;
+  }
+
+  return true;
 }
 
 // ... existing functions specific to DOM manipulation

@@ -84,6 +84,29 @@ export const createLandmark = (element, landmarkType, id) => {
   return React.cloneElement(element, landmarkAttributes);
 };
 
+// New function to add proper landmark regions (REACT_XXXX)
+export const addProperLandmarkRegions = (elements) => {
+  const landmarkMap = {
+    header: { role: 'banner', id: 'header' },
+    nav: { role: 'navigation', id: 'main-navigation' },
+    main: { role: 'main', id: 'main-content' },
+    footer: { role: 'contentinfo', id: 'footer' }
+  };
+  return React.Children.map(elements, (child) => {
+    if (!React.isValidElement(child)) return child;
+    if (child.props && child.props.landmark) {
+      const { type, id } = child.props.landmark;
+      if (landmarkMap[type]) {
+        return React.cloneElement(child, {
+          role: landmarkMap[type].role,
+          id: landmarkMap[type].id
+        });
+      }
+    }
+    return child;
+  });
+};
+
 // Add back required exports that might have been removed
 export { default } from './main';
 

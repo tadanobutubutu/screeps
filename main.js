@@ -56,7 +56,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/\^?(\d+)\./);
+    const match = version.match(/\^?(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -124,8 +124,8 @@ function getRecommendedUpdateOrder() {
  * @returns {Object} Breaking change information
  */
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajorMatch = currentVersion.match(/\^?(\d+)\./);
-  const newMajorMatch = newVersion.match(/\^?(\d+)\./);
+  const currentMajorMatch = currentVersion.match(/\^?(\d+)/);
+  const newMajorMatch = newVersion.match(/\^?(\d+)/);
   const currentMajor = currentMajorMatch ? currentMajorMatch[1] : '0';
   const newMajor = newMajorMatch ? newMajorMatch[1] : '0';
   
@@ -175,7 +175,7 @@ function processDependencyUpdates() {
  * @returns {string} Complete lang attribute value
  */
 function getLangAttribute(locale = 'en') {
-  return locale;
+  return `lang="${locale}"`;
 }
 
 /**
@@ -223,11 +223,11 @@ function validateTableAccessibility(tableConfig) {
   const issues = [];
   
   if (tableConfig.hasHeaders && !tableConfig.scope) {
-    issues.push('REACT_027: Table headers should have scope attributes');
+    issues.push('Table headers should have scope attributes');
   }
   
-  if (tableConfig.hasHeaders && !tableConfig.caption) {
-    issues.push('REACT_027: Tables should have captions for accessibility');
+  if (!tableConfig.caption && tableConfig.needsCaption) {
+    issues.push('Tables should have captions for accessibility');
   }
   
   return {
@@ -245,7 +245,7 @@ function validateTableAccessibility(tableConfig) {
  */
 function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
   if (cellType === 'th' && isHeader) {
-    return `scope="${orientation}"`;
+    return orientation;
   }
   return '';
 }

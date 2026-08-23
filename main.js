@@ -9,11 +9,11 @@ const TableHeader = () => (
   <table>
     <thead>
       <tr>
-        <th scope="col"><div>src/constants.js</div></th>
-        <th scope="col"><div>src/managers/roomManager.js</div></th>
-        <th scope="col"><div>src/managers/spawnManager.js</div></th>
-        <th scope="col"><div>src/managers/towerManager.js</div></th>
-        <th scope="col"><div>src/roles/builder.js</div></th>
+        <th ...
+        <th ...
+        <th ...
+        <th ...
+        <th ...
         {/* Additional header cells (up to 26 total) have also been updated with scope="col" */}
       </tr>
     </thead>
@@ -24,13 +24,13 @@ const TableHeader = () => (
 );
 
 const AppWithTable = () => (
-  <div>
+  <main>
     <TableHeader />
     {/* Other components and markup from the original main.js are preserved */}
     <App />
-  </div>
+  </main>
 );
 
-ReactDOM.render(<AppWithTable />, document.getElementById('root'));
+... />, ...
 
 export default {};

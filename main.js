@@ -253,9 +253,11 @@ function ensureUniqueLandmarks() {
 function fixFakeLinkIssues() {
   console.log('Fixing fake link issues');
   
+  // Include the file that contains the problematic anchor
   const htmlFiles = [
     'docs/index.html',
-    'docs/table.html'
+    'docs/table.html',
+    'docs/dependency-graph.html'
   ];
 
   htmlFiles.forEach(file => {
@@ -264,16 +266,32 @@ function fixFakeLinkIssues() {
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
-        // Replace <div onclick> pseudo-links with <a href> or proper buttons
+        // 1. Convert pseudo‑links created with <div onclick> to real <button>
         content = content.replace(
           /<div([^>]*)onclick([^>]*)>/g,
-          (match, before, after) => {
-            // Convert to button element
-            return `<button${before}${after}>`;
+          (match, before, after) => `<button${before}${after}>`
+        );
+
+        // 2. Replace <a href="#"> links (including the specific "rotate back" link) with proper buttons
+        // Specific case: <a id="unrotate" href="#">rotate back</a>
+        content = content.replace(
+          /<a\s+id="unrotate"\s+href="#">([^<]*)<\/a>/gi,
+          (match, innerText) => {
+            const sanitized = innerText.trim();
+            return `<button id="unrotate" aria-label="${sanitized} button">${sanitized}</button>`;
           }
         );
-        
-        // Ensure links have proper href attributes
+
+        // General conversion of any <a href="#"> that is not a real navigation link
+        content = content.replace(
+          /<a\s+(?:[^>]*?\s+)?href="?#"[^>]*>([^<]*)<\/a>/gi,
+          (match, innerText) => {
+            const sanitized = innerText.trim();
+            return `<button aria-label="${sanitized} button">${sanitized}</button>`;
+          }
+        );
+
+        // Ensure any anchor without an href attribute gets a proper href
         content = content.replace(
           /<a([^>]*)href=""/g,
           (match, attrs) => {
@@ -283,7 +301,7 @@ function fixFakeLinkIssues() {
             return match;
           }
         );
-        
+
         fs.writeFileSync(filePath, content);
         console.log(`Replaced fake links with proper links in ${file}`);
       }
@@ -305,3 +323,4 @@ exports.handleEslint10Update = handleEslint10Update;
 exports.handleTypeScript7Update = handleTypeScript7Update;
 exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
 exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+exports.fixFakeLinkIssues = fixFakeLinkIssues;

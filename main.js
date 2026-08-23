@@ -791,6 +791,37 @@ function getHtmlRootTag() {
   return `<html lang="${lang}">`;
 }
 
+/**
+ * Generate accessible favicon SVG data URI
+ * Addresses REACT_041: React SVG Accessible Name (2 occurrences)
+ * Creates an SVG string with proper aria-label for screen reader accessibility
+ * @param {string} label - Accessible label for the SVG (default: 'Screeps Dashboard')
+ * @param {string} emoji - Emoji character to display (default: '🐛')
+ * @returns {string} Data URI string for the accessible SVG
+ */
+function getFaviconSvg(label = 'Screeps Dashboard', emoji = '🐛') {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${label}"><text y=".9em" font-size="90">${emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Generate accessible favicon SVG data URI for dashboard variant
+ * Addresses REACT_041: React SVG Accessible Name (dashboard occurrence)
+ * @returns {string} Data URI string for the accessible dashboard SVG
+ */
+function getDashboardFaviconSvg() {
+  return getFaviconSvg('Screeps Dashboard', '🐛');
+}
+
+/**
+ * Generate accessible favicon SVG data URI for main app variant
+ * Addresses REACT_041: React SVG Accessible Name (main app occurrence)
+ * @returns {string} Data URI string for the accessible app SVG
+ */
+function getAppFaviconSvg() {
+  return getFaviconSvg('Screeps App', '🐛');
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -818,7 +849,11 @@ module.exports = {
   createAccessibleLink,
   getFullLangAttribute,
   validateLangAttribute,
-  getHtmlRootTag
+  getHtmlRootTag,
+  // REACT_041 specific fixes
+  getFaviconSvg,
+  getDashboardFaviconSvg,
+  getAppFaviconSvg
 };
 
 // Run if executed directly

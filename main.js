@@ -29,15 +29,33 @@ module.exports.loop = function() {
 
 // BEGIN NEW FUNCTION ADDED REQUESTED IN ISSUE
 
-// Add the missing landmarks
+// Add the missing landmarks with ARIA attributes
 function addLandmarks() {
   const header = document.createElement('header');
+  header.setAttribute('id', 'header');
+  header.setAttribute('aria-labelledby', 'header-title'); // Adds ARIA attribute for header
+
   const footer = document.createElement('footer');
+  footer.setAttribute('id', 'footer');
+  footer.setAttribute('aria-labelledby', 'footer-title'); // Adds ARIA attribute for footer
+
   const navElement = document.createElement('nav');
+  navElement.setAttribute('id', 'primary-nav');
+  navElement.setAttribute('aria-label', 'Primary Navigation'); // Adds ARIA attribute for primary navigation
+
   const asideElement = document.createElement('aside');
+  asideElement.setAttribute('id', 'aside');
+  asideElement.setAttribute('aria-labelledby', 'aside-title'); // Adds ARIA attribute for aside
+
   const mainElement = document.createElement('main');
+  mainElement.setAttribute('id', 'main');
+  mainElement.setAttribute('aria-label', 'Main Content Area'); // Adds ARIA attribute for main
+
   const sectionElement = document.createElement('section');
+  sectionElement.setAttribute('aria-label', 'Section'); // Adds ARIA attribute for section
+
   const articleElement = document.createElement('article');
+  articleElement.setAttribute('aria-label', 'Article'); // Adds ARIA attribute for article
 
   document.body.insertBefore(header, document.body.firstChild);
   document.body.append(footer);

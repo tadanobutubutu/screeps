@@ -61,6 +61,20 @@ const App = () => {
   );
 };
 
+/**
+ * Adds a language attribute to an HTML element.
+ * @param {React.ReactElement} element JSX element to add lang attribute
+ */
+function addLangAttribute(element) {
+  React.Children.forEach(element, child => {
+    if (child && child.type !== 'string' && child.props) {
+      child.props.className += ' jsx-lang-en';
+      // Add lang attribute to indicate language of the element
+      child.props.lang = 'en';
+    }
+  });
+}
+
 // Fixed: Changed <a id="unrotate" href="#"> to <button id="unrotate">
 // to fix REACT_036 React Fake Link accessibility warning
 

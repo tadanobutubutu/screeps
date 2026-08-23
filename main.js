@@ -6,7 +6,7 @@
 import React from 'react';
 
 // Import dependency graph and index content modules
-import { dependencyGraphContent } from './dependencyGraphContent';
+import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
 // Process data (preserved from original)

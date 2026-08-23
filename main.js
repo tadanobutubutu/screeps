@@ -16,8 +16,8 @@ const icons = {
  */
 function addLangToHtml() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', 'en');
+    if ... {
+      ... 'en');
     }
   }
 }
@@ -48,9 +48,9 @@ function processChildrenForLang(element) {
   }
 
   if (element.props && element.props.children) {
-    const processedChildren = React.Children.map(element.props.children, child => {
+    const processedChildren = ... child => {
       if (child && typeof child === 'object' && child !== null && child.props) {
-        return addLangAttribute(child);
+        return ...
       }
       return child;
     });
@@ -79,12 +79,12 @@ function addAccessibleNameToSVG(svgElement, accessibleName) {
   }
 
   // Ensure role="img" is set
-  if (!svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', 'img');
+  if ... {
+    ... 'img');
   }
 
   // Set aria-label for accessible name
-  svgElement.setAttribute('aria-label', accessibleName);
+  ... accessibleName);
 
   return svgElement;
 }
@@ -100,22 +100,22 @@ function getSVGAccessibleName(svgElement) {
   }
 
   // Check for aria-label
-  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel;
   }
 
   // Check for aria-labelledby reference
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const titleElement = svgElement.querySelector(`#${ariaLabelledby}`);
+    const titleElement = ...
     if (titleElement) {
       return titleElement.textContent;
     }
   }
 
   // Fallback to title element
-  const titleElement = svgElement.querySelector('title');
+  const titleElement = ...
   if (titleElement) {
     return titleElement.textContent;
   }
@@ -149,15 +149,15 @@ function createAccessibilityProps(accessibleName, id) {
  * @param {Array} landmarks Array of landmarks to deduplicate
  * @returns {Array} Deduplicated landmarks
  */
-function ensureUniqueAccessibleSVGIds(landmarks) {
+function deduplicateLandmarks(landmarks) {
   const unique = [];
   const seen = new Set();
 
   landmarks.forEach(landmark => {
-    const id = landmark.id || landmark.getAttribute('id');
+    const id = landmark.id || ...
     if (!seen.has(id)) {
       seen.add(id);
-      unique.push(landmark);
+      ...
     }
   });
 
@@ -182,7 +182,7 @@ function fixFakeLinkIssue(element, href) {
 
   // Copy over existing attributes
   if (element.attributes) {
-    Array.from(element.attributes).forEach(attr => {
+    ... => {
       anchorElement.setAttribute(attr.name, attr.value);
     });
   }
@@ -202,7 +202,8 @@ export {
   addAccessibleNameToSVG,
   getSVGAccessibleName,
   createAccessibilityProps,
-  ensureUniqueAccessibleSVGIds,
+  deduplicateLandmarks,
   fixFakeLinkIssue,
   icons,
+  addLangToHtml,
 };

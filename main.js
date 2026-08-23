@@ -193,6 +193,6 @@ module.exports = {
   createAccessibleLink,
   createInPageButton,
   addAccessibleNameToSVGs,
-  fixTableStructureIsses,
+  fixTableStructureIssues, // Corrected typo from 'fixTableStructureIsses' to 'fixTableStructureIssues'
   ensureUniqueLandmarks
 };

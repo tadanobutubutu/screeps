@@ -1,14 +1,8 @@
-// Add back any required exports that might have been?
-// (This comment remains as-is)
-
 import React from 'react';
 import { useEffect } from 'react';
 
-// Address accessibility issues from insight report:
-useEffect(() => {
-  addLangAttribute();
-  addMainLandmark();
-}, []);
+// Add back any required exports that might have been?
+// (This comment remains as-is)
 
 // ... existing functions specific to DOM manipulation
 function fixTableStructure() {

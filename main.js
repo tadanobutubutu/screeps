@@ -1,146 +1,120 @@
-// main.js
-
-// Existing code from main.js that needs to be preserved
-// ...
-
-// New changes to fix the React SVG Accessible Name issue
-// Add an accessible name to the SVGs in the icons object
 const icons = {
-  icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  myCustomIcon: 'data:image/svg+xml,<svg aria-label="My Custom Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>My Custom Icon</title><text y="0.9em" font-size="90">🌐</text></svg>',
 };
 
-/**
- * Adds a language attribute to an HTML element.
- * @param {React.ReactElement} element JSX element to add lang attribute
- */
-function addLangAttribute(element) {
-  React.Children.forEach(element, child => {
-    if (child && child.type !== 'string' && child.props) {
-      child.props.className += ' jsx-lang-en';
-    }
-  });
-}
+const currentExports = {};
 
-/**
- * Sets the document language attribute in browser environments.
- * Call this on DOMContentLoaded in browser contexts.
- */
-function setDocumentLanguage(lang = 'en') {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.setAttribute('lang', lang);
+Object.entries(currentExports).forEach(([key, value]) => {
+  if (!icons.hasOwnProperty(key)) {
+    icons[key] = value;
   }
-}
+});
 
-/**
- * Fixes 26 table structure issues.
- */
-function fixTableStructure() {
-  // Placeholder for table structure fixes
-}
+const renderAccessibleSVG = (accessibleName, svgId) => {
+  return `
+    <svg aria-label="${accessibleName}" id="${svgId || ''}">
+    </svg>
+  `;
+};
 
-/**
- * Adds a main landmark to the application.
- */
-function addMainLandmark() {
-  // Placeholder for adding main landmark
-}
+const renderLandmarkStructure = (content) => {
+  return `
+    <main aria-label="Main content">
+      <header role="banner">
+        <nav role="navigation" aria-label="Main navigation">
+<!-- Navigation content -->
+        </nav>
+      </header>
+      ${content}
+      <footer role="contentinfo">
+<!-- Footer content -->
+      </footer>
+    </main>
+  `;
+};
 
-/**
- * Validates that a landmark exists.
- */
-function validateLandmark(landmark) {
-  // Placeholder validation
-}
+const fixTableStructure = () => {};
 
-/**
- * Ensures all landmarks are unique.
- */
-function validateUniqueLandmarks(landmarks) {
-  // Placeholder uniqueness check
-}
+const addMainLandmark = () => {};
 
-/**
- * Validates the structure of landmarks.
- */
-function validateLandmarkStructure(landmarks) {
-  // Placeholder structure validation
-}
+const validateLandmark = (landmark) => {};
 
-/**
- * Adds an accessible name to an SVG element.
- */
-function addSvgAccessibleName(svgElement) {
-  // Example: set aria-label
-  svgElement.setAttribute('aria-label', 'SVG description');
-}
+const validateUniqueLandmarks = (landmarks) => {
+  return [...new Set(landmarks)];
+};
 
-/**
- * Gets the accessible name of an SVG element.
- */
-function getSvgAccessibleName(svgElement) {
-  // Return the title attribute or fallback
-  return svgElement.getAttribute('title') || '';
-}
+const validateLandmarkStructure = (landmarks) => {};
 
-/**
- * Creates accessibility properties for an SVG element.
- */
-function createSvgAccessibilityProps(svgElement) {
-  // Add role, aria-labelledby, etc.
+const addSvgAccessibleName = (svgElement) => {
   const accessibleName = getSvgAccessibleName(svgElement);
   svgElement.setAttribute('role', 'img');
   svgElement.setAttribute('aria-label', accessibleName);
-}
+};
 
-/**
- * Ensures landmarks are unique.
- */
-function ensureUniqueLandmarks(landmarks) {
-  // Remove duplicates
+const getSvgAccessibleName = (svgElement) => {
+  return svgElement.getAttribute('title') || '';
+};
+
+const ensureUniqueLandmarks = (landmarks) => {
   return [...new Set(landmarks)];
-}
+};
 
-/**
- * Fixes a fake link issue.
- */
-function fixFakeLinkIssue() {
-  // Fix broken link
-}
+const fixFakeLinkIssue = () => {};
 
-/**
- * Validates link accessibility.
- */
-function validateLinkAccessibility(link) {
-  // Check if link is properly associated
-}
+const validateLinkAccessibility = (link) => {};
 
-/**
- * Creates an in-page button.
- */
-function createInPageButton() {
-  // Create button element
-}
+const createInPageButton = () => {};
 
-/**
- * Validates whether an element is a link or button.
- */
-function validateLinkOrButton(element) {
-  // Determine type
-}
+const validateLinkOrButton = (element) => {};
 
-/**
- * Creates an accessible link.
- */
-function createAccessibleLink() {
-  // Build accessible anchor tag
-}
+const createAccessibleLink = () => {};
 
-// Rest of the code from main.js
-// ...
-
-export {
+const iconsWithAccessibility = {
+  ...icons,
   addLangAttribute,
   setDocumentLanguage,
-  // ... other exports
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateUniqueLandmarks,
+  validateLandmarkStructure,
+  addSvgAccessibleName,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  validateLinkAccessibility,
+  createInPageButton,
+  validateLinkOrButton,
+  createAccessibleLink,
 };
+
+const App = () => {
+  return (
+    <div>
+      <a href="/home">Home</a>
+      <table>
+        {/* Table content */}
+      </table>
+      <svg aria-label="App SVG">
+        {/* SVG content */}
+      </svg>
+    </div>
+  );
+};
+
+const renderApp = () => {
+  if (typeof document !== 'undefined') {
+    if (document.getElementById('root')) {
+      ReactDOM.render(<App />, document.getElementById('root'));
+      setupRotateBack();
+    }
+  }
+};
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', renderApp);
+}
+
+export { ...iconsWithAccessibility, icons, renderAccessibleSVG, renderLandmarkStructure, App, generateRotateBackControl, setupRotateBack };

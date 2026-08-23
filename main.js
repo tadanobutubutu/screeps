@@ -99,6 +99,11 @@ function newFunction(element) {
   console.log('newFunction has been called with element:', element);
 }
 
+// Add another new function to the main.js
+function anotherNewFunction() {
+  console.log('anotherNewFunction has been called');
+}
+
 // ... existing code ...
 
 module.exports = {
@@ -111,6 +116,11 @@ module.exports = {
   newFunction: {
     get: function () {
       return newFunction;
+    }
+  },
+  anotherNewFunction: {
+    get: function () {
+      return anotherNewFunction;
     }
   }
 };

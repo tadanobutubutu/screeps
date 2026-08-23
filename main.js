@@ -25,7 +25,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
+    if (!main.hasAttribute('aria-label')) {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {
@@ -74,12 +74,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: Array.from(document.querySelectorAll('main')),
-    nav: Array.from(document.querySelectorAll('nav')),
-    header: Array.from(document.querySelectorAll('header')),
-    footer: Array.from(document.querySelectorAll('footer')),
-    aside: Array.from(document.querySelectorAll('aside')),
-    section: Array.from(document.querySelectorAll('section'))
+    main: document.querySelectorAll('main'),
+    nav: document.querySelectorAll('nav'),
+    header: document.querySelectorAll('header'),
+    footer: document.querySelectorAll('footer'),
+    aside: document.querySelectorAll('aside'),
+    section: document.querySelectorAll('section')
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>
@@ -116,11 +116,11 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.getAttribute('role')) {
+    if (!svg.hasAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -154,7 +154,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1>Accessible Application</h1>
+          <h1 id="main-heading">Accessible Application</h1>
           <div className="app-content">
             {/* Existing App content */}
 

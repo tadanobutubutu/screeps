@@ -7,6 +7,8 @@ module.exports = {
     '**/?(*.)+(spec|test).js?(x)',
     // Ignore the REACT_025 warning for specific lines in Dashboard.tsx
     '!**/components/Dashboard.tsx:309',
+    // New function or changes requested in the issue
+    'your-function-name: your-function-code',
   ],
   testEnvironment: 'jsdom',
   // ... other Jest configuration options ...

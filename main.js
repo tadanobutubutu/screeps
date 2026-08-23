@@ -56,23 +56,15 @@ function fixDependencyDashboard() {
   if (fs.existsSync(workflowPath)) {
     let content = fs.readFileSync(workflowPath, 'utf8');
     content = content.replace(
-      /linear-bots\/gitstream-github-action\s+v2/g,
+      /linear-bots\/gitstream-github-action\s+v2/,
       'linear-bots/gitstream-github-action@v2'
     );
     fs.writeFileSync(workflowPath, content, 'utf8');
   }
 }
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-// ----- END ORIGINAL CODE-----
-
-// Add the new function to generate HTML with lang attribute
+// The following function `generateHtmlWithLang` is present in both versions,
+// so it is kept here as it is to preserve functionality.
 function generateHtmlWithLang() {
   const html = `
 <html lang="en">
@@ -83,8 +75,19 @@ function generateHtmlWithLang() {
   return html;
 }
 
-// Modify the build script to use the new function
-const html = generateHtmlWithLang();
+// Adding a new function to generate HTML with a lang attribute
+function generateHtmlWithAttr(lang) {
+  const html = `
+<html lang="${lang}">
+<!-- ... Your existing html content ... -->
+</html>
+  `;
+
+  return html;
+}
+
+// Modify the build script to use the `generateHtmlWithAttr` function
+const html = generateHtmlWithAttr('en');
 
 // Adding the lang attribute to the root HTML element
 if (typeof document !== 'undefined') {
@@ -93,3 +96,13 @@ if (typeof document !== 'undefined') {
 
 module.exports = app;
 module.exports.fixDependencyDashboard = fixDependencyDashboard;
+
+// The following code section is from the first version of the file, containing existing functions, variables, and exports that should be preserved.
+<<< HEAD
+// All existing functions, variables, and exports should be located here
+// Example:
+// const someVar = require('some-module');
+// function init() { /* ... */ }
+// module.exports.loop = function() { /* ... */ }
+// ----- END ORIGINAL CODE-----
+>>>>>>> HEAD

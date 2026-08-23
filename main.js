@@ -32,6 +32,11 @@ function fixFakeLink(node) {
 // Call the fixFakeLink function with the document root
 fixFakeLink(document.documentElement);
 
+// Add the new function requested in the issue
+function newFunction() {
+  console.log("This is the new function");
+}
+
 // Add back the missing export requested in the issue
 module.exports.newFunction = newFunction;
 

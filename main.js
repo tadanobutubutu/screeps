@@ -23,25 +23,14 @@ function renderDependencyGraph() {
 // Updated main.js content with conflict markers
 // (Assuming this is the content of main.js after the conflict markers)
 // ... (existing code, exports, and functions)
-// <<<<<<< HEAD
-// function renderDependencyGraph() {
-//   // ... (existing code that renders the dependency graph)
-//   const headers = document.querySelectorAll('th');
-//   headers.forEach(header => {
-//     if (!header.hasAttribute('scope')) {
-//       header.setAttribute('scope', 'col');
-//     }
-//   });
-//   // ... (rest of the function)
-// }
-// =======
-// // ... (existing code that renders the dependency graph)
-// const headers = document.querySelectorAll('th');
-// headers.forEach(header => {
-//   if (!header.hasAttribute('scope')) {
-//     header.setAttribute('scope', 'col');
-//   }
-// });
-// // ... (rest of the function)
-// >>>>>>> branch-name
+function renderDependencyGraph() {
+  // ... (existing code that renders the dependency graph)
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+  // ... (rest of the function)
+}
 // ... (rest of the main.js content)

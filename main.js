@@ -1,20 +1,8 @@
 // @ts-check
 import { forEach } from 'lodash';
+import App from './App'; // Import App component
 
-/**
- * @typedef {import('.').ScreepsAPI} ScreepsAPI
- * @typedef {import('.').TerminalState} TerminalState
- */
-
-/**
- * @typedef {Object} MainState
- * @property {string} [error]
- * @property {string} [message]
- * @property {boolean} [success]
- */
-
-/** @type {React.FunctionComponent<{api: ScreepsAPI, state: MainState}>} */
-const Main = ({ api, state }) => {
+/** * @typedef {import('.').ScreepsAPI} ScreepsAPI * @typedef {import('.').TerminalState} TerminalState */ /** * @typedef {Object} MainState * @property {string} [error] * @property {string} [message] * @property {boolean} [success] */ /** @type {React.FunctionComponent<{api: ScreepsAPI, state: MainState}>} */ const Main = ({ api, state }) => {
   if (state.error) {
     return (
       <main className="terminal">
@@ -25,7 +13,6 @@ const Main = ({ api, state }) => {
       </main>
     );
   }
-
   return (
     <main className="terminal">
       <div className="terminal-success">
@@ -36,4 +23,4 @@ const Main = ({ api, state }) => {
   );
 };
 
-export default Main;
+export default App; // Ensure existing imports are preserved if any

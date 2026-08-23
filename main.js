@@ -23,7 +23,8 @@ function wrapContentWithMain(content) {
 
 // Update the SVG icon for the favicon in app/layout.tsx
 function updateFaviconIcon(icon) {
-    const link = document.querySelector('link[rel="shortcut icon"]') || document.createElement('link');
+    const link = document.querySelector("link[rel*='icon']") || document.querySelector("link[href*='favicon']");
+    if (!link) return null;
     link.type = 'image/svg+xml';
     link.rel = 'shortcut icon';
     link.href = icon;
@@ -49,7 +50,7 @@ function ensureSvgAccessibility(svgString, accessibleName) {
     
     if (svgString.includes('<svg')) {
         // Insert title right after the opening svg tag
-        return svgString.replace(/<svg([^>]*)>/i, `<svg$1>${titleElement}`);
+        return svgString.replace(/<svg/, `<svg>${titleElement}`);
     }
     
     return svgString;
@@ -65,13 +66,13 @@ function setAccessiblePageTitle(title) {
 
 // Function to add ARIA live region for dynamic content announcements
 function createLiveRegion(regionName = 'status', politeness = 'polite') {
-    const existingRegion = document.getElementById(`aria-live-${regionName}`);
+    const existingRegion = document.getElementById(`aria-${regionName}`);
     if (existingRegion) {
         return existingRegion;
     }
     
     const liveRegion = document.createElement('div');
-    liveRegion.id = `aria-live-${regionName}`;
+    liveRegion.id = `aria-${regionName}`;
     liveRegion.setAttribute('aria-live', politeness);
     liveRegion.setAttribute('aria-atomic', 'true');
     liveRegion.style.position = 'absolute';

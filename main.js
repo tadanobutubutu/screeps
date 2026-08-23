@@ -225,7 +225,7 @@ function createAccessibleLink(url, text, options = {}) {
   const { className = '', target = '_self', rel = '', ariaLabel = '' } = options;
 
   let relAttr = rel;
-  if (!relAttr && target === '_blank') {
+  If (!relAttr && target === '_blank') {
     relAttr = 'noopener noreferrer';
   }
 
@@ -367,3 +367,6 @@ function processAccessibilityIssues(htmlContent) {
   
   // Apply REACT_025/RE
 }
+
+// Export required functions for tests
+export { processAccessibilityIssues, wrapPrimaryContentInMain };

@@ -17,7 +17,7 @@ import { forEach } from 'lodash';
 const Main = ({ api, state }) => {
   if (state.error) {
     return (
-      <main className="terminal">
+      <main className="terminal" role="alert" aria-live="assertive">
         <div className="terminal-error">
           <h2>Error</h2>
           <p>{state.error}</p>
@@ -27,7 +27,7 @@ const Main = ({ api, state }) => {
   }
 
   return (
-    <main className="terminal">
+    <main className="terminal" role="status">
       <div className="terminal-success">
         <h2>Success</h2>
         {state.message && <p>{state.message}</p>}

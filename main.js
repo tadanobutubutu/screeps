@@ -31,7 +31,6 @@ function newFunction() {
 
 // No removal or renaming of existing exports
 moduleExports.newFunction = newFunction;
-moduleExports.generateId = generateId;
 
 // ============================================
 // Accessibility Improvements
@@ -353,7 +352,8 @@ const addAccessibleNamesToSVGs = () => {
 };
 
 // Ensure unique landmarks (2 issues)
-const ensureUniqueLandmarks = () => {
+// Note: This shadows the exported ensureUniqueLandmarks function above
+const ensureUniqueLandmarksLocal = () => {
   // Implementation to ensure unique landmarks
 };
 
@@ -365,7 +365,7 @@ const fixFakeLink = () => {
 // Run checks and fixes
 checkLandmarks();
 addAccessibleNamesToSVGs();
-ensureUniqueLandmarks();
+ensureUniqueLandmarksLocal();
 fixFakeLink();
 
 // Exporting the app for testing

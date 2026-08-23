@@ -35,14 +35,14 @@ export function formatDate(dateString) {
     month: 'long',
     day: 'numeric'
   };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
 export function validateProject(project) {
   if (!project.name || typeof project.name !== 'string') {
     return { valid: false, error: 'Project name is required' };
   }
-  if (!project.status || !['Active', 'Pending', 'Completed', 'Archived'].includes(project.status)) {
+  if (!project.status || !['Active', 'Pending', 'Completed'].includes(project.status)) {
     return { valid: false, error: 'Invalid project status' };
   }
   return { valid: true };
@@ -69,7 +69,7 @@ export const fixTableStructureIssues = (tableData) => {
   const columns = Object.keys(firstRow);
   const headerCells = columns.map((column, index) => ({
     key: column,
-    header: column.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+    header: column.replace(/_/g, ' ').replace(/^./, str => str.toUpperCase()),
     index: index
   }));
   
@@ -151,7 +151,7 @@ export default function Home({ projects }) {
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
-          <li><a href="/projects">Projects</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
 
@@ -183,8 +183,8 @@ export default function Home({ projects }) {
         <section>
           <h2 id="icons-heading">Accessible Icons</h2>
           <div className="icons-container">
-            <createAccessibleSVG iconName="Settings icon" />
-            <createAccessibleSVG iconName="Home icon" />
+            {createAccessibleSVG("Settings icon")}
+            {createAccessibleSVG("Home icon")}
           </div>
         </section>
       </main>

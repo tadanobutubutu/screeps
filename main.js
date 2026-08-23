@@ -20,6 +20,11 @@ const App = () => {
   // Component implementation
 };
 
+// New function to add
+const newFunction = () => {
+  // Function implementation
+};
+
 // Initializing the app
 const app = express();
 ReactDOM.render(<App />, document.getElementById('root'));

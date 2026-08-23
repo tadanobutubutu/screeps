@@ -82,7 +82,7 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = ... footer, aside, section, header');
+  const landmarks = ... footer, aside, section, header';
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {

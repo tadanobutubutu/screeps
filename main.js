@@ -9,14 +9,11 @@ function wrapPrimaryContentInMain(element) {
 
 // Reusable wrapper function to address accessibility issues
 function wrapperFunction(accessibilityInsights) {
-  accessibilityInsightsCallback(accessibilityInsights);
+  processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 }
 
 // Assuming the function takes the insights object and processes it to address any issues
 function addressAccessibilityIssues(accessibilityInsights) {
-  // Implement the logic to address accessibility issues based on the insight report
-
-  // For example: iterate over the insights and make necessary changes to the document
   accessibilityInsights.issues.forEach(issue => {
     // Find the element with the ID that matches the issue
     const element = document.getElementById(issue.id);

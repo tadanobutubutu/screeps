@@ -11,3 +11,15 @@ module.exports.loop = function () {
 module.exports.init = function () {
   return 'initialized';
 };
+
+// Wrap the primary content in <main> for accessibility
+function wrapPrimaryContentInMain() {
+  const mainContent = document.querySelector('main');
+  if (!mainContent) {
+    const mainElement = document.createElement('main');
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+}
+
+// Call the function to ensure the primary content is wrapped in <main>
+wrapPrimaryContentInMain();

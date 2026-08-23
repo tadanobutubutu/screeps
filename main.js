@@ -7,7 +7,7 @@ function wrapMainTags(htmlContent) {
   if (!isMainTagExists) {
     // Wrap the content inside a <main> tag
     const container = htmlContent.match(/<(.*?)>/)[1];
-    const modifiedContent = `<main>${container}</main>`;
+    const modifiedContent = `<main lang="en">${container}</main>`;
     return modifiedContent;
   }
 

@@ -782,6 +782,34 @@ function validateLangAttribute(langValue) {
   };
 }
 
+// ============================================================================
+// Additional functions to address REACT_017: React Landmarks (missing <main> landmark)
+// ============================================================================
+
+/**
+ * Wrap content in a <main> landmark element for accessibility
+ * Addresses REACT_017: React Landmarks - missing main landmark
+ * @param {string} content - HTML content to wrap
+ * @returns {string} Content wrapped in a <main> element
+ */
+function wrapInMain(content) {
+  return `<main>${content}</main>`;
+}
+
+/**
+ * Ensure HTML content has a <main> landmark, wrapping if necessary
+ * Addresses REACT_017: React Landmarks
+ * @param {string} html - HTML content
+ * @returns {string} HTML with a <main> landmark
+ */
+function ensureMainLandmark(html) {
+  // Check if there is already a <main> element
+  if (/<main[\s>]/.test(html)) {
+    return html;
+  }
+  return `<main>${html}</main>`;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -808,7 +836,10 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // REACT_017 landmark helpers
+  wrapInMain,
+  ensureMainLandmark
 };
 
 // Run if executed directly

@@ -67,7 +67,7 @@ const FixedLink = () => (
         <MenuIcon />
         <FixedLink>
           <main id="mainContent" {...htmlAttributes}>
-            {this.props.children}
+            {props.children}
           </main>
         </FixedLink>
       </main>

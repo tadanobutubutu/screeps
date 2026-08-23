@@ -4,7 +4,38 @@
 
 // New function to be exported as per the issue
 const myNewFunction = function() {
-  // your new function logic goes here
+  // REACT_025: Ensure only one <main> landmark exists.
+  // Convert additional <main> elements to <section> to avoid duplicate landmarks.
+  const mainElements = document.querySelectorAll('main');
+  let mainFound = false;
+  mainElements.forEach((main, index) => {
+    if (!mainFound) {
+      // Keep the first main as the primary landmark
+      if (!main.id) {
+        main.id = 'main-content';
+      }
+      mainFound = true;
+    } else {
+      // Convert subsequent main elements to sections
+      const section = document.createElement('section');
+      while (main.firstChild) {
+        section.appendChild(main.firstChild);
+      }
+      // Preserve any attributes (except role) from the original main
+      Array.from(main.attributes).forEach(attr => {
+        if (attr.name !== 'role') {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Ensure the converted section has a unique ID
+      if (!section.id) {
+        section.id = `section-${index}`;
+      }
+      if (main.parentNode) {
+        main.parentNode.replaceChild(section, main);
+      }
+    }
+  });
 };
 
 module.exports = {

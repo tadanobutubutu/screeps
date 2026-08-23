@@ -3,12 +3,16 @@
 
 module.exports = {
   // Export functions or values as needed
-};
-
-module.exports.someFunction = function() {
-  return 'some value';
-};
-
-module.exports.anotherFunction = function(arg) {
-  return arg;
+  someFunction: function() {
+    return 'some value';
+  },
+  anotherFunction: function(arg) {
+    return arg;
+  },
+  // New function to address accessibility issue
+  addLangAttribute: function(htmlElement) {
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en'); // Default to English
+    }
+  }
 };

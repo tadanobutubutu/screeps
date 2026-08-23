@@ -9,7 +9,7 @@ export function createMainHTML({ children, id }) {
   `;
 }
 
-// Function to fix table structure issues by adding scope attributes to th tags
+// Function to fix table structure issues by adding proper attributes to header tags
 // This improves accessibility by properly associating header cells with data cells
 export function fixTableStructure(html) {
   return html.replace(/<th([^>]*)>/g, (match, attrs) => {
@@ -36,14 +36,24 @@ export function addLangAttribute(html) {
 export function addLandmarks(html) {
   let result = html;
   
-  // Add main landmark with proper id and aria-label
-  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
+  // Add main landmark with proper id and aria-label if not already present
+  result = result.replace(/<body([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasId = existingAttrs.includes('id=');
-    const hasAriaLabel = existingAttrs.includes('aria-label=');
-    let newAttrs = existingAttrs;
-    if (!hasId) {
-      newAttrs += ' id="main"';
+    // Check if main landmark already exists
+    if (!result.includes('<main')) {
+      // Wrap all body content in main landmark
+      return `<body${existingAttrs}><main id="main" aria-label="Main content">`;
     }
-    if (!hasAriaLabel) {
-      newAttrs += ' aria-label="Main content"';
+    return match;
+  });
+  
+  // Close main landmark tag at the end of body
+  result = result.replace(/<\/body>/, () => {
+    if (!result.includes('</main>')) {
+      return '</main></body>';
+    }
+    return '</body>';
+  });
+  
+  return result;
+}

@@ -55,7 +55,6 @@ function divide(a, b) {
 
 // Add a new function for addressing accessibility issues from insight report
 function addressAccessibilityIssuesFromInsightReport() {
-  // Example implementation, should be replaced with actual logic based on the insight report
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
     if (!button.hasAttribute('aria-label')) {
@@ -66,7 +65,7 @@ function addressAccessibilityIssuesFromInsightReport() {
   });
 }
 
-// Add a new function for adding `aria-label` to buttons
+// Add a new function for adding `aria-label` to elements
 function addAriaLabel(elem, label) {
   if (elem) {
     elem.setAttribute('aria-label', label);

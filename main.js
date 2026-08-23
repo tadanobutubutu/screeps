@@ -15,14 +15,14 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('banner');
+    const banners = document.querySelectorAll('[role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('navigation');
+    const navigations = document.querySelectorAll('nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;

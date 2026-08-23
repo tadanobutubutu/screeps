@@ -30,6 +30,11 @@ function renderLandmarkStructure(content) {
   `;
 }
 
+// REACT_027 fix: Add scope="col" or scope="row" to <th> elements so cells map to their headers
+function renderTableHeader(content, scope = 'col') {
+  return `<th scope="${scope}">${content}</th>`;
+}
+
 // Main render function
 function renderApp() {
   var appContent = document.getElementById('app');
@@ -51,5 +56,6 @@ if (typeof document !== 'undefined') {
 export {
   renderAccessibleSVG,
   renderLandmarkStructure,
-  renderApp
+  renderApp,
+  renderTableHeader
 };

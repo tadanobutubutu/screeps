@@ -11,6 +11,10 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmark)
 // - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility() and createInPageButton())
 
+// Import required modules
+const fs = require('fs');
+const path = require('path');
+
 /**
  * Version compatibility matrix for the updates mentioned in the dashboard
  */
@@ -659,7 +663,7 @@ function validateLinkOrButton(element) {
       issues.push({
         rule: 'REACT_036',
         severity: 'warning',
-        message: 'Button element used for navigation. Use <a> with href for navigation.'
+        message: 'Button element used for navigation. Use <a href="..."> instead of <button>.'
       });
       recommendations.push({
         type: 'link',
@@ -814,6 +818,13 @@ module.exports = {
   getFullLangAttribute,
   validateLangAttribute
 };
+
+// Additional exports for newly added accessibility functions
+module.exports.validateUniqueLandmarks = validateUniqueLandmarks;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.validateSvgAccessibility = validateSvgAccessibility;
+module.exports.validateLinkOrButton = validateLinkOrButton;
+module.exports.createAccessibleLink = createAccessibleLink;
 
 // Run if executed directly
 if (require.main === module) {

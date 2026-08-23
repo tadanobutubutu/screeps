@@ -5,7 +5,7 @@
 import myFunction from './myFunction';
 
 // Import the missing functions from the required files
-import myMissingFunction1 from ...
+import myMissingFunction1 from ...;
 import myMissingFunction2 from ...
 
 const Dashboard = () => {

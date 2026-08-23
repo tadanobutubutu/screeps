@@ -118,6 +118,26 @@ module.exports = {
       }
     });
 
+    // REACT_017: Ensure page has a <main> landmark
+    if (!mainFound) {
+      const bodyEl = document.body;
+      if (bodyEl) {
+        const mainEl = document.createElement('main');
+        mainEl.id = 'main-content';
+        const candidates = Array.from(bodyEl.children).filter(child => {
+          const tag = child.tagName ? child.tagName.toLowerCase() : '';
+          return tag !== 'header' && tag !== 'nav' && tag !== 'footer' && tag !== 'aside' && tag !== 'script' && tag !== 'style' && tag !== 'main';
+        });
+        if (candidates.length > 0) {
+          const firstCandidate = candidates[0];
+          bodyEl.insertBefore(mainEl, firstCandidate);
+          candidates.forEach(candidate => mainEl.appendChild(candidate));
+        } else {
+          bodyEl.appendChild(mainEl);
+        }
+      }
+    }
+
     // Ensure all clickable elements that navigate have proper accessible roles (React_025, React_036)
     const linksWithoutHref = document.querySelectorAll('a:not([href])');
     linksWithoutHref.forEach(link => {

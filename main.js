@@ -53,6 +53,7 @@ function indexFunction() {
 
 // ... other functions and exports
 
+// Added the required exports
 module.exports = {
   dependencyGraphFunction,
   indexFunction,

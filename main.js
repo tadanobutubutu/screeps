@@ -42,12 +42,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main'),
-    nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('header'),
-    footer: document.querySelectorAll('footer'),
-    aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section'))
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>

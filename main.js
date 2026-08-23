@@ -119,3 +119,15 @@ export function fixLinkNavigationalBehavior() {
     link.setAttribute('rel', 'noopener noreferrer');
   });
 }
+
+// New function to add <main> landmark
+export function addMainLandmark() {
+  const existingMain = document.querySelector('main');
+  if (!existingMain) {
+    const mainElement = document.createElement('main');
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+}
+
+// Call the function to add the <main> landmark
+addMainLandmark();

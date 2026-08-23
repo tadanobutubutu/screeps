@@ -1,18 +1,26 @@
-// main.js - Fixed version with git conflict markers removed
+tsx
+import type { Metadata } from "next";
+import "./globals.css";
 
-// The following script tag is replaced with a comment to prevent syntax errors
-// <script ...
+export const metadata: Metadata = {
+  title: "Screeps Dashboard",
+  description: "Screeps game dashboard",
+  icons: {
+    icon: {
+      url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>💻</text></svg>",
+      type: "image/svg+xml",
+    },
+  },
+};
 
-// Adding the correct script tag with lang attribute
-var htmlContent = `<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <script src="main.js"></script>
-</body>
-</html>`;
-
-console.log("HTML content generated successfully");
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}

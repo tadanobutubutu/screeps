@@ -168,3 +168,51 @@ export default function Main() {
     </div>
   );
 }
+
+/**
+ * Implements fixTableStructureIssues to resolve table structure problems
+ * including lang attributes, duplicate main elements, and accessibility fixes.
+ */
+function fixTableStructureIssues() {
+  // Add lang attribute to the root element if missing
+  const rootElement = document.documentElement;
+  if (!rootElement.hasAttribute('lang')) {
+    rootElement.setAttribute('lang', 'en');
+  }
+
+  // Remove duplicate main elements
+  const mainElements = React.Children.toArray(React.createElement('main')).filter(
+    (child) => child.type === 'main'
+  );
+  if (mainElements.length > 1) {
+    console.warn('Duplicate <main> elements detected. Only one <main> element is allowed.');
+    const firstMain = mainElements[0];
+    const remaining = mainElements.slice(1);
+    return React.cloneElement(firstMain, { children: remaining });
+  }
+
+  // Wrap children with EnhancedTable for proper table role
+  const EnhancedTable = ({ children }) => {
+    return React.cloneElement(children, { role: 'table' });
+  };
+  module.exports.EnhancedTable = EnhancedTable;
+
+  // Process elements for accessibility
+  const addressAccessibilityIssues = (elements) => {
+    elements.forEach((element) => {
+      if (element) {
+        reactLanguageAttributeFix(element);
+        addressAccessibilityIssues(element.props.children || []);
+      }
+    });
+  };
+
+  // Apply accessibility fixes to the main content elements
+  addressAccessibilityIssues([React.createElement(Logo), React.createElement(MenuIcon)]);
+
+  return {
+    fixTableStructureIssues,
+    EnhancedTable,
+    addressAccessibilityIssues
+  };
+}

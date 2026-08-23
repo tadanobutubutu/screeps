@@ -43,3 +43,9 @@ export const testUtils = {
     mockRender: jest.fn(),
     // Other utilities...
 };
+
+// Update the HTML files to include the scope attribute in the <th> elements
+// Example for the affected line in docs/dependency-graph.html:547
+// <th><div>src/constants.js</div></th>
+// Should be updated to:
+<th scope="col"><div>src/constants.js</div></th>

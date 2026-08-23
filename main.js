@@ -1,17 +1,22 @@
-// main.js - Fixed version addressing REACT_025 React Unique Landmarks issue
+import React from 'react';
+import ReactDOM from 'react-dom';
+import DependencyGraphComponent from './components/DependencyGraphComponent';
+import IndexComponent from './components/IndexComponent';
 
-// Preserve all existing exports and functions
-export function existingFunction() {
-  // Existing function implementation
+export default DependencyGraphComponent;
+export default IndexComponent;
+
+function App() {
+  return (
+    <div>
+      <Dashboard />
+      <DependencyGraphComponent />
+      <IndexComponent />
+    </div>
+  );
 }
 
-export const existingConst = () => {
-  // Existing const implementation
-};
-
-// New component structure to fix duplicate <main> landmarks
-export function Dashboard({ isLoading, error, data }) {
-  // Only one <main> element in the entire component
+function Dashboard({ isLoading, error, data }) {
   return (
     <main>
       {isLoading && (
@@ -19,13 +24,11 @@ export function Dashboard({ isLoading, error, data }) {
           <p>Loading...</p>
         </section>
       )}
-      
       {error && (
         <section>
           <p>Error: {error.message}</p>
         </section>
       )}
-      
       {data && !isLoading && !error && (
         <section>
           {/* Main content here */}
@@ -37,9 +40,7 @@ export function Dashboard({ isLoading, error, data }) {
   );
 }
 
-// Alternative approach if this component is used within another layout that already has a <main>
-export function DashboardContent({ isLoading, error, data }) {
-  // No <main> element since it will be nested inside a parent <main>
+function DashboardContent({ isLoading, error, data }) {
   return (
     <>
       {isLoading && (
@@ -47,13 +48,11 @@ export function DashboardContent({ isLoading, error, data }) {
           <p>Loading...</p>
         </section>
       )}
-      
       {error && (
         <section>
           <p>Error: {error.message}</p>
         </section>
       )}
-      
       {data && !isLoading && !error && (
         <section>
           {/* Main content here */}
@@ -64,3 +63,6 @@ export function DashboardContent({ isLoading, error, data }) {
     </>
   );
 }
+
+// Main entry point for the Screeps bot repository
+ReactDOM.render(<App />, document.getElementById('root'));

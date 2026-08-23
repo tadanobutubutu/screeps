@@ -11,7 +11,7 @@ function wrapPrimaryContentInMain(element) {
 }
 
 // Reusable wrapper function to address accessibility issues
-function wrapperFunction(callback) {
+function wrapperFunction(callback, accessibilityInsights) {
   processAccessibilityIssues(callback, accessibilityInsights);
 }
 
@@ -101,7 +101,7 @@ function validateTableStructure(table) {
   const rows = table ? table.querySelectorAll('tr') : [];
   
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       issues.push({
         row: rowIndex,
@@ -241,7 +241,7 @@ module.exports = {
 
 // Address the REACT_036 issue by changing the anchor to a button
 function addressReact036Issue() {
-  const element = document.querySelector('#unrotate');
+  const element = document.getElementById('unrotate');
   if (element) {
     element.innerHTML = '<button id="unrotate">rotate back</button>';
     const newButton = element.querySelector('button');

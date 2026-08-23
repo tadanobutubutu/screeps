@@ -177,4 +177,4 @@ module.exports = {
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
-addressAccessibilityImprovements();
+addressAccessibilityIssues();

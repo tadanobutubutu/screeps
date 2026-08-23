@@ -5,6 +5,10 @@ import Head from 'next/head';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+// Re-export imported content modules
+export { dependencyGraphContent };
+export { indexContent };
+
 // Helper function to create accessible SVG icons
 export const createAccessibleSVG = (iconName, viewBox = "0 0 24 24", className = "icon") => (
   <svg viewBox={viewBox} className={className} role="img" aria-label={iconName}>

@@ -47,11 +47,13 @@ export function fixFakeLink() {
 // Newly added function...
 export function addAccessibleIds() {
     const accessibleElements = ... // Placeholder for actual element selection logic
+    let elementIndex = 1;
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = `access-${Math.random().toString(36).substr(2, 9)}`;
+        const currentId = `access-${elementIndex}`;
         element.setAttribute('id', currentId);
+        elementIndex++;
     });
 }
 

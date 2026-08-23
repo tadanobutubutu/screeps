@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 const dependencyGraphModule = require('./dependencyGraphModule');
 const indexModule = require('./indexModule');
 
@@ -7,16 +9,16 @@ const indexModule = require('./indexModule');
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
 
-// In this example, assuming 'dependencyGraphFunction' is a function that uses the dependencyGraphContent
+// Update dependencyGraphFunction to import and use dependencyGraphContent directly
 function dependencyGraphFunction() {
-  const dependencyGraphContent = dependencyGraphModule.dependencyGraphContent;
+  const { dependencyGraphContent } = dependencyGraphModule;
   // ... existing code for rendering the dependency graph
   return dependencyGraphContent;
 }
 
-// And similar for 'indexFunction' with indexContent
+// Update indexFunction to import and use indexContent directly
 function indexFunction() {
-  const indexContent = indexModule.indexContent;
+  const { indexContent } = indexModule;
   // ... existing code for rendering the index view
   return indexContent;
 }

@@ -25,19 +25,26 @@ app.use((req, res, next) => {
     }
   };
 
+  // Helper to add lang attribute to HTML element (REACT_015)
+  res.locals.addLangAttribute = function(lang = 'en') {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
+  };
+
   next();
 });
 
 // New functions for addressing accessibility issues
 function addLandmark(element, role = 'banner', id) {
-  if (!id) id = `landmark-${Date.now()}`;
+  if (!id) id = element.id || 'landmark-' + Math.random().toString(36).substr(2, 9);
   element.setAttribute('role', role);
   element.setAttribute('id', id);
 }
 
-function setSVGAccessibleName(svg, name) {
-  if (svg.firstChild && svg.firstChild.nodeName === 'svg') {
-    svg.firstChild.setAttribute('aria-label', name);
+function addAccessibleSvgName(svg, name) {
+  if (svg.firstChild && svg.firstChild.tagName === 'svg') {
+    addAccessibleLabel(svg, name);
   }
 }
 
@@ -47,7 +54,7 @@ function ensureUniqueLandmarkIds(elements) {
     const id = element.id;
     if (ids.has(id)) {
       const index = ids.size;
-      element.id = `landmark-${id}-${index}`;
+      element.id = id + '-' + index;
     }
     ids.add(id);
   });
@@ -56,6 +63,7 @@ function ensureUniqueLandmarkIds(elements) {
 function setFakeLinkAsVisible(link) {
   if (link) {
     link.setAttribute('aria-hidden', 'false');
+    link.setAttribute('role', 'button');
   }
 }
 
@@ -82,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];

@@ -21,3 +21,9 @@ export function getHtmlAttributes() {
     lang: metadata.htmlLang,
   };
 }
+
+// Update the existing function to include the HTML attributes object
+export function getHTMLAttributes() {
+  const attributes = getHtmlAttributes();
+  return { ...attributes };
+}

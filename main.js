@@ -15,14 +15,14 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('banner');
+    const banners = document.querySelectorAll('header[role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
       }
     });
 
-    const navigations = document.querySelectorAll('navigation');
+    const navigations = document.querySelectorAll('nav');
     navigations.forEach((nav, index) => {
       if (!nav.id) {
         nav.id = `navigation-${index + 1}`;
@@ -47,7 +47,9 @@ module.exports = {
     // REACT_015: Add lang attribute to HTML element
     const htmlElement = document.documentElement;
     // Ensure the language attribute is always set to 'en' for accessibility
-    htmlElement.setAttribute('lang', 'en');
+    if (!htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
 
     // Ensure tables have proper thead and tbody structure (React_027)
     const tables = document.querySelectorAll('table');
@@ -86,35 +88,72 @@ module.exports = {
       });
     });
 
-    // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
-    const mainElements = document.querySelectorAll('main');
+    // React_017: Ensure page has a main landmark
+    let mainElements = document.querySelectorAll('main');
     let mainFound = false;
-    mainElements.forEach((main, index) => {
-      if (!mainFound) {
-        // Keep the first main as the primary landmark
-        if (!main.id) {
-          main.id = 'main-content';
-        }
-        mainFound = true;
+    
+    if (mainElements.length === 0) {
+      // No main landmark exists - create one and wrap primary content
+      // Create the main element
+      const mainElement = document.createElement('main');
+      mainElement.id = 'main-content';
+      
+      // Find body to insert the main element
+      const body = document.body;
+      
+      // If body has no children or only empty text nodes, append main to body
+      if (body.children.length === 0) {
+        body.appendChild(mainElement);
       } else {
-        // Convert subsequent main elements to sections to avoid duplicate landmarks
-        const section = document.createElement('section');
-        while (main.firstChild) {
-          section.appendChild(main.firstChild);
-        }
-        // Preserve any attributes (except role) from the original main
-        Array.from(main.attributes).forEach(attr => {
-          if (attr.name !== 'role') {
-            section.setAttribute(attr.name, attr.value);
+        // Find the first significant child element (skip script, style, etc.)
+        let firstSignificantChild = null;
+        for (let i = 0; i < body.children.length; i++) {
+          const child = body.children[i];
+          const tagName = child.tagName ? child.tagName.toLowerCase() : '';
+          if (!['script', 'style', 'link', 'meta', 'noscript'].includes(tagName)) {
+            firstSignificantChild = child;
+            break;
           }
-        });
-        // Ensure the converted section has a unique ID
-        if (!section.id) {
-          section.id = `section-${index}`;
         }
-        main.parentNode.replaceChild(section, main);
+        
+        if (firstSignificantChild) {
+          // Wrap the first significant child with main
+          firstSignificantChild.parentNode.insertBefore(mainElement, firstSignificantChild);
+          mainElement.appendChild(firstSignificantChild);
+        } else {
+          body.appendChild(mainElement);
+        }
       }
-    });
+      mainFound = true;
+    } else {
+      // Ensure all main elements have unique IDs and there's only one main landmark
+      mainElements.forEach((main, index) => {
+        if (!mainFound) {
+          // Keep the first main as the primary landmark
+          if (!main.id) {
+            main.id = 'main-content';
+          }
+          mainFound = true;
+        } else {
+          // Convert subsequent main elements to sections to avoid duplicate landmarks
+          const section = document.createElement('section');
+          while (main.firstChild) {
+            section.appendChild(main.firstChild);
+          }
+          // Preserve any attributes (except role) from the original main
+          Array.from(main.attributes).forEach(attr => {
+            if (attr.name !== 'role') {
+              section.setAttribute(attr.name, attr.value);
+            }
+          });
+          // Ensure the converted section has a unique ID
+          if (!section.id) {
+            section.id = `section-${index}`;
+          }
+          main.parentNode.replaceChild(section, main);
+        }
+      });
+    }
 
     // Ensure all clickable elements that navigate have proper accessible roles (React_025, React_036)
     const linksWithoutHref = document.querySelectorAll('a:not([href])');

@@ -1,6 +1,7 @@
-// TODO: Add exports for new functions if needed
-
-// Address accessibility issues from insight report
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another module:
+// Import functions from other modules if needed
+// const { someFunction } = require('./utils');
 
 function wrapPrimaryContentInMain(element) {
   // ... existing code ...

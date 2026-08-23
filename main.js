@@ -36,4 +36,13 @@ const Main = ({ api, state }) => {
   );
 };
 
+// Replace the anchor tag with a button for the 'rotate back' action
+const RotateBackButton = () => {
+  return (
+    <button id="unrotate" onClick={() => { /* Logic to rotate back */ }}>
+      rotate back
+    </button>
+  );
+};
+
 export default Main;

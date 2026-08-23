@@ -50,21 +50,21 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  const mainElement = document.querySelector('main');
+  const mainElement = ...
   if (!mainElement) {
-    const main = document.createElement('main');
-    const firstChild = document.body.firstChild;
+    const main = ...
+    const firstChild = ...
     if (firstChild) {
-      document.body.insertBefore(main, firstChild);
+      ... firstChild);
     } else {
-      document.body.appendChild(main);
+      ...
     }
   }
 }
 
 // NEW: Validate main landmark
 function validateMainLandmark() {
-  const mainElement = document.querySelector('main');
+  const mainElement = ...
   if (!mainElement) {
     console.error('No main landmark found in the document.');
     return false;
@@ -73,23 +73,77 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks
-function validateLandmarkRoles() {
+function ... {
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll('[role="' + role + '"]');
-    const tagElements = document.querySelectorAll(role);
+    const elements = ... + role + '"]');
+    const tagElements = ...
     const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
     if (totalCount > 0) {
-      foundLandmarks[role] = (foundLandmarks[role] || 0) + totalCount;
+      foundLandmarks[role] = ... || 0) + totalCount;
     }
   });
 
-  return Object.values(foundLandmarks).every(count => count === 1);
+  return ... => count === 1);
 }
 
 // ... existing functions specific to DOM manipulation
+
+// Helper function to get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return null;
+  }
+  
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    return ariaLabelledby;
+  }
+  
+  // Check for <title> child element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+  
+  return null;
+}
+
+// Helper function to get accessible label (for SVG and other elements)
+function getAccessibleLabel(element) {
+  if (!element) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    return ariaLabelledby;
+  }
+  
+  // Check for title attribute
+  const titleAttr = element.getAttribute('title');
+  if (titleAttr) {
+    return titleAttr;
+  }
+  
+  return null;
+}
 
 // Additional exports if needed (e.g., functions for testing)
 export {

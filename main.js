@@ -1,15 +1,47 @@
-Here is the resolved version of the file. I have integrated both changes by adding the new functions from the JavaScript/Node.js side and adapting the Next.js backend to include the required export from main.js dist file.
+// Main.js - Fixed SVG accessible name issues
 
-```javascript
-// Import any required modules or functions here if needed
-const { createAccessibleSVG } = require('./createAccessibleSVG');
+const main = () => {
+  console.log('Main application running');
+};
 
-// Main component
-import React from 'react';
-import Head from 'next/head';
+// Helper function to create accessible SVG icons
+export const createAccessibleSVG = (iconName, viewBox = "0 0 100 100") => (
+  <svg
+    viewBox={viewBox}
+    role="img"
+    aria-label={iconName}
+    className="icon"
+  >
+    <title>{iconName}</title>
+    {/* SVG content */}
+  </svg>
+);
 
-// Import the required export from the compiled main.js dist file
-const runMain = () => import('../dist/main.js').then(module => module.default);
+// Helper function to create decorative SVG icons (hidden from screen readers)
+export const createDecorativeSVG = (viewBox = "0 0 24 24") => (
+  <svg
+    viewBox={viewBox}
+    aria-hidden="true"
+    focusable="false"
+    className="icon"
+  >
+    {/* SVG content */}
+  </svg>
+);
+
+// Function to get icon configuration with proper accessibility
+export const getIconConfig = (title, iconContent) => ({
+  icon: (
+    <svg
+      viewBox="0 0 100 100"
+      role="img"
+      aria-label={title}
+    >
+      <title>{title}</title>
+      {iconContent}
+    </svg>
+  ),
+});
 
 // Example component showing proper accessibility patterns
 export default async function Home({ projects }) {
@@ -24,24 +56,10 @@ export default async function Home({ projects }) {
   ];
 
   // New function to include the required export from the main.js dist file
-  const runMainResult = await runMain();
+  const runMainResult = await main();
 
   // ... Rest of the code remains the same
 }
-
-// Helper function to create accessible SVG icons
-export const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox={viewBox}
-    aria-label={`${iconName} icon`}
-    role="img"
-    className="icon"
-  >
-    <title>{iconName}</title>
-    {/* SVG content */}
-  </svg>
-);
 
 // Helper function to export projects data
 export async function getStaticProps() {
@@ -73,4 +91,3 @@ export function validateProject(project) {
 
 // Existing export that must be preserved
 export const PROJECT_STATUSES = ['Active', 'Pending', 'Completed', 'Archived'];
-```

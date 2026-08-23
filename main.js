@@ -26,7 +26,7 @@ const DEPENDENCY_UPDATES = {
 };
 
 // Check compatibility between dependencies
-function checkDependencyCompatibility(dep1, dep1Version, dep2, dep2Version) {
+function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   const compatibilityMatrix = {
     'jest+typescript': { min: '5.0', max: '7.0' },
     'jest+react': { min: '18.0', max: '19.0' },
@@ -39,7 +39,7 @@ function checkDependencyCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/[\^~]?(\d+)/);
+    const match = version.match(/^(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -61,7 +61,7 @@ function validateDependencies(dependencies) {
   const warnings = [];
   
   if (dependencies.jest && dependencies.typescript) {
-    const result = checkDependencyCompatibility(
+    const result = checkCompatibility(
       'jest', dependencies.jest,
       'typescript', dependencies.typescript
     );
@@ -71,7 +71,7 @@ function validateDependencies(dependencies) {
   }
   
   if (dependencies.eslint && dependencies.typescript) {
-    const result = checkDependencyCompatibility(
+    const result = checkCompatibility(
       'eslint', dependencies.eslint,
       'typescript', dependencies.typescript
     );
@@ -94,14 +94,14 @@ function getRecommendedUpdateOrder() {
 }
 
 // Check for breaking changes in major version updates
-function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajor = parseInt(currentVersion.match(/\d+/)?.[0] || '0');
-  const newMajor = parseInt(newVersion.match(/\d+/)?.[0] || '0');
+function checkBreakingChanges(currentVersion, newVersion) {
+  const currentMajor = (currentVersion.match(/^(\d+)/) || [])[1] || '0';
+  const newMajor = (newVersion.match(/^(\d+)/) || [])[1] || '0';
   
   if (newMajor > currentMajor) {
     return {
       hasBreaking: true,
-      majorBump: newMajor - currentMajor,
+      majorBump: parseInt(newMajor) - parseInt(currentMajor),
       note: `Major version update from ${currentMajor} to ${newMajor}`
     };
   }
@@ -122,7 +122,7 @@ function processDependencyUpdates() {
         from: update.current,
         to: update.next,
         packages: update.packages || [dep],
-        breaking: hasBreakingChanges(update.current, update.next)
+        breaking: checkBreakingChanges(update.current, update.next)
       });
     }
   });
@@ -133,10 +133,10 @@ function processDependencyUpdates() {
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
-  checkDependencyCompatibility,
+  checkCompatibility,
   validateDependencies,
   getRecommendedUpdateOrder,
-  hasBreakingChanges,
+  checkBreakingChanges,
   processDependencyUpdates
 };
 

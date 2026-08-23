@@ -4,15 +4,6 @@ function Header() {
   // ... already existing code here
 }
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
-
 function Navigation() {
   // ... already existing code here
 }
@@ -45,6 +36,15 @@ function FakeLinkFixed() {
   // ... already existing code here
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+
 // NEW: Add lang attribute to HTML element. This function can be implemented in setupTests.js or globally in a JS file
 function addLangAttribute() {
   document.documentElement.lang = 'en';
@@ -61,7 +61,6 @@ function addMainLandmark() {
   // Already present in Header (role="banner")
   // Tests validate existence and validity via validateMainLandmark()
 }
-
 function validateMainLandmark() {
   // Assert Header has role="banner"
 }
@@ -122,7 +121,6 @@ function getAccessibleLabel(label) {
 function createInPageButton() {
   // Example: Adds aria-current prop for in-page links
 }
-
 function fixFakeLinkIssue() {
   // Already present: replaces href="#" with real URL
 }
@@ -143,19 +141,17 @@ function validateLandmarkRoles() {
   
   return allValid;
 }
-
 function validateLandmarkStructure() {
   // Ensure landmarks have valid heading structure
 }
 
+// NEW: Validate table accessibility
 function validateTableAccessibility() {
   // Validate that tables have proper accessibility (captions, th scope, etc.)
 }
-
 function validateTableStructure() {
   // Validate table structure (proper thead, tbody, tfoot usage)
 }
-
 function validateLandmark() {
   // Validate individual landmark elements
 }

@@ -6,8 +6,14 @@ export const metadata = {
   description: 'Screeps Dashboard',
   htmlLang: 'en',
   icons: {
-    icon: { url: 'data:image/svg+xml', href: ... ... viewBox="0 0 100 100"><title>Screeps Dashboard Icon</title><circle cx="50" cy="50" r="40" ... },
-    apple: { url: 'data:image/svg+xml', href: ... ... viewBox="0 0 100 100"><title>Screeps Dashboard Apple Icon</title><circle cx="50" cy="50" r="40" ... },
+    icon: {
+      url: 'data:image/svg+xml',
+      href: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard Icon</title><circle cx="50" cy="50" r="40" fill="%23ff6644"/></svg>',
+    },
+    apple: {
+      url: 'data:image/svg+xml',
+      href: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard Apple Icon</title><circle cx="50" cy="50" r="40" fill="%2300ff88"/></svg>',
+    },
   },
 };
 
@@ -27,6 +33,4 @@ export function getHTMLAttributes() {
 }
 
 // TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-// import { someFunction } from './some-file';
-// export { someFunction };
+// (placeholder comment retained for future reference)

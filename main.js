@@ -21,15 +21,6 @@ module.exports.newFunction = newFunction;
 
 // END NEW FUNCTION ADDED REQUESTED IN ISSUE
 
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-const requiredFunction = require('another-module').myFunction;
-
-// Export the required function
-module.exports.requiredFunction = requiredFunction;
-
-// BEGIN ADDING ACCESSIBILITY CHANGES REQUESTED IN ISSUE
-
 // Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', 'en');
 
@@ -76,5 +67,3 @@ document.querySelectorAll('a').forEach(link => {
     link.target = '_blank';
   }
 });
-
-// END ADDING ACCESSIBILITY CHANGES REQUESTED IN ISSUE

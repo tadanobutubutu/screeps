@@ -23,7 +23,7 @@ const addAccessibleNamesToSVGs = () => {
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
-      svg.appendChild(titleElement);
+      svg.insertBefore(titleElement, svg.firstChild);
     }
   });
 };
@@ -60,11 +60,11 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.keys(landmarks).forEach(role => {
+  Object.entries(landmarks).forEach(([role, landmark]) => {
     const elements = document.querySelectorAll(role);
     elements.forEach(element => {
-      if (element.getAttribute('role') !== landmarks[role]) {
-        element.setAttribute('role', landmarks[role]);
+      if (element.getAttribute('role') !== landmark) {
+        element.setAttribute('role', landmark);
       }
     });
   });
@@ -76,17 +76,17 @@ const fixLandmarkIssues = () => {
 const uniqueLandmarks = () => {
   // Implementation to ensure all landmarks have unique IDs
   const existingIds = new Set();
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'];
 
   return (element) => {
     if (!element) return false;
 
     if (!element.id) {
       let counter = 1;
-      let newId = `landmark-${counter}`;
+      let newId = element.tagName.toLowerCase() + '-' + counter;
       while (existingIds.has(newId)) {
         counter++;
-        newId = `landmark-${counter}`;
+        newId = element.tagName.toLowerCase() + '-' + counter;
       }
       element.id = newId;
       existingIds.add(newId);
@@ -101,7 +101,7 @@ const addLandmarkRegions = () => {
   // Implementation to add proper landmark regions for accessibility
   // This function would likely involve adding ARIA roles and properties
   // to ensure landmarks are properly identified by screen readers
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
     // Check if the landmark already has the proper role
     if (landmark.getAttribute('role') === null) {
@@ -144,8 +144,8 @@ const fixTableStructureIssues = () => {
 
         if (firstRowHasHeaders) {
           const thead = document.createElement('thead');
-          firstRow.parentNode.insertBefore(thead, firstRow);
           thead.appendChild(firstRow);
+          table.insertBefore(thead, table.firstChild);
         }
       }
 
@@ -164,14 +164,14 @@ const fixTableStructureIssues = () => {
     }
 
     // Fix header-cell associations using headers attribute
-    const allCells = table.querySelectorAll('td, th');
+    const allCells = table.querySelectorAll('th');
     allCells.forEach(cell => {
       // If cell has headers attribute, ensure it's valid
       const headersAttr = cell.getAttribute('headers');
       if (headersAttr) {
         const headerIds = headersAttr.split(' ');
         headerIds.forEach(headerId => {
-          const header = document.getElementById(headerId);
+          const header = table.querySelector(`#${headerId}`);
           if (!header) {
             // Invalid header reference, remove the attribute
             cell.removeAttribute('headers');
@@ -193,8 +193,52 @@ const fixTableStructureIssues = () => {
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, addScopeToTableHeaders, fixTableStructureIssues };
 
-// TODO: Implement addProperLandmarkRegions();
+// TODO: Implement ...
 const addProperLandmarkRegions = () => {
   // Implementation to add proper ARIA roles and properties for accessibility
   // as well as unique IDs for landmark regions
+  const landmarkElements = document.querySelectorAll('nav, main, header, footer, aside, section, article');
+  let landmarkCounter = 0;
+
+  landmarkElements.forEach(element => {
+    landmarkCounter++;
+
+    // Add unique ID if not present
+    if (!element.id) {
+      const tagName = element.tagName.toLowerCase();
+      element.id = `${tagName}-landmark-${landmarkCounter}`;
+    }
+
+    // Ensure proper ARIA role
+    const tagName = element.tagName.toLowerCase();
+    const roleMap = {
+      'nav': 'navigation',
+      'main': 'main',
+      'header': 'banner',
+      'footer': 'contentinfo',
+      'aside': 'complementary',
+      'section': 'region',
+      'article': 'article'
+    };
+
+    if (roleMap[tagName] && !element.getAttribute('role')) {
+      element.setAttribute('role', roleMap[tagName]);
+    }
+
+    // Add aria-label if no existing labeling mechanism
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const defaultLabels = {
+        'nav': 'Navigation',
+        'main': 'Main content',
+        'header': 'Header',
+        'footer': 'Footer',
+        'aside': 'Related content',
+        'section': 'Section',
+        'article': 'Article'
+      };
+      if (defaultLabels[tagName]) {
+        element.setAttribute('aria-label', defaultLabels[tagName]);
+      }
+    }
+  });
 };

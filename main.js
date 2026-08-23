@@ -1,12 +1,9 @@
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// Import the myFunction from the required file
 import myFunction from './myFunction';
-
-// Import the missing functions from the required files
 import myMissingFunction1 from './myMissingFunction1';
 import myMissingFunction2 from './myMissingFunction2';
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -89,7 +86,7 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
@@ -105,9 +102,9 @@ const fixFakeLinkIssues = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
     // Check if link has no href or empty href
-    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
+    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && !link.querySelector('img')) {
+      if (!link.textContent && link.querySelector('img')) {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }
@@ -134,17 +131,73 @@ const enhanceAccessibility = () => {
   fixFakeLinkIssues();
 };
 
+// Combined initialization function
+const initializeAccessibility = () => {
+  enhanceAccessibility();
+  initUnrotate();
+  initDomEnhancements();
+};
+
 // Update the module.exports object
 module.exports.Dashboard = Dashboard;
 module.exports.myFunction = myFunction;
 module.exports.myMissingFunction1 = myMissingFunction1;
 module.exports.myMissingFunction2 = myMissingFunction2;
 module.exports.myNewFunction = myNewFunction;
-module.exports.enhanceAccessibility = enhanceAccessibility;
 module.exports.myNewFunction2 = myNewFunction2;
+module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports.enhancedAccessibility = enhancedAccessibility;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 module.exports.addMainLandmark = addMainLandmark;
 module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
+module.exports.initUnrotate = initUnrotate;
+module.exports.initDomEnhancements = initDomEnhancements;
+module.exports.initializeAccessibility = initializeAccessibility;
+
+// Alias for compatibility with origin/main naming
+const enhancedAccessibility = enhanceAccessibility;
+
+// Unrotate functionality from origin/main
+const initUnrotate = () => {
+  const unrotateElement = document.getElementById('unrotate');
+  
+  if (unrotateElement) {
+    unrotateElement.addEventListener('click', function() {
+      // Rotate back functionality
+      const image = document.getElementById('target-image');
+      if (image) {
+        image.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+};
+
+// Initialize DOM enhancements from origin/main
+const initDomEnhancements = () => {
+  const mainContent = document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-labelledby', `svgLabel${index + 1}`);
+    }
+  });
+
+  const navigation = document.querySelector('#navigation');
+  if (navigation) {
+    navigation.setAttribute('role', 'navigation');
+  }
+
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.textContent) {
+      link.textContent = 'Link text';
+    }
+  });
+};

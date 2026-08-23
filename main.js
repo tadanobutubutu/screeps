@@ -40,7 +40,7 @@ const fixTableStructureIssues = () => {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('th, td');
+        const headerCells = firstRow.querySelectorAll('td');
         const headerRow = document.createElement('tr');
         headerCells.forEach(cell => {
           const th = document.createElement('th');
@@ -56,7 +56,7 @@ const fixTableStructureIssues = () => {
       const rows = table.querySelectorAll('tr');
       const tbody = document.createElement('tbody');
       rows.forEach(row => {
-        if (row.parentElement !== table.querySelector('thead')) {
+        if (row.parentElement !== tbody) {
           tbody.appendChild(row);
         }
       });
@@ -89,11 +89,11 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
-        const existingRole = elements[i].getAttribute('role') || role;
+        const existingRole = elements[i].getAttribute('data-secondary-role') || role;
         elements[i].setAttribute('role', `${existingRole}-${i + 1}`);
       }
     }
@@ -105,9 +105,10 @@ const fixFakeLinkIssues = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
     // Check if link has no href or empty href
-    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
+    const href = link.getAttribute('href');
+    if (!href || href === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && !link.querySelector('img')) {
+      if (!link.textContent && link.querySelector('img')) {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }

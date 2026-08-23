@@ -113,6 +113,29 @@ function createInPageButton(text, options = {}) {
   return `<button type="button"${idAttr}${classAttr}${ariaAttr}>${text}</button>`;
 }
 
+// Function to add accessible name to SVG elements
+function addAccessibleNameToSVGs(htmlContent) {
+  // Regex to find SVG elements without an accessible name
+  const svgRegex = /<svg[^>]*>([\s\S]*?)(?=<\/svg>)/gi;
+  
+  let modifiedContent = htmlContent;
+  let match;
+  
+  // Loop through all SVG elements and add aria-label or title as accessible name
+  while ((match = svgRegex.exec(modifiedContent)) !== null) {
+    const svgContent = match[1];
+    const accessibleName = 'SVG Content'; // Default accessible name
+    
+    // Check if SVG already has a title or aria-hidden
+    if (!svgContent.includes('<title') && !svgContent.includes('aria-hidden="true"')) {
+      modifiedContent = modifiedContent.replace(match[0], getSvgAccessibleName(match[0], accessibleName));
+    }
+  }
+  
+  return modifiedContent;
+}
+
+// Wrap main tags function
 function wrapMainTags(htmlContent) {
   // Check if the HTML content already has <main> tag
   const isMainTagExists = /<main[\s>]/i.test(htmlContent);
@@ -139,5 +162,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createAccessibleLink,
-  createInPageButton
+  createInPageButton,
+  addAccessibleNameToSVGs // New export
 };

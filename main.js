@@ -5,8 +5,8 @@
 import myFunction from './myFunction';
 
 // Import the missing functions from the required files
-import myMissingFunction1 from ...
-import myMissingFunction2 from ...
+import myMissingFunction1 from './myMissingFunction1';
+import myMissingFunction2 from './myMissingFunction2';
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -40,7 +40,7 @@ const fixTableStructureIssues = () => {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('th, td');
+        const headerCells = firstRow.querySelectorAll('td');
         const headerRow = document.createElement('tr');
         headerCells.forEach(cell => {
           const th = document.createElement('th');
@@ -56,7 +56,7 @@ const fixTableStructureIssues = () => {
       const rows = table.querySelectorAll('tr');
       const tbody = document.createElement('tbody');
       rows.forEach(row => {
-        if (!row.closest('thead')) {
+        if (row.parentElement !== thead) {
           tbody.appendChild(row);
         }
       });
@@ -89,12 +89,12 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role}`);
+    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
-        const existingRole = elements[i].getAttribute('role') || elements[i].tagName.toLowerCase();
-        elements[i].setAttribute('aria-label', `${existingRole}-${i + 1}`);
+        const existingRole = elements[i].getAttribute('role') || role;
+        elements[i].setAttribute('role', `${existingRole}-${i + 1}`);
       }
     }
   });
@@ -107,7 +107,7 @@ const fixFakeLinkIssues = () => {
     // Check if link has no href or empty href
     if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && !link.querySelector('img')) {
+      if (!link.textContent && link.querySelector('img')) {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }
@@ -136,12 +136,12 @@ const enhanceAccessibility = () => {
 
 // Update the module.exports object
 module.exports.Dashboard = Dashboard;
-... = myFunction;
-... = myMissingFunction1;
-... = myMissingFunction2;
-... = myNewFunction;
-... = enhanceAccessibility;
-module.exports.myNewFunction2 = myNewFunction2;  // Add the export for the new function
+module.exports.myFunction = myFunction;
+module.exports.myMissingFunction1 = myMissingFunction1;
+module.exports.myMissingFunction2 = myMissingFunction2;
+module.exports.myNewFunction = myNewFunction;
+module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports.myNewFunction2 = myNewFunction2;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 module.exports.addMainLandmark = addMainLandmark;

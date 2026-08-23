@@ -7,15 +7,14 @@ export default function Main() {
 
   return (
     <div lang="en">
-      <header role="banner">
-        <nav role="navigation" aria-label="Main navigation">
+      <header>
+        <nav aria-label="Main navigation">
           <button
             aria-label="Toggle navigation menu"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <title>Menu icon</title>
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           </button>
@@ -32,7 +31,8 @@ export default function Main() {
         <section aria-labelledby="table-heading">
           <h1 id="table-heading">Data Table</h1>
 
-          <table>
+          <table aria-describedby="table-heading">
+            <caption>Data Table</caption>
             <thead>
               <tr>
                 <th scope="col"...
@@ -58,14 +58,13 @@ export default function Main() {
         </section>
       </main>
 
-      <aside role="complementary" aria-label="Sidebar navigation">
+      <aside aria-label="Sidebar navigation">
         <button
           aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           aria-expanded={sidebarOpen}
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <title>Sidebar toggle icon</title>
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
@@ -82,18 +81,11 @@ export default function Main() {
 
         <div className="info">
           <span>Sidebar</span>
-          <button
-            aria-label="Go to home"
-            onClick={() => {}}
-          >
+          <Link href="/">
             Go home
-          </button>
+          </Link>
         </div>
       </aside>
 
       <footer role="contentinfo">
-        <p>Footer content</p>
-      </footer>
-    </div>
-  );
-}
+        <p

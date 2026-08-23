@@ -48,4 +48,4 @@ export const testUtils = {
 // Example for the affected line in docs/dependency-graph.html:547
 // <th><div>src/constants.js</div></th>
 // Should be updated to:
-<th scope="col"><div>src/constants.js</div></th>
+// <th scope="col"><div>src/constants.js</div></th>

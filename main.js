@@ -1,12 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (NEW FUNCTION fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: addAriaLabelToMyDiv)
 
 // EXISTING AND PRESERVED CODE ...
 
@@ -109,21 +102,5 @@ function addAriaLabelToMyDiv() {
   }
 }
 
-function App() {
-  // Apply accessibility fixes when component mounts
-  useEffect(() => {
-    addLangAttribute();
-    addMainLandmark();
-    fixTableStructureIssues();
-    ensureUniqueLandmarks();
-    addSvgAccessibleNames();
-    addAriaLabelToMyDiv();
-  }, []);
-
-  // ... REMAINING CODE ...
-}
-
-// ... REMAINING CODE ...
-
-// Export new functions
+// EXPORT new functions
 export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };

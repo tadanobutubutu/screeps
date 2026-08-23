@@ -50,11 +50,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    const mainElement = document.querySelector('main, [role="main"]');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      document.body.insertBefore(main, document.body.firstChild);
     }
   }, []);
 }
@@ -62,7 +62,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    const mainElement = document.querySelector('main, [role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -72,13 +72,13 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks using React's useEffect
-function validateLandmarkRoles(element) {
+function validateLandmarkRoles() {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.getElementsByTagName('nav') : [];
+      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       foundLandmarks[role] = totalCount;
     });
@@ -100,10 +100,9 @@ function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return null;
   }
-  // ... existing logic ...
   const title = svgElement.querySelector('title');
-  if (title) {
-    return title.textContent;
+  if (title && title.textContent) {
+    return title.textContent.trim();
   }
   return null;
 }
@@ -113,7 +112,6 @@ function getAccessibleLabel(element) {
   if (!element) {
     return null;
   }
-  // ... existing logic ...
   const ariaLabel = element.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
@@ -129,7 +127,11 @@ function getAccessibleLabel(element) {
 }
 
 function createInPageButton() {
-  // ... existing logic ...
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.textContent = 'Skip to content';
+  button.setAttribute('aria-label', 'Skip to main content');
+  return button;
 }
 
 function validateTableAccessibility() {

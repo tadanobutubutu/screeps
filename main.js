@@ -50,6 +50,14 @@ export const addAccessibleNamesToSVGs = () => {
   });
 };
 
+// Accessibility fix for REACT_015: Add lang attribute to HTML element (duplicate removed)
+
+// Accessibility fix for REACT_041: Add accessible names to 2 SVGs (duplicate removed)
+
+// Accessibility fix for REACT_015: Add lang attribute to HTML element (duplicate removed)
+
+// Accessibility fix for REACT_041: Add accessible names to 2 SVGs (duplicate removed)
+
 // Function to add scope to table headers
 export const addScopeToTableHeaders = () => {
   const headers = document.querySelectorAll('th');
@@ -128,7 +136,7 @@ export const validateTableStructure = () => {
     const caption = table.querySelector('caption');
     if (headers.length > 0 && !caption) {
       issues.push(`Table ${index + 1}: Missing caption for table with headers`);
-    });
+    }
   });
   return issues;
 };

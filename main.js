@@ -217,6 +217,17 @@ function ... {
   };
 }
 
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain() {
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) {
+    const newMain = document.createElement('main');
+    newMain.id = 'primaryContent';
+    newMain.appendChild(mainContent);
+    document.body.appendChild(newMain);
+  }
+}
+
 // Implement ... function
 function ... {
   // Assuming we want to add landmark roles to certain elements in the main content
@@ -225,7 +236,7 @@ function ... {
   const allElements = ...
 
   allElements.forEach((element) => {
-    if ... {
+    if (landmarks.includes(element.tagName.toLowerCase())) {
       element.setAttribute('role', element.tagName.toLowerCase());
     }
   });

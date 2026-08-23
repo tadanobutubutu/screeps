@@ -130,3 +130,22 @@ export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
         const elements = document.querySelectorAll(role);
+        if (elements.length > 1) {
+            elements.forEach((el, index) => {
+                if (index > 0) {
+                    const div = document.createElement('div');
+                    div.setAttribute('role', role);
+                    Array.from(el.attributes).forEach(attr => {
+                        if (attr.name !== 'role') {
+                            div.setAttribute(attr.name, attr.value);
+                        }
+                    });
+                    while (el.firstChild) {
+                        div.appendChild(el.firstChild);
+                    }
+                    el.parentNode.replaceChild(div, el);
+                }
+            });
+        }
+    });
+}

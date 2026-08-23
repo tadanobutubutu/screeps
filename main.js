@@ -82,10 +82,10 @@ function validateTableStructure(htmlContent) {
       result += `<tbody>${content}</tbody>`;
     } else if (hasThead && !hasTbody) {
       // Extract thead and wrap remaining in tbody
-      const theadMatch = /<thead[\s\S]*?<\/thead>/i.exec(content);
+      const theadMatch = content.match(/<thead[\s\S]*?<\/thead>/i);
       if (theadMatch) {
         result += theadMatch[0];
-        const remaining = content.replace(theadMatch[0], '');
+        const remaining = content.replace(/<thead[\s\S]*?<\/thead>/i, '');
         result += `<tbody>${remaining}</tbody>`;
       } else {
         result += `<tbody>${content}</tbody>`;
@@ -106,12 +106,13 @@ function validateTableStructure(htmlContent) {
       return result;
     } else if (!hasThead && hasTbody) {
       // No thead but has tbody - extract first row for thead if appropriate
-      const tbodyMatch = /<tbody[\s\S]*?<\/tbody>/i.exec(content);
+      const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/i);
       if (tbodyMatch) {
         // Try to extract first row for thead
-        const firstRowMatch = /<tr[\s\S]*?<\/tr>/i.exec(tbodyMatch[0]);
+        const firstRowMatch = tbodyMatch[0].match(/<tr[^>]*>[\s\S]*?<\/tr>/i);
         if (firstRowMatch) {
-          result += `<thead><tr>${firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
+          const rowContent = firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>');
+          result += `<thead><tr>${rowContent.replace(/<tr[^>]*>([\s\S]*?)<\/tr>/i, '$1')}</tr></thead>`;
           const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
           result += restContent;
         } else {
@@ -139,15 +140,15 @@ function validateLandmark(htmlContent) {
   // Add main landmark if not present
   if (!/<main/i.test(htmlContent)) {
     // Wrap content in main tag
-    const bodyMatch = /<body([^>]*)>([\s\S]*)<\/body>/i.exec(htmlContent);
+    const bodyMatch = htmlContent.match(/<body([^>]*)>([\s\S]*)/i);
     if (bodyMatch) {
-      modifiedContent = modifiedContent.replace(
-        /<body([^>]*)>([\s\S]*)<\/body>/i,
+      modifiedContent = htmlContent.replace(
+        /<body([^>]*)>([\s\S]*)/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
       // If no body tag, wrap everything in main
-      modifiedContent = `<main>${modifiedContent}</main>`;
+      modifiedContent = `<main>${htmlContent}</main>`;
     }
   }
 
@@ -202,13 +203,13 @@ function getSvgAccessibleName(svgContent, accessibleName) {
   // Add title element to SVG for accessibility
   if (!/<title/i.test(svgContent)) {
     // Find the first child element position
-    const firstChildMatch = /<svg([^>]*)>([\s\S]*)/i.exec(svgContent);
+    const firstChildMatch = svgContent.match(/(<svg[^>]*>)([\s\S]*)/i);
     if (firstChildMatch) {
       const content = firstChildMatch[2];
-      const firstElementMatch = /<[a-zA-Z][^>]*>/i.exec(content);
+      const firstElementMatch = content.match(/<(\w+)/);
       if (firstElementMatch && firstElementMatch.index !== undefined) {
         const titleElement = `<title>${accessibleName}</title>`;
-        const insertPos = firstChildMatch.index + firstChildMatch[0].length - content.length;
+        const insertPos = firstChildMatch.index + firstChildMatch[1].length + firstElementMatch.index;
         return svgContent.substring(0, insertPos) + titleElement + svgContent.substring(insertPos);
       }
     }
@@ -226,4 +227,13 @@ function createAccessibleLink(url, text, options = {}) {
 
   let relAttr = rel;
   if (!relAttr && target === '_blank') {
-    relAttr
+    relAttr = 'noopener noreferrer';
+  }
+
+  const classAttr = className ? ` class="${className}"` : '';
+  const targetAttr = target !== '_self' ? ` target="${target}"` : '';
+  const relAttrStr = relAttr ? ` rel="${relAttr}"` : '';
+  const ariaLabelAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
+
+  return `<a href="${url}"${classAttr}${targetAttr}${relAttrStr}${ariaLabelAttr}>${text}</a>`;
+}

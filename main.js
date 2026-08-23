@@ -3,7 +3,10 @@ module.exports = {
   config,
   // Add any additional exports identified from the TODO
   addLangAttribute,
+  setLangAttributeToHTMLElement,
   fixLandmarkIssues,
+  addLandmarks,
+  fixLandmarks,
   addAccessibleNamesToSVGs,
   ensureUniqueLandmarks,
   fixFakeLinkIssue

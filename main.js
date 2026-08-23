@@ -84,6 +84,13 @@ function fixReactFakeLinkIssue() {
   }
 }
 
+// Function for landmarks with unique IDs
+function hasUniqueLandmarks() {
+  return [...document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"]')].every((landmark) => {
+    return landmark.id && landmark.id !== '';
+  });
+}
+
 // New function exporting fixTableStructureIssues
 exports.fixTableStructureIssues = fixTableStructureIssues;
 // New function exporting ensureUniqueLandmarks
@@ -92,6 +99,8 @@ exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 exports.fixOneFakeLinkIssue = fixOneFakeLinkIssue;
 // New function exporting fixReactFakeLinkIssue
 exports.fixReactFakeLinkIssue = fixReactFakeLinkIssue;
+// New function exporting hasUniqueLandmarks
+exports.hasUniqueLandmarks = hasUniqueLandmarks;
 
 function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');
@@ -119,5 +128,6 @@ module.exports = {
   fixOneFakeLinkIssue, // Renamed it to avoid naming conflicts
   ensureUniqueLandmarks,
   fixReactFakeLinkIssue,
+  hasUniqueLandmarks,
   wrapPrimaryContentInMain
 };

@@ -82,17 +82,17 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = container.querySelectorAll('[role="banner"], header, nav, main, footer');
+  const landmarks = container.querySelectorAll('header, nav, main, footer');
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
-      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
       landmark.id = id;
     }
     if (seenIds.has(id)) {
-      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
       landmark.id = id;
     }
     seenIds.add(id);
@@ -143,7 +143,7 @@ const calculateAverage = function(numbers) {
 
 // Updated: DependencyGraphTable now uses dependencyGraphContent module
 export function DependencyGraphTable(props) {
-  const content = dependencyGraphContent.getGraphTableContent(props.dependencies);
+  const content = dependencyGraphContent.getContent();
   return {
     type: 'div',
     props: {
@@ -156,7 +156,7 @@ export function DependencyGraphTable(props) {
 
 // Updated: StatusPage now uses indexContent module for index views
 export function StatusPage(props) {
-  const content = indexContent.getStatusPageContent(props.status);
+  const content = indexContent.getContent();
   return {
     type: 'main',
     props: {
@@ -182,7 +182,7 @@ export function createPageLayout(contentType = 'default') {
 
 // ContentPanel updated to use indexContent
 export function ContentPanel(props) {
-  const content = indexContent.getPanelContent(props.panelId);
+  const content = indexContent.getContent();
   return {
     type: 'section',
     props: {
@@ -256,7 +256,7 @@ export function HtmlLangProvider(props) {
 export function fixTableStructureIssues(tableElement) {
   const headers = tableElement.querySelectorAll('th');
   headers.forEach(th => {
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       th.setAttribute('scope', 'col');
     }
   });
@@ -277,13 +277,13 @@ export function createAccessibleFaviconSvg(color = '#000000') {
 
 // faviconGenerators - collection of favicon generation utilities
 export const faviconGenerators = {
-  simple: (color) => createAccessibleFaviconSvg(color),
-  withText: (text, color) => createAccessibleFaviconSvg(color)
+  simple: (color) => ({ type: 'svg', props: { children: [] } }),
+  withText: (text, color) => ({ type: 'svg', props: { children: [] } })
 };
 
 // generateId - utility for generating unique IDs
 export function generateId(prefix = 'id') {
-  return prefix + '-' + Math.random().toString(36).substr(2, 9);
+  return prefix + '-' + Math.random().toString(36).substring(2, 9);
 }
 
 // setHtmlLang - utility to set HTML language
@@ -308,29 +308,4 @@ export {
   setLanguageAttribute,
   calculateAverage,
   addressAccessibilityIssues,
-  enhanceFocusVisibility
-};
-
-export default {
-  createHtmlElement,
-  createTable,
-  createSvgIcon,
-  createPageLayout,
-  createNavigationLink
-};
-
-// Additional helper function
-function createNavigationLink(props) {
-  return {
-    type: 'a',
-    props: {
-      href: props.href,
-      className: props.className,
-      children: props.children
-    }
-  };
-}
-
-// Set default language attribute for the HTML root element and trigger accessibility improvements
-document.documentElement.lang = 'en';
-addressAccessibilityIssues();
+  enhance

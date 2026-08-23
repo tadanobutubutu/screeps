@@ -274,6 +274,39 @@ function validateLinkAccessibility(linkText, context = {}) {
   return { valid: true };
 }
 
+/**
+ * Check for duplicate landmark types to ensure unique landmarks
+ * @param {Array<Object>} landmarks - Array of landmark objects
+ * @returns {Object} Validation result with issues
+ */
+function validateUniqueLandmarks(landmarks) {
+  const seen = {};
+  const issues = [];
+
+  landmarks.forEach((landmark, index) => {
+    const type = landmark.type;
+    if (seen[type]) {
+      issues.push(`REACT_025: Duplicate landmark type '${type}' at index ${index}`);
+    } else {
+      seen[type] = true;
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+}
+
+/**
+ * Generate an accessible label for SVG elements
+ * @param {string} title - Title of the SVG
+ * @returns {string} Accessible label
+ */
+function generateSvgLabel(title) {
+  return title || 'SVG graphic';
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -288,7 +321,9 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   getTableScopeRecommendation,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  validateUniqueLandmarks,
+  generateSvgLabel
 };
 
 // Run if executed directly

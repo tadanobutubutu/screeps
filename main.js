@@ -25,6 +25,79 @@ const DEPENDENCY_UPDATES = {
   }
 };
 
+// Check accessibility compliance for dependencies
+function checkAccessibilityCompliance(dependencies) {
+  const issues = [];
+  
+  // Check React version for accessibility support
+  if (dependencies.react) {
+    const reactVersion = dependencies.react.replace(/[\^~>=<]/g, '');
+    const majorVersion = parseInt(reactVersion.split('.')[0]);
+    if (majorVersion < 16) {
+      issues.push('React version below 16.0 lacks proper accessibility hooks support');
+    }
+  }
+  
+  // Check ESLint for accessibility rules configuration
+  if (dependencies.eslint) {
+    const eslintVersion = dependencies.eslint.replace(/[\^~>=<]/g, '');
+    const majorVersion = parseInt(eslintVersion.split('.')[0]);
+    if (majorVersion < 8) {
+      issues.push('ESLint version below 8.0 has limited JSX a11y rules');
+    }
+  }
+  
+  return {
+    compliant: issues.length === 0,
+    issues
+  };
+}
+
+// Get accessibility-related dependencies to install
+function getAccessibilityDependencies() {
+  return {
+    'axe-core': '^4.8.0',
+    'jest-axe': '^1.0.0',
+    '@axe-core/react': '^4.8.0'
+  };
+}
+
+// Validate accessibility tooling compatibility
+function validateAccessibilityTooling(tooling) {
+  const requirements = {
+    'jest-axe': { requires: ['jest@>=26', 'react@>=16'] },
+    '@axe-core/react': { requires: ['react@>=16'] },
+    'axe-core': { standalone: true }
+  };
+  
+  const results = [];
+  
+  tooling.forEach(tool => {
+    const reqs = requirements[tool];
+    if (reqs && !reqs.standalone) {
+      results.push({
+        tool,
+        compatible: true,
+        requirements: reqs.requires
+      });
+    } else if (!reqs) {
+      results.push({
+        tool,
+        compatible: false,
+        reason: 'Unknown accessibility tool'
+      });
+    } else {
+      results.push({
+        tool,
+        compatible: true,
+        standalone: true
+      });
+    }
+  });
+  
+  return results;
+}
+
 // Check compatibility between dependencies
 function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   const compatibilityMatrix = {
@@ -39,7 +112,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/^(\d+)/);
+    const match = version.match(/(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -95,8 +168,8 @@ function getRecommendedUpdateOrder() {
 
 // Check for breaking changes in major version updates
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajor = parseInt(currentVersion.match(/\d+/)?.[0] || '0');
-  const newMajor = parseInt(newVersion.match(/\d+/)?.[0] || '0');
+  const currentMajor = parseInt(currentVersion.match(/(\d+)/)?.[1]) || '0';
+  const newMajor = parseInt(newVersion.match(/(\d+)/)?.[1]) || '0';
   
   if (newMajor > currentMajor) {
     return {
@@ -137,7 +210,10 @@ module.exports = {
   validateDependencies,
   getRecommendedUpdateOrder,
   hasBreakingChanges,
-  processDependencyUpdates
+  processDependencyUpdates,
+  checkAccessibilityCompliance,
+  getAccessibilityDependencies,
+  validateAccessibilityTooling
 };
 
 // Run if executed directly
@@ -146,11 +222,19 @@ if (require.main === module) {
   const updates = processDependencyUpdates();
   
   updates.forEach(update => {
-    console.log(`[${update.dependency.toUpperCase()}]`);
+    console.log(`${update.dependency}:`);
     console.log(`  ${update.from} → ${update.to}`);
     if (update.breaking.hasBreaking) {
       console.log(`  WARNING: ${update.breaking.note}`);
     }
     console.log();
   });
+  
+  console.log('Accessibility check...');
+  const sampleDeps = { react: '^18.2.0', eslint: '^8.47.0' };
+  const a11yResult = checkAccessibilityCompliance(sampleDeps);
+  console.log(`  Compliant: ${a11yResult.compliant}`);
+  if (a11yResult.issues.length > 0) {
+    a11yResult.issues.forEach(issue => console.log(`  - ${issue}`));
+  }
 }

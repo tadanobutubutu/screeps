@@ -132,6 +132,9 @@ const addressAccessibilityIssues = function() {
 
   // Ensure unique landmarks (pass document as container)
   ensureUniqueLandmarks();
+
+  // Fix REACT_015: Set language attribute on HTML root element
+  setLanguageAttribute('en');
 };
 
 const setLanguageAttribute = function(lang) {

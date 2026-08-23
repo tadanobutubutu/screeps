@@ -9,6 +9,7 @@ export function main() {
         <main>
             <h1>Welcome</h1>
             <p>Success content</p>
+            {/* ... rest of the main content ... */}
         </main>
     );
 }

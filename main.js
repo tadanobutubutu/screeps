@@ -8,6 +8,7 @@ document.documentElement.lang = 'en';
 function renderAccessibleSVG(accessibleName, svgId) {
   return `
     <svg aria-label="${accessibleName}" id="${svgId || ''}">
+      <title>${accessibleName}</title>
     </svg>
   `;
 }

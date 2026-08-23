@@ -26,11 +26,14 @@ export default someModule;
   // module.exports.loop = function() { /* ... */ }
   // ----- END ORIGINAL CODE -----
 
-  // Fix the language attribute on non-accessible elements (unchanged)
+  // Fix the language attribute on non-accessible elements (updated)
   function reactLanguageAttributeFix(element) {
-    if (element && element.props && element.props.lang) {
-      console.warn('Language attribute detected on non-accessible element');
-      delete element.props.lang;
+    if (element && element.props && ReactDOM.findDOMNode(element)) {
+      const langAttr = ReactDOM.findDOMNode(element).getAttribute('lang');
+      if (langAttr) {
+        console.warn(`Language attribute detected on non-accessible element: ${langAttr}`);
+        ReactDOM.findDOMNode(element).removeAttribute('lang');
+      }
     }
   }
 
@@ -62,8 +65,30 @@ export default someModule;
     }
   }
 
-  // Call the function to add lang attribute to the root element
-  addLangAttributeToRoot();
+  // Add addressAccessibilityIssues function
+  const addressAccessibilityIssues = (elements) => {
+    elements.forEach((element) => {
+      if (element) {
+        reactLanguageAttributeFix(element);
+        addressAccessibilityIssues(element.props.children || []);
+      }
+    });
+  };
+
+  // Call the function to address accessibility issues
+  const mainContent = React.createElement('main', { id: 'mainContent' });
+  const mainChildren = [React.createElement(Logo), React.createElement(MenuIcon)];
+  mainContent.props.children = mainChildren;
+  document.body.appendChild(mainContent);
+
+  // Call mainContentLoaded() after addressing accessibility issues
+  setTimeout(() => {
+    ReactDOM.findAllInto(mainContent, (element) => element && element.type === 'div');
+    const mainContentElements = ReactDOM.findAllInto(mainContent);
+    addressAccessibilityIssues(mainContentElements);
+
+    mainContentLoaded();
+  }, 0);
 })();
 
 import React from 'react';

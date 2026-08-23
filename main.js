@@ -42,7 +42,7 @@ function addLangAttribute(element) {
  * @param {React.ReactElement} element JSX element to process
  * @returns {React.ReactElement} Element with lang attributes added
  */
-function processChildrenForLang(element) {
+function processChildren(element) {
   if (!element || typeof element !== 'object') {
     return element;
   }
@@ -50,7 +50,7 @@ function processChildrenForLang(element) {
   if (element.props && element.props.children) {
     const processedChildren = React.Children.map(element.props.children, child => {
       if (child && typeof child === 'object' && child !== null && child.props) {
-        return processChildrenForLang(child);
+        return processChildren(child);
       }
       return child;
     });
@@ -73,13 +73,13 @@ function processChildrenForLang(element) {
  * @param {SVGElement} svgElement SVG element to modify
  * @param {string} accessibleName Accessible name to add
  */
-function addAccessibleNameToSVG(svgElement, accessibleName) {
+function addAccessibleName(svgElement, accessibleName) {
   if (!svgElement || !accessibleName) {
     return svgElement;
   }
 
   // Ensure role="img" is set
-  if (!svgElement.getAttribute('role')) {
+  if (!svgElement.hasAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
 
@@ -154,7 +154,7 @@ function deduplicateLandmarks(landmarks) {
   const seen = new Set();
 
   landmarks.forEach(landmark => {
-    const id = landmark.id || landmark.name || JSON.stringify(landmark);
+    const id = landmark.id || landmark.name || landmark.role;
     if (!seen.has(id)) {
       seen.add(id);
       unique.push(landmark);
@@ -200,7 +200,7 @@ function fixFakeLinkIssue(element, href) {
  * Creates an HTML element with role "banner".
  */
 function createBannerLandmark() {
-  const banner = document.createElement('div');
+  const banner = document.createElement('header');
   banner.setAttribute('role', 'banner');
   return banner;
 }
@@ -244,8 +244,8 @@ function createFooterLandmark() {
 // Export functions for testing
 export {
   addLangAttribute,
-  processChildrenForLang,
-  addAccessibleNameToSVG,
+  addAccessibleName,
+  processChildren,
   getSVGAccessibleName,
   createAccessibilityProps,
   deduplicateLandmarks,

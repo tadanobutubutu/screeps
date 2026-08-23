@@ -1,98 +1,13 @@
-// Address accessibility issue: REACT_015 - Add lang attribute to HTML element
-document.documentElement.lang = 'en';
-
 // Existing code that needs to be preserved
 function init() { /* ... */ }
 const someVar = require('some-module');
 module.exports.loop = function() { /* ... */ }
 
-// Add landmark roles and labels for improving navigation
-const mainElement = document.querySelector('main') || document.createElement('main');
-mainElement.setAttribute('role', 'main');
-if (!mainElement.id) {
-  mainElement.id = 'main-content';
-}
-
-const banner = document.querySelector('header') || document.createElement('header');
-banner.setAttribute('role', 'banner');
-banner.setAttribute('aria-label', 'banner');
-
-const footer = document.querySelector('footer') || document.createElement('footer');
-footer.setAttribute('role', 'contentinfo');
-footer.setAttribute('aria-label', 'contentinfo');
-
-// Add accessibility names for the requested SVGs
-const svg1 = document.querySelector('svg');
-if (svg1) {
-  svg1.setAttribute('role', 'img');
-  svg1.setAttribute('aria-label', 'Description of SVG 1');
-}
-
-const svg2 = document.querySelectorAll('svg')[1];
-if (svg2) {
-  svg2.setAttribute('role', 'img');
-  svg2.setAttribute('aria-label', 'Description of SVG 2');
-}
-
-// New function to fix the fake link issue
-function fixFakeLink(node) {
-  if (node.tagName.toLowerCase() === 'a' && !node.href) {
-    // Add a hash href for the fake link
-    node.href = '#';
-    node.setAttribute('role', 'button');
-  }
-
-  // Recursively check the children nodes
-  if (node.children) {
-    Array.from(node.children).forEach(child => fixFakeLink(child));
-  }
-}
-
-// Call the fixFakeLink function with the document root
-fixFakeLink(document.body);
-
-// New function to ensure unique landmarks (REACT_025.1)
-function ensureUniqueLandmarks() {
-  const uniqueIds = new Set();
-
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"], [role="banner"]');
-
-  landmarks.forEach(element => {
-    const id = element.getAttribute('id');
-
-    if (!id || !uniqueIds.has(id)) {
-      uniqueIds.add(element.id = id || `${element.getAttribute('role')}-${uniqueIds.size + 1}`);
-    } else {
-      console.warn(`Warning: Duplicate landmark role found: ${element.getAttribute('role')} with id: ${id}`);
-    }
-  });
-}
-
-// Call the function to ensure unique landmarks
-ensureUniqueLandmarks();
-
-// New function to fix 1 fake link issue (REACT_036)
-function fixFakeLinkByHref(node) {
-  if (node.tagName.toLowerCase() === 'a' && !node.href && node.textContent) {
-    node.textContent = node.textContent.trim();
-    if (!node.href) {
-      node.href = `#${node.textContent.toLowerCase().split(/\s+/).join('-')}`;
-    }
-  }
-
-  // Recursively check the children nodes
-  if (node.children) {
-    Array.from(node.children).forEach(child => fixFakeLinkByHref(child));
-  }
-}
-
-// Call the fixFakeLinkByHref function with the document root
-fixFakeLinkByHref(document.body);
-
 // Add the new functions requested in the issue
 function newFunction() {
   console.log("This is the new function");
 }
+
 function anotherNewFunction() {
   console.log("This is another new function");
 }
@@ -103,3 +18,53 @@ module.exports.anotherNewFunction = anotherNewFunction;
 
 // Add the new functions to the exports
 module.exports = { ...module.exports, newFunction, anotherNewFunction };
+
+// Address accessibility issue: REACT_015 - Add lang attribute to HTML element
+import React from "react";
+
+export default function MainPage() {
+  return (
+    <html lang="en">
+      <body>
+        <main aria-label="Main Content">
+          <h1>Accessible Overview</h1>
+          <nav aria-label="Primary Navigation">
+            <ul>
+              <li>
+                <a href="/">Home</a>
+              </li>
+            </ul>
+          </nav>
+          <table>
+            <caption>Example Data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Item</td>
+                <td>42</td>
+              </tr>
+            </tbody>
+          </table>
+          <svg
+            aria-label="Logo"
+            role="img"
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+          >
+            <title>Logo</title>
+            <circle cx="16" cy="16" r="14" />
+          </svg>
+          <button type="button" onClick={() => console.log("action")}>
+            Action
+          </button>
+        </main>
+      </body>
+    </html>
+  );
+}

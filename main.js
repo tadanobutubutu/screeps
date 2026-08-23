@@ -15,15 +15,18 @@ export function getHtmlLang() {
   return metadata.htmlLang;
 }
 
-// Add a new function to return the HTML attributes
 export function getHtmlAttributes() {
   return {
     lang: metadata.htmlLang,
   };
 }
 
-// Update the existing function to include the HTML attributes object
 export function getHTMLAttributes() {
   const attributes = getHtmlAttributes();
   return { ...attributes };
 }
+
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
+// import { someFunction } from './some-file';
+// export { someFunction };

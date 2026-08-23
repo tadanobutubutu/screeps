@@ -126,6 +126,14 @@ function addSvgAccessibleNames() {
   });
 }
 
+// NEW FUNCTION: Add aria-label to the 'myDiv' element
+function addAriaLabelToMyDiv() {
+  const myDiv = document.getElementById('myDiv');
+  if (myDiv) {
+    myDiv.setAttribute('aria-label', 'My div');
+  }
+}
+
 function App() {
   // Apply accessibility fixes when component mounts
   useEffect(() => {
@@ -134,6 +142,7 @@ function App() {
     fixTableStructureIssues();
     ensureUniqueLandmarks();
     addSvgAccessibleNames();
+    addAriaLabelToMyDiv();
   }, []);
 
   return (
@@ -182,4 +191,4 @@ document.documentElement.lang = 'en';
 export default App;
 
 // Export the new functions
-export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };

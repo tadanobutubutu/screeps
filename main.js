@@ -94,16 +94,16 @@ const createAccessibleModal = (props) => {
   contentEl.className = 'modal-content';
   contentEl.textContent = content;
 
-  modal.appendChild(titleEl);
   modal.appendChild(closeBtn);
+  modal.appendChild(titleEl);
   modal.appendChild(contentEl);
 
   // Focus trap management
-  modal.addEventListener('keydown', (e) => {
+  modal.onkeydown = (e) => {
     if (e.key === 'Escape') {
-      modal.dispatchEvent(new CustomEvent('close'));
+      modal.style.display = 'none';
     }
-  });
+  };
 
   return modal;
 };
@@ -146,7 +146,7 @@ const fixFakeLinkIssue = () => {
   if (typeof document !== 'undefined') {
     // Find all anchors without href that look like links
     const fakeLinks = document.querySelectorAll('a:not([href])');
-    fakeLinks.forEach((link) => {
+    fakeLinks.forEach(link => {
       const styles = window.getComputedStyle(link);
       const isClickable = styles.cursor === 'pointer' || link.classList.contains('link');
       if (isClickable) {
@@ -195,4 +195,47 @@ const addAccessibleNamesToSVGs = () => {
         } else {
           svg.appendChild(title);
         }
-        svg.setAttribute
+        svg.setAttribute('aria-labelledby', title.id);
+      }
+    });
+  }
+};
+
+// Fix for REACT_027: Add scope attributes to table headers
+const addScopeToTableHeaders = () => {
+  if (typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row, rowIndex) => {
+        const cells = row.querySelectorAll('th, td');
+        cells.forEach((cell, cellIndex) => {
+          if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+            // Determine if this is a row header (first column) or column header (first row)
+            const isFirstRow = rowIndex === 0;
+            const isFirstColumn = cellIndex === 0;
+            
+            // Check if it's part of a thead
+            const parentThead = cell.closest('thead');
+            const parentTbody = cell.closest('tbody');
+            const parentTfoot = cell.closest('tfoot');
+            
+            if (isFirstRow || parentThead) {
+              // First row or in thead - treat as column header
+              cell.setAttribute('scope', 'col');
+            } else if (isFirstColumn && (parentTbody || parentTfoot || !parentThead)) {
+              // First column in tbody/tfoot - treat as row header
+              cell.setAttribute('scope', 'row');
+            } else {
+              // Default to column scope for other header cells
+              cell.setAttribute('scope', 'col');
+            }
+          }
+        });
+      });
+    });
+  }
+};
+
+// Export the new function
+export { addScopeToTableHeaders };

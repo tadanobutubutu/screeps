@@ -39,7 +39,7 @@ const addScopeToTableHeaders = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -116,6 +116,74 @@ const addLandmarkRegions = () => {
   });
 };
 
+// Accessibility fix for table structure issues
+const fixTableStructureIssues = () => {
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Ensure table has a caption if it doesn't have one and has headers
+    const hasCaption = table.querySelector('caption');
+    const hasHeaders = table.querySelectorAll('th').length > 0;
+    
+    if (!hasCaption && hasHeaders) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table description'; // Generic caption
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    // Ensure proper use of thead, tbody, tfoot
+    const rows = table.querySelectorAll('tr');
+    if (rows.length > 0) {
+      // Check if first row is inside a thead
+      let hasThead = table.querySelector('thead');
+      let hasTbody = table.querySelector('tbody');
+      let hasTfoot = table.querySelector('tfoot');
+      
+      // If no thead but there are headers, wrap first row(s) in thead
+      if (!hasThead) {
+        const firstRow = rows[0];
+        const firstRowHasHeaders = firstRow.querySelectorAll('th').length > 0;
+        
+        if (firstRowHasHeaders) {
+          const thead = document.createElement('thead');
+          firstRow.parentNode.insertBefore(thead, firstRow);
+          thead.appendChild(firstRow);
+        }
+      }
+      
+      // Ensure there's a tbody for remaining rows
+      if (!hasTbody && rows.length > 1) {
+        const tbody = document.createElement('tbody');
+        for (let i = 1; i < rows.length; i++) {
+          // Check if row is not already in tfoot
+          const isInTfoot = rows[i].closest('tfoot');
+          if (!isInTfoot) {
+            tbody.appendChild(rows[i]);
+          }
+        }
+        table.appendChild(tbody);
+      }
+    }
+    
+    // Fix header-cell associations using headers attribute
+    const allCells = table.querySelectorAll('td, th');
+    allCells.forEach(cell => {
+      // If cell has headers attribute, ensure it's valid
+      const headersAttr = cell.getAttribute('headers');
+      if (headersAttr) {
+        const headerIds = headersAttr.split(' ');
+        headerIds.forEach(headerId => {
+          const header = document.getElementById(headerId);
+          if (!header) {
+            // Invalid header reference, remove the attribute
+            cell.removeAttribute('headers');
+          }
+        });
+      }
+    });
+  });
+};
+
 // PRESERVE all existing code, exports, and functions from current main.js
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Example:
@@ -125,4 +193,4 @@ const addLandmarkRegions = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, addScopeToTableHeaders };
+export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, addScopeToTableHeaders, fixTableStructureIssues };

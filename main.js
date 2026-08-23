@@ -2,8 +2,8 @@
 import { forEach } from 'lodash';
 
 /**
- * @typedef {import('.').ScreepsAPI} ScreepsAPI
- * @typedef {import('.').TerminalState} TerminalState
+ * @typedef ... ScreepsAPI
+ * @typedef ... TerminalState
  */
 
 /**
@@ -13,7 +13,7 @@ import { forEach } from 'lodash';
  * @property {boolean} [success]
  */
 
-/** @type {React.FunctionComponent<{api: ScreepsAPI, state: MainState}>} */
+/** @type ... ScreepsAPI, state: MainState}>} */
 const Main = ({ api, state }) => {
   if (state.error) {
     return (

@@ -576,6 +576,7 @@ function validateSvgAccessibility(svgs) {
   
   svgs.forEach((svg, index) => {
     const hasAccessibleName = svg['aria-label'] || svg['aria-labelledby'] || (svg.title && svg.title.trim());
+    
     const hasRole = svg.role === 'img' || svg.role === 'graphics-document' || svg.role === 'graphics-symbol';
     
     if (!hasAccessibleName && !svg['aria-hidden']) {
@@ -782,6 +783,50 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Validate that there is only one <main> landmark in the component tree
+ * Addresses REACT_025: React Unique Landmarks (duplicate <main> elements)
+ * @param {Object} componentTree - Component tree to validate
+ * @returns {Object} Validation result
+ */
+function validateUniqueMainLandmarks(componentTree) {
+  const mainElements = [];
+
+  function traverse(node, path = '') {
+    if (!node) return;
+    if (node.type === 'main' || (node.role && node.role === 'main')) {
+      mainElements.push({
+        path: path,
+        label: node['aria-label'] || node['aria-labelledby'] || null
+      });
+    }
+    if (node.children && Array.isArray(node.children)) {
+      node.children.forEach(child => {
+        const childPath = path ? `${path} > ${node.type || 'unknown'}` : (node.type || 'root');
+        traverse(child, childPath);
+      });
+    }
+  }
+
+  traverse(componentTree);
+
+  const issues = [];
+  if (mainElements.length > 1) {
+    issues.push({
+      rule: 'REACT_025',
+      severity: 'error',
+      message: `Multiple <main> landmarks found (${mainElements.length}). Only one <main> landmark is allowed per page.`,
+      locations: mainElements.map(m => m.path)
+    });
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    mainCount: mainElements.length
+  };
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -808,7 +853,9 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // Added for REACT_025 enforcement
+  validateUniqueMainLandmarks
 };
 
 // Run if executed directly

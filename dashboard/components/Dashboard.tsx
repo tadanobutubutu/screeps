@@ -60,6 +60,26 @@ export default function Dashboard() {
         return num.toString();
     };
 
+    const copySummary = useCallback(() => {
+        if (!stats) return;
+        const gclStr = stats.gcl
+            ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)}%)`
+            : 'GCL -';
+        const gplStr = stats.power !== undefined ? `GPL ${stats.power}` : 'GPL -';
+        const cpuStr = stats.cpuUsed !== undefined ? `CPU ${stats.cpuUsed.toFixed(2)}` : 'CPU -';
+        const roomsStr =
+            stats.rooms && stats.rooms.length > 0
+                ? `Rooms: ${stats.rooms.join(', ')}`
+                : 'Rooms: none';
+        const summaryText = `🐛 Screeps AI Status | ${gclStr} | ${gplStr} | ${cpuStr} | ${roomsStr}`;
+
+        navigator.clipboard.writeText(summaryText).then(() => {
+            setCopiedSummary(true);
+            setTimeout(() => setCopiedSummary(false), 2000);
+            showToast('ステータスのサマリーをクリップボードにコピーしました');
+        });
+    }, [stats]);
+
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
         try {
@@ -118,12 +138,26 @@ export default function Dashboard() {
                 } else if (e.key.toLowerCase() === 'd') {
                     e.preventDefault();
                     setDetailsOpen((prev) => !prev);
+                } else if (e.key.toLowerCase() === 'c' && stats) {
+                    e.preventDefault();
+                    copySummary();
+                } else if (e.key.toLowerCase() === 'a') {
+                    e.preventDefault();
+                    setAutoRefresh((prev) => {
+                        const nextState = !prev;
+                        showToast(
+                            nextState
+                                ? '自動更新を有効にしました'
+                                : '自動更新を無効にしました'
+                        );
+                        return nextState;
+                    });
                 }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing]);
+    }, [fetchStats, refreshing, copySummary, stats]);
 
     const copyErr = () =>
         error &&
@@ -146,26 +180,6 @@ export default function Dashboard() {
             setCopiedJson(true);
             setTimeout(() => setCopiedJson(false), 2000);
             showToast('生データをクリップボードにコピーしました');
-        });
-    };
-
-    const copySummary = () => {
-        if (!stats) return;
-        const gclStr = stats.gcl
-            ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)}%)`
-            : 'GCL -';
-        const gplStr = stats.power !== undefined ? `GPL ${stats.power}` : 'GPL -';
-        const cpuStr = stats.cpuUsed !== undefined ? `CPU ${stats.cpuUsed.toFixed(2)}` : 'CPU -';
-        const roomsStr =
-            stats.rooms && stats.rooms.length > 0
-                ? `Rooms: ${stats.rooms.join(', ')}`
-                : 'Rooms: none';
-        const summaryText = `🐛 Screeps AI Status | ${gclStr} | ${gplStr} | ${cpuStr} | ${roomsStr}`;
-
-        navigator.clipboard.writeText(summaryText).then(() => {
-            setCopiedSummary(true);
-            setTimeout(() => setCopiedSummary(false), 2000);
-            showToast('ステータスのサマリーをクリップボードにコピーしました');
         });
     };
 
@@ -315,43 +329,60 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
                     {stats && (
-                        <button
-                            onClick={copySummary}
-                            onMouseEnter={() => setSummaryHover(true)}
-                            onMouseLeave={() => setSummaryHover(false)}
-                            onFocus={() => setSummaryHover(true)}
-                            onBlur={() => setSummaryHover(false)}
-                            aria-label={
-                                copiedSummary
-                                    ? 'サマリーをコピーしました'
-                                    : 'ステータスのサマリーをコピー'
-                            }
-                            title={
-                                copiedSummary
-                                    ? 'サマリーをコピーしました'
-                                    : 'ステータスのサマリーをコピー'
-                            }
-                            style={{
-                                fontSize: '0.75rem',
-                                padding: '0.2rem 0.5rem',
-                                backgroundColor: copiedSummary
-                                    ? '#c6f6d5'
-                                    : summaryHover
-                                      ? '#edf2f7'
-                                      : 'transparent',
-                                border: '1px solid #cbd5e0',
-                                borderRadius: '4px',
-                                color: copiedSummary ? '#22543d' : '#4a5568',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
-                                transition: 'all 0.2s ease-in-out',
-                                transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
-                            }}
-                        >
-                            {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
-                        </button>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <kbd
+                                aria-label="キーボードショートカット Alt + C キーでステータスのサマリーをコピーできます"
+                                title="Alt + C キーでサマリーをコピーできます"
+                                style={{
+                                    backgroundColor: '#f7fafc',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    padding: '0.1rem 0.4rem',
+                                    fontSize: '0.7rem',
+                                    color: '#4a5568',
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                }}
+                            >
+                                Alt + C
+                            </kbd>
+                            <button
+                                onClick={copySummary}
+                                onMouseEnter={() => setSummaryHover(true)}
+                                onMouseLeave={() => setSummaryHover(false)}
+                                onFocus={() => setSummaryHover(true)}
+                                onBlur={() => setSummaryHover(false)}
+                                aria-label={
+                                    copiedSummary
+                                        ? 'サマリーをコピーしました'
+                                        : 'ステータスのサマリーをコピー (Alt + C)'
+                                }
+                                title={
+                                    copiedSummary
+                                        ? 'サマリーをコピーしました'
+                                        : 'ステータスのサマリーをコピー (Alt + C)'
+                                }
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: '0.2rem 0.5rem',
+                                    backgroundColor: copiedSummary
+                                        ? '#c6f6d5'
+                                        : summaryHover
+                                          ? '#edf2f7'
+                                          : 'transparent',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    color: copiedSummary ? '#22543d' : '#4a5568',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
+                                }}
+                            >
+                                {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
+                            </button>
+                        </div>
                     )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -386,6 +417,21 @@ export default function Dashboard() {
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <kbd
+                            aria-label="キーボードショートカット Alt + A キーで自動更新の有効/無効を切り替えられます"
+                            title="Alt + A キーで自動更新を切り替えられます"
+                            style={{
+                                backgroundColor: '#f7fafc',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                padding: '0.1rem 0.4rem',
+                                fontSize: '0.7rem',
+                                color: '#4a5568',
+                                boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            Alt + A
+                        </kbd>
                         <label
                             className="auto-refresh-label"
                             onMouseEnter={() => setAutoRefreshHover(true)}
@@ -409,7 +455,7 @@ export default function Dashboard() {
                                 outline: autoRefreshFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '1px',
                             }}
-                            title="60秒ごとに自動でデータを更新します"
+                            title="60秒ごとに自動でデータを更新します (Alt + A)"
                         >
                             <input
                                 type="checkbox"
@@ -423,7 +469,7 @@ export default function Dashboard() {
                                     width: '0.9rem',
                                     height: '0.9rem',
                                 }}
-                                aria-label="自動更新 (60秒ごと)"
+                                aria-label="自動更新 (60秒ごと, Alt + A)"
                             />
                             <span
                                 style={{
@@ -450,8 +496,6 @@ export default function Dashboard() {
                             </span>
                         </label>
                         <kbd
-                            className="interactive-hint"
-                            tabIndex={0}
                             aria-label="キーボードショートカット Alt + R キーでダッシュボードの更新ができます"
                             title="Alt + R キーで更新できます"
                             style={{
@@ -462,7 +506,6 @@ export default function Dashboard() {
                                 fontSize: '0.7rem',
                                 color: '#4a5568',
                                 boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                cursor: 'help',
                             }}
                         >
                             Alt + R
@@ -746,8 +789,6 @@ export default function Dashboard() {
                             }}
                         >
                             <kbd
-                                className="interactive-hint"
-                                tabIndex={0}
                                 aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"
                                 title="Alt + S キーで検索入力にフォーカスできます"
                                 style={{
@@ -758,7 +799,6 @@ export default function Dashboard() {
                                     fontSize: '0.7rem',
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                    cursor: 'help',
                                 }}
                             >
                                 Alt + S
@@ -937,8 +977,6 @@ export default function Dashboard() {
                 }}
             >
                 <kbd
-                    className="interactive-hint"
-                    tabIndex={0}
                     aria-label="キーボードショートカット Alt + D キーで生データの表示・非表示を切り替えられます"
                     title="Alt + D キーで表示・非表示を切り替えられます"
                     style={{
@@ -949,7 +987,6 @@ export default function Dashboard() {
                         fontSize: '0.7rem',
                         color: '#4a5568',
                         boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                        cursor: 'help',
                         marginTop: '0.15rem',
                     }}
                 >
@@ -1047,6 +1084,7 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
+                    role="status"
                     aria-live="polite"
                     style={{
                         position: 'fixed',

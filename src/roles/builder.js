@@ -11,6 +11,7 @@
 
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
+const roleUtils = require('../utils/roleUtils');
 const logger = require('../utils/logger');
 const { MEMORY_KEYS } = require('../constants');
 
@@ -250,7 +251,7 @@ function _getEnergy(creep) {
 
     if (_getEnergyFromDropped(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
-    if (_getEnergyFromStorage(creep, room)) return;
+    if (roleUtils.getEnergyFromStorage(creep, room, 500, MEMORY_KEYS.TARGET_ID)) return;
     _getEnergyFromSource(creep, room);
 }
 
@@ -264,11 +265,13 @@ function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
     let bestDrop = null;
     let minDropDist = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY && r.amount >= 50) {
-            const dist = creep.pos && typeof creep.pos.getRangeTo === "function" ? creep.pos.getRangeTo(r) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDropDist) {
                 minDropDist = dist;
                 bestDrop = r;
@@ -296,11 +299,13 @@ function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     let bestContainer = null;
     let minContainerDist = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store[RESOURCE_ENERGY] >= 100) {
-            const dist = creep.pos ? creep.pos.getRangeTo(c) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(c) : 0;
             if (dist < minContainerDist) {
                 minContainerDist = dist;
                 bestContainer = c;
@@ -318,23 +323,7 @@ function _getEnergyFromContainer(creep, room) {
     return false;
 }
 
-/**
- * ストレージから取得
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromStorage(creep, room) {
-    const storage = cache.getStorage(room);
-    if (storage && storage.store[RESOURCE_ENERGY] >= 500) {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = storage.id;
-        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, storage, { range: 1 });
-        }
-        return true;
-    }
-    return false;
-}
+
 
 /**
  * ソースから直接採掘

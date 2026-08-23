@@ -12,6 +12,9 @@ function validateToken(token, label) {
     // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
     const tokenPattern = /^[a-zA-Z0-9_-]{20,}$/;
     if (!tokenPattern.test(token)) {
+        if (typeof token === 'string' && /[^a-zA-Z0-9_-]/.test(token)) {
+            return { valid: false, message: `${label} token contains invalid characters` };
+        }
         return { valid: false, message: `${label} token format is invalid` };
     }
     return { valid: true };
@@ -24,6 +27,10 @@ function validateFilePath(filePath, baseDir) {
         throw new Error('Invalid file path: contains null byte or invalid type');
     }
 
+    if (path.isAbsolute(filePath)) {
+        throw new Error(`absolute path detected: ${filePath}`);
+    }
+
     // 2. ベースディレクトリと対象パスを絶対パスに変換
     const resolvedBase = path.resolve(baseDir || __dirname);
     const resolvedPath = path.resolve(resolvedBase, filePath);
@@ -34,7 +41,7 @@ function validateFilePath(filePath, baseDir) {
         relative &&
         (relative.startsWith('..' + path.sep) || relative === '..' || path.isAbsolute(relative))
     ) {
-        throw new Error(`Path traversal detected: ${filePath}`);
+        throw new Error(`path traversal attack detected: ${filePath}`);
     }
 
     return resolvedPath;
@@ -124,7 +131,7 @@ function handleDeployResponse(res, label, resolve, reject) {
             } else {
                 // エラーレスポンスから機密情報を除外してログ出力
                 const safeJson = sanitizeLog(JSON.stringify(json));
-                console.error(`[${label}] Deployment failed:`, safeJson);
+                console.error(`[${label}] Deployment failed! Raw:`, safeJson);
                 reject(new Error(`${label} deployment failed`));
             }
         } catch (e) {
@@ -228,7 +235,7 @@ async function runDeploy(...params) {
             } catch (e) {
                 const safeMessage = sanitizeLog(e.message);
                 console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                process.exit(1);
+                throw new Error(`Failed to read file because ${safeMessage}`);
             }
         }
 

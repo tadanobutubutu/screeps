@@ -16,13 +16,13 @@ const roleHealer = {
 
         // ⚡ PERFORMANCE: If no cached target, find one using pre-warmed cache or fallback
         if (damagedCreep === undefined || damagedCreep === null) {
-            const injured = creep.room && creep.room._injuredCreeps;
-            if (Array.isArray(injured)) {
+            let injured = creep.room && creep.room._injuredCreeps;
+            if (!Array.isArray(injured)) {
+                injured = creep.room ? creep.room.find(FIND_MY_CREEPS, { filter: (c) => c.hits < c.hitsMax }) : [];
+                if (creep.room) creep.room._injuredCreeps = injured;
+            }
+            if (injured.length > 0) {
                 damagedCreep = creep.pos.findClosestByRange(injured);
-            } else {
-                damagedCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-                    filter: (c) => c.hits < c.hitsMax,
-                });
             }
 
             // Gracefully handle target ID caching if id property exists
@@ -47,13 +47,13 @@ const roleHealer = {
                 // 戦闘クリープの近くに待機
                 // ⚡ PERFORMANCE: Use pre-warmed defenders cache or fallback
                 let defender = null;
-                const defenders = creep.room && creep.room._defenders;
-                if (Array.isArray(defenders)) {
+                let defenders = creep.room && creep.room._defenders;
+                if (!Array.isArray(defenders)) {
+                    defenders = creep.room ? creep.room.find(FIND_MY_CREEPS, { filter: (c) => c.memory.role === 'defender' }) : [];
+                    if (creep.room) creep.room._defenders = defenders;
+                }
+                if (defenders.length > 0) {
                     defender = creep.pos.findClosestByRange(defenders);
-                } else {
-                    defender = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-                        filter: (c) => c.memory.role === 'defender',
-                    });
                 }
                 if (defender) {
                     creep.moveTo(defender);

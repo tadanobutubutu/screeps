@@ -1,3 +1,0 @@
-🎯 **What:** Replaced predictable `Math.random()` calls with a `secureRandomFloat()` function in `visual.effects.js`.
-⚠️ **Risk:** The application was using `Math.random()` for visual effects particle generation. `Math.random()` relies on a predictable PRNG, which could allow attackers to predict future values or PRNG states, potentially enabling exploits or predictability in the system.
-🛡️ **Solution:** Implemented `secureRandomFloat()` which attempts to use Node's `crypto.randomBytes()` to generate cryptographically secure random numbers. A fallback to `Math.random()` was retained to ensure the system doesn't crash in restricted environments (like the Screeps sandbox) where the `crypto` module might be unavailable.

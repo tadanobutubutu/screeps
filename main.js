@@ -41,10 +41,14 @@ function indexFunction() {
 
 // ... other functions and exports
 
+// Add any other exports that are required and were removed
+// Example:
+// anotherExportFunction,
+
 module.exports = {
   dependencyGraphFunction,
   indexFunction,
-  // Add any other exports that are required and were removed
   // Example:
   // anotherExportFunction,
+  // Add other exports here as needed
 };

@@ -40,7 +40,7 @@ function App() {
           aria-label="Close menu"
           aria-hidden="true"
         >
-          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 13.41 12z" />
         </svg>
         
         <p>Click the button below to get started.</p>
@@ -52,7 +52,7 @@ function App() {
       </main>
       
       <footer role="contentinfo">
-        <nav aria-label="Footer navigation">
+        <nav role="navigation" aria-label="Footer navigation">
           <ul>
             <li><a href="/privacy">Privacy Policy</a></li>
             <li><a href="/terms">Terms of Service</a></li>
@@ -62,6 +62,9 @@ function App() {
     </div>
   );
 }
+
+// Set language attribute on the HTML element
+document.documentElement.setAttribute('lang', 'en');
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

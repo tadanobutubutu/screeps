@@ -87,16 +87,33 @@ function addLangAttribute(content) {
 
 /**
  * Adds a <main> landmark to the HTML content for accessibility
+ * Wraps the body content in <main> tags for proper landmark semantics
  */
 async function addMainLandmark() {
     try {
         console.log('Adding <main> landmark to HTML content for accessibility...');
         const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
         for (const filePath of filesToUpdate) {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            const updatedContent = addLangAttribute(fileContent);
-            const newFileContent = `<main>` + updatedContent.replace(/<\/html>/, '</main></html>') + '</main>';
-            fs.writeFileSync(filePath, newFileContent);
+            let fileContent = fs.readFileSync(filePath, 'utf8');
+            
+            // First add lang attribute to html tag
+            fileContent = addLangAttribute(fileContent);
+            
+            // Wrap body content in <main> landmark
+            // Find the opening <body> tag and closing </body> tag
+            fileContent = fileContent.replace(
+                /(<body[^>]*>)([\s\S]*?)(<\/body>)/i,
+                (match, bodyOpen, bodyContent, bodyClose) => {
+                    // Check if main already exists
+                    if (bodyContent.includes('<main') || bodyContent.includes('<main>')) {
+                        return match;
+                    }
+                    // Wrap the body content in <main>
+                    return `${bodyOpen}<main>${bodyContent}</main>${bodyClose}`;
+                }
+            );
+            
+            fs.writeFileSync(filePath, fileContent);
             console.log(`Main landmark added to ${filePath}`);
         }
         console.log('All HTML files have been updated with <main> landmarks.');

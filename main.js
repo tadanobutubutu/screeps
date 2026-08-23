@@ -174,6 +174,15 @@ module.exports = {
       }
     });
 
+    // React_036: Fix for links without href
+    const linksWithHashOnlyHref = document.querySelectorAll('a[href="#"]');
+    linksWithHashOnlyHref.forEach(link => {
+      const button = document.createElement('button');
+      button.innerHTML = link.innerHTML;
+      button.setAttribute('type', 'button');
+      link.parentNode.replaceChild(button, link);
+    });
+
     // React_017: Add IDs to other landmark elements
     const headers = document.querySelectorAll('header');
     headers.forEach((header, index) => {

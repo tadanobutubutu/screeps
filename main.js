@@ -6,26 +6,33 @@
 // - REACT_036: Fix 1 fake link issue
 
 // REACT_015: Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
+function addLangAttribute() {
+  const htmlEl = document.documentElement;
+  if (!htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en');
+  }
+}
 
 // REACT_017 & REACT_025: Add/fix landmark issues and ensure unique landmarks
 function fixLandmarks() {
   // Ensure main landmark exists with a unique accessible name
   let mainEl = document.querySelector('main');
   if (!mainEl) {
-    mainEl = document.querySelector('#main, #content, #app');
-    if (mainEl) {
+    mainEl = document.createElement('main');
+    const contentEl = document.querySelector('#content') || document.querySelector('#app');
+    if (contentEl) {
+      contentEl.prepend(mainEl);
       mainEl.setAttribute('role', 'main');
     }
   }
-  if (mainEl && !mainEl.getAttribute('aria-label')) {
+  if (mainEl && !mainEl.getAttribute('aria-label') && !mainEl.getAttribute('aria-labelledby')) {
     mainEl.setAttribute('aria-label', 'Main content');
   }
 
   // Ensure navigation landmarks are unique
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   navElements.forEach((nav, index) => {
-    if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+    if (!nav.getAttribute('aria-label')) {
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Secondary navigation');
     }
   });
@@ -51,8 +58,8 @@ function fixSvgAccessibility() {
                      svg.getAttribute('aria-labelledby') ||
                      svg.querySelector('title');
     if (!hasLabel) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = svg.getAttribute('data-name') || `Graphic ${index + 1}`;
+      const title = document.createElement('title');
+      title.textContent = svg.getAttribute('aria-label') || `Graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', title.textContent);
@@ -62,15 +69,15 @@ function fixSvgAccessibility() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  const links = document.querySelectorAll('a:not([href])');
   links.forEach((link) => {
     // If the link has an onclick handler but no real href, convert to button
-    if (link.getAttribute('onclick') && (!link.getAttribute('href') || link.getAttribute('href') === '#')) {
+    if (link.hasAttribute('onclick') || link.getAttribute('href') === '#') {
       const button = document.createElement('button');
       button.innerHTML = link.innerHTML;
       button.className = link.className;
       button.id = link.id;
-      if (link.getAttribute('onclick')) {
+      if (link.hasAttribute('onclick')) {
         button.setAttribute('onclick', link.getAttribute('onclick'));
       }
       link.parentNode.replaceChild(button, link);
@@ -80,6 +87,7 @@ function fixFakeLinks() {
 
 // Apply all accessibility fixes
 function applyAccessibilityFixes() {
+  addLangAttribute();
   fixLandmarks();
   fixSvgAccessibility();
   fixFakeLinks();

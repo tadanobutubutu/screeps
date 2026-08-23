@@ -35,8 +35,8 @@ export default function Main() {
           <table>
             <thead>
               <tr>
-                <th scope="col"...
-                <th scope="col"...
+                <th scope="col"...>
+                <th scope="col"...>
                 <th scope="col">Status</th>
               </tr>
             </thead>
@@ -50,50 +50,47 @@ export default function Main() {
               ))}
             </tbody>
           </table>
-        </section>
 
-        <section ...
-          <h2 ... 2</h2>
-          <p>Content here</p>
-        </section>
-      </main>
+          <section aria-labelledby="table-heading">
+            <h2 ... 2</h2>
+            <p>Content here</p>
+          </section>
+        </main>
 
-      <aside role="complementary" aria-label="Sidebar navigation">
-        <button
-          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-          aria-expanded={sidebarOpen}
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <title>Sidebar toggle icon</title>
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {sidebarOpen && (
-          <nav aria-label="Sidebar navigation">
-            <ul>
-              <li><Link ...
-              <li><Link ...
-              <li><Link ...
-            </ul>
-          </nav>
-        )}
-
-        <div className="info">
-          <span>Sidebar</span>
+        <aside role="complementary" aria-label="Sidebar navigation">
           <button
-            aria-label="Go to home"
-            onClick={() => {}}
+            aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            aria-expanded={sidebarOpen}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            Go home
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <title>Sidebar toggle icon</title>
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
           </button>
-        </div>
-      </aside>
 
-      <footer role="contentinfo">
-        <p>Footer content</p>
-      </footer>
+          {sidebarOpen && (
+            <nav aria-label="Sidebar navigation">
+              <ul>
+                <li><Link ...>
+                <li><Link ...
+                <li><Link ...
+              </ul>
+            </nav>
+          )}
+
+          <div className="info">
+            <span>Sidebar</span>
+            <button
+              aria-label="Go to home"
+              onClick={() => {}}
+            >
+              Go home
+            </button>
+          </div>
+        </aside>
+
+      </div>
     </div>
   );
 }

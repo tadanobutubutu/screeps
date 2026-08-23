@@ -6,7 +6,7 @@ export default function Main() {
       <Head>
         <html lang="en" />
       </Head>
-      
+
       {/* REACT_017: Ensure proper landmarks */}
       <nav aria-label="Main navigation">
         <ul>
@@ -15,34 +15,28 @@ export default function Main() {
           <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
-      
+
       {/* REACT_017 & REACT_025: Main landmark (one per page) */}
       <main id="main-content">
         <h1>Welcome to Our Site</h1>
-        
-        {/* REACT_036: Use proper semantic elements */}
-        {/* Bad: <div onClick={handleClick}>Click me</div> */}
+
+        {/* Merged: REACT_036 & REACT_027 */}
+        {/* Use proper semantic elements and proper table structure */}
         <button type="button" onClick={() => console.log('clicked')}>
           Submit Form
         </button>
-        
-        {/* REACT_036: Use button for in-page actions (formerly fake link) */}
         <button id="unrotate" type="button" onClick={() => console.log('rotate back clicked')}>
           rotate back
         </button>
-        
-        {/* REACT_041: SVG with accessible name */}
-        <svg 
-          role="img" 
-          aria-label="Close dialog" 
-          width="24" 
-          height="24" 
+        <svg
+          role="img"
+          aria-label="Close dialog"
+          width="24"
+          height="24"
           viewBox="0 0 24 24"
         >
           <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" />
         </svg>
-        
-        {/* REACT_027: Proper table structure */}
         <table>
           <caption>Pricing Plans</caption>
           <thead>
@@ -61,12 +55,12 @@ export default function Main() {
             <tr>
               <th scope="row">Pro</th>
               <td>$19.99</td>
-              <td>Priority support</th>
+              <td>Priority support</td>
             </tr>
           </tbody>
         </table>
       </main>
-      
+
       {/* REACT_017 & REACT_025: Footer landmark */}
       <footer role="contentinfo">
         <nav aria-label="Footer navigation">

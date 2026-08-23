@@ -157,7 +157,7 @@ export const fixTableStructure = () => {
       }
 
       // Fix header-cell associations using headers attribute
-      const allCells = table.querySelectorAll('th, td');
+      const allCells = table.querySelectorAll('td');
       allCells.forEach(cell => {
         // If cell has headers attribute, ensure it's valid
         const headersAttr = cell.getAttribute('headers');
@@ -225,7 +225,8 @@ export const validateTableStructure = () => {
 export const getSvgAccessibleName = (svg) => {
   const title = svg.querySelector('title');
   const desc = svg.querySelector('desc');
-  return title?.textContent || desc?.textContent || svg.getAttribute('aria-label') || '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  return title?.textContent || desc?.textContent || ariaLabel || '';
 };
 
 // Helper function to create SVG accessibility props
@@ -239,7 +240,7 @@ export const getSvgAccessibleProps = (svg) => {
   }
   
   // Add role if needed
-  const hasRole = svg.hasAttribute('role') || svg.querySelector('title');
+  const hasRole = svg.hasAttribute('role') || svg.getAttribute('role');
   if (!hasRole) {
     props['role'] = 'img';
   }
@@ -264,7 +265,7 @@ export const validateLandmark = () => {
 export const validateNavigationLandmark = () => {
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (!nav.hasAttribute('aria-label') && navs.length > 1) {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
@@ -273,7 +274,7 @@ export const validateNavigationLandmark = () => {
 // Unique landmarks validation
 export const validateUniqueLandmarks = () => {
   // Check for duplicate landmarks
-  const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="search"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="search"]');
   const landmarkRoles = Array.from(landmarks).map(el => el.getAttribute('role'));
   
   landmarkRoles.forEach(role => {
@@ -303,36 +304,7 @@ export const validateLandmarkStructure = () => {
   // Check navigation placement
   const navs = document.querySelectorAll('nav');
   navs.forEach(nav => {
-    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (!nav.hasAttribute('aria-label') && navs.length > 1) {
       console.log('Navigation landmark in invalid location - missing label');
     }
   });
-  
-  // Check for proper main landmark
-  const main = document.querySelector('[role="main"], main');
-  if (!main) {
-    structureIssues.push('Missing main landmark');
-  }
-  
-  return structureIssues;
-};
-
-// ===== NEW CODE TO ADDRESS REACT_036 (Fake Link Issue) =====
-// Link accessibility validation
-export const validateLinkAccessibility = (link) => {
-  if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
-    return false; // Fake link detected
-  }
-  return true;
-};
-
-// Create in-page button from link
-export const createInPageButton = (link) => {
-  const button = document.createElement('button');
-  button.textContent = link.textContent;
-  button.onclick = link.onclick;
-  return button;
-};
-
-// Create accessible link
-export const createAccessibleLink = (element

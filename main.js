@@ -1,1 +1,14 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const mainFunc = () => {
+  // ... existing functionality ...
+};
+
+// New function added per the issue
+const newFunc = () => {
+  // ... new functionality ...
+};
+
+module.exports = {
+  mainFunc,
+  newFunc,
+  // ... other exports if any ...
+};

@@ -40,11 +40,11 @@ function dependencyGraphFunction() {
 
     // Filter the required external modules from package.json and include them in exports
     const externalModuleExports = packageJson.dependencies;
-    Object.keys(EXTERNAL_MODULES).forEach((moduleName) => {
-      if (!externalModuleExports[EXTERNAL_MODULES[moduleName]]) {
+    EXTERNAL_MODULES.forEach((moduleName) => {
+      if (!externalModuleExports.hasOwnProperty(moduleName)) {
         console.warn(`The dependency graph indicates an external module (${moduleName}) that has no corresponding entry in package.json. Please double-check.`);
       } else {
-        const requiredModule = require(externalModuleExports[EXTERNAL_MODULES[moduleName]]);
+        const requiredModule = require(moduleName);
         // This will include only non-default exports from the external modules
         Object.entries(requiredModule).forEach(([exportName, exportedValue]) => {
           if (exportName !== '.') {

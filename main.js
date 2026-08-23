@@ -22,7 +22,9 @@ const App = () => {
 
 // Initializing the app
 const app = express();
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...);
 
 // Exporting the app for testing
 export default app;
+export { App };
+export { app };

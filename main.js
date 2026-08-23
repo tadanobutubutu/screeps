@@ -140,7 +140,7 @@ const fixFakeLink = () => {
 
   // If there was any click handling on the original <a>, re‑attach it.
   // Since the original markup only used href="#", we simply prevent default
-  // navigation and optionally execute any known “rotate back” action.
+  // navigation and optionally execute any known "rotate back" action.
   button.addEventListener('click', (e) => {
     e.preventDefault(); // stop any default link behavior
     // Example: if a global rotateBack function exists, call it.

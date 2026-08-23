@@ -70,12 +70,14 @@ function fixReactSVGAccessibility() {
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
-        // Add aria-hidden="true" to SVG elements (favicon, etc.) that don't already have it
+        // Add aria-hidden="true" to SVG elements that are decorative
         content = content.replace(
-          /<svg([^>]*?)>/gi,
-          (match, attrs) => {
+          /<svg([^>]*)>(?![\s\S]*<title>)([\s\S]*?)<\/svg>/gi,
+          (match, attrs, svgContent) => {
+            // Check if aria-hidden or aria-label is not already present, and no <title> element exists
             if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label')) {
-              return `<svg aria-hidden="true"${attrs}>`;
+              // Add aria-hidden="true" to make the SVG accessible
+              return `<svg aria-hidden="true"${attrs}>${svgContent}</svg>`;
             }
             return match;
           }

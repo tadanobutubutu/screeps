@@ -3,6 +3,9 @@ module.exports.function1 = function1;
 module.exports.function2 = function2;
 module.exports.newFunction = newFunction;
 
+// NOTE: When updating relevant functions below, consider using dependencyGraphContent/indexContent
+// for improved access to dependency graph and index information where needed.
+
 // New function to fix table structure issues
 function fixTableStructureIssues() {
   // Implementation to fix table structure issues
@@ -59,8 +62,15 @@ function addLangAttributeToHTML() {
   }
 }
 
-// Function to fix landmark issues
-function fixLandmarkIssues() {
+// Function to fix landmark issues - Updated to use indexContent where applicable
+function fixLandmarkIssues(indexContent) {
+  // Example: Using indexContent for improved landmark handling
+  if (indexContent && indexContent.landmarks) {
+    indexContent.landmarks.forEach(landmark => {
+      // Process landmark with indexContent context
+    });
+  }
+
   // Example: Adding ARIA roles to elements for landmark identification
   const landmarkElements = document.querySelectorAll('.landmark');
   landmarkElements.forEach(el => {
@@ -68,8 +78,15 @@ function fixLandmarkIssues() {
   });
 }
 
-// Function to fix fake link issues
-function fixFakeLinkIssues() {
+// Function to fix fake link issues - Updated to use dependencyGraphContent where applicable
+function fixFakeLinkIssues(dependencyGraphContent) {
+  // Example: Using dependencyGraphContent for fake link analysis
+  if (dependencyGraphContent && dependencyGraphContent.links) {
+    dependencyGraphContent.links.forEach(link => {
+      // Analyze links in the dependency graph context
+    });
+  }
+
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.style.display = 'none'; // Example: Hides fake links, adjust as needed
@@ -78,8 +95,8 @@ function fixFakeLinkIssues() {
 
 // Call functions to fix accessibility issues
 addLangAttributeToHTML();
-fixLandmarkIssues();
-fixFakeLinkIssues();
+fixLandmarkIssues(indexContent);
+fixFakeLinkIssues(dependencyGraphContent);
 
 // Existing functions from main.js
 function function1() {

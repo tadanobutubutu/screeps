@@ -1,13 +1,29 @@
-// main.js
+// components/Dashboard.tsx
 
-// Preserving all existing code, exports, and functions from current main.js...
+import React from 'react';
 
-// Adding new functions or changes requested in the issue...
+const Dashboard = ({ error, success }) => {
+  return (
+    <div>
+      {/* Assuming there was a <main> element here, we remove it */}
+      
+      {/* Replace the <main> with a <section> for the error state */}
+      {error && (
+        <section aria-labelledby="error-title">
+          <h2 id="error-title">Error</h2>
+          <p>{error.message}</p>
+        </section>
+      )}
 
-export const COL_SCOPE = "col"; // This is an example of a new export related to the issue. The actual changes should be reflected in the HTML files.
+      {/* Replace the <main> with a <section> for the success state */}
+      {success && (
+        <section aria-labelledby="success-title">
+          <h2 id="success-title">Success</h2>
+          <p>{success.message}</p>
+        </section>
+      )}
+    </div>
+  );
+};
 
-export function loop() {
-    // Your logic here
-}
-
-// More code here...
+export default Dashboard;

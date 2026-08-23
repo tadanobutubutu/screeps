@@ -10,4 +10,26 @@ export function loop() {
     // Your logic here
 }
 
+// Adding changes to wrap the primary content in a <main> element for both affected HTML files.
+
+export function wrapPrimaryContentWithMain() {
+    const dependencyGraphContent = document.getElementById('table-rotated');
+    const indexContent = document.querySelector('.container');
+
+    if (dependencyGraphContent) {
+        const mainElement = document.createElement('main');
+        mainElement.appendChild(dependencyGraphContent);
+        dependencyGraphContent.parentNode.replaceChild(mainElement, dependencyGraphContent);
+    }
+
+    if (indexContent) {
+        const mainElement = document.createElement('main');
+        mainElement.appendChild(indexContent);
+        indexContent.parentNode.replaceChild(mainElement, indexContent);
+    }
+}
+
 // More code here...
+
+// Call the function to wrap the primary content with <main> elements
+wrapPrimaryContentWithMain();

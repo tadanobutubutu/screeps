@@ -42,7 +42,7 @@ export function validateProject(project) {
   if (!project.name || typeof project.name !== 'string') {
     return { valid: false, error: 'Project name is required' };
   }
-  if (!project.status || !['Active', 'Pending', 'Completed'].includes(project.status)) {
+  if (!project.status || !PROJECT_STATUSES.includes(project.status)) {
     return { valid: false, error: 'Invalid project status' };
   }
   return { valid: true };

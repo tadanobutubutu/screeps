@@ -1,3 +1,4 @@
+import { class1, function1, Object1 } from './path/to/module';
 import React from 'react';
 import Head from 'next/head';
 
@@ -60,6 +61,25 @@ export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
   return (
     <a href={href} aria-label={ariaLabel}>
       {content}
+    </a>
+  );
+};
+
+export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
+  if (href?.startsWith('#') || href === '') {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href={href} onClick={onClick} {...props}>
+      {children}
     </a>
   );
 };
@@ -134,16 +154,8 @@ export const validateLandmarkStructure = (element) => {
   return true;
 };
 
-// Functions related to creating in-page buttons and accessible links (REACT_036)
-export const createInPageButton = (label, onClick) => {
-  return (
-    <button aria-label={label} onClick={onClick}>
-      {label}
-    </button>
-  );
-};
-
-export const createAccessibleLink = (content, href, ariaLabel) => {
+// New function to add ARIA label to a fake link (REACT_036)
+export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
   return (
     <a href={href} aria-label={ariaLabel}>
       {content}
@@ -198,8 +210,6 @@ export {
   getSvgAriaLabel,
   validateLandmark,
   validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
   createInPageButton,
   createAccessibleLink
 };

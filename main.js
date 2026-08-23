@@ -33,6 +33,7 @@ const newFunctionForTheIssue = () => {
   // Implementation for the requested change...
 };
 
+// Add the new function to exports
 module.exports = {
   mainFunc,
   newFunc,

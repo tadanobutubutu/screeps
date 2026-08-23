@@ -53,10 +53,31 @@ export const PROJECT_STATUSES = ['Active', 'Pending', 'Completed', 'Archived'];
 
 // New function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
-  if (!Array.isArray(tableData) || !tableData[0] || typeof tableData[0] !== 'object' || !tableData[0].hasOwnProperty('Header') || !tableData[0].hasOwnProperty('accessor')) {
+  if (!Array.isArray(tableData)) {
     throw new Error('Invalid table data structure');
   }
-  return tableData;
+  
+  if (tableData.length === 0) {
+    return [];
+  }
+  
+  const firstRow = tableData[0];
+  if (!firstRow || typeof firstRow !== 'object' || Array.isArray(firstRow)) {
+    throw new Error('Invalid table data structure');
+  }
+  
+  const columns = Object.keys(firstRow);
+  const headerCells = columns.map((column, index) => ({
+    key: column,
+    header: column.charAt(0).toUpperCase() + column.slice(1).replace(/([A-Z])/g, ' $1'),
+    index: index
+  }));
+  
+  return tableData.map((row, rowIndex) => ({
+    ...row,
+    _rowIndex: rowIndex,
+    _isHeader: rowIndex === 0
+  }));
 };
 
 // New function to ensure unique landmarks (REACT_025)
@@ -129,8 +150,8 @@ export default function Home({ projects }) {
       <nav role="navigation" aria-label="Main navigation" id="main-navigation">
         <ul>
           <li><a href="/">Home</a></li>
+          <li><a href="/projects">Projects</a></li>
           <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
 
@@ -143,7 +164,7 @@ export default function Home({ projects }) {
             <thead>
               <tr>
                 {columns.map((col, index) => (
-                  <th key={index}>{col.Header}</th>
+                  <th key={index} scope="col">{col.Header}</th>
                 ))}
               </tr>
             </thead>

@@ -5,9 +5,9 @@ module.exports = {
   },
   // New function to handle the table structure issue
   updateDependencyGraph: function() {
-    const tableHeaders = document.querySelectorAll('th');
-    tableHeaders.forEach(header => {
-      if (!header.hasAttribute('scope')) {
+    const tableHeaders = document.querySelectorAll('table th');
+    tableHeaders.forEach(function(header) {
+      if (header.parentNode.tagName === 'TR') {
         header.setAttribute('scope', 'col');
       }
     });

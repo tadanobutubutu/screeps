@@ -17,22 +17,36 @@ import { forEach } from 'lodash';
 const Main = ({ api, state }) => {
   if (state.error) {
     return (
-      <main className="terminal">
-        <div className="terminal-error">
-          <h2>Error</h2>
-          <p>{state.error}</p>
-        </div>
-      </main>
+      <html lang="en">
+        <head>
+          {/* ... existing head elements ... */}
+        </head>
+        <body>
+          <main className="terminal">
+            <div className="terminal-error">
+              <h2>Error</h2>
+              <p>{state.error}</p>
+            </div>
+          </main>
+        </body>
+      </html>
     );
   }
 
   return (
-    <main className="terminal">
-      <div className="terminal-success">
-        <h2>Success</h2>
-        {state.message && <p>{state.message}</p>}
-      </div>
-    </main>
+    <html lang="en">
+      <head>
+        {/* ... existing head elements ... */}
+      </head>
+      <body>
+        <main className="terminal">
+          <div className="terminal-success">
+            <h2>Success</h2>
+            {state.message && <p>{state.message}</p>}
+          </div>
+        </main>
+      </body>
+    </html>
   );
 };
 

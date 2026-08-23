@@ -8,7 +8,7 @@
 // - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: ...
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function handleRotateBack() {
@@ -112,6 +112,15 @@ function addSvgAccessibleNames() {
 }
 
 function App() {
+  // Apply accessibility fixes when component mounts
+  useEffect(() => {
+    addLangAttribute();
+    addMainLandmark();
+    fixTableStructureIssues();
+    ensureUniqueLandmarks();
+    addSvgAccessibleNames();
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -126,7 +135,7 @@ function App() {
             {/* Existing App content */}
 
             {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" type="button">Rotate back</button>
+            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
 
             {/* Example of adding scope attribute to a <th> element */}
             <table>
@@ -146,14 +155,6 @@ function App() {
             </table>
           </div>
         </main>
-        <script type="text/javascript">
-          // Apply accessibility fixes
-          addLangAttribute();
-          addMainLandmark();
-          fixTableStructureIssues();
-          ensureUniqueLandmarks();
-          addSvgAccessibleNames();
-        </script>
       </body>
     </html>
   );

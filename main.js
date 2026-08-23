@@ -12,6 +12,10 @@ const Dashboard = () => {
       <main>
         <h1>Error occurred</h1>
         {/* rest of the error state component */}
+        {/* Add accessibility landmark for error message */}
+        <section aria-live="polite">
+          <p>Details: {errorMessage}</p>
+        </section>
       </main>
     );
   }
@@ -19,6 +23,10 @@ const Dashboard = () => {
   return (
     <main>
       {/* Success state component structure */}
+      {/* Add accessibility landmark for success message */}
+      <section aria-live="polite">
+        <p>Success! {successMessage}</p>
+      </section>
     </main>
   );
 };

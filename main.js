@@ -27,7 +27,7 @@ function addMainLandmark() {
   mainElements.forEach((main, index) => {
     if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
       if (index === 0) {
-        main.setAttribute('aria-label', 'Main content');
+        main.setAttribute('aria-labelledby', 'main-heading');
       } else {
         main.setAttribute('aria-label', `Main content section ${index + 1}`);
       }
@@ -155,6 +155,14 @@ function App() {
             </table>
           </div>
         </main>
+        <script type="text/javascript">
+          // Apply accessibility fixes
+          addLangAttribute();
+          addMainLandmark();
+          fixTableStructureIssues();
+          ensureUniqueLandmarks();
+          addSvgAccessibleNames();
+        </script>
       </body>
     </html>
   );

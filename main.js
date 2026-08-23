@@ -786,6 +786,58 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Replace a potentially fake link with an accessible button when it has a click handler.
+ * This helper ensures that in‑page actions use a <button> element, providing proper keyboard
+ * and screen‑reader behaviour.
+ *
+ * @param {Object} config - Configuration object describing the element.
+ * @returns {Object} Modified configuration where a fake link is converted to a button
+ *                 if it meets the criteria for a fake link with an onClick handler.
+ */
+function replaceFakeLinkWithButton(config) {
+  const {
+    href,
+    text,
+    ariaLabel,
+    onClick,
+    tagName = 'a',
+    role
+  } = config;
+  
+  // Detect a fake link (anchor with only "#" or javascript: and no meaningful href)
+  const isFakeLink =
+    (tagName === 'a' || role === 'link') &&
+    (href === '#' || href === 'javascript:void(0)' || href.startsWith('javascript:'));
+  
+  if (isFakeLink && typeof onClick === 'function') {
+    // Convert to a button while preserving the accessible label
+    const buttonText = ariaLabel || text;
+    return {
+      type: 'button',
+      text: buttonText,
+      onClick: onClick,
+      accessibility: {
+        role: 'button',
+        ariaLabel: buttonText
+      }
+    };
+  }
+  
+  // If it's a button that navigates (has href but no link role), suggest conversion to <a>
+  if (tagName === 'button' && href && href !== '#' && !href.startsWith('javascript:')) {
+    return {
+      type: 'a',
+      href: href,
+      text: text,
+      accessibility: { role: 'link' }
+    };
+  }
+  
+  // Return unchanged config if no conversion is needed
+  return config;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -812,7 +864,9 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // Additional function to fix fake links
+  replaceFakeLinkWithButton
 };
 
 // Run if executed directly

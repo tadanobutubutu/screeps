@@ -49,3 +49,16 @@ export const testUtils = {
 // <th><div>src/constants.js</div></th>
 // Should be updated to:
 // <th scope="col"><div>src/constants.js</div></th>
+
+// Update the 'rotate back' link in docs/dependency-graph.html to use a <button> element
+// Replace the following line:
+// <a id="unrotate" href="#">rotate back</a>
+// With:
+// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+
+// Add a JavaScript function to handle the click event on the new button element
+function rotateBack() {
+    // Implement the logic for rotating back
+    console.log('Rotating back...');
+    // Placeholder for actual rotate back logic
+}

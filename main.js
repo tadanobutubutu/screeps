@@ -49,7 +49,8 @@ if (!existingMain) {
   document.body.insertBefore(mainElement, document.body.firstChild);
 }
 // Ensure nav landmark exists
-if (!document.querySelector('nav')) {
+const existingNav = document.querySelector('nav');
+if (!existingNav) {
   const navElement = document.createElement('nav');
   navElement.setAttribute('id', 'primary-nav');
   document.body.insertBefore(navElement, document.body.firstChild);
@@ -69,14 +70,14 @@ document.querySelectorAll('svg').forEach(function(svg, index) {
 });
 
 // Ensure unique landmarks (2 issues) (REACT_025)
-document.querySelectorAll('nav, aside, header, footer').forEach(function(landmark, index) {
+document.querySelectorAll('aside, header, footer, nav, main').forEach(function(landmark, index) {
   if (!landmark.id) {
     landmark.id = 'landmark-' + landmark.tagName.toLowerCase() + '-' + index;
   }
 });
 
 // Fix 1 fake link issue (REACT_036)
-document.querySelectorAll('a').forEach(function(link) {
+document.querySelectorAll('a[rel~="noopener"][rel~="noreferrer"]').forEach(function(link) {
   const rel = link.getAttribute('rel');
   if (rel && rel.includes('noopener') && rel.includes('noreferrer') && !link.target) {
     link.setAttribute('target', '_blank');

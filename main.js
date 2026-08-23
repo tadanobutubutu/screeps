@@ -5,7 +5,6 @@
 // Example: const someModule = require('some-module');
 
 module.exports = {
-  // Export functions or values as needed
   someFunction: function() {
     return 'some value';
   },
@@ -23,7 +22,6 @@ module.exports = {
     // Return processed request
     return request;
   },
-  // New function to address React SVG Accessible Name issue
   addAccessibleNameToSVG: function(svgElement) {
     // Check if the SVG element has a title child or aria-label attribute
     const hasTitleChild = svgElement.querySelector('title');

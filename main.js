@@ -43,3 +43,10 @@ module.exports = {
 };
 
 // ... rest of the main.js content ...
+
+// Additionally, update the HTML file to include the lang attribute
+/*
+<html lang="en">
+  <!-- Rest of the HTML content -->
+</html>
+*/

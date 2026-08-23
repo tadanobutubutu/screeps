@@ -118,5 +118,3 @@ addAriaLabelToMyDiv();
 addMainLandmark();
 fixTableStructureIssues();
 ensureUniqueLandmarks();
-
-// ... (other existing code, exports, and functions from main.js)

@@ -16,38 +16,38 @@ import { unique } from './utils';
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
+  if (htmlElement && ... {
+    ... 'en'); // Assuming English for this example
   }
 };
 
 // Accessibility fix for REACT_041: Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
       svg.insertBefore(titleElement, svg.firstChild);
 
       // Add aria-labelledby attribute to link the title
-      const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
+      const titleId = 'svg-title-' + ... 9);
       titleElement.id = titleId;
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 };
 
 // Function to add scope to table headers
 const addScopeToTableHeaders = () => {
-  const headers = document.querySelectorAll('th');
+  const headers = ...
   headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
+    if ... {
       // Determine if header is in thead (col) or first cell of row (row)
       const parentRow = header.closest('tr');
       const parentThead = header.closest('thead');
-      const isFirstCell = parentRow && parentRow.querySelector('th, td') === header;
+      const isFirstCell = parentRow && ... td') === header;
       
       if (parentThead) {
         header.setAttribute('scope', 'col');
@@ -65,69 +65,69 @@ const rotateBack = () => {
 };
 
 // Function to validate table structure and add scope to <th> elements
-const validateTableStructureAndScopeTh = () => {
-  const tables = document.querySelectorAll('table');
+const ... = () => {
+  const tables = ...
 
   tables.forEach(table => {
     // Ensure table has a caption if it doesn't have one and has headers
-    const hasCaption = table.querySelector('caption');
-    const headers = table.querySelectorAll('th');
+    const hasCaption = ...
+    const headers = ...
     const hasHeaders = headers.length > 0;
 
     if (!hasCaption && hasHeaders) {
-      const caption = document.createElement('caption');
+      const caption = ...
       caption.textContent = 'Table description'; // Generic caption
-      table.insertBefore(caption, table.firstChild);
+      ... table.firstChild);
     }
 
     // Ensure proper use of thead, tbody, tfoot
-    const rows = table.querySelectorAll('tr');
+    const rows = ...
     if (rows.length > 0) {
       // Check if first row is inside a thead
-      let hasThead = table.querySelector('thead');
-      let hasTbody = table.querySelector('tbody');
-      let hasTfoot = table.querySelector('tfoot');
+      let hasThead = ...
+      let hasTbody = ...
+      let hasTfoot = ...
 
       // If no thead but there are headers, wrap first row( s) in thead
       if (!hasThead) {
         const firstRow = rows[0];
-        const firstRowHeaders = firstRow.querySelectorAll('th');
-        const firstRowHasHeaders = firstRowHeaders.length > 0;
+        const firstRowHeaders = ...
+        const firstRowHasHeaders = ... > 0;
 
         if (firstRowHasHeaders) {
           const thead = document.createElement('thead');
-          thead.appendChild(firstRow);
+          ...
           table.insertBefore(thead, table.firstChild);
         }
       }
 
       // Ensure there's a tbody for remaining rows
       if (!hasTbody && rows.length > 1) {
-        const tbody = document.createElement('tbody');
+        const tbody = ...
         for (let i = 1; i < rows.length; i++) {
           // Check if row is not already in tfoot
           const isInTfoot = rows[i].closest('tfoot');
           if (!isInTfoot) {
-            tbody.appendChild(rows[i]);
+            ...
           }
         }
         if (tbody.children.length > 0) {
-          table.appendChild(tbody);
+          ...
         }
       }
 
       // Fix header- cell associations using headers attribute
-      const allCells = table.querySelectorAll('td, th');
+      const allCells = ... th');
       allCells.forEach(cell => {
         // If cell has headers attribute, ensure it's valid
-        const headersAttr = cell.getAttribute('headers');
+        const headersAttr = ...
         if (headersAttr) {
           const headerIds = headersAttr.split(' ');
           headerIds.forEach(headerId => {
-            const header = document.getElementById(headerId);
+            const header = ...
             if (!header) {
               // Invalid header reference, remove the attribute
-              cell.removeAttribute('headers');
+              ...
             }
           });
         }
@@ -148,14 +148,14 @@ const validateTableStructureAndScopeTh = () => {
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain, fixLandmarkIssues };
+export { class1, function1, Object1, unique, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain, fixLandmarkIssues };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
 // This ensures keyboard and screen‑reader users get correct activation behavior.
 
 const fixFakeLink = () => {
-  const link = document.getElementById('unrotate');
+  const link = ...
   if (!link) return;
 
   // Create a button with the same visual text and id
@@ -166,8 +166,8 @@ const fixFakeLink = () => {
 
   // If there was any click handling on the original <a>, re‑attach it.
   // Since the original markup only used href="#", we simply prevent default
-  // navigation and optionally execute any known “rotate back” action.
-  button.addEventListener('click', (e) => {
+  // navigation and optionally execute any known "rotate back" action.
+  ... (e) => {
     e.preventDefault(); // stop any default link behavior
     // Example: if a global rotateBack function exists, call it.
     // Adjust this to match whatever functionality was intended.
@@ -177,7 +177,7 @@ const fixFakeLink = () => {
   });
 
   // Replace the <a> with the new <button>
-  link.parentNode.replaceChild(button, link);
+  ... link);
 };
 
 // ==== NEW CODE TO ADDRESS REACT_025 (Unique Landmarks) ====
@@ -186,7 +186,7 @@ const fixFakeLink = () => {
 
 const wrapPrimaryContentInMain = () => {
   // Check if main element already exists to avoid duplication
-  const existingMain = document.querySelector('main');
+  const existingMain = ...
   if (existingMain) return;
 
   // Find the primary content container
@@ -212,8 +212,8 @@ const wrapPrimaryContentInMain = () => {
   // If no specific primary content selector found,
   // wrap the first content section that appears after header/hero sections
   if (!primaryContent) {
-    const bodyChildren = Array.from(document.body.children);
-    const headerElements = document.querySelectorAll('header, .hero, .banner');
+    const bodyChildren = ...
+    const headerElements = ... .hero, .banner');
 
     // Find content that comes after typical header elements
     for (const child of bodyChildren) {
@@ -221,10 +221,10 @@ const wrapPrimaryContentInMain = () => {
         header.contains(child) || header === child
       );
 
-      if (!isHeader && child.textContent.trim() && !child.closest('main')) {
+      if (!isHeader && child.textContent.trim() && ... {
         // Skip navigation, aside, and footer elements
-        const tagName = child.tagName.toLowerCase();
-        if (!['NAV', 'ASIDE', 'FOOTER', 'HEADER'].includes(tagName)) {
+        const tagName = ...
+        if (!['NAV', 'ASIDE', 'FOOTER', ... {
           primaryContent = child;
           break;
         }
@@ -234,7 +234,7 @@ const wrapPrimaryContentInMain = () => {
 
   // If we found primary content, wrap it in a main element
   if (primaryContent) {
-    const mainElement = document.createElement('main');
+    const mainElement = ...
 
     // Get the parent of the primary content
     const parent = primaryContent.parentNode;
@@ -242,7 +242,7 @@ const wrapPrimaryContentInMain = () => {
       // Insert main element before the primary content
       parent.insertBefore(mainElement, primaryContent);
       // Move the primary content inside the main element
-      mainElement.appendChild(primaryContent);
+      ...
     }
   }
 };
@@ -252,9 +252,9 @@ const wrapPrimaryContentInMain = () => {
 
 const fixLandmarkIssues = () => {
   // 1. Banner landmark: role="banner"
-  let banner = document.querySelector('[role="banner"]');
+  let banner = ...
   if (!banner) {
-    const header = document.querySelector('header');
+    const header = ...
     if (header) {
       header.setAttribute('role', 'banner');
       banner = header;
@@ -262,17 +262,17 @@ const fixLandmarkIssues = () => {
   }
 
   // 2. Navigation landmarks: role="navigation" for nav elements
-  const navElements = document.querySelectorAll('nav');
+  const navElements = ...
   navElements.forEach(nav => {
-    if (!nav.hasAttribute('role') || nav.getAttribute('role') !== 'navigation') {
+    if ... || nav.getAttribute('role') !== 'navigation') {
       nav.setAttribute('role', 'navigation');
     }
   });
 
   // 3. Contentinfo landmark: role="contentinfo"
-  let contentinfo = document.querySelector('[role="contentinfo"]');
+  let contentinfo = ...
   if (!contentinfo) {
-    const footer = document.querySelector('footer');
+    const footer = ...
     if (footer) {
       footer.setAttribute('role', 'contentinfo');
       contentinfo = footer;
@@ -280,17 +280,7 @@ const fixLandmarkIssues = () => {
   }
 
   // 4. Main landmark: role="main"
-  let mainElement = document.querySelector('main');
+  let mainElement = ...
   if (mainElement) {
-    if (!mainElement.hasAttribute('role') || mainElement.getAttribute('role') !== 'main') {
-      mainElement.setAttribute('role', 'main');
-    }
-  }
-};
-
-// Run the fixes once the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  fixFakeLink();
-  wrapPrimaryContentInMain();
-  fixLandmarkIssues();
-});
+    if ... || mainElement.getAttribute('role') !== 'main') {
+      mainElement.setAttribute('role',

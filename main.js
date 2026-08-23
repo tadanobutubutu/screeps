@@ -227,6 +227,7 @@ module.exports = {
     const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(header => {
       header.setAttribute('scope', 'col');
+      header.setAttribute('role', 'colheader');
     });
   },
   addLangAttribute,

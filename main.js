@@ -1,4 +1,3 @@
-// Import necessary accessibility-related libraries
 import React from 'react';
 import { Component, ReactDOMServer } from 'react';
 import { HTMLAttributes, ReactElement } from 'react';

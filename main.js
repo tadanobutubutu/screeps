@@ -23,6 +23,16 @@ function addLangAttribute(element) {
 }
 
 /**
+ * Sets the document language attribute in browser environments.
+ * Call this on DOMContentLoaded in browser contexts.
+ */
+function setDocumentLanguage(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+/**
  * Fixes 26 table structure issues.
  */
 function fixTableStructure() {
@@ -131,5 +141,6 @@ function createAccessibleLink() {
 
 export {
   addLangAttribute,
+  setDocumentLanguage,
   // ... other exports
 };

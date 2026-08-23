@@ -6,7 +6,8 @@ export default function Main() {
   return (
     <>
       <Head>
-        <html lang="en" />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
       {/* REACT_017: Ensure proper landmarks */}
@@ -35,12 +36,12 @@ export default function Main() {
         
         {/* REACT_041: SVG with accessible name */}
         <svg 
-          role="img" 
-          aria-label="Close dialog" 
+          aria-labelledby="close-dialog-title"
           width="24" 
           height="24" 
           viewBox="0 0 24 24"
         >
+          <title id="close-dialog-title">Close dialog</title>
           <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" />
         </svg>
         
@@ -70,7 +71,7 @@ export default function Main() {
       </main>
       
       {/* REACT_017 & REACT_025: Footer landmark */}
-      <footer role="contentinfo">
+      <footer aria-label="Site footer">
         <nav aria-label="Footer navigation">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>

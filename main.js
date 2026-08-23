@@ -50,8 +50,16 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  const mainElement = document.createElement('main');
-  document.body.insertBefore(mainElement, document.body.firstChild);
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    const firstChild = document.body.firstChild;
+    if (firstChild) {
+      document.body.insertBefore(main, firstChild);
+    } else {
+      document.body.appendChild(main);
+    }
+  }
 }
 
 // NEW: Validate main landmark
@@ -61,7 +69,6 @@ function validateMainLandmark() {
     console.error('No main landmark found in the document.');
     return false;
   }
-  // Additional validation logic can be added here if needed
   return true;
 }
 
@@ -71,13 +78,14 @@ function validateLandmarkRoles() {
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const element = document.querySelector('[role="' + role + '"]');
-    if (element) {
-      foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
+    const elements = document.querySelectorAll('[role="' + role + '"]');
+    const tagElements = document.querySelectorAll(role);
+    const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
+    if (totalCount > 0) {
+      foundLandmarks[role] = (foundLandmarks[role] || 0) + totalCount;
     }
   });
 
-  // Return true if each landmark appears exactly once
   return Object.values(foundLandmarks).every(count => count === 1);
 }
 

@@ -654,7 +654,7 @@ function validateLinkOrButton(element) {
       issues.push({
         rule: 'REACT_036',
         severity: 'warning',
-        message: 'Button element used for navigation. Use <a> with href for navigation.'
+        message: 'Button element used for navigation. Use <a href="..."> instead of <button>.'
       });
       recommendations.push({
         type: 'link',
@@ -820,6 +820,13 @@ module.exports = {
   validateLangAttribute,
   getHtmlRootTag
 };
+
+// Export additional utilities for potential CLI or test usage
+// Import required modules for file system operations
+const path = require('path');
+
+// Add the imported module to exports for external access if needed
+module.exports.path = path;
 
 // Run if executed directly
 if (require.main === module) {

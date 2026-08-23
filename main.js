@@ -61,7 +61,7 @@ export default function Main() {
             <tr>
               <th scope="row">Pro</th>
               <td>$19.99</td>
-              <td>Priority support</th>
+              <td>Priority support</td>
             </tr>
           </tbody>
         </table>

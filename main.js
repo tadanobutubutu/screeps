@@ -5,8 +5,8 @@
 import myFunction from './myFunction';
 
 // Import the missing functions from the required files
-import myMissingFunction1 from './myMissingFunction1';
-import myMissingFunction2 from './myMissingFunction2';
+import myMissingFunction1 from ...
+import myMissingFunction2 from ...
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -40,7 +40,29 @@ const addLangAttribute = () => {
 const fixTableStructureIssues = () => {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    // Remaining code remains unchanged as all changes have been addressed
+    // Ensure tables have proper structure with thead and tbody
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const headerRow = firstRow.cloneNode(true);
+        thead.appendChild(headerRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    if (!table.querySelector('tbody')) {
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 0) {
+        const tbody = document.createElement('tbody');
+        rows.forEach((row, index) => {
+          // Skip if this row was moved to thead
+          if (index > 0 || !table.querySelector('thead')) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
+    }
   });
 };
 
@@ -57,7 +79,18 @@ const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach(svg => {
-    // Remaining code remains unchanged as all changes have been addressed
+    const existingTitle = svg.querySelector('title');
+    if (!existingTitle) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${svgIndex + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+    svg.setAttribute('role', 'img');
+    const ariaLabel = svg.getAttribute('aria-label') || svg.querySelector('title')?.textContent || '';
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', ariaLabel);
+    }
+    svgIndex++;
   });
 };
 
@@ -65,7 +98,23 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    // Remaining code remains unchanged as all changes have been addressed
+    const elements = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role === 'navigation' ? 'nav' : role === 'search' ? 'search' : role}`);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          // Remove duplicate landmark roles
+          if (role === 'navigation') {
+            element.removeAttribute('role');
+          } else if (role === 'search') {
+            // Keep search but ensure proper labeling
+            const searchInput = element.querySelector('input');
+            if (searchInput && !searchInput.getAttribute('aria-label')) {
+              searchInput.setAttribute('aria-label', 'Search');
+            }
+          }
+        }
+      });
+    }
   });
 };
 
@@ -73,7 +122,17 @@ const ensureUniqueLandmarks = () => {
 const fixFakeLinkIssues = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
-    // Remaining code remains unchanged as all changes have been addressed
+    const href = link.getAttribute('href');
+    // Check if it's a fake link (no href or href is just #)
+    if (!href || href === '#' || href === '') {
+      // Convert to button if it should be a button
+      const isInteractive = link.onclick || link.classList.contains('clickable') || link.getAttribute('role') === 'button';
+      if (isInteractive) {
+        link.setAttribute('role', 'button');
+        // Remove href to make it semantically a button
+        link.removeAttribute('href');
+      }
+    }
   });
 };
 
@@ -90,10 +149,10 @@ const enhanceAccessibility = () => {
 
 // Update the module.exports object
 module.exports.Dashboard = Dashboard;
-module.exports.myFunction = myFunction;
-module.exports.myMissingFunction1 = myMissingFunction1;
-module.exports.myMissingFunction2 = myMissingFunction2;
-module.exports.myNewFunction = myNewFunction;
-module.exports.myNewFunction2 = myNewFunction2;
-module.exports.myNewFunction3 = myNewFunction3;
-module.exports.enhanceAccessibility = enhanceAccessibility;
+module.exports = myFunction;
+module.exports = myMissingFunction1;
+module.exports = myMissingFunction2;
+module.exports = myNewFunction;
+module.exports = myNewFunction2;
+module.exports = myNewFunction3;
+module.exports = enhanceAccessibility;

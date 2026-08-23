@@ -96,5 +96,5 @@ module.exports = {
     ensureSvgAccessibility,
     setAccessiblePageTitle,
     createLiveRegion,
-    // No existing exports should be removed or renamed
+    getMainElement, // Export the required function that may have been removed
 };

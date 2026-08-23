@@ -75,7 +75,7 @@ function fixReactSVGAccessibility() {
           /<svg([^>]*?)>/gi,
           (match, attrs) => {
             if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label')) {
-              return `<svg aria-hidden="true"${attrs}>`;
+              return `<svg aria-hidden="true" focusable="false"${attrs}>`;
             }
             return match;
           }
@@ -245,8 +245,77 @@ function fixTableStructureIssues() {
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   console.log('Ensuring unique landmarks');
-  // In a real implementation, this would modify layout files
-  console.log('Made landmarks unique in app/layout.tsx and dashboard/app/layout.tsx');
+
+  const layoutFiles = [
+    'app/layout.tsx',
+    'dashboard/app/layout.tsx'
+  ];
+
+  layoutFiles.forEach(file => {
+    try {
+      const filePath = path.join(process.cwd(), file);
+      if (fs.existsSync(filePath)) {
+        let content = fs.readFileSync(filePath, 'utf8');
+
+        // Add unique aria-label or role to header and footer landmarks to ensure uniqueness
+        // Fix duplicate <header> landmarks by adding distinguishing aria-labels
+        let headerCount = 0;
+        content = content.replace(
+          /<header([^>]*?)>/gi,
+          (match, attrs) => {
+            headerCount++;
+            if (headerCount > 1) {
+              if (!attrs.includes('aria-label')) {
+                return `<header aria-label="site-header-${headerCount}"${attrs}>`;
+              }
+            } else {
+              if (!attrs.includes('aria-label')) {
+                return `<header aria-label="primary"${attrs}>`;
+              }
+            }
+            return match;
+          }
+        );
+
+        // Fix duplicate <footer> landmarks by adding distinguishing aria-labels
+        let footerCount = 0;
+        content = content.replace(
+          /<footer([^>]*?)>/gi,
+          (match, attrs) => {
+            footerCount++;
+            if (footerCount > 1) {
+              if (!attrs.includes('aria-label')) {
+                return `<footer aria-label="site-footer-${footerCount}"${attrs}>`;
+              }
+            } else {
+              if (!attrs.includes('aria-label')) {
+                return `<footer aria-label="contentinfo"${attrs}>`;
+              }
+            }
+            return match;
+          }
+        );
+
+        // Fix duplicate <nav> landmarks by adding distinguishing aria-labels
+        let navCount = 0;
+        content = content.replace(
+          /<nav([^>]*?)>/gi,
+          (match, attrs) => {
+            navCount++;
+            if (!attrs.includes('aria-label')) {
+              return `<nav aria-label="navigation-${navCount}"${attrs}>`;
+            }
+            return match;
+          }
+        );
+
+        fs.writeFileSync(filePath, content);
+        console.log(`Made landmarks unique in ${file}`);
+      }
+    } catch (error) {
+      console.error(`Error ensuring unique landmarks in ${file}:`, error.message);
+    }
+  });
 }
 
 // New function to fix fake link issues
@@ -266,19 +335,19 @@ function fixFakeLinkIssues() {
         
         // Replace <div onclick> pseudo-links with <a href> or proper buttons
         content = content.replace(
-          /<div([^>]*)onclick([^>]*)>/g,
-          (match, before, after) => {
-            // Convert to button element
-            return `<button${before}${after}>`;
+          /<div([^>]*)onclick([^>]*)>([\s\S]*?)<\/div>/g,
+          (match, before, after, innerContent) => {
+            // Convert to button element with proper type and accessibility
+            return `<button${before}${after} type="button">${innerContent}</button>`;
           }
         );
         
         // Ensure links have proper href attributes
         content = content.replace(
-          /<a([^>]*)href=""/g,
-          (match, attrs) => {
-            if (!attrs.includes('href')) {
-              return `<a href="#"`;
+          /<a([^>]*?)(?:\s+href="")?([^>]*)>/g,
+          (match, before, after) => {
+            if (!match.includes('href=') || match.includes('href=""')) {
+              return `<a${before} href="#"${after}>`;
             }
             return match;
           }
@@ -293,6 +362,18 @@ function fixFakeLinkIssues() {
   });
 }
 
+// New function to run all accessibility fixes at once
+function runAllAccessibilityFixes() {
+  console.log('Running all accessibility fixes...');
+  addLangAttribute();
+  fixReactSVGAccessibility();
+  fixReactLandmarkIssues();
+  fixTableStructureIssues();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssues();
+  console.log('All accessibility fixes completed.');
+}
+
 // Existing code continues below (preserved)
 function existingFunction() {
   // ... existing implementation
@@ -305,3 +386,8 @@ exports.handleEslint10Update = handleEslint10Update;
 exports.handleTypeScript7Update = handleTypeScript7Update;
 exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
 exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+exports.addLangAttribute = addLangAttribute;
+exports.fixTableStructureIssues = fixTableStructureIssues;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.fixFakeLinkIssues = fixFakeLinkIssues;
+exports.runAllAccessibilityFixes = runAllAccessibilityFixes;

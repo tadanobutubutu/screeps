@@ -49,11 +49,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = ... || ...
+    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
-      const main = ...
+      const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      ... ...
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -61,7 +61,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = ... || ...
+    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -76,8 +76,8 @@ function validateLandmarkRoles(element) {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
-      const elements = ...
-      const tagElements = role === 'navigation' ? ... : [];
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      const tagElements = role === 'navigation' ? document.getElementsByTagName('nav') : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -98,11 +98,11 @@ function fixTableStructure() {
 
 // Helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement || ... !== 'svg') {
+  if (!svgElement || svgElement.tagName !== 'svg') {
     return null;
   }
   // ... existing logic ...
-  const title = ...
+  const title = document.querySelectorAll('title');
   if (title) {
     return title.textContent;
   }
@@ -119,9 +119,9 @@ function getAccessibleLabel(element) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  const ariaLabelledby = ...
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = ...
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) {
       return labelElement.textContent;
     }

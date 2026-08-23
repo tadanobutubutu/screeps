@@ -1,15 +1,1 @@
-========================================= 
-document.documentElement.lang = 'en'; 
-function init() { 
-    /* ... */ 
-} 
-const someVar = require('some-module'); 
-module.exports.loop = function() { 
-    /* ... */ 
-} 
-function newFunction() { 
-    // New function logic here 
-} 
-module.exports.newFunction = newFunction; 
-======= 
-=======================
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

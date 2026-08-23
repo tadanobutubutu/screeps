@@ -4,6 +4,9 @@ export function rotateBack() {
     // Placeholder for actual rotate back logic
 }
 
+// Import and use dependencyGraphContent/indexContent from the appropriate modules
+import { renderDependencyGraph, indexContent } from './dependencyGraphContent';
+
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
@@ -74,6 +77,19 @@ export function wrapPrimaryContentInMain() {
             mainTag.appendChild(mainContent.parentElement.firstChild);
         }
         mainContent.parentElement.appendChild(mainTag);
+    }
+}
+
+// New function to render dependency graphs
+export function renderDependencyGraph() {
+    renderDependencyGraph(document.body);
+}
+
+function renderDependencyGraph(container) {
+    // Placeholder for rendering dependency graph logic
+    if (container. TagName === 'BODY') {
+        // Render the dependency graph within the <body> element
+        container.innerHTML = indexContent;
     }
 }
 

@@ -10,7 +10,7 @@ import { renderDependencyGraph, indexContent } from './dependencyGraphContent';
 // - REACT_015: Add lang attribute to HTML element
 export function addLangAttribute() {
     const html = document.documentElement;
-    if (html && !html.hasAttribute('lang')) {
+    if (html) {
         html.setAttribute('lang', 'en');
     }
 }
@@ -46,22 +46,23 @@ export function fixFakeLink() {
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = document.querySelectorAll('[data-accessible]');
+    const accessibleElements = document.querySelectorAll('[role="button"], [role="link"], button, a');
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = `accessible-${Math.random().toString(36).substr(2, 9)}`;
+        const currentId = `accessible-id-${Math.random().toString(36).substr(2, 9)}`;
         element.setAttribute('id', currentId);
     });
 }
 
 // TODO: Implement wrapPrimaryContentInMain function
 export function wrapPrimaryContentInMain() {
-    const mainContent = document.querySelector('.container');
+    const mainContent = document.querySelector('[role="main"], main, #main-content, .main-content');
     if (mainContent && mainContent.parentElement && mainContent.parentElement.tagName !== 'MAIN') {
         const mainTag = document.createElement('main');
+        mainTag.setAttribute('role', 'main');
+        mainContent.parentNode.insertBefore(mainTag, mainContent);
         mainTag.appendChild(mainContent);
-        mainContent.parentElement.insertBefore(mainTag, mainContent);
     }
 }
 
@@ -73,6 +74,7 @@ export function addMainLandmark() {
     const mainElements = document.querySelectorAll('main');
     if (mainElements.length === 0) {
         const main = document.createElement('main');
+        main.setAttribute('role', 'main');
         const body = document.body;
         if (body.firstChild) {
             body.insertBefore(main, body.firstChild);
@@ -86,7 +88,7 @@ export function addMainLandmark() {
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
-        const elements = document.querySelectorAll(role);
+        const elements = document.querySelectorAll(`${role}, [role="${role}"]`);
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {
@@ -95,7 +97,7 @@ export function ensureUniqueLandmarks() {
                     while (el.firstChild) {
                         div.appendChild(el.firstChild);
                     }
-                    el.parentNode.insertBefore(div, el);
+                    el.parentNode.replaceChild(div, el);
                 }
             });
         }
@@ -109,7 +111,7 @@ export function addLandmarkRegions() {
     const body = document.body;
 
     // Check for header landmark
-    const header = document.querySelector('header');
+    const header = document.querySelector('header, [role="banner"]');
     if (!header) {
         const headerEl = document.createElement('header');
         headerEl.setAttribute('role', 'banner');
@@ -121,7 +123,7 @@ export function addLandmarkRegions() {
     }
 
     // Check for nav landmark
-    const nav = document.querySelector('nav');
+    const nav = document.querySelector('nav, [role="navigation"]');
     if (!nav) {
         const navEl = document.createElement('nav');
         navEl.setAttribute('role', 'navigation');
@@ -134,7 +136,7 @@ export function addLandmarkRegions() {
     }
 
     // Check for footer landmark
-    const footer = document.querySelector('footer');
+    const footer = document.querySelector('footer, [role="contentinfo"]');
     if (!footer) {
         const footerEl = document.createElement('footer');
         footerEl.setAttribute('role', 'contentinfo');

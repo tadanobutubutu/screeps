@@ -164,6 +164,7 @@ function ensureUniqueLandmarks(doc) {
 /**
  * REACT_036: Fix fake link issue
  * Replaces <a href="#"> or similar hash-only links with proper <button> elements.
+ * Ensures the resulting button is type="button" and retains all relevant attributes.
  * @param {Document} [doc] - The document to modify (defaults to global document).
  */
 function replaceHashLinksWithButtons(doc) {
@@ -173,6 +174,8 @@ function replaceHashLinksWithButtons(doc) {
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     var button = doc.createElement('button');
+    // Ensure the button does not act as a submit button
+    button.type = 'button';
     // Copy text content
     button.textContent = link.textContent;
     // Copy classes
@@ -183,7 +186,7 @@ function replaceHashLinksWithButtons(doc) {
     if (link.getAttribute('style')) {
       button.setAttribute('style', link.getAttribute('style'));
     }
-    // Copy data attributes
+    // Copy data attributes and id
     var attrs = link.attributes;
     for (var j = 0; j < attrs.length; j++) {
       var attr = attrs[j];
@@ -191,11 +194,11 @@ function replaceHashLinksWithButtons(doc) {
         button.setAttribute(attr.name, attr.value);
       }
     }
-    // Copy event listeners by preserving onclick attribute
+    // Copy inline event handlers (e.g., onclick)
     if (link.getAttribute('onclick')) {
       button.setAttribute('onclick', link.getAttribute('onclick'));
     }
-    // Replace in DOM
+    // Replace the <a> with the new <button>
     if (link.parentNode) {
       link.parentNode.replaceChild(button, link);
     }

@@ -104,15 +104,15 @@ export default function Home({ projects }) {
           </ul>
         </nav>
 
-        <section aria-labelledby="projects-heading">
-          <h2 id="projects-heading">Projects</h2>
+        <section>
+          <h2>Project List</h2>
             
           <table>
             <caption>Project List</caption>
             <thead>
               <tr>
                 {columns.map((col, index) => (
-                  <th key={index} scope="col">{col.Header}</th>
+                  <th key={index}>{col.Header}</th>
                 ))}
               </tr>
             </thead>
@@ -128,7 +128,7 @@ export default function Home({ projects }) {
           </table>
         </section>
 
-        <section aria-labelledby="icons-heading">
+        <section>
           <h2 id="icons-heading">Accessible Icons</h2>
           <div className="icons-container">
             <createAccessibleSVG iconName="Settings" />
@@ -143,3 +143,8 @@ export default function Home({ projects }) {
     </div>
   );
 }
+
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+// module.exports = { myFunction };

@@ -11,7 +11,7 @@ const Main = ({ data }) => {
 
   useEffect(() => {
     const htmlElement = document.documentElement;
-    Object.keys(htmlAttrs).forEach(key => {
+    Object.entries(htmlAttrs).forEach(([key, value]) => {
       htmlElement.setAttribute(key, htmlAttrs[key]);
     });
   }, [htmlAttrs]);

@@ -11,15 +11,15 @@ const Main = ({ data }) => {
 
   useEffect(() => {
     const htmlElement = document.documentElement;
-    Object.keys(htmlAttrs).forEach(key => {
-      htmlElement.setAttribute(key, htmlAttrs[key]);
+    Object.entries(htmlAttrs).forEach(([key, value]) => {
+      htmlElement.setAttribute(key, value);
     });
   }, [htmlAttrs]);
 
   // ... rest of your existing code
 
   // REACT_027: Fix 26 table structure issues
-  // Assuming you have tables with issues and you can apply appropriatearia-label, aria-describedby, etc. properties.
+  // Assuming you have tables with issues and you can apply appropriate aria-label, aria-describedby, etc. properties.
 
   // ... rest of your existing code
 
@@ -30,7 +30,7 @@ const Main = ({ data }) => {
       <header role="banner">
         {/* existing header content */}
       </header>
-      <main role="main">
+      <main>
         {/* existing main content */}
       </main>
     </div>

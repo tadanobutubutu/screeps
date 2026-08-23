@@ -1,10 +1,3 @@
-// Please paste your main.js content here, including any conflict markers like:
-// <<<<<<< HEAD
-// ... your code ...
-// =======
-// ... incoming code ...
-// >>>>>>> branch-name
-
 /**
  * Main entry point for dependency management and configuration
  * Handles updates for: jest, typescript, react, eslint, and other dependencies
@@ -63,7 +56,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/\^?(\d+)\./);
+    const match = version.match(/(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -113,3 +106,33 @@ function validateDependencies(dependencies) {
 
 /**
  * Get recommended update order based on dependency tree
+ */
+function getRecommendedUpdateOrder(updates) {
+  const order = [];
+  const visited = new Set();
+  
+  const addUpdate = (name) => {
+    if (visited.has(name)) return;
+    visited.add(name);
+    
+    const update = updates[name];
+    if (!update) return;
+    
+    // Add dependencies first
+    if (update.dependencies) {
+      update.dependencies.forEach(dep => addUpdate(dep));
+    }
+    
+    order.push(name);
+  };
+  
+  Object.keys(updates).forEach(addUpdate);
+  return order;
+}
+
+module.exports = {
+  DEPENDENCY_UPDATES,
+  checkCompatibility,
+  validateDependencies,
+  getRecommendedUpdateOrder
+};

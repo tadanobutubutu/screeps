@@ -49,11 +49,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+    const mainElement = ... || ...
     if (!mainElement) {
-      const main = document.createElement('main');
+      const main = ...
       main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      ... ...
     }
   }, []);
 }
@@ -61,7 +61,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+    const mainElement = ... || ...
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -71,13 +71,13 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks using React's useEffect
-function validateLandmarkRoles() {
+function validateLandmarkRoles(element) {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
+      const elements = ...
+      const tagElements = role === 'navigation' ? ... : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -98,11 +98,11 @@ function fixTableStructure() {
 
 // Helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+  if (!svgElement || ... !== 'svg') {
     return null;
   }
   // ... existing logic ...
-  const title = svgElement.querySelector('title');
+  const title = ...
   if (title) {
     return title.textContent;
   }
@@ -119,9 +119,9 @@ function getAccessibleLabel(element) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
+    const labelElement = ...
     if (labelElement) {
       return labelElement.textContent;
     }
@@ -145,7 +145,7 @@ function validateLandmark() {
   // ... existing logic ...
 }
 
-function validateUniqueLandmarks() {
+function validateLandmarkRoles() {
   // ... existing logic ...
 }
 

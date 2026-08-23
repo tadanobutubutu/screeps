@@ -782,6 +782,24 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Create the rotate back button for the dependency graph
+ * Replaces the fake link with an accessible button to address REACT_036
+ * @returns {Object} Button configuration with accessibility attributes
+ */
+function createRotateBackButton() {
+  return {
+    type: 'button',
+    id: 'unrotate',
+    text: 'rotate back',
+    onClick: 'unrotate',
+    accessibility: {
+      role: 'button',
+      ariaLabel: 'rotate back'
+    }
+  };
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -808,7 +826,9 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // REACT_036 fix for rotate back link
+  createRotateBackButton
 };
 
 // Run if executed directly

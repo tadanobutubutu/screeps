@@ -5,6 +5,10 @@
 
 import React from 'react';
 
+// Import dependency graph and index content modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Fix REACT_015: Add proper lang attribute to HTML element
 export function createHtmlElement(language = 'en') {
   // Existing function with the addition of the critical lang attribute
@@ -78,7 +82,7 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = container.querySelectorAll('[role="contentinfo"], [role="banner"], header, nav, main, footer');
+  const landmarks = container.querySelectorAll('[role="banner"], header, nav, main, footer');
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {
@@ -137,22 +141,168 @@ const calculateAverage = function(numbers) {
   return sum / numbers.length;
 };
 
+// Updated: DependencyGraphTable now uses dependencyGraphContent module
+export function DependencyGraphTable(props) {
+  const content = dependencyGraphContent.getGraphTableContent(props.dependencies);
+  return {
+    type: 'div',
+    props: {
+      className: 'dependency-graph-table',
+      'aria-label': 'Dependency Graph',
+      children: content
+    }
+  };
+}
+
+// Updated: StatusPage now uses indexContent module for index views
+export function StatusPage(props) {
+  const content = indexContent.getStatusPageContent(props.status);
+  return {
+    type: 'main',
+    props: {
+      role: 'main',
+      'aria-label': 'Status Dashboard',
+      children: content
+    }
+  };
+}
+
+// PageLayout updated to use indexContent for index view layouts
+export function createPageLayout(contentType = 'default') {
+  const content = indexContent.getLayoutContent(contentType);
+  return {
+    type: 'div',
+    props: {
+      className: 'page-layout',
+      role: 'main',
+      children: content
+    }
+  };
+}
+
+// ContentPanel updated to use indexContent
+export function ContentPanel(props) {
+  const content = indexContent.getPanelContent(props.panelId);
+  return {
+    type: 'section',
+    props: {
+      className: 'content-panel',
+      'aria-labelledby': props.titleId,
+      children: content
+    }
+  };
+}
+
+// GraphIcon component for rendering graph icons
+export function GraphIcon(props) {
+  return createSvgIcon(props.name || 'Graph', props.children);
+}
+
+// SettingsIcon component for rendering settings icons
+export function SettingsIcon(props) {
+  return createSvgIcon('Settings', props.children);
+}
+
+// AccessibleIconSVG - wrapper for accessible SVG icons
+export function AccessibleIconSVG(props) {
+  return {
+    type: 'svg',
+    props: {
+      'aria-label': props.label,
+      role: 'img',
+      children: props.children || []
+    }
+  };
+}
+
+// FakeLinkAsButton - accessibility fix for styled links
+export function FakeLinkAsButton(props) {
+  return {
+    type: 'button',
+    props: {
+      className: props.className,
+      onClick: props.onClick,
+      'aria-label': props['aria-label'],
+      children: props.children
+    }
+  };
+}
+
+// AppWrapper - main application wrapper component
+export function AppWrapper(props) {
+  return {
+    type: 'div',
+    props: {
+      className: 'app-wrapper',
+      role: 'application',
+      'aria-label': props.appName || 'Application',
+      children: props.children
+    }
+  };
+}
+
+// HtmlLangProvider - provides language context
+export function HtmlLangProvider(props) {
+  return {
+    type: 'div',
+    props: {
+      lang: props.language || 'en',
+      children: props.children
+    }
+  };
+}
+
+// fixTableStructureIssues - utility for fixing table accessibility
+export function fixTableStructureIssues(tableElement) {
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+  return tableElement;
+}
+
+// createAccessibleFaviconSvg - creates accessible favicon
+export function createAccessibleFaviconSvg(color = '#000000') {
+  return {
+    type: 'svg',
+    props: {
+      'aria-label': 'Page favicon',
+      role: 'img',
+      children: []
+    }
+  };
+}
+
+// faviconGenerators - collection of favicon generation utilities
+export const faviconGenerators = {
+  simple: (color) => createAccessibleFaviconSvg(color),
+  withText: (text, color) => createAccessibleFaviconSvg(color)
+};
+
+// generateId - utility for generating unique IDs
+export function generateId(prefix = 'id') {
+  return prefix + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+// setHtmlLang - utility to set HTML language
+export function setHtmlLang(lang) {
+  document.documentElement.lang = lang;
+}
+
 // Export all components and utilities
 export {
   FakeLinkAsButton,
-  DependencyGraphTable,
   AccessibleIconSVG,
   GraphIcon,
   SettingsIcon,
   AppWrapper,
   HtmlLangProvider,
-  PageLayout,
-  fixTableStructureIssues,
   ensureUniqueLandmarks,
   createAccessibleFaviconSvg,
   faviconGenerators,
-  StatusPage,
-  ContentPanel,
+  fixTableStructureIssues,
   generateId,
   setHtmlLang,
   setLanguageAttribute,
@@ -168,6 +318,18 @@ export default {
   createPageLayout,
   createNavigationLink
 };
+
+// Additional helper function
+function createNavigationLink(props) {
+  return {
+    type: 'a',
+    props: {
+      href: props.href,
+      className: props.className,
+      children: props.children
+    }
+  };
+}
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';

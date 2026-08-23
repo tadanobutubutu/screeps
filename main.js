@@ -1,4 +1,3 @@
-// Import necessary accessibility-related libraries
 import React from 'react';
 import { Component, ReactDOMServer } from 'react';
 import { HTMLAttributes, ReactElement } from 'react';
@@ -11,7 +10,6 @@ class Main extends Component {
     };
 
     // Fix table structure issues (assuming you're using functional components for tables)
-    // For brevity, I'll only show one table with suggested changes
     const Table = ({ children }) => {
       // Accessible table structure using semantic HTML components
       return (
@@ -37,16 +35,13 @@ class Main extends Component {
     );
 
     // Add accessible names to SVGs
-    // Assuming `logo` and `menuIcon` are the two SVGs needed
     const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
     const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
 
     // Ensure unique landmarks
-    // For simplicity, I'll only update the main content, as id="mainContent" already exists
     const uniqueMainContent = { ...htmlAttributes, id: `${htmlAttributes.id}-unique` };
 
     // Fix fake link issue
-    // Assuming `fakeLink` is the element causing the issue. Update it as necessary
     const fixedLink = (
       <a href="#" onClick={() => console.warn('Fake Link clicked')}>
         Fake Link

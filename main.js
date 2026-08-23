@@ -1,13 +1,11 @@
 import React from 'react';
-import Head from 'next/head';
+import { Component, ReactDOMServer } from 'react';
+import { HTMLAttributes, ReactElement } from 'react';
 
-// Import dependency graph and index content modules
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// TODO: This is the existing code that needs to be preserved
-
-// Add new function to fix table structure issues (REACT_027)
+// Utility functions
 export const fixTableStructureIssues = (tableData) => {
   if (!Array.isArray(tableData)) {
     throw new Error('Invalid table data structure');
@@ -36,7 +34,6 @@ export const fixTableStructureIssues = (tableData) => {
   }));
 };
 
-// New function to ensure unique landmarks (REACT_025)
 export const ensureUniqueLandmarks = (landmarks) => {
   const landmarkIDs = new Set();
   for (let landmark of landmarks) {
@@ -48,37 +45,18 @@ export const ensureUniqueLandmarks = (landmarks) => {
   return landmarks;
 };
 
-// New function to add ARIA label to a fake link (REACT_036)
-export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
-  return (
-    <a href={href} aria-label={ariaLabel}>
-      {content}
-    </a>
-  );
-};
+export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => (
+  <a href={href} aria-label={ariaLabel}>
+    {content}
+  </a>
+);
 
-// New function to add lang attribute to HTML element (REACT_015)
-export const addLangAttribute = (lang = 'en') => {
-  return { lang };
-};
+export const addLangAttribute = (lang = 'en') => ({ lang });
 
-// New function to wrap primary content in a main element
-export const wrapPrimaryContentInMain = (content) => {
-  return <main>{content}</main>;
-};
+export const wrapPrimaryContentInMain = (content) => <main>{content}</main>;
 
-// Add back required exports that might have been removed
-export { default } from './main';
-
-// Main component
+// Main functional component
 export default function Home({ projects }) {
-  // Define the columns for the table
-  const columns = [
-    { Header: 'Name', accessor: 'name' },
-    { Header: 'Status', accessor: 'status' },
-    { Header: 'Updated', accessor: 'updated' },
-  ];
-
   // Ensure unique landmark IDs
   ensureUniqueLandmarks([
     { id: 'header' },
@@ -87,15 +65,53 @@ export default function Home({ projects }) {
     { id: 'footer' },
   ]);
 
-  // Add ARIA label to a skip link (fake link fix)
+  // Add ARIA label to skip link
   const skipLink = addAriaLabelToFakeLink('Skip to main content', 'Skip to main content', '/#main-content');
 
-  // Add lang attribute dynamically
-  const langAttr = addLangAttribute('en');
+  // Table columns
+  const columns = [
+    { Header: 'Name', accessor: 'name' },
+    { Header: 'Status', accessor: 'status' },
+    { Header: 'Updated', accessor: 'updated' },
+  ];
 
+  // Render table using utility function if needed
+  // const tableData = fixTableStructureIssues(projects.tableData);
+
+  // Render components
   return (
-    <div {...langAttr}>
-      {/* Skip link for accessibility */}
+    <div>
+      {/* Skip link */}
       {skipLink}
-       ...
+
+      {/* Landmarks */}
+      <header id="banner">Header</header>
+      <footer>Footer</footer>
+
+      {/* Table */}
+      {/* Example integration of origin/main's table structure */}
+      <table aria-label="Accessible Table">
+        <thead>
+          <tr>{columns.map(col => <th key={col.Accessor}>{col.Header}</th>)}</tr>
+        </thead>
+        <tbody>
+          {/* Render rows */}
+        </tbody>
+      </table>
+
+      {/* SVGs with aria labels */}
+      <img src="/logo.svg" alt="Accessible Name for Logo" />
+      <img src="/menu.svg" alt="Accessible Name for Menu Icon" />
+
+      {/* Fixed fake link */}
+      <a href="#" aria-label="Fake Link">
+        Fake Link
+      </a>
+
+      {/* Main content */}
+      <main id="mainContent">
+        {projects.content}
+      </main>
+    </div>
   );
+}

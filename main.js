@@ -65,12 +65,17 @@ addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
 
 // Add back export for the main game loop logic (original change) and the new function
+myNewFunction = function() { /* Custom game loop logic */ }; // Move myNewFunction to original position below exports
+
 module.exports = {
-  loop: function() { /* Main game loop logic myNewFunction(); */ },
-  myNewFunction: myNewFunction, // move myNewFunction to original position below exports
+  loop: function() {
+    myNewFunction(); // Call the custom game loop logic within the loop
+    // ...
+  },
+  myNewFunction, // Include the new function in the exports
   add,
   subtract,
   multiply,
   divide,
-  addAriaLabel // Add the new function to the exports
+  addAriaLabel // Include the new function in the exports
 };

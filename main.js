@@ -149,6 +149,20 @@ function fixFakeLinks() {
   });
 }
 
+// function to ensure that landmark roles are not duplicated
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'banner', 'contentinfo', 'navigation'];
+  landmarks.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    let count = 0;
+    elements.forEach((el) => {
+      if (!el.getAttribute('aria-label')) {
+        el.setAttribute('aria-label', `${role} section ${++count}`);
+      }
+    });
+  });
+}
+
 // call the accessibility improvement functions
 addLangAttribute();
 addLandmarkRoles();

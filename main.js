@@ -1,7 +1,7 @@
-// TODO: This is the existing code that needs to be preserved
-
 import React from 'react';
 import { useEffect } from 'react';
+
+// TODO: This is the existing code that needs to be preserved
 
 function Header() {
   // ... existing code here

@@ -56,7 +56,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   if (!range) return { compatible: true };
   
   const majorVersion = (version) => {
-    const match = version.match(/\^?(\d+)/);
+    const match = version.match(/^(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
   
@@ -124,8 +124,8 @@ function getRecommendedUpdateOrder() {
  * @returns {Object} Breaking change information
  */
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajor = currentVersion.match(/\^?(\d+)/)?.[1] || '0';
-  const newMajor = newVersion.match(/\^?(\d+)/)?.[1] || '0';
+  const currentMajor = currentVersion.match(/^(\d+)/)?.[1] || '0';
+  const newMajor = newVersion.match(/^(\d+)/)?.[1] || '0';
   
   if (newMajor > currentMajor) {
     return {
@@ -224,7 +224,7 @@ function validateTableAccessibility(tableConfig) {
     issues.push('REACT_027: Table headers should have scope attributes');
   }
   
-  if (!tableConfig.caption && tableConfig.requiresCaption) {
+  if (tableConfig.rows && tableConfig.rows > 0 && !tableConfig.caption) {
     issues.push('REACT_027: Tables should have captions for accessibility');
   }
   

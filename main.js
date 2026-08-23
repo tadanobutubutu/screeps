@@ -41,6 +41,5 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   addAriaLabelToMyDiv,
-  // ... other exports if any ...
   newFunctionForTheIssue
 };

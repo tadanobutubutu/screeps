@@ -51,7 +51,7 @@ function validateTableAccessibility(htmlContent) {
     if (attrs && /scope=/i.test(attrs)) {
       return match;
     }
-    const closingBracket = attrs ? attrs.lastIndexOf('>') : -1;
+    const closingBracket = attrs ? attrs.indexOf('>') : -1;
     if (closingBracket !== -1) {
       return match.substring(0, closingBracket) + ' scope="col">';
     }
@@ -82,7 +82,7 @@ function validateTableStructure(htmlContent) {
       result += `<tbody>${content}</tbody>`;
     } else if (hasThead && !hasTbody) {
       // Extract thead and wrap remaining in tbody
-      const theadMatch = content.match(/<thead[\s\S]*?<\/thead>/i);
+      const theadMatch = /<thead[\s\S]*?<\/thead>/i.exec(content);
       if (theadMatch) {
         result += theadMatch[0];
         const remaining = content.replace(theadMatch[0], '');
@@ -93,12 +93,12 @@ function validateTableStructure(htmlContent) {
     } else if (hasThead && hasTbody) {
       // If both thead and tbody exist, ensure they are properly closed
       // and add any missing structure
-      if (!/<\/thead>/i.test(content) || !/<\/tbody>/i.test(content)) {
+      if (!/<thead[\s\S]*?<\/thead>/i.test(content) || !/<tbody[\s\S]*?<\/tbody>/i.test(content)) {
         // Ensure proper closing tags
-        if (!/<\/thead>/i.test(content)) {
+        if (!/<thead[\s\S]*?<\/thead>/i.test(content)) {
           result += `<thead></thead>`;
         }
-        if (!/<\/tbody>/i.test(content)) {
+        if (!/<tbody[\s\S]*?<\/tbody>/i.test(content)) {
           result += `<tbody></tbody>`;
         }
       }
@@ -106,10 +106,10 @@ function validateTableStructure(htmlContent) {
       return result;
     } else if (!hasThead && hasTbody) {
       // No thead but has tbody - extract first row for thead if appropriate
-      const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/i);
+      const tbodyMatch = /<tbody[\s\S]*?<\/tbody>/i.exec(content);
       if (tbodyMatch) {
         // Try to extract first row for thead
-        const firstRowMatch = tbodyMatch[0].match(/<tr[\s\S]*?<\/tr>/i);
+        const firstRowMatch = /<tr[\s\S]*?<\/tr>/i.exec(tbodyMatch[0]);
         if (firstRowMatch) {
           result += `<thead><tr>${firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
           const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
@@ -139,10 +139,10 @@ function validateLandmark(htmlContent) {
   // Add main landmark if not present
   if (!/<main/i.test(htmlContent)) {
     // Wrap content in main tag
-    const bodyMatch = htmlContent.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
+    const bodyMatch = /<body([^>]*)>([\s\S]*)<\/body>/i.exec(htmlContent);
     if (bodyMatch) {
       modifiedContent = modifiedContent.replace(
-        /<body$1>([\s\S]*)<\/body>/i,
+        /<body([^>]*)>([\s\S]*)<\/body>/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
@@ -202,13 +202,13 @@ function getSvgAccessibleName(svgContent, accessibleName) {
   // Add title element to SVG for accessibility
   if (!/<title/i.test(svgContent)) {
     // Find the first child element position
-    const firstChildMatch = svgContent.match(/(<svg[^>]*>)(\s*)/i);
+    const firstChildMatch = /<svg([^>]*)>([\s\S]*)/i.exec(svgContent);
     if (firstChildMatch) {
       const content = firstChildMatch[2];
-      const firstElementMatch = content.match(/<[a-zA-Z]/);
+      const firstElementMatch = /<[a-zA-Z][^>]*>/i.exec(content);
       if (firstElementMatch && firstElementMatch.index !== undefined) {
         const titleElement = `<title>${accessibleName}</title>`;
-        const insertPos = firstChildMatch[0].length;
+        const insertPos = firstChildMatch.index + firstChildMatch[0].length - content.length;
         return svgContent.substring(0, insertPos) + titleElement + svgContent.substring(insertPos);
       }
     }
@@ -226,125 +226,4 @@ function createAccessibleLink(url, text, options = {}) {
 
   let relAttr = rel;
   if (!relAttr && target === '_blank') {
-    relAttr = 'noopener noreferrer';
-  }
-
-  const relString = relAttr ? ` rel="${relAttr}"` : '';
-  const classString = className ? ` class="${className}"` : '';
-  const ariaLabelString = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
-
-  return `<a href="${url}"${classString}${ariaLabelString} target="${target}"${relString}>${text}</a>`;
-}
-
-// Create in-page button
-function createInPageButton(text, options = {}) {
-  const { className = '', id = '', ariaLabel = '', type = 'button', disabled = false } = options;
-
-  const idAttr = id ? ` id="${id}"` : '';
-  const classAttr = className ? ` class="${className}"` : '';
-  const ariaAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
-  const disabledAttr = disabled ? ' disabled' : '';
-
-  return `<button${idAttr}${classAttr}${ariaAttr} type="${type}"${disabledAttr}>${text}</button>`;
-}
-
-// Function to add accessible name to SVG elements
-// This addresses REACT_041: React SVG Accessible Name
-function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
-  // Regex to find SVG elements
-  const svgRegex = /<svg(\s[^>]*)?>([\s\S]*?)<\/svg>/gi;
-
-  let modifiedContent = htmlContent;
-  let match;
-
-  // Collect all matches first to avoid issues with modifying content during iteration
-  const matches = [];
-  while ((match = svgRegex.exec(htmlContent)) !== null) {
-    matches.push({
-      fullMatch: match[0],
-      openTag: match[1],
-      content: match[2],
-      index: match.index,
-      endIndex: match.index + match[0].length
-    });
-  }
-
-  // Process matches in reverse order to preserve indices when replacing
-  for (let i = matches.length - 1; i >= 0; i--) {
-    const m = matches[i];
-    const svgOpenTag = m.openTag || '';
-    const svgInnerContent = m.content;
-
-    // Check if SVG already has a title, aria-label, or aria-hidden
-    const hasTitle = /<title/i.test(svgInnerContent);
-    const hasAriaLabel = /aria-label=/i.test(svgOpenTag);
-    const isAriaHidden = /aria-hidden\s*=\s*["']true["']/i.test(svgOpenTag);
-
-    // If SVG is hidden from screen readers, skip it
-    if (isAriaHidden) {
-      continue;
-    }
-
-    // If SVG already has accessible name, skip it
-    if (hasTitle || hasAriaLabel) {
-      continue;
-    }
-
-    // Get accessible name from title if it exists
-    let accessibleName = defaultName;
-    const titleMatch = svgInnerContent.match(/<title[^>]*>([^<]*)<\/title>/i);
-    if (titleMatch) {
-      accessibleName = titleMatch[1].trim();
-    }
-
-    // If accessible name is empty, use defaultName
-    if (!accessibleName) {
-      const firstElementMatch = svgInnerContent.match(/<[a-zA-Z]/);
-      if (firstElementMatch) {
-        const elementName = firstElementMatch[0].toLowerCase();
-        accessibleName = capitalizeFirstLetter(elementName) + ' Image';
-      }
-    }
-
-    // Add accessible name using title element
-    const titleElement = `<title>${accessibleName}</title>`;
-    const closingBracketIndex = svgOpenTag.indexOf('>');
-    const newSvg = `<svg${svgOpenTag.substring(0, closingBracketIndex)}>${titleElement}${svgInnerContent}</svg>`;
-    
-    modifiedContent = modifiedContent.substring(0, m.index) + newSvg + modifiedContent.substring(m.endIndex);
-  }
-
-  return modifiedContent;
-}
-
-// Helper function to capitalize first letter of a string
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-// Missing function - getPascalCaseFromCamelCase
-// This function converts camelCase to PascalCase
-function getPascalCaseFromCamelCase(str) {
-  return str.replace(/(?:^\w|(?<=\w)\w)/g, function (match) {
-    return match.toUpperCase();
-  });
-}
-
-// Wrap primary content in main tag
-// This function implements the wrapPrimaryContentInMain functionality
-function wrapPrimaryContentInMain(htmlContent) {
-  // Find the main landmark if it exists
-  const mainMatch = htmlContent.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
-  if (mainMatch) {
-    // Extract content between main tags
-    const mainContent = mainMatch[1];
-    // Wrap the entire content in a main tag
-    return `<main>${mainContent}</main>`;
-  }
-  // If no main tag found, try to find primary content after the main landmark
-  // or before the footer
-  const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  if (bodyMatch) {
-    const bodyContent = bodyMatch[1];
-    // Wrap the body content in a main tag
-    return `<main>${bodyContent}</main>
+    relAttr

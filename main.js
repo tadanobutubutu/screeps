@@ -29,9 +29,8 @@ function addressAccessibilityIssues(accessibilityInsights) {
   });
 }
 
-// TODO: Implement addProperLandmarkRegions(); function
+// Implement the new function to address requested changes
 function addProperLandmarkRegions(accessibilityInsights) {
-  // Implement the logic to add proper landmark regions based on the insights
   accessibilityInsights.landmarks.forEach(landmark => {
     // Find the element with the ID that matches the landmark
     const element = document.getElementById(landmark.elementId);

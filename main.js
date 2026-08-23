@@ -5,11 +5,6 @@ import Head from 'next/head';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to use dependencyGraphContent/indexContent from the appropriate modules.
-// NOTE: Imports have been added above for dependencyGraphContent and indexContent.
-// Update functions to use these imports when identified.
-
 // Helper function to create accessible SVG icons
 export const createAccessibleSVG = (iconName, viewBox = "0 0 24 24", className = "icon") => (
   <svg viewBox={viewBox} className={className} role="img" aria-label={iconName}>
@@ -36,14 +31,14 @@ export function formatDate(dateString) {
     month: 'long',
     day: 'numeric'
   };
-  return new ... options);
+  return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
 export function validateProject(project) {
   if (!project.name || typeof project.name !== 'string') {
     return { valid: false, error: 'Project name is required' };
   }
-  if (!project.status || !['Active', 'Pending', 'Completed', ... {
+  if (!project.status || !['Active', 'Pending', 'Completed', 'Archived'].includes(project.status)) {
     return { valid: false, error: 'Invalid project status' };
   }
   return { valid: true };
@@ -54,7 +49,7 @@ export const PROJECT_STATUSES = ['Active', 'Pending', 'Completed', 'Archived'];
 
 // New function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
-  if (!Array.isArray(tableData) || !tableData[0] || ... {
+  if (!Array.isArray(tableData) || !tableData[0] || typeof tableData[0] !== 'object' || !tableData[0].hasOwnProperty('Header') || !tableData[0].hasOwnProperty('accessor')) {
     throw new Error('Invalid table data structure');
   }
   return tableData;
@@ -109,7 +104,8 @@ export default function Home({ projects }) {
         <nav role="navigation" aria-label="Main navigation">
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a ...
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </nav>
 
@@ -121,14 +117,14 @@ export default function Home({ projects }) {
             <thead>
               <tr>
                 {columns.map((col, index) => (
-                  <th ...
+                  <th key={index}>{col.Header}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {projects && projects.map((project) => (
                 <tr key={project.id}>
-                  ...
+                  <td>{project.name}</td>
                   <td>{project.status}</td>
                   <td>{project.updated}</td>
                 </tr>
@@ -152,8 +148,3 @@ export default function Home({ projects }) {
     </div>
   );
 }
-
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };

@@ -89,3 +89,16 @@ module.exports = {
   wrapperFunction,
   ensureUniqueLandmarks
 };
+
+// Address the REACT_036 issue by changing the anchor to a button
+function addressReact036Issue() {
+  const element = document.getElementById('unrotate');
+  if (element) {
+    element.innerHTML = '<button id="unrotate">rotate back</button>';
+    const newButton = element.querySelector('button');
+    newButton.setAttribute('type', 'button'); // Ensure it's a button with no default action
+  }
+}
+
+// Call the function to make the change
+addressReact036Issue();

@@ -110,9 +110,6 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
   callback(accessibilityInsights);
 }
 
-// Wrap the existing addressAccessibilityIssues function with the new processAccessibilityIssues wrapper function
-processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
-
 // Wrap the primary content element in the main container
 
 // Add missing scope attributes to table header cells (fixes REACT_027)

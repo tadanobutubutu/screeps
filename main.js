@@ -57,5 +57,6 @@ wrapPrimaryContentInMain(document.body);
 module.exports = {
   wrapPrimaryContentInMain,
   addressAccessibilityIssues,
-  processAccessibilityIssues
+  processAccessibilityIssues,
+  wrapperFunction
 };

@@ -1,3 +1,19 @@
+// Hypothetical original code that violates the REACT_025 rule
+// <main>
+//   Content for main section
+// </main>
+// <main>
+//   Content for another main section
+// </main>
+
+// Adjusted code to follow the REACT_025 rule
+// <main>
+//   Content for main section
+// </main>
+// <section>
+//   Content for another main-like section
+// </section>
+=======
 // Import the myFunction from the required file
 import myFunction from './myFunction';
 
@@ -69,3 +85,4 @@ module.exports.myMissingFunction2 = myMissingFunction2;
 module.exports.myNewFunction = myNewFunction;
 module.exports.enhanceAccessibility = enhanceAccessibility;
 module.exports.initUnrotateButton = initUnrotateButton;
+>>>>>>> origin/main

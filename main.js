@@ -1,4 +1,3 @@
-// Assuming the main.js file is a configuration file for Jest or the application, which would likely contain the Jest setup.
 module.exports = {
   // Existing Jest configuration
   // ...
@@ -6,7 +5,7 @@ module.exports = {
   // Any other existing configurations or code
   // ...
 
-  // Rule changes as requested for REACT_041 React SVG Accessible Name
+  // Rule changes as requested for REACT_025 React Unique Landmarks
   transformIgnorePatterns: [
     // ... any other patterns
     "/node_modules/(?!@react-icons)/",

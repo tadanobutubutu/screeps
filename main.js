@@ -124,37 +124,63 @@ function addAccessibleNamesToSvgFiles(doc) {
 /**
  * REACT_025: Ensure unique landmarks
  * Ensures landmark elements have unique and accessible names when
- * multiple landmarks of the same type exist.
+ * multiple landmarks of the same type exist. Converts duplicate <main>
+ * elements to <section> elements to ensure unique landmarks.
  * @param {Document} [doc] - The document to modify (defaults to global document).
  */
 function ensureUniqueLandmarks(doc) {
   doc = doc || (typeof document !== 'undefined' ? document : null);
   if (!doc) return;
+  
+  // Handle duplicate <main> elements specifically
+  // Convert all but the first <main> to <section> to ensure unique landmarks
+  var mains = doc.querySelectorAll('main');
+  if (mains.length > 1) {
+    for (var i = 1; i < mains.length; i++) {
+      var main = mains[i];
+      var section = doc.createElement('section');
+      // Copy all attributes from main to section
+      var attrs = main.attributes;
+      for (var j = 0; j < attrs.length; j++) {
+        var attr = attrs[j];
+        section.setAttribute(attr.name, attr.value);
+      }
+      // Move all children from main to section
+      while (main.firstChild) {
+        section.appendChild(main.firstChild);
+      }
+      // Replace main with section in the DOM
+      if (main.parentNode) {
+        main.parentNode.replaceChild(section, main);
+      }
+    }
+  }
+  
+  // Handle other landmark types
   var landmarkSelectors = [
-    'main, [role="main"]',
     'nav, [role="navigation"]',
     'header, [role="banner"]',
     'footer, [role="contentinfo"]',
     'aside, [role="complementary"]'
   ];
 
-  for (var i = 0; i < landmarkSelectors.length; i++) {
-    var landmarks = doc.querySelectorAll(landmarkSelectors[i]);
+  for (var k = 0; k < landmarkSelectors.length; k++) {
+    var selector = landmarkSelectors[k];
+    var landmarks = doc.querySelectorAll(selector);
     if (landmarks.length > 1) {
-      for (var j = 0; j < landmarks.length; j++) {
-        var landmark = landmarks[j];
+      for (var l = 0; l < landmarks.length; l++) {
+        var landmark = landmarks[l];
         if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
           // Determine the landmark type for a meaningful label
           var tagName = landmark.tagName.toLowerCase();
           var role = landmark.getAttribute('role') || tagName;
           var labelMap = {
-            'main': 'Primary',
-            'navigation': 'Navigation ' + (j + 1),
+            'navigation': 'Navigation ' + (l + 1),
             'banner': 'Header',
-            'contentinfo': 'Footer ' + (j + 1),
-            'complementary': 'Sidebar ' + (j + 1)
+            'contentinfo': 'Footer ' + (l + 1),
+            'complementary': 'Sidebar ' + (l + 1)
           };
-          landmark.setAttribute('aria-label', labelMap[role] || role + ' ' + (j + 1));
+          landmark.setAttribute('aria-label', labelMap[role] || role + ' ' + (l + 1));
         }
       }
     }

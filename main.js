@@ -1,4 +1,4 @@
-// Hypothetical main.js content with conflict markers
+// Hypothetical main.js content
 /*
 <<<<<<< HEAD
   <main>

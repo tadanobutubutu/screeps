@@ -39,7 +39,9 @@ function generateHtmlWithLang() {
 const html = generateHtmlWithLang();
 
 // Adding the lang attribute to the root HTML element
-document.documentElement.lang = 'en';
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en';
+}
 
 module.exports = app;
 module.exports.fixDependencyDashboard = fixDependencyDashboard;

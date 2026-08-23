@@ -149,7 +149,7 @@ function validateLandmark(doc) {
 }
 
 /**
- * Ensures all landmarks are unique.
+ * Ensures landmarks are unique.
  * @param {Array} landmarks Array of landmark elements or objects
  * @returns {Array} Array with duplicates removed
  */
@@ -322,3 +322,18 @@ function fixFakeLinkIssue(element) {
   const hasButtonRole = element.getAttribute('role') === 'button';
   
   if (isFakeLink || (hasButtonRole && element.tag
+}
+export {
+  addLangAttribute,
+  processChildrenWithLang,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  ensureUniqueLandmarks,
+  validateLandmarkStructure,
+  addAccessibleNameToSVG,
+  getAccessibleName,
+  createAccessibilityProps,
+  deduplicateLandmarks,
+  fixFakeLinkIssue
+};

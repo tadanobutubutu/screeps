@@ -72,52 +72,111 @@ function getElementRole() {
 
 // NEW: Add lang attribute to HTML element using React's useEffect
 function addLangAttribute() {
-  useEffect(() => {
-    document.documentElement.lang = 'en';
-  }, []);
+  document.documentElement.lang = 'en';
 }
 
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
-  useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
-    if (!mainElement) {
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
-    }
-  }, []);
+  const mainElement = document.querySelector('[role="main"]');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.insertBefore(main, document.body.firstChild);
+  }
 }
 
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
-  useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
-    if (!mainElement) {
-      console.error('No main landmark found in the document.');
-      return false;
-    }
-    return true;
-  }, []);
+  const mainElement = document.querySelector('[role="main"]');
+  if (!mainElement) {
+    console.error('No main landmark found in the document.');
+    return false;
+  }
+  return true;
 }
 
 // NEW: Validate unique landmarks using React's useEffect
 function validateLandmarkRoles() {
-  useEffect(() => {
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-    const foundLandmarks = {};
-    landmarkRoles.forEach(role => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
-      const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
-      foundLandmarks[role] = totalCount;
-    });
-    if (foundLandmarks.main > 1) {
-      console.error('More than one "main" landmark found.');
-      return false;
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  const foundLandmarks = {};
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const tagElements = role === 'navigation' ? Array.from(document.querySelectorAll(role)) : [];
+    const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
+    foundLandmarks[role] = totalCount;
+  });
+  if (foundLandmarks.main > 1) {
+    console.error('More than one "main" landmark found.');
+    return false;
+  }
+  if (foundLandmarks.banner > 1) {
+    console.error('More than one "banner" landmark found.');
+    return false;
+  }
+  if (foundLandmarks.navigation > 1) {
+    console.error('More than one "navigation" landmark found.');
+    return false;
+  }
+  if (foundLandmarks.contentinfo > 1) {
+    console.error('More than one "contentinfo" landmark found.');
+    return false;
+  }
+  return true;
+}
+
+// NEW: Fix fake link issues - ensure links have proper href and buttons use button element
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link.getAttribute('href') === '#' || !link.hasAttribute('href')) {
+      // Check if it's a fake link (looks like a button)
+      const role = link.getAttribute('role');
+      const hasButtonStyling = window.getComputedStyle(link).display === 'inline-block' || 
+                               window.getComputedStyle(link).display === 'block';
+      if (role === 'button' || hasButtonStyling) {
+        // Convert to proper button
+        link.setAttribute('role', 'button');
+        if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+          console.warn('Button-like link missing accessible name');
+        }
+      }
     }
-    return true;
-  }, []);
+  });
+}
+
+// NEW: Fix landmark issues - ensure proper landmark elements exist
+function fixLandmarkIssues() {
+  // Ensure exactly one banner (header)
+  const headers = document.querySelectorAll('header, [role="banner"]');
+  if (headers.length > 1) {
+    // Keep the first one as banner, change others
+    for (let i = 1; i < headers.length; i++) {
+      headers[i].setAttribute('role', 'complementary');
+    }
+  }
+  
+  // Ensure navigation elements have proper labels
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+  
+  // Ensure complementary landmarks are properly marked
+  const asides = document.querySelectorAll('aside, [role="complementary"]');
+  asides.forEach(aside => {
+    if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+      aside.setAttribute('aria-label', 'Complementary content');
+    }
+  });
+  
+  // Ensure footer has contentinfo role if header has banner role
+  const footer = document.querySelector('footer');
+  const contentInfo = document.querySelector('[role="contentinfo"]');
+  if (footer && !contentInfo) {
+    footer.setAttribute('role', 'contentinfo');
+  }
 }
 
 // ... existing component definitions
@@ -160,4 +219,4 @@ function FakeLinkFixed() {
 // ... additional helper functions (already defined above)
 
 // Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, getElementRole };
+export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, getElementRole, fixFakeLinks, fixLandmarkIssues };

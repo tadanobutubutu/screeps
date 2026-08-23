@@ -9,7 +9,6 @@ function fixTableStructure() {
   // ... existing logic ...
 }
 
-// Helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return null;
@@ -21,7 +20,6 @@ function getSvgAccessibleName(svgElement) {
   return null;
 }
 
-// Helper function to get accessible label
 function getAccessibleLabel(element) {
   if (!element) {
     return null;

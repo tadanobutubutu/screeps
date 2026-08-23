@@ -16,10 +16,12 @@ function newFunction(element) {
       row.querySelectorAll('td, th').forEach(cell => {
         cell.setAttribute('role', 'gridcell');
         // Ensure unique accessible names for header cells
-        const header = cell.parentElement.closest('thead')?.querySelector('th');
-        if (header) {
-          const headerIndex = Array.from(header.parentNode.children).indexOf(header);
-          const ariaLabel = `Column ${headerIndex + 1}`;
+        const cells = Array.from(row.querySelectorAll('td, th'));
+        const cellIndex = cells.indexOf(cell);
+        const headerCell = element.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+        if (headerCell) {
+          const headerText = headerCell.textContent.trim();
+          const ariaLabel = `Column ${headerText}`;
           cell.setAttribute('aria-label', ariaLabel);
         }
       });
@@ -28,44 +30,59 @@ function newFunction(element) {
     element.setAttribute('aria-label', 'Data table');
   }
 
-  // Add landmark roles for html elements
-  element.setAttribute('lang', 'en'); // REACT_015
+  // Add landmark roles for html elements (REACT_015)
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+
+  // Add/fix 4 landmark issues (REACT_017)
   const landmarks = ['banner', 'navigation', 'main', 'footer'];
   let landmarkIndex = 0;
-  element.querySelectorAll(landmarks.join(', ')).forEach((landmark) => {
-    if (landmark) {
+  document.querySelectorAll('header, nav, main, footer').forEach((landmark) => {
+    if (landmark && landmarkIndex < landmarks.length) {
       landmark.setAttribute('role', landmarks[landmarkIndex++]);
     }
   });
 
   // Fix 1 fake link issue (REACT_036)
   // Find all anchor elements without href and set them as buttons instead
-  element.querySelectorAll('a[href=""]').forEach((link) => {
+  document.querySelectorAll('a:not([href])').forEach(link => {
     link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
   });
 
   // Add accessible names to 2 SVGs (REACT_041)
-  // Assume we have two SVG elements with id "svg1" and "svg2"
-  const svgs = [...element.getElementsByTagName('svg')];
+  // Assume we have two SVG elements
+  const svgs = document.querySelectorAll('svg');
   svgs.filter((svg, index) => index === 0 || index === 1)
       .forEach((svg) => {
         if (svg) {
-          svg.setAttribute('aria-labelledby', 'svg-title-' + svg.id);
           const titleId = 'svg-title-' + svg.id;
-          element.querySelector('#' + titleId)?.removeAttribute('id');
-          element.querySelector('#' + titleId)?.setAttribute('aria-hidden', true);
+          let title = svg.querySelector('title');
+          if (!title) {
+            title = document.createElement('title');
+            title.id = titleId;
+            svg.insertBefore(title, svg.firstChild);
+          } else {
+            title.id = titleId;
+          }
+          svg.setAttribute('aria-labelledby', titleId);
         }
       });
 
-  // Ensure unique landmarks (2 issues) - Updated code added below
-  const landmarkCollection = [...element.getElementsByTagName('*')].filter((node) => node.hasAttribute('role'));
-  const uniqueLandmarks = new Set();
+  // Ensure unique landmarks (REACT_025) - Updated code added below
+  const landmarkCollection = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const countByRole = new Map();
+
   landmarkCollection.forEach((landmark) => {
-    if (!uniqueLandmarks.has(landmark.getAttribute('role'))) {
-      uniqueLandmarks.add(landmark.getAttribute('role'));
-    } else {
-      const uniqueRole = uniqueLandmarks.values().next().value;
+    const role = landmark.getAttribute('role');
+    if (countByRole.has(role)) {
+      const uniqueRole = role + '-' + countByRole.get(role);
       landmark.setAttribute('role', uniqueRole);
+      countByRole.set(role, countByRole.get(role) + 1);
+    } else {
+      countByRole.set(role, 1);
     }
   });
 

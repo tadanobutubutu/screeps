@@ -1,72 +1,49 @@
-// Screeps Main Script
-// Ensure all exports are preserved
-module.exports = {
-  loop: function() {
+// Import React and create a function component
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+
+// Define the component and its state
+class App extends React.Component {
+  state = {
     // Main game loop
+    runLoop: null
+  };
+
+  // Initialize the loop function and update the state
+  componentDidMount() {
     const runLoop = () => {
       // Your code here
     };
-    runLoop();
+
+    this.setState({ runLoop });
   }
-};
 
-// Utility function to create table headers with proper scope
-function createTableHeader(text, isColumn = true) {
-  const scope = isColumn ? 'col' : 'row';
-  return `<th scope="${scope}">${text}</th>`;
+  // Render the component
+  render() {
+    return (
+      // Wrap the component with the new root HTML element
+      <html lang="en">
+        <head>
+          { /* Your existing head contents, if present */ }
+        </head>
+        <body>
+          { /* Your existing body contents, if present */ }
+          { /* Exported functions here */ }
+        </body>
+      </html>
+    );
+  }
 }
 
-// Example table rendering (for UI/visualization purposes)
-const createTableHTML = (headers, rows) => {
-  let html = '<table>';
-  
-  // Create header row with scope attributes
-  html += '<thead><tr>';
-  headers.forEach(header => {
-    html += createTableHeader(header, true);
-  });
-  html += '</tr></thead>';
-  
-  // Create body rows
-  html += '<tbody>';
-  rows.forEach(row => {
-    html += '<tr>';
-    row.forEach((cell, index) => {
-      if (index === 0) {
-        // First cell in each row is a row header
-        html += createTableHeader(cell, false);
-      } else {
-        html += `<td>${cell}</td>`;
-      }
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  
-  return html;
-};
+// Export the updated component to be rendered on the server
+export default App;
 
-// Example usage for room visualization
+// Example function for visualizing a room
 const visualizeRoom = (roomName) => {
-  const room = Game.rooms[roomName];
-  if (!room) return;
-  
-  const headers = ['Type', 'Count', 'Energy'];
-  const data = [
-    ['Sources', room.find(FIND_SOURCES).length, room.find(FIND_SOURCES).reduce((sum, s) => sum + s.energy, 0)],
-    ['Structures', room.find(FIND_STRUCTURES).length, 0],
-    ['Creeps', room.find(FIND_CREEPS).length, 0]
-  ];
-  
-  return createTableHTML(headers, data);
+  // Implement the logic here
 };
 
-// Initialize memory
-if (!Memory.stats) {
-  Memory.stats = {};
-}
-
-// Export additional functions
+// Export additional functions as before
 module.exports.visualizeRoom = visualizeRoom;
 module.exports.createTableHTML = createTableHTML;
 module.exports.createTableHeader = createTableHeader;

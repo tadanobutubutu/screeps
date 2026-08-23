@@ -8,9 +8,12 @@ function App() {
     <div>
       <header className="header">
         <h1>Screeps</h1>
+        <nav aria-label="Main navigation">
+          <a href="/">Home</a>
+        </nav>
       </header>
 
-      <main>
+      <main role="main">
         <div className="container">
           <h2>Quality & Metrics Reports</h2>
           <p>
@@ -18,18 +21,29 @@ function App() {
             reports below:
           </p>
           <div className="links">
-            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            <a href="/plato" aria-label="Plato Code Complexity Report">Plato Code Complexity Report</a>
+            <a href="/dependency-graph" aria-label="Dependency Graph Report">Dependency Graph</a>
           </div>
 
           {/* Primary data table */}
-          <table id="table-rotated">
-            {/* Table rows go here */}
+          <table id="table-rotated" aria-label="Code metrics data">
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>File</td>
+                <td>test.js</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </main>
 
-      <footer className="footer">
+      <footer className="footer" role="contentinfo">
         <p>© 2025 Screeps</p>
       </footer>
     </div>

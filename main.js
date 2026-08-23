@@ -1,2 +1,1 @@
-// .github/workflows/gitstream.yml
-- `linear-bots/gitstream-github-action v4`
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

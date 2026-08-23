@@ -1,15 +1,6 @@
-/**
- * Main entry point for dependency management and configuration
- * Handles updates for: jest, typescript, react, eslint, and other dependencies
- */
+import { v4 as uuidv4 } from 'uuid';
 
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark & getSvgAccessibleName())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmark)
-// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility())
+// Existing exports and functions preserved here...
 
 /**
  * Version compatibility matrix for the updates mentioned in the dashboard
@@ -31,7 +22,8 @@ const DEPENDENCY_UPDATES = {
   },
   eslint: {
     current: '^8.47.0',
-    next: '^10.0.0'
+    next: '^10.0.0',
+    packages: ['eslint']
   }
 };
 
@@ -43,7 +35,7 @@ const DEPENDENCY_UPDATES = {
  * @param {string} dep2Version - Version of second dependency
  * @returns {Object} Compatibility result
  */
-function checkCompatibility(dep1Version, dep2, dep2Version) {
+function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
   const compatibilityMatrix = {
     'jest+typescript': { min: '5.0', max: '7.0' },
     'jest+react': { min: '18.0', max: '19.0' },
@@ -274,6 +266,17 @@ function validateLinkAccessibility(linkText, context = {}) {
   return { valid: true };
 }
 
+/**
+ * Add new DOM manipulation utility
+ * @param {Node} content - Content to wrap in main element
+ * @returns {HTMLElement} Main element containing the content
+ */
+function wrapInMain(content) {
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(content);
+  return mainElement;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -288,7 +291,9 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   getTableScopeRecommendation,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  // DOM manipulation utility
+  wrapInMain
 };
 
 // Run if executed directly

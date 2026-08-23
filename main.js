@@ -153,7 +153,7 @@ function fixTableStructure() {
         if (parentThead) {
           const parentThs = Array.from(parentRow.querySelectorAll('th'));
           const thIndex = parentThs.indexOf(th);
-          th.setAttribute('scope', thIndex === 0 ? 'col' : 'col');
+          th.setAttribute('scope', thIndex === 0 ? 'col' : 'row');
         }
       }
     });

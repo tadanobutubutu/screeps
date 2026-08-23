@@ -82,26 +82,29 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = ... footer, aside, section, header';
+  const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
   const seenIds = new Set();
 
-  landmarks.forEach((landmark) => {
-    let id = landmark.id;
-    if (!id) {
-      id = 'landmark-' + ... 9);
-      landmark.id = id;
-    }
-    if (seenIds.has(id)) {
-      id = 'landmark-' + ... 9);
-      landmark.id = id;
-    }
-    seenIds.add(id);
+  landmarks.forEach((landmarkName) => {
+    const elements = container.querySelectorAll(landmarkName);
+    elements.forEach((element) => {
+      let id = element.id;
+      if (!id) {
+        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+        element.id = id;
+      }
+      if (seenIds.has(id)) {
+        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+        element.id = id;
+      }
+      seenIds.add(id);
+    });
   });
 }
 
 const enhanceFocusVisibility = function() {
   // Function to enhance focus visibility for keyboard navigation
-  const style = ...
+  const style = document.createElement('style');
   style.textContent = `
     *:focus {
       outline: 2px solid #005fcc;
@@ -115,7 +118,7 @@ const enhanceFocusVisibility = function() {
       outline-offset: 2px;
     }
   `;
-  ...
+  document.head.appendChild(style);
 };
 
 const addressAccessibilityIssues = function() {
@@ -125,7 +128,7 @@ const addressAccessibilityIssues = function() {
   // - REACT_041: Already handled with the createSvgIcon function
 
   // Enhance focus visibility for keyboard navigation
-  ...
+  enhanceFocusVisibility();
 
   // Ensure unique landmarks (pass document as container)
   ensureUniqueLandmarks();
@@ -142,7 +145,7 @@ const calculateAverage = function(numbers) {
 };
 
 // Updated: DependencyGraphTable now uses dependencyGraphContent module
-export function ... {
+export function DependencyGraphTable(props) {
   const content = dependencyGraphContent.getContent();
   return {
     type: 'div',
@@ -204,7 +207,7 @@ export function SettingsIcon(props) {
 }
 
 // AccessibleIconSVG - wrapper for accessible SVG icons
-export function ... {
+export function AccessibleIconSVG(props) {
   return {
     type: 'svg',
     props: {
@@ -215,14 +218,18 @@ export function ... {
   };
 }
 
-// FakeLinkAsButton - accessibility fix for styled links
-export function ... {
+// Fix REACT_036: Convert fake links (divs/spans with onClick) to proper anchor tags with href
+// Use <a> tag with href for navigation, not <div> or <span> with onClick
+export function FakeLinkAsButton(props) {
+  // Convert to proper anchor element with href for accessibility
   return {
-    type: 'button',
+    type: 'a',
     props: {
       className: props.className,
+      href: props.href || '#',
       onClick: props.onClick,
       'aria-label': props['aria-label'],
+      role: props.href ? undefined : 'button',
       children: props.children
     }
   };
@@ -235,7 +242,7 @@ export function AppWrapper(props) {
     props: {
       className: 'app-wrapper',
       role: 'application',
-      'aria-label': props.appName || 'Application
+      'aria-label': props.appName || 'Application'
     }
   };
 }
@@ -250,6 +257,59 @@ export function wrapPrimaryContentInMain(content, options = {}) {
       'aria-label': options.ariaLabel || 'Main content',
       className: options.className || 'primary-content',
       children: content
+    }
+  };
+}
+
+// Additional accessibility functions for REACT_017 landmark issues
+// Ensure proper use of <header>, <main>, <nav>, <footer>
+
+// CreateHeader - Creates accessible header landmark
+export function CreateHeader(props) {
+  return {
+    type: 'header',
+    props: {
+      role: 'banner',
+      'aria-label': props.label || 'Site header',
+      className: props.className || 'header',
+      children: props.children
+    }
+  };
+}
+
+// CreateNav - Creates accessible navigation landmark
+export function CreateNav(props) {
+  return {
+    type: 'nav',
+    props: {
+      'aria-label': props.label || 'Main navigation',
+      className: props.className || 'nav',
+      children: props.children
+    }
+  };
+}
+
+// CreateFooter - Creates accessible footer landmark
+export function CreateFooter(props) {
+  return {
+    type: 'footer',
+    props: {
+      role: 'contentinfo',
+      'aria-label': props.label || 'Site footer',
+      className: props.className || 'footer',
+      children: props.children
+    }
+  };
+}
+
+// CreateAside - Creates accessible complementary content landmark
+export function CreateAside(props) {
+  return {
+    type: 'aside',
+    props: {
+      'aria-label': props.label || 'Related content',
+      className: props.className || 'aside',
+      children: props.children
     }
   };
 }

@@ -1,7 +1,7 @@
 // TODO: Address accessibility issues from insight report
 // TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
 const dependencyGraphModule = require('./dependency-graph');
-const indexModule = require('./index');
+const indexModule = require('./indexModule');
 
 // ... existing code, imports, and functions
 
@@ -24,7 +24,6 @@ function dependencyGraphFunction() {
     }
   }
   
-  // ... existing code for rendering the dependency graph
   return dependencyGraphContent;
 }
 
@@ -47,13 +46,9 @@ function indexFunction() {
     }
   }
   
-  // ... existing code for rendering the index view
   return indexContent;
 }
 
-// ... other functions and exports
-
-// Added the required exports
 module.exports = {
   dependencyGraphFunction,
   indexFunction,

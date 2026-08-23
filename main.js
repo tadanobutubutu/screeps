@@ -2,6 +2,7 @@
 // - REACT_015: Add lang attribute to HTML element (This should be added in the client's build process, not in JavaScript)
 // - REACT_027: Fix 26 table structure issues (Assuming this was fixed and new function is not needed)
 // - REACT_017: Add/fix 4 landmark issues
+// - REACT_025: Ensure unique landmarks
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks
 // - REACT_036: Fix 1 fake link issue

@@ -542,22 +542,19 @@ function createSvgAccessibilityProps(description, options = {}) {
   };
   
   if (!ariaHidden) {
+    // Provide an accessible name when a description is supplied
     if (description) {
       props['aria-label'] = description;
     }
-    
     if (title) {
       props.title = title;
     }
-    
     if (desc) {
       props.desc = desc;
     }
-    
     if (ariaLabelledBy) {
       props['aria-labelledby'] = ariaLabelledBy;
     }
-    
     if (ariaDescribedBy) {
       props['aria-describedby'] = ariaDescribedBy;
     }

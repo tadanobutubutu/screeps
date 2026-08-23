@@ -19,7 +19,7 @@ function handleRotateBack() {
 // NEW FUNCTION: Fix table structure issues
 function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
-  const thElements = document.querySelectorAll('th');
+  const thElements = document.querySelectorAll('th:not([scope])');
   thElements.forEach((th) => {
     if (!th.hasAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
@@ -29,8 +29,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = Array.from(parentRow.parentElement.children).indexOf(th.parentElement);
-        const cellIndex = Array.from(parentRow.children).indexOf(th);
+        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
+        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -55,12 +55,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('[role="main"]'),
+    main: document.querySelectorAll('main'),
     nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('[role="banner"]'),
-    footer: document.querySelectorAll('[role="contentinfo"]'),
+    header: document.querySelectorAll('header'),
+    footer: document.querySelectorAll('footer'),
     aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('[role="region"]'),
+    section: document.querySelectorAll('section')
   };
 
   // Add unique labels to duplicate landmarks
@@ -77,7 +77,7 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// NEW FUNCTION: Add accessible names to SVGs
+// NEW FUNCTION: Add accessible name to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
@@ -131,9 +131,9 @@ function App() {
           // Set language attribute on the HTML element
           document.documentElement.lang = 'en';
           // Apply accessibility fixes
-          addSvgAccessibleNames();
-          ensureUniqueLandmarks();
           fixTableStructureIssues();
+          ensureUniqueLandmarks();
+          addSvgAccessibleNames();
         </script>
       </body>
     </html>

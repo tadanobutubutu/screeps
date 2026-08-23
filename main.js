@@ -93,6 +93,23 @@ function fixOneFakeLinkIssue() {
     fakeLink.href = 'https://example.com';
 }
 
+// NEW: Fix React Fake Link issue REACT_036
+// Replaces <a href="#"> with <button> for proper keyboard and screen reader behaviour
+function fixReactFakeLinkIssue() {
+    const hashLinks = document.querySelectorAll('a[href="#"]');
+    for (let link of hashLinks) {
+        const button = document.createElement('button');
+        button.setAttribute('type', 'button');
+        button.textContent = link.textContent;
+        if (link.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', link.getAttribute('aria-label'));
+        } else {
+            button.setAttribute('aria-label', link.textContent || 'Action');
+        }
+        link.parentNode.replaceChild(button, link);
+    }
+}
+
 module.exports = {
     initialize,
     getFilePath,
@@ -101,5 +118,6 @@ module.exports = {
     addProperLandmarkRegions,
     fixFakeLinkIssues,
     newPreservedFunction,
-    fixOneFakeLinkIssue
+    fixOneFakeLinkIssue,
+    fixReactFakeLinkIssue
 };

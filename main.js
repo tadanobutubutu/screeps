@@ -180,8 +180,8 @@ export default function Home({ projects }) {
       </Head>
       <body>
         <main role="main">
-          <div ... __html: dependencyGraphContent }} />
-          <div ... __html: indexContent }} />
+          <div {... __html: dependencyGraphContent }} />
+          <div {... __html: indexContent }} />
           <button
             id="unrotate"
             ...

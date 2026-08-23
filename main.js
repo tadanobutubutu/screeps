@@ -82,17 +82,17 @@ export function createSvgIcon(iconName, children = []) {
 
 // Ensure unique landmarks across the application
 export function ensureUniqueLandmarks(container = document) {
-  const landmarks = container.querySelectorAll('header, nav, main, footer');
+  const landmarks = container.querySelectorAll('nav, main, footer, aside, section, header');
   const seenIds = new Set();
 
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     if (seenIds.has(id)) {
-      id = 'landmark-' + Math.random().toString(36).substring(2, 9);
+      id = 'landmark-' + Math.random().toString(36).substr(2, 9);
       landmark.id = id;
     }
     seenIds.add(id);
@@ -128,7 +128,7 @@ const addressAccessibilityIssues = function() {
   enhanceFocusVisibility();
 
   // Ensure unique landmarks (pass document as container)
-  ensureUniqueLandmarks(document);
+  ensureUniqueLandmarks();
 };
 
 const setLanguageAttribute = function(lang) {
@@ -256,7 +256,7 @@ export function HtmlLangProvider(props) {
 export function fixTableStructureIssues(tableElement) {
   const headers = tableElement.querySelectorAll('th');
   headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       th.setAttribute('scope', 'col');
     }
   });
@@ -264,7 +264,7 @@ export function fixTableStructureIssues(tableElement) {
 }
 
 // createAccessibleFaviconSvg - creates accessible favicon
-export function createAccessibleFaviconSvg(color = '#000000') {
+export function createAccessibleFaviconSvg(color = '#00ff00') {
   return {
     type: 'svg',
     props: {
@@ -277,13 +277,13 @@ export function createAccessibleFaviconSvg(color = '#000000') {
 
 // faviconGenerators - collection of favicon generation utilities
 export const faviconGenerators = {
-  simple: (color) => ({ type: 'svg', props: { children: [] } }),
-  withText: (text, color) => ({ type: 'svg', props: { children: [] } })
+  simple: (color) => ({ type: 'svg', props: { children: [], color: color } }),
+  withText: (text, color) => ({ type: 'svg', props: { children: [text], color: color } })
 };
 
 // generateId - utility for generating unique IDs
 export function generateId(prefix = 'id') {
-  return prefix + '-' + Math.random().toString(36).substring(2, 9);
+  return prefix + '-' + Math.random().toString(36).substr(2, 9);
 }
 
 // setHtmlLang - utility to set HTML language
@@ -308,4 +308,5 @@ export {
   setLanguageAttribute,
   calculateAverage,
   addressAccessibilityIssues,
-  enhance
+  enhanceFocusVisibility
+};

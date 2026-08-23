@@ -718,6 +718,8 @@ function createAccessibleLink(config) {
   return props;
 }
 
+// TODO: Add back any required exports that might have been? - Removed export statement
+
 /**
  * Generate HTML lang attribute with region support
  * Addresses REACT_015: React Language Attribute

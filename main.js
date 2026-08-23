@@ -51,7 +51,7 @@ function addMainLandmark() {
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -59,7 +59,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main');
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;

@@ -202,6 +202,20 @@ module.exports = {
       }
     });
 
+    // Fix REACT_036: Convert anchor elements with hash-only href to buttons
+    const hashLinks = document.querySelectorAll('a[href="#"]');
+    hashLinks.forEach(link => {
+      const button = document.createElement('button');
+      button.innerHTML = link.innerHTML;
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      button.setAttribute('type', 'button');
+      link.parentNode.replaceChild(button, link);
+    });
+
     // Call the new function here, for example:
     myNewFunction();
   },

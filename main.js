@@ -31,43 +31,43 @@ const addLangAttribute = () => {
 
 // Function to fix table structure issues
 const fixTableStructureIssues = () => {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach(table => {
     table.setAttribute('role', 'table');
     
     // Ensure proper table structure with thead and tbody
-    if (!table.querySelector('thead')) {
+    if ... {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('td');
+        const headerCells = ...
         const headerRow = document.createElement('tr');
         headerCells.forEach(cell => {
-          const th = document.createElement('th');
+          const th = ...
           th.textContent = cell.textContent;
-          headerRow.appendChild(th);
+          ...
         });
-        thead.appendChild(headerRow);
+        ...
         table.insertBefore(thead, table.firstChild);
       }
     }
     
-    if (!table.querySelector('tbody')) {
-      const rows = table.querySelectorAll('tr');
-      const tbody = document.createElement('tbody');
+    if ... {
+      const rows = ...
+      const tbody = ...
       rows.forEach(row => {
         if (row.parentElement !== thead) {
-          tbody.appendChild(row);
+          ...
         }
       });
-      table.appendChild(tbody);
+      ...
     }
   });
 };
 
 // Function to add main landmark
 const addMainLandmark = () => {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   mainElements.forEach(main => {
     main.setAttribute('role', 'main');
   });
@@ -75,11 +75,11 @@ const addMainLandmark = () => {
 
 // Function to add accessible names to SVGs
 const addSvgAccessibleNames = () => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   let svgIndex = 0;
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG ${svgIndex + 1}`);
+    if ... && ... {
+      ... `SVG ${svgIndex + 1}`);
     }
     svgIndex++;
   });
@@ -89,11 +89,11 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = ... === 'main' ? 'main' : role}"]`);
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {
-        const existingRole = elements[i].getAttribute('role') || role;
+        const existingRole = ... || role;
         elements[i].setAttribute('role', `${existingRole}-${i + 1}`);
       }
     }
@@ -102,18 +102,18 @@ const ensureUniqueLandmarks = () => {
 
 // Function to fix fake link issues
 const fixFakeLinkIssues = () => {
-  const links = document.querySelectorAll('a');
+  const links = ...
   links.forEach(link => {
     // Check if link has no href or empty href
-    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
+    if ... || link.getAttribute('href') === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && link.querySelector('img')) {
+      if (!link.textContent && ... {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }
     // Ensure all links have accessible text
     if (!link.textContent.trim()) {
-      const img = link.querySelector('img');
+      const img = ...
       if (img && img.alt) {
         link.setAttribute('aria-label', img.alt);
       } else if (!img) {
@@ -127,9 +127,9 @@ const fixFakeLinkIssues = () => {
 const enhanceAccessibility = () => {
   // Implement accessibility improvements based on insight report
   addLangAttribute();
-  fixTableStructureIssues();
+  ...
   addMainLandmark();
-  addSvgAccessibleNames();
+  ...
   ensureUniqueLandmarks();
   fixFakeLinkIssues();
 };

@@ -1,39 +1,101 @@
-// Original code (left side of <<<<<<< HEAD)
-import React from 'react';
-// ... other imports ...
-export default function Dashboard() {
-  // ... other code ...
-  if (error) {
-    return (
-      // ... error state JSX ...
-      <main> <!-- Error message goes here --> </main>
-    );
-  }
-  if (success) {
-    return (
-      // ... success state JSX ...
-      <main> <!-- Success message goes here --> </main>
-    );
-  }
-  // ... other code ...
-}
+import React, { useState } from 'react';
 
-// Proposed changes (right side of ======)
-import React from 'react';
-// ... other imports ...
-export default function Dashboard() {
-  // ... other code ...
-  if (error) {
-    return (
-      // ... error state JSX ...
-      <section> <!-- Error message goes here --> </section>
-    );
-  }
-  if (success) {
-    return (
-      // ... success state JSX ...
-      <section> <!-- Success message goes here --> </section>
-    );
-  }
-  // ... other code ...
-}
+export const metadata = {
+    // ... other metadata
+    icons: {
+        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+    },
+};
+
+const Dashboard = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
+
+  const copyErr = () => {
+    navigator.clipboard.writeText(error).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+    });
+  };
+
+  const fetchStats = () => {
+    // Existing fetchStats logic
+  };
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <main>
+        {error && (
+          <>
+            <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <pre
+              tabIndex={0}
+              aria-label="エラーメッセージ詳細"
+              style={{
+                color: '#c53030',
+                backgroundColor: '#fff5f5',
+                padding: '1rem',
+                borderRadius: '4px',
+                overflow: 'auto',
+              }}
+            >
+              {error}
+            </pre>
+            <button
+              onClick={copyErr}
+              onMouseEnter={() => setErrCopyHover(true)}
+              onMouseLeave={() => setErrCopyHover(false)}
+              onFocus={() => setErrCopyHover(true)}
+              onBlur={() => setErrCopyHover(false)}
+              aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+              title={copied ? 'コピー済み' : 'エラーをコピー'}
+              style={{
+                backgroundColor: copied ? '#155d27' : '#004b73',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                filter: errCopyHover ? 'brightness(1.1)' : 'none',
+              }}
+            >
+              {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+            </button>
+            <button
+              onClick={fetchStats}
+              disabled={refreshing}
+              onMouseEnter={() => setErrRetryHover(true)}
+              onMouseLeave={() => setErrRetryHover(false)}
+            >
+              {/* ... existing success button ... */}
+            </button>
+          </>
+        )}
+
+        {!error && (
+          <section>
+            <h1 style={{ color: '#b71c1c' }}>成功</h1>
+            <p>統計が取得されました。</p>
+            <button
+              onClick={fetchStats}
+              disabled={refreshing}
+              style={{
+                /* ... existing styles ... */
+              }}
+            >
+              {/* ... existing success button ... */}
+            </button>
+          </section>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;

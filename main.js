@@ -1,9 +1,7 @@
-// main.js - Main game loop entry point
 module.exports = {
   loop: function() {
     // Main game loop logic
   },
-  // New function to handle the table structure issue
   fixTableStructureIssues: function() {
     // Add scope attribute to th elements that are missing it
     const thElements = document.querySelectorAll('th');
@@ -37,8 +35,6 @@ module.exports = {
       }
     });
   },
-
-  // Ensure unique landmarks
   ensureUniqueLandmarks: function() {
     // Get all landmark elements
     const landmarks = {
@@ -78,8 +74,6 @@ module.exports = {
       }
     });
   },
-
-  // Add accessible name to SVGs
   addSvgAccessibleNames: function() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
@@ -93,21 +87,15 @@ module.exports = {
       }
     });
   },
-
-  // Add aria-label to the 'myDiv' element
   addAriaLabelToMyDiv: function() {
     const myDiv = document.getElementById('myDiv');
     if (myDiv) {
       myDiv.setAttribute('aria-label', 'My div');
     }
   },
-
-  // Set language attribute on HTML element
   setLangAttribute: function() {
     document.documentElement.lang = 'en';
   },
-
-  // Fix fake link issue
   fixFakeLinkIssue: function() {
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -115,7 +103,25 @@ module.exports = {
         link.setAttribute('href', '#');
       }
     });
-  }
+  },
+  updateDependencyGraph: function() {
+    const tableHeaders = document.querySelectorAll('table th');
+    tableHeaders.forEach(function(header) {
+      if (header.parentNode.tagName === 'TR') {
+        header.setAttribute('scope', 'col');
+      }
+    });
+
+    // Ensure tables have proper caption elements
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+      if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Data table';
+        table.insertBefore(caption, table.firstChild);
+      }
+    });
+  },
 };
 
 // Execute functions after DOM is ready
@@ -127,4 +133,5 @@ document.addEventListener('DOMContentLoaded', () => {
   exports.ensureUniqueLandmarks();
   exports.addSvgAccessibleNames();
   exports.addAriaLabelToMyDiv();
+  exports.updateDependencyGraph(); // Added function call
 });

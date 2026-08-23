@@ -53,9 +53,9 @@ const visualizeRoom = (roomName) => {
   
   const headers = ['Type', 'Count', 'Energy'];
   const data = [
-    ['Sources', room.find(FIND_SOURCES).length, room.find(FIND_SOURCES).reduce((sum, s) => sum + s.energy, 0)],
-    ['Structures', room.find(FIND_STRUCTURES).length, 0],
-    ['Creeps', room.find(FIND_CREEPS).length, 0]
+    ['Sources', Game.rooms[roomName].find(FIND_SOURCES).reduce((sum, s) => sum + s.energy, 0)],
+    ['Structures', Game.rooms[roomName].find(FIND_STRUCTURES).length, 0],
+    ['Creeps', Object.keys(Game.creeps).length, 0]
   ];
   
   return createTableHTML(headers, data);

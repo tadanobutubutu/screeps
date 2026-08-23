@@ -5,7 +5,7 @@ const fs = require('fs');
 
 async function main() {
     try {
-        const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const outputPath = path.join('docs', 'dependency-graph.html');
         await generateDependencyGraph(outputPath);
         // Add the lang attribute to the HTML document tag for better screen reader support
         document.documentElement.lang = 'en';
@@ -54,7 +54,7 @@ async function updateReactToV19() {
 async function addScopeToTableHeaders() {
     try {
         console.log('Adding scope attribute to table headers for accessibility...');
-        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const filePath = path.join('docs', 'dependency-graph.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const updatedContent = fileContent.replace(/<th([^>]*)>/g, (match, attrs) => {
             if (attrs.includes('scope')) {
@@ -77,7 +77,7 @@ async function addScopeToTableHeaders() {
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html(\s[^>]*)?>/, (match, attrs) => {
+  return content.replace(/<html([^>]*)>/gi, (match, attrs) => {
     if (attrs && /\slang\s*=/i.test(attrs)) {
       return match;
     }
@@ -86,22 +86,39 @@ function addLangAttribute(content) {
 }
 
 /**
- * Adds a <main> landmark to the HTML content for accessibility
+ * Adds <main> landmark to the HTML content for accessibility
  */
 async function addMainLandmark() {
     try {
         console.log('Adding <main> landmark to HTML content for accessibility...');
-        const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
+        const filesToUpdate = [path.join('docs', 'index.html')];
         for (const filePath of filesToUpdate) {
             const fileContent = fs.readFileSync(filePath, 'utf8');
             const updatedContent = addLangAttribute(fileContent);
-            const newFileContent = `<main>` + updatedContent.replace(/<\/html>/, '</main></html>') + '</main>';
+            const newFileContent = `<main>` + fileContent.replace('</html>', '</main></html>') + '</main>';
             fs.writeFileSync(filePath, newFileContent);
             console.log(`Main landmark added to ${filePath}`);
         }
         console.log('All HTML files have been updated with <main> landmarks.');
     } catch (error) {
         console.error('Error adding <main> landmark:', error);
+        throw error;
+    }
+}
+
+/**
+ * Applies the lang attribute fix to the HTML document for screen reader accessibility
+ */
+async function fixHtmlLangAttribute() {
+    try {
+        console.log('Adding lang="en" to HTML root element for screen reader accessibility...');
+        const filePath = path.join('docs', 'index.html');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const updatedContent = addLangAttribute(fileContent);
+        fs.writeFileSync(filePath, updatedContent);
+        console.log('lang="en" attribute added successfully to <html> element.');
+    } catch (error) {
+        console.error('Error adding lang attribute:', error);
         throw error;
     }
 }
@@ -114,5 +131,6 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
+    fixHtmlLangAttribute,
     main
 };

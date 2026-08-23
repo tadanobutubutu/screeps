@@ -10,6 +10,7 @@ import myMissingFunction2 from './myMissingFunction2';
 
 const Dashboard = () => {
   // Existing Dashboard code
+  enhanceAccessibility(); // Address accessibility issues from insight report
 };
 
 // Add the new export for the function you want to export (let's say it's called `myNewFunction`):

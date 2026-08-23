@@ -1,6 +1,9 @@
 // Import required module(s)
 const { getMainElement } = require('./utils'); // Assuming we have '/utils/utils.js' with the necessary function `getMainElement`
 
+// Adding lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en'); // Example: English
+
 // Existing code and exports from main.js
 function existingFunction() {
     // Existing code
@@ -20,6 +23,3 @@ module.exports = {
     wrapContentWithMain, // Added this new export
     // No existing exports should be removed or renamed
 };
-
-// Adding lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en'); // Example: English

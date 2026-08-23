@@ -80,16 +80,6 @@ processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 // Add missing scope attributes to table header cells (fixes REACT_027)
 addMissingScopeToHeaders();
 
-// ... existing exports and functions may remain in main.js
-
-module.exports = {
-  wrapPrimaryContentInMain,
-  addressAccessibilityIssues,
-  processAccessibilityIssues,
-  wrapperFunction,
-  ensureUniqueLandmarks
-};
-
 // Address the REACT_036 issue by changing the anchor to a button
 function addressReact036Issue() {
   const element = document.getElementById('unrotate');
@@ -102,3 +92,4 @@ function addressReact036Issue() {
 
 // Call the function to make the change
 addressReact036Issue();
+};

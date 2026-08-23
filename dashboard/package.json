@@ -17,6 +17,6 @@
         "@types/node": "^24.0.0",
         "@types/react": "^19.0.0",
         "postcss": "^8.5.23",
-        "typescript": "^5.7.3"
+        "typescript": "^7.0.0"
     }
 }

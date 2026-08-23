@@ -116,7 +116,7 @@ export default function Main() {
             <tr>
               {allColumns.map((column) => (
                 <th key={column.id} scope="col">
-                  {column.render?.('Header') ?? column.Header}
+                  ... ?? column.Header}
                 </th>
               ))}
             </tr>
@@ -143,3 +143,6 @@ export default function Main() {
     </div>
   );
 }
+
+export { Logo, MenuIcon, FixedLink };
+export default Main;

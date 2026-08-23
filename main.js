@@ -1,23 +1,9 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
-
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-// Import functions from other modules if needed
-// const { someFunction } = require('./utils');
-
-// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+// Import required module(s) and export the new necessary function(s) here in main.js
 import { class1, function1, Object1 } from './path/to/module';
 import { unique } from './utils';
 
 // Helper function to get lang attribute value
-const getLangAttribute = () => {
+export const getLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     return htmlElement.getAttribute('lang') || 'en';
@@ -26,7 +12,7 @@ const getLangAttribute = () => {
 };
 
 // Helper function to get full lang attribute with region
-const getFullLangAttribute = () => {
+export const getFullLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     const lang = htmlElement.getAttribute('lang');
@@ -36,7 +22,7 @@ const getFullLangAttribute = () => {
 };
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
-const addLangAttribute = () => {
+export const addLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
@@ -44,7 +30,7 @@ const addLangAttribute = () => {
 };
 
 // Accessibility fix for REACT_041: Add accessible names to 2 SVGs
-const addAccessibleNamesToSVGs = () => {
+export const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
@@ -69,7 +55,7 @@ const addAccessibleNamesToSVGs = () => {
 };
 
 // Function to add scope to table headers
-const addScopeToTableHeaders = () => {
+export const addScopeToTableHeaders = () => {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
@@ -90,13 +76,13 @@ const addScopeToTableHeaders = () => {
 };
 
 // Rotate back function for unrotate button
-const rotateBack = () => {
+export const rotateBack = () => {
   // Placeholder for rotate back functionality
   console.log('Rotate back action triggered');
 };
 
 // Function to validate table accessibility
-const validateTableAccessibility = (table) => {
+export const validateTableAccessibility = (table) => {
   const issues = [];
   
   // Check if table has proper structure
@@ -119,7 +105,7 @@ const validateTableAccessibility = (table) => {
 };
 
 // Function to fix table structure and add scope to <th> elements
-const fixTableStructure = () => {
+export const fixTableStructure = () => {
   const tables = document.querySelectorAll('table');
 
   tables.forEach(table => {
@@ -171,14 +157,14 @@ const fixTableStructure = () => {
       }
 
       // Fix header-cell associations using headers attribute
-      const allCells = table.querySelectorAll('td, th');
+      const allCells = table.querySelectorAll('th, td');
       allCells.forEach(cell => {
         // If cell has headers attribute, ensure it's valid
         const headersAttr = cell.getAttribute('headers');
         if (headersAttr) {
           const headerIds = headersAttr.split(' ');
           headerIds.forEach(headerId => {
-            const header = table.querySelector(`#${headerId}`);
+            const header = table.querySelector('#' + headerId);
             if (!header) {
               // Invalid header reference, remove the attribute
               cell.removeAttribute('headers');
@@ -195,7 +181,7 @@ const fixTableStructure = () => {
 
 // ===== NEW CODE TO ADDRESS REACT_027 (Table Structure Issues) =====
 // Additional table structure validation and fixes for REACT_027
-const validateTableStructure = () => {
+export const validateTableStructure = () => {
   // Implementation for handling additional table structure issues
   // This function complements fixTableStructure for complex scenarios
   console.log('Validating table structure for REACT_027...');
@@ -225,7 +211,8 @@ const validateTableStructure = () => {
     });
     
     // Check for proper caption if table has headers
-    if (headers.length > 0 && !table.querySelector('caption')) {
+    const caption = table.querySelector('caption');
+    if (headers.length > 0 && !caption) {
       issues.push(`Table ${index + 1}: Missing caption for table with headers`);
     }
   });
@@ -235,14 +222,14 @@ const validateTableStructure = () => {
 
 // ===== NEW CODE TO ADDRESS REACT_041 (SVG Accessible Names) =====
 // Helper function to get SVG accessible name
-const getSvgAccessibleName = (svg) => {
+export const getSvgAccessibleName = (svg) => {
   const title = svg.querySelector('title');
   const desc = svg.querySelector('desc');
   return title?.textContent || desc?.textContent || svg.getAttribute('aria-label') || '';
 };
 
 // Helper function to create SVG accessibility props
-const getSvgAccessibleProps = (svg) => {
+export const getSvgAccessibleProps = (svg) => {
   const props = {};
   
   // Get accessible name
@@ -252,7 +239,8 @@ const getSvgAccessibleProps = (svg) => {
   }
   
   // Add role if needed
-  if (!svg.hasAttribute('role')) {
+  const hasRole = svg.hasAttribute('role') || svg.querySelector('title');
+  if (!hasRole) {
     props['role'] = 'img';
   }
   
@@ -264,7 +252,7 @@ const getSvgAccessibleProps = (svg) => {
 
 // ===== NEW CODE TO ADDRESS REACT_017 (Landmark Issues) =====
 // Banner landmark validation
-const validateLandmark = () => {
+export const validateLandmark = () => {
   const banner = document.querySelector('[role="banner"]');
   if (!banner) {
     const header = document.querySelector('header');
@@ -273,7 +261,7 @@ const validateLandmark = () => {
 };
 
 // Navigation landmark validation
-const validateNavigationLandmark = () => {
+export const validateNavigationLandmark = () => {
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
     if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
@@ -283,13 +271,13 @@ const validateNavigationLandmark = () => {
 };
 
 // Unique landmarks validation
-const validateUniqueLandmarks = () => {
+export const validateUniqueLandmarks = () => {
   // Check for duplicate landmarks
   const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="navigation"], [role="contentinfo"], [role="complementary"], [role="search"]');
   const landmarkRoles = Array.from(landmarks).map(el => el.getAttribute('role'));
   
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll('[role="' + role + '"]');
     if (elements.length > 1 && role === 'main') {
       // Handle duplicate main landmarks
       elements.forEach((el, index) => {
@@ -303,7 +291,7 @@ const validateUniqueLandmarks = () => {
 };
 
 // Landmark structure validation
-const validateLandmarkStructure = () => {
+export const validateLandmarkStructure = () => {
   const structureIssues = [];
   
   // Check banner placement
@@ -321,7 +309,7 @@ const validateLandmarkStructure = () => {
   });
   
   // Check for proper main landmark
-  const main = document.querySelector('[role="main"]');
+  const main = document.querySelector('[role="main"], main');
   if (!main) {
     structureIssues.push('Missing main landmark');
   }
@@ -331,7 +319,7 @@ const validateLandmarkStructure = () => {
 
 // ===== NEW CODE TO ADDRESS REACT_036 (Fake Link Issue) =====
 // Link accessibility validation
-const validateLinkAccessibility = (link) => {
+export const validateLinkAccessibility = (link) => {
   if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
     return false; // Fake link detected
   }
@@ -339,3 +327,12 @@ const validateLinkAccessibility = (link) => {
 };
 
 // Create in-page button from link
+export const createInPageButton = (link) => {
+  const button = document.createElement('button');
+  button.textContent = link.textContent;
+  button.onclick = link.onclick;
+  return button;
+};
+
+// Create accessible link
+export const createAccessibleLink = (element

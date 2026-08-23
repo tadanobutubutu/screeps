@@ -48,7 +48,7 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
 processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 
 // Wrap the primary content element in the main container
-wrapPrimaryContentInMain(accessibilityInsights.primaryContent);
+wrapPrimaryContentInMain(element);
 
 // ... existing exports and functions may remain in main.js
 

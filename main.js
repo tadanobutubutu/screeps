@@ -26,7 +26,7 @@ export const newConst1 = 'new value';
 
 // ----- BEGIN ORIGINAL CODE (restored) -----
 // Some of the original exports and utilities that were inadvertently removed
-export function legacyUtilityFunction(param) {
+export function restoredFunction(param) {
   // Implementation that was part of the original code base
   return param;
 }
@@ -189,18 +189,18 @@ export function getSvgAccessibleName(svgElement) {
   }
   
   // Check for title child element
-  if (svgElement.props.children) {
-    const children = Array.isArray(svgElement.props.children)
+  const children = svgElement.props.children
+    ? Array.isArray(svgElement.props.children)
       ? svgElement.props.children
-      : [svgElement.props.children];
-    
-    const titleElement = children.find(child => 
-      child && child.type === 'title'
-    );
-    
-    if (titleElement && titleElement.props) {
-      return titleElement.props.children;
-    }
+      : [svgElement.props.children]
+    : [];
+  
+  const titleElement = children.find(child => 
+    child && child.type === 'title'
+  );
+  
+  if (titleElement && titleElement.props) {
+    return titleElement.props.children;
   }
   
   return null;
@@ -231,7 +231,7 @@ export function createAccessibleLink(href, linkText, isExternal = false) {
 
 // Main content wrapper function
 function wrapPrimaryContentInMain() {
-  const mainContent = document.querySelector('[role="main"]');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     const newMain = document.createElement('main');
     newMain.id = 'primaryContent';
@@ -244,7 +244,7 @@ function wrapPrimaryContentInMain() {
 // Landmark role assignment function
 function assignLandmarkRoles() {
   const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
-  const allElements = Array.from(document.querySelectorAll(landmarks.join(',')));
+  const allElements = document.querySelectorAll('*');
   
   allElements.forEach((element) => {
     if (element) {
@@ -265,116 +265,5 @@ function fixTableStructureIssues() {
   }
   
   // Remove duplicate main elements
-  const mainElements = Array.from(document.querySelectorAll('main'));
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
-    console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
-    const firstMain = mainElements[0];
-    const remaining = mainElements.slice(1);
-    remaining.forEach(el => el.remove());
-    return firstMain;
-  }
-  
-  // Process elements for accessibility
-  const addressAccessibilityIssues = (elements) => {
-    elements.forEach((element) => {
-      if (element && element.props) {
-        console.log('Processing element for accessibility');
-      }
-    });
-  };
-  
-  return {
-    fixTableStructureIssues,
-    EnhancedTable,
-    addressAccessibilityIssues
-  };
-}
-
-// Existing exports that were not removed or renamed
-const someModule = {};
-export default someModule;
-
-// Accessibility-related components, updated with new components
-const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
-const FixedLink = () => (
-  <button type="button" onClick={() => console.warn('Fake Link clicked')}>
-    Fake Link
-  </button>
-);
-
-// Main component, updated with new table components and accessibility elements
-export default function Main() {
-  // Define the columns for the table (26 columns total)
-  const columns = [
-    { Header: 'constants' },
-    { Header: 'roomManager' },
-    { Header: 'spawnManager' },
-    { Header: 'towerManager' },
-    { Header: 'builder' },
-    { Header: 'sourceManager' },
-    { Header: 'defender' },
-    { Header: 'harvester' },
-    { Header: 'upgrader' },
-    { Header: 'builder2' },
-    { Header: 'miner' },
-    { Header: 'lorry' },
-    { Header: 'repairer' },
-    { Header: 'wallRepairer' },
-    { Header: 'claimer' },
-    { Header: 'reserver' },
-    { Header: 'attacker' },
-    { Header: 'healer' },
-    { Header: 'rangedAttacker' },
-    { Header: 'dismantler' },
-    { Header: 'nuker' },
-    { Header: 'observer' },
-    { Header: 'powerBankAttacker' },
-    { Header: 'powerBankLooter' },
-    { Header: 'segment' },
-    { Header: 'remoteHarvester' },
-  ];
-
-  // Initialize the React Table hook
-  const {
-    getHeaderGroups,
-    getRowProps,
-    getCellProps,
-    columns: allColumns,
-  } = useTable({ columns });
-
-  // Container with language attribute and unique id for accessibility
-  const containerId = 'mainContent-unique';
-  const htmlAttributes = {
-    lang: 'en',
-    id: containerId,
-  };
-
-  return (
-    <div {...htmlAttributes}>
-      {/* Landmarks */}
-      <header id="banner">Header</header>
-      <main id="mainContent">
-        {/* Accessible table structure */}
-        <table aria-label="Accessible Table">
-          <thead>
-            <tr>
-              {getHeaderGroups().map(headerGroup => (
-                <tr {...headerGroup.getHeaderProps()}>
-                  {headerGroup.headers.map(column => (
-                    <th key={column.id} {...column.getHeaderProps()} scope="col">
-                      {column.render('Header')}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {/* Table body would go here */}
-          </tbody>
-        </table>
-      </main>
-      <footer id="contentinfo">Footer</footer>
-</div>
-</script>

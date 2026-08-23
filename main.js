@@ -51,22 +51,6 @@ function validateLandmark(element) {
   // ... existing code ...
 }
 
-function processReact025(landmarks) {
-  // Find the element with the ID that matches the landmark
-  const element = document.getElementById(landmarks.id);
-
-  // If the element exists, add the appropriate landmark role
-  if (element) {
-    element.setAttribute('role', landmark.role);
-    // You can add more landmark roles as needed
-  }
-
-  // Ensure unique landmarks
-  if (hasDuplicateLandmarks(landmarks)) {
-    throw new Error('Error: Duplicate landmark roles found');
-  }
-}
-
 function getSvgAccessibleName(svg) {
   // ... existing code ...
 }
@@ -111,6 +95,21 @@ function ensureUniqueLandmarkRoles(landmarks) {
     }
   });
   return uniqueRoles.size === landmarks.length;
+}
+
+// Address the REACT_025 issue by adding the "aria-labelledby" attribute to landmarks with a unique identifier
+function processReact025(landmarks) {
+  landmarks.forEach(landmark => {
+    const id = landmark.id;
+
+    // Find the element by its id
+    const element = document.getElementById(id);
+
+    // If the element exists, add the "aria-labelledby" attribute and set its value to the id attribute
+    if (element) {
+      element.setAttribute('aria-labelledby', id);
+    }
+  });
 }
 
 module.exports = {

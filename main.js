@@ -12,9 +12,7 @@ export default AppLayout;
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     document.documentElement.lang = 'en';
-    document.documentElement.setAttribute('lang', 'en'); // For better browser support
   });
 } else {
   document.documentElement.lang = 'en';
-  document.documentElement.setAttribute('lang', 'en'); // For better browser support
 }

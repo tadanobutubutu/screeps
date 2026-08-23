@@ -77,5 +77,12 @@ module.exports = {
   subtract,
   multiply,
   divide,
-  addAriaLabel // Include the new function in the exports
+  addAriaLabel, // Include the new function in the exports
+  // Add the updated th element with scope attribute here
+  updateTableHeaders: function() {
+    const tableHeaders = document.querySelectorAll('th');
+    tableHeaders.forEach(header => {
+      header.setAttribute('scope', 'col');
+    });
+  }
 };

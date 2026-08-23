@@ -141,7 +141,7 @@ function validateLandmark(htmlContent) {
     const bodyMatch = htmlContent.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       modifiedContent = modifiedContent.replace(
-        /<body(\s[^>]*)?>([\s\S]*)<\/body>/i,
+        /<body$1>([\s\S]*)<\/body>/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
@@ -366,9 +366,6 @@ function processAccessibilityIssues(htmlContent) {
   
   // Apply REACT_041: Add accessible names to SVGs
   processedContent = addSvgAccessibleName(processedContent);
-  
-  // Apply REACT_036: Fix fake link issues
-  // This is handled by createAccessibleLink when creating links
   
   // Apply table accessibility improvements
   processedContent = validateTableAccessibility(processedContent);

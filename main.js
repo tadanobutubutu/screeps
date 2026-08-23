@@ -1,3 +1,13 @@
+import FlightControlPanel from './FlightControlPanel';
+import PilotInfoView from './PilotInfoView';
+import { withAccessibleLabel } from './AccessibilityUtils';
+
+/* eslint-disable import/no-medianames */
+
+function makeAccessible(targetNames) {
+  return targetNames.map(name => withAccessibleLabel(name));
+}
+
 /**
  * Main entry point for dependency management and configuration
  * Handles updates for: jest, typescript, react, eslint, and other dependencies
@@ -137,7 +147,8 @@ module.exports = {
   validateDependencies,
   getRecommendedUpdateOrder,
   checkBreakingChanges,
-  processDependencyUpdates
+  processDependencyUpdates,
+  makeAccessible
 };
 
 // Run if executed directly

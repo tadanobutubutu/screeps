@@ -1,16 +1,11 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// - REACT_036: Fix 1 fake link issue
-//
 import React from 'react';
 
 function Header() {
   return (
     <header role="banner" aria-label="Site Header">
-      {/* existing header content */}
+      <div className="header-content">
+        <h1>My Website</h1>
+      </div>
     </header>
   );
 }
@@ -18,7 +13,11 @@ function Header() {
 function Navigation() {
   return (
     <nav role="navigation" aria-label="Main Navigation">
-      {/* existing navigation links */}
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
     </nav>
   );
 }
@@ -26,7 +25,8 @@ function Navigation() {
 function MainContent() {
   return (
     <main role="main" aria-label="Primary Content">
-      {/* existing main content */}
+      <h2>Welcome to the main content area</h2>
+      <p>This is the primary content of the page.</p>
     </main>
   );
 }
@@ -34,7 +34,8 @@ function MainContent() {
 function Sidebar() {
   return (
     <aside role="complementary" aria-label="Sidebar">
-      {/* existing aside content */}
+      <h3>Sidebar</h3>
+      <p>Additional information and links.</p>
     </aside>
   );
 }
@@ -42,22 +43,22 @@ function Sidebar() {
 function Footer() {
   return (
     <footer role="contentinfo" aria-label="Site Footer">
-      {/* existing footer content */}
+      <p>&copy; 2024 My Website. All rights reserved.</p>
     </footer>
   );
 }
 
-// Example SVGs with accessible names
 function Logo() {
   return (
     <svg
       role="img"
       aria-label="Company Logo"
-      xmlns="http://www.w3.org/2000/svg"
       width="100"
       height="100"
+      viewBox="0 0 100 100"
     >
-      {/* existing logo path */}
+      <circle cx="50" cy="50" r="40" fill="#4A90E2" />
+      <text x="50" y="55" textAnchor="middle" fill="white" fontSize="20">Logo</text>
     </svg>
   );
 }
@@ -67,25 +68,25 @@ function SearchIcon() {
     <svg
       role="img"
       aria-label="Search Icon"
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
+      viewBox="0 0 24 24"
     >
-      {/* existing search path */}
+      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="2" fill="none" />
+      <line x1="15" y1="15" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
 
-// Ensure unique landmarks (e.g., add id or aria-roledescription)
 function UniqueSection() {
   return (
-    <section id="unique-section" role="region" aria-roledescription="unique">
-      {/* existing unique section content */}
+    <section id="unique-section" role="region" aria-labelledby="unique-heading">
+      <h3 id="unique-heading">Featured Section</h3>
+      <p>This is a unique section with its own landmark.</p>
     </section>
   );
 }
 
-// Fix fake link issue by providing a real href
 function FakeLinkFixed() {
   return (
     <a href="/real-page">Real Link</a>

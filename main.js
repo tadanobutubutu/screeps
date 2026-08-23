@@ -23,7 +23,7 @@ function wrapContentWithMain(content) {
 
 // Update the SVG icon for the favicon in app/layout.tsx
 function updateFaviconIcon(icon) {
-    const link = document.querySelector("link[rel*='icon']") || document.querySelector("link[href*='favicon']");
+    const link = document.querySelector('link[rel="icon"]') || document.querySelector('link[rel="shortcut icon"]') || document.createElement('link');
     if (!link) return null;
     link.type = 'image/svg+xml';
     link.rel = 'shortcut icon';
@@ -42,7 +42,7 @@ function ensureSvgAccessibility(svgString, accessibleName) {
     
     if (hasTitle) {
         // Replace existing title with accessible name
-        return svgString.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, `<title>${accessibleName}</title>`);
+        return svgString.replace(/<title>[^<]*<\/title>/, `<title>${accessibleName}</title>`);
     }
     
     // Add title element after opening SVG tag or viewBox attribute
@@ -50,7 +50,7 @@ function ensureSvgAccessibility(svgString, accessibleName) {
     
     if (svgString.includes('<svg')) {
         // Insert title right after the opening svg tag
-        return svgString.replace(/<svg/, `<svg>${titleElement}`);
+        return svgString.replace(/<svg([^>]*)>/, `<svg$1>${titleElement}`);
     }
     
     return svgString;

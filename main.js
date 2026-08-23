@@ -12,6 +12,3 @@ const icons = {
 
 // Rest of the code from main.js
 // ...
-
-// Ensure that the rest of the code remains unchanged
-// ...

@@ -64,6 +64,7 @@ export function addAccessibleIds() {
     });
 }
 
+// TODO: Implement wrapPrimaryContentInMain function
 // Add the new functions for the remaining accessibility issues
 export function wrapPrimaryContentInMain() {
     const mainContent = document.querySelector('.container'); // Assuming the primary content is within a div with class 'container'
@@ -115,70 +116,12 @@ export function ensureUniqueLandmarks() {
     });
 }
 
-// Function for fixing table structure issues (REACT_027)
-// Adds proper table structure with thead, tbody, and scope attributes
-export function fixTableStructure() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        // Check if table already has proper structure
-        const hasThead = table.querySelector('thead');
-        const hasTbody = table.querySelector('tbody');
-        
-        // Get all rows
-        const rows = table.querySelectorAll('tr');
-        
-        if (rows.length > 0 && !hasThead) {
-            // Identify header row (first row with th elements or first row if all cells are headers)
-            const firstRow = rows[0];
-            const hasTh = firstRow.querySelector('th');
-            
-            if (hasTh) {
-                // Create thead if it doesn't exist
-                const thead = document.createElement('thead');
-                
-                // Move first row to thead
-                const headerCells = firstRow.querySelectorAll('th, td');
-                headerCells.forEach(cell => {
-                    if (cell.tagName === 'TD') {
-                        // Convert TD to TH for proper table headers
-                        const th = document.createElement('th');
-                        th.textContent = cell.textContent;
-                        Array.from(cell.attributes).forEach(attr => {
-                            if (attr.name !== 'style' || !attr.value.includes('display')) {
-                                th.setAttribute(attr.name, attr.value);
-                            }
-                        });
-                        th.setAttribute('scope', 'col');
-                        thead.appendChild(th);
-                        cell.parentNode.removeChild(cell);
-                    } else {
-                        cell.setAttribute('scope', 'col');
-                        thead.appendChild(cell);
-                    }
-                });
-                
-                firstRow.parentNode.removeChild(firstRow);
-                table.insertBefore(thead, table.firstChild);
-            }
-        }
-        
-        // Ensure tbody exists
-        const tbody = table.querySelector('tbody');
-        if (!tbody) {
-            const tbody = document.createElement('tbody');
-            const remainingRows = table.querySelectorAll('tr');
-            remainingRows.forEach(row => {
-                tbody.appendChild(row);
-            });
-            table.appendChild(tbody);
-        }
-    });
-}
+// TODO: Implement function for fixing table structure issues (REACT_027)
 
-// Function to add proper landmark regions
+// TODO: Implement function for adding proper landmark regions
 export function addLandmarkRegions() {
     const body = document.body;
-    
+
     // Check for header landmark
     const header = body.querySelector('header');
     if (!header) {
@@ -190,7 +133,7 @@ export function addLandmarkRegions() {
             body.appendChild(headerEl);
         }
     }
-    
+
     // Check for nav landmark
     const nav = body.querySelector('nav');
     if (!nav) {
@@ -199,7 +142,7 @@ export function addLandmarkRegions() {
         navEl.setAttribute('aria-label', 'Main navigation');
         body.appendChild(navEl);
     }
-    
+
     // Check for footer landmark
     const footer = body.querySelector('footer');
     if (!footer) {

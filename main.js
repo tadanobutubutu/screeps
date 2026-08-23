@@ -54,9 +54,79 @@ export function addLangAttributeToRoot() {
     rootElement.setAttribute('lang', 'en');
   }
 }
+// ADD: Functions to assign landmark roles and ensure unique landmark ids
+const assignLandmarkRoles = () => {
+  const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
+  const allElements = document.querySelectorAll(landmarks.join(', '));
+  allElements.forEach((element) => {
+    if (element) {
+      const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+      if (!element.getAttribute('role') && landmarks.includes(tagName)) {
+        element.setAttribute('role', tagName);
+      }
+      if (!element.id) {
+        element.id = `${tagName}-${element.dataset.id || 1}`;
+      }
+    }
+  });
+};
+const ensureUniqueLandmarkIds = () => {
+  const landmarkRoles = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, idx) => {
+      if (!el.id) {
+        el.id = `${role}-${idx + 1}`;
+      }
+    });
+  });
+};
+// ADD: Adjust the fixDuplicateMainIssue function
+export function fixDuplicateMainIssue() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
+    // Modify the code to remove multiple <main> elements
+    mainElements[0].setAttribute('role', 'main');
+    [...mainElements].slice(1).forEach(element => element.remove());
+  }
+}
+// ADD: Adjust the fixAccessibilityIssues function
+export function fixAccessibilityIssues() {
+  const rootElement = document.documentElement;
+  if (rootElement && !rootElement.hasAttribute('lang')) {
+    rootElement.setAttribute('lang', 'en');
+  }
+  // Remove the duplicate main elements before checking for them
+  fixDuplicateMainIssue();
+
+  // Then assign landmark roles and ensure unique landmark ids
+  assignLandmarkRoles();
+  ensureUniqueLandmarkIds();
+}
+//don't change the existing export function
+export function ensureUniqueLandmarks(elements) {
+  if (!elements || !Array.isArray(elements)) {
+    return false;
+  }
+  let mainCount = 0;
+  let navCount = 0;
+  elements.forEach(element => {
+    if (element && element.props) {
+      const role = element.props.role;
+      if (role === 'main') mainCount++;
+      if (role === 'navigation' || role === 'nav') navCount++;
+    }
+  });
+  return mainCount <= 1 && navCount <= 1;
+}
+// ADD: Catch the issue if the same element is passed multiple times
 export function addressAccessibilityIssues(elements) {
   const validElements = [];
-  elements.forEach((element) => {
+  if (!Array.isArray(elements)) {
+    return validElements;
+  }
+  elements.forEach(element => {
     if (element && element.props && element.props.children) {
       validElements.push(element);
     }
@@ -179,41 +249,10 @@ export function fixAccessibilityIssues() {
   if (rootElement && !rootElement.hasAttribute('lang')) {
     rootElement.setAttribute('lang', 'en');
   }
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
-  }
+  // Remove the duplicate main elements before checking for them
+  fixDuplicateMainIssue();
 
-  // Add the following functions to address the remaining accessibility issues:
-  // Assign landmark roles and ensure unique landmark ids
-  const assignLandmarkRoles = () => {
-    const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
-    const allElements = document.querySelectorAll(landmarks.join(', '));
-    allElements.forEach((element) => {
-      if (element) {
-        const tagName = element.tagName ? element.tagName.toLowerCase() : '';
-        if (!element.getAttribute('role') && landmarks.includes(tagName)) {
-          element.setAttribute('role', tagName);
-        }
-        if (!element.id) {
-          element.id = `${tagName}-${element.dataset.id || 1}`;
-        }
-      }
-    });
-  };
-
-  const ensureUniqueLandmarkIds = () => {
-    const landmarkRoles = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
-    landmarkRoles.forEach(role => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
-      elements.forEach((el, idx) => {
-        if (!el.id) {
-          el.id = `${role}-${idx + 1}`;
-        }
-      });
-    });
-  };
-
+  // Then assign landmark roles and ensure unique landmark ids
   assignLandmarkRoles();
   ensureUniqueLandmarkIds();
 }
@@ -236,53 +275,13 @@ export function fixDuplicateMainIssue() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
-  }
-  // Remove the wrappedPrimaryContentInMain function since it's not required anymore
-  // wrapPrimaryContentInMain();
-}
-export function wrapContentInMain() {
-  const rootElement = document.documentElement;
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length === 0) {
-    const body = document.body;
-    const newMain = document.createElement('main');
-    newMain.id = 'main-content';
-    newMain.setAttribute('role', 'main');
-    rootElement.insertBefore(newMain, body);
-  }
-  // Remove the wrapMain function since it's not required anymore
-  // wrapMain();
-}
-export function renderContentVisualization() {
-  const contentContainer = document.getElementById('primary-content');
-  if (contentContainer) {
-    contentContainer.innerHTML = '';
-    const contentElement = indexContent();
-    contentContainer.innerHTML = contentElement;
+    // Modify the code to remove multiple <main> elements
+    mainElements[0].setAttribute('role', 'main');
+    [...mainElements].slice(1).forEach(element => element.remove());
   }
 }
-export function renderTableStructuralCompliance() {
-  const tableElements = document.querySelectorAll('table');
-  tableElements.forEach(table => {
-    if (validateTableAccessibility(table) && validateTableStructure(table)) {
-      return;
-    }
-    if (!validateTableStructure(table)) {
-      const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Column Header 1</th><th>Column Header 2</th></tr>';
-      if (!table.querySelector('thead')) {
-        if (table.tHead) {
-          thead.innerHTML = table.tHead.innerHTML;
-          table.tHead = null;
-        }
-        if (!table.querySelector('thead')) {
-          table.insertBefore(thead, table.tBodies[0]);
-        }
-      }
-    }
-  });
-}
-function initializeApp() {
+// ADD: Update the initializeApp function to call fixAccessibilityIssues
+export function initializeApp() {
   addAriaAttributes();
   addLangAttributeToRoot();
   renderDependencyGraphVisualization();
@@ -291,8 +290,8 @@ function initializeApp() {
   renderContentVisualization();
   assignLandmarkRoles();
   ensureUniqueLandmarkIds();
+  fixAccessibilityIssues(); //Add this line
 }
-initializeApp();
 
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file

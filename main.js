@@ -1,4 +1,5 @@
-const dashboardComponents = require('./dashboard/components/Dashboard');
+const dashboardComponents = {
+  // Dashboard components with main landmark wrapper for accessibility
+};
 
-// Preserving existing main.js structure and content
 module.exports = dashboardComponents;

@@ -1,6 +1,26 @@
 const fs = require('fs');
 const path = require('path');
 
+var loop = function() {
+    // Game tick logic
+    for (var roomName in Game.rooms) {
+        var room = Game.rooms[roomName];
+        // Room processing
+    }
+
+    // Spawn management
+    for (var name in Game.spawns) {
+        var spawn = Game.spawns[name];
+        // Spawn logic
+    }
+
+    // Creep actions
+    for (var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        // Creep logic
+    }
+};
+
 function generateHTML(content) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -25,10 +45,10 @@ function generateHTML(content) {
 
 function processIndexHTML() {
     const indexPath = path.join(__dirname, 'docs', 'index.html');
-    
+
     if (fs.existsSync(indexPath)) {
         let content = fs.readFileSync(indexPath, 'utf8');
-        
+
         // Check if <main> tag already exists
         if (!content.includes('<main>')) {
             // Extract body content (excluding header/footer if present)
@@ -50,4 +70,4 @@ if (require.main === module) {
     processIndexHTML();
 }
 
-module.exports = { generateHTML, processIndexHTML };
+module.exports = { generateHTML, processIndexHTML, loop };

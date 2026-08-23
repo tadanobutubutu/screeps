@@ -1,65 +1,44 @@
 import React from 'react';
 import { useEffect } from 'react';
 
-function Header() {
-  // ... existing code here
-}
+function Header() { // ... existing code here }
 
-function Navigation() {
-  // ... existing code here
-}
+function Navigation() { // ... existing code here }
 
-function MainContent() {
-  // ... existing code here
-}
+function MainContent() { // ... existing code here }
 
-function Sidebar() {
-  // ... existing code here
-}
+function Sidebar() { // ... existing code here }
 
-function Footer() {
-  // ... existing code here
-}
+function Footer() { // ... existing code here }
 
-function Logo() {
-  // ... existing code here
-}
+function Logo() { // ... existing code here }
 
-function SearchIcon() {
-  // ... existing code here
-}
+function SearchIcon() { // ... existing code here }
 
-function UniqueSection() {
-  // ... existing code here
-}
+function UniqueSection() { // ... existing code here }
 
-function FakeLinkFixed() {
-  // ... existing code here
-}
+function FakeLinkFixed() { // ... existing code here }
 
-// NEW: Add lang attribute to HTML element using React's useEffect
 function addLangAttribute() {
   useEffect(() => {
     document.documentElement.lang = 'en';
   }, []);
 }
 
-// NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      document.body.insertBefore(main, document.body.firstChild);
     }
   }, []);
 }
 
-// NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main');
+    let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -68,14 +47,13 @@ function validateMainLandmark() {
   }, []);
 }
 
-// NEW: Validate unique landmarks using React's useEffect
 function validateUniqueLandmarks() {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = document.getElementsByTagName(role);
+      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -89,17 +67,12 @@ function validateUniqueLandmarks() {
   }, []);
 }
 
-// ... existing functions specific to DOM manipulation
-function fixTableStructure() {
-  // ... existing logic ...
-}
+function fixTableStructure() { // ... existing logic ... }
 
-// Helper function to get SVG accessible name
 function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     return null;
   }
-  // ... existing logic ...
   const title = svgElement.querySelector('title');
   if (title) {
     return title.textContent;
@@ -107,12 +80,10 @@ function getSvgAccessibleName(svgElement) {
   return null;
 }
 
-// Helper function to get accessible label
 function getAccessibleLabel(element) {
   if (!element) {
     return null;
   }
-  // ... existing logic ...
   const ariaLabel = element.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
@@ -127,25 +98,33 @@ function getAccessibleLabel(element) {
   return null;
 }
 
-function createInPageButton() {
-  // ... existing logic ...
-}
+function createInPageButton() { // ... existing logic ... }
 
-function validateTableAccessibility() {
-  // ... existing logic ...
-}
+function validateTableAccessibility() { // ... existing logic ... }
 
-function validateTableStructure() {
-  // ... existing logic ...
-}
+function validateTableStructure() { // ... existing logic ... }
 
-function validateLandmark() {
-  // ... existing logic ...
-}
+function validateLandmark() { // ... existing logic ... }
 
-function validateLandmarkRoles() {
-  // ... existing logic ...
-}
-
-// Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };
+export {
+  Header,
+  Navigation,
+  MainContent,
+  Sidebar,
+  Footer,
+  Logo,
+  SearchIcon,
+  UniqueSection,
+  FakeLinkFixed,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  validateMainLandmark,
+  validateUniqueLandmarks,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  getSvgAccessibleName,
+  getAccessibleLabel
+};

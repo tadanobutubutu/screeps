@@ -29,7 +29,7 @@ function addLangAttribute(htmlContent, lang = 'en', region = null) {
   // If <html> tag exists, inject the lang attribute
   if (/<html\b/i.test(htmlContent)) {
     return htmlContent.replace(
-      /<html(\s[^>]*)?>/i,
+      /<html([ \t]*[^>]*)?>/i,
       (match, attrs) => {
         if (attrs && /lang\s*=/i.test(attrs)) {
           return match;
@@ -53,7 +53,7 @@ function validateTableAccessibility(htmlContent) {
     }
     const closingBracket = attrs ? attrs.lastIndexOf('>') : -1;
     if (closingBracket !== -1) {
-      return match.substring(0, closingBracket) + ' scope="col>';
+      return match.substring(0, closingBracket) + ' scope="col>";
     }
     return match.replace('>', ' scope="col">');
   });
@@ -365,147 +365,4 @@ function processAccessibilityIssues(htmlContent) {
   processedContent = validateLandmark(processedContent);
   processedContent = validateLandmarkStructure(processedContent);
   
-  // Apply REACT_025/REACT_017: Ensure proper landmark roles and aria-labels
-  processedContent = addProperLandmarkRegions(processedContent);
-  
-  // Apply REACT_041: Add accessible names to SVGs
-  processedContent = addSvgAccessibleName(processedContent);
-  
-  // Apply table accessibility improvements
-  processedContent = validateTableAccessibility(processedContent);
-  processedContent = validateTableStructure(processedContent);
-  
-  return processedContent;
-}
-
-// Function to address accessibility issues based on an insight report
-// This function selectively applies fixes according to reported issues
-function addressAccessibilityIssues(htmlContent, insightReport) {
-  let processedContent = htmlContent;
-
-  if (insightReport.includes('REACT_015')) {
-    processedContent = addLangAttribute(processedContent);
-  }
-  if (insightReport.includes('REACT_017')) {
-    processedContent = validateLandmark(processedContent);
-    processedContent = validateLandmarkStructure(processedContent);
-  }
-  if (insightReport.includes('REACT_025')) {
-    processedContent = addProperLandmarkRegions(processedContent);
-  }
-  if (insightReport.includes('REACT_041')) {
-    processedContent = addSvgAccessibleName(processedContent);
-  }
-  if (insightReport.includes('REACT_027')) {
-    processedContent = validateTableAccessibility(processedContent);
-    processedContent = validateTableStructure(processedContent);
-  }
-
-  return processedContent;
-}
-
-// TODO: Add any other missing exports that might have been?
-function anotherExport() {
-  // Simple placeholder implementation to satisfy test expectations
-  return 'anotherExport';
-}
-
-// Function to add proper landmark regions and roles to HTML elements
-// This addresses REACT_025: React Unique Landmarks and REACT_017: React Landmarks
-function addProperLandmarkRegions(htmlContent) {
-  let modifiedContent = htmlContent;
-
-  // Add role="banner" to header if missing
-  modifiedContent = modifiedContent.replace(
-    /<header(?![^>]*\brole\s*=/i)([^>]*)>/gi,
-    '<header role="banner"$1>'
-  );
-
-  // Add role="navigation" to nav if missing
-  modifiedContent = modifiedContent.replace(
-    /<nav(?![^>]*\brole\s*=/i)([^>]*)>/gi,
-    '<nav role="navigation"$1>'
-  );
-
-  // Add role="main" to main if missing
-  modifiedContent = modifiedContent.replace(
-    /<main(?![^>]*\brole\s*=/i)([^>]*)>/gi,
-    '<main role="main"$1>'
-  );
-
-  // Add role="contentinfo" to footer if missing
-  modifiedContent = modifiedContent.replace(
-    /<footer(?![^>]*\brole\s*=/i)([^>]*)>/gi,
-    '<footer role="contentinfo"$1>'
-  );
-
-  // Add aria-label to header if missing (for uniqueness)
-  modifiedContent = modifiedContent.replace(
-    /<header(?![^>]*\baria-label\s*=)[^>]*role\s*=\s*["']banner["'][^>]*>/gi,
-    (match) => {
-      if (!/aria-label/i.test(match)) {
-        return match.replace(/<header/, '<header aria-label="Banner"');
-      }
-      return match;
-    }
-  );
-
-  // Add aria-label to footer if missing (for uniqueness)
-  modifiedContent = modifiedContent.replace(
-    /<footer(?![^>]*\baria-label\s*=)[^>]*role\s*=\s*["']contentinfo["'][^>]*>/gi,
-    (match) => {
-      if (!/aria-label/i.test(match)) {
-        return match.replace(/<footer/, '<footer aria-label="Content Info"');
-      }
-      return match;
-    }
-  );
-
-  // Add aria-label to nav elements if missing
-  modifiedContent = modifiedContent.replace(
-    /<nav[^>]*role\s*=\s*["']navigation["'][^>]*>/gi,
-    (match) => {
-      if (!/aria-label/i.test(match)) {
-        return match.replace(/<nav/, '<nav aria-label="Navigation"');
-      }
-      return match;
-    }
-  );
-
-  // Add aria-label to main if missing
-  modifiedContent = modifiedContent.replace(
-    /<main(?![^>]*\baria-label\s*=/i)([^>]*role\s*=\s*["']main["'][^>]*)>/gi,
-    (match, attrs) => {
-      if (!/aria-label/i.test(match)) {
-        return match.replace(/<main/, '<main aria-label="Main Content"');
-      }
-      return match;
-    }
-  );
-
-  return modifiedContent;
-}
-
-// Export functions for use in other modules
-export {
-  getLangAttribute,
-  getFullLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createAccessibleLink,
-  createInPageButton,
-  addSvgAccessibleName,
-  capitalizeFirstLetter,
-  getPascalCaseFromCamelCase,
-  wrapPrimaryContentInMain,
-  processAccessibilityIssues,
-  addressAccessibilityIssues,
-  anotherExport,
-  addProperLandmarkRegions
-};
-
-// ... existing code ...
+  // Apply REACT_025/RE

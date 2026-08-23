@@ -1,10 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// TODO: Address accessibility issues from insight report
-// TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
-const dependencyGraphModule = require('./dependency-graph');
+const dependencyGraphModule = require('./dependencyGraph');
 const indexModule = require('./index');
-
-// ... existing code, imports, and functions
 
 // Accessibility: Updated dependencyGraphFunction to use dependencyGraphContent directly
 // with proper accessibility attributes and semantic HTML
@@ -14,13 +9,13 @@ function dependencyGraphFunction() {
   // Ensure the returned content has proper accessibility attributes
   if (dependencyGraphContent && dependencyGraphContent.element) {
     // Add role and aria-label if not present for screen reader support
-    if (!dependencyGraphContent.element.getAttribute('role')) {
+    if (!dependencyGraphContent.element.hasAttribute('role')) {
       dependencyGraphContent.element.setAttribute('role', 'img');
     }
-    if (!dependencyGraphContent.element.getAttribute('aria-label')) {
+    if (!dependencyGraphContent.element.hasAttribute('aria-label')) {
       dependencyGraphContent.element.setAttribute('aria-label', 'Dependency graph visualization');
     }
-    if (!dependencyGraphContent.element.getAttribute('aria-hidden')) {
+    if (!dependencyGraphContent.element.hasAttribute('aria-hidden')) {
       dependencyGraphContent.element.setAttribute('aria-hidden', '0');
     }
   }
@@ -37,13 +32,13 @@ function indexFunction() {
   // Ensure the returned content has proper accessibility attributes
   if (indexContent && indexContent.element) {
     // Add semantic structure for screen reader support
-    if (!indexContent.element.getAttribute('role')) {
+    if (!indexContent.element.hasAttribute('role')) {
       indexContent.element.setAttribute('role', 'region');
     }
-    if (!indexContent.element.getAttribute('aria-label')) {
+    if (!indexContent.element.hasAttribute('aria-label')) {
       indexContent.element.setAttribute('aria-label', 'Index view');
     }
-    if (!indexContent.element.getAttribute('tabindex')) {
+    if (!indexContent.element.hasAttribute('tabindex')) {
       indexContent.element.setAttribute('tabindex', '-1');
     }
   }

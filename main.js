@@ -53,7 +53,7 @@ function validateTableAccessibility(htmlContent) {
     }
     const closingBracket = attrs ? attrs.lastIndexOf('>') : -1;
     if (closingBracket !== -1) {
-      return match.substring(0, closingBracket) + ' scope="col>";
+      return match.substring(0, closingBracket) + ' scope="col">';
     }
     return match.replace('>', ' scope="col">');
   });
@@ -366,3 +366,4 @@ function processAccessibilityIssues(htmlContent) {
   processedContent = validateLandmarkStructure(processedContent);
   
   // Apply REACT_025/RE
+}

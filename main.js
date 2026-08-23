@@ -94,6 +94,18 @@ const AccessibilityUtils = {
     };
 
     return { handleKeyDown, setIndex: (index) => { currentIndex = index; } };
+  },
+
+  // New function to toggle keyboard navigation for a specific component
+  toggleKeyboardNavigation(component, enable) {
+    if (enable) {
+      component.addEventListener('keydown', AccessibilityUtils.setupKeyboardNavigation(component).handleKeyDown);
+    } else {
+      const handler = component.removeEventListener('keydown', AccessibilityUtils.setupKeyboardNavigation(component).handleKeyDown);
+      if (handler) {
+        handler();
+      }
+    }
   }
 };
 

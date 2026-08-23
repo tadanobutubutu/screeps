@@ -25,9 +25,9 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-labelledby') && !main.getAttribute('aria-label')) {
+    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
       if (index === 0) {
-        main.setAttribute('aria-labelledby', 'main-heading');
+        main.setAttribute('aria-label', 'Main content');
       } else {
         main.setAttribute('aria-label', `Main content section ${index + 1}`);
       }

@@ -1,3 +1,7 @@
+import React from 'react';
+import { dependencyGraphContent } from './dependencyGraph.js';
+import { indexContent } from './index.js';
+
 // ... existing code ...
 
 // Import content modules for dependency graphs and index views
@@ -180,7 +184,7 @@ function validateLandmarkStructure(htmlContent) {
   let navCount = 0;
   modifiedContent = modifiedContent.replace(navRegex, (match, attrs) => {
     navCount++;
-    if (attrs && /aria-label=/i.test(attrs)) {
+    if (attrs && /aria-label/i.test(attrs)) {
       return match;
     }
     if (navCount === 1) {
@@ -473,7 +477,7 @@ function addProperLandmarkRegions(htmlContent) {
 
   // Add aria-label to main if missing
   modifiedContent = modifiedContent.replace(
-    /<main(?![^>]*\baria-label\s*=/i)([^>]*role\s*=\s*["']main["'][^>]*)>/gi,
+    /<main(?![^>]*\baria-label\s*=)[^>]*role\s*=\s*["']main["'][^>]*)>/gi,
     (match, attrs) => {
       if (!/aria-label/i.test(match)) {
         return match.replace(/<main/, '<main aria-label="Main Content"');
@@ -507,4 +511,49 @@ export {
   addProperLandmarkRegions
 };
 
-// ... existing code ...
+// DataTable component
+const DataTable = () => {
+  const columns = [
+    { id: 'name', label: 'Name' },
+    { id: 'age', label: 'Age' },
+    { id: 'email', label: 'Email' }
+  ];
+
+  // Add a function to set the appropriate ARIA role and attributes for the table
+  const getTableRoleAndAccessKey = (shouldUseAccessKey) => {
+    // Use the access key attribute only if specified in the issue and if it's beneficial for accessibility
+    const accessKeyAttribute = shouldUseAccessKey ? { 'accessKey': 't' } : {};
+
+    return {
+      role: 'grid',
+      'aria-label': 'Data Table',
+      ...accessKeyAttribute
+    };
+  };
+
+  return (
+    <table {...getTableRoleAndAccessKey(true)}>
+      <thead>
+        <tr>
+          {columns.map((col) => (
+            <th key={col.id} scope="col" {...getTableRoleAndAccessKey(false)}>{col.label}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alice</td>
+          <td>25</td>
+          <td>alice@example.com</td>
+        </tr>
+        <tr>
+          <td>Bob</td>
+          <td>30</td>
+          <td>bob@example.com</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+};
+
+export default DataTable;

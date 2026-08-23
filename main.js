@@ -15,50 +15,86 @@ function getFullLangAttribute(lang, region) {
 
 // Add lang attribute to the root HTML element (HTML or BODY)
 // This addresses REACT_015: Add lang attribute to HTML element
-function addLangAttributeToHtml(htmlContent) {
+function addLangAttribute(htmlContent, lang = 'en', region = null) {
   // Use default language 'en' if none provided
-  const langValue = getLangAttribute('en');
-  const fullLangValue = getFullLangAttribute('en', null);
+  const langValue = getLangAttribute(lang);
+  const fullLangValue = getFullLangAttribute(lang, region);
   const langAttr = ` lang="${fullLangValue}"`;
 
   // If <html> tag exists, inject the lang attribute
   if (/<html\b/i.test(htmlContent)) {
-    return htmlContent.replace(/<html\b/gi, `<html${langAttr}`);
+    return htmlContent.replace(/<html(\s+[^>]*)?>/i, `<html$1${langAttr}>`);
   }
   // Otherwise prepend a wrapping <html> tag with the lang attribute
   return `<html${langAttr}>${htmlContent}</html>`;
 }
 
-// Validate table accessibility
+// Validate table accessibility - adds scope attributes to table headers
+// This addresses REACT_027: React Table Structure
 function validateTableAccessibility(htmlContent) {
   // Add scope attributes to table headers
-  const thRegex = /<th(?![^>]*\bscope\b)[^>]*>/gi;
-  let modifiedContent = htmlContent.replace(thRegex, (match) => {
+  const thRegex = /<th(\s+[^>]*)?>(?!.*scope=)/gi;
+  let modifiedContent = htmlContent.replace(thRegex, (match, attrs) => {
+    if (attrs && /scope=/i.test(attrs)) {
+      return match;
+    }
+    const closingBracket = match.lastIndexOf('>');
+    if (closingBracket !== -1) {
+      return match.substring(0, closingBracket) + ' scope="col">';
+    }
     return match.replace('>', ' scope="col">');
   });
   return modifiedContent;
 }
 
-// Validate table structure
+// Validate table structure - ensures tables have proper thead and tbody
+// This addresses REACT_027: React Table Structure
 function validateTableStructure(htmlContent) {
   // Ensure tables have proper structure with thead and tbody
   let modifiedContent = htmlContent;
   
-  // Add thead/tbody if missing
-  const tableRegex = /<table([^>]*)>([\s\S]*?)(?:<thead([\s\S]*?)<\/thead>)?([\s\S]*?)(?:<tbody([\s\S]*?)<\/tbody>)?([\s\S]*?)<\/table>/gi;
-  modifiedContent = htmlContent.replace(tableRegex, (match, attrs, before, thead, tbody, tbody2, after) => {
+  // Pattern to match table elements that need structure
+  const tableRegex = /<table(\s+[^>]*)?>([\s\S]*?)<\/table>/gi;
+  
+  modifiedContent = modifiedContent.replace(tableRegex, (match, attrs, content) => {
     let result = `<table${attrs}>`;
     
-    if (thead) {
-      result += `<thead${thead}</thead>`;
-    }
+    // Check if thead exists
+    const hasThead = /<thead/i.test(content);
+    const hasTbody = /<tbody/i.test(content);
     
-    if (tbody || tbody2) {
-      result += `<tbody${tbody || tbody2}</tbody>`;
-    } else if (!thead) {
-      // Wrap content in tbody if no thead
-      const content = before + (tbody2 || '');
+    // If no thead or tbody, wrap content appropriately
+    if (!hasThead && !hasTbody) {
+      // Wrap all content in tbody
       result += `<tbody>${content}</tbody>`;
+    } else if (hasThead && !hasTbody) {
+      // Extract thead and wrap remaining in tbody
+      const theadMatch = content.match(/<thead[^>]*>[\s\S]*?<\/thead>/i);
+      if (theadMatch) {
+        result += theadMatch[0];
+        const remaining = content.replace(/<thead[^>]*>[\s\S]*?<\/thead>/i, '');
+        result += `<tbody>${remaining}</tbody>`;
+      } else {
+        result += `<tbody>${content}</tbody>`;
+      }
+    } else if (!hasThead && hasTbody) {
+      // No thead but has tbody - extract first row(s) for thead if appropriate
+      const tbodyMatch = content.match(/<tbody[^>]*>[\s\S]*?<\/tbody>/i);
+      if (tbodyMatch) {
+        // Try to extract first row for thead
+        const firstRowMatch = tbodyMatch[0].match(/<tr[^>]*>[\s\S]*?<\/tr>/i);
+        if (firstRowMatch) {
+          result += `<thead><tr>${firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
+          const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
+          result += `<tbody>${restContent}</tbody>`;
+        } else {
+          result += content;
+        }
+      } else {
+        result += content;
+      }
+    } else {
+      result += content;
     }
     
     result += `</table>`;
@@ -68,131 +104,170 @@ function validateTableStructure(htmlContent) {
   return modifiedContent;
 }
 
-// Validate landmark elements
+// Validate landmark elements - ensures proper landmark structure
+// This addresses REACT_017: React Landmarks
 function validateLandmark(htmlContent) {
   let modifiedContent = htmlContent;
   
   // Add main landmark if not present
-  if (!/<main[\s>]/i.test(modifiedContent)) {
-    modifiedContent = modifiedContent.replace(/<body([^>]*)>/i, '<main$1>');
-  }
-  
-  return modifiedContent;
-}
-
-// Validate landmark structure
-function validateLandmarkStructure(htmlContent) {
-  // Ensure proper landmark nesting and structure
-  let modifiedContent = htmlContent;
-  
-  // Add header/footer nav landmarks if missing
-  if (!/<header/i.test(modifiedContent)) {
-    modifiedContent = modifiedContent.replace(/<body([^>]*)>/i, '<header role="banner"><nav role="navigation"></nav></header><main$1>');
-  }
-  
-  if (!/<footer/i.test(modifiedContent)) {
-    modifiedContent = modifiedContent.replace(/<\/body>/i, '</main><footer role="contentinfo"></footer></body>');
-  }
-  
-  return modifiedContent;
-}
-
-// Get SVG accessible name
-function getSvgAccessibleName(svgContent, accessibleName) {
-  if (!accessibleName) return svgContent;
-  
-  // Add title element to SVG for accessibility
-  if (!svgContent.includes('<title')) {
-    return svgContent.replace('<svg', `<svg><title>${accessibleName}</title>`);
-  }
-  
-  return svgContent;
-}
-
-// Create accessible link
-function createAccessibleLink(url, text, options = {}) {
-  const { className = '', target = '_self', rel = '' } = options;
-  
-  const relAttr = rel || (target === '_blank' ? 'noopener noreferrer' : '');
-  
-  return `<a href="${url}" target="_${target}"${relAttr ? ` rel="${relAttr}"` : ''}${className ? ` class="${className}"` : ''}>${text}</a>`;
-}
-
-// Create in-page button
-function createInPageButton(text, options = {}) {
-  const { className = '', id = '', ariaLabel = '' } = options;
-  
-  const idAttr = id ? ` id="${id}"` : '';
-  const classAttr = className ? ` class="${className}"` : '';
-  const ariaAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
-  
-  return `<button type="button"${idAttr}${classAttr}${ariaAttr}>${text}</button>`;
-}
-
-// Function to add accessible name to SVG elements
-function addAccessibleNameToSVGs(htmlContent) {
-  // Regex to find SVG elements without an accessible name
-  const svgRegex = /<svg[^>]*>([\s\S]*?)(?=<\/svg>)/gi;
-  
-  let modifiedContent = htmlContent;
-  let match;
-  
-  // Loop through all SVG elements and add aria-label or title as accessible name
-  while ((match = svgRegex.exec(modifiedContent)) !== null) {
-    const svgContent = match[1];
-    const accessibleName = 'SVG Content'; // Default accessible name
-    
-    // Check if SVG already has a title or aria-hidden
-    if (!svgContent.includes('<title') && !svgContent.includes('aria-hidden="true"')) {
-      modifiedContent = modifiedContent.replace(match[0], getSvgAccessibleName(match[0], accessibleName));
+  if (!/<main[^>]*>/i.test(modifiedContent) && !/<[^>]*\bmain\b[^>]*>/i.test(modifiedContent)) {
+    // Wrap content in main tag
+    const bodyMatch = modifiedContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    if (bodyMatch) {
+      modifiedContent = modifiedContent.replace(
+        /<body([^>]*)>([\s\S]*?)<\/body>/i,
+        '<body$1><main>$2</main></body>'
+      );
+    } else {
+      // If no body tag, wrap everything in main
+      modifiedContent = `<main>${modifiedContent}</main>`;
     }
   }
   
   return modifiedContent;
 }
 
-// Wrap main tags function (now also injects lang attribute)
-function wrapMainTags(htmlContent) {
-  // Inject lang attribute into the root element first
-  htmlContent = addLangAttributeToHtml(htmlContent);
+// Validate landmark structure - ensures proper landmark nesting and structure
+// This addresses REACT_025: React Unique Landmarks and REACT_017: React Landmarks
+function validateLandmarkStructure(htmlContent) {
+  // Ensure proper landmark nesting and structure
+  let modifiedContent = htmlContent;
   
-  // Check if the HTML content already has <main> tag
-  const isMainTagExists = /<main[\s>]/i.test(htmlContent);
-
-  if (!isMainTagExists) {
-    // Wrap the content inside a <main> tag
-    const container = htmlContent;
-    const modifiedContent = `<main>${container}</main>`;
-    return modifiedContent;
+  // Add header landmark if missing
+  if (!/<header/i.test(modifiedContent)) {
+    modifiedContent = modifiedContent.replace(
+      /(<body[^>]*>)/i,
+      '$1<header role="banner"><nav aria-label="Main navigation"></nav></header>'
+    );
   }
-
-  return htmlContent;
+  
+  // Add footer landmark if missing
+  if (!/<footer/i.test(modifiedContent)) {
+    modifiedContent = modifiedContent.replace(
+      /(<\/body>)/i,
+      '<footer role="contentinfo"></footer>$1'
+    );
+  }
+  
+  // Ensure nav has proper aria-label for uniqueness
+  const navRegex = /<nav(\s+[^>]*)?>/gi;
+  let navCount = 0;
+  modifiedContent = modifiedContent.replace(navRegex, (match, attrs) => {
+    navCount++;
+    if (attrs && /aria-label=/i.test(attrs)) {
+      return match;
+    }
+    if (navCount === 1) {
+      return match.replace('>', ' aria-label="Main navigation">');
+    } else {
+      return match.replace('>', ` aria-label="Secondary navigation ${navCount}">`);
+    }
+  });
+  
+  return modifiedContent;
 }
 
-// New function to fix 26 table structure issues
-function fixTableStructureIssues(htmlContent) {
-  return validateTableAccessibility(validateTableStructure(htmlContent));
+// Get SVG accessible name - ensures SVG elements have accessible names
+// This addresses REACT_041: React SVG Accessible Name
+function getSvgAccessibleName(svgContent, accessibleName) {
+  if (!accessibleName) return svgContent;
+  
+  // Add title element to SVG for accessibility
+  if (!/<title/i.test(svgContent)) {
+    // Find the first child element position
+    const firstChildMatch = svgContent.match(/<svg[^>]*>([\s\S]*)$/i);
+    if (firstChildMatch) {
+      const content = firstChildMatch[1];
+      const firstElementMatch = content.match(/<[a-zA-Z][^>]*>/);
+      if (firstElementMatch && firstElementMatch.index !== undefined) {
+        const titleElement = `<title>${accessibleName}</title>`;
+        const insertPos = firstElementMatch.index;
+        return svgContent.replace(
+          /<svg([^>]*)>([\s\S]*)$/i,
+          `<svg$1>${titleElement}${content}`
+        );
+      }
+    }
+    // Fallback: prepend title
+    return svgContent.replace(/<svg([^>]*)>/, `<svg$1><title>${accessibleName}</title>`);
+  }
+  
+  return svgContent;
 }
 
-// New function to ensure unique landmarks
-function ensureUniqueLandmarks(htmlContent) {
-  return validateLandmark(validateLandmarkStructure(htmlContent));
+// Create accessible link - ensures links have proper attributes
+// This addresses REACT_036: React Fake Link
+function createAccessibleLink(url, text, options = {}) {
+  const { className = '', target = '_self', rel = '', ariaLabel = '' } = options;
+  
+  let relAttr = rel;
+  if (!relAttr && target === '_blank') {
+    relAttr = 'noopener noreferrer';
+  }
+  
+  const relString = relAttr ? ` rel="${relAttr}"` : '';
+  const classString = className ? ` class="${className}"` : '';
+  const ariaLabelString = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
+  
+  return `<a href="${url}" target="_${target}"${relString}${classString}${ariaLabelString}>${text}</a>`;
 }
 
-// Export wrapMainTags function
-module.exports = {
-  // ... existing exports ...
-  wrapMainTags,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createAccessibleLink,
-  createInPageButton,
-  addAccessibleNameToSVGs,
-  fixTableStructureIssues, // Corrected typo from 'fixTableStructureIsses' to 'fixTableStructureIssues'
-  ensureUniqueLandmarks
-};
+// Create in-page button
+function createInPageButton(text, options = {}) {
+  const { className = '', id = '', ariaLabel = '', type = 'button', disabled = false } = options;
+  
+  const idAttr = id ? ` id="${id}"` : '';
+  const classAttr = className ? ` class="${className}"` : '';
+  const ariaAttr = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
+  const disabledAttr = disabled ? ' disabled' : '';
+  
+  return `<button${idAttr}${classAttr}${ariaAttr} type="${type}"${disabledAttr}>${text}</button>`;
+}
+
+// Function to add accessible name to SVG elements
+// This addresses REACT_041: React SVG Accessible Name
+function addSvgAccessibleNames(htmlContent, defaultName = 'Decorative image') {
+  // Regex to find SVG elements
+  const svgRegex = /<svg([^>]*)>([\s\S]*?)<\/svg>/gi;
+  
+  let modifiedContent = htmlContent;
+  let match;
+  
+  // Loop through all SVG elements and add accessible name if missing
+  while ((match = svgRegex.exec(modifiedContent)) !== null) {
+    const svgOpenTag = match[1];
+    const svgInnerContent = match[2];
+    
+    // Check if SVG already has a title, aria-label, or aria-hidden
+    const hasTitle = /<title/i.test(svgInnerContent);
+    const hasAriaLabel = /aria-label=/i.test(svgOpenTag);
+    const isAriaHidden = /aria-hidden=["']true["']/i.test(svgOpenTag);
+    
+    // If SVG is hidden from screen readers, skip it
+    if (isAriaHidden) {
+      continue;
+    }
+    
+    // If SVG already has accessible name, skip it
+    if (hasTitle || hasAriaLabel) {
+      continue;
+    }
+    
+    // Get accessible name from title if it exists
+    let accessibleName = defaultName;
+    const titleMatch = svgInnerContent.match(/<title[^>]*>([^<]*)<\/title>/i);
+    if (titleMatch) {
+      accessibleName = titleMatch[1].trim();
+    }
+    
+    // Add accessible name to the SVG
+    const svgFull = match[0];
+    const newSvg = getSvgAccessibleName(svgFull, accessibleName);
+    modifiedContent = modifiedContent.replace(svgFull, newSvg);
+  }
+  
+  return modifiedContent;
+}
+
+// Wrap main tags function (now also injects lang attribute)
+// This addresses

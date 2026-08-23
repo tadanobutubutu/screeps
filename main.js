@@ -11,15 +11,13 @@
 
   // New function to add scope attribute to th elements
   function addScopeToTh(element) {
-    if (element.nodeName === "TH") {
+    if (element && element.nodeName === "TH") {
       element.setAttribute("scope", "col");
     }
   }
 
   // ... Existing code ...
 
-  // Example usage of addScopeToTh function
-  // Assuming there is a function that creates table headers and appends them to the DOM
   function createTableHeaders(headers) {
     const table = document.createElement("table");
     headers.forEach(headerText => {
@@ -33,37 +31,41 @@
 
   // ... Existing code ...
 
-  // New function to replace the fake link with a button for better accessibility
   function replaceFakeLinkWithButton() {
     const fakeLink = document.getElementById("unrotate");
     if (fakeLink) {
       const button = document.createElement("button");
       button.textContent = "rotate back";
-      button.onclick = fakeLink.onclick; // Copy the onclick handler to the new button
+      button.onclick = fakeLink.onclick;
+      // Copy any additional properties/handlers if necessary
       fakeLink.parentNode.replaceChild(button, fakeLink);
     }
   }
 
-  // Add a way to pass multiple elements to the 'addScopeToTh' function instead of just one.
   function addScopeToThs(elements) {
-    elements.each(function() {
-      addScopeToTh($(this));
-    });
+    if (elements && elements.length) {
+      elements.forEach(element => {
+        addScopeToTh(element);
+      });
+    } else if (elements && typeof elements.each === "function") {
+      // Fallback for jQuery-like objects
+      elements.each(function() {
+        addScopeToTh(this);
+      });
+    }
   }
 
   // ... Existing code ...
 
-  // Call the new function to replace the fake link when the script loads
   replaceFakeLinkWithButton();
 
   // ... Existing code ...
 
-  // Export the new functions
   module.exports = {
     wrapContentInMain,
     addScopeToTh,
     createTableHeaders,
     replaceFakeLinkWithButton,
-    addScopeToThs  // Add the new export
+    addScopeToThs
   };
 })();

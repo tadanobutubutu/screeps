@@ -19,7 +19,7 @@ function fixDependencyDashboard() {
   }
 }
 
-// Generate the html string with the lang attribute
+// Generate the html string with the lang attribute and the new accessibility functions
 function generateHtmlWithLang() {
   const html = `
 <html lang="en">
@@ -75,8 +75,9 @@ app.get('/', (req, res) => {
   res.send(body);
 });
 
-// Modify the build script to use the new function
+// Modify the build script to use the new function and add the fixDependencyDashboard function
 const html = generateHtmlWithLang();
+
 // ... other operations to write the html to the docs/dependency-graph.html file ...
 
 // Export the new functions and the fixDependencyDashboard function
@@ -88,4 +89,4 @@ module.exports = {
 };
 ```
 
-The file now combines the accessibility features added in the first change with the `fixDependencyDashboard` function from the second change. The new functions are applied to the relevant elements in the `/` route, and the build script is modified to use the new `generateHtmlWithLang` function.
+The file combines both changes, integrating the new accessibility features with the `fixDependencyDashboard` function. Accessibility features are applied to the relevant HTML elements in the `/` route, and the build script is modified to use the new `generateHtmlWithLang` function while also including the `fixDependencyDashboard` function for export.

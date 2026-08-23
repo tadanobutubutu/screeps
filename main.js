@@ -66,7 +66,7 @@ function fixReactSVGAccessibility() {
 
   layoutFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
@@ -75,7 +75,7 @@ function fixReactSVGAccessibility() {
           /<svg([^>]*?)>/gi,
           (match, attrs) => {
             if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label')) {
-              return `<svg aria-hidden="true"${attrs}>`;
+              return `<svg${attrs} aria-hidden="true">`;
             }
             return match;
           }
@@ -108,12 +108,12 @@ function fixReactLandmarkIssues() {
   // Fix TSX files - wrap {children} in <main> tags
   tsxLayoutFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (content.includes('{children}') && !content.includes('<main')) {
+        if (!content.includes('<main') && !content.includes('<Main')) {
           // Replace {children} with <main>{children}</main>
           content = content.replace(
             /\{children\}/g,
@@ -132,15 +132,15 @@ function fixReactLandmarkIssues() {
   // Fix HTML files - wrap body content in <main> tags
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (content.includes('<body') && !content.includes('<main')) {
+        if (!content.includes('<main')) {
           // Wrap content between <body> tags in <main> tags
           content = content.replace(
-            /<body([^>]*)>([\s\S]*?)<\/body>/g,
+            /<body([^>]*)>([\s\S]*)<\/body>/gi,
             (match, attrs, bodyContent) => {
               return `<body${attrs}><main>${bodyContent}</main></body>`;
             }
@@ -167,7 +167,7 @@ function addLangAttribute() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
@@ -192,7 +192,7 @@ function addLangAttribute() {
 }
 
 // New function to fix table structure issues
-function fixTableStructureIssues() {
+function fixTableStructure() {
   console.log('Fixing table structure issues');
   
   const htmlFiles = [
@@ -202,18 +202,18 @@ function fixTableStructureIssues() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Add <thead> and <tbody> to tables if missing
         content = content.replace(
-          /<table([^>]*)>([\s\S]*?)<\/table>/g,
+          /<table([^>]*)>([\s\S]*?)<\/table>/gi,
           (match, attrs, tableContent) => {
             // Only wrap if there's no thead or tbody
             if (!tableContent.includes('<thead') && !tableContent.includes('<tbody')) {
               // Simple heuristic: first row becomes thead, rest becomes tbody
-              const rows = tableContent.match(/<tr[^>]*>[\s\S]*?<\/tr>/g) || [];
+              const rows = tableContent.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
               if (rows.length > 0) {
                 const theadRow = rows[0];
                 const tbodyRows = rows.slice(1).join('');
@@ -260,13 +260,13 @@ function fixFakeLinkIssues() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Replace <div onclick> pseudo-links with <a href> or proper buttons
         content = content.replace(
-          /<div([^>]*)onclick([^>]*)>/g,
+          /<div([^>]*)onclick([^>]*)>/gi,
           (match, before, after) => {
             // Convert to button element
             return `<button${before}${after}>`;
@@ -275,10 +275,10 @@ function fixFakeLinkIssues() {
         
         // Ensure links have proper href attributes
         content = content.replace(
-          /<a([^>]*)href=""/g,
+          /<a([^>]*?)>/gi,
           (match, attrs) => {
-            if (!attrs.includes('href')) {
-              return `<a href="#"`;
+            if (!attrs.includes('href=')) {
+              return `<a href="#">`;
             }
             return match;
           }
@@ -287,21 +287,3 @@ function fixFakeLinkIssues() {
         fs.writeFileSync(filePath, content);
         console.log(`Replaced fake links with proper links in ${file}`);
       }
-    } catch (error) {
-      console.error(`Error fixing fake links in ${file}:`, error.message);
-    }
-  });
-}
-
-// Existing code continues below (preserved)
-function existingFunction() {
-  // ... existing implementation
-}
-
-// Add any new exports for the dependency updates
-exports.handleReact19Update = handleReact19Update;
-exports.handleJest30Update = handleJest30Update;
-exports.handleEslint10Update = handleEslint10Update;
-exports.handleTypeScript7Update = handleTypeScript7Update;
-exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
-exports.fixReactLandmarkIssues = fixReactLandmarkIssues;

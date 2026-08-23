@@ -1,6 +1,8 @@
 import React from 'react';
 import { useEffect } from 'react';
 
+// TODO: This is the existing code that needs to be preserved
+
 function Header() {
   // ... existing code here
 }
@@ -47,7 +49,7 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main');
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
@@ -59,7 +61,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementById('main') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -144,6 +146,10 @@ function validateLandmark() {
 }
 
 function getElementRole() {
+  // ... existing logic ...
+}
+
+function validateLandmarkRoles() {
   // ... existing logic ...
 }
 

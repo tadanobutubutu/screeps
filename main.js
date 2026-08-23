@@ -1,3 +1,14 @@
+// Existing code and exports from main.js
+
+// New function or changes requested in the issue
+const setLanguageAttribute = () => {
+  document.documentElement.lang = 'en';
+};
+
+// Ensure the language attribute is set when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', setLanguageAttribute);
+
+// Dashboard component from origin/main
 import React, { useState } from 'react';
 
 function Dashboard() {

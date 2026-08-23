@@ -274,7 +274,180 @@ function validateLinkAccessibility(linkText, context = {}) {
   return { valid: true };
 }
 
-// Export all utilities
+/**
+ * Generate proper table header configuration for accessibility
+ * @param {Object} options - Configuration options
+ * @param {string} options.scope - Scope for the header ('row' or 'col')
+ * @param {string} options.caption - Table caption text
+ * @param {boolean} options.hasHeaderRow - Whether table has header row
+ * @returns {Object} Complete table accessibility configuration
+ */
+function generateTableHeaderConfig(options = {}) {
+  const config = {
+    scope: options.scope || 'col',
+    captions: [],
+    headers: []
+  };
+  
+  if (options.caption) {
+    config.captions.push({
+      value: options.caption,
+      id: `caption-${Date.now()}`
+    });
+  }
+  
+  if (options.headers && Array.isArray(options.headers)) {
+    options.headers.forEach((header, index) => {
+      config.headers.push({
+        text: header,
+        scope: options.scope || 'col',
+        id: `header-${index}`
+      });
+    });
+  }
+  
+  return config;
+}
+
+/**
+ * Generate accessible landmark props for React elements
+ * @param {string} landmarkType - Type of landmark
+ * @param {string} label - Accessible label for the landmark
+ * @param {Object} options - Additional options
+ * @returns {Object} Props object with accessibility attributes
+ */
+function generateLandmarkProps(landmarkType, label, options = {}) {
+  const props = {
+    'data-testid': `${landmarkType}-landmark`
+  };
+  
+  if (label) {
+    props['aria-label'] = label;
+  }
+  
+  switch (landmarkType) {
+    case 'header':
+      props.role = 'banner';
+      break;
+    case 'nav':
+      props.role = 'navigation';
+      break;
+    case 'main':
+      props.role = 'main';
+      break;
+    case 'aside':
+      props.role = 'complementary';
+      break;
+    case 'footer':
+      props.role = 'contentinfo';
+      break;
+    case 'section':
+      props.role = 'region';
+      if (label) {
+        props['aria-labelledby'] = `${label.toLowerCase()}-heading`;
+      }
+      break;
+    case 'article':
+      props.role = 'article';
+      break;
+    default:
+      props.role = landmarkType;
+  }
+  
+  return props;
+}
+
+/**
+ * Generate accessible SVG element props
+ * @param {string} description - SVG accessible name/description
+ * @param {Object} options - Additional options
+ * @returns {Object} Props object for SVG element
+ */
+function generateSvgProps(description, options = {}) {
+  return {
+    role: 'img',
+    'aria-label': description,
+    focusable: 'false',
+    ...(options.ariaHidden && { 'aria-hidden': true })
+  };
+}
+
+/**
+ * Track landmarks to ensure uniqueness across components
+ * @param {string} landmarkType - Type of landmark
+ * @param {string} label - Label for the landmark
+ * @param {Object} landmarkRegistry - Registry of existing landmarks
+ * @returns {Object} Landmark configuration with unique identifier
+ */
+function ensureUniqueLandmark(landmarkType, label, landmarkRegistry = {}) {
+  const registryKey = `${landmarkType}-${label || 'unlabeled'}`;
+  
+  if (landmarkRegistry[registryKey]) {
+    const uniqueLabel = `${label || landmarkType}-${Object.keys(landmarkRegistry).length}`;
+    landmarkRegistry[registryKey] = uniqueLabel;
+    return {
+      type: landmarkType,
+      label: uniqueLabel,
+      isUnique: true
+    };
+  }
+  
+  landmarkRegistry[registryKey] = label || landmarkType;
+  return {
+    type: landmarkType,
+    label: label || landmarkType,
+    isUnique: true
+  };
+}
+
+/**
+ * Generate accessible link attributes
+ * @param {string} linkText - Text content for the link
+ * @param {string} href - Link destination
+ * @param {Object} options - Additional options
+ * @returns {Object} Props object for link element
+ */
+function generateLinkProps(linkText, href, options = {}) {
+  const props = {
+    href: href || '#',
+    role: 'link',
+    tabIndex: 0
+  };
+  
+  if (linkText && linkText.trim() !== '' && linkText !== '#' && linkText !== 'javascript:void(0)') {
+    props['aria-label'] = linkText;
+    props.children = linkText;
+  } else {
+    props['aria-label'] = options.accessibleName || 'Link';
+  }
+  
+  if (options.target) {
+    props.target = options.target;
+  }
+  
+  if (options.rel) {
+    props.rel = options.rel;
+  }
+  
+  return props;
+}
+
+/**
+ * Generate HTML lang attribute configuration
+ * @param {string} language - Language code
+ * @param {string} direction - Text direction ('ltr' or 'rtl')
+ * @returns {Object} HTML element attributes
+ */
+function generateHtmlAttributes(language = 'en', direction = 'ltr') {
+  return {
+    lang: getLangAttribute(language),
+    dir: direction
+  };
+}
+
+/**
+ * Export all utilities
+ */
 module.exports = {
   DEPENDENCY_UPDATES,
   checkCompatibility,
@@ -288,7 +461,14 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   getTableScopeRecommendation,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  // Enhanced accessibility functions
+  generateTableHeaderConfig,
+  generateLandmarkProps,
+  generateSvgProps,
+  ensureUniqueLandmark,
+  generateLinkProps,
+  generateHtmlAttributes
 };
 
 // Run if executed directly
@@ -298,7 +478,7 @@ if (require.main === module) {
   
   updates.forEach(update => {
     console.log(`Updating ${update.dependency}:`);
-    console.log(`  ${update.from} → ${update.to}`);
+    console.log(`  ${update.from} → ${update.next}`);
     if (update.breaking.hasBreaking) {
       console.log(`  WARNING: ${update.breaking.note}`);
     }

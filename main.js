@@ -30,6 +30,16 @@ function renderLandmarkStructure(content) {
   `;
 }
 
+// REACT_036 fix: Replace fake link (<a href="#">) with a <button> for in-page actions
+// This ensures proper keyboard interaction and correct screen reader announcement
+function renderInPageAction(label, actionId) {
+  return `
+    <button type="button" id="${actionId || ''}" aria-label="${label}">
+      ${label}
+    </button>
+  `;
+}
+
 // Main render function
 function renderApp() {
   var appContent = document.getElementById('app');
@@ -38,6 +48,7 @@ function renderApp() {
       <h1>Welcome</h1>\
       ' + renderAccessibleSVG('Decorative circle icon', 'icon-1') + '\
       <button type="button" aria-label="Click me">Click me</button>\
+      <p>' + renderInPageAction('rotate back', 'unrotate') + '</p>\
     ');
   }
 }
@@ -51,5 +62,6 @@ if (typeof document !== 'undefined') {
 export {
   renderAccessibleSVG,
   renderLandmarkStructure,
-  renderApp
+  renderApp,
+  renderInPageAction
 };

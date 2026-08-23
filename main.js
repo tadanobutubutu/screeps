@@ -1,5 +1,3 @@
-// optionally merge all changes, ripple effects may occur while testing
-// or choose the 'git checkout --theirs' command to keep all changes in main.js
 import Head from 'next/head';
 
 export default function Main() {
@@ -13,8 +11,8 @@ export default function Main() {
       <nav aria-label="Main navigation">
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a ...
-          <li><a ...
+          <li><a ...>About</a></li>
+          <li><a ...>Contact</a></li>
         </ul>
       </nav>
       
@@ -49,14 +47,14 @@ export default function Main() {
           <caption>Pricing Plans</caption>
           <thead>
             <tr>
-              <th ...
+              <th scope="col">Plan</th>
               <th scope="col">Price</th>
               <th scope="col">Support</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th ...
+              <th scope="row">Free</th>
               <td>$9.99</td>
               <td>Standard support</td>
             </tr>

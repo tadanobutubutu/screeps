@@ -11,3 +11,12 @@ module.exports.loop = function () {
 module.exports.init = function () {
   return 'initialized';
 };
+
+// Add necessary scope attributes to th elements in HTML for accessibility
+const updateDependencyGraphHTML = () => {
+  const dependencyGraphHTML = require('../docs/dependency-graph.html');
+  let updatedContent = dependencyGraphHTML.replace(/<th>/g, '<th scope="col">');
+  return updatedContent;
+};
+
+module.exports.updateDependencyGraphHTML = updateDependencyGraphHTML;

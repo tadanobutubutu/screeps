@@ -186,6 +186,27 @@ function isWithinLandmark(element, roles) {
   return false;
 }
 
+// Add lang attribute to HTML element (REACT_015)
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks() {
+  const seenRoles = new Map();
+  document.querySelectorAll('[role]').forEach(element => {
+    const role = element.getAttribute('role');
+    if (role && !seenRoles.has(role)) {
+      seenRoles.set(role, element);
+    } else if (role && seenRoles.has(role)) {
+      element.removeAttribute('role');
+    }
+  });
+}
+
 myNewFunction = function() { /* Custom game loop logic */ }; // Move myNewFunction to original position below exports
 
 module.exports = {
@@ -207,5 +228,7 @@ module.exports = {
     tableHeaders.forEach(header => {
       header.setAttribute('scope', 'col');
     });
-  }
+  },
+  addLangAttribute,
+  ensureUniqueLandmarks
 };

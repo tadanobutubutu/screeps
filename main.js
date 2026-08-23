@@ -94,25 +94,42 @@ export default function Home({ projects }) {
     { Header: 'Updated', accessor: 'updated' },
   ];
 
+  // Ensure unique landmark IDs
+  ensureUniqueLandmarks([
+    { id: 'header' },
+    { id: 'main-navigation' },
+    { id: 'main-content' },
+    { id: 'footer' },
+  ]);
+
+  // Add ARIA label to a skip link (fake link fix)
+  const skipLink = addAriaLabelToFakeLink('Skip to main content', 'Skip to main content', '/#main-content');
+
+  // Add lang attribute dynamically
+  const langAttr = addLangAttribute('en');
+
   return (
-    <div lang="en">
+    <div {...langAttr}>
+      {/* Skip link for accessibility */}
+      {skipLink}
+      
       <Head>
         <title>Project Manager</title>
       </Head>
       
-      <header role="banner">
+      <header role="banner" id="header">
         <h1>Accessibility Fixed Page</h1>
       </header>
 
-      <main>
-        <nav role="navigation" aria-label="Main navigation">
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/contact">Contact</a></li>
-          </ul>
-        </nav>
+      <nav role="navigation" aria-label="Main navigation" id="main-navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
 
+      <main id="main-content">
         <section>
           <h2>Project List</h2>
             
@@ -140,13 +157,13 @@ export default function Home({ projects }) {
         <section>
           <h2 id="icons-heading">Accessible Icons</h2>
           <div className="icons-container">
-            <createAccessibleSVG iconName="Settings" />
-            <createAccessibleSVG iconName="Home" />
+            <createAccessibleSVG iconName="Settings icon" />
+            <createAccessibleSVG iconName="Home icon" />
           </div>
         </section>
       </main>
 
-      <footer role="contentinfo">
+      <footer role="contentinfo" id="footer">
         <p>&copy; 2024 Project Manager</p>
       </footer>
     </div>

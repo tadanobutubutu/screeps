@@ -248,6 +248,9 @@ function createFooterLandmark() {
   return footer;
 }
 
+// Apply the language attribute to the HTML element on module load
+addLangToHtml();
+
 // Export functions for testing
 export {
   addLangAttribute,

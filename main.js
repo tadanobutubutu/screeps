@@ -9,6 +9,6 @@ const newFunc = () => {
 
 module.exports = {
   mainFunc,
-  newFunc, // Added new function to the exports
+  newFunc, // Added new function to the exports,
   // ... other exports if any ...
 };

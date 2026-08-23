@@ -1,5 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: Add back any required exports that might have been removed
+// Here is an example of how to export a required function from another file:
 
 // EXISTING AND PRESERVED CODE ...
 
@@ -8,7 +8,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -16,7 +16,7 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
         const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
@@ -84,11 +84,11 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });

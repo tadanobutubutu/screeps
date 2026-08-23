@@ -38,6 +38,7 @@ function App() {
           height="24" 
           viewBox="0 0 24 24" 
           role="img" 
+          aria-label="Close menu"
           aria-hidden="true"
         >
           <title>Close Menu</title>

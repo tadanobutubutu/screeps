@@ -50,6 +50,12 @@ const myNewFunction2 = () => {
   console.log('Another new function called successfully!');
 };
 
+// Add a new function `myNewFunction3` for demonstration purposes
+const myNewFunction3 = () => {
+  // Add your new function code here - for demonstration purposes only
+  console.log('Third new function called successfully!');
+};
+
 // Function to add lang attribute to HTML element
 const addLangAttribute = () => {
   document.documentElement.lang = 'en';
@@ -59,34 +65,28 @@ const addLangAttribute = () => {
 const fixTableStructureIssues = () => {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    table.setAttribute('role', 'table');
-    
-    // Ensure proper table structure with thead and tbody
+    // Ensure tables have proper structure with thead and tbody
     if (!table.querySelector('thead')) {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('th, td');
-        const headerRow = document.createElement('tr');
-        headerCells.forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          headerRow.appendChild(th);
-        });
+        const headerRow = firstRow.cloneNode(true);
         thead.appendChild(headerRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
-    
     if (!table.querySelector('tbody')) {
       const rows = table.querySelectorAll('tr');
-      const tbody = document.createElement('tbody');
-      rows.forEach(row => {
-        if (row.parentElement !== table.querySelector('thead')) {
-          tbody.appendChild(row);
-        }
-      });
-      table.appendChild(tbody);
+      if (rows.length > 0) {
+        const tbody = document.createElement('tbody');
+        rows.forEach((row, index) => {
+          // Skip if this row was moved to thead
+          if (index > 0 || !table.querySelector('thead')) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
     }
   });
 };
@@ -104,8 +104,16 @@ const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach(svg => {
+    const existingTitle = svg.querySelector('title');
+    if (!existingTitle) {
+      const title = document.createElement('title');
+      title.textContent = `SVG icon ${svgIndex + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+    svg.setAttribute('role', 'img');
+    const ariaLabel = svg.getAttribute('aria-label') || svg.querySelector('title')?.textContent || '';
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG ${svgIndex + 1}`);
+      svg.setAttribute('aria-label', ariaLabel);
     }
     svgIndex++;
   });
@@ -115,13 +123,21 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : role === 'navigation' ? 'nav' : role === 'search' ? 'search' : role}`);
     if (elements.length > 1) {
-      // Keep only the first occurrence, add secondary landmark to others
-      for (let i = 1; i < elements.length; i++) {
-        const existingRole = elements[i].getAttribute('role') || role;
-        elements[i].setAttribute('role', `${existingRole}-${i + 1}`);
-      }
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          if (role === 'navigation') {
+            element.removeAttribute('role');
+          } else if (role === 'search') {
+            // Keep search but ensure proper labeling
+            const searchInput = element.querySelector('input');
+            if (searchInput && !searchInput.getAttribute('aria-label')) {
+              searchInput.setAttribute('aria-label', 'Search');
+            }
+          }
+        }
+      });
     }
   });
 };
@@ -130,20 +146,15 @@ const ensureUniqueLandmarks = () => {
 const fixFakeLinkIssues = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
-    // Check if link has no href or empty href
-    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
-      // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && link.querySelector('img')) {
-        link.setAttribute('aria-label', 'Navigation link');
-      }
-    }
-    // Ensure all links have accessible text
-    if (!link.textContent.trim()) {
-      const img = link.querySelector('img');
-      if (img && img.alt) {
-        link.setAttribute('aria-label', img.alt);
-      } else if (!img) {
-        link.setAttribute('aria-label', 'Link');
+    const href = link.getAttribute('href');
+    // Check if it's a fake link (no href or href is just #)
+    if (!href || href === '#' || href === '') {
+      // Convert to button if it should be a button
+      const isInteractive = link.onclick || link.classList.contains('clickable') || link.getAttribute('role') === 'button';
+      if (isInteractive) {
+        link.setAttribute('role', 'button');
+        // Remove href to make it semantically a button
+        link.removeAttribute('href');
       }
     }
   });
@@ -159,9 +170,6 @@ const enhanceAccessibility = () => {
   ensureUniqueLandmarks();
   fixFakeLinkIssues();
 };
-
-// Alias for compatibility
-const enhancedAccessibility = enhanceAccessibility;
 
 // Unrotate functionality – ensures semantic HTML
 const initUnrotate = () => {
@@ -231,24 +239,5 @@ if (typeof document !== 'undefined') {
 }
 
 // Export all functions and the Dashboard component
-export default Dashboard;
-export {
-  myFunction,
-  myMissingFunction1,
-  myMissingFunction2,
-  myNewFunction,
-  myNewFunction2,
-  enhanceAccessibility,
-  enhancedAccessibility,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssues,
-  initUnrotate,
-  initDomEnhancements,
-  initializeAccessibility,
-  fixMainElements,
-  renderDependencyGraph,
-};
+export { myFunction, myMissingFunction1, myMissingFunction2, myNewFunction, myNewFunction2, myNewFunction3, enhanceAccessibility, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssues, initUnrotate, initDomEnhancements, initializeAccessibility, fixMainElements, renderDependencyGraph };
+```

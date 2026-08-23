@@ -68,19 +68,6 @@ function processChildrenForLang(element) {
   return element;
 }
 
-// Export functions for testing
-export {
-  addLangAttribute,
-  processChildrenForLang,
-  // Add the following functions for testing landmarks and SVG accessibility
-  addAccessibleNameToSVG,
-  getSVGAccessibleName,
-  ensureUniqueAccessibleSVGIds,
-  fixFakeLinkIssue,
-  // ... keep the rest of the exports as is
-  icons,
-};
-
 /**
  * Adds an accessible name to an SVG element.
  * @param {SVGElement} svgElement SVG element to modify
@@ -207,3 +194,15 @@ function fixFakeLinkIssue(element, href) {
 
   return anchorElement;
 }
+
+// Export functions for testing
+export {
+  addLangAttribute,
+  processChildrenForLang,
+  addAccessibleNameToSVG,
+  getSVGAccessibleName,
+  createAccessibilityProps,
+  ensureUniqueAccessibleSVGIds,
+  fixFakeLinkIssue,
+  icons,
+};

@@ -106,6 +106,28 @@ async function addMainLandmark() {
     }
 }
 
+/**
+ * Adds aria-label to SVGs that are decorative or informational
+ */
+async function addAccessibleNamesToSVGs() {
+    try {
+        console.log('Adding accessible names to SVGs for accessibility...');
+        const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
+        for (const filePath of filesToUpdate) {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const updatedContent = fileContent.replace(/<svg[^>]*>/g, (match) => {
+                return match.replace(/<svg/g, '<svg aria-label="Decorative SVG"');
+            });
+            fs.writeFileSync(filePath, updatedContent);
+            console.log(`Accessible name added to SVGs in ${filePath}`);
+        }
+        console.log('All HTML files have been updated with accessible names for SVGs.');
+    } catch (error) {
+        console.error('Error adding accessible names to SVGs:', error);
+        throw error;
+    }
+}
+
 // Export utilities for testing
 module.exports = {
     generateDependencyGraph,
@@ -114,5 +136,6 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
+    addAccessibleNamesToSVGs,
     main
 };

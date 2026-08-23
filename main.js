@@ -1,1 +1,21 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import { useState } from 'react';
+
+function manageNightMode() {
+  document.documentElement.className =
+    document.documentElement.className.includes("dark") ? "light" : "dark";
+}
+
+function ToggleNightMode() {
+  const [isDark, setIsDark] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => {
+        manageNightMode();
+        setIsDark(!isDark);
+      }}>
+        Toggle Night Mode
+      </button>
+    </div>
+  );
+}

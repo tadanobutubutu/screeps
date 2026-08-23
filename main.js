@@ -1,6 +1,9 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
+// Import required module(s) here (if any modules are needed, add them below)
+// Example: const someModule = require('some-module');
+
 module.exports = {
   // Export functions or values as needed
   someFunction: function() {

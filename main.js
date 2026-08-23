@@ -1,7 +1,4 @@
-Here is the resolved file content:
-
-```javascript
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function customHead() {
@@ -77,9 +74,9 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-labelledby') && !main.getAttribute('aria-label')) {
+    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
       if (index === 0) {
-        main.setAttribute('aria-labelledby', 'main-heading');
+        main.setAttribute('aria-label', 'Main content');
       } else {
         main.setAttribute('aria-label', `Main content section ${index + 1}`);
       }
@@ -132,14 +129,29 @@ function ensureUniqueLandmarks() {
     section: document.querySelectorAll('section')
   };
 
-  // Add unique labels to duplicate landmarks
+  // Add unique labels to duplicate landmarks and keep a single <main>
   Object.keys(landmarks).forEach((landmarkType) => {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
-        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-          const label = `${landmarkType} ${index + 1}`;
-          element.setAttribute('aria-label', label);
+        if (landmarkType === 'main' && index > 0) {
+          // Convert extra <main> elements to <section> so only one main landmark remains
+          const section = document.createElement('section');
+          for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            section.setAttribute(attr.name, attr.value);
+          }
+          while (element.firstChild) {
+            section.appendChild(element.firstChild);
+          }
+          if (element.parentNode) {
+            element.parentNode.replaceChild(section, element);
+          }
+        } else {
+          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+            const label = `${landmarkType} ${index + 1}`;
+            element.setAttribute('aria-label', label);
+          }
         }
       });
     }
@@ -160,7 +172,25 @@ function addSvgAccessibleNames() {
   });
 }
 
+// NEW FUNCTION: Add aria-label to the 'myDiv' element
+function addAriaLabelToMyDiv() {
+  const myDiv = document.getElementById('myDiv');
+  if (myDiv) {
+    myDiv.setAttribute('aria-label', 'My div');
+  }
+}
+
 function App() {
+  // Apply accessibility fixes when component mounts
+  useEffect(() => {
+    addLangAttribute();
+    addMainLandmark();
+    fixTableStructureIssues();
+    ensureUniqueLandmarks();
+    addSvgAccessibleNames();
+    addAriaLabelToMyDiv();
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -168,16 +198,31 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          {/* Existing App content */}
+          <h1>Accessible Application</h1>
+          <div className="app-content">
+            {/* Existing App content */}
+
+            {/* Replace this anchor tag with a button for the "rotate back" functionality */}
+            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
+
+            {/* Example of adding scope attribute to a <th> element */}
+            <table>
+              <caption>Data table with accessible headers</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Header 1</th>
+                  <th scope="col">Header 2</th>
+                  <th scope="col">Header 3</th>
+                  <th scope="col">Header 4</th>
+                  {/* ... other headers ... */}
+                </tr>
+              </thead>
+              <tbody>
+                {/* ... table rows ... */}
+              </tbody>
+            </table>
+          </div>
         </main>
-        <script type="text/javascript">
-          // Apply accessibility fixes
-          addLangAttribute();
-          addMainLandmark();
-          fixTableStructureIssues();
-          ensureUniqueLandmarks();
-          addSvgAccessibleNames();
-        </script>
       </body>
     </html>
   );
@@ -185,5 +230,5 @@ function App() {
 
 export default App;
 
-export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
-```
+// Export the new functions
+export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };

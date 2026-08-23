@@ -1,7 +1,21 @@
 import React from 'react';
 import { useTable } from 'react-table';
 
-// TODO: Add back any required exports that might have been removed
+// Add ARIA attributes to improve accessibility
+export function addAriaAttributes() {
+  const mainElement = document.querySelector('#mainContent');
+  if (mainElement) {
+    if (!mainElement.hasAttribute('role')) {
+      mainElement.setAttribute('role', 'main');
+    }
+    if (!mainElement.hasAttribute('aria-label')) {
+      mainElement.setAttribute('aria-label', 'Main content');
+    }
+  }
+}
+addAriaAttributes();
+
+// Existing code and exports
 const restoredModule = require('./utils');
 
 // Existing code and exports

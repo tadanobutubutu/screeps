@@ -1,11 +1,1 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Fix language for the HTML root element
-
-(function() {
-  // Set lang attribute on the HTML element for accessibility (REACT_015)
-  var htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-})();
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

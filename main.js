@@ -1,12 +1,15 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 const someVar = require('some-module');
+
 function init() {
   // Existing code logic
 }
+
 module.exports.loop = function() {
   // Existing loop logic
 }
+
 // ----- END ORIGINAL CODE -----
 
 // BEGIN NEW FUNCTION ADDED REQUESTED IN ISSUE
@@ -24,15 +27,14 @@ module.exports.newFunction = newFunction;
 // Add lang attribute to HTML element (REACT_015)
 document.documentElement.lang = 'en';
 
-// Fix 26 table structure issues (REACT_027)
+// Fix table structure issues (REACT_027)
 document.querySelectorAll('table').forEach(function(table, index) {
-  // Example: Ensure each table has a caption
+  // Ensure each table has a caption
   if (!table.caption) {
     const caption = document.createElement('caption');
     caption.textContent = 'Table ' + (index + 1) + ' description';
     table.insertBefore(caption, table.firstChild);
   }
-  // Add other accessibility fixes as required
   // Ensure th elements have scope attributes
   table.querySelectorAll('th').forEach(function(th) {
     if (!th.getAttribute('scope')) {
@@ -70,14 +72,15 @@ document.querySelectorAll('svg').forEach(function(svg, index) {
 });
 
 // Ensure unique landmarks (2 issues) (REACT_025)
-document.querySelectorAll('aside, header, footer, nav, main').forEach(function(landmark, index) {
+const landmarkSelectors = 'header, footer, nav, aside, main, section, article';
+document.querySelectorAll(landmarkSelectors).forEach(function(landmark, index) {
   if (!landmark.id) {
     landmark.id = 'landmark-' + landmark.tagName.toLowerCase() + '-' + index;
   }
 });
 
 // Fix 1 fake link issue (REACT_036)
-document.querySelectorAll('a[rel~="noopener"][rel~="noreferrer"]').forEach(function(link) {
+document.querySelectorAll('a').forEach(function(link) {
   const rel = link.getAttribute('rel');
   if (rel && rel.includes('noopener') && rel.includes('noreferrer') && !link.target) {
     link.setAttribute('target', '_blank');

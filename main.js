@@ -13,10 +13,10 @@ function newFunction(element) {
     // Body rows
     element.querySelectorAll('tbody tr').forEach(row => {
       row.setAttribute('role', 'row');
-      row.querySelectorAll('td').forEach(cell => {
+      row.querySelectorAll('td, th').forEach(cell => {
         cell.setAttribute('role', 'gridcell');
         // Ensure unique accessible names for header cells
-        const cells = row.querySelectorAll('td');
+        const cells = row.querySelectorAll('td, th');
         const cellIndex = Array.from(cells).indexOf(cell);
         const headerCell = element.querySelector(`thead th:nth-child(${cellIndex + 1})`);
         if (headerCell) {
@@ -32,23 +32,27 @@ function newFunction(element) {
 
   // Add landmark roles for html elements (REACT_015)
   const htmlElement = document.documentElement;
-  if (htmlElement) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 
   // Add/fix 4 landmark issues (REACT_017)
   const landmarks = ['banner', 'navigation', 'main', 'contentinfo'];
   let landmarkIndex = 0;
-  document.querySelectorAll('[role="main"], [role="complementary"], header, nav, main, footer').forEach(landmark => {
+  const landmarkElements = document.querySelectorAll('[role="complementary"], header, nav, main, footer');
+  landmarkElements.forEach(landmark => {
     if (landmark && landmarkIndex < landmarks.length) {
-      landmark.setAttribute('role', landmarks[landmarkIndex++]);
+      if (!landmark.hasAttribute('role')) {
+        landmark.setAttribute('role', landmarks[landmarkIndex++]);
+      }
     }
   });
 
   // Fix 1 fake link issue (REACT_036)
   // Find all anchor elements without href and set them as buttons instead
-  document.querySelectorAll('a').forEach(link => {
-    if (!link.getAttribute('href')) {
+  const anchors = document.querySelectorAll('a:not([href])');
+  anchors.forEach(link => {
+    if (link) {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
@@ -74,7 +78,7 @@ function newFunction(element) {
       });
 
   // Ensure unique landmarks (REACT_025) - Updated code added below
-  const landmarkCollection = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarkCollection = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
   const countByRole = new Map();
 
   landmarkCollection.forEach(landmark => {

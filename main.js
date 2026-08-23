@@ -272,29 +272,27 @@ export function addTableScopeAttributes(container = document) {
 
 // Fix REACT_015: Set language attribute on HTML element
 function setLanguageAttribute(lang) {
-    document.documentElement.lang = lang;
+    document.documentElement.setAttribute('lang', lang);
 }
 
 // Ensure landmark roles are applied
 function applyLandmarkRoles() {
-    const header = document.querySelector('header');
-    if (header && !header.hasAttribute('role')) {
-        header.setAttribute('role', 'banner');
-    }
-    const navs = document.querySelectorAll('nav');
-    navs.forEach(nav => {
-        if (!nav.hasAttribute('role')) {
-            nav.setAttribute('role', 'navigation');
+    const setRole = (el, role) => {
+        if (el && !el.hasAttribute('role')) {
+            el.setAttribute('role', role);
         }
-    });
+    };
+    setRole(document.querySelector('header'), 'banner');
+    const navs = document.querySelectorAll('nav');
+    navs.forEach(nav => setRole(nav, 'navigation'));
     const main = document.querySelector('main');
-    if (main && !main.hasAttribute('role')) {
-        main.setAttribute('role', 'main');
-    }
+    setRole(main, 'main');
     const footer = document.querySelector('footer');
-    if (footer && !footer.hasAttribute('role')) {
-        footer.setAttribute('role', 'contentinfo');
-    }
+    setRole(footer, 'contentinfo');
+    const sections = document.querySelectorAll('section');
+    sections.forEach(sec => setRole(sec, 'region'));
+    const asides = document.querySelectorAll('aside');
+    asides.forEach(as => setRole(as, 'complementary'));
 }
 
 // New: Enhance focus visibility for keyboard navigation

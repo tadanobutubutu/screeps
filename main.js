@@ -10,10 +10,6 @@ function rotateBack() {
   img.style.transform = `rotate(0deg)`;
 }
 
-// Attach event listeners
-document.getElementById('rotate').addEventListener('click', rotate);
-document.getElementById('unrotate').addEventListener('click', rotateBack);
-
 /**
  * Adds two numbers together
  * @param {number} a - First number
@@ -57,5 +53,24 @@ function divide(a, b) {
   return a / b;
 }
 
-// Add back export for the main game loop logic (original change)
-module.exports = { loop: function() { /* Main game loop logic myNewFunction(); */ }, myNewFunction: myNewFunction, add, subtract, multiply, divide };
+// Add a new function for adding `aria-label` to buttons
+function addAriaLabel(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
+
+// Modify the event listeners to include `aria-label`
+addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
+addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+
+// Add back export for the main game loop logic (original change) and the new function
+module.exports = {
+  loop: function() { /* Main game loop logic myNewFunction(); */ },
+  myNewFunction: myNewFunction,
+  add,
+  subtract,
+  multiply,
+  divide,
+  addAriaLabel // Add the new function to the exports
+};

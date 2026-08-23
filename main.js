@@ -73,4 +73,5 @@ root.render(
   </React.StrictMode>
 );
 
+// Export App component
 export default App;

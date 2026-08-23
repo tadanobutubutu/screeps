@@ -69,7 +69,23 @@ function dependencyGraphFunction() {
   }
 
   // Accessibility: Implement fixes for 26 table structure issues (new function fixTableStructureIssues)
-  // This step remains to be implemented based on the specific accessibility issues found in the report
+  function fixTableStructureIssues(dependencyGraphContent) {
+    // Assuming that the dependencyGraphContent is a structured representation of the HTML content
+    // that needs to be updated for accessibility.
+    // You would need to iterate over the table elements and add the 'scope' attribute as required.
+    const tables = dependencyGraphContent.querySelectorAll('table');
+    tables.forEach((table) => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach((th) => {
+        // If the th does not have a scope attribute, add 'scope="col"'
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+    });
+  }
+
+  fixTableStructureIssues(dependencyGraphContent);
 
   // Ensure the returned content has proper accessibility attributes (existing code)
   // ...

@@ -32,8 +32,5 @@ function fixFakeLink(node) {
 // Call the fixFakeLink function with the document root
 fixFakeLink(document.documentElement);
 
-// Add back the missing export requested in the issue
-module.exports.newFunction = newFunction;
-
 // Add the newFunction to the exports
 module.exports = { ...module.exports, newFunction };

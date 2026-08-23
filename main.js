@@ -200,5 +200,6 @@ module.exports = {
     // Call the new function here, for example:
     myNewFunction();
   },
+
   myNewFunction: myNewFunction
 };

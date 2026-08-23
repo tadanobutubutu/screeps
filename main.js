@@ -9,8 +9,59 @@ import React from 'react';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+// Process data (preserved from original)
+function processData(data) {
+  if (!data) {
+    return null;
+  }
+
+  // Process and normalize data structure
+  const processed = {
+    raw: data,
+    normalized: Array.isArray(data) ? data.map(normalizeItem) : normalizeItem(data),
+    metadata: extractMetadata(data)
+  };
+
+  return processed;
+}
+
+function normalizeItem(item) {
+  if (typeof item === 'string') {
+    return item.trim();
+  }
+
+  if (typeof item === 'object' && item !== null) {
+    const normalized = {};
+    for (const key in item) {
+      if (Object.prototype.hasOwnProperty.call(item, key)) {
+        normalized[key] = normalizeItem(item[key]);
+      }
+    }
+    return normalized;
+  }
+
+  return item;
+}
+
+function extractMetadata(data) {
+  const metadata = {
+    type: Array.isArray(data) ? 'array' : typeof data,
+    length: Array.isArray(data) ? data.length : (typeof data === 'object' ? Object.keys(data).length : 0),
+    timestamp: Date.now()
+  };
+  return metadata;
+}
+
 // Initialize application logic
-document.addEventListener('DOMContentLoaded', () => {
+const initialize = (callback) => {
+  const appData = processData({ dependencyGraphContent, indexContent });
+  if (callback && typeof callback === 'function') {
+    callback(appData);
+  }
+  return appData;
+};
+
+initialize(() => {
   addressAccessibilityIssues();
 });
 
@@ -90,8 +141,8 @@ export function ensureUniqueLandmarks(container = document) {
   const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
   const seenIds = new Set();
 
-  landmarks.forEach((landmarkName) => {
-    const elements = container.querySelectorAll(landmarkName);
+  landmarks.forEach(landmark => {
+    const elements = container.querySelectorAll(landmark);
     elements.forEach((element) => {
       let id = element.id;
       if (!id) {
@@ -131,9 +182,9 @@ export function addLandmarks(content) {
       };
     }
 
-    const navs = [...content.querySelectorAll('nav')];
+    const navs = content.querySelectorAll('nav');
     navs.forEach((nav, index) => {
-      if (!landmarkComponents[1]) {
+      if (nav.id) {
         navId = nav.id || nav.getAttribute('id') || nav.getAttribute('data-testid') || navId;
         landmarkComponents[1] = {
           type: 'nav',
@@ -223,3 +274,6 @@ const addressAccessibilityIssues = function() {
 function setLanguageAttribute(lang) {
   document.documentElement.lang = lang;
 }
+
+// Export processData for external use
+export { processData };

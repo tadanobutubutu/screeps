@@ -27,7 +27,7 @@ export function addSvgAccessibleNames() {
 
 // - REACT_036: Fix 1 fake link issue
 export function fixFakeLink() {
-    const link = document.querySelector('a[href="#"]');
+    const link = document.querySelector('a[href="#]');
     if (link) {
         link.setAttribute("href", "#"); // replace "#" with the appropriate URL
         if (!link.getAttribute('aria-label')) {

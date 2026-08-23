@@ -136,6 +136,20 @@ module.exports = {
       }
     });
 
+    // REACT_036: Replace fake links with hash-only href with buttons
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+      const button = document.createElement('button');
+      button.innerHTML = link.innerHTML;
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      button.setAttribute('type', 'button');
+      link.parentNode.replaceChild(button, link);
+    });
+
     // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg, index) => {

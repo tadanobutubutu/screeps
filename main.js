@@ -1,8 +1,1 @@
-const mainFunc = () => {
-  // ... existing functionality ...
-};
-
-module.exports = {
-  mainFunc,
-  // ... other exports if any ...
-};
+const mainFunc = () => { // ... existing functionality ... }; const SomeModule = require('./SomeModule'); module.exports = { mainFunc, SomeModule, // ... other exports if any ... };

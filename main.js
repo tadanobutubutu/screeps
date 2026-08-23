@@ -10,6 +10,11 @@ const icons = {
   apple: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
 };
 
+document.addEventListener("DOMContentLoaded", function() {
+  const htmlTag = document.documentElement;
+  htmlTag.setAttribute('lang', 'en'); // or the appropriate language code
+});
+
 /**
  * Adds a language attribute to an HTML element.
  * @param {React.ReactElement} element JSX element to add lang attribute

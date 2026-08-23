@@ -6,6 +6,7 @@
 // - REACT_041: Add accessible names to 2 SVGs ✓ FIXED
 // - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED
 // - REACT_036: Fix 1 fake link issue ✓ FIXED
+// - REACT_027: Add scope attributes to table headers ✓ FIXED
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -88,6 +89,67 @@ function SocialIcons() {
   );
 }
 
+/**
+ * Creates an accessible table header cell with proper scope attribute
+ * @param {Object} props - Header cell properties
+ * @param {string} props.content - The text content of the header
+ * @param {string} props.type - Either 'col' or 'row' to specify scope
+ * @param {string} [props.abbr] - Optional abbreviation for complex headers
+ * @param {string} [props.id] - Optional id for association with cells
+ */
+function TableHeader({ content, type = 'col', abbr, id }) {
+  const props = {
+    scope: type,
+  };
+  
+  if (abbr) {
+    props.abbr = abbr;
+  }
+  
+  if (id) {
+    props.id = id;
+  }
+  
+  return <th {...props}>{content}</th>;
+}
+
+/**
+ * Accessible table component with proper scope attributes
+ * @param {Object} props - Table properties
+ * @param {Array<string>} props.headers - Array of column header texts
+ * @param {Array<Array<string>>} props.rows - 2D array of cell data
+ * @param {string} [props.caption] - Optional table caption
+ */
+function AccessibleTable({ headers, rows, caption }) {
+  return (
+    <table>
+      {caption && <caption>{caption}</caption>}
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <TableHeader 
+              key={index} 
+              content={header} 
+              type="col" 
+              id={`header-${index}`}
+            />
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            <TableHeader content={row[0]} type="row" />
+            {row.slice(1).map((cell, cellIndex) => (
+              <td key={cellIndex} headers={`header-${cellIndex + 1}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function AppContent() {
   return (
     <div lang="en">
@@ -112,6 +174,16 @@ function AppContent() {
               <li>Feature 3</li>
             </ul>
           </section>
+          
+          <AccessibleTable 
+            caption="Sample data table with accessible headers"
+            headers={['Item', 'Description', 'Price']}
+            rows={[
+              ['Product A', 'First item', '$10.00'],
+              ['Product B', 'Second item', '$20.00'],
+              ['Product C', 'Third item', '$30.00'],
+            ]}
+          />
           
           <button 
             type="button"
@@ -140,4 +212,4 @@ root.render(
 );
 
 export default App;
-export { SiteHeader, SiteFooter, SocialIcons, AccessibilityWrapper };
+export { SiteHeader, SiteFooter, SocialIcons, AccessibilityWrapper, TableHeader, AccessibleTable };

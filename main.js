@@ -29,12 +29,5 @@ function App() {
 // Set language attribute on the HTML element
 document.documentElement.setAttribute('lang', 'en');
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
 // Export App component
 export default App;

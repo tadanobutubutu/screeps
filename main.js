@@ -374,6 +374,29 @@ function processAccessibilityIssues(htmlContent) {
   return processedContent;
 }
 
+// Function to address accessibility issues based on an insight report
+// This function selectively applies fixes according to reported issues
+function addressAccessibilityIssues(htmlContent, insightReport) {
+  let processedContent = htmlContent;
+
+  if (insightReport.includes('REACT_015')) {
+    processedContent = addLangAttribute(processedContent);
+  }
+  if (insightReport.includes('REACT_017')) {
+    processedContent = validateLandmark(processedContent);
+    processedContent = validateLandmarkStructure(processedContent);
+  }
+  if (insightReport.includes('REACT_041')) {
+    processedContent = addSvgAccessibleName(processedContent);
+  }
+  if (insightReport.includes('REACT_027')) {
+    processedContent = validateTableAccessibility(processedContent);
+    processedContent = validateTableStructure(processedContent);
+  }
+
+  return processedContent;
+}
+
 // TODO: Add any other missing exports that might have been?
 function anotherExport() {
   // Add any necessary implementation here
@@ -396,6 +419,7 @@ export {
   getPascalCaseFromCamelCase,
   wrapPrimaryContentInMain,
   processAccessibilityIssues,
+  addressAccessibilityIssues,
   anotherExport
 };
 

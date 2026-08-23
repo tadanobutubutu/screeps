@@ -1,18 +1,1 @@
-x
-import React from 'react';
-
-const Document = ({ children }) => {
-  return (
-    <html>
-      <head>
-        {children.head}
-      </head>
-      <body>
-        <main>{children.body}</main>
-        {children.footer}
-      </body>
-    </html>
-  );
-};
-
-export default Document;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

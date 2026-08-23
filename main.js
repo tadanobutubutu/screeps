@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file content:
-
-```javascript
 // Import the myFunction from the required file
 import myFunction from './myFunction';
 
@@ -13,12 +10,9 @@ import myMissingFunction2 from './myMissingFunction2';
 // This is a simple HTML file with a JavaScript function to handle the button click
 // Based on the accessibility fix required for REACT_036
 
-// Changed from <a id="unrotate" href="#">rotate back</a> to <button id="unrotate">rotate back</button>
-// The <button> element is the correct semantic element for in-page actions
-
+// Replaced original anchor tag with a button
+// and added event listener for the click event
 const unrotateElement = document.getElementById('unrotate');
-
-// Check if the element is a button (after the fix) or an anchor (before the fix)
 if (unrotateElement) {
   unrotateElement.addEventListener('click', function() {
     // Rotate back functionality
@@ -93,4 +87,3 @@ module.exports.getRecommendedUpdateOrder = getRecommendedUpdateOrder;
 module.exports.hasBreakingChanges = hasBreakingChanges;
 module.exports.processDependencyUpdates = processDependencyUpdates;
 module.exports.path = path;
-```

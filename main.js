@@ -264,56 +264,7 @@ export function addLandmarks(content) {
   return landmarkComponents;
 }
 
-// NEW: Ensure proper role attributes on landmark elements (REACT_017)
-// This helper runs after landmarks are added to guarantee correct roles.
-function applyLandmarkRoles() {
-  // Header should have role="banner"
-  const header = document.querySelector('header');
-  if (header && !header.hasAttribute('role')) {
-    header.setAttribute('role', 'banner');
-  }
-
-  // All nav elements should have role="navigation"
-  document.querySelectorAll('nav').forEach(nav => {
-    if (!nav.hasAttribute('role')) {
-      nav.setAttribute('role', 'navigation');
-    }
-  });
-
-  // Main content should have role="main"
-  const main = document.querySelector('main');
-  if (main && !main.hasAttribute('role')) {
-    main.setAttribute('role', 'main');
-  }
-
-  // Footer should have role="contentinfo"
-  const footer = document.querySelector('footer');
-  if (footer && !footer.hasAttribute('role')) {
-    footer.setAttribute('role', 'contentinfo');
-  }
-}
-
-// Enhance focus visibility for keyboard navigation
-const enhanceFocusVisibility = function() {
-  // Function to enhance focus visibility for keyboard navigation
-  const style = document.createElement('style');
-  style.textContent = `
-    *:focus {
-      outline: 2px solid #005fcc;
-      outline-offset: 2px;
-    }
-    svg *:focus {
-      outline: none;
-    }
-    *:focus-visible {
-      outline: 2px solid #005fcc;
-      outline-offset: 2px;
-    }
-  `;
-  document.head.appendChild(style);
-};
-
-// NEW: Fix REACT_027 - Add scope attribute to table header cells
+// NEW: Fix REACT_027 - Add scope attribute to table headers
 // Adds scope="col" to <th> elements in <thead> and scope="row" to first <th> in each <tbody> row
 export function fixTableHeaders(container = document) {
   const tables = container.querySelectorAll('table');
@@ -337,13 +288,36 @@ export function fixTableHeaders(container = document) {
   });
 }
 
+// NEW: Fix table structure issues (REACT_027) - Adds scope attributes to table header cells
+export function fixTableStructureIssues(container = document) {
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    // Add scope="col" to <th> elements in <thead>
+    const columnHeaders = table.querySelectorAll('thead th');
+    columnHeaders.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Add scope="row" to first <th> in each <tbody> row
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const firstCell = row.querySelector('th');
+      if (firstCell && !firstCell.hasAttribute('scope')) {
+        firstCell.setAttribute('scope', 'row');
+      }
+    });
+  });
+}
+
 const addressAccessibilityIssues = function() {
   // Function to address accessibility issues:
   // - REACT_015: Add lang attribute (already handled)
   // - REACT_017: Add landmark roles and fix landmark issues
   // - REACT_025, REACT_017: Ensure unique landmarks (already handled)
   // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_027: Add scope="col" or scope="row" to <th> elements (already handled)
+  // - REACT_027: Add scope="col" or scope="row" to <th> elements (handled by fixTableStructureIssues)
   // - REACT_036: Fix 1 fake link issue
 
   // Enhance focus visibility for keyboard navigation
@@ -365,7 +339,7 @@ const addressAccessibilityIssues = function() {
   setLanguageAttribute('en');
 
   // Fix REACT_027: Add scope attributes to table headers
-  fixTableHeaders();
+  fixTableStructureIssues();
 };
 
 // Set language attribute on HTML root element

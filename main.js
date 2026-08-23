@@ -12,18 +12,17 @@ export function createMainHTML({ children, id }) {
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
 export function fixTableStructure(html) {
-  return html.replace(/<th([^>]*)>/g, (match, attrs) => {
+  return html.replace(/<th(\s+[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = existingAttrs.includes('scope');
+    const hasScope = existingAttrs.includes('scope=');
     const scopeAttr = hasScope ? '' : ' scope="col"';
-    const attrString = existingAttrs;
-    return `<th${attrString}${scopeAttr}>`;
+    return `<th${existingAttrs}${scopeAttr}>`;
   });
 }
 
 // Function to add lang attribute to HTML element
 export function addLangAttribute(html) {
-  return html.replace(/<html([^>]*)>/g, (match, attrs) => {
+  return html.replace(/<html([^>]*)?>/gi, (match, attrs) => {
     const hasLang = attrs && attrs.includes('lang=');
     if (hasLang) {
       return match;
@@ -37,7 +36,7 @@ export function addLandmarks(html) {
   let result = html;
   
   // Add main landmark with proper id and aria-label
-  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<main(\s+[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasId = existingAttrs.includes('id=');
     const hasAriaLabel = existingAttrs.includes('aria-label=');
@@ -47,3 +46,9 @@ export function addLandmarks(html) {
     }
     if (!hasAriaLabel) {
       newAttrs += ' aria-label="Main content"';
+    }
+    return `<main${newAttrs}>`;
+  });
+  
+  return result;
+}

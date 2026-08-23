@@ -54,10 +54,10 @@ async function updateReactToV19() {
 async function addScopeToTableHeaders() {
     try {
         console.log('Adding scope attribute to table headers for accessibility...');
-        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const filePath = path.join(__dirname, 'docs', 'index.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
-        const updatedContent = fileContent.replace(/<th([^>]*)>/g, (match, attrs) => {
-            if (attrs.includes('scope')) {
+        const updatedContent = fileContent.replace(/<th([^>]*)>/gi, (match, attrs) => {
+            if (attrs && /\sscope\s*=/i.test(attrs)) {
                 return match;
             }
             return `<th${attrs} scope="col">`;
@@ -77,12 +77,12 @@ async function addScopeToTableHeaders() {
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html(\s[^>]*)?>/, (match, attrs) => {
-    if (attrs && /\slang\s*=/i.test(attrs)) {
-      return match;
-    }
-    return `<html${attrs ? attrs : ''} lang="en">`;
-  });
+    return content.replace(/<html([^>]*)>/gi, (match, attrs) => {
+        if (attrs && /\slang\s*=/i.test(attrs)) {
+            return match;
+        }
+        return `<html${attrs ? attrs : ''} lang="en">`;
+    });
 }
 
 /**
@@ -91,11 +91,11 @@ function addLangAttribute(content) {
 async function addMainLandmark() {
     try {
         console.log('Adding <main> landmark to HTML content for accessibility...');
-        const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
+        const filesToUpdate = [path.join(__dirname, 'docs', 'index.html')];
         for (const filePath of filesToUpdate) {
             const fileContent = fs.readFileSync(filePath, 'utf8');
-            const updatedContent = addLangAttribute(fileContent);
-            const newFileContent = `<main>` + updatedContent.replace(/<\/html>/, '</main></html>') + '</main>';
+            const updatedContent = fileContent.replace('</body></html>', '</main></html>');
+            const newFileContent = `<main>` + updatedContent.replace('<body>', '<body>');
             fs.writeFileSync(filePath, newFileContent);
             console.log(`Main landmark added to ${filePath}`);
         }

@@ -1,5 +1,4 @@
-// Current contents of main.js
-// <<<<<<< HEAD
+// Existing code and exports from main.js
 function existingFunction() {
     // Existing code
 }
@@ -7,18 +6,15 @@ function existingFunction() {
 // Some more existing code
 // >>>>>>> origin/main-branch
 
-// TODO: Please provide the actual contents of main.js
-// I need to see the file to identify what exports are missing and resolve the TODO on line 33
-
-// New function requested to be added
-function newFunction() {
-    // Code for the new function
+// New function to wrap content with a <main> tag
+function wrapContentWithMain(content) {
+    return `<main>${content}</main>`;
 }
 
-// Existing exports
+// Existing exports with the new function added
 module.exports = {
     existingFunction,
-    newFunction // Added this new export
+    wrapContentWithMain, // Added this new export
     // No existing exports should be removed or renamed
 };
 

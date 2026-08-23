@@ -33,11 +33,6 @@ const addAccessibleNamesToSVGs = () => {
   });
 };
 
-// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
-// Note: Since we are dealing with a generic implementation, we will assume that
-// the landmarks are already present in the DOM and we just need to add unique IDs.
-const ensureUniqueLandmarkIds = uniqueLandmarks();
-
 // Function to validate table structure and add scope to <th> elements
 const validateTableStructureAndScopeTh = () => {
   const tables = document.querySelectorAll('table');
@@ -114,6 +109,11 @@ const validateTableStructureAndScopeTh = () => {
 };
 
 // PRESERVE all existing code, exports, and functions from current main.js
+// Example:
+// const someVar = require('some-module');
+// function init() { /* ... */ }
+// module.exports.loop = function() { /* ... */ }
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Example:
 // const someVar = require('some-module');
@@ -123,3 +123,36 @@ const validateTableStructureAndScopeTh = () => {
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/ to/module';
 export { class1, function1, Object1, unique, validateTableStructureAndScopeTh };
+
+// ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
+// Replace the hash‑only <a id="unrotate"> with a proper <button>
+// This ensures keyboard and screen‑reader users get correct activation behavior.
+
+const fixFakeLink = () => {
+  const link = document.getElementById('unrotate');
+  if (!link) return;
+
+  // Create a button with the same visual text and id
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.id = link.id;
+  button.textContent = link.textContent;
+
+  // If there was any click handling on the original <a>, re‑attach it.
+  // Since the original markup only used href="#", we simply prevent default
+  // navigation and optionally execute any known “rotate back” action.
+  button.addEventListener('click', (e) => {
+    e.preventDefault(); // stop any default link behavior
+    // Example: if a global rotateBack function exists, call it.
+    // Adjust this to match whatever functionality was intended.
+    if (typeof rotateBack === 'function') {
+      rotateBack();
+    }
+  });
+
+  // Replace the <a> with the new <button>
+  link.parentNode.replaceChild(button, link);
+};
+
+// Run the fix once the DOM is ready
+document.addEventListener('DOMContentLoaded', fixFakeLink);

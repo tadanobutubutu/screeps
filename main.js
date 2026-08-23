@@ -2,11 +2,25 @@ tsx
 import React from 'react';
 
 const Layout = () => {
-  icons: {
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
-  },
-  // your existing code here...
+  // Preserve existing code...
+
+  // Add the new button component for in-page actions
+  const RotateBackButton = () => {
+    return (
+      <button id="unrotate" aria-label="Rotate back">
+        Rotate back
+      </button>
+    );
+  };
+
+  // Use the new button instead of the link
+  return (
+    <div>
+      { /* ... other content ... */}
+      <RotateBackButton />
+      { /* ... other content ... */}
+    </div>
+  );
 };
 
 export default Layout;

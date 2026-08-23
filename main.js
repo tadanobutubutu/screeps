@@ -321,4 +321,6 @@ function applyLandmarkRoles() {
 
 // Export the created landmark components
 export { addressAccessibilityIssues };
+// Re-export imported content that might be required
+export { dependencyGraphContent, indexContent };
 // Already existing exports are preserved

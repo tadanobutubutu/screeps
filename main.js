@@ -8,4 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.style.transform = 'rotate(0deg)';
     });
   }
+
+  // Wrap the primary content in <main> to satisfy the REACT_017 rule
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(mainContent);
+    mainContent.parentNode.replaceChild(mainElement, mainContent);
+  }
 });

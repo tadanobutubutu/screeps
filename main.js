@@ -251,7 +251,7 @@ function getTableScopeRecommendation(cellType, isHeader, orientation = 'col') {
 }
 
 /**
- * Check if link has accessible text (not a "fake link")
+ * Validate if link is accessible (not a "fake link")
  * @param {string} linkText - Text content of the link
  * @param {Object} context - Additional context for the link
  * @returns {Object} Validation result
@@ -264,13 +264,8 @@ function validateLinkAccessibility(linkText, context = {}) {
     };
   }
   
-  if (linkText === '#' || linkText === 'javascript:void(0)') {
-    return {
-      valid: false,
-      reason: 'REACT_036: Avoid using fake link patterns like "#" or "javascript:void(0)"'
-    };
-  }
-  
+  // The href check is performed later in validateLinkOrButton; this function
+  // primarily ensures there is meaningful text for screen readers.
   return { valid: true };
 }
 

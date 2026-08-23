@@ -1,5 +1,5 @@
 // Add back any required exports that might have been?
- // (This comment remains as-is)
+// (This comment remains as-is)
 
 import React from 'react';
 import { useEffect } from 'react';
@@ -66,7 +66,7 @@ function validateLandmark() {
   // ... existing logic ...
 }
 
-function getElementRole() {
+function getElementRole(element) {
   // ... existing logic ...
 }
 
@@ -77,17 +77,17 @@ function addLangAttribute() {
 
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
-  const mainElement = document.querySelector('main, [role="main"]');
+  const mainElement = document.querySelector('[role="main"]');
   if (!mainElement) {
     const main = document.createElement('main');
     main.setAttribute('role', 'main');
-    document.body.insertBefore(main, document.body.firstChild);
+    document.body.appendChild(main);
   }
 }
 
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
-  const mainElement = document.querySelector('main, [role="main"]');
+  const mainElement = document.querySelector('[role="main"]');
   if (!mainElement) {
     console.error('No main landmark found in the document.');
     return false;
@@ -126,17 +126,17 @@ function validateLandmarkRoles() {
 
 // NEW: Fix fake link issues - ensure links have proper href and buttons use button element
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       // Check if it's a fake link (looks like a button)
       const role = link.getAttribute('role');
-      const hasButtonStyling = window.getComputedStyle(link).display === 'inline-block' || 
-                               window.getComputedStyle(link).display === 'block';
+      const hasButtonStyling = link.style && (getComputedStyle(link).display === 'inline-block' || 
+                               getComputedStyle(link).display === 'block');
       if (role === 'button' || hasButtonStyling) {
         // Convert to proper button
         link.setAttribute('role', 'button');
-        if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+        if (link && !link.textContent.trim()) {
           console.warn('Button link missing accessible name');
         }
       }
@@ -147,7 +147,7 @@ function fixFakeLinks() {
 // NEW: Fix landmark issues - ensure proper landmark elements exist
 function fixLandmarkIssues() {
   // Ensure exactly one banner (header)
-  const headers = document.querySelectorAll('header, [role="banner"]');
+  const headers = document.querySelectorAll('[role="banner"]');
   if (headers.length > 1) {
     // Keep the first one as banner, change others
     for (let i = 1; i < headers.length; i++) {
@@ -164,9 +164,9 @@ function fixLandmarkIssues() {
   });
   
   // Ensure complementary landmarks are properly marked
-  const asides = document.querySelectorAll('aside, [role="complementary"]');
+  const asides = document.querySelectorAll('aside');
   asides.forEach(aside => {
-    if (!aside.getAttribute('aria-label') && !aside.getAttribute('aria-labelledby')) {
+    if (!aside.getAttribute('role') && !aside.getAttribute('aria-label')) {
       aside.setAttribute('aria-label', 'Complementary content');
     }
   });

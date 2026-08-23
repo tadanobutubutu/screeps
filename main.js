@@ -3,7 +3,6 @@
 // This file preserves all existing functionality.
 // The GitHub issue is a Renovate Dependency Dashboard report showing available dependency updates.
 // Existing tests in /tests/ must continue to pass.
-// Beginner Overview: The existing code needs to be preserved in the main.js file, while adding new functions requested in the issue. The new functions should not remove or rename the existing exports.
 
 // TODO: Address accessibility issues from insight report
 // - Add lang attribute to HTML element

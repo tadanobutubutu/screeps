@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+    },
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/dashboard',
+        permanent: true,
+      },
+    ];
+  },
+};
+
+export default nextConfig;

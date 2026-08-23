@@ -28,9 +28,11 @@ const addAriaLabelToMyDiv = () => {
   // ... implementation for REACT_036 ...
 };
 
-// New function for the new utility
-const newFunctionForTheIssue = () => {
-  // Implementation for the requested change...
+// New function for REACT_015 - React Language Attribute
+const addLangAttribute = () => {
+  // Implementation for adding lang attribute to html elements
+  // Adds lang="en" or appropriate document language to <html> elements
+  // to ensure screen readers pick the correct voice
 };
 
 // Add the new function to exports
@@ -43,5 +45,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addAriaLabelToMyDiv,
   // ... other exports if any ...
-  newFunctionForTheIssue
+  newFunctionForTheIssue,
+  addLangAttribute
 };

@@ -4,17 +4,30 @@
 // ...
 
 // New changes requested in the issue
-// Add aria-label to the SVG elements in the affected files
+// Wrap the primary content in <main> for the affected files
 
-// Example of how to add aria-label to the SVG in app/layout.tsx
-// Assuming the icons object is being used in a component's JSX, you might do something like this:
-// <img src={icons.icon} alt="Screeps Dashboard" />
+// Example for docs/dependency-graph.html
+// Assuming there's a component or JSX that wraps the table, you would modify it like this:
+// <main id="dependency-graph">
+//   <table id="table-rotated">
+//     <!-- table content here -->
+//   </table>
+// </main>
 
-// Example of how to add aria-label to the SVG in dashboard/app/layout.tsx
-// Assuming the icons object is being used in a component's JSX, you might do something like this:
-// <img src={icons.icon} alt="Screeps Dashboard" />
-
-// Since the actual code with conflict markers is not provided, the above is a conceptual example.
-// Replace the 'alt' attribute with 'aria-label' in the actual JSX where the SVG is used.
+// Example for docs/index.html
+// Assuming there's a component or JSX that wraps the primary content, you would modify it like this:
+// <main id="home-page">
+//   <div class="container">
+//     <h2>Quality & Metrics Reports</h2>
+//     <p>
+//       This repository is fully optimized with automated tools. Explore the generated
+//       reports below:
+//     </p>
+//     <div class="links">
+//       <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+//       <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+//     </div>
+//   </div>
+// </main>
 
 // ...

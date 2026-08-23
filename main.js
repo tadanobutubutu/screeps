@@ -20,31 +20,16 @@ export default function Home({ projects }) {
     return mainModule.default; // Return the default export
   };
 
-  // Use the distMain function in your table data
-  const tableData = await Promise.all(columns.map(column => column.accessor ? distMain().then(main => main[column.accessor]) : null));
-
-  // Helper function to create accessible SVG icons
-  const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox={viewBox}
-      aria-label={`${iconName} icon`}
-      role="img"
-      className="icon"
-    >
-      <title>{iconName}</title>
-      {/* SVG content */}
-    </svg>
-  );
-
   return (
     <>
       <Head>
-        {/* Fix: Add proper lang attribute at the document level */}
+        {/* Note: In Next.js, the lang attribute should be set in _document.js */}
         {/* This is typically done in _document.js or _app.js for Next.js */}
       </Head>
       
-      <div lang="en"> {/* Fix: REACT_015 - Add language attribute */}
+      {/* Fix: REACT_015 - lang attribute should be on <html> element */}
+      {/* In Next.js, add this in pages/_document.js: <Html lang="en"> */}
+      <div>
         {/* Fix: REACT_017/REACT_025 - Use proper landmark elements */}
         <header role="banner" aria-label="Site header">
           <nav role="navigation" aria-label="Main navigation">
@@ -77,12 +62,12 @@ export default function Home({ projects }) {
                   <td>{project.updated}</td>
                 </tr>
               ))}
-              {/* Remaining table structure */}
+              {/* Remaining table structure with proper th elements */}
               <tr>
                 {columns.map(({ Header: category }, idx) => (
-                  <td key={idx}>{category}</td>
+                  <th key={idx} scope="row">{category}</th>
                 ))}
-                <td>{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
+                <td>{distMain}</td>
               </tr>
             </tbody>
           </table>

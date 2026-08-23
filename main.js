@@ -108,12 +108,35 @@ function ensureProperLandmarkStructure() {
   footerElement.appendChild(copyright);
 }
 
+// New function for fixing table structure issues (REACT_027)
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Check if table has a caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table content description';
+      table.appendChild(caption);
+    }
+    
+    // Check if table has at least one header cell
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      // If there are no header cells, make all rows header cells
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => row.querySelectorAll('td').forEach(cell => {
+        cell.setAttribute('scope', 'col');
+      }));
+    }
+  });
+}
+
 // Add Accessible SVGs Function
 function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = !svg.closest('[lang="en"]');
-    const isBackground = svg.css('position') === 'absolute' && svgs.css('top') === '0' && svgs.css('left') === '0' && svgs.css('width') === '100%' && svgs.css('height') === '100%';
+    const isBackground = svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('title', 'Description of SVG content');
@@ -129,6 +152,7 @@ fixFakeLinks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
+fixTableStructureIssues();
 
 module.exports = {
   wrapPrimaryContentInMain

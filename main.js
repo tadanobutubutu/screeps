@@ -54,6 +54,11 @@ function dependencyGraphFunction() {
     });
   }
   
+  // Ensure lang attribute exists on HTML element (REACT_015)
+  if (typeof document !== 'undefined') {
+    ensureLangAttribute(document);
+  }
+  
   // ... existing code for rendering the dependency graph
   return dependencyGraphContent;
 }
@@ -119,6 +124,11 @@ function indexFunction() {
         }
       });
     });
+  }
+  
+  // Ensure lang attribute exists on HTML element (REACT_015)
+  if (typeof document !== 'undefined') {
+    ensureLangAttribute(document);
   }
   
   // ... existing code for rendering the index view

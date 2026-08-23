@@ -10,7 +10,7 @@ const FixedLink = () => (
   </a>
 );
 
-// Main component export default function Main() {
+// Main component export default function Main {
   // Define the columns for the table (26 columns total)
   const columns = [
     { Header: 'constants' },
@@ -75,3 +75,5 @@ const FixedLink = () => (
     </div>
   );
 }
+
+export default Main;

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // ... existing code ...
 
 // TODO: Implement remaining exports

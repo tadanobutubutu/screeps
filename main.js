@@ -26,7 +26,7 @@ app.use((req, res, next) => {
   };
 
   // Helper to add lang attribute to HTML element (REACT_015)
-  res.locals.addLangAttribute = function(lang = 'en') {
+  res.locals.setLangAttribute = function(lang = 'en') {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
     }
@@ -43,7 +43,7 @@ function addLandmark(element, role = 'banner', id) {
 }
 
 function addAccessibleSvgName(svg, name) {
-  if (svg.firstChild && svg.firstChild.nodeName === 'svg') {
+  if (svg.firstChild && svg.nodeName === 'svg') {
     addAccessibleLabel(svg, name);
   }
 }
@@ -90,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], area[href], input:not([disabled]), button:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];

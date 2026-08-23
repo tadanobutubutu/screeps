@@ -4,6 +4,7 @@
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
@@ -22,6 +23,16 @@ const addAccessibleNamesToSVGs = () => {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
       svg.appendChild(titleElement);
+    }
+  });
+};
+
+// Accessibility fix for REACT_027: Add scope="col" or scope="row" to <th> elements
+const addScopeToTableHeaders = () => {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
     }
   });
 };
@@ -114,4 +125,4 @@ const addLandmarkRegions = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues };
+export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, addScopeToTableHeaders };

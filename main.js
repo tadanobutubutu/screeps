@@ -1,5 +1,4 @@
 // Existing code from main.js, including conflict markers (if present)
-// <<<<<<< HEAD
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -13,4 +12,3 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
-// >>>>>>> origin/main

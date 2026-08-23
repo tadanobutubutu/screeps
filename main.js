@@ -147,4 +147,3 @@ module.exports.addMainLandmark = addMainLandmark;
 module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-```

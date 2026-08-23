@@ -107,7 +107,36 @@ function addProperLandmarkRegions() {
     wrapInLandmark(mainContent, 'main');
   }
 
-  // ... (all previous functions remain the same)
+  // Add the new function to create in-page navigation (assuming that other functions for handling previous landmark issues are present)
+  function createInPageNavigation() {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-labelledby', 'in-page-nav-label'); // Assuming a label exists in the document with 'in-page-nav-label' ID
+    const anchorLinks = [];
+
+    document.querySelectorAll('[id].landmark').forEach(landmark => {
+      const landmarkAnchor = document.createElement('a');
+      landmarkAnchor.href = `#${landmark.id}`;
+      landmarkAnchor.textContent = landmark.textContent;
+      nav.appendChild(landmarkAnchor);
+      anchorLinks.push(landmarkAnchor);
+    });
+
+    document.body.appendChild(nav);
+
+    // On document ready, focus the first link of the in-page navigation
+    document.addEventListener('DOMContentLoaded', () => {
+      if (anchorLinks.length > 0) {
+        const firstLink = anchorLinks[0];
+        firstLink.focus();
+      }
+    });
+  }
+
+  // Call the new functions to address accessibility issues
+  addressAccessibilityIssuesFromInsightReport();
+  fixTableStructureIssues();
+  createInPageNavigation();
 }
 
 // ... (all functions and exports remain the same)

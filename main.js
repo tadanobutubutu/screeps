@@ -69,9 +69,8 @@ function fixTableAccessibility() {
     headers.forEach((th) => {
       if (!th.getAttribute('scope')) {
         // Determine if header is for column or row
-        const thPosition = Array.from(table.querySelectorAll('th')).indexOf(th);
         const firstRow = table.querySelector('tr');
-        if (firstRow && firstRow.querySelector('th') === th) {
+        if (firstRow && firstRow.contains(th) && firstRow.firstChild === th) {
           th.setAttribute('scope', 'col');
         } else {
           th.setAttribute('scope', 'row');
@@ -121,7 +120,7 @@ function fixFakeLinks() {
   const links = document.querySelectorAll('a');
   links.forEach((link) => {
     const href = link.getAttribute('href');
-    const onClick = link.getAttribute('onclick');
+    const onClick = link.getAttribute('onclick') || link.onclick;
 
     // Check if it's a fake link (has onclick but no href or invalid href)
     if (onClick && (!href || href === '#' || href === 'javascript:void(0)')) {

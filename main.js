@@ -36,7 +36,6 @@ function FakeLinkFixed() {
   // ... already existing code here
 }
 
-// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -66,7 +65,7 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks
-function validateUniqueLandmarks() {
+function validateLandmarkRoles() {
   // Ensure landmarks like Header, Navigation, MainContent, Sidebar, Footer are unique
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   const foundLandmarks = {};
@@ -126,7 +125,7 @@ function fixFakeLinkIssue() {
 }
 
 // NEW: Check landmark validity
-function validateLandmarkRoles() {
+function validateLandmark() {
   // Ensure all landmarks have appropriate roles
   const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'region'];
   const landmarksWithRoles = document.querySelectorAll('[role]');
@@ -152,15 +151,11 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   // Validate table structure (proper thead, tbody, tfoot usage)
 }
-function validateLandmark() {
-  // Validate individual landmark elements
-}
 
 // Additional exports if needed (e. g., functions for testing)
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
-  validateMainLandmark, validateUniqueLandmarks, validateLandmarkRoles,
-  validateLandmarkStructure, createInPageButton, validateTableAccessibility,
+  validateMainLandmark, validateLandmarkRoles, validateLandmarkStructure, createInPageButton, validateTableAccessibility,
   validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
 };

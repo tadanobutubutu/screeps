@@ -37,7 +37,7 @@ export function formatDate(dateString) {
     month: 'long',
     day: 'numeric'
   };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
 export function validateProject(project) {
@@ -174,7 +174,7 @@ export default function Home({ projects }) {
               <tr key={project.id}>
                 <td>{project.name}</td>
                 <td>{project.status}</td>
-                <td>{formatDate(project.updated)}</td>
+                <td>{project.updated}</td>
               </tr>
             ))}
           </tbody>
@@ -182,8 +182,4 @@ export default function Home({ projects }) {
       </main>
 
       <footer role="contentinfo" id="footer">
-        <p>&copy; 2024 Project Manager</p>
-      </footer>
-    </div>
-  );
-}
+        <p

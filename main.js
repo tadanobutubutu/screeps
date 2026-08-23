@@ -18,13 +18,40 @@ function App() {
             reports below:
           </p>
           <div className="links">
-            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            <a ... Plato Code Complexity Report</a>
+            <a ... Dependency Graph ...
           </div>
 
           {/* Primary data table */}
           <table id="table-rotated">
-            {/* Table rows go here */}
+            <thead>
+              <tr>
+                <th></th>
+                <th scope="col">Header 1</th>
+                <th scope="col">Header 2</th>
+                <th scope="col">Header 3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Row 1</th>
+                <td>Data 1</td>
+                <td>Data 2</td>
+                <td>Data 3</td>
+              </tr>
+              <tr>
+                <th scope="row">Row 2</th>
+                <td>Data 4</td>
+                <td>Data 5</td>
+                <td>Data 6</td>
+              </tr>
+              <tr>
+                <th scope="row">Row 3</th>
+                <td>Data 7</td>
+                <td>Data 8</td>
+                <td>Data 9</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </main>

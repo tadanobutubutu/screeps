@@ -1,8 +1,6 @@
 // main.js - Main game loop entry point
 
-// TODO: Import required module(s) and export the new necessary function(s) here
-
-// New function to be exported as per the issue
+// Import required module(s) and export the new necessary function(s) here
 const myNewFunction = function() {
   // your new function logic goes here
 };

@@ -5,7 +5,7 @@
 // This is a hypothetical example, as the actual content of main.js is not provided
 function updateLanguageAttribute() {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en');
+  htmlElement.lang = 'en';
 }
 
 // Assuming this function is called at some point in the application lifecycle

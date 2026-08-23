@@ -150,27 +150,70 @@ function fixFakeLinks() {
   });
 }
 
-// function to ensure that landmark roles are not duplicated
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'banner', 'contentinfo', 'navigation'];
-  landmarks.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    let count = 0;
-    elements.forEach((el) => {
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', `${role} section ${++count}`);
+// Convenience function that runs all accessibility improvements (integrates origin/main's newFunction concept)
+function runAllAccessibilityFixes(rootElement = document) {
+  // Add lang attribute to HTML element (REACT_015)
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+
+  // Add landmark roles (REACT_017)
+  addLandmarkRoles();
+
+  // Fix table accessibility (REACT_027)
+  const tables = rootElement.querySelectorAll ? rootElement.querySelectorAll('table') : document.querySelectorAll('table');
+  tables.forEach((table) => {
+    const hasCaption = table.querySelector('caption');
+    const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
+    if (!hasCaption && !hasAriaLabel) {
+      table.setAttribute('aria-label', 'Data table');
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th) => {
+      if (!th.getAttribute('scope')) {
+        const firstRow = table.querySelector('tr');
+        if (firstRow && firstRow.contains(th) && firstRow.firstChild === th) {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
       }
     });
   });
-}
 
-// call the accessibility improvement functions
-addLangAttribute();
-addLandmarkRoles();
-fixTableAccessibility();
-addSvgAccessibleNames();
-ensureUniqueLandmarks();
-fixFakeLinks();
+  // Ensure unique landmarks with aria-labels (REACT_025)
+  ensureUniqueLandmarks();
+
+  // Fix fake links (REACT_036)
+  const anchors = rootElement.querySelectorAll ? rootElement.querySelectorAll('a:not([href])') : document.querySelectorAll('a:not([href])');
+  anchors.forEach(link => {
+    if (link) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+    }
+  });
+
+  // Add accessible names to SVGs (REACT_041)
+  const svgs = rootElement.querySelectorAll ? rootElement.querySelectorAll('svg') : document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const ariaLabel = svg.getAttribute('aria-label');
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    const title = svg.querySelector('title');
+
+    if (!ariaLabel && !ariaLabelledby) {
+      if (title) {
+        const titleId = `svg-title-${index}`;
+        title.setAttribute('id', titleId);
+        svg.setAttribute('aria-labelledby', titleId);
+      } else {
+        svg.setAttribute('aria-label', `Icon ${index + 1}`);
+      }
+    }
+  });
+
+  console.log('runAllAccessibilityFixes has been called');
+}
 
 // New function to simulate button click event for testing purposes
 function simulateButtonClick(selector) {
@@ -277,6 +320,14 @@ function createAccessibleLink(href, text, ariaLabel) {
   return link;
 }
 
+// call the accessibility improvement functions
+addLangAttribute();
+addLandmarkRoles();
+fixTableAccessibility();
+addSvgAccessibleNames();
+ensureUniqueLandmarks();
+fixFakeLinks();
+
 // Export functions for testing
 export {
   addLangAttribute,
@@ -285,6 +336,7 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinks,
+  runAllAccessibilityFixes,
   simulateButtonClick,
   getLangAttribute,
   getFullLangAttribute,

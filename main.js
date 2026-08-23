@@ -150,7 +150,7 @@ const enhanceAccessibility = () => {
   // Implement accessibility improvements based on insight report
   addLangAttribute();
   fixTableStructureIssues();
-  addMainLandmark();
+  addMainLandmark(); // Add main landmark
   addSvgAccessibleNames();
   ensureUniqueLandmarks();
   fixFakeLinkIssues();

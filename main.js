@@ -2,6 +2,7 @@
 import React from 'react';
 import { Component, ReactDOMServer } from 'react';
 import { HTMLAttributes, ReactElement } from 'react';
+import { useMemo } from 'react';
 
 class Main extends Component {
   render() {
@@ -28,18 +29,35 @@ class Main extends Component {
     };
 
     // Add landmarks
-    const Landmarks = () => (
-      <>
-        <header id="banner">Header</header>
-        <main id="mainContent">{this.props.children}</main>
-        <footer>Footer</footer>
-      </>
-    );
+    const Landmarks = useMemo(() => {
+      return (
+        <>
+          <header id="banner">Header</header>
+          <main id="mainContent">{this.props.children}</main>
+          <footer>Footer</footer>
+        </>
+      );
+    }, []);
 
     // Add accessible names to SVGs
-    // Assuming `logo` and `menuIcon` are the two SVGs needed
-    const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
-    const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
+    const logoId = useMemo(() => Math.random().toString(), []);
+    const menuIconId = useMemo(() => Math.random().toString(), []);
+    const Logo = () => (
+      <img
+        key={logoId}
+        src="/logo.svg"
+        alt="Accessible Name for Logo"
+        id={logoId}
+      />
+    );
+    const MenuIcon = () => (
+      <img
+        key={menuIconId}
+        src="/menu.svg"
+        alt="Accessible Name for Menu Icon"
+        id={menuIconId}
+      />
+    );
 
     // Ensure unique landmarks
     // For simplicity, I'll only update the main content, as id="mainContent" already exists
@@ -55,20 +73,15 @@ class Main extends Component {
 
     return (
       <div {...htmlAttributes}>
-        <Landmarks>
-          {/* Keep existing code/components as is */}
-          <Table id="existingTable">...</Table>
-          {/* Add updated table with better structure */}
-          <Table id="updatedTable">...</Table>
-          {/* Keep existing SVGs as is */}
-          {Logo()}
-          {MenuIcon()}
-          {fixedLink}
-          {/* Keep existing mainContent as is */}
-          <main id="mainContent" {...uniqueMainContent}>
-            {this.props.children}
-          </main>
-        </Landmarks>
+        {Landmarks}
+        <Table id="existingTable">...</Table>
+        <Table id="updatedTable">...</Table>
+        {Logo()}
+        {MenuIcon()}
+        {fixedLink}
+        <main id="mainContent" {...uniqueMainContent}>
+          {this.props.children}
+        </main>
       </div>
     );
   }

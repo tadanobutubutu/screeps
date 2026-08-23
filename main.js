@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Import required module(s) and export the new necessary function(s) here in main.js
 import { class1, function1, Object1 } from './path/to/module';
 import { unique } from './utils';
@@ -50,14 +53,6 @@ export const addAccessibleNamesToSVGs = () => {
   });
 };
 
-// Accessibility fix for REACT_015: Add lang attribute to HTML element (duplicate removed)
-
-// Accessibility fix for REACT_041: Add accessible names to 2 SVGs (duplicate removed)
-
-// Accessibility fix for REACT_015: Add lang attribute to HTML element (duplicate removed)
-
-// Accessibility fix for REACT_041: Add accessible names to 2 SVGs (duplicate removed)
-
 // Function to add scope to table headers
 export const addScopeToTableHeaders = () => {
   const headers = document.querySelectorAll('th');
@@ -79,8 +74,8 @@ export const addScopeToTableHeaders = () => {
 
 // Rotate back function for unrotate button
 export const rotateBack = () => {
-  // Placeholder for rotate back functionality
-  console.log('Rotate back action triggered');
+  rotation = 0;
+  document.getElementById('target').style.transform = `rotate(0deg)`;
 };
 
 // Function to validate table accessibility
@@ -291,3 +286,32 @@ export const validateSingleMainLandmark = () => {
     message: mainElements.length > 1 ? 'Duplicate main landmarks found' : 'No issues found'
   };
 };
+
+// New code to be added:
+const img = document.getElementById('target');
+let rotation = 0;
+
+function rotate() {
+  rotation += 90;
+  img.style.transform = `rotate(${rotation}deg)`;
+}
+
+function rotateBack() {
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
+}
+
+// New function to toggle rotation
+function toggleRotation() {
+  rotation += rotation === 360 ? -360 : 90;
+  img.style.transform = `rotate(${rotation}deg)`;
+}
+
+// Attach event listeners
+document.getElementById('rotate').addEventListener('click', rotate);
+document.getElementById('unrotate').addEventListener('click', rotateBack);
+// New event listener for the toggle rotation functionality
+document.getElementById('toggle-rotate').addEventListener('click', toggleRotation);
+```
+
+This updated file contains all changes from both versions, ensuring that the bot continues to have the desired functionality. The new functions for the table structure (REACT_027) and duplicate main landmarks (REACT_025) have been added. A toggle rotation functionality has also been implemented.

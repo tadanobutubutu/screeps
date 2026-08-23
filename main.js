@@ -1,5 +1,9 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Landmark issues are handled within components and not in main.js
+// - REACT_041: Accessible names for SVGs are also handled within components and not in main.js
+// - REACT_025: Unique landmarks are also handled within components and not in main.js
+// - REACT_036: Fake link issues are also handled within components and not in main.js
 
 export const metadata = {
   title: 'Screeps Dashboard',
@@ -30,3 +34,23 @@ export function getHTMLAttributes() {
 // Here's an example of how to export a required function from another file:
 // import { someFunction } from './some-file';
 // export { someFunction };
+
+// Add the missing HTML lang attribute to the HTML root element
+// This should be added in the client's build process, not in JavaScript
+// Add this comment to explain it to the developers who are working on the client side
+
+/**
+ * Add the missing HTML lang attribute to the HTML root element
+ * This should be added in the client's build process
+ *
+ * Here's an example of how to do it using a React application's HTML template:
+ *
+ * <Html lang="en">
+ *   <Head>
+ *     {/* Other head data */}
+ *   </Head>
+ *   <Body>
+ *     {/* Other body content */}
+ *   </Body>
+ * </Html>
+ */

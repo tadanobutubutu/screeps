@@ -14,6 +14,7 @@ export default function Document() {
           </nav>
         </header>
         
+        {/* Assuming the <Main /> component is correct, we will not remove it here */}
         <Main />
         
         <footer role="contentinfo">

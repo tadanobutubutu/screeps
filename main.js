@@ -6,15 +6,20 @@
 // New changes to fix the React SVG Accessible Name issue
 // Add an accessible name to the SVGs in the icons object
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
 };
 
 /**
  * Adds a language attribute to an HTML element.
+ * @param {React.ReactElement} element JSX element to add lang attribute
  */
 function addLangAttribute(element) {
-  element.setAttribute('lang', 'en');
+  React.Children.forEach(element, child => {
+    if (child && child.type !== 'string' && child.props) {
+      child.props.className += ' jsx-lang-en';
+    }
+  });
 }
 
 /**
@@ -73,6 +78,9 @@ function getSvgAccessibleName(svgElement) {
  */
 function createSvgAccessibilityProps(svgElement) {
   // Add role, aria-labelledby, etc.
+  const accessibleName = getSvgAccessibleName(svgElement);
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', accessibleName);
 }
 
 /**
@@ -80,6 +88,7 @@ function createSvgAccessibilityProps(svgElement) {
  */
 function ensureUniqueLandmarks(landmarks) {
   // Remove duplicates
+  return [...new Set(landmarks)];
 }
 
 /**
@@ -119,3 +128,8 @@ function createAccessibleLink() {
 
 // Rest of the code from main.js
 // ...
+
+export {
+  addLangAttribute,
+  // ... other exports
+};

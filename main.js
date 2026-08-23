@@ -1,5 +1,3 @@
-=========================================
-
 module.exports = {
 	// Existing exports would be preserved here
 	newExport: function() {

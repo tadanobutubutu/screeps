@@ -9,7 +9,7 @@ const ensureUniqueLandmarks = function() {
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
   const landmarks = document.querySelectorAll('footer, header, section, article');
   const seenIds = new Set();
-  
+
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
@@ -21,7 +21,7 @@ const ensureUniqueLandmarks = function() {
       landmark.id = id;
     }
     seenIds.add(id);
-    
+
     // Add ARIA attributes for accessibility
     if (landmark.tagName === 'SECTION' && !landmark.getAttribute('aria-label')) {
       landmark.setAttribute('aria-label', 'region');
@@ -99,6 +99,27 @@ const enhanceFocusVisibility = function() {
   document.head.appendChild(style);
 };
 
+// New function for adding aria-label to main element
+const addMainLandmark = function() {
+  // REACT_017: Add/fix 2 landmark issues – ensure a main landmark exists
+  let main = document.querySelector('main');
+  if (!main) {
+    main = document.createElement('main');
+    // Find the first child of body and wrap it in main
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(main, body.firstChild);
+    } else {
+      body.appendChild(main);
+    }
+  }
+  // Ensure role attribute is set if not already
+  if (!main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  return main;
+};
+
 const addSvgAccessibleNames = function() {
   // Add accessible names to 2 SVGs from the insight report
   const svgLogo = document.querySelector('.logo svg, [class*="logo"] svg, svg.logo');
@@ -153,13 +174,6 @@ const fixHashLinkToButton = function() {
 const addressAccessibilityIssues = function() {
   // Address accessibility issues from insight report:
   // - REACT_015: Add lang attribute to HTML element
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks (2 issues)
-  // - REACT_036: Fix 1 fake link issue
-  // - REACT_027: Fix 26 table structure issues
-
-  // Add lang attribute to HTML element
   document.documentElement.lang = 'en';
 
   // Ensure unique landmarks
@@ -178,44 +192,11 @@ const addressAccessibilityIssues = function() {
   fixHashLinkToButton();
 };
 
-const setLanguageAttribute = function(lang) {
-  // Assuming the document object is available in the global scope
-  document.documentElement.lang = lang;
-};
-
-const calculateAverage = function(numbers) {
-  const sum = numbers.reduce((acc, num) => acc + num, 0);
-  return sum / numbers.length;
-};
-
-// New functions to address specific accessibility tasks mentioned in the insight report
-
 const addLangAttribute = function(lang = 'en') {
   // REACT_015: Add lang attribute to HTML element
   document.documentElement.lang = lang;
 };
 
-const addMainLandmark = function() {
-  // REACT_017: Add/fix 2 landmark issues – ensure a main landmark exists
-  let main = document.querySelector('main');
-  if (!main) {
-    main = document.createElement('main');
-    // Find the first child of body and wrap it in main
-    const body = document.body;
-    if (body.firstChild) {
-      body.insertBefore(main, body.firstChild);
-    } else {
-      body.appendChild(main);
-    }
-  }
-  // Ensure role attribute is set if not already
-  if (!main.getAttribute('role')) {
-    main.setAttribute('role', 'main');
-  }
-  return main;
-};
-
-// Aggregate all accessibility improvements
 const runAllAccessibilityFixes = function() {
   addLangAttribute();
   addMainLandmark();
@@ -241,7 +222,7 @@ module.exports = {
   addLangAttribute: addLangAttribute,
   addMainLandmark: addMainLandmark,
   runAllAccessibilityFixes: runAllAccessibilityFixes,
-  
+
   // Export newly added necessary functions
   fixTableStructure: fixTableStructure,
   addSvgAccessibleNames: addSvgAccessibleNames,
@@ -251,4 +232,4 @@ module.exports = {
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
-addressAccessibilityIssues();
+runAllAccessibilityFixes();

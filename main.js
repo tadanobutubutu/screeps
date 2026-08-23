@@ -782,6 +782,25 @@ function validateLangAttribute(langValue) {
   };
 }
 
+/**
+ * Generate the complete HTML document for the dependency graph page
+ * Ensures the html element includes a lang attribute to satisfy REACT_015
+ * @returns {string} Full HTML document with proper language attribute
+ */
+function getDependencyGraphHtml() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dependency Graph</title>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>`;
+}
+
 // Export all utilities
 module.exports = {
   DEPENDENCY_UPDATES,
@@ -808,7 +827,9 @@ module.exports = {
   validateLinkOrButton,
   createAccessibleLink,
   getFullLangAttribute,
-  validateLangAttribute
+  validateLangAttribute,
+  // HTML generation for dependency graph
+  getDependencyGraphHtml
 };
 
 // Run if executed directly

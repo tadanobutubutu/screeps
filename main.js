@@ -77,7 +77,7 @@ function addAriaLabel(elem, label) {
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
 
-// Fix table structure issues: ensure tables have a thead and header cells have scope='col'
+// Add the new function to address table structure issues
 function fixTableStructureIssues() {
   document.querySelectorAll('table').forEach(table => {
     // Ensure thead exists; move the first row (assumed header) into it
@@ -100,11 +100,7 @@ function fixTableStructureIssues() {
   });
 }
 
-/**
- * Adds proper landmark regions to elements with specific roles.
- * Ensures that elements are wrapped in appropriate landmark containers
- * for better accessibility support.
- */
+// Add the new function to add proper landmark regions
 function addProperLandmarkRegions() {
   // Handle main content region
   const mainContent = document.querySelector('[role="main"], main');

@@ -4,17 +4,16 @@
 // ...
 
 // New changes requested in the issue
-// Add aria-label to the SVG elements in the affected files
+// Add scope="col" to <th> elements in the affected files
 
-// Example of how to add aria-label to the SVG in app/layout.tsx
-// Assuming the icons object is being used in a component's JSX, you might do something like this:
-// <img src={icons.icon} alt="Screeps Dashboard" />
+// Example of how to add scope="col" to <th> in docs/dependency-graph.html
+// Assuming the <th> elements are being used in a table's JSX, you might do something like this:
+// <th scope="col"><div>src/constants.js</div></th>
 
-// Example of how to add aria-label to the SVG in dashboard/app/layout.tsx
-// Assuming the icons object is being used in a component's JSX, you might do something like this:
-// <img src={icons.icon} alt="Screeps Dashboard" />
+// Example of how to add scope="col" to <th> in other affected files
+// Similar to the above example, apply the scope attribute to the <th> elements.
 
 // Since the actual code with conflict markers is not provided, the above is a conceptual example.
-// Replace the 'alt' attribute with 'aria-label' in the actual JSX where the SVG is used.
+// Apply the scope attribute to all <th> elements that do not already have it.
 
 // ...

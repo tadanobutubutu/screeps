@@ -1,6 +1,8 @@
 // Import required module(s) and export the new necessary function(s) here in main.js
 import { class1, function1, Object1 } from './path/to/module';
 import { unique } from './utils';
+import dependencyGraphContent from './dependencyGraphContent';
+import indexContent from './indexContent';
 export { unique };
 
 // Helper function to get lang attribute value

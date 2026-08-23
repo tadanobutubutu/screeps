@@ -9,6 +9,13 @@
 
 import React from 'react';
 
+// REACT_015: Fix language for the HTML root element
+if (typeof document !== 'undefined' && document.documentElement) {
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
 // Existing code from main.js that needs to be preserved
 // ...
 
@@ -18,6 +25,17 @@ const icons = {
   icon: '<svg ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...',
   apple: '<svg ... viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" ...',
 };
+
+/**
+ * Adds lang attribute to the HTML root element.
+ */
+function addLangToHtml() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
+  }
+}
 
 /**
  * Adds a language attribute to an HTML element.
@@ -364,5 +382,6 @@ export {
   createAccessibilityProps,
   deduplicateLandmarks,
   fixFakeLink,
+  addLangToHtml,
   icons
 };

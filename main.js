@@ -19,6 +19,17 @@ if (link) {
     link.setAttribute("href", "#"); // replace "#" with the appropriate URL
 }
 
-// Update main.js with the added functions
-exports.rotateBack = rotateBack;
+// Update main.js with the added functions and wrap the primary content in <main>
+export function wrapPrimaryContentInMain() {
+    const mainContent = document.querySelector('div.container'); // Assuming the primary content is within a div with class 'container'
+    if (mainContent) {
+        const mainTag = document.createElement('main');
+        mainTag.appendChild(mainContent);
+        document.body.insertBefore(mainTag, document.body.firstChild);
+    }
+}
+
+// Call the function to wrap the primary content in a <main> tag
+wrapPrimaryContentInMain();
+
 // ... (other existing code, exports, and functions from main.js)

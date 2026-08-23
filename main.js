@@ -37,7 +37,7 @@ export function formatDate(dateString) {
     month: 'long',
     day: 'numeric'
   };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
 export function validateProject(project) {
@@ -152,4 +152,38 @@ export default function Home({ projects }) {
         <h1>Accessibility Fixed Page</h1>
       </header>
 
-      <nav role
+      <nav role="navigation" id="main-navigation" aria-label="Main navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/projects">Projects</a></li>
+        </ul>
+      </nav>
+
+      <main id="main-content">
+        <h2>Projects</h2>
+        <table role="table" aria-label="Project list">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Status</th>
+              <th scope="col">Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projects && projects.map((project) => (
+              <tr key={project.id}>
+                <td>{project.name}</td>
+                <td>{project.status}</td>
+                <td>{formatDate(project.updated)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </main>
+
+      <footer role="contentinfo" id="footer">
+        <p>&copy; 2024 Project Manager</p>
+      </footer>
+    </div>
+  );
+}

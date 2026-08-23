@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// Add new function to fix table structure issues (REACT_027)
+// Existing function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
   // (existing code)
 };
@@ -79,5 +79,21 @@ export { default } from './main';
 
 // Main component
 export default function Home({ projects }) {
-  // (existing code)
+  const handleRotateBack = () => {
+    // Handle rotate back action without using a fake link
+    console.log('Rotate back clicked');
+  };
+
+  return (
+    <div>
+      {/* Other existing content */}
+      <button 
+        id="unrotate" 
+        onClick={handleRotateBack}
+        aria-label="Rotate back"
+      >
+        rotate back
+      </button>
+    </div>
+  );
 }

@@ -2,8 +2,8 @@
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_027: Fix 26 table structure issues
 // - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_041: Add accessible names to 2 SVGs
 // - REACT_036: Fix 1 fake link issue
 
 export function addLangAttribute() {
@@ -28,8 +28,6 @@ export function addSvgAccessibleNames() {
 export function fixFakeLinks() {
   // Replace non-navigable anchors with buttons for REACT_036
 }
-
-// ADD BELOW FOR THE MISSING EXPORTS
 
 export function exportMissingComponents() {
   // Placeholder function to demonstrate export of missing components

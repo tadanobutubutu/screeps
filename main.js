@@ -11,7 +11,7 @@ function wrapPrimaryContentInMain(element) {
 }
 
 // Reusable wrapper function to address accessibility issues
-function wrapperFunction(accessibilityInsights, callback) {
+function wrapperFunction(callback) {
   processAccessibilityIssues(callback, accessibilityInsights);
 }
 
@@ -45,7 +45,7 @@ function ensureUniqueLandmarks(landmarks) {
 // Add missing scope attributes to <th> elements for accessibility
 function addMissingScopeAttributes(table) {
   // Select all <th> elements that do not already have a scope attribute
-  const headers = (table || document).querySelectorAll('th:not([scope])');
+  const headers = table ? table.querySelectorAll('th:not([scope])') : [];
   headers.forEach(el => {
     // Apply a default scope of "col" (column header)
     el.setAttribute('scope', 'col');
@@ -81,7 +81,7 @@ processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 // Add missing scope attributes to table header cells (fixes REACT_027)
 function validateTableAccessibility(table) {
   const issues = [];
-  const thElements = (table || document).querySelectorAll('th');
+  const thElements = table ? table.querySelectorAll('th') : [];
   
   thElements.forEach(th => {
     if (!th.hasAttribute('scope')) {
@@ -98,10 +98,10 @@ function validateTableAccessibility(table) {
 
 function validateTableStructure(table) {
   const issues = [];
-  const rows = (table || document).querySelectorAll('tr');
+  const rows = table ? table.querySelectorAll('tr') : [];
   
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('th, td');
+    const cells = row.querySelectorAll('td');
     if (cells.length === 0) {
       issues.push({
         row: rowIndex,
@@ -126,6 +126,14 @@ function getFullLangAttribute(element) {
   return lang ? `${lang}-en` : 'en';
 }
 
+function setLangAttribute(element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
+}
+
 // REACT_017: Add/fix landmark issues
 function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
@@ -133,8 +141,8 @@ function validateLandmark(element) {
   return role && validRoles.includes(role);
 }
 
-function validateLandmarkStructure(document) {
-  const landmarks = (document || window.document).querySelectorAll('[role]');
+function validateLandmarkStructure(doc) {
+  const landmarks = doc ? doc.querySelectorAll('[role]') : [];
   const issues = [];
   const mainLandmarks = [];
   
@@ -221,6 +229,7 @@ module.exports = {
   validateTableStructure,
   getLangAttribute,
   getFullLangAttribute,
+  setLangAttribute,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
@@ -231,7 +240,7 @@ module.exports = {
 
 // Address the REACT_036 issue by changing the anchor to a button
 function addressReact036Issue() {
-  const element = document.querySelector('a.fake-link');
+  const element = document.querySelector('#unrotate');
   if (element) {
     element.innerHTML = '<button id="unrotate">rotate back</button>';
     const newButton = element.querySelector('button');

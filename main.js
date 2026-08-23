@@ -16,7 +16,7 @@ module.exports = {
     // Existing code...
 
     // Add unique IDs to landmark elements (React_025)
-    const banners = document.querySelectorAll('[role="banner"]');
+    const banners = document.querySelectorAll('header[role="banner"]');
     banners.forEach((banner, index) => {
       if (!banner.id) {
         banner.id = `banner-${index + 1}`;
@@ -89,7 +89,7 @@ module.exports = {
     });
 
     // Ensure all main elements have unique IDs and there's only one main landmark (REACT_025 fix)
-    const mainElements = document.querySelectorAll('[role="main"], main');
+    const mainElements = document.querySelectorAll('main');
     let mainFound = false;
     mainElements.forEach((main, index) => {
       if (!mainFound) {
@@ -181,8 +181,8 @@ module.exports = {
       }
     });
 
-    const footers = document.querySelectorAll('footer');
-    footers.forEach((footer, index) => {
+    const footerElements = document.querySelectorAll('footer');
+    footerElements.forEach((footer, index) => {
       if (!footer.id) {
         footer.id = `footer-${index + 1}`;
       }

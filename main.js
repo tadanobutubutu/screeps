@@ -1,5 +1,3 @@
-// Example main.js content with the fix applied
-
 import React from 'react';
 
 function Component() {

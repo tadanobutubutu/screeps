@@ -85,6 +85,11 @@ export const addLangAttribute = (lang = 'en') => {
   return { lang };
 };
 
+// New function to wrap primary content in a main element
+export const wrapPrimaryContentInMain = (content) => {
+  return <main>{content}</main>;
+};
+
 // Main component
 export default function Home({ projects }) {
   // Define the columns for the table

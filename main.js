@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // main.js - Entry point for the React application
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -132,15 +135,22 @@ function createAccessibleLink() {
   // Build accessible anchor tag
 }
 
-// Rest of the code from main.js
-// ...
+//import { generateRotateBackControl, setupRotateBack } from './rotateBackControl';
 
-export {
-  addLangAttribute,
-  // ... other exports
+// React Dom based approach
+const generateRotateBackControl = () => {
+  return React.createElement('button', { id: 'unrotate' }, 'rotate back');
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  const htmlTag = document.documentElement;
-  htmlTag.setAttribute('lang', 'en'); // or the appropriate language code
-});
+const setupRotateBack = () => {
+  const unrotateBtn = document.getElementById('unrotate');
+  if (unrotateBtn) {
+    unrotateBtn.addEventListener('click', () => {
+      // rotation logic here
+    });
+  }
+};
+
+// Export if using module system
+// module.exports = { generateRotateBackControl, setupRotateBack };
+```

@@ -62,7 +62,7 @@ jobs:
 
       # 3. OSV-Scanner: Dependency Vulnerabilities (Google)
       - name: OSV-Scanner
-        uses: google/osv-scanner-action@v2.5.0
+        uses: google/osv-scanner-action@v2.5.1
         id: osv
         continue-on-error: true
         with:

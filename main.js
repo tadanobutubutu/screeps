@@ -39,7 +39,7 @@ export default restoredModule;
 // ----- END ORIGINAL CODE -----
 
 // Fix the language attribute on non-accessible elements (updated)
-function reactLanguageAttributeFix(element) {
+export function reactLanguageAttributeFix(element) {
   if (element && element.props) {
     const langAttr = element.props.lang;
     if (langAttr) {
@@ -54,7 +54,7 @@ const EnhancedTable = ({ children }) => {
 };
 
 // Update the duplicateMainElements function to include the original changes
-const removeDuplicateMainElements = (children) => {
+export function removeDuplicateMainElements(children) {
   const mainElements = children.filter(
     (child) => child && child.type === 'main'
   );
@@ -66,15 +66,15 @@ const removeDuplicateMainElements = (children) => {
 };
 
 // Add lang attribute to the root element (new change)
-function addLangAttributeToRoot() {
+export function addLangAttributeToRoot() {
   const rootElement = document.documentElement;
-  if (rootElement && !rootElement.hasAttribute('lang')) {
+  if (rootElement && !rootElement.getAttribute('lang')) {
     rootElement.setAttribute('lang', 'en');
   }
 }
 
 // Add addressAccessibilityIssues function
-const addressAccessibilityIssues = (elements) => {
+export function addressAccessibilityIssues(elements) {
   elements.forEach((element) => {
     if (element && element.props && element.props.children) {
       return [element];
@@ -230,7 +230,7 @@ export function createAccessibleLink(href, linkText, isExternal = false) {
 }
 
 // Main content wrapper function
-function wrapPrimaryContentInMain() {
+export function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');
   if (mainContent) {
     const newMain = document.createElement('main');
@@ -242,9 +242,9 @@ function wrapPrimaryContentInMain() {
 }
 
 // Landmark role assignment function
-function assignLandmarkRoles() {
+export function assignLandmarkRoles() {
   const landmarks = ['header', 'nav', 'main', 'footer', 'article', 'aside', 'section'];
-  const allElements = document.querySelectorAll('*');
+  const allElements = document.querySelectorAll(landmarks.join(', '));
   
   allElements.forEach((element) => {
     if (element) {
@@ -257,13 +257,16 @@ function assignLandmarkRoles() {
 }
 
 // Fix table structure issues
-function fixTableStructureIssues() {
+export function fixTableStructureIssues() {
   // Add lang attribute to the root element if missing
   const rootElement = document.documentElement;
-  if (rootElement && !rootElement.hasAttribute('lang')) {
+  if (rootElement && !rootElement.getAttribute('lang')) {
     rootElement.setAttribute('lang', 'en');
   }
   
   // Remove duplicate main elements
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
+    console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
+  }
+}

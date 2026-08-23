@@ -34,3 +34,9 @@ module.exports.loop = function () {
         }
     }
 };
+
+// Wrap the primary content in <main> for accessibility
+const mainContent = document.getElementById('main-content');
+if (mainContent) {
+    mainContent.innerHTML = `<main>${mainContent.innerHTML}</main>`;
+}

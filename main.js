@@ -80,7 +80,6 @@ export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed,
   fixTableStructure,
-  validateTableStructure,
   validateLandmarkRoles,
   validateMainLandmark
 };

@@ -1,8 +1,3 @@
-// main.js - Main game loop entry point
-
-// Preserve all existing code and exports
-
-// New function to be exported as per the issue
 const myNewFunction = function() {
   // your new function logic goes here
 };

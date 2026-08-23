@@ -47,10 +47,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = ...
+    const mainElement = document.querySelector('main');
     if (!mainElement) {
-      const main = ...
-      ... ...
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -58,7 +59,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = ...
+    const mainElement = document.querySelector('main');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -68,13 +69,13 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks using React's useEffect
-function ... {
+function validateUniqueLandmarks() {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
-      const elements = ... .${role}`));
-      const tagElements = ...
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      const tagElements = document.getElementsByTagName(role);
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -89,13 +90,21 @@ function ... {
 }
 
 // ... existing functions specific to DOM manipulation
+function fixTableStructure() {
+  // ... existing logic ...
+}
 
 // Helper function to get SVG accessible name
-function ... {
-  if (!svgElement || ... !== 'svg') {
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     return null;
   }
   // ... existing logic ...
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  return null;
 }
 
 // Helper function to get accessible label
@@ -103,6 +112,38 @@ function getAccessibleLabel(element) {
   if (!element) {
     return null;
   }
+  // ... existing logic ...
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent;
+    }
+  }
+  return null;
+}
+
+function createInPageButton() {
+  // ... existing logic ...
+}
+
+function validateTableAccessibility() {
+  // ... existing logic ...
+}
+
+function validateTableStructure() {
+  // ... existing logic ...
+}
+
+function validateLandmark() {
+  // ... existing logic ...
+}
+
+function validateLandmarkRoles() {
   // ... existing logic ...
 }
 

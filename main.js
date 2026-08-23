@@ -2,7 +2,6 @@ const mainFunc = () => {
   // ... existing functionality ...
 };
 
-// New function added per the issue
 const newFunc = () => {
   // ... new functionality ...
 };

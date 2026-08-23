@@ -8,27 +8,38 @@ const DataTable = () => {
   ];
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {columns.map((col) => (
-            <th key={col.id} scope="col">{col.label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Alice</td>
-          <td>25</td>
-          <td>alice@example.com</td>
-        </tr>
-        <tr>
-          <td>Bob</td>
-          <td>30</td>
-          <td>bob@example.com</td>
-        </tr>
-      </tbody>
-    </table>
+    <>
+      <header>
+        <h1>Data Table</h1>
+      </header>
+      <main>
+        <table>
+          <caption>User Information</caption>
+          <thead>
+            <tr>
+              {columns.map((col) => (
+                <th key={col.id} scope="col">{col.label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Alice</td>
+              <td>25</td>
+              <td>alice@example.com</td>
+            </tr>
+            <tr>
+              <td>Bob</td>
+              <td>30</td>
+              <td>bob@example.com</td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+      <footer>
+        <p>Data Table Footer</p>
+      </footer>
+    </>
   );
 };
 

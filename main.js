@@ -16,10 +16,29 @@ function handleRotateBack() {
   console.log('Rotating back');
 }
 
+// NEW FUNCTION: Add lang attribute to HTML element
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// NEW FUNCTION: Add main landmark with accessible name
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach((main, index) => {
+    if (!main.getAttribute('aria-labelledby') && !main.getAttribute('aria-label')) {
+      if (index === 0) {
+        main.setAttribute('aria-labelledby', 'main-heading');
+      } else {
+        main.setAttribute('aria-label', `Main content section ${index + 1}`);
+      }
+    }
+  });
+}
+
 // NEW FUNCTION: Fix table structure issues
 function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
-  const thElements = document.querySelectorAll('th:not([scope])');
+  const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
     if (!th.hasAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
@@ -68,7 +87,7 @@ function ensureUniqueLandmarks() {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
-        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
           const label = `${landmarkType} ${index + 1}`;
           element.setAttribute('aria-label', label);
         }
@@ -82,11 +101,11 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -102,7 +121,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1 id="main-heading">Accessible Application</h1>
+          <h1>Accessible Application</h1>
           <div className="app-content">
             {/* Existing App content */}
 
@@ -128,9 +147,9 @@ function App() {
           </div>
         </main>
         <script type="text/javascript">
-          // Set language attribute on the HTML element
-          document.documentElement.lang = 'en';
           // Apply accessibility fixes
+          addLangAttribute();
+          addMainLandmark();
           fixTableStructureIssues();
           ensureUniqueLandmarks();
           addSvgAccessibleNames();
@@ -147,4 +166,4 @@ document.documentElement.lang = 'en';
 export default App;
 
 // Export the new functions
-export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };

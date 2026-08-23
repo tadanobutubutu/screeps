@@ -463,15 +463,6 @@ function validateTableStructure(tableConfig) {
     });
   }
   
-  // Check for header-row association in data tables
-  if (tableConfig.hasDataCells && (!tableConfig.headers || tableConfig.headers.length === 0)) {
-    issues.push({
-      rule: 'REACT_027',
-      severity: 'error',
-      message: 'Data table must have header cells (<th>) associated with data cells'
-    });
-  }
-  
   // Check for proper row structure
   if (tableConfig.rows) {
     tableConfig.rows.forEach((row, rowIndex) => {

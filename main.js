@@ -2,6 +2,11 @@
 document.documentElement.lang = 'en';
 
 // Existing code that needs to be preserved
+
+function init() { /* ... */ }
+const someVar = require('some-module');
+module.exports.loop = function() { /* ... */ }
+
 // New function or changes go below this line
 
 function newFunction() {

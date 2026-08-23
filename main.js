@@ -14,7 +14,6 @@ function existingFunction() {
 }
 
 // Some more existing code
-// >>>>>>> origin-main-branch
 
 // New function to wrap content with a <main> tag
 function wrapContentWithMain(content) {

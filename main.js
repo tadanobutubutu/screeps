@@ -9,6 +9,7 @@ function newFunction(element) {
     // Header rows
     element.querySelectorAll('thead th').forEach(header => {
       header.setAttribute('role', 'columnheader');
+      header.setAttribute('scope', 'col');
     });
     // Body rows
     element.querySelectorAll('tbody tr').forEach(row => {
@@ -126,5 +127,3 @@ module.exports = {
     }
   }
 };
-
-// ... existing code ...

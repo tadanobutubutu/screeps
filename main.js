@@ -7,12 +7,24 @@ const DataTable = () => {
     { id: 'email', label: 'Email' }
   ];
 
+  // Add a function to set the appropriate ARIA role and attributes for the table
+  const getTableRoleAndAccessKey = (shouldUseAccessKey) => {
+    // Use the access key attribute only if specified in the issue and if it's beneficial for accessibility
+    const accessKeyAttribute = shouldUseAccessKey ? { 'accessKey': 't' } : {};
+
+    return {
+      role: 'grid',
+      'aria-label': 'Data Table',
+      ...accessKeyAttribute
+    };
+  };
+
   return (
-    <table>
+    <table {...getTableRoleAndAccessKey(true)}>
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col.id} scope="col">{col.label}</th>
+            <th key={col.id} scope="col" {...getTableRoleAndAccessKey(false)}>{col.label}</th>
           ))}
         </tr>
       </thead>

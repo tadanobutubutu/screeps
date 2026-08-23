@@ -3,6 +3,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element ✓ FIXED
 // - REACT_017: Add landmark roles and fix landmark issues ✓ FIXED
+// - REACT_027: React Table Structure - 26 issues remaining
 // - REACT_041: Add accessible names to 2 SVGs ✓ FIXED
 // - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED
 // - REACT_036: Fix 1 fake link issue ✓ FIXED
@@ -88,56 +89,18 @@ function SocialIcons() {
   );
 }
 
-function AppContent() {
+function DataTable({ caption, headers, rows }) {
   return (
-    <div lang="en">
-      <AccessibilityWrapper>
-        <SiteHeader />
-        
-        <main 
-          id="main-content" 
-          role="main"
-          aria-label="Main content"
-        >
-          <h1>Welcome to Our Application</h1>
-          <p>This is the main content area of the application.</p>
-          
-          <SocialIcons />
-          
-          <section aria-labelledby="features-heading">
-            <h2 id="features-heading">Features</h2>
-            <ul>
-              <li>Feature 1</li>
-              <li>Feature 2</li>
-              <li>Feature 3</li>
-            </ul>
-          </section>
-          
-          <button 
-            type="button"
-            onClick={() => console.log('Action triggered')}
-            aria-label="Learn more about our services"
-          >
-            Learn More
-          </button>
-        </main>
-        
-        <SiteFooter />
-      </AccessibilityWrapper>
-    </div>
-  );
-}
-
-function App() {
-  return <AppContent />;
-}
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-export default App;
-export { SiteHeader, SiteFooter, SocialIcons, AccessibilityWrapper };
+    <table>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (

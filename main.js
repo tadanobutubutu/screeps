@@ -403,3 +403,19 @@ export const addMainLandmark = () => {
     }
   }
 };
+
+// ===== NEW CODE TO ADDRESS REACT_036 (React Fake Link) =====
+// Fix for fake links - elements that act as links but are not <a> tags
+export const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('div[onclick], span[onclick], [role="link"]');
+  fakeLinks.forEach(el => {
+    if (el.tagName !== 'A' && el.tagName !== 'BUTTON' && el.tagName !== 'INPUT') {
+      if (!el.hasAttribute('role')) {
+        el.setAttribute('role', 'link');
+      }
+      if (!el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
+    }
+  });
+};

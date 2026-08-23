@@ -40,7 +40,7 @@ function processChildrenWithLang(element) {
 
   if (element.props && element.props.children) {
     const processedChildren = React.Children.map(element.props.children, child => {
-      if (child && typeof child === 'object' && child.type !== 'string') {
+      if (child && typeof child === 'object' && child !== null && child.props) {
         if (child.props) {
           return React.cloneElement(child, {
             ...child.props,
@@ -220,27 +220,13 @@ function addAccessibleNameToSVG(svgElement, accessibleName) {
     return svgElement;
   }
   
-  // Create or find the title element
-  let titleElement = svgElement.querySelector('title');
-  
-  if (!titleElement) {
-    titleElement = document.createElement('title');
-    svgElement.insertBefore(titleElement, svgElement.firstChild);
-  }
-  
-  titleElement.textContent = accessibleName;
-  
-  // Generate unique ID for aria-labelledby
-  const id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-  titleElement.id = id;
-  
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', id);
-  
   // Ensure role="img" is set
   if (!svgElement.getAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
+  
+  // Set aria-label for accessible name
+  svgElement.setAttribute('aria-label', accessibleName);
   
   return svgElement;
 }
@@ -305,7 +291,18 @@ function createAccessibilityProps(accessibleName) {
  * @returns {Array} Deduplicated landmarks
  */
 function deduplicateLandmarks(landmarks) {
-  return [...new Set(landmarks)];
+  const unique = [];
+  const seen = new Set();
+  
+  landmarks.forEach(landmark => {
+    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
+    if (!seen.has(identifier)) {
+      seen.add(identifier);
+      unique.push(landmark);
+    }
+  });
+  
+  return unique;
 }
 
 /**
@@ -318,15 +315,13 @@ function fixFakeLinkIssue(element) {
     return element;
   }
   
-  const isFakeLink = element.tagName === 'a' && !element.href && !element.getAttribute('href');
-  const hasButtonRole = element.getAttribute('role') === 'button';
-  
-  if (isFakeLink || (hasButtonRole && element.tagName === 'a')) {
-    if (!element.getAttribute('tabIndex')) {
-      element.setAttribute('tabIndex', '0');
-    }
+  // Check if it's an anchor tag without href (fake link)
+  if (element.tagName === 'A' && !element.href && !element.getAttribute('href')) {
     if (!element.getAttribute('role')) {
       element.setAttribute('role', 'button');
+    }
+    if (!element.getAttribute('tabIndex')) {
+      element.setAttribute('tabIndex', '0');
     }
   }
   

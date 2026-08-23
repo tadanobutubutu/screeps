@@ -37,13 +37,13 @@ app.use((req, res, next) => {
 
 // New functions for addressing accessibility issues
 function addLandmark(element, role = 'banner', id) {
-  if (!id) id = element.id || 'landmark-' + Math.random().toString(36).substr(2, 9);
+  if (!id) id = element.id || 'landmark-' + Date.now();
   element.setAttribute('role', role);
   element.setAttribute('id', id);
 }
 
 function addAccessibleSvgName(svg, name) {
-  if (svg.firstChild && svg.firstChild.tagName === 'svg') {
+  if (svg.firstChild && svg.firstChild.nodeName === 'svg') {
     addAccessibleLabel(svg, name);
   }
 }
@@ -53,7 +53,7 @@ function ensureUniqueLandmarkIds(elements) {
   elements.forEach((element) => {
     const id = element.id;
     if (ids.has(id)) {
-      const index = ids.size;
+      const index = ids.size + 1;
       element.id = id + '-' + index;
     }
     ids.add(id);
@@ -90,7 +90,7 @@ function announceToScreenReader(message, priority = 'polite') {
 // Helper to trap focus within a container (for modals)
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled])'
+    'a[href], area[href], input:not([disabled]), button:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];

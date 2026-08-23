@@ -43,7 +43,7 @@ function checkCompatibility(dep1, dep1Version, dep2, dep2Version) {
     return match ? parseInt(match[1]) : null;
   };
   
-  const version = majorVersion(dep2Version);
+  const version = majorVersion(dep1Version);
   
   if (version < parseInt(range.min) || version > parseInt(range.max)) {
     return {
@@ -95,8 +95,8 @@ function getRecommendedUpdateOrder() {
 
 // Check for breaking changes in major version updates
 function hasBreakingChanges(currentVersion, newVersion) {
-  const currentMajor = parseInt(currentVersion.match(/\d+/)?.[0] || '0');
-  const newMajor = parseInt(newVersion.match(/\d+/)?.[0] || '0');
+  const currentMajor = currentVersion.match(/^(\d+)/)?.[1] || '0';
+  const newMajor = newVersion.match(/^(\d+)/)?.[1] || '0';
   
   if (newMajor > currentMajor) {
     return {
@@ -146,7 +146,6 @@ if (require.main === module) {
   const updates = processDependencyUpdates();
   
   updates.forEach(update => {
-    console.log(`[${update.dependency.toUpperCase()}]`);
     console.log(`  ${update.from} → ${update.to}`);
     if (update.breaking.hasBreaking) {
       console.log(`  WARNING: ${update.breaking.note}`);

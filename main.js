@@ -13,8 +13,8 @@ class TableComponent extends React.Component {
         <thead>
           <tr>
             {/* Assuming the headers are static, you would update each <th> like this */}
-            <th scope="col"><div>{constants.SCRIPT_NAME}</div></th>
-            <th scope="col"><div>{roomManager.ROOM_MANAGER_NAME}</div></th>
+            <th ...
+            <th ...
             {/* ... other headers ... */}
           </tr>
         </thead>

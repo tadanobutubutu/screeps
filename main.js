@@ -67,7 +67,7 @@ const addSvgAccessibleNames = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'search'];
   landmarks.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}"]`);
+    const elements = document.querySelectorAll(`[role="${role === 'main' ? 'main' : role}]");
     if (elements.length > 1) {
       // Keep only the first occurrence, add secondary landmark to others
       for (let i = 1; i < elements.length; i++) {

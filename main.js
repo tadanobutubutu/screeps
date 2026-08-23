@@ -49,7 +49,12 @@ const Main = ({ data }) => {
   // ... rest of your existing code
 
   // REACT_036: Fix 1 fake link issue
-  // If you have fake links, remove href and provide a proper role for the elements so they don't appear as links
+  // Replace anchor with href="#" with a button element for proper accessibility
+  const RotateLinkButton = () => (
+    <button type="button" id="unrotate">
+      rotate back
+    </button>
+  );
 
   // ... rest of your existing code
 

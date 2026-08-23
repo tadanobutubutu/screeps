@@ -53,7 +53,7 @@ initialize(() => {
     addressAccessibilityIssues();
 });
 
-// Fix REACT_015: Add proper lang attribute to HTML element
+ // Fix REACT_015: Add proper lang attribute to HTML element
 export function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }
@@ -263,9 +263,18 @@ export function createAccessibleLink(url, text, isFakeLink = false) {
 function fixFakeLinks() {
     const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
     fakeLinks.forEach(link => {
-        link.href = link.href || '#';
-        link.setAttribute('role', 'button');
-        link.tabIndex = 0;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = link.textContent;
+        // Copy over attributes except href
+        Array.from(link.attributes).forEach(attr => {
+            if (attr.name !== 'href') {
+                button.setAttribute(attr.name, attr.value);
+            }
+        });
+        button.setAttribute('role', 'button');
+        button.tabIndex = 0;
+        link.parentNode.replaceChild(button, link);
     });
 }
 

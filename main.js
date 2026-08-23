@@ -67,7 +67,7 @@ addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise')
 // Add back export for the main game loop logic (original change) and the new function
 module.exports = {
   loop: function() { /* Main game loop logic myNewFunction(); */ },
-  myNewFunction: myNewFunction,
+  myNewFunction: myNewFunction, // move myNewFunction to original position below exports
   add,
   subtract,
   multiply,

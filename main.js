@@ -17,5 +17,3 @@ module.exports = {
     wrapContentWithMain, // Added this new export
     // No existing exports should be removed or renamed
 };
-
-// End of main.js

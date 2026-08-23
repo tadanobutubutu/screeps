@@ -3,23 +3,6 @@ const { Worker } = require('worker_threads');
 const { generateDependencyGraph } = require('./dependencyGraph');
 const fs = require('fs');
 
-async function main() {
-    try {
-        const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
-        await generateDependencyGraph(outputPath);
-        // Add the lang attribute to the HTML document tag for better screen reader support
-        document.documentElement.lang = 'en';
-        console.log('Dependency graph generated successfully!');
-    } catch (error) {
-        console.error('Error generating dependency graph:', error);
-        process.exit(1);
-    }
-}
-
-if (require.main === module) {
-    main();
-}
-
 /**
  * Updates Jest to v30 and related dependencies
  */
@@ -106,6 +89,27 @@ async function addMainLandmark() {
     }
 }
 
+/**
+ * Fixes the React fake link issue by replacing the dead <a> with a <button>.
+ * This ensures proper keyboard and screen‑reader behavior.
+ */
+async function fixReactFakeLink() {
+    try {
+        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        // Replace the specific <a> that acts as a fake link with a <button>
+        const fixedContent = fileContent.replace(
+            /<a id="unrotate" href="#">rotate back<\/a>/,
+            '<button id="unrotate" type="button">rotate back</button>'
+        );
+        fs.writeFileSync(filePath, fixedContent);
+        console.log('React fake link fixed: replaced <a> with <button>.');
+    } catch (error) {
+        console.error('Error fixing React fake link:', error);
+        throw error;
+    }
+}
+
 // Export utilities for testing
 module.exports = {
     generateDependencyGraph,
@@ -114,5 +118,29 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
+    fixReactFakeLink,
     main
 };
+
+/**
+ * Main entry point.
+ * Generates the dependency graph, fixes the React fake link, and sets the language attribute.
+ */
+async function main() {
+    try {
+        const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        await generateDependencyGraph(outputPath);
+        // Fix the fake link issue
+        await fixReactFakeLink();
+        // Add the lang attribute to the HTML document tag for better screen reader support
+        document.documentElement.lang = 'en';
+        console.log('Dependency graph generated successfully!');
+    } catch (error) {
+        console.error('Error generating dependency graph:', error);
+        process.exit(1);
+    }
+}
+
+if (require.main === module) {
+    main();
+}

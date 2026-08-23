@@ -122,7 +122,7 @@ const validateTableStructureAndScopeTh = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/ to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh };
+export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>

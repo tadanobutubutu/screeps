@@ -9,14 +9,14 @@ function dependencyGraphFunction() {
   // Ensure the returned content has proper accessibility attributes
   if (dependencyGraphContent && dependencyGraphContent.element) {
     // Add role and aria-label if not present for screen reader support
-    if (!dependencyGraphContent.element.hasAttribute('role')) {
+    if (!dependencyGraphContent.element.getAttribute('role')) {
       dependencyGraphContent.element.setAttribute('role', 'img');
     }
-    if (!dependencyGraphContent.element.hasAttribute('aria-label')) {
+    if (!dependencyGraphContent.element.getAttribute('aria-label')) {
       dependencyGraphContent.element.setAttribute('aria-label', 'Dependency graph visualization');
     }
-    if (!dependencyGraphContent.element.hasAttribute('aria-hidden')) {
-      dependencyGraphContent.element.setAttribute('aria-hidden', '0');
+    if (!dependencyGraphContent.element.getAttribute('aria-roledescription')) {
+      dependencyGraphContent.element.setAttribute('aria-roledescription', '0');
     }
   }
   
@@ -32,13 +32,13 @@ function indexFunction() {
   // Ensure the returned content has proper accessibility attributes
   if (indexContent && indexContent.element) {
     // Add semantic structure for screen reader support
-    if (!indexContent.element.hasAttribute('role')) {
+    if (!indexContent.element.getAttribute('role')) {
       indexContent.element.setAttribute('role', 'region');
     }
-    if (!indexContent.element.hasAttribute('aria-label')) {
+    if (!indexContent.element.getAttribute('aria-label')) {
       indexContent.element.setAttribute('aria-label', 'Index view');
     }
-    if (!indexContent.element.hasAttribute('tabindex')) {
+    if (!indexContent.element.getAttribute('tabindex')) {
       indexContent.element.setAttribute('tabindex', '-1');
     }
   }

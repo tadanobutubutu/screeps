@@ -67,20 +67,25 @@ function createAccessibleLink(href, text) {
   // ... existing code ...
 }
 
-// New functions to address requested changes for REACT_025
-function hasDuplicateLandmarks(landmarks) {
-  const roles = landmarks.map(landmark => landmark.role);
-  const uniqueRoles = new Set(roles);
-  return roles.length !== uniqueRoles.size;
+// New functions to address requested changes for REACT_017
+function addMainTagToContent(content) {
+  return `<main>${content}</main>`;
 }
 
-// Address the REACT_036 issue by changing the anchor to a button
-function addressReact036Issue() {
-  const element = document.querySelector('a[href="#"]');
-  if (element) {
-    element.innerHTML = '<button id="unrotate">rotate back</button>';
-    const newButton = element.querySelector('button');
-    newButton.setAttribute('type', 'button'); // Ensure it's a button with no default action
+// Address the REACT_017 issue by wrapping the primary content in a <main> tag
+function wrapPrimaryContent() {
+  const mainContent = document.querySelector('div.container');
+  if (mainContent) {
+    mainContent.innerHTML = addMainTagToContent(mainContent.innerHTML);
+  }
+}
+
+// New functions to address requested changes for REACT_017
+function addMainTagToDependencyGraph() {
+  const tableContent = document.querySelector('table#table-rotated');
+  if (tableContent) {
+    const mainContent = addMainTagToContent(tableContent.outerHTML);
+    tableContent.outerHTML = mainContent;
   }
 }
 
@@ -112,6 +117,12 @@ function processReact025(landmarks) {
   });
 }
 
+// Address the REACT_017 issue by wrapping the content in a <main> tag
+function addressReact017Issue() {
+  wrapPrimaryContent();
+  addMainTagToDependencyGraph();
+}
+
 module.exports = {
   wrapPrimaryContentInMain,
   addressAccessibilityIssues,
@@ -132,5 +143,6 @@ module.exports = {
   addressReact036Issue,
   processReact025,
   ensureUniqueLandmarkRoles,
-  hasDuplicateLandmarks
+  hasDuplicateLandmarks,
+  addressReact017Issue // New export for addressing REACT_017
 };

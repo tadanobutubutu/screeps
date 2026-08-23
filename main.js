@@ -62,6 +62,7 @@ export function fixTableStructure() {
   });
 }
 
+
 // REACT_017: Add landmarks
 export function addLandmarks() {
   const landmarks = ['header', 'nav', 'main', 'footer'];
@@ -74,6 +75,7 @@ export function addLandmarks() {
     });
   });
 }
+
 
 // REACT_025: Ensure unique landmarks
 export function addUniqueLandmarks() {
@@ -188,6 +190,32 @@ export function addMainLandmark() {
 
 // REACT_027: Add scope attributes to header cells in tables
 export function addScopeToHeaderCells() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((th) => {
+      // Check if it's in the first row (column header) or first column (row header)
+      const row = th.parentElement;
+      if (!row) return;
+      const cells = Array.from(row.children);
+      const cellIndex = cells.indexOf(th);
+      const rowIndex = Array.from(table.querySelectorAll('tr')).indexOf(row);
+      const isFirstRow = rowIndex === 0;
+      const isFirstColumn = cellIndex === 0;
+
+      if (isFirstRow && th.textContent.trim()) {
+        // Column header
+        th.setAttribute('scope', 'col');
+      } else if (isFirstColumn && rowIndex > 0 && th.textContent.trim()) {
+        // Potential row header (e.g., in the first column of each row)
+        th.setAttribute('scope', 'row');
+      }
+    });
+  });
+}
+
+// REACT_027: Fix table structure issues (NEW FUNCTION fixTableStructureIssues)
+export function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headerCells = table.querySelectorAll('th');

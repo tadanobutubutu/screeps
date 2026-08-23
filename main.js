@@ -24,6 +24,9 @@ export default function Main() {
             <li><Link href="/">Home</Link></li>
             <li><Link href="/about">About</Link></li>
             <li><Link href="/contact">Contact</Link></li>
+            <li><Link ...></li>
+            <li><Link ...></li>
+            <li><Link ...></li>
           </ul>
         </nav>
       </header>
@@ -73,6 +76,9 @@ export default function Main() {
         {sidebarOpen && (
           <nav aria-label="Sidebar navigation">
             <ul>
+              <li><Link ...></li>
+              <li><Link ...></li>
+              <li><Link ...></li>
               <li><Link href="/dashboard">Dashboard</Link></li>
               <li><Link href="/profile">Profile</Link></li>
               <li><Link href="/settings">Settings</Link></li>
@@ -91,9 +97,6 @@ export default function Main() {
         </div>
       </aside>
 
-      <footer role="contentinfo">
-        <p>Footer content</p>
-      </footer>
     </div>
   );
 }

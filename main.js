@@ -58,4 +58,4 @@ function divide(a, b) {
 }
 
 // Add back export for the main game loop logic (original change)
-module.exports = { loop: function() { // Main game loop logic myNewFunction(); }, myNewFunction: myNewFunction, add, subtract, multiply, divide };
+module.exports = { loop: function() { /* Main game loop logic myNewFunction(); */ }, myNewFunction: myNewFunction, add, subtract, multiply, divide };

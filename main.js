@@ -77,6 +77,29 @@ function addAriaLabel(elem, label) {
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
 
+// Fix table structure issues: ensure tables have a thead and header cells have scope='col'
+function fixTableStructureIssues() {
+  document.querySelectorAll('table').forEach(table => {
+    // Ensure thead exists; move the first row (assumed header) into it
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.rows[0];
+      thead.appendChild(firstRow);
+      const tbody = table.querySelector('tbody');
+      if (tbody) {
+        table.insertBefore(thead, tbody);
+      } else {
+        table.appendChild(thead);
+      }
+    }
+    // Set scope='col' and role='colheader' on all th elements
+    table.querySelectorAll('th').forEach(th => {
+      th.setAttribute('scope', 'col');
+      th.setAttribute('role', 'colheader');
+    });
+  });
+}
+
 // Add back export for the main game loop logic (original change) and the new function
 myNewFunction = function() { /* Custom game loop logic */ }; // Move myNewFunction to original position below exports
 
@@ -92,6 +115,7 @@ module.exports = {
   divide,
   addAriaLabel, // Include the new function in the exports
   addressAccessibilityIssuesFromInsightReport, // Include the new function in the exports
+  fixTableStructureIssues, // Include the new function in the exports
   updateTableHeaders: function() {
     const tableHeaders = document.querySelectorAll('th');
     tableHeaders.forEach(header => {

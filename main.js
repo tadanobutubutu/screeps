@@ -67,6 +67,23 @@ export const wrapPrimaryContentInMain = (content) => {
   return <main>{content}</main>;
 };
 
+// New function to add accessible names to SVGs (REACT_041)
+export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
+  return React.cloneElement(svgElement, {
+    'aria-label': accessibleName,
+    role: 'img'
+  });
+};
+
+// New function to add/fix landmark issues (REACT_017)
+export const createLandmark = (element, landmarkType, id) => {
+  const landmarkAttributes = {
+    role: landmarkType,
+    id: id
+  };
+  return React.cloneElement(element, landmarkAttributes);
+};
+
 // Add back required exports that might have been removed
 export { default } from './main';
 
@@ -93,9 +110,30 @@ export default function Home({ projects }) {
   // Add lang attribute dynamically
   const langAttr = addLangAttribute('en');
 
+  // Wrap primary content in main element for landmark
+  const wrappedContent = wrapPrimaryContentInMain(
+    <div id="main-content">
+      {/* Main content here */}
+    </div>
+  );
+
   return (
     <div {...langAttr}>
+      <Head>
+        <html lang="en" />
+      </Head>
       {/* Skip link for accessibility */}
       {skipLink}
-       ...
+      <header role="banner" id="header">
+        {/* Header content */}
+      </header>
+      <nav role="navigation" id="main-navigation" aria-label="Main navigation">
+        {/* Navigation content */}
+      </nav>
+      {wrappedContent}
+      <footer role="contentinfo" id="footer">
+        {/* Footer content */}
+      </footer>
+    </div>
   );
+}

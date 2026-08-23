@@ -62,6 +62,13 @@ const fixTableStructureIssues = () => {
       });
       table.appendChild(tbody);
     }
+
+    // Add scope attribute to all th elements for accessibility
+    table.querySelectorAll('th').forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
   });
 };
 

@@ -28,6 +28,11 @@ const addAriaLabelToMyDiv = () => {
   // ... implementation for REACT_036 ...
 };
 
+// New function for the new utility
+const newFunctionForTheIssue = () => {
+  // Implementation for the requested change...
+};
+
 module.exports = {
   mainFunc,
   newFunc,
@@ -37,4 +42,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addAriaLabelToMyDiv,
   // ... other exports if any ...
+  newFunctionForTheIssue
 };

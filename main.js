@@ -108,14 +108,12 @@ function trapFocus(container) {
   });
 }
 
-// TO DO: Apply the new functions to the relevant elements (this is beyond the scope of this task)
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-// ----- END ORIGINAL CODE-----
+// Additional accessibility functions referenced in issue
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lang;
+  }
+}
 
 module.exports = app;

@@ -54,6 +54,14 @@ initialize(() => {
 });
 
 // Fix REACT_015: Add proper lang attribute to HTML element
+export function getLangAttribute() {
+    return document.documentElement.lang || 'en';
+}
+
+export function getFullLangAttribute(lang = 'en') {
+    return lang;
+}
+
 export function createHtmlElement(language = 'en') {
     return {
         type: 'html',
@@ -65,6 +73,38 @@ export function createHtmlElement(language = 'en') {
 }
 
 // Fix REACT_027: Proper table structure with th scope
+export function validateTableAccessibility(table) {
+    if (!table) return false;
+    const headers = table.querySelectorAll('th');
+    let isValid = true;
+    headers.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+            isValid = false;
+        }
+    });
+    return isValid;
+}
+
+export function validateTableStructure(table) {
+    if (!table) return { valid: false, issues: [] };
+    const issues = [];
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+    if (!hasThead) {
+        issues.push('Missing thead element');
+    }
+    if (!hasTbody) {
+        issues.push('Missing tbody element');
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+            issues.push(`Header at index ${index} missing scope attribute`);
+        }
+    });
+    return { valid: issues.length === 0, issues };
+}
+
 export function createTable(headers, rows) {
     return {
         type: 'table',
@@ -111,6 +151,14 @@ export function createTable(headers, rows) {
 }
 
 // Fix REACT_041: SVG must have accessible name
+export function getSvgAccessibleName(svg) {
+    if (!svg) return '';
+    return svg.getAttribute('aria-label') || 
+           svg.getAttribute('aria-labelledby') || 
+           svg.querySelector('title')?.textContent || 
+           'Icon';
+}
+
 export function createSvgIcon(iconName, children = []) {
     return {
         type: 'svg',
@@ -125,9 +173,9 @@ export function createSvgIcon(iconName, children = []) {
 // Fix REACT_041: Ensure accessible names for up to two SVG icons
 function ensureSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
-    const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')).slice(0, 2);
-    toFix.forEach(svg => {
-        const name = svg.getAttribute('data-icon-name') || 'Icon';
+    const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.querySelector('title'));
+    toFix.slice(0, 2).forEach(svg => {
+        const name = svg.getAttribute('aria-label') || svg.getAttribute('data-icon-name') || 'Icon';
         svg.setAttribute('aria-label', name);
         const title = document.createElement('title');
         title.textContent = name;
@@ -136,6 +184,37 @@ function ensureSvgAccessibleNames() {
 }
 
 // Fix REACT_025 & REACT_017: Use semantic landmark elements
+export function validateLandmark(element) {
+    if (!element) return { valid: false, role: null };
+    const role = element.getAttribute('role');
+    const tagName = element.tagName.toLowerCase();
+    const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'region'];
+    const semanticTags = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
+    
+    if (role && validRoles.includes(role)) {
+        return { valid: true, role };
+    }
+    if (semanticTags.includes(tagName)) {
+        return { valid: true, role: tagName };
+    }
+    return { valid: false, role: null };
+}
+
+export function validateLandmarkStructure(container = document) {
+    const landmarks = container.querySelectorAll('header, nav, main, footer, aside, section');
+    const issues = [];
+    const seenIds = new Set();
+    landmarks.forEach(landmark => {
+        if (landmark.id) {
+            if (seenIds.has(landmark.id)) {
+                issues.push(`Duplicate landmark id: ${landmark.id}`);
+            }
+            seenIds.add(landmark.id);
+        }
+    });
+    return { valid: issues.length === 0, issues };
+}
+
 export function ensureUniqueLandmarks(container = document) {
     const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
     const seenIds = new Set();
@@ -156,9 +235,35 @@ export function ensureUniqueLandmarks(container = document) {
 }
 
 // Fix REACT_036: Fix fake link issue
+export function createInPageButton(link) {
+    if (!link) return null;
+    return {
+        href: link.href,
+        role: 'button',
+        tabIndex: 0,
+        text: link.textContent
+    };
+}
+
+export function createAccessibleLink(url, text, isFakeLink = false) {
+    const link = {
+        type: 'a',
+        props: {
+            href: url,
+            children: [text]
+        }
+    };
+    if (isFakeLink) {
+        link.props.role = 'button';
+        link.props.tabIndex = 0;
+    }
+    return link;
+}
+
 function fixFakeLinks() {
-    document.querySelectorAll('a[href="#"]').forEach(link => {
-        link.href = 'javascript:void(0)';
+    const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
+    fakeLinks.forEach(link => {
+        link.href = link.href || '#';
         link.setAttribute('role', 'button');
         link.tabIndex = 0;
     });
@@ -207,120 +312,4 @@ export function addLandmarkRegions(container = document) {
                 type: 'nav',
                 props: {
                     id: navId,
-                    role: 'navigation',
-                    'aria-label': 'Main navigation',
-                    className: 'landmark-nav',
-                    children: [nav]
-                }
-            };
-        }
-    });
-
-    const main = container.querySelector('main');
-    if (main) {
-        mainId = main.id || main.getAttribute('id') || main.getAttribute('data-testid') || mainId;
-        landmarkComponents[2] = {
-            type: 'main',
-            props: {
-                id: mainId,
-                role: 'main',
-                'aria-label': 'Main content',
-                className: 'landmark-main',
-                children: [main]
-            }
-        };
-    }
-
-    const footer = container.querySelector('footer');
-    if (footer) {
-        footerId = footer.id || footer.getAttribute('id') || footer.getAttribute('data-testid') || footerId;
-        landmarkComponents[3] = {
-            type: 'footer',
-            props: {
-                id: footerId,
-                role: 'contentinfo',
-                'aria-label': 'Site footer',
-                className: 'landmark-footer',
-                children: [footer]
-            }
-        };
-    }
-
-    return landmarkComponents;
-}
-
-// Fix REACT_027 - Add scope attributes to table headers
-export function addTableScopeAttributes(container = document) {
-    const tables = container.querySelectorAll('table');
-    tables.forEach(table => {
-        const columnHeaders = table.querySelectorAll('thead th');
-        columnHeaders.forEach(th => {
-            if (!th.hasAttribute('scope')) {
-                th.setAttribute('scope', 'col');
-            }
-        });
-
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const firstCell = row.querySelector('td');
-            if (firstCell && !firstCell.hasAttribute('scope')) {
-                firstCell.setAttribute('scope', 'row');
-            }
-        });
-    });
-}
-
-// Fix REACT_015: Set language attribute on HTML element
-function setLanguageAttribute(lang) {
-    document.documentElement.setAttribute('lang', lang);
-}
-
-// Ensure landmark roles are applied
-function applyLandmarkRoles() {
-    const setRole = (el, role) => {
-        if (el && !el.hasAttribute('role')) {
-            el.setAttribute('role', role);
-        }
-    };
-    setRole(document.querySelector('header'), 'banner');
-    const navs = document.querySelectorAll('nav');
-    navs.forEach(nav => setRole(nav, 'navigation'));
-    const main = document.querySelector('main');
-    setRole(main, 'main');
-    const footer = document.querySelector('footer');
-    setRole(footer, 'contentinfo');
-    const sections = document.querySelectorAll('section');
-    sections.forEach(sec => setRole(sec, 'region'));
-    const asides = document.querySelectorAll('aside');
-    asides.forEach(as => setRole(as, 'complementary'));
-}
-
-// New: Enhance focus visibility for keyboard navigation
-function enhanceFocusVisibility() {
-    // Add a class to body when user navigates with keyboard
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-            document.body.classList.add('keyboard-nav');
-        }
-    });
-    // Remove the class when mouse is used
-    document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-    });
-}
-
-const addressAccessibilityIssues = function() {
-    ensureSvgAccessibleNames();
-    ensureUniqueLandmarks();
-    addLandmarkRegions();
-    addTableScopeAttributes();
-    fixFakeLinks();
-    setLanguageAttribute('en');
-    applyLandmarkRoles();
-    enhanceFocusVisibility();
-};
-
-// Export the created landmark components
-export { addressAccessibilityIssues };
-// Re-export imported content that might be required
-export { dependencyGraphContent, indexContent };
+                    role: 'navigation

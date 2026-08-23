@@ -10,7 +10,7 @@ const myNewFunction = () => {
 
 // Add another new function `myNewFunction2` here - for demonstration purposes only
 const myNewFunction2 = () => {
-  // Add your new function code here - for demonstration purposes only
+  // Add your new function code here - for description purposes only
   console.log('Another new function called successfully!');
 };
 

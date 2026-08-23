@@ -11,8 +11,15 @@ var htmlContent = `<html lang="en">
   <title>Document</title>
 </head>
 <body>
+  <button id="unrotate" type="button">rotate back</button>
   <script src="main.js"></script>
 </body>
 </html>`;
+
+// Function to handle unrotate action
+function unrotate() {
+  // Logic to rotate back
+  console.log("Rotate back action triggered");
+}
 
 console.log("HTML content generated successfully");

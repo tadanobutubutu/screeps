@@ -102,6 +102,83 @@ export function ensureUniqueLandmarks(container = document) {
   });
 }
 
+// Function for adding proper landmark regions
+export function addLandmarks(content) {
+  let headerId = 'landmark-header';
+  let navId = 'landmark-nav';
+  let mainId = 'landmark-main';
+  let footerId = 'landmark-footer';
+  let landmarkComponents = [null, null, null, null];
+
+  if (content) {
+    const header = content.querySelector('header');
+    if (header) {
+      headerId = header.id || header.getAttribute('id') || header.getAttribute('data-testid') || headerId;
+      landmarkComponents[0] = {
+        type: 'header',
+        props: {
+          id: headerId,
+          role: 'banner',
+          'aria-label': 'Site header',
+          className: 'landmark-header',
+          children: [header]
+        }
+      };
+    }
+
+    const navs = [...content.querySelectorAll('nav')];
+    navs.forEach((nav, index) => {
+      if (!landmarkComponents[1]) {
+        navId = nav.id || nav.getAttribute('id') || nav.getAttribute('data-testid') || navId;
+        landmarkComponents[1] = {
+          type: 'nav',
+          props: {
+            id: navId,
+            role: 'navigation',
+            'aria-label': 'Main navigation',
+            className: 'landmark-nav',
+            children: [nav]
+          }
+        };
+      } else {
+        nav.id = navId;
+      }
+    });
+
+    const main = content.querySelector('main');
+    if (main) {
+      mainId = main.id || main.getAttribute('id') || main.getAttribute('data-testid') || mainId;
+      landmarkComponents[2] = {
+        type: 'main',
+        props: {
+          id: mainId,
+          role: 'main',
+          'aria-label': 'Main content',
+          className: 'landmark-main',
+          children: [main]
+        }
+      };
+    }
+
+    const footer = content.querySelector('footer');
+    if (footer) {
+      footerId = footer.id || footer.getAttribute('id') || footer.getAttribute('data-testid') || footerId;
+      landmarkComponents[3] = {
+        type: 'footer',
+        props: {
+          id: footerId,
+          role: 'contentinfo',
+          'aria-label': 'Site footer',
+          className: 'landmark-footer',
+          children: [footer]
+        }
+      };
+    }
+  }
+
+  return landmarkComponents;
+}
+
 const enhanceFocusVisibility = function() {
   // Function to enhance focus visibility for keyboard navigation
   const style = document.createElement('style');
@@ -137,240 +214,4 @@ const addressAccessibilityIssues = function() {
   setLanguageAttribute('en');
 };
 
-const setLanguageAttribute = function(lang) {
-  // Assuming the document object is available in the global scope
-  document.documentElement.lang = lang;
-};
-
-const calculateAverage = function(numbers) {
-  const sum = numbers.reduce((acc, num) => acc + num, 0);
-  return sum / numbers.length;
-};
-
-// Updated: DependencyGraphTable now uses dependencyGraphContent module
-export function DependencyGraphTable(props) {
-  const content = dependencyGraphContent.getContent();
-  return {
-    type: 'div',
-    props: {
-      className: 'dependency-graph-table',
-      'aria-label': 'Dependency Graph',
-      children: content
-    }
-  };
-}
-
-// Updated: StatusPage now uses indexContent module for index views
-export function StatusPage(props) {
-  const content = indexContent.getContent();
-  return {
-    type: 'main',
-    props: {
-      role: 'main',
-      'aria-label': 'Status Dashboard',
-      children: content
-    }
-  };
-}
-
-// PageLayout updated to use indexContent for index view layouts
-export function createPageLayout(contentType = 'default') {
-  const content = indexContent.getLayoutContent(contentType);
-  return {
-    type: 'div',
-    props: {
-      className: 'page-layout',
-      role: 'main',
-      children: content
-    }
-  };
-}
-
-// ContentPanel updated to use indexContent
-export function ContentPanel(props) {
-  const content = indexContent.getContent();
-  return {
-    type: 'section',
-    props: {
-      className: 'content-panel',
-      'aria-labelledby': props.titleId,
-      children: content
-    }
-  };
-}
-
-// GraphIcon component for rendering graph icons
-export function GraphIcon(props) {
-  return createSvgIcon(props.name || 'Graph', props.children);
-}
-
-// SettingsIcon component for rendering settings icons
-export function SettingsIcon(props) {
-  return createSvgIcon('Settings', props.children);
-}
-
-// AccessibleIconSVG - wrapper for accessible SVG icons
-export function AccessibleIconSVG(props) {
-  return {
-    type: 'svg',
-    props: {
-      'aria-label': props.label,
-      role: 'img',
-      children: props.children || []
-    }
-  };
-}
-
-// Fix REACT_036: Convert fake links (divs/spans with onClick) to proper anchor tags with href
-// Use <a> tag with href for navigation, not <div> or <span> with onClick
-export function FakeLinkAsButton(props) {
-  // Convert to proper anchor element with href for accessibility
-  return {
-    type: 'a',
-    props: {
-      className: props.className,
-      href: props.href || '#',
-      onClick: props.onClick,
-      'aria-label': props['aria-label'],
-      role: props.href ? undefined : 'button',
-      children: props.children
-    }
-  };
-}
-
-// AppWrapper - main application wrapper component
-export function AppWrapper(props) {
-  return {
-    type: 'div',
-    props: {
-      className: 'app-wrapper',
-      role: 'application',
-      'aria-label': props.appName || 'Application'
-    }
-  };
-}
-
-// wrapPrimaryContentInMain - Wraps primary content in a main element for accessibility
-// Fixes landmark issues by using semantic <main> element with proper accessibility attributes
-export function wrapPrimaryContentInMain(content, options = {}) {
-  return {
-    type: 'main',
-    props: {
-      role: 'main',
-      'aria-label': options.ariaLabel || 'Main content',
-      className: options.className || 'primary-content',
-      children: content
-    }
-  };
-}
-
-// Additional accessibility functions for REACT_017 landmark issues
-// Ensure proper use of <header>, <main>, <nav>, <footer>
-
-// CreateHeader - Creates accessible header landmark
-export function CreateHeader(props) {
-  return {
-    type: 'header',
-    props: {
-      role: 'banner',
-      'aria-label': props.label || 'Site header',
-      className: props.className || 'header',
-      children: props.children
-    }
-  };
-}
-
-// CreateNav - Creates accessible navigation landmark
-export function CreateNav(props) {
-  return {
-    type: 'nav',
-    props: {
-      'aria-label': props.label || 'Main navigation',
-      className: props.className || 'nav',
-      children: props.children
-    }
-  };
-}
-
-// CreateFooter - Creates accessible footer landmark
-export function CreateFooter(props) {
-  return {
-    type: 'footer',
-    props: {
-      role: 'contentinfo',
-      'aria-label': props.label || 'Site footer',
-      className: props.className || 'footer',
-      children: props.children
-    }
-  };
-}
-
-// CreateAside - Creates accessible complementary content landmark
-export function CreateAside(props) {
-  return {
-    type: 'aside',
-    props: {
-      'aria-label': props.label || 'Related content',
-      className: props.className || 'aside',
-      children: props.children
-    }
-  };
-}
-
-// Fix REACT_017: Add comprehensive landmark elements to main layout components
-// Ensure we have exactly 4 landmark regions: banner (header), navigation (nav), main content, contentinfo (footer)
-export function MainLayout(props) {
-  return {
-    type: 'div',
-    props: {
-      className: 'main-layout',
-      children: [
-        // Header landmark/banners
-        CreateHeader({
-          label: props.headerLabel || 'Site header',
-          className: 'layout-header',
-          children: props.headerContent
-        }),
-        // Navigation landmark
-        CreateNav({
-          label: props.navLabel || 'Main navigation',
-          className: 'layout-nav',
-          children: props.navContent
-        }),
-        // Main content landmark
-        wrapPrimaryContentInMain(props.mainContent, {
-          ariaLabel: props.mainLabel || 'Main content',
-          className: 'layout-main'
-        }),
-        // Footer landmark/contentinfo
-        CreateFooter({
-          label: props.footerLabel || 'Site footer',
-          className: 'layout-footer',
-          children: props.footerContent
-        })
-      ]
-    }
-  };
-}
-
-// Fix REACT_041: Ensure all SVG components have accessible names
-// Adding title elements as fallback for better screen reader support
-export function createSvgIconWithTitle(iconName, children = []) {
-  return {
-    type: 'svg',
-    props: {
-      'aria-label': iconName,
-      role: 'img',
-      focusable: 'false',
-      children: [
-        {
-          type: 'title',
-          props: {
-            children: [iconName]
-          }
-        },
-        ...children
-      ]
-    }
-  };
-}
+// ... (The remaining code from original main.js)

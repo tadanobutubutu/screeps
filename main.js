@@ -10,7 +10,7 @@
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.querySelector('html');
-  if (htmlElement) {
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
   }
 };
@@ -24,6 +24,11 @@ const addAccessibleNamesToSVGs = () => {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
       svg.insertBefore(titleElement, svg.firstChild);
+      
+      // Add aria-labelledby attribute to link the title
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      titleElement.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 };
@@ -33,16 +38,34 @@ const addScopeToTableHeaders = () => {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
+      // Check if the th is in the first row (column headers) or first column (row headers)
+      const row = header.parentElement;
+      const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+      const cellIndex = Array.from(row.cells).indexOf(header);
+      
+      if (rowIndex === 0) {
+        header.setAttribute('scope', 'col');
+      } else if (cellIndex === 0) {
+        header.setAttribute('scope', 'row');
+      } else {
+        // Default to col for ambiguous cases
+        header.setAttribute('scope', 'col');
+      }
     }
   });
 };
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
   fakeLinks.forEach(link => {
-    link.setAttribute('aria-label', 'This link goes to a section within the page');
+    if (!link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+      link.setAttribute('aria-label', 'This link goes to a section within the page');
+    }
+    // Also add tabindex to make it keyboard accessible
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
   });
 };
 
@@ -60,10 +83,11 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarks).forEach(([role, landmark]) => {
-    const elements = document.querySelectorAll(role);
+  Object.entries(landmarks).forEach(([tag, landmark]) => {
+    const elements = document.querySelectorAll(tag);
     elements.forEach(element => {
-      if (element.getAttribute('role') !== landmark) {
+      const currentRole = element.getAttribute('role');
+      if (currentRole !== landmark) {
         element.setAttribute('role', landmark);
       }
     });
@@ -104,13 +128,25 @@ const addLandmarkRegions = () => {
   const landmarks = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
     // Check if the landmark already has the proper role
-    if (landmark.getAttribute('role') === null) {
-      // Add a default role if one is missing
-      landmark.setAttribute('role', 'landmark');
-    }
-    // Add any additional ARIA properties as needed for accessibility
-    // For example, you might want to set 'aria-labelledby' or 'aria-label'
-    // depending on the content and context of the landmark
+    const elements = document.querySelectorAll(landmark);
+    elements.forEach(element => {
+      if (element.getAttribute('role') === null) {
+        // Add a default role if one is missing
+        const roleMap = {
+          'nav': 'navigation',
+          'main': 'main',
+          'header': 'banner',
+          'footer': 'contentinfo',
+          'aside': 'complementary',
+          'section': 'region',
+          'article': 'article'
+        };
+        element.setAttribute('role', roleMap[landmark] || 'landmark');
+      }
+      // Add any additional ARIA properties as needed for accessibility
+      // For example, you might want to set 'aria-labelledby' or 'aria-label'
+      // depending on the content and context of the landmark
+    });
   });
 };
 
@@ -121,7 +157,8 @@ const fixTableStructureIssues = () => {
   tables.forEach(table => {
     // Ensure table has a caption if it doesn't have one and has headers
     const hasCaption = table.querySelector('caption');
-    const hasHeaders = table.querySelectorAll('th').length > 0;
+    const headers = table.querySelectorAll('th');
+    const hasHeaders = headers.length > 0;
 
     if (!hasCaption && hasHeaders) {
       const caption = document.createElement('caption');
@@ -140,7 +177,8 @@ const fixTableStructureIssues = () => {
       // If no thead but there are headers, wrap first row(s) in thead
       if (!hasThead) {
         const firstRow = rows[0];
-        const firstRowHasHeaders = firstRow.querySelectorAll('th').length > 0;
+        const firstRowHeaders = firstRow.querySelectorAll('th');
+        const firstRowHasHeaders = firstRowHeaders.length > 0;
 
         if (firstRowHasHeaders) {
           const thead = document.createElement('thead');
@@ -159,19 +197,21 @@ const fixTableStructureIssues = () => {
             tbody.appendChild(rows[i]);
           }
         }
-        table.appendChild(tbody);
+        if (tbody.children.length > 0) {
+          table.appendChild(tbody);
+        }
       }
     }
 
     // Fix header-cell associations using headers attribute
-    const allCells = table.querySelectorAll('th');
+    const allCells = table.querySelectorAll('td, th');
     allCells.forEach(cell => {
       // If cell has headers attribute, ensure it's valid
       const headersAttr = cell.getAttribute('headers');
       if (headersAttr) {
         const headerIds = headersAttr.split(' ');
         headerIds.forEach(headerId => {
-          const header = table.querySelector(`#${headerId}`);
+          const header = document.getElementById(headerId);
           if (!header) {
             // Invalid header reference, remove the attribute
             cell.removeAttribute('headers');
@@ -206,7 +246,7 @@ const addProperLandmarkRegions = () => {
     // Add unique ID if not present
     if (!element.id) {
       const tagName = element.tagName.toLowerCase();
-      element.id = `${tagName}-landmark-${landmarkCounter}`;
+      element.id = tagName + '-' + landmarkCounter;
     }
 
     // Ensure proper ARIA role
@@ -226,7 +266,7 @@ const addProperLandmarkRegions = () => {
     }
 
     // Add aria-label if no existing labeling mechanism
-    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby') && !element.querySelector('h1, h2, h3, h4, h5, h6')) {
       const defaultLabels = {
         'nav': 'Navigation',
         'main': 'Main content',

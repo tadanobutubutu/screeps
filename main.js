@@ -134,17 +134,6 @@ export const validateLandmarkStructure = (element) => {
   return true;
 };
 
-// Functions to validate table accessibility and structure (REACT_027)
-export const validateTableAccessibility = (tableData) => {
-  if (!tableData || !tableData.rows || tableData.rows.length === 0) return true;
-  return tableData.structured === true;
-};
-
-export const validateTableStructure = (tableData) => {
-  if (!tableData || !tableData.rows || tableData.rows.length < 2) return false;
-  return !!tableData.headerRow && Array.isArray(tableData.bodyRows);
-};
-
 // Functions related to creating in-page buttons and accessible links (REACT_036)
 export const createInPageButton = (label, onClick) => {
   return (

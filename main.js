@@ -1,26 +1,46 @@
-// main.js
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-// Existing code from main.js that needs to be preserved
-// ...
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  myCustomIcon: 'data:image/svg+xml,<svg aria-label="My Custom Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>My Custom Icon</title><text y="0.9em" font-size="90">🌐</text></svg>',
+};
 
-// Fixed: Changed <a id="unrotate" href="#"> to <button id="unrotate">
-// to fix REACT_036 React Fake Link accessibility warning
+const currentExports = {}; // Assuming that currentExports has already been defined with appropriate values
+Object.entries(currentExports).forEach(([key, value]) => {
+  if (!icons.hasOwnProperty(key)) {
+    icons[key] = value;
+  }
+});
 
-// If this is rendered in HTML directly, change:
-// <a id="unrotate" href="#">rotate back</a>
-// to:
-// <button id="unrotate">rotate back</button>
+function renderAccessibleSVG(accessibleName, svgId) {
+  return `<svg aria-label="${accessibleName}" id="${svgId || ''}"></svg>`;
+}
 
-// If main.js contains code that generates this HTML, here's the fix:
+function renderLandmarkStructure(content) {
+  return `<main aria-label="Main content"><header role="banner"><nav role="navigation" aria-label="Main navigation"><!-- Navigation content --></nav></header>${content}<footer role="contentinfo"><!-- Footer content --></footer></main>`;
+}
+
+function App() {
+  return (
+    <div>
+      <a href="/home">Home</a>
+      <table>
+        {/* Table content */}
+      </table>
+      <svg aria-label="App SVG">
+        {/* SVG content */}
+      </svg>
+    </div>
+  );
+}
+
 const generateRotateBackControl = () => {
-  // Before (accessibility issue):
-  // return '<a id="unrotate" href="#">rotate back</a>';
-  
   // After (accessible fix):
   return '<button id="unrotate">rotate back</button>';
 };
 
-// Example event handler update if needed:
 const setupRotateBack = () => {
   const unrotateBtn = document.getElementById('unrotate');
   if (unrotateBtn) {
@@ -30,30 +50,17 @@ const setupRotateBack = () => {
   }
 };
 
-// New changes to fix the React SVG Accessible Name issue
-// Add an accessible name to the SVGs in the icons object
-const icons = {
-  icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
-};
-
-/**
- * Adds a language attribute to an HTML element.
- * @param {React.ReactElement} element JSX element to add lang attribute
- */
-function addLangAttribute(element) {
-  React.Children.forEach(element, child => {
-    if (child && child.type !== 'string' && child.props) {
-      child.props.className += ' jsx-lang-en';
+function renderApp() {
+  if (typeof document !== 'undefined') {
+    if (document.getElementById('root')) {
+      ReactDOM.render(<App />, document.getElementById('root'));
     }
-  });
+    setupRotateBack();
+  }
 }
 
-/**
- * Fixes 26 table structure issues.
- */
-function fixTableStructure() {
-  // Placeholder for table structure fixes
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', renderApp);
 }
 
 /**
@@ -153,21 +160,18 @@ function createAccessibleLink() {
   // Build accessible anchor tag
 }
 
-// Rest of the code from main.js
-// ...
-
-// Export if using module system
-// module.exports = { generateRotateBackControl, setupRotateBack };
-
+// Export functions for testing and usage
 export {
-  addLangAttribute,
+  icons,
+  renderAccessibleSVG,
+  renderLandmarkStructure,
+  App,
   generateRotateBackControl,
   setupRotateBack,
-  icons,
   // ... other exports
 };
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const htmlTag = document.documentElement;
   htmlTag.setAttribute('lang', 'en'); // or the appropriate language code
 });

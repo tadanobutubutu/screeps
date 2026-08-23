@@ -1,10 +1,10 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (NEW FUNCTION fixTableStructureIssues)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addAccessibleNamesToSvgFiles)
-// - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: replaceHashLinksWithButtons)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addAccessibleSvg)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -15,7 +15,7 @@ function addLangAttribute(doc) {
   doc = doc || (typeof document !== 'undefined' ? document : null);
   if (!doc) return;
   var htmlElement = doc.documentElement;
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -44,7 +44,7 @@ function fixTableStructureIssues(doc) {
     var thElements = table.querySelectorAll('th');
     for (var j = 0; j < thElements.length; j++) {
       var th = thElements[j];
-      if (!th.getAttribute('scope')) {
+      if (!th.hasAttribute('scope')) {
         var cellIndex = th.cellIndex;
         var rowIndex = th.parentNode.rowIndex;
         // If it's in the first row, it's a column header
@@ -59,8 +59,8 @@ function fixTableStructureIssues(doc) {
     }
 
     // Wrap row groups in tbody if not present
-    if (!table.querySelector('tbody') && !table.querySelector('thead')) {
-      var rows = table.querySelectorAll('tr');
+    if (!table.tBodies || table.tBodies.length === 0) {
+      var rows = table.rows;
       if (rows.length > 0) {
         var tbody = doc.createElement('tbody');
         for (var k = 0; k < rows.length; k++) {
@@ -80,7 +80,7 @@ function fixTableStructureIssues(doc) {
 function addMainLandmark(doc) {
   doc = doc || (typeof document !== 'undefined' ? document : null);
   if (!doc) return;
-  if (!doc.querySelector('main, [role="main"]')) {
+  if (!doc.querySelector('main') && !doc.querySelector('[role="main"]')) {
     var body = doc.body;
     if (body) {
       var main = doc.createElement('main');
@@ -100,13 +100,13 @@ function addMainLandmark(doc) {
  * Ensures SVG elements have accessible names via <title> or aria-label.
  * @param {Document} [doc] - The document to modify (defaults to global document).
  */
-function addAccessibleNamesToSvgFiles(doc) {
+function addAccessibleSvg(doc) {
   doc = doc || (typeof document !== 'undefined' ? document : null);
   if (!doc) return;
   var svgs = doc.querySelectorAll('svg');
   for (var i = 0; i < svgs.length; i++) {
     var svg = svgs[i];
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('role') && !svg.querySelector('title')) {
       // Check if there's already a <title> child element
       var existingTitle = svg.querySelector('title');
       if (!existingTitle) {
@@ -114,7 +114,7 @@ function addAccessibleNamesToSvgFiles(doc) {
         title.textContent = 'Graphic';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
-      } else if (!svg.getAttribute('role')) {
+      } else if (!svg.getAttribute('aria-label')) {
         svg.setAttribute('role', 'img');
       }
     }
@@ -166,10 +166,10 @@ function ensureUniqueLandmarks(doc) {
  * Replaces <a href="#"> or similar hash-only links with proper <button> elements.
  * @param {Document} [doc] - The document to modify (defaults to global document).
  */
-function replaceHashLinksWithButtons(doc) {
+function fixFakeLinks(doc) {
   doc = doc || (typeof document !== 'undefined' ? document : null);
   if (!doc) return;
-  var links = doc.querySelectorAll('a[href="#"], a[href=""], a[href="#0"], a:not([href])');
+  var links = doc.querySelectorAll('a[href=""], a[href="#"], a[href="#0"], a:not([href])');
   for (var i = 0; i < links.length; i++) {
     var link = links[i];
     var button = doc.createElement('button');
@@ -208,8 +208,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addLangAttribute: addLangAttribute,
     fixTableStructureIssues: fixTableStructureIssues,
     addMainLandmark: addMainLandmark,
-    addAccessibleNamesToSvgFiles: addAccessibleNamesToSvgFiles,
+    addAccessibleSvg: addAccessibleSvg,
     ensureUniqueLandmarks: ensureUniqueLandmarks,
-    replaceHashLinksWithButtons: replaceHashLinksWithButtons
+    fixFakeLinks: fixFakeLinks
   };
 }

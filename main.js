@@ -92,8 +92,8 @@ export const addProperLandmarkRegions = (elements) => {
     main: { role: 'main', id: 'main-content' },
     footer: { role: 'contentinfo', id: 'footer' }
   };
-  return React.Children.map(elements, (child) => {
-    if (!React.isValidElement(child)) return child;
+  return elements.map((child) => {
+    if (!child) return child;
     if (child.props && child.props.landmark) {
       const { type, id } = child.props.landmark;
       if (landmarkMap[type]) {

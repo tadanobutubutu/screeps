@@ -6,7 +6,7 @@ import { HTMLAttributes, ReactElement } from 'react';
 class Main extends Component {
   render() {
     // Add lang attribute to HTML element
-    const htmlAttributes: HTMLAttributes<HTMLDivElement> = {
+    const htmlAttributes: ... = {
       lang: 'en', // Update this with the desired language
     };
 
@@ -22,7 +22,7 @@ class Main extends Component {
               <th>Header 2</th>
             </tr>
           </thead>
-          <tbody>{children}</tbody>
+          ...
         </table>
       );
     };
@@ -31,7 +31,9 @@ class Main extends Component {
     const Landmarks = () => (
       <>
         <header id="banner">Header</header>
-        <main id="mainContent">{this.props.children}</main>
+        <main id="mainContent" {...htmlAttributes}>
+          {this.props.children}
+        </main>
         <footer>Footer</footer>
       </>
     );
@@ -43,7 +45,7 @@ class Main extends Component {
 
     // Ensure unique landmarks
     // For simplicity, I'll only update the main content, as id="mainContent" already exists
-    const uniqueMainContent = { ...htmlAttributes, id: `${htmlAttributes.id}-unique` };
+    const uniqueMainContent = { ...htmlAttributes, id: ... };
 
     // Fix fake link issue
     // Assuming `fakeLink` is the element causing the issue. Update it as necessary
@@ -55,20 +57,19 @@ class Main extends Component {
 
     return (
       <div {...htmlAttributes}>
-        <Landmarks>
+        <header id="banner">Header</header>
+        <main id="mainContent" {...htmlAttributes}>
           {/* Keep existing code/components as is */}
-          <Table id="existingTable">...</Table>
+          <Table ...
           {/* Add updated table with better structure */}
           <Table id="updatedTable">...</Table>
           {/* Keep existing SVGs as is */}
           {Logo()}
           {MenuIcon()}
           {fixedLink}
-          {/* Keep existing mainContent as is */}
-          <main id="mainContent" {...uniqueMainContent}>
-            {this.props.children}
-          </main>
-        </Landmarks>
+          {this.props.children}
+        </main>
+        <footer>Footer</footer>
       </div>
     );
   }

@@ -12,7 +12,7 @@ const DataTable = () => {
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={col.id} scope="col">{col.label}</th>
+            <th key={col.id} ...
           ))}
         </tr>
       </thead>
@@ -20,12 +20,12 @@ const DataTable = () => {
         <tr>
           <td>Alice</td>
           <td>25</td>
-          <td>alice@example.com</td>
+          ...
         </tr>
         <tr>
           <td>Bob</td>
           <td>30</td>
-          <td>bob@example.com</td>
+          ...
         </tr>
       </tbody>
     </table>

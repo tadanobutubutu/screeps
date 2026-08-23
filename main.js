@@ -54,7 +54,15 @@ function processChildrenWithLang(element) {
 
     return React.cloneElement(element, {
       ...element.props,
+      lang: (element.props && element.props.lang) || 'en',
       children: processedChildren,
+    });
+  }
+
+  if (element.props) {
+    return React.cloneElement(element, {
+      ...element.props,
+      lang: element.props.lang || 'en',
     });
   }
 
@@ -467,6 +475,24 @@ function fixDuplicateMainLandmarksInHTML(html, options = {}) {
   return doc.body.innerHTML;
 }
 
+/**
+ * Fixes missing lang attribute on the root <html> element in an HTML string.
+ * @param {string} html HTML string to fix
+ * @returns {string} HTML string with lang="en" added if missing
+ */
+function fixLanguageAttributeInHTML(html) {
+  if (!html || typeof html !== 'string') {
+    return html;
+  }
+
+  return html.replace(/<html\b([^>]*)>/i, (match, attrs) => {
+    if (/\blang=/.test(attrs)) {
+      return match;
+    }
+    return `<html lang="en"${attrs}>`;
+  });
+}
+
 export {
   addLangAttribute,
   processChildrenWithLang,
@@ -483,6 +509,7 @@ export {
   fixDuplicateMainLandmarks,
   UniqueMainLandmark,
   fixDuplicateMainLandmarksInHTML,
+  fixLanguageAttributeInHTML,
   icons,
 };
 
@@ -509,6 +536,7 @@ if (typeof module !== 'undefined' && module.exports) {
     fixDuplicateMainLandmarks,
     UniqueMainLandmark,
     fixDuplicateMainLandmarksInHTML,
+    fixLanguageAttributeInHTML,
     icons,
   };
 }

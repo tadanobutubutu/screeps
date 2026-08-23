@@ -11,7 +11,7 @@ const Main = ({ data }) => {
 
   useEffect(() => {
     const htmlElement = document.documentElement;
-    Object.keys(htmlAttrs).forEach(key => {
+    Object.entries(htmlAttrs).forEach(([key, value]) => {
       htmlElement.setAttribute(key, htmlAttrs[key]);
     });
   }, [htmlAttrs]);
@@ -39,7 +39,30 @@ const Main = ({ data }) => {
   // ... rest of your existing code
 
   // REACT_041: Add accessible names to 2 SVGs
-  // You should give an unique ID to each SVG, and provide an accessibleName to those IDs using React's ref attribute
+  // FIX: Add aria-label or <title> child element to SVG elements to provide accessible names
+  // Example fix for decorative SVGs:
+  // <svg aria-hidden="true" ...>...</svg>
+  // Example fix for informative SVGs:
+  // <svg aria-label="Description of the icon" ...>...</svg>
+  // Or use <title> element:
+  // <svg ...><title>Accessible Name</title>...</svg>
+  
+  // For favicon SVGs (app/layout.tsx and dashboard/app/layout.tsx):
+  // Option 1: Add aria-label to the SVG element
+  // <svg aria-label="Screeps Dashboard" ...>
+  //   <title>Screeps Dashboard</title>
+  //   <text y=".9em" ...>
+  //   ...
+  // </svg>
+  
+  // Option 2: Use aria-hidden="true" if decorative (no meaningful content)
+  // <svg aria-hidden="true" ...>...</svg>
+  
+  // Option 3: Add a <title> child with unique ID and reference it with aria-labelledby
+  // <svg aria-labelledby="svg-title-1" ...>
+  //   <title id="svg-title-1">Screeps Dashboard</title>
+  //   ...
+  // </svg>
 
   // ... rest of your existing code
 

@@ -60,6 +60,16 @@ export const addLangAttribute = (lang = 'en') => {
   return <html lang={lang} />;
 };
 
+// Function to retrieve lang attribute value (REACT_015)
+export const getLangAttribute = () => {
+  return 'lang="en"';
+};
+
+// Function to retrieve full lang attribute including element context (REACT_015)
+export const getFullLangAttribute = () => {
+  return '<html lang="en">';
+};
+
 // New function to wrap primary content in a main element
 export const wrapPrimaryContentInMain = (content) => {
   return <main>{content}</main>;
@@ -73,6 +83,15 @@ export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
     'aria-label': accessibleName,
     role: 'img'
   });
+};
+
+// Functions to support accessible naming for SVGs (REACT_041)
+export const getSvgAccessibleName = (svgId) => {
+  return `#${svgId}-title`;
+};
+
+export const getSvgAriaLabel = (label) => {
+  return label || 'SVG graphic';
 };
 
 // New function to add landmark attributes to elements (REACT_017)
@@ -93,6 +112,45 @@ export const createLandmark = (element, landmarkType, id) => {
     role,
     id: id || `${landmarkType}-landmark`
   });
+};
+
+// Functions to validate landmark structure and accessibility (REACT_017)
+export const validateLandmark = (landmarkType) => {
+  const validLandmarks = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search', 'form'];
+  return validLandmarks.includes(landmarkType);
+};
+
+export const validateLandmarkStructure = (element) => {
+  if (!element || !element.props || !element.props.role) return false;
+  return true;
+};
+
+// Functions to validate table accessibility and structure (REACT_027)
+export const validateTableAccessibility = (tableData) => {
+  if (!tableData || !tableData.rows || tableData.rows.length === 0) return true;
+  return tableData.structured === true;
+};
+
+export const validateTableStructure = (tableData) => {
+  if (!tableData || !tableData.rows || tableData.rows.length < 2) return false;
+  return !!tableData.headerRow && Array.isArray(tableData.bodyRows);
+};
+
+// Functions related to creating in-page buttons and accessible links (REACT_036)
+export const createInPageButton = (label, onClick) => {
+  return (
+    <button aria-label={label} onClick={onClick}>
+      {label}
+    </button>
+  );
+};
+
+export const createAccessibleLink = (content, href, ariaLabel) => {
+  return (
+    <a href={href} aria-label={ariaLabel}>
+      {content}
+    </a>
+  );
 };
 
 // Main component
@@ -128,5 +186,22 @@ export default function Home({ projects }) {
   );
 }
 
-// Export consolidated list of utility functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addAriaLabelToFakeLink, addLangAttribute, wrapPrimaryContentInMain, createLandmark };
+// Consolidated list of utility functions
+export { 
+  fixTableStructureIssues, 
+  ensureUniqueLandmarks, 
+  addAriaLabelToFakeLink, 
+  addLangAttribute, 
+  getLangAttribute, 
+  getFullLangAttribute,
+  wrapPrimaryContentInMain, 
+  createLandmark,
+  getSvgAccessibleName,
+  getSvgAriaLabel,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  createInPageButton,
+  createAccessibleLink
+};

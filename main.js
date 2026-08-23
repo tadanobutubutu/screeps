@@ -6,11 +6,12 @@ module.exports = {
   // Any other existing configurations or code
   // ...
 
-  // Rule changes as requested for REACT_041 React SVG Accessible Name
+  // Rule changes as requested for REACT_027 React Table Structure
   transformIgnorePatterns: [
     // ... any other patterns
     "/node_modules/(?!@react-icons)/",
     "/node_modules/(?!@material-ui)/",
+    "/node_modules/(?!react-table)/" // Assuming react-table is the library that requires the scope attribute
   ],
 
   // Any additional transformations for the new test cases if necessary

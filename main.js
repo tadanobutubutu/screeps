@@ -8,6 +8,14 @@ const myNewFunction = function() {
   // your new function logic goes here
 };
 
+// New function to address REACT_015: Add lang attribute to HTML element
+const addLangAttribute = function() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+};
+
 module.exports = {
   loop: function() {
     // Main game loop logic
@@ -205,5 +213,6 @@ module.exports = {
     // Call the new function here, for example:
     myNewFunction();
   },
-  myNewFunction: myNewFunction
+  myNewFunction: myNewFunction,
+  addLangAttribute: addLangAttribute
 };

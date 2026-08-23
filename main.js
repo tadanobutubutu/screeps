@@ -25,11 +25,8 @@ function indexFunction() {
 
 // ... other functions and exports
 
-// TODO: Add back any required exports that might have been removed
+// Add back any required exports that might have been removed
 module.exports = {
   dependencyGraphFunction,
   indexFunction,
-  // Add any other exports that are required and were removed
-  // Example:
-  // anotherExportFunction,
 };

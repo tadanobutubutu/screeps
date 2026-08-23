@@ -63,15 +63,12 @@ export function addAccessibleIds() {
 }
 
 // TODO: Implement wrapPrimaryContentInMain function
-// Add the new functions for the remaining accessibility issues
 export function wrapPrimaryContentInMain() {
     const mainContent = ... // Assuming the primary content is within a div with class 'container'
     if (mainContent && mainContent.parentElement && mainContent.parentElement.tagName !== 'MAIN') {
-        const mainTag = ...
-        while ... {
-            ...
-        }
-        ...
+        const mainTag = document.createElement('main');
+        mainContent.parentElement.replaceChild(mainTag, mainContent);
+        mainTag.appendChild(mainContent);
     }
 }
 
@@ -82,12 +79,12 @@ export function addMainLandmark() {
     // Implementation for adding main landmark
     const mainElements = ...
     if (mainElements.length === 0) {
-        const main = ...
+        const main = document.createElement('main');
         const body = document.body;
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(main, body.firstChild);
         } else {
-            ...
+            body.appendChild(main);
         }
         main.setAttribute('aria-label', 'Main content area');
     }
@@ -100,17 +97,12 @@ export function ensureUniqueLandmarks() {
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {
-                    const div = ...
+                    const div = document.createElement('div');
                     div.setAttribute('role', role);
-                    ... => {
-                        if (attr.name !== 'role') {
-                            div.setAttribute(attr.name, attr.value);
-                        }
-                    });
                     while (el.firstChild) {
-                        ...
+                        div.appendChild(el.firstChild);
                     }
-                    ... el);
+                    el.parentNode.replaceChild(div, el);
                 }
             });
         }
@@ -129,19 +121,23 @@ export function addLandmarkRegions() {
         const headerEl = document.createElement('header');
         headerEl.setAttribute('role', 'banner');
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(headerEl, body.firstChild);
         } else {
-            ...
+            body.appendChild(headerEl);
         }
     }
 
     // Check for nav landmark
     const nav = ...
     if (!nav) {
-        const navEl = ...
-        ... 'navigation');
-        ... 'Main navigation');
-        ...
+        const navEl = document.createElement('nav');
+        navEl.setAttribute('role', 'navigation');
+        navEl.setAttribute('aria-label', 'Main navigation');
+        if (body.firstChild) {
+            body.insertBefore(navEl, body.firstChild);
+        } else {
+            body.appendChild(navEl);
+        }
     }
 
     // Check for footer landmark
@@ -149,7 +145,11 @@ export function addLandmarkRegions() {
     if (!footer) {
         const footerEl = document.createElement('footer');
         footerEl.setAttribute('role', 'contentinfo');
-        ...
+        if (body.lastChild) {
+            body.insertBefore(footerEl, body.lastChild.nextSibling);
+        } else {
+            body.appendChild(footerEl);
+        }
     }
 }
 

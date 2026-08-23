@@ -1,5 +1,3 @@
-// Screeps Main Script
-// Ensure all exports are preserved
 module.exports = {
   loop: function() {
     // Main game loop

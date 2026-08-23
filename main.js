@@ -51,7 +51,7 @@ function addMainLandmark() {
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      document.body.insertBefore(main, document.body.firstChild);
     }
   }, []);
 }

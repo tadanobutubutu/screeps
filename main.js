@@ -9,7 +9,7 @@ const ensureUniqueLandmarks = function() {
   // This addresses REACT_025: Ensure unique landmarks (2 issues)
   const landmarks = document.querySelectorAll('aside, footer, header, section, article');
   const seenIds = new Set();
-  
+
   landmarks.forEach((landmark) => {
     let id = landmark.id;
     if (!id) {
@@ -21,7 +21,7 @@ const ensureUniqueLandmarks = function() {
       landmark.id = id;
     }
     seenIds.add(id);
-    
+
     // Add ARIA attributes for accessibility
     if (landmark.tagName === 'SECTION' && !landmark.getAttribute('aria-label')) {
       landmark.setAttribute('role', 'region');
@@ -157,18 +157,6 @@ const addressAccessibilityIssues = function() {
   fixFakeLinkIssue();
 };
 
-const setLanguageAttribute = function(lang) {
-  // Assuming the document object is available in the global scope
-  document.documentElement.lang = lang;
-};
-
-const calculateAverage = function(numbers) {
-  const sum = numbers.reduce((acc, num) => acc + num, 0);
-  return sum / numbers.length;
-};
-
-// New functions to address specific accessibility tasks mentioned in the insight report
-
 const addLangAttribute = function(lang = 'en') {
   // REACT_015: Add lang attribute to HTML element
   document.documentElement.lang = lang;
@@ -224,4 +212,4 @@ module.exports = {
 
 // Set default language attribute for the HTML root element and trigger accessibility improvements
 document.documentElement.lang = 'en';
-addressAccessibilityIssues();
+runAllAccessibilityFixes();

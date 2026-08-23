@@ -322,3 +322,4 @@ function fixFakeLinkIssue(element) {
   const hasButtonRole = element.getAttribute('role') === 'button';
   
   if (isFakeLink || (hasButtonRole && element.tag
+```

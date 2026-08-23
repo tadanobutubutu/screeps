@@ -89,8 +89,22 @@ function validateTableStructure(htmlContent) {
       } else {
         result += `<tbody>${content}</tbody>`;
       }
+    } else if (hasThead && hasTbody) {
+      // If both thead and tbody exist, ensure they are properly closed
+      // and add any missing structure
+      if (!/<\/thead>/i.test(content) || !/<\/tbody>/i.test(content)) {
+        // Ensure proper closing tags
+        if (!/<\/thead>/i.test(content)) {
+          result += `<thead></thead>`;
+        }
+        if (!/<\/tbody>/i.test(content)) {
+          result += `<tbody></tbody>`;
+        }
+      }
+      result += `</table>`;
+      return result;
     } else if (!hasThead && hasTbody) {
-      // No thead but has tbody - extract first row(s) for thead if appropriate
+      // No thead but has tbody - extract first row for thead if appropriate
       const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/i);
       if (tbodyMatch) {
         // Try to extract first row for thead
@@ -313,6 +327,29 @@ function getPascalCaseFromCamelCase(str) {
   return str.replace(/(?:^\w|(?<\w)\w)/g, function (match) {
     return match.toUpperCase();
   });
+}
+
+// Wrap primary content in main tag
+// This function implements the wrapPrimaryContentInMain functionality
+function wrapPrimaryContentInMain(htmlContent) {
+  // Find the main landmark if it exists
+  const mainMatch = htmlContent.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+  if (mainMatch) {
+    // Extract content between main tags
+    const mainContent = mainMatch[1];
+    // Wrap the entire content in a main tag
+    return `<main>${mainContent}</main>`;
+  }
+  // If no main tag found, try to find primary content after the main landmark
+  // or before the footer
+  const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    const bodyContent = bodyMatch[1];
+    // Wrap the body content in a main tag
+    return `<main>${bodyContent}</main>`;
+  }
+  // Fallback: wrap everything in main
+  return `<main>${htmlContent}</main>`;
 }
 
 // Main function to process HTML content and address accessibility issues

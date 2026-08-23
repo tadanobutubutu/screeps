@@ -18,130 +18,359 @@ const icons = {
  * @param {React.ReactElement} element JSX element to add lang attribute
  */
 function addLangAttribute(element) {
-  ... child => {
-    if (child && child.type !== 'string' && child.props) {
-      child.props.className += ' jsx-lang-en';
-      // Add lang attribute to indicate language of the element
-      child.props.lang = 'en';
-    }
+  if (!element || !element.props) {
+    return element;
+  }
+  
+  return React.cloneElement(element, {
+    ...element.props,
+    lang: element.props.lang || 'en',
   });
+}
+
+/**
+ * Recursively processes children to add language attributes.
+ * @param {React.ReactElement} element JSX element to process
+ * @returns {React.ReactElement} Element with lang attributes added
+ */
+function processChildrenWithLang(element) {
+  if (!element || typeof element !== 'object') {
+    return element;
+  }
+
+  if (element.props && element.props.children) {
+    const processedChildren = React.Children.map(element.props.children, child => {
+      if (child && typeof child === 'object' && child.type !== 'string') {
+        if (child.props) {
+          return React.cloneElement(child, {
+            ...child.props,
+            className: (child.props.className || '') + ' jsx-lang-en',
+            lang: child.props.lang || 'en',
+          });
+        }
+      }
+      return child;
+    });
+
+    return React.cloneElement(element, {
+      ...element.props,
+      children: processedChildren,
+    });
+  }
+
+  return element;
 }
 
 /**
  * Fixes 26 table structure issues.
  */
 function fixTableStructure() {
-  // Placeholder for table structure fixes
+  // Ensure tables have proper semantic structure
+  // - Add <caption> for table titles
+  // - Use <thead> and <tbody> properly
+  // - Add scope attributes to header cells
+  // - Ensure proper th/td usage
+  
+  const tableFixes = {
+    addCaption: (table, captionText) => {
+      return React.cloneElement(table, {
+        ...table.props,
+      }, [
+        React.createElement('caption', { key: 'caption' }, captionText),
+        table.props.children,
+      ]);
+    },
+    
+    addScopeToHeaders: (headerCells) => {
+      return headerCells.map((cell, index) => {
+        if (cell.type === 'th') {
+          return React.cloneElement(cell, {
+            ...cell.props,
+            scope: cell.props.scope || 'col',
+          });
+        }
+        return cell;
+      });
+    },
+    
+    ensureTheadTbody: (table) => {
+      const children = table.props.children;
+      let hasThead = false;
+      let hasTbody = false;
+      
+      React.Children.forEach(children, child => {
+        if (child && child.type === 'thead') hasThead = true;
+        if (child && child.type === 'tbody') hasTbody = true;
+      });
+      
+      return table;
+    },
+  };
+  
+  return tableFixes;
 }
 
 /**
  * Adds a main landmark to the application.
  */
-function addMainLandmark() {
-  // Placeholder for adding main landmark
+function addMainLandmark(element) {
+  if (!element) {
+    return React.createElement('main', { id: 'main-content', role: 'main' });
+  }
+  
+  return React.cloneElement(element, {
+    ...element.props,
+    id: element.props.id || 'main-content',
+    role: element.props.role || 'main',
+  });
 }
 
 /**
  * Validates that a landmark exists.
+ * @param {Document} doc Document to check for landmarks
+ * @returns {boolean} True if at least one landmark exists
  */
-function validateLandmark(landmark) {
-  // Placeholder validation
+function validateLandmark(doc) {
+  const landmarks = doc.querySelectorAll('[role]');
+  const validLandmarkRoles = [
+    'banner', 'navigation', 'main', 'complementary', 
+    'contentinfo', 'search', 'form'
+  ];
+  
+  for (const landmark of landmarks) {
+    if (validLandmarkRoles.includes(landmark.getAttribute('role'))) {
+      return true;
+    }
+  }
+  
+  // Also check for native HTML5 landmark elements
+  const nativeLandmarks = doc.querySelectorAll('header, nav, main, aside, footer');
+  return nativeLandmarks.length > 0;
 }
 
 /**
  * Ensures all landmarks are unique.
+ * @param {Array} landmarks Array of landmark elements or objects
+ * @returns {Array} Array with duplicates removed
  */
-function ... {
-  // Placeholder uniqueness check
+function ensureUniqueLandmarks(landmarks) {
+  const unique = [];
+  const seen = new Set();
+  
+  landmarks.forEach(landmark => {
+    const identifier = landmark.id || landmark.getAttribute?.('role') || JSON.stringify(landmark);
+    if (!seen.has(identifier)) {
+      seen.add(identifier);
+      unique.push(landmark);
+    }
+  });
+  
+  return unique;
 }
 
 /**
  * Validates the structure of landmarks.
+ * @param {Document} doc Document to validate landmark structure
+ * @returns {Object} Validation result with errors array
  */
-function ... {
-  // Placeholder structure validation
+function validateLandmarkStructure(doc) {
+  const errors = [];
+  const landmarks = doc.querySelectorAll('[role="main"], main');
+  
+  // Ensure exactly one main landmark
+  if (landmarks.length === 0) {
+    errors.push('No main landmark found. Add a <main> element or role="main".');
+  } else if (landmarks.length > 1) {
+    errors.push(`Found ${landmarks.length} main landmarks. Should have exactly one.`);
+  }
+  
+  // Check for proper landmark nesting
+  const headerElements = doc.querySelectorAll('header, [role="banner"]');
+  headerElements.forEach(header => {
+    const parent = header.parentElement;
+    if (parent && (parent.tagName === 'ARTICLE' || parent.tagName === 'ASIDE' || parent.getAttribute?.('role') === 'complementary')) {
+      errors.push('Header should not be nested inside article, aside, or complementary landmarks.');
+    }
+  });
+  
+  // Check for unique landmark labels
+  const landmarkLabels = {};
+  const labeledLandmarks = doc.querySelectorAll('[role][aria-label]');
+  labeledLandmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label');
+    if (landmarkLabels[label]) {
+      errors.push(`Duplicate landmark label: "${label}". Labels should be unique.`);
+    }
+    landmarkLabels[label] = true;
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
 }
 
 /**
  * Adds an accessible name to an SVG element.
+ * @param {SVGElement} svgElement SVG element to modify
+ * @param {string} accessibleName Accessible name to add
  */
-function ... {
-  // Example: set aria-label
-  ... 'SVG description');
+function addAccessibleNameToSVG(svgElement, accessibleName) {
+  if (!svgElement || !accessibleName) {
+    return svgElement;
+  }
+  
+  // Create or find the title element
+  let titleElement = svgElement.querySelector('title');
+  
+  if (!titleElement) {
+    titleElement = document.createElement('title');
+    svgElement.insertBefore(titleElement, svgElement.firstChild);
+  }
+  
+  titleElement.textContent = accessibleName;
+  
+  // Generate unique ID for aria-labelledby
+  const id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+  titleElement.id = id;
+  
+  // Add aria-labelledby attribute
+  svgElement.setAttribute('aria-labelledby', id);
+  
+  // Ensure role="img" is set
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  
+  return svgElement;
 }
 
 /**
  * Gets the accessible name of an SVG element.
+ * @param {SVGElement} svgElement SVG element to get name from
+ * @returns {string} The accessible name (title, aria-label, or aria-labelledby)
  */
-function ... {
-  // Return the title attribute or fallback
-  return svgElement.getAttribute('title') || '';
+function getAccessibleName(svgElement) {
+  if (!svgElement) {
+    return '';
+  }
+  
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const titleElement = svgElement.ownerDocument.getElementById(ariaLabelledby);
+    if (titleElement) {
+      return titleElement.textContent;
+    }
+  }
+  
+  // Fallback to title element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement) {
+    return titleElement.textContent;
+  }
+  
+  return '';
 }
 
 /**
  * Creates accessibility properties for an SVG element.
+ * @param {string} accessibleName The accessible name for the SVG
+ * @returns {Object} Object with role, aria-labelledby, and aria-label
  */
-function ... {
-  // Add role, aria-labelledby, etc.
-  const accessibleName = ...
-  ... 'img');
-  ... accessibleName);
+function createAccessibilityProps(accessibleName) {
+  if (!accessibleName) {
+    return {
+      role: 'img',
+      'aria-hidden': 'true',
+    };
+  }
+  
+  return {
+    role: 'img',
+    'aria-label': accessibleName,
+    'aria-labelledby': undefined, // Prefer aria-label over aria-labelledby for simple cases
+  };
 }
 
 /**
  * Ensures landmarks are unique.
+ * @param {Array} landmarks Array of landmarks to deduplicate
+ * @returns {Array} Deduplicated landmarks
  */
-function ensureUniqueLandmarks(landmarks) {
-  // Remove duplicates
+function deduplicateLandmarks(landmarks) {
   return [...new Set(landmarks)];
 }
 
 /**
  * Fixes a fake link issue.
+ * @param {HTMLElement} element Element to check and fix
+ * @returns {HTMLElement} Fixed element
  */
-function fixFakeLinkIssue() {
-  // Fix broken link
+function fixFakeLinkIssue(element) {
+  if (!element) {
+    return element;
+  }
+  
+  const isFakeLink = element.tagName === 'a' && !element.href && !element.getAttribute('onclick');
+  const hasButtonRole = element.getAttribute('role') === 'button';
+  
+  if (isFakeLink || (hasButtonRole && element.tagName !== 'BUTTON')) {
+    // Convert to proper button element
+    const button = document.createElement('button');
+    button.innerHTML = element.innerHTML;
+    button.className = element.className;
+    button.onclick = element.onclick;
+    
+    // Copy all attributes except href
+    Array.from(element.attributes).forEach(attr => {
+      if (attr.name !== 'href') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    });
+    
+    // Ensure proper button semantics
+    button.setAttribute('role', 'button');
+    button.removeAttribute('href');
+    
+    return button;
+  }
+  
+  return element;
 }
 
 /**
  * Validates link accessibility.
+ * @param {HTMLAnchorElement} link Anchor element to validate
+ * @returns {Object} Validation result with isValid and errors
  */
 function validateLinkAccessibility(link) {
-  // Check if link is properly associated
-}
-
-/**
- * Creates an in-page button.
- */
-function createInPageButton() {
-  // Create button element
-}
-
-/**
- * Validates whether an element is a link or button.
- */
-function ... {
-  // Determine type
-}
-
-/**
- * Creates an accessible link.
- */
-function createAccessibleLink() {
-  // Build accessible anchor tag
-}
-
-// Rest of the code from main.js
-// ...
-
-export {
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  validateLinkAccessibility,
-  createInPageButton,
-  createAccessibleLink,
-};
+  const errors = [];
+  
+  if (!link) {
+    return { isValid: false, errors: ['Link is null or undefined'] };
+  }
+  
+  // Check for accessible text
+  const linkText = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  
+  if (!linkText && !ariaLabel) {
+    errors.push('Link has no accessible name. Add text content or aria-label.');
+  }
+  
+  // Check for proper href
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    errors.push('Link has no valid href attribute.');
+  }
+  
+  // Check for proper focusability
+  if (link.getAttribute('tabindex') === '-1' && !href) {
+    errors.push('

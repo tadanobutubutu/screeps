@@ -36,7 +36,7 @@ function FakeLinkFixed() {
   // ... already existing code here
 }
 
-// Addessed accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // ... already existing functions
 
 // NEW: Add lang attribute to HTML element. This function can be implemented in setupTests.js or globally in a JS file

@@ -33,7 +33,7 @@ function addLangAttribute(element) {
  * @param {React.ReactElement} element JSX element to process
  * @returns {React.ReactElement} Element with lang attributes added
  */
-function processChildrenWithLang(element) {
+function processChildrenForLang(element) {
   if (!element || typeof element !== 'object') {
     return element;
   }
@@ -85,7 +85,7 @@ function fixTableStructure() {
         ...table.props,
       }, [
         React.createElement('caption', { key: 'caption' }, captionText),
-        ...React.Children.toArray(table.props.children)
+        ...(Array.isArray(table.props.children) ? table.props.children : [table.props.children]),
       ]);
     },
     
@@ -139,7 +139,7 @@ function addMainLandmark(element) {
  * @returns {boolean} True if at least one landmark exists
  */
 function validateLandmark(doc) {
-  const landmarks = doc.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
+  const landmarks = doc.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"]');
   const validLandmarkRoles = [
     'banner', 'navigation', 'main', 'complementary', 
     'contentinfo', 'search', 'form'
@@ -152,7 +152,7 @@ function validateLandmark(doc) {
   }
   
   // Also check for native HTML5 landmark elements
-  const nativeLandmarks = doc.querySelectorAll('header, nav, main, aside, footer');
+  const nativeLandmarks = doc.querySelectorAll('nav, main, aside, footer');
   return nativeLandmarks.length > 0;
 }
 
@@ -166,7 +166,7 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   
   landmarks.forEach(landmark => {
-    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
+    const identifier = landmark.id || landmark.getAttribute?.('id') || landmark.label || '';
     if (!seen.has(identifier)) {
       seen.add(identifier);
       unique.push(landmark);
@@ -183,7 +183,7 @@ function ensureUniqueLandmarks(landmarks) {
  */
 function validateLandmarkStructure(doc) {
   const errors = [];
-  const landmarks = doc.querySelectorAll('[role="main"], main');
+  const landmarks = doc.querySelectorAll('main, [role="main"]');
   
   // Ensure exactly one main landmark
   if (landmarks.length === 0) {
@@ -193,7 +193,7 @@ function validateLandmarkStructure(doc) {
   }
   
   // Check for proper landmark nesting
-  const headerElements = doc.querySelectorAll('header, [role="banner"]');
+  const headerElements = doc.querySelectorAll('[role="banner"]');
   headerElements.forEach(header => {
     const parent = header.parentElement;
     if (parent && (parent.tagName === 'ARTICLE' || parent.tagName === 'ASIDE' || parent.getAttribute?.('role') === 'complementary')) {
@@ -203,9 +203,9 @@ function validateLandmarkStructure(doc) {
   
   // Check for unique landmark labels
   const landmarkLabels = {};
-  const labeledLandmarks = doc.querySelectorAll('[aria-label], [aria-labelledby]');
+  const labeledLandmarks = doc.querySelectorAll('[aria-labelledby]');
   labeledLandmarks.forEach(landmark => {
-    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    const label = landmark.getAttribute('aria-labelledby') || '';
     if (landmarkLabels[label]) {
       errors.push(`Duplicate landmark label: "${label}". Labels should be unique.`);
     }
@@ -223,7 +223,7 @@ function validateLandmarkStructure(doc) {
  * @param {SVGElement} svgElement SVG element to modify
  * @param {string} accessibleName Accessible name to add
  */
-function addAccessibleNameToSVG(svgElement, accessibleName) {
+function addAccessibleName(svgElement, accessibleName) {
   if (!svgElement || !accessibleName) {
     return svgElement;
   }
@@ -258,7 +258,7 @@ function getAccessibleName(svgElement) {
   // Check for aria-labelledby reference
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const titleElement = document.getElementById(ariaLabelledby);
+    const titleElement = svgElement.querySelector(`#${ariaLabelledby}`);
     if (titleElement) {
       return titleElement.textContent;
     }
@@ -303,7 +303,7 @@ function deduplicateLandmarks(landmarks) {
   const seen = new Set();
   
   landmarks.forEach(landmark => {
-    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
+    const identifier = landmark.id || landmark.getAttribute?.('id') || landmark.label || '';
     if (!seen.has(identifier)) {
       seen.add(identifier);
       unique.push(landmark);
@@ -314,229 +314,4 @@ function deduplicateLandmarks(landmarks) {
 }
 
 /**
- * Fixes a fake link issue.
- * @param {HTMLElement} element Element to check and fix
- * @returns {HTMLElement} Fixed element
- */
-function fixFakeLinkIssue(element) {
-  if (!element) {
-    return element;
-  }
-  
-  // Check if it's an anchor tag without href (fake link)
-  if (element.tagName === 'A' && !element.href && !element.getAttribute('href')) {
-    if (!element.getAttribute('role')) {
-      element.setAttribute('role', 'button');
-    }
-    if (!element.getAttribute('tabIndex')) {
-      element.setAttribute('tabIndex', '0');
-    }
-  }
-  
-  return element;
-}
-
-/**
- * Fixes duplicate main landmarks by converting excess <main> elements to <section> or <article>.
- * Ensures only one <main> landmark exists in the document.
- * @param {Document|Element} root Root element to search for main landmarks
- * @param {Object} options Configuration options
- * @param {string} options.replacementTag Tag to replace excess main elements with ('section' or 'article')
- * @param {boolean} options.preserveFirst Whether to preserve the first main element found (default: true)
- * @returns {Object} Result with fixed count and details
- */
-function fixDuplicateMainLandmarks(root, options = {}) {
-  if (!root) {
-    return { fixed: 0, details: [] };
-  }
-
-  const { replacementTag = 'section', preserveFirst = true } = options;
-  const validReplacementTags = ['section', 'article', 'div'];
-  const tag = validReplacementTags.includes(replacementTag) ? replacementTag : 'section';
-
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  const details = [];
-  let fixed = 0;
-
-  if (mainElements.length <= 1) {
-    return { fixed: 0, details: ['No duplicate main landmarks found.'] };
-  }
-
-  mainElements.forEach((mainEl, index) => {
-    // Skip the first main element if preserveFirst is true
-    if (preserveFirst && index === 0) {
-      details.push(`Preserved main landmark at index 0: ${mainEl.tagName.toLowerCase()}`);
-      return;
-    }
-
-    // Convert to replacement tag
-    const newElement = document.createElement(tag);
-    
-    // Copy attributes except role="main"
-    Array.from(mainEl.attributes).forEach(attr => {
-      if (attr.name === 'role' && attr.value === 'main') {
-        // Don't copy role="main"
-        return;
-      }
-      newElement.setAttribute(attr.name, attr.value);
-    });
-
-    // Add a class to identify converted elements
-    const existingClass = newElement.getAttribute('class') || '';
-    newElement.setAttribute('class', `${existingClass} converted-from-main`.trim());
-
-    // Move children
-    while (mainEl.firstChild) {
-      newElement.appendChild(mainEl.firstChild);
-    }
-
-    // Replace in DOM
-    if (mainEl.parentNode) {
-      mainEl.parentNode.replaceChild(newElement, mainEl);
-    }
-
-    fixed++;
-    details.push(`Converted main landmark at index ${index} to <${tag}>`);
-  });
-
-  return { fixed, details };
-}
-
-/**
- * React component helper to ensure only one main landmark is rendered.
- * Wraps children and ensures only the first main element remains as main,
- * converting subsequent ones to section elements.
- * @param {React.ReactNode} children Child elements
- * @param {Object} props Additional props
- * @returns {React.ReactElement} Wrapper element with fixed landmarks
- */
-function UniqueMainLandmark({ children, ...props }) {
-  const childrenArray = React.Children.toArray(children);
-  let mainFound = false;
-
-  const processedChildren = childrenArray.map(child => {
-    if (!React.isValidElement(child)) {
-      return child;
-    }
-
-    const childType = child.type;
-    const isMain = childType === 'main' || 
-      (typeof childType === 'string' && childType.toLowerCase() === 'main') ||
-      child.props?.role === 'main';
-
-    if (isMain) {
-      if (mainFound) {
-        // Convert to section
-        return React.cloneElement(child, {
-          ...child.props,
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML: child.props.dangerouslySetInnerHTML,
-        }, 
-        // Convert main to section by changing the type
-        // We need to create a new element with section type
-        React.Children.map(child.props.children, c => c)
-        );
-      }
-      mainFound = true;
-    }
-
-    return child;
-  });
-
-  // Return a fragment or wrapper div with processed children
-  return React.createElement(
-    'div',
-    { ...props, 'data-unique-main-landmark': 'true' },
-    processedChildren
-  );
-}
-
-/**
- * Server-side/DOM helper to fix duplicate main landmarks in HTML string.
- * @param {string} html HTML string to process
- * @param {Object} options Configuration options
- * @returns {string} Fixed HTML string
- */
-function fixDuplicateMainLandmarksInHTML(html, options = {}) {
-  if (!html || typeof html !== 'string') {
-    return html;
-  }
-
-  const { replacementTag = 'section' } = options;
-  const validReplacementTags = ['section', 'article', 'div'];
-  const tag = validReplacementTags.includes(replacementTag) ? replacementTag : 'section';
-
-  // Parse HTML (simple approach for server-side)
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  
-  const result = fixDuplicateMainLandmarks(doc.body, { replacementTag: tag, preserveFirst: true });
-  
-  return doc.body.innerHTML;
-}
-
-/**
- * Fixes missing lang attribute on the root <html> element in an HTML string.
- * @param {string} html HTML string to fix
- * @returns {string} HTML string with lang="en" added if missing
- */
-function fixLanguageAttributeInHTML(html) {
-  if (!html || typeof html !== 'string') {
-    return html;
-  }
-
-  return html.replace(/<html\b([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/.test(attrs)) {
-      return match;
-    }
-    return `<html lang="en"${attrs}>`;
-  });
-}
-
-export {
-  addLangAttribute,
-  processChildrenWithLang,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  ensureUniqueLandmarks,
-  validateLandmarkStructure,
-  addAccessibleNameToSVG,
-  getAccessibleName,
-  createAccessibilityProps,
-  deduplicateLandmarks,
-  fixFakeLinkIssue,
-  fixDuplicateMainLandmarks,
-  UniqueMainLandmark,
-  fixDuplicateMainLandmarksInHTML,
-  fixLanguageAttributeInHTML,
-  icons,
-};
-
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
-// const { myFunction } = require('./myFunction');
-// module.exports.myFunction = myFunction;
-
-// CommonJS exports for Jest/Node.js compatibility
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    addLangAttribute,
-    processChildrenWithLang,
-    fixTableStructure,
-    addMainLandmark,
-    validateLandmark,
-    ensureUniqueLandmarks,
-    validateLandmarkStructure,
-    addAccessibleNameToSVG,
-    getAccessibleName,
-    createAccessibilityProps,
-    deduplicateLandmarks,
-    fixFakeLinkIssue,
-    fixDuplicateMainLandmarks,
-    UniqueMainLandmark,
-    fixDuplicateMainLandmarksInHTML,
-    fixLanguageAttributeInHTML,
-    icons,
-  };
-}
+ * Fixes a

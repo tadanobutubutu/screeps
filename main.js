@@ -382,4 +382,24 @@ function anotherExport() {
   // Add any necessary implementation here
 }
 
+// Export functions for use in other modules
+export {
+  getLangAttribute,
+  getFullLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  createInPageButton,
+  addSvgAccessibleName,
+  capitalizeFirstLetter,
+  getPascalCaseFromCamelCase,
+  wrapPrimaryContentInMain,
+  processAccessibilityIssues,
+  anotherExport
+};
+
 // ... existing code ...

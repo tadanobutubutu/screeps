@@ -1,49 +1,24 @@
-// Current main.js content not provided.
-// Please paste the contents of main.js (and any other affected files)
-// so I can make the necessary changes to fix the REACT_025 issue.
+import React, { useState } from 'react';
+import styles from './Dashboard.module.css';
 
-// Based on the issue description, the fix involves:
-// 1. Keeping only ONE <main> landmark in the component
-// 2. Replacing the other <main> with <section> or <article> for semantic structure
+export default function Dashboard() {
+  const [error, setError] = useState(false);
 
-// Example fix pattern (adjust based on your actual code):
-
-// BEFORE (problematic - multiple <main> landmarks):
-/*
-function Component() {
+  // Error state – use a <section> (or <article>) instead of a second <main>
   if (error) {
     return (
-      <main>  // ❌ This should be <section> or <article>
-        <h1>Error</h1>
-        ...
-      </main>
-    );
-  }
-  return (
-    <main>  // ✅ Keep this as <main>
-      ...success content...
-    </main>
-  );
-}
-*/
-
-// AFTER (fixed - only one <main> landmark):
-/*
-function Component() {
-  if (error) {
-    return (
-      <section aria-labelledby="error-heading">  // ✅ Use <section> instead
+      <section aria-labelledby="error-heading" className={styles.error}>
         <h1 id="error-heading">エラー</h1>
-        ...
+        <p>エラーが発生しました。</p>
       </section>
     );
   }
+
+  // Success state – keep the single <main> landmark
   return (
     <main>
-      ...success content...
+      <h1>Dashboard</h1>
+      <p>データが表示されています。</p>
     </main>
   );
 }
-*/
-
-// Please provide the actual file contents so I can apply the fix.

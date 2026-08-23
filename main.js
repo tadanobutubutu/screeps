@@ -293,6 +293,37 @@ function createInPageButton(text, onClick) {
   };
 }
 
+/**
+ * Create an accessible button and insert it into a parent element
+ * Handles ratings stars field accessibility by ensuring proper ARIA attributes and keyboard interaction
+ * @param {HTMLElement} parent - Container element to which the button will be appended
+ * @param {Object} options - Configuration object
+ * @param {string} options.text - Button text (e.g., "Rating: 4")
+ * @param {function} options.onClick - Click handler
+ * @param {string} [options.ariaLabel] - Optional accessible label
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createAndInsertAccessibleButton(parent, {text, onClick, ariaLabel}) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = text;
+  btn.onClick = onClick;
+  if (ariaLabel) btn.setAttribute('aria-label', ariaLabel);
+  btn.setAttribute('role', 'button');
+  // Ensure basic styling for focus visibility (optional)
+  btn.style.minWidth = '44px';
+  btn.style.minHeight = '44px';
+  // Make sure the button is focusable and keyboard operable
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      btn.click();
+    }
+  });
+  parent.appendChild(btn);
+  return btn;
+}
+
 // ============================================================================
 // Additional accessibility helper functions to address Insight Code findings
 // ============================================================================
@@ -659,7 +690,7 @@ function validateLinkOrButton(element) {
       issues.push({
         rule: 'REACT_036',
         severity: 'warning',
-        message: 'Button element used for navigation. Use <a> with href for navigation.'
+        message: 'Button element used for navigation. Use <a href="..."> instead of <button>.'
       });
       recommendations.push({
         type: 'link',
@@ -815,7 +846,9 @@ module.exports = {
   validateLangAttribute
 };
 
-// Run if executed directly
+/**
+ * Run if executed directly
+ */
 if (require.main === module) {
   console.log('Processing dependency updates...\n');
   const updates = processDependencyUpdates();

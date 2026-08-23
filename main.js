@@ -1,5 +1,17 @@
 // Import your accessibilityInsights object here, if needed
 
+function wrapPrimaryContentInMain(element) {
+  const main = document.getElementById('main');
+  if (main && element) {
+    main.appendChild(element);
+  }
+}
+
+// Reusable wrapper function to address accessibility issues
+function processAccessibilityIssues(accessibilityInsightsCallback, accessibilityInsights) {
+  accessibilityInsightsCallback(accessibilityInsights);
+}
+
 // Assuming the function takes the insights object and processes it to address any issues
 function addressAccessibilityIssues(accessibilityInsights) {
   // Implement the logic to address accessibility issues based on the insight report
@@ -32,7 +44,11 @@ function addProperLandmarkRegions(accessibilityInsights) {
   });
 }
 
-// Call the addressAccessibilityIssues function with the appropriate insights object to address any accessibility issues
-addressAccessibilityIssues(accessibilityInsights);
+// Wrap the existing addressAccessibilityIssues function with the new processAccessibilityIssues wrapper function
+processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
+processAccessibilityIssues(addProperLandmarkRegions, accessibilityInsights);
 
-// ... existing code, exports, and functions in main.js
+// Wrap the primary content element in the main container
+wrapPrimaryContentInMain(document.querySelector('.primary-content'));
+
+// ... existing exports and functions may remain in main.js

@@ -266,7 +266,6 @@ module.exports = {
   getRecommendedUpdateOrder,
   hasBreakingChanges,
   processDependencyUpdates,
-  // Accessibility helper exports
   getLangAttribute,
   validateLandmark,
   getSvgAccessibleName,

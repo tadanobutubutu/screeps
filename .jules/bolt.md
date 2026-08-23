@@ -25,3 +25,7 @@
 ## 2026-08-20 - Single-Pass Loop for Body Cost Calculations
 **Learning:** Calling `Array.prototype.reduce` in `_calcBodyCost` during spawn manager queue construction allocates callback function instances and incurs method dispatch overhead on every body cost evaluation. Replacing `.reduce()` with a single-pass `for` loop eliminates closure allocations and method call overhead in spawn queue evaluation routines.
 **Action:** Use standard `for` loops instead of `.reduce()` for array summations in high-frequency spawn manager routines.
+
+## 2026-08-22 - Hoisting Position Method Verification in Target Search Loops
+**Learning:** Checking method presence (such as `typeof creep.pos.getRangeTo === 'function'`) inside structure search loops evaluates property lookups and type checks repeatedly per element per creep tick. Hoisting the boolean validation flag outside the loop reduces CPU overhead during spatial target scanning.
+**Action:** Always hoist object and method verification checks outside high-frequency iterations in Screeps role loops.

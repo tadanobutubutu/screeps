@@ -1,4 +1,3 @@
-// app/layout.tsx
 export const metadata = {
   title: 'Screeps Dashboard',
   description: 'Screeps Dashboard',

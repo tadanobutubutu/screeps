@@ -67,22 +67,17 @@ function fixTableStructureIssues() {
   });
 }
 
-// Add a new function to add proper landmark regions
-function addProperLandmarkRegions() {
+// Add the new function to create in-page navigation (assuming that other functions for handling previous landmark issues are present)
+function createInPageNavigation() {
   // ... Kept unchanged
-
-  // Add the new function to create in-page navigation (assuming that other functions for handling previous landmark issues are present)
-  function createInPageNavigation() {
-    // ... Kept unchanged
-  }
-
-  // Call the new functions to address accessibility issues
-  addressAccessibilityIssuesFromInsightReport();
-  fixTableStructureIssues();
-  createInPageNavigation();
-  fixSvgAccessibilityIssues();
-  fixReactLandmarkIssue();
 }
+
+// Call the new functions to address accessibility issues
+addressAccessibilityIssuesFromInsightReport();
+fixTableStructureIssues();
+createInPageNavigation();
+fixSvgAccessibilityIssues();
+fixReactLandmarkIssue();
 
 // Add the new function: wrapPrimaryContentInMain
 function wrapPrimaryContentInMain(primaryContent) {

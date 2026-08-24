@@ -37,10 +37,31 @@ function getFullLangAttribute(lang) {
 }
 
 function validateTableAccessibility(tableElement) {
-  return true;
+  if (!tableElement) return false;
+  
+  // Check if table has proper structure
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
+  
+  return hasCaption || hasHeaders;
 }
 
 function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+  
+  const thElements = tableElement.querySelectorAll('th');
+  if (thElements.length === 0) return true;
+  
+  // Check if all th elements have valid scope attributes
+  const validScopes = ['col', 'row', 'colgroup', 'rowgroup'];
+  
+  for (const th of thElements) {
+    const scope = th.getAttribute('scope');
+    if (!scope || !validScopes.includes(scope)) {
+      return false;
+    }
+  }
+  
   return true;
 }
 
@@ -50,6 +71,63 @@ function validateLandmark(element) {
 
 function validateLandmarkStructure(element) {
   return true;
+}
+
+// Helper function to check if a th element is in the first column
+function isFirstColumn(thElement) {
+  const parentRow = thElement.closest('tr');
+  if (!parentRow) return false;
+  
+  const firstCell = parentRow.querySelector('th, td');
+  return firstCell === thElement || parentRow.firstChild === thElement;
+}
+
+// Function to fix table structure - adds scope attributes to th elements
+function fixTableStructure(tableElement) {
+  if (!tableElement) return false;
+  
+  let hasChanges = false;
+  const rows = tableElement.querySelectorAll('tr');
+  
+  rows.forEach((row, rowIndex) => {
+    const thElements = Array.from(row.querySelectorAll('th'));
+    const tdElements = Array.from(row.querySelector('th, td') === row.firstChild ? [] : row.querySelectorAll('td'));
+    
+    // Check if first cell in row is a th (header row)
+    const firstCell = row.firstElementChild;
+    const isHeaderRow = firstCell && firstCell.tagName === 'TH';
+    
+    thElements.forEach((th) => {
+      if (!th.getAttribute('scope')) {
+        // Determine the appropriate scope
+        const isFirstCol = isFirstColumn(th);
+        
+        if (isHeaderRow || isFirstCol) {
+          // First row - column headers, or first column - row headers
+          if (isFirstCol && !isHeaderRow) {
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        } else {
+          th.setAttribute('scope', 'col');
+        }
+        
+        hasChanges = true;
+      }
+    });
+  });
+  
+  return hasChanges;
+}
+
+// Get all th elements without scope attribute
+function getThElementsWithoutScope(tableElement) {
+  if (!tableElement) return [];
+  
+  return Array.from(tableElement.querySelectorAll('th')).filter(
+    (th) => !th.getAttribute('scope')
+  );
 }
 
 function getSvgAccessibleName(svgElement) {
@@ -95,6 +173,8 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  fixTableStructure,
+  getThElementsWithoutScope,
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink

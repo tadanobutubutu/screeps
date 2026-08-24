@@ -71,6 +71,7 @@ function addLandmarkRegions() {
   if (mainElements.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('role', 'main');
+    document.body.appendChild(main);
   }
 }
 

@@ -1,15 +1,21 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// Fix language for the HTML root element
+
+// Fix language for the HTML root element
+document.documentElement.lang = 'en';
+
 // Existing code from main.js
 // ... (Preserve all existing code, exports, and functions)
 
-// New function or changes requested in the issue
 function wrapContentWithMain() {
-  const contentToWrap = document.querySelectorAll('html > body > .container, html > body > table');
+  const contentToWrap = document.querySelector('html > body > .container, html > body > table');
 
-  contentToWrap.forEach((element) => {
+  if (contentToWrap) {
     const mainElement = document.createElement('main');
-    mainElement.appendChild(element);
-    element.parentNode.replaceChild(mainElement, element);
-  });
+    mainElement.appendChild(contentToWrap);
+    contentToWrap.parentNode.replaceChild(mainElement, contentToWrap);
+  }
 }
 
 // Call the function to wrap the content in <main>

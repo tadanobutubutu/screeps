@@ -1,3 +1,6 @@
+// TODO: Address accessibility issues from insight report
+// Added accessibility-related functionality
+
 module.exports = {
   // Export functions or values as needed
   someFunction: function() {
@@ -16,16 +19,22 @@ module.exports = {
   },
   // New function or changes requested in the issue
   ensureUniqueMain: function() {
-    // This function could contain logic to ensure that only one <main> tag is present
-    // in the entire rendered tree. However, since the code will only be syntax-checked
-    // locally and the main.js file does not appear to be directly related to the React components
-    // where the issue is occurring, this function would need to be adapted to the specific application logic.
-    // As an example, the function might look something like this:
-    const renderTree = (tree) => {
-      // Logic to traverse the DOM tree and remove any additional <main> tags
-      // This is a placeholder and would need to be implemented based on the actual application structure
-    };
+    // This function contains logic to ensure that only one <main> tag is present
+    // in the entire rendered tree. This addresses the accessibility requirement
+    // that there should be only one <main> landmark per page for screen readers.
     
-    // Example usage: renderTree(document.body);
+    // Query all main elements in the document
+    const mainElements = document.querySelectorAll('main');
+    
+    // If more than one main tag exists, remove duplicates keeping only the first
+    if (mainElements.length > 1) {
+      for (let i = 1; i < mainElements.length; i++) {
+        mainElements[i].remove();
+      }
+      console.warn(`Accessibility fix: Removed ${mainElements.length - 1} duplicate <main> tag(s). Only one <main> tag should exist per page.`);
+    }
+    
+    // Return the remaining main element if any
+    return mainElements[0] || null;
   }
 };

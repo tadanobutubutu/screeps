@@ -37,6 +37,41 @@ function addMainLandmark() {
   }
 }
 
+// Fix table structure: validate and possibly modify the TableComponent
+function fixTableStructure(TableComponent) {
+  // Guard clause: ensure we have the expected shape
+  if (!TableComponent || !Array.isArray(TableComponent.headers) || !Array.isArray(TableComponent.rows)) {
+    console.warn('fixTableStructure: invalid TableComponent shape, returning unchanged');
+    return TableComponent;
+  }
+
+  const expectedCellCount = TableComponent.headers.length;
+
+  // Validate headers
+  TableComponent.headers.forEach((header, idx) => {
+    if (typeof header !== 'string' || header.trim() === '') {
+      console.warn(`fixTableStructure: header at index ${idx} is invalid`);
+    }
+  });
+
+  // Clean rows
+  const cleanedRows = TableComponent.rows.map(row => {
+    if (!Array.isArray(row)) {
+      return []; // invalid row, return empty
+    }
+    if (row.length < expectedCellCount) {
+      return row.concat(Array(expectedCellCount - row.length).fill(''));
+    }
+    return row.slice(0, expectedCellCount);
+  });
+
+  // Return a new TableComponent with cleaned rows
+  return {
+    ...TableComponent,
+    rows: cleanedRows,
+  };
+}
+
 // Added the required exports
 module.exports = {
   dependencyGraphFunction,

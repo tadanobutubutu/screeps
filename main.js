@@ -2,6 +2,7 @@
 
 // Import required dependencies
 const { someHelper, formatContent } = require('./utils');
+const { myFunction } = require('./otherFile');
 
 // Configuration
 const config = {
@@ -116,6 +117,7 @@ module.exports = {
   initialize,
   getState,
   updateState,
+  myFunction,
   
   // Content management
   addContent,

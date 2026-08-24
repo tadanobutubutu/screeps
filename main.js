@@ -317,3 +317,33 @@ function fixFakeLinks(htmlContent) {
 
 // Wrap main tags function (now also injects lang attribute)
 // This addresses
+
+// Fix 26 table structure issues (REACT_027)
+function fixTableStructureIssues(htmlContent) {
+  let result = validateTableStructure(htmlContent);
+  result = validateTableAccessibility(result);
+  return result;
+}
+
+// Add/fix 2 landmark issues (REACT_017)
+function addMainLandmark(htmlContent) {
+  return validateLandmark(htmlContent);
+}
+
+// Ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks(htmlContent) {
+  return validateLandmarkStructure(htmlContent);
+}
+
+// Fix 1 fake link issue (REACT_036)
+function fixFakeLinkIssue(htmlContent) {
+  return fixFakeLinks(htmlContent);
+}
+
+// Preserve/export the new accessibility fix functions
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.fixTableStructureIssues = fixTableStructureIssues;
+  module.exports.addMainLandmark = addMainLandmark;
+  module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+}

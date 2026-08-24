@@ -81,14 +81,14 @@ const styles = {
 export function FormComponent({ hasError, isSuccess }) {
   if (hasError) {
     return (
-      <section style={styles.errorWrapper}>
+      <main style={styles.errorWrapper}>
         <article style={styles.errorCard}>
-          <h1 style={styles.errorTitle}>Error</h1>
+          <h1 ...
           <p style={styles.errorMessage}>
             An error occurred. Please try again later.
           </p>
         </article>
-      </section>
+      </main>
     );
   }
 
@@ -108,7 +108,7 @@ export function FormComponent({ hasError, isSuccess }) {
   return (
     <main style={styles.wrapper}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Login</h1>
+        <h1 ...
         <form style={styles.form}>
           <input type="text" placeholder="Username" style={styles.input} />
           <input type="password" placeholder="Password" style={styles.input} />

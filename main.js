@@ -98,3 +98,6 @@ export {
   generateRotateBackControl,
   setupRotateBack,
 };
+
+// Add the lang attribute to the root HTML element
+document.documentElement.lang = 'en';

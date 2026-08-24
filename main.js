@@ -1,1 +1,18 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+
+// ... other imports and component logic ...
+
+const DependencyGraphComponent = () => {
+  // ... existing component logic ...
+
+  return (
+    // ... existing JSX ...
+    <main>
+      <table id="table-rotated">
+        {/* ... existing table content ... */}
+      </table>
+    </main>
+  );
+};
+
+export default DependencyGraphComponent;

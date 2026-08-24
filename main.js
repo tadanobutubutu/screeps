@@ -21,6 +21,20 @@ module.exports = {
              !node.value.type;
     }
 
+    // ... existing JSXAttribute function ...
+
+    // New function to check for the absence of a <main> landmark
+    function checkForMainLandmark(node) {
+      // Assuming this function will be called during JSXElement analysis
+      return node.type === 'JSXElement' &&
+             node.name.name === 'main' &&
+             !node.openingElement.children.some(child => {
+               // Assuming we check for JSXText nodes here for simplicity
+               // This check would need to be adjusted depending on actual content
+               return child.type === 'JSXText' && child.value === '';
+             });
+    }
+
     return {
       JSXAttribute(node) {
         if (isBooleanPropMissingDefaultValue(node)) {
@@ -29,6 +43,17 @@ module.exports = {
             message: `Add a default value for the boolean prop 'is' to improve maintainability and avoid errors`,
             severity: SEVERITY_WARNING_BOOLEAN_PROP,
             ruleId: RULE_NAME_BOOLEAN_PROP,
+          });
+        }
+      },
+      JSXElement(path) {
+        // Check for the absence of a <main> landmark
+        if (!checkForMainLandmark(path.node)) {
+          context.report({
+            node: path.node,
+            message: 'Page has no <main> landmark',
+            severity: SEVERITY_WARNING_BOOLEAN_PROP,
+            ruleId: 'REACT_017',
           });
         }
       },

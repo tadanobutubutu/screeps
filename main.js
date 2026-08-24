@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Address accessibility issues from insight report:
+// Implementing `aria-label` for inaccessible form elements
+
+/* ... (existing code, exports, and functions from main.js) */
+
+const formElement = document.getElementById('myForm');
+if (formElement) {
+  const inputElement = formElement.querySelector('input');
+  inputElement.setAttribute('aria-label', 'Enter your name');
+}
+
+/* ... (existing code, exports, and functions from main.js) */
+
+module.exports = {
+  // ... (existing exports)
+};

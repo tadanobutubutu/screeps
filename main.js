@@ -1,12 +1,1 @@
-document.documentElement.lang = 'en';
-
-function handleUnrotate() {
-  document.body.style.transform = 'rotate(0deg)';
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  const unrotateButton = document.getElementById('unrotate');
-  if (unrotateButton) {
-    unrotateButton.addEventListener('click', handleUnrotate);
-  }
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

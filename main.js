@@ -15,9 +15,6 @@ function handleButtonClick() {
   button.setAttribute('aria-expanded', isExpanded);
 }
 
-// Add the click event listener to the button
-button.addEventListener('click', handleButtonClick);
-
 // Import dependencyGraphContent if it is used in the code
 const { dependencyGraphContent } = require('./dependencyGraph');
 
@@ -27,60 +24,17 @@ function addLangAttribute() {
   html.setAttribute('lang', 'en');
 }
 
-// New function to inject and fix fake links
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link]');
-  fakeLinks.forEach(fakeLink => {
-    if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
-      const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href') || '#';
-      a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
+// Function to add 'scope="col"' attribute to table header cells
+function addScopeToTableHeaders() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
     }
   });
 }
 
-// Ensure Unique Landmarks Function
-function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
-  const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
-
-  if (existingHeaders.length > 1) {
-    existingHeaders.forEach((header, index) => index > 0 && header.remove());
-  }
-  if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
-  }
-}
-
-// Add function to wrap primary content in main landmark
-function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
-
-  // Remove duplicate main elements if any
-  existingMains.forEach((main, index) => {
-    if (index > 0) {
-      main.remove();
-    }
-  });
-
-  // If no main element exists, create and wrap primary content
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-
-  // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
-
-  // Move existing content into main if not already inside one
-  if (!document.querySelector('main')) {
-    while (contentContainer.firstChild) {
-      mainElement.appendChild(contentContainer.firstChild);
-    }
-    contentContainer.appendChild(mainElement);
-  }
-}
-
-// Add function to ensure proper landmark structure
+// New functions from 'origin/main'
 function ensureProperLandmarkStructure() {
   // Remove existing landmarks to avoid duplication
   const allHeaders = document.querySelectorAll('header');
@@ -137,12 +91,32 @@ function ensureProperLandmarkStructure() {
   const copyright = document.createElement('p');
   copyright.textContent = '© 2023 Your Company. All rights reserved.';
   footerElement.appendChild(copyright);
-
-  // Call the wrapPrimaryContentInMain function
-  wrapPrimaryContentInMain();
 }
 
-// Add Accessible SVGs Function
+function ensureUniqueLandmarks() {
+  const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
+  const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
+
+  if (existingHeaders.length > 1) {
+    existingHeaders.forEach((header, index) => index > 0 && header.remove());
+  }
+  if (existingFooters.length > 1) {
+    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
+  }
+}
+
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[data-fake-link]');
+  fakeLinks.forEach(fakeLink => {
+    if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
+      const a = document.createElement('a');
+      a.href = fakeLink.getAttribute('data-href') || '#';
+      a.textContent = fakeLink.textContent;
+      fakeLink.replaceWith(a);
+    }
+  });
+}
+
 function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -159,23 +133,13 @@ function addAccessibleSVGs() {
   });
 }
 
-// Function to add 'scope="col"' attribute to table header cells
-function addScopeToTableHeaders() {
-  const headers = document.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
-    }
-  });
-}
-
 // Call all necessary functions
 addLangAttribute();
-fixFakeLinks();
+addScopeToTableHeaders();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
+fixFakeLinks();
 addAccessibleSVGs();
-addScopeToTableHeaders();
 
 // React root mount integration (from origin/main)
 import React from 'react';
@@ -200,4 +164,5 @@ module.exports = {
   ensureProperLandmarkStructure,
   addAccessibleSVGs,
   addScopeToTableHeaders,
+  ensureProperLandmarkStructure, // Added from 'origin/main'
 };

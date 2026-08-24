@@ -78,7 +78,6 @@ function validateUniqueLandmarks() {
   });
 }
 
-// REACT_025: Fix multiple main landmarks by converting extras to section elements
 function fixUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   if (mainElements.length <= 1) {
@@ -87,27 +86,21 @@ function fixUniqueLandmarks() {
 
   let fixedCount = 0;
   mainElements.forEach((mainEl, index) => {
-    if (index === 0) return; // Keep the first main element
+    if (index === 0) return;
 
-    // Convert subsequent main elements to section
     const section = document.createElement('section');
-    // Preserve attributes except role
     Array.from(mainEl.attributes).forEach(attr => {
       if (attr.name !== 'role') {
         section.setAttribute(attr.name, attr.value);
       }
     });
-    // Add role="region" for accessibility
     section.setAttribute('role', 'region');
-    // Add aria-label if not present
     if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
       section.setAttribute('aria-label', `Content section ${index + 1}`);
     }
-    // Move children
     while (mainEl.firstChild) {
       section.appendChild(mainEl.firstChild);
     }
-    // Replace main with section
     mainEl.parentNode.replaceChild(section, mainEl);
     fixedCount++;
   });
@@ -115,7 +108,6 @@ function fixUniqueLandmarks() {
   return fixedCount;
 }
 
-// REACT_025: Validate that only one main landmark exists
 function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
   const issues = [];
@@ -126,7 +118,6 @@ function ensureUniqueLandmarks() {
     issues.push(`Multiple main landmarks found (${mainElements.length}). Only one <main> element should exist per page.`);
   }
 
-  // Check for other duplicate landmarks
   const landmarkSelectors = ['header', 'footer', 'aside', 'nav'];
   landmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
@@ -177,7 +168,8 @@ function createInPageButton(label, onClick) {
 }
 
 function createAccessibleLink(href, label) {
-  const link = document.createElement('a', { hidden: true });
+  const link = document.createElement('a');
+  link.setAttribute('hidden', 'true');
   link.setAttribute('href', href);
   link.setAttribute('aria-label', label);
   link.textContent = label;
@@ -217,7 +209,6 @@ function fixTableStructure() {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
       if (!th.hasAttribute('scope')) {
-        // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
         const isFirstInCol = Array.from(th.parentElement.children).indexOf(th) === 0;
         if (isFirstInRow && isFirstInCol) {
@@ -246,20 +237,13 @@ function checkTableStructure() {
   return true;
 }
 
-// Add main landmark if missing
 function addMainLandmark() {
   return wrapPrimaryContentInMain();
 }
 
-// Add landmark regions for accessibility
 function addLandmarkRegions() {
-  // Ensure main landmark exists
   addMainLandmark();
-
-  // Validate and fix unique landmarks
   fixUniqueLandmarks();
-
-  // Ensure other landmarks have proper labeling
   const landmarks = document.querySelectorAll('header, nav, aside, footer');
   landmarks.forEach((landmark, index) => {
     if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
@@ -269,25 +253,21 @@ function addLandmarkRegions() {
   });
 }
 
-// Fix fake link issue - convert anchor tags without href to buttons
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
   fakeLinks.forEach(link => {
-    const button = document.createElement('button', { hidden: true });
+    const button = document.createElement('button');
     button.textContent = link.textContent;
     button.setAttribute('type', 'button');
-    // Copy all attributes except href
     Array.from(link.attributes).forEach(attr => {
       if (attr.name !== 'href') {
         button.setAttribute(attr.name, attr.value);
       }
     });
-    // Copy event listeners by cloning
     link.replaceWith(button);
   });
 }
 
-// Main entry: Address all accessibility issues
 function addressAccessibilityIssues() {
   addLangAttribute();
   fixTableStructure();
@@ -295,15 +275,12 @@ function addressAccessibilityIssues() {
   validateUniqueLandmarks();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
-  // ADD NEW FUNCTION
   fixFaviconAccessibility();
 }
 
-// Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
 
-// Export all functions for use by other modules and tests
 export {
   addLangAttribute,
   fixTableStructure,
@@ -325,5 +302,5 @@ export {
   validateUniqueLandmarks,
   getSvgAccessibleName,
   wrapPrimaryContentInMain,
-  fixFaviconAccessibility // Added for REACT_041: Fix favicon accessibility
+  fixFaviconAccessibility
 };

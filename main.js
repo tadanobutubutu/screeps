@@ -85,7 +85,7 @@ const fixTableStructure = (document) => {
     if (!table.querySelector('tbody')) {
       const tbodies = table.querySelectorAll('tbody');
       table.querySelectorAll('tr').forEach((row) => {
-        const rows = Array.from(table.querySelectorAll('tr'));
+        const rows = table.querySelectorAll('tr');
         if (rows.length > 0) {
           const newTbody = document.createElement('tbody');
           rows.forEach((row) => newTbody.appendChild(row));
@@ -97,12 +97,12 @@ const fixTableStructure = (document) => {
     // Add scope attributes to header cells
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      thead.querySelectorAll('th').forEach((th) => th.setAttribute('scope', 'col'));
     }
 
     const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+    tbodies.forEach((tbody) => {
+      tbody.querySelectorAll('th').forEach((th) => th.setAttribute('scope', 'row'));
     });
   });
   return document;
@@ -147,8 +147,8 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {

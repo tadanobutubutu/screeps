@@ -1,11 +1,12 @@
 // TODO: Address accessibility issues from insight report
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 function setHtmlLangAttribute(lang = 'en') {
-    const html = document.querySelector('html');
+    const html = document.documentElement;
     if (html && html.tagName) {
         html.setAttribute('lang', lang);
     }
@@ -13,7 +14,7 @@ function setHtmlLangAttribute(lang = 'en') {
 
 // Enhanced function to ensure language attribute is properly set
 function ensureLanguageAttribute() {
-    const html = document.querySelector('html');
+    const html = document.documentElement;
     if (html) {
         // Ensure lang attribute exists and has a valid value
         const lang = html.getAttribute('lang');
@@ -43,7 +44,7 @@ function addSvgAccessibleNames(svg) {
 }
 
 // Enhanced function to handle SVG accessibility with fallback options
-function handleSvgAccessibilityWithFallbackOptions() {
+function handleSvgAccessibility() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         // Skip SVGs that are already handled or are decorative
@@ -133,7 +134,7 @@ function fixTableStructureIssues() {
             const headerRow = document.createElement('tr');
 
             // Move existing <th> elements into the header row
-            const existingThs = table.querySelectorAll('th');
+            const existingThs = Array.from(table.querySelectorAll('th'));
             existingThs.forEach(th => {
                 const newTh = th.cloneNode(true);
                 newTh.setAttribute('scope', 'col');
@@ -153,32 +154,127 @@ function fixTableStructureIssues() {
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             // Ensure each cell in the row is either a th or td
-            const cells = row.querySelectorAll('td, th');
+            const cells = row.querySelectorAll('th');
             if (cells.length > 0) {
                 // Check if this row should be in thead or tbody
-                const isHeaderRow = row.querySelectorAll('th').length > 0;
+                const isHeaderRow = cells.length > 0;
 
                 // If it's a header row, append it to thead, otherwise append it to tbody
-                if (isHeaderRow && !table.querySelector('thead')) {
+                if (isHeaderRow && !table.querySelector('thead tr')) {
                     table.prepend(row);
-                } else if (!isHeaderRow && table.querySelector('tbody')) {
-                    table.querySelector('tbody').appendChild(row);
+                } else if (!isHeaderRow && !table.querySelector('tbody')) {
+                    const tbody = document.createElement('tbody');
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
                 }
             }
         });
     });
 }
 
-// Export the new function to address table structure issues
+// NEW CODE FOR LANDMARK ISSUES
+
+// Function to fix landmark issues by ensuring proper landmark regions
+function fixLandmarkIssues() {
+    // Add main landmark if missing
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length === 0) {
+        // Check for role="main"
+        const mainWithRole = document.querySelector('[role="main"]');
+        if (!mainWithRole) {
+            console.warn('REACT_017: No main landmark found');
+        }
+    }
+
+    // Add nav landmark if missing
+    const navElements = document.querySelectorAll('nav');
+    if (navElements.length === 0) {
+        console.warn('REACT_017: No nav landmark found');
+    }
+
+    // Ensure unique landmarks (REACT_025)
+    const landmarks = document.querySelectorAll('header, footer, main, nav, aside, section[aria-label], section[aria-labelledby]');
+    const landmarkTypes = {};
+    
+    landmarks.forEach(landmark => {
+        const tagName = landmark.tagName.toLowerCase();
+        const role = landmark.getAttribute('role');
+        const key = role || tagName;
+        
+        if (landmarkTypes[key]) {
+            // Add aria-label to make landmark unique
+            if (!landmark.getAttribute('aria-label')) {
+                const existingLabels = ['primary', 'secondary', 'tertiary', 'additional', 'footer', 'header', 'navigation', 'sidebar'];
+                let labelIndex = 0;
+                let label = existingLabels[labelIndex] || `section-${labelIndex}`;
+                
+                while (document.querySelector(`[aria-label="${label}"]`)) {
+                    labelIndex++;
+                    label = existingLabels[labelIndex] || `section-${labelIndex}`;
+                }
+                
+                landmark.setAttribute('aria-label', label);
+            }
+        } else {
+            landmarkTypes[key] = true;
+        }
+    });
+}
+
+// NEW CODE FOR FAKE LINK ISSUES (REACT_036)
+
+// Function to fix fake link issues (links that are not <a> tags or buttons)
+function fixFakeLinkIssues() {
+    // Find elements with onclick that look like links but aren't <a> or <button>
+    const fakeLinks = document.querySelectorAll('[onclick]');
+    
+    fakeLinks.forEach(element => {
+        const tagName = element.tagName.toLowerCase();
+        const role = element.getAttribute('role');
+        
+        // Skip if it's already a proper interactive element
+        if (tagName === 'a' || tagName === 'button') {
+            return;
+        }
+        
+        // Check if it looks like a link
+        const cursorStyle = window.getComputedStyle(element).cursor;
+        const isClickable = cursorStyle === 'pointer';
+        const hasHref = element.hasAttribute('href');
+        
+        if (isClickable && !hasHref && !role) {
+            // Convert to button for proper accessibility
+            element.setAttribute('role', 'button');
+            
+            // Add keyboard support
+            if (!element.hasAttribute('tabindex')) {
+                element.setAttribute('tabindex', '0');
+            }
+        }
+    });
+}
+
+// Combined function to run all accessibility fixes
+function runAccessibilityFixes() {
+    ensureLanguageAttribute();
+    handleSvgAccessibility();
+    fixTableStructureIssues();
+    fixLandmarkIssues();
+    fixFakeLinkIssues();
+}
+
+// Export the new functions to address accessibility issues
 export {
     setHtmlLangAttribute,
     ensureLanguageAttribute,
     addSvgAccessibleNames,
-    handleSvgAccessibleWithFallbackOptions,
+    handleSvgAccessibility,
     addAllSvgAccessibleNames,
     fixSvgAccessibilityIssues,
     fixTableStructureIssues,
+    fixLandmarkIssues,
+    fixFakeLinkIssues,
+    runAccessibilityFixes,
     dependencyGraphContent,
-    indexContent,
-    fixTableStructureIssues // Export fixTableStructureIssues for tests
+    indexContent
 };

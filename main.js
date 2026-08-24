@@ -1,1 +1,1 @@
-function init() { /* ... */ } const someVar = require('some-module'); function newFunction() { // New function logic here } module.exports.newFunction = newFunction; module.exports.loop = function() { // Placeholder logic for the Screeps loop console.log('Loop executed'); };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

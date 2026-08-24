@@ -76,27 +76,32 @@ function addLandmarkRegions() {
 }
 
 // New function
-function wrapPrimaryContentInMainOrBanner() {
-  let mainElementOrBanner;
+function addProperLandmarkRegions() {
+  const existingMains = document.querySelectorAll('main, [role="main"]');
+  const existingBanners = document.querySelectorAll('header[role="banner"]');
+  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
+
+  if (existingMains.length === 0) {
+    addLandmarkRegions();
+  }
+
   const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
 
   if (!contentContainer.closest('main, [role="main"], header[role="banner"]')) {
     if (contentContainer === document.body) {
-      mainElementOrBanner = addLandmarkRegions();
+      addLandmarkRegions();
     } else {
-      mainElementOrBanner = document.createElement('main');
+      const mainElementOrBanner = document.createElement('main');
       mainElementOrBanner.setAttribute('role', 'main');
       contentContainer.appendChild(mainElementOrBanner);
     }
-  } else {
-    mainElementOrBanner = contentContainer.closest('main, [role="main"], header[role="banner"]');
   }
 
   if (!existingMains.length && !existingBanners.length) {
     while (contentContainer.firstChild) {
-      mainElementOrBanner.appendChild(contentContainer.firstChild);
+      contentContainer.firstChild.closest('main, [role="main"], header[role="banner"]').appendChild(contentContainer.firstChild);
     }
-    contentContainer.appendChild(mainElementOrBanner);
+    contentContainer.appendChild(contentContainer.closest('main, [role="main"], header[role="banner"]'));
   }
 }
 

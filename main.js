@@ -27,9 +27,6 @@ function addLangAttribute() {
   html.setAttribute('lang', 'en');
 }
 
-// Initialize the HTML lang attribute
-addLangAttribute();
-
 // New function to inject and fix fake links
 function fixFakeLinks() {
   const fakeLinks = document.querySelectorAll('[data-fake-link]');
@@ -115,6 +112,36 @@ function ensureProperLandmarkStructure() {
   const copyright = document.createElement('p');
   copyright.textContent = '© 2023 Your Company. All rights reserved.';
   footerElement.appendChild(copyright);
+
+  // Add function to wrap primary content in main landmark (new)
+  function wrapPrimaryContentInMain() {
+    const existingMains = document.querySelectorAll('main');
+
+    // Remove duplicate main elements if any
+    existingMains.forEach((main, index) => {
+      if (index > 0) {
+        main.remove();
+      }
+    });
+
+    // If no main element exists, create and wrap primary content
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+
+    // Find primary content container (adjust selector based on your content structure)
+    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+
+    // Move existing content into main if not already inside one
+    if (!document.querySelector('main')) {
+      while (contentContainer.firstChild) {
+        mainElement.appendChild(contentContainer.firstChild);
+      }
+      contentContainer.appendChild(mainElement);
+    }
+  }
+
+  // Call the wrapPrimaryContentInMain function
+  wrapPrimaryContentInMain();
 }
 
 // Add Accessible SVGs Function
@@ -134,34 +161,7 @@ function addAccessibleSVGs() {
   });
 }
 
-// Function to wrap primary content in main landmark
-function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
-
-  // Remove duplicate main elements if any
-  existingMains.forEach((main, index) => {
-    if (index > 0) {
-      main.remove();
-    }
-  });
-
-  // If no main element exists, create and wrap primary content
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-
-  // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
-
-  // Move existing content into main if not already inside one
-  if (!document.querySelector('main')) {
-    while (contentContainer.firstChild) {
-      mainElement.appendChild(contentContainer.firstChild);
-    }
-    contentContainer.appendChild(mainElement);
-  }
-}
-
-// Add function to add 'scope="col"' attribute to table header cells
+// Function to add 'scope="col"' attribute to table header cells
 function addScopeToTableHeaders() {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
@@ -180,5 +180,6 @@ addAccessibleSVGs();
 addScopeToTableHeaders();
 
 module.exports = {
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  // Include other exports as they are, do not remove or rename them
 };

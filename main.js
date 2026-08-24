@@ -33,10 +33,10 @@ function addSvgAccessibleNames(svg) {
         return;
     }
     if (!svgTitle.id) {
-        svgTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
+        svgTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 11);
     }
     if (!svgDesc.id) {
-        svgDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
+        svgDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 11);
     }
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
@@ -47,7 +47,7 @@ function enhanceSvgAccessibility() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         // Skip SVGs that are already handled or are decorative
-        if (svg.getAttribute('aria-hidden') === 'true') {
+        if (svg.getAttribute('data-accessibility-fixed') === 'true') {
             return;
         }
 
@@ -61,15 +61,15 @@ function enhanceSvgAccessibility() {
             newTitle.textContent = svg.getAttribute('aria-label') ||
                                   svg.getAttribute('alt') ||
                                   'Decoration';
-            newTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
+            newTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 11);
             svg.insertBefore(newTitle, svg.firstChild);
 
             // Create desc element if needed
-            if (!svg.getAttribute('aria-label') && !svg.getAttribute('alt')) {
+            if (svg.getAttribute('role') !== 'presentation' && !svg.getAttribute('alt')) {
                 const newDesc = document.createElement('desc');
                 newDesc.textContent = 'Graphical element';
-                newDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
-                svg.appendChild(newDesc);
+                newDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 11);
+                svg.insertBefore(newDesc, svg.firstChild);
             }
 
             // Set accessibility attributes
@@ -79,7 +79,7 @@ function enhanceSvgAccessibility() {
             // Only title is missing
             const newTitle = document.createElement('title');
             newTitle.textContent = 'Icon';
-            newTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
+            newTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 11);
             svg.insertBefore(newTitle, svg.firstChild);
 
             svg.setAttribute('role', 'img');
@@ -88,8 +88,8 @@ function enhanceSvgAccessibility() {
             // Only desc is missing
             const newDesc = document.createElement('desc');
             newDesc.textContent = svg.getAttribute('aria-label') || 'Graphical element';
-            newDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
-            svg.appendChild(newDesc);
+            newDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 11);
+            svg.insertBefore(newDesc, svg.firstChild);
 
             svg.setAttribute('role', 'img');
             svg.setAttribute('aria-labelledby', title.id + ' ' + newDesc.id);
@@ -110,7 +110,7 @@ function addMissingSvgAccessibleNames() {
         const title = svg.querySelector('title');
         const desc = svg.querySelector('desc');
         if (!title || !desc) {
-            svg.setAttribute('aria-hidden', 'true');
+            svg.setAttribute('data-accessibility-fixed', 'true');
         }
     });
 }
@@ -153,77 +153,8 @@ function fixTableStructureIssues() {
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             // Ensure each cell in the row is either a th or td
-            const cells = row.querySelectorAll('td, th');
+            const cells = row.querySelectorAll('th, td');
             if (cells.length > 0) {
                 // Check if this row should be in thead or tbody
                 const hasHeaderCells = row.querySelector('th') !== null;
                 if (hasHeaderCells && !hasThead) {
-                    // This might be a header row that should be in thead
-                    if (!row.closest('thead')) {
-                        // Could move to thead, but that would complicate things
-                        // Instead, just ensure proper scope
-                        row.querySelectorAll('th').forEach(th => {
-                            if (!th.hasAttribute('scope')) {
-                                th.setAttribute('scope', 'col');
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    });
-}
-
-// Function to fix table constraints
-function fixTableConstraints() {
-    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
-
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
-        }
-        
-        // Additional check: ensure all th elements have scope attribute
-        const thElements = table.querySelectorAll('th');
-        thElements.forEach(th => {
-            if (!th.hasAttribute('scope')) {
-                th.setAttribute('scope', 'col');
-            }
-        });
-        
-        // Ensure tables have captions for better accessibility
-        if (!table.querySelector('caption')) {
-            const caption = document.createElement('caption');
-            caption.textContent = 'Data table';
-            table.insertBefore(caption, table.firstChild);
-        });
-    });
-}
-// NEW CODE FOR TABLE ISSUES END
-
-//------------- EXPORTS --------------
-
-export {
-    setHtmlLangAttribute,
-    ensureLanguageAttribute,
-    addSvgAccessibleNames,
-    addAllSvgAccessibleNames,
-    addMissingSvgAccessibleNames,
-    enhanceSvgAccessibility,
-    fixTableStructureIssues,
-    fixTableConstraints,
-    getLangAttribute,
-    getFullLangAttribute
-};
-
-// DON'T MODIFY ANYTHING BELOW THIS LINE!

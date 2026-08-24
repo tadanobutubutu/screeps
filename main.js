@@ -139,6 +139,11 @@ function addProperLandmarkRegions() {
   createInPageNavigation();
 }
 
+// IMPORTANT:
+// If the following function exists, move it BEFORE the wrapPrimaryContentInMain function
+// without changing the function name or causing any changes to its contents
+const someFunction = require('./utils').someFunction; // Assuming it exists in the `./utils` module and can be imported
+
 // Add the new function: wrapPrimaryContentInMain
 function wrapPrimaryContentInMain(primaryContent) {
   if (!primaryContent || !primaryContent.parentNode || primaryContent.parentNode.getAttribute('role') === 'main') {
@@ -187,12 +192,19 @@ function wrapInLandmark(elem, landmarkRole) {
   landmark.appendChild(elem);
 }
 
-// IMPORTANT:
-// If the following function exists, move it BEFORE the wrapPrimaryContentInMain function
-// without changing the function name or causing any changes to its contents
-const someFunction = require('./utils').someFunction; // Assuming it exists in the `./utils` module and can be imported
-
 module.exports = {
-  // ... (all exports remain the same)
-  wrapPrimaryContentInMain, // Including the new function in the exports
+  rotate,
+  rotateBack,
+  add,
+  subtract,
+  multiply,
+  divide,
+  addressAccessibilityIssuesFromInsightReport,
+  addAriaLabel,
+  fixTableStructureIssues,
+  addProperLandmarkRegions,
+  wrapPrimaryContentInMain,
+  isWithinLandmark,
+  wrapInLandmark,
+  someFunction
 };

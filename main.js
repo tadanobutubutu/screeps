@@ -29,11 +29,11 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-        const cellIndex = Array.from(parentRow.children).indexOf(th);
-        if (rowIndex === 0) {
+        const rowIndex = Array.from(parentRow.cells).indexOf(th);
+        const cellIndex = Array.from(parentRow.parentElement.children).indexOf(parentRow);
+        if (cellIndex === 0) {
           th.setAttribute('scope', 'col');
-        } else if (cellIndex === 0) {
+        } else if (rowIndex === 0) {
           th.setAttribute('scope', 'row');
         }
       }
@@ -55,12 +55,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main, [role="main"]'),
-    nav: document.querySelectorAll('nav, [role="navigation"]'),
-    header: document.querySelectorAll('header, [role="banner"]'),
-    footer: document.querySelectorAll('footer, [role="contentinfo"]'),
-    aside: document.querySelectorAll('aside, [role="complementary"]'),
-    section: document.querySelectorAll('section, [role="region"]'),
+    main: document.querySelectorAll('[role="main"]'),
+    nav: document.querySelectorAll('nav'),
+    header: document.querySelectorAll('[role="banner"]'),
+    footer: document.querySelectorAll('[role="contentinfo"]'),
+    aside: document.querySelectorAll('aside'),
+    section: document.querySelectorAll('[role="region"]'),
   };
 
   // Add unique labels to duplicate landmarks
@@ -69,7 +69,7 @@ function ensureUniqueLandmarks() {
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-          const label = `${landmarkType}-${index + 1}`;
+          const label = `${landmarkType} ${index + 1}`;
           element.setAttribute('aria-label', label);
         }
       });
@@ -102,7 +102,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1 id="main-heading">Content</h1>
+          <h1 id="main-heading">Main Heading</h1>
           <div className="app-content">
             {/* Existing App content */}
 

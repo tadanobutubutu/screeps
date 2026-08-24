@@ -1,13 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (NEW FUNCTION fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: ...
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -15,6 +5,10 @@ function handleRotateBack() {
   // New function to handle rotating back behavior
   console.log('Rotating back');
 }
+
+// EXISTING FUNCTION: Add lang attribute to HTML element
+// (This function was marked as DONE earlier)
+// ... (This comment remains as-is)
 
 // NEW FUNCTION: Fix table structure issues
 function fixTableStructureIssues() {
@@ -143,8 +137,6 @@ function App() {
 // Set language attribute on the HTML element
 document.documentElement.lang = 'en';
 
-// Export App component
+// Export App component and the new functions
 export default App;
-
-// Export the new functions
 export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };

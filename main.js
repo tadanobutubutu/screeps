@@ -108,22 +108,6 @@ const validateTableStructureAndScopeTh = () => {
   });
 };
 
-// PRESERVE all existing code, exports, and functions from current main.js
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-// ----- END ORIGINAL CODE -----
-
-// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
-
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
 // This ensures keyboard and screen‑reader users get correct activation behavior.
@@ -225,6 +209,17 @@ const wrapPrimaryContentInMain = () => {
     }
   }
 };
+
+// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
+
+// ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
+// Replace the hash‑only <a id="unrotate"> with a proper <button>
+// This ensures keyboard and screen‑reader users get correct activation behavior.
+
+// ==== NEW CODE TO ADDRESS REACT_025 (Unique Landmarks) ====
+// Wrap primary content in a <main> element to ensure unique landmarks
+// This helps screen reader users navigate the page structure
 
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

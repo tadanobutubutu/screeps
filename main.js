@@ -1,36 +1,40 @@
-// Import necessary accessibility-related libraries
-import React from 'react';
-import { Component, ReactDOMServer } from 'react';
-import { HTMLAttributes, ReactElement } from 'react';
+// Address accessibility issues from insight report:
+import React, { Component } from 'react';
 
 class Main extends Component {
   render() {
     // Add lang attribute to HTML element
-    const htmlAttributes: ... = {
+    const htmlAttributes = {
       lang: 'en', // Update this with the desired language
     };
 
     // Fix table structure issues (assuming you're using functional components for tables)
     // For brevity, I'll only show one table with suggested changes
-    const Table = ({ children }) => {
+    const Table = ({ children, id }) => {
       // Accessible table structure using semantic HTML components
       return (
-        <table aria-label="Accessible Table">
+        <table id={id} aria-label="Accessible Table">
+          <caption>Data Table</caption>
           <thead>
             <tr>
-              <th>Header 1</th>
-              <th>Header 2</th>
+              <th scope="col">Header 1</th>
+              <th scope="col">Header 2</th>
             </tr>
           </thead>
-          ...
+          <tbody>
+            {children}
+          </tbody>
         </table>
       );
     };
 
     // Add landmarks - only header and footer, main content is separate
-    const Landmarks = () => (
+    const Landmarks = ({ children }) => (
       <>
         <header id="banner">Header</header>
+        <main id="mainContent">
+          {children}
+        </main>
         <footer>Footer</footer>
       </>
     );
@@ -56,9 +60,19 @@ class Main extends Component {
       <div {...htmlAttributes}>
         <Landmarks>
           {/* Keep existing code/components as is */}
-          <Table ...
+          <Table id="originalTable">
+            <tr>
+              <td>Data 1</td>
+              <td>Data 2</td>
+            </tr>
+          </Table>
           {/* Add updated table with better structure */}
-          <Table id="updatedTable">...</Table>
+          <Table id="updatedTable">
+            <tr>
+              <td>Updated Data 1</td>
+              <td>Updated Data 2</td>
+            </tr>
+          </Table>
           {/* Keep existing SVGs as is */}
           {Logo()}
           {MenuIcon()}

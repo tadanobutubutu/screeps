@@ -172,3 +172,21 @@ function validateLinkAccessibility() {
 
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
+
+// Export all functions for testing and external use
+export {
+  addLangAttribute,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  addSvgAccessibleNames,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  addSidebarLandmark,
+  addFooterLandmark,
+  addNavLandmark,
+  addFaviconAccessibleName,
+  wrapPrimaryContentInMain,
+  validateLinkAccessibility
+};

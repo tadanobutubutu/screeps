@@ -25,25 +25,25 @@ export function addSvgAccessibleNames() {
 }
 
 // - REACT_036: Fix 1 fake link issue
-export function addAriaLabelToMyDiv() {
-    const link = document.getElementById('link');
+export function fixFakeLink() {
+    const link = document.querySelector('.fake-link');
     if (link) {
         link.setAttribute("href", "#"); // replace "#" with the appropriate URL
-        if (!link.getAttribute('aria-label')) {
+        if (link.textContent.trim()) {
             link.setAttribute('aria-label', 'Accessible link description');
         }
     }
 }
 
 // Newly added function...
-export function addUniqueIdToAccessibleElements() {
-    const accessibleElements = document.querySelectorAll('[aria-label]');
+export function addIdsToAccessibleElements() {
+    const accessibleElements = document.querySelectorAll('.accessible-element');
 
     let elementIndex = 1;
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = `${element.nodeName.toLowerCase()}-${elementIndex}`;
+        const currentId = `accessible-element-${elementIndex}`;
         element.setAttribute('id', currentId);
         elementIndex++;
     });
@@ -63,11 +63,15 @@ export function wrapPrimaryContentInMain() {
 
 // - REACT_017: Add/fix 2 landmark issues
 export function addMainLandmark() {
-    wrapPrimaryContentInMain();
+    const mainContent = document.querySelector('main') || document.querySelector('.main-content');
+    if (!mainContent) {
+        const main = document.createElement('main');
+        document.body.insertBefore(main, document.body.firstChild);
+    }
 }
 
 // - REACT_027: Fix 26 table structure issues
-export function fixTableStructureIssues() {
+export function validateTableStructure() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         // Ensure tables have proper structure
@@ -75,7 +79,7 @@ export function fixTableStructureIssues() {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
-                const tbody = document.createElement('tbody');
+                const tbody = table.querySelector('tbody') || document.createElement('tbody');
                 thead.appendChild(firstRow);
                 table.insertBefore(thead, table.firstChild);
 
@@ -88,14 +92,16 @@ export function fixTableStructureIssues() {
                     }
                     currentNode = nextNode;
                 }
-                table.appendChild(tbody);
+                if (!table.querySelector('tbody')) {
+                    table.appendChild(tbody);
+                }
             }
         }
 
         // Ensure cells have proper scope attributes
         const headerCells = table.querySelectorAll('th');
         headerCells.forEach(th => {
-            if (!th.hasAttribute('scope')) {
+            if (!th.getAttribute('scope')) {
                 const row = th.closest('tr');
                 if (row && row.parentNode.nodeName === 'THEAD') {
                     th.setAttribute('scope', 'col');
@@ -111,7 +117,7 @@ export function fixTableStructureIssues() {
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
-        const elements = document.querySelectorAll(role);
+        const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
         if (elements.length > 1) {
             let counter = 1;
             elements.forEach((el, index) => {
@@ -126,22 +132,22 @@ export function ensureUniqueLandmarks() {
 }
 
 // Newly added function...
-export function addAriaLabelToDuplicateLandmarks() {
+export function fixDuplicateLandmarks() {
     const duplicateLandmarks = document.querySelectorAll(
-        ':not([id]):not([aria-label])',
+        'header[role="banner"], nav[role="navigation"], main[role="main"], footer[role="contentinfo"], aside[role="complementary"]'
     );
     let labelCounter = 1;
 
-    duplicateLandmarks.forEach((element) => {
+    duplicateLandmarks.forEach(element => {
         const elementName = element.nodeName.toLowerCase();
         const duplicateElements = document.querySelectorAll(
-            `:not([id]):not([aria-label]):not([${elementName}])`,
+            `${elementName}[role="${element.getAttribute('role') || elementName}"]`
         );
 
         let uniqueId = false;
 
-        duplicateElements.forEach((duplicateElement) => {
-            if (element.getAttribute('id') === duplicateElement.getAttribute('id')) {
+        duplicateElements.forEach(otherElement => {
+            if (element.getAttribute('id') === otherElement.getAttribute('id') && element !== otherElement) {
                 uniqueId = true;
             }
         });
@@ -149,8 +155,9 @@ export function addAriaLabelToDuplicateLandmarks() {
         if (!uniqueId) {
             element.setAttribute(
                 'aria-label',
-                `${elementName}-${labelCounter++}`,
+                `${elementName}-${labelCounter}`
             );
+            labelCounter++;
         }
     });
 }
@@ -158,11 +165,12 @@ export function addAriaLabelToDuplicateLandmarks() {
 // Call the functions to address accessibility issues
 addLangAttribute();
 addSvgAccessibleNames();
-addAriaLabelToMyDiv();
+fixFakeLink();
+addIdsToAccessibleElements();
+wrapPrimaryContentInMain();
 addMainLandmark();
-fixTableStructureIssues();
+validateTableStructure();
 ensureUniqueLandmarks();
-addAriaLabelToDuplicateLandmarks();
-addUniqueIdToAccessibleElements();
+fixDuplicateLandmarks();
 
 // ... (other existing code, exports, and functions from main.js)

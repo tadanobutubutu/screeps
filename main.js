@@ -1,149 +1,28 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+import React from 'react';
 
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
-button.setAttribute('aria-label', 'My Button');
-button.setAttribute('role', 'button');
-button.setAttribute('aria-expanded', 'false');
-
-// New function to handle button click
-function handleButtonClick() {
-  const button = document.getElementById('myButton');
-  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
-  button.setAttribute('aria-expanded', isExpanded);
-}
-
-// New function to ensure HTML lang attribute is set
-function addLangAttribute() {
-  const html = document.documentElement;
-  html.setAttribute('lang', 'en');
-}
-
-// New function to inject and fix fake links
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(fakeLink => {
-    if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
-      const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href') || '#';
-      a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
-    }
-  });
-}
-
-// Ensure Unique Landmarks Function
-function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header');
-  const existingFooters = document.querySelectorAll('footer');
-
-  if (existingHeaders.length > 1) {
-    existingHeaders.forEach((header, index) => index > 0 && header.remove());
-  }
-  if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
-  }
-}
-
-// New function to inject primary content into main landmark
-function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
-
-  // Remove duplicate main elements if any
-  existingMains.forEach((main, index) => {
-    if (index > 0) {
-      main.remove();
-    }
-  });
-
-  // If no main element exists, create and wrap primary content
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-
-  // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
-
-  // Move existing content into main if not already inside one
-  if (!contentContainer.querySelector('main')) {
-    while (contentContainer.firstChild) {
-      mainElement.appendChild(contentContainer.firstChild);
-    }
-    contentContainer.appendChild(mainElement);
-  }
-}
-
-// Add function to add 'scope="col"' attribute to table header cells
-function addScopeToTableHeaders() {
-  const headers = document.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
-    }
-  });
-}
-
-// New function to process accessibility issues from insight report
-function processAccessibilityIssuesFromInsightReport(insightReport) {
-  // Process each issue from the insight report and address accordingly
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      switch (issue.code) {
-        case 'REACT_015':
-          // Add lang attribute to HTML element
-          addLangAttribute();
-          break;
-        case 'FAKE_LINKS':
-          // Fix fake links
-          fixFakeLinks();
-          break;
-        case 'UNIQUE_LANDMARKS':
-          // Ensure unique landmarks
-          ensureUniqueLandmarks();
-          break;
-        case 'LANDMARK_STRUCTURE':
-          // Ensure proper landmark structure
-          wrapPrimaryContentInMain();
-          break;
-        case 'ACCESSIBLE_SVGS':
-          // Add accessible SVGs
-          addAccessibleSVGs();
-          break;
-        case 'TABLE_HEADERS':
-          // Add scope to table headers
-          addScopeToTableHeaders();
-          break;
-        default:
-          // Unknown issue type, ignore
-          break;
-      }
-    });
-  }
-
-  // Run all accessibility fixes regardless of report content as fallback
-  addLangAttribute();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  wrapPrimaryContentInMain();
-  addAccessibleSVGs();
-  addScopeToTableHeaders();
-}
-
-// Call all necessary functions
-processAccessibilityIssuesFromInsightReport();
-fixFakeLinks();
-ensureUniqueLandmarks();
-wrapPrimaryContentInMain();
-addAccessibleSVGs();
-addScopeToTableHeaders();
-
-module.exports = {
-  wrapPrimaryContentInMain,
-  handleButtonClick,
-  addLangAttribute,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  processAccessibilityIssuesFromInsightReport,
-  dependencyGraphContent,
+const DependencyGraph = () => {
+  return (
+    <div>
+      {/* ... other content ... */}
+      <table>
+        <thead>
+          <tr>
+            {/* ... other header cells ... */}
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            {/* ... other header cells ... */}
+          </tr>
+        </thead>
+        <tbody>
+          {/* ... other table rows ... */}
+        </tbody>
+      </table>
+      {/* ... other content ... */}
+    </div>
+  );
 };
+
+export default DependencyGraph;

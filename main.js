@@ -79,18 +79,32 @@ function newFunction(element) {
 
   // Ensure unique landmarks (REACT_025) - Updated code added below
   const landmarkCollection = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
-  const countByRole = new Map();
+  const roleCount = new Map();
 
   landmarkCollection.forEach(landmark => {
     const role = landmark.getAttribute('role');
-    if (role) {
-      if (countByRole.has(role)) {
-        const uniqueRole = role + '-' + countByRole.get(role);
-        landmark.setAttribute('role', uniqueRole);
-        countByRole.set(role, countByRole.get(role) + 1);
+    if (!role) return;
+
+    // Special handling for "main": only allow it once to avoid multiple <main> landmarks
+    if (role === 'main') {
+      if (roleCount.has('main')) {
+        // Remove the role from duplicate main element to keep a single main landmark
+        landmark.removeAttribute('role');
+        // Optionally assign a generic role if needed
+        landmark.setAttribute('role', 'region');
       } else {
-        countByRole.set(role, 1);
+        roleCount.set('main', true);
       }
+      return;
+    }
+
+    // For other roles, apply the original unique naming logic
+    if (roleCount.has(role)) {
+      const uniqueRole = role + '-' + roleCount.get(role);
+      landmark.setAttribute('role', uniqueRole);
+      roleCount.set(role, roleCount.get(role) + 1);
+    } else {
+      roleCount.set(role, 1);
     }
   });
 

@@ -1,6 +1,7 @@
 // main.js
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Preserve existing code from main.js
   const unrotateElement = document.getElementById('unrotate');
   
   if (unrotateElement && unrotateElement.tagName === 'A') {
@@ -25,4 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Replace the anchor with the button
     unrotateElement.parentNode.replaceChild(button, unrotateElement);
   }
+
+  // Wrap the primary content in a <main> element for accessibility
+  function wrapPrimaryContentWithMain() {
+    const primaryContent = document.querySelector('table[id="table-rotated"], .container');
+    if (primaryContent) {
+      const mainElement = document.createElement('main');
+      mainElement.appendChild(primaryContent);
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    }
+  }
+
+  // Call the function to wrap the primary content
+  wrapPrimaryContentWithMain();
 });

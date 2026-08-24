@@ -51,11 +51,11 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+  document.querySelector('main').setAttribute('role', 'main');
 }
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+  const main = document.querySelector('main');
+  expect(main.getAttribute('role')).toEqual('main');
 }
 
 // NEW: Validate unique landmarks

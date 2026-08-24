@@ -25,6 +25,87 @@ import { ensureUniqueLandmarks } from ...
 import { addSvgAccessibleNames } from ...
 import { fixFakeLinkIssue } from ...
 
+/**
+ * Table restructuring function
+ * Restructures tables to ensure proper semantic structure (thead, tbody, tfoot)
+ * and adds appropriate scope attributes to header cells for accessibility
+ * @returns {number} Number of tables restructured
+ */
+function fixTableStructure() {
+  if (typeof document === 'undefined') return 0;
+
+  const tables = document.querySelectorAll('table');
+  let tablesRestructured = 0;
+
+  tables.forEach((table) => {
+    let restructured = false;
+
+    // Check if table has a thead
+    let thead = table.querySelector('thead');
+    const allRows = table.querySelectorAll(':scope > tr');
+    const directRows = Array.from(allRows).filter(row => row.parentElement === table);
+
+    // If no thead exists and first row contains th elements, create thead
+    if (!thead && directRows.length > 0) {
+      const firstRow = directRows[0];
+      const hasThInFirstRow = firstRow.querySelector('th');
+
+      if (hasThInFirstRow) {
+        thead = document.createElement('thead');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+        restructured = true;
+      }
+    }
+
+    // Check if table has a tbody
+    let tbody = table.querySelector('tbody');
+    const tbodyDirectRows = Array.from(directRows).filter(row => {
+      const parent = row.parentElement;
+      return parent === table || parent === thead;
+    });
+
+    if (!tbody) {
+      // Wrap remaining direct rows in tbody
+      tbody = document.createElement('tbody');
+      tbodyDirectRows.forEach(row => {
+        tbody.appendChild(row);
+      });
+
+      // Find the correct position to insert tbody
+      const theadNext = table.querySelector('thead');
+      if (theadNext) {
+        table.insertBefore(tbody, theadNext.nextSibling);
+      } else {
+        table.appendChild(tbody);
+      }
+      restructured = true;
+    }
+
+    // Add scope attributes to th elements
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach((th) => {
+      if (!th.hasAttribute('scope')) {
+        const row = th.closest('tr');
+        const isInThead = th.closest('thead');
+
+        if (isInThead) {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
+        restructured = true;
+      }
+    });
+
+    if (restructured) {
+      tablesRestructured++;
+    }
+  });
+
+  return tablesRestructured;
+}
+
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues() {
   if (typeof document === 'undefined') return;
@@ -37,12 +118,12 @@ function addressAccessibilityIssues() {
 
   // REACT_027: Fix 26 table structure issues
   // Add scope="col" or scope="row" to <th> elements so assistive technologies can associate headers
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = firstRow ? ... : ...
+    const headers = firstRow ? Array.from(firstRow.querySelectorAll('th')) : [];
     headers.forEach((th) => {
-      if ... {
+      if (!th.hasAttribute('scope')) {
         const row = th.closest('tr');
         const isInThead = !!th.closest('thead');
         const isFirstRow = firstRow && row === firstRow;
@@ -56,7 +137,7 @@ function addressAccessibilityIssues() {
   });
 
   // REACT_017: Add/fix 2 landmark issues
-  const headers = ...
+  const headers = document.querySelectorAll('header');
   if (headers.length === 1) {
     const header = headers[0];
     if (!header.getAttribute('role')) {
@@ -64,7 +145,7 @@ function addressAccessibilityIssues() {
     }
   }
 
-  const footers = ...
+  const footers = document.querySelectorAll('footer');
   if (footers.length === 1) {
     const footer = footers[0];
     if (!footer.getAttribute('role')) {
@@ -72,26 +153,26 @@ function addressAccessibilityIssues() {
     }
   }
 
-  const mains = ...
+  const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
-    const fallbackMain = ... || ... || ...
+    const fallbackMain = document.querySelector('[role="main"]') || document.querySelector('div[id="main"]') || document.querySelector('div.main');
     if (fallbackMain) {
-      ... 'main');
+      fallbackMain.setAttribute('role', 'main');
       if (!mains.length && fallbackMain.tagName !== 'MAIN') {
-        ...
+        fallbackMain.tagName = 'MAIN';
       }
     }
   }
 
   // REACT_025: Ensure unique landmarks (2 issues)
   // Handler for unique landmarks - ensures each landmark has a unique accessible name
-  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section[aria-labelledby], section[aria-label]');
+  const landmarks = document.querySelectorAll('main, header, footer, aside, section');
   const landmarkLabels = new Map();
   
   landmarks.forEach((landmark) => {
     // Get existing label or generate one
     let label = landmark.getAttribute('aria-label') || 
-                (landmark.getAttribute('aria-labelledby') ? document.getElementById(landmark.getAttribute('aria-labelledby'))?.textContent : null);
+                landmark.getAttribute('aria-labelledby') ? document.getElementById(landmark.getAttribute('aria-labelledby'))?.textContent : null;
     
     const tagName = landmark.tagName.toLowerCase();
     const role = landmark.getAttribute('role') || tagName;
@@ -112,8 +193,8 @@ function addressAccessibilityIssues() {
         'section': ['Section']
       };
       
-      const roleLabels = defaultLabels[role] || defaultLabels['section'];
-      label = roleLabels[count] || `${role.charAt(0).toUpperCase() + role.slice(1)} ${count + 1}`;
+      const roleLabels = defaultLabels[role] || ['Section'];
+      label = roleLabels[count] || role.charAt(0).toUpperCase() + role.slice(1) + ' ' + (count + 1);
       
       landmark.setAttribute('aria-label', label);
     } else {
@@ -139,10 +220,10 @@ function addressAccessibilityIssues() {
   });
 
   // REACT_041: Add accessible names to 2 SVGs
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const titleId = 'svg-title-' + (index + 1);
-    let title = ...
+    let title = svg.querySelector('title');
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
@@ -153,23 +234,23 @@ function addressAccessibilityIssues() {
         title.id = titleId;
       }
     }
-    if ... {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
-      ... titleId);
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 
   // REACT_036: Fix 1 fake link issue
-  const fakeLinks = ... a[onclick]');
-  ... => {
-    const href = ...
-    const hasClick = typeof link.onclick === 'function' || ...
+  const fakeLinks = document.querySelectorAll('a[onclick]');
+  fakeLinks.forEach((link) => {
+    const href = link.getAttribute('href');
+    const hasClick = typeof link.onclick === 'function' || link.hasAttribute('onclick');
     if (link.getAttribute('role') === 'button' || hasClick || !href || href === '#' || href === '') {
       if (link.getAttribute('role') !== 'button') {
         link.setAttribute('role', 'button');
       }
-      if ... && ... {
-        ... '0');
+      if (!link.getAttribute('tabindex') && link.getAttribute('tabindex') !== '0') {
+        link.setAttribute('tabindex', '0');
       }
     }
   });
@@ -207,7 +288,8 @@ function ensureUniqueLandmarks() {
           labelCounts[currentLabel] = 1;
         } else {
           labelCounts[currentLabel]++;
-          landmark.setAttribute('aria-label', `${currentLabel} ${labelCounts[currentLabel]}`);
+          const newLabel = `${currentLabel} ${labelCounts[currentLabel]}`;
+          landmark.setAttribute('aria-label', newLabel);
           count++;
         }
       }
@@ -227,43 +309,3 @@ function ensureUniqueLandmarks() {
     const labels = defaultLabels[tagName] || ['Section'];
     
     // Find next available label
-    let labelIndex = labelCounts[tagName] || 0;
-    let newLabel = labels[labelIndex] || `${tagName.charAt(0).toUpperCase() + tagName.slice(1)} ${labelIndex + 1}`;
-    
-    // Check if label already exists on page
-    while (labelCounts[newLabel] && labelCounts[newLabel] > 0) {
-      labelIndex++;
-      newLabel = labels[labelIndex] || `${tagName.charAt(0).toUpperCase() + tagName.slice(1)} ${labelIndex + 1}`;
-    }
-    
-    labelCounts[tagName] = labelIndex + 1;
-    labelCounts[newLabel] = 1;
-    
-    landmark.setAttribute('aria-label', newLabel);
-    count++;
-  });
-  
-  return count;
-}
-
-function renderDependencyGraph() {
-  const graphContainer = ... || ... || ...
-  if (graphContainer) {
-    graphContainer.innerHTML = dependencyGraphContent || indexContent || '<p>No dependency graph available.</p>';
-  }
-  console.log('Dependency graph rendered.');
-}
-
-// Existing code preserved below
-// ...
-
-// Call the new function to ensure accessibility issues are addressed
-addressAccessibilityIssues();
-
-// Call the new function to render the dependency graph
-renderDependencyGraph();
-
-// Existing code preserved below
-// ...
-
-export { addressAccessibilityIssues, renderDependencyGraph, addLangAttribute, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, fixFakeLinkIssue };

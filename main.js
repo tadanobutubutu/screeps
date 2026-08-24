@@ -53,7 +53,7 @@ function addMainLandmark() {
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -142,10 +142,6 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-  // ... existing logic ...
-}
-
-function validateUniqueLandmarks() {
   // ... existing logic ...
 }
 

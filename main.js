@@ -198,4 +198,5 @@ export {
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,
-    validateTableStructure,
+    validateTableStructure
+};

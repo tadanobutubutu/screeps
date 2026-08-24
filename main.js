@@ -1,5 +1,3 @@
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
 document.documentElement.setAttribute('lang', 'en');
 
 // Function to add accessible names to SVGs
@@ -54,17 +52,5 @@ function addressAccessibilityIssuesFromInsightReport() {
   });
 }
 
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-  // Example implementation: Add scope attribute to all th elements
-  const tableHeaders = document.querySelectorAll('th');
-
-  tableHeaders.forEach(th => {
-    th.setAttribute('scope', 'col');
-  });
-
-  // Additional fixes can be added here based on the specific issues identified
-}
-
 // Export the new functions
-export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport };

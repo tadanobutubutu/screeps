@@ -15,9 +15,9 @@ function Component() {
 
   // Assuming there is a success content section that was also wrapped in <main>
   return (
-    <main>
+    <section>
       {/* ... success content ... */}
-    </main>
+    </section>
   );
 }
 

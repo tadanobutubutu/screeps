@@ -206,19 +206,20 @@ export function fixSvgAccessibility(accessibilityName) {
 export function ensureUniqueLandmarks() {
     const landmarkIds = new Set();
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-    ... => {
-        const elements = ...
-        ... => {
-            let id = element.id;
-            if (!id) {
-                id = ... * 1e6)}`;
-            }
-            if (landmarkIds.has(id)) {
-                id = ... * 1e6)}`;
-            }
-            landmarkIds.add(id);
-            element.id = id;
-        });
+    // ... rest of the code remains unchanged ...
+
+    // Updated code to handle multiple <main> elements
+    const mainElements = document.querySelectorAll('main');
+    mainElements.forEach((element, index) => {
+        let id = element.id;
+        if (!id) {
+            id = `main-${index * 1e6}`;
+        }
+        if (landmarkIds.has(id)) {
+            id = `main-${index * 1e6}`;
+        }
+        landmarkIds.add(id);
+        element.id = id;
     });
 }
 
@@ -258,7 +259,7 @@ export function fixFakeLinks() {
             if (attr.name !== 'href') {
                 button.setAttribute(attr.name, attr.value);
             }
-        });
+        };
         button.setAttribute('role', 'button');
         button.tabIndex = 0;
         ... link);
@@ -297,7 +298,7 @@ export function addLandmarkRegions() {
         };
         // You may want to apply more specific styling or add additional properties based on the situation.
         ... header);
-    });
+    };
     ... index) => {
         const landmark = {
             type: 'nav',
@@ -352,3 +353,4 @@ export function validateLandmarkStructure() {
 
 export function addressAccessibilityIssues() {
     ensureUniqueLandmarks();
+}

@@ -72,10 +72,6 @@ function addAriaLabel(elem, label) {
   }
 }
 
-// Modify the event listeners to include `aria-label`
-addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
-addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
-
 // Add the new function to address table structure issues
 function fixTableStructureIssues() {
   document.querySelectorAll('table').forEach(table => {
@@ -139,11 +135,6 @@ function addProperLandmarkRegions() {
   fixSvgAccessibilityIssues();
   createInPageNavigation();
 }
-
-// IMPORTANT:
-// If the following function exists, move it BEFORE the wrapPrimaryContentInMain function
-// without changing the function name or causing any changes to its contents
-const someFunction = require('./utils').someFunction; // Assuming it exists in the `./utils` module and can be imported
 
 // Add the new function: wrapPrimaryContentInMain
 function wrapPrimaryContentInMain(primaryContent) {
@@ -231,5 +222,5 @@ module.exports = {
   wrapInLandmark,
   fixSvgAccessibilityIssues,
   fixReactLandmarkIssue,
-  someFunction
+  someFunction // Assuming 'someFunction' is already imported and defined somewhere
 };

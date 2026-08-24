@@ -1,10 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// - REACT_036: Fix 1 fake link issue
-//
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -39,11 +32,11 @@ function addLandmarks() {
   const sectionElement = document.createElement('section');
   const articleElement = document.createElement('article');
 
-  document.body.insertBefore(header, document.body.firstChild);
+  document.body.append(header);
   document.body.append(footer);
-  document.body.insertBefore(navElement, document.body.firstChild);
-  document.body.insertBefore(asideElement, document.body.firstChild);
-  document.body.insertBefore(mainElement, document.body.firstChild);
+  document.body.append(navElement);
+  document.body.append(asideElement);
+  document.body.append(mainElement);
   mainElement.append(sectionElement);
   sectionElement.append(articleElement);
 }
@@ -81,7 +74,7 @@ function validateTableStructure() {
   tables.forEach((table) => {
     const headers = table.querySelectorAll('th');
     headers.forEach((th) => {
-      if (!th.getAttribute('scope')) {
+      if (!th.hasAttribute('scope')) {
         th.setAttribute('scope', 'col');
       }
     });
@@ -93,7 +86,7 @@ function validateLandmark() {
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main');
-    document.body.insertBefore(mainElement, document.body.firstChild);
+    document.body.appendChild(mainElement);
   }
   const existingNav = document.querySelector('nav');
   if (!existingNav) {
@@ -152,7 +145,7 @@ function createInPageButton() {
   // Implementation for in-page button creation
 }
 
-function validateButtonAccessibility() {
+function validateInPageButtonAccessibility() {
   // Implementation for link or button validation
 }
 
@@ -161,7 +154,7 @@ function createAccessibleLink() {
 }
 
 // Add landmarks to the document if they don't exist (REACT_017)
-validateLandmarkStructure();
+addLandmarks();
 
 // Update the new landmarks' IDs to match the unique ID pattern (REACT_025)
 validateUniqueLandmarks();

@@ -13,8 +13,12 @@ function createAccessibleSVG(iconData, ariaLabel) {
 // Example usage of the createAccessibleSVG function in the layout component
 const icons = {
   icon: createAccessibleSVG(
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...</svg>',
     'Screeps Dashboard Icon'
+  ),
+  apple: createAccessibleSVG(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" ...</svg>',
+    'Screeps Dashboard Apple Icon'
   ),
 };
 

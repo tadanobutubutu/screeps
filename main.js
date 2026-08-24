@@ -1,41 +1,7 @@
 // main.js - Entry point for the application with accessibility fixes for React components
-// TODO: Address accessibility issues from insight report: 
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark, addSidebarLandmark, addFooterLandmark, addNavLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-// Commit: 702856a2876e2ba2f1eac658760396578b2cc1ac
-// <!-- todo-hash: 83f0496a80e2e11c60da1d5cdd882ac4533e0f42 -->
 
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
-
-// New functions requested by the issue
-function addSidebarLandmark() {
-  const sidebar = document.getElementById('sidebar');
-  if (sidebar) {
-    sidebar.setAttribute('role', 'navigation');
-    sidebar.setAttribute('aria-label', 'Sidebar navigation');
-  }
-}
-
-function addFooterLandmark() {
-  const footer = document.getElementById('footer');
-  if (footer) {
-    footer.setAttribute('role', 'contentinfo');
-    footer.setAttribute('aria-label', 'Footer information');
-  }
-}
-
-function addNavLandmark() {
-  const nav = document.getElementById('nav');
-  if (nav) {
-    nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Navigation');
-  }
-}
 
 // Existing functions
 function addLangAttribute() {
@@ -112,14 +78,14 @@ function addMainLandmark() {
 function ensureUniqueLandmarks() {
   const landmarks = [...document.querySelectorAll('nav, footer, aside, main, header')];
   const idMap = new Map();
-  
+
   landmarks.forEach(landmark => {
     let currentId = landmark.id;
     if (!currentId) {
       currentId = `${landmark.tagName.toLowerCase()}-${Date.now()}`;
       landmark.id = currentId;
     }
-    
+
     if (idMap.has(currentId)) {
       let counter = 1;
       const newId = `${currentId}-${counter}`;
@@ -130,7 +96,7 @@ function ensureUniqueLandmarks() {
       landmark.id = newId;
       currentId = newId;
     }
-    
+
     idMap.set(currentId, true);
     landmark.setAttribute('aria-labelledby', currentId);
   });
@@ -141,11 +107,36 @@ function fixFakeLinkIssue() {
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
-      link.setAttribute('href', '#');
+      link.setAttribute('href', 'javascript:void(0)');
       link.setAttribute('tabindex', '-1');
     }
   });
   return isValid;
+}
+
+// New functions requested by the issue
+function addSidebarLandmark() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    sidebar.setAttribute('role', 'navigation');
+    sidebar.setAttribute('aria-label', 'Sidebar navigation');
+  }
+}
+
+function addFooterLandmark() {
+  const footer = document.getElementById('footer');
+  if (footer) {
+    footer.setAttribute('role', 'contentinfo');
+    footer.setAttribute('aria-label', 'Footer information');
+  }
+}
+
+function addNavLandmark() {
+  const nav = document.getElementById('nav');
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Navigation');
+  }
 }
 
 // Helper function to add title to favicon for accessibility
@@ -177,72 +168,6 @@ function validateLinkAccessibility() {
     }
   });
   return isValid;
-}
-
-// Identify and update specific functions that render dependency graphs or // index views
-function renderDependencyGraph(containerId, options = {}) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Dependency graph container with ID "${containerId}" not found`);
-    return null;
-  }
-  container.innerHTML = '';
-  const graphContent = dependencyGraphContent(options);
-  if (typeof graphContent === 'string') {
-    container.innerHTML = graphContent;
-  } else if (graphContent instanceof HTMLElement) {
-    container.appendChild(graphContent);
-  } else if (Array.isArray(graphContent)) {
-    graphContent.forEach(item => {
-      if (typeof item === 'string') {
-        container.innerHTML += item;
-      } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
-      }
-    });
-  }
-  return container;
-}
-
-function renderIndexView(containerId, options = {}) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Index view container with ID "${containerId}" not found`);
-    return null;
-  }
-  container.innerHTML = '';
-  const content = indexContent(options);
-  if (typeof content === 'string') {
-    container.innerHTML = content;
-  } else if (content instanceof HTMLElement) {
-    container.appendChild(content);
-  } else if (Array.isArray(content)) {
-    content.forEach(item => {
-      if (typeof item === 'string') {
-        container.innerHTML += item;
-      } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
-      }
-    });
-  }
-  return container;
-}
-
-// Main entry: Address all accessibility issues
-function addressAccessibilityIssues() {
-  addLangAttribute();
-  addFaviconAccessibleName();
-  addSvgAccessibleNames();
-  addMainLandmark();
-  addSidebarLandmark();
-  addFooterLandmark();
-  addNavLandmark();
-  ensureUniqueLandmarks();
-  fixFakeLinkIssue();
-  validateTableAccessibility();
-  validateTableStructure();
-  validateLinkAccessibility();
-  wrapPrimaryContentInMain();
 }
 
 // Example usage of the accessibility functions

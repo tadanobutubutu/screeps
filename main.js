@@ -22,10 +22,17 @@ function getStatus() {
   return { status: 'ok', message: 'Application running' };
 }
 
+// New function to handle "rotate back" action
+function rotateBack() {
+  console.log('Rotating back...');
+  // Implementation of rotate back action goes here
+}
+
 // Combine all exports
 module.exports = {
   version: module.exports.version,
   initialize,
   cleanup,
-  getStatus
+  getStatus,
+  rotateBack // Adding the new function to the exports
 };

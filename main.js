@@ -23,8 +23,8 @@ function generateIndexHtml() {
                 reports below:
             </p>
             <div class="links">
-                <a href="reports/plato.html">Plato Code Complexity Report</a>
-                <a href="reports/dependency-graph.html">Dependency Graph</a>
+                <a href="complexity.html">Code Complexity Report</a>
+                <a href="graph.html">Graph</a>
             </div>
         </div>
     </main>
@@ -34,7 +34,7 @@ function generateIndexHtml() {
 </body>
 </html>`;
     
-    const outputPath = path.join(__dirname, 'docs', 'index.html');
+    const outputPath = path.join('docs', 'index.html');
     fs.writeFileSync(outputPath, html);
     console.log('Generated docs/index.html with proper landmark structure');
 }
@@ -77,7 +77,7 @@ function generateTableHtml() {
 </body>
 </html>`;
     
-    const outputPath = path.join(__dirname, 'docs', 'table-rotated.html');
+    const outputPath = path.join('docs', 'table-rotated.html');
     fs.writeFileSync(outputPath, html);
     console.log('Generated docs/table-rotated.html with proper landmark structure');
 }
@@ -85,7 +85,7 @@ function generateTableHtml() {
 // Main execution
 function main() {
     // Ensure docs directory exists
-    const docsDir = path.join(__dirname, 'docs');
+    const docsDir = path.join('docs');
     if (!fs.existsSync(docsDir)) {
         fs.mkdirSync(docsDir, { recursive: true });
     }

@@ -29,3 +29,18 @@ module.exports = {
   cleanup,
   getStatus
 };
+
+// Ensure that the table headers have the scope attribute to pass the accessibility rule
+// The following changes are added as per the issue description
+
+const fs = require('fs');
+
+// Read the current content of the affected file
+const filePath = 'docs/dependency-graph.html';
+let fileContent = fs.readFileSync(filePath, 'utf8');
+
+// Add the scope attribute to all <th> elements
+fileContent = fileContent.replace(/<th>/g, '<th scope="col">');
+
+// Write the updated content back to the file
+fs.writeFileSync(filePath, fileContent);

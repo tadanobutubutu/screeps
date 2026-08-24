@@ -28,6 +28,12 @@ function fixTableStructure() {
   });
 }
 
+// Check if a TH element has a valid scope attribute
+function hasValidTHScope(th) {
+  const scope = th.getAttribute('scope');
+  return scope === 'row' || scope === 'col' || scope === 'rowgroup' || scope === 'colgroup';
+}
+
 // Fix table structure issues by checking TH cell scopes
 function checkTableStructure() {
   const tables = document.querySelectorAll('table');
@@ -180,12 +186,12 @@ function wrapPrimaryContentInMain() {
 module.exports = {
   addLangAttribute,
   fixTableStructure,
+  hasValidTHScope,
   checkTableStructure,
   validateLandmark,
   ensureUniqueLandmarks,
   addLandmarkRegions,
   fixFakeLinkIssue,
   addSvgAccessibleNames,
-  wrapPrimaryContentInMain,
-  hasValidTHScope
+  wrapPrimaryContentInMain
 };

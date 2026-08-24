@@ -9,7 +9,19 @@ const App = () => {
     <div>
       <a href="/home">Home</a>
       <table>
-        {/* Table content */}
+        <thead>
+          <tr>
+            {/* Assuming these are headers for the table columns */}
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            {/* ... other headers ... */}
+          </tr>
+        </thead>
+        <tbody>
+          {/* Table rows and data cells */}
+        </tbody>
       </table>
       <svg>
         {/* SVG content */}

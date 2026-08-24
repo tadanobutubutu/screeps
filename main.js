@@ -1,1 +1,1 @@
-I need the full contents of `main.js` between the conflict markers (especially the `origin/main` section) to resolve this conflict accurately. Without seeing both conflicting changes, I can't merge them logically. Please provide the full file content or at least the `origin/main` portion of the conflict.
+Could you please provide the full contents of `main.js`, especially the sections between the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can resolve the conflict accurately?

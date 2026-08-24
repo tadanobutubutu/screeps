@@ -74,6 +74,8 @@ function newFunction(element) {
             title.id = titleId;
           }
           svg.setAttribute('aria-labelledby', titleId);
+          // Provide accessible name
+          svg.setAttribute('aria-label', `Icon ${index + 1}`);
         }
       });
 

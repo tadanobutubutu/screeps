@@ -7,18 +7,18 @@
 export function handleAccessibilityInsights() {
   ensureLangAttribute();
   addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableStructure();
+  ...
+  ...
   fixFakeLinkIssue();
-  uniqueLandmarksHandler();
+  ...
   restructureTable();
-  addressAccessibilityIssuesFromInsightReport();
+  ...
 }
 
-export function addressAccessibilityIssuesFromInsightReport() {
+export function ... {
   const insightReport = // get the insight report data here
 
-  insightReport.forEach(issue => {
+  ... => {
     switch (issue.type) {
       case 'issueType1':
         // Handle issueType1
@@ -62,10 +62,13 @@ export function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
 }
 
-// Accessibility: Ensure that lang attribute is added to the document’s HTML element (NEW)
+// Accessibility: Ensure that lang attribute is added to the document's HTML element (NEW)
 function ensureLangAttribute() {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  const langAttr = htmlElement.getAttribute('lang');
+  if (!langAttr) {
+    htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  }
 }
 
 // Accessibility: Add <main> landmark to the main content area of each HTML page (unchanged)

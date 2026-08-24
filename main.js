@@ -19,11 +19,11 @@ function Sidebar() {
   // ... existing code here
 }
 
-function Footer() {
+function AuthorInfo() {
   // ... existing code here
 }
 
-function Logo() {
+function AuthorBio() {
   // ... existing code here
 }
 
@@ -150,4 +150,4 @@ function validateUniqueLandmarks() {
 }
 
 // Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };
+export { Header, Navigation, MainContent, Sidebar, AuthorInfo, AuthorBio, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };

@@ -137,6 +137,14 @@ function addSvgAccessibleNames() {
   });
 }
 
+// NEW: Fix favicon accessibility by marking as decorative
+function fixFaviconAccessibility() {
+  const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]');
+  faviconLinks.forEach(link => {
+    link.setAttribute('aria-hidden', 'true');
+  });
+}
+
 // Fake link / accessible link creation helpers
 function createInPageButton(label, onClick) {
   const button = document.createElement('button');
@@ -181,6 +189,7 @@ function addressAccessibilityIssues() {
   addLandmarkRegions();
   validateUniqueLandmarks();
   addSvgAccessibleNames();
+  fixFaviconAccessibility(); // Added for REACT_041: Fix favicon accessibility
   fixFakeLinkIssue();
 }
 
@@ -209,5 +218,6 @@ export {
   validateTableStructure,
   validateUniqueLandmarks,
   getSvgAccessibleName,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  fixFaviconAccessibility // Added for REACT_041: Fix favicon accessibility
 };

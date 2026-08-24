@@ -42,6 +42,10 @@ function addLandmarkRegions() {
 
 // New function to add properly
 function addProperLandmarkRegions() {
+  /**
+   * Adds proper landmark regions to the document for improved accessibility.
+   * Ensures main, banner, and footer landmarks are correctly identified and structured.
+   */
   const existingMains = document.querySelectorAll('main, [role="main"]');
   const existingBanners = document.querySelectorAll('header[role="banner"]');
   const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');

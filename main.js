@@ -31,7 +31,7 @@ function addLangAttribute() {
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link]');
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
@@ -44,8 +44,8 @@ function fixFakeLinks() {
 
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
-  const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
+  const existingHeaders = document.querySelectorAll('header');
+  const existingFooters = document.querySelectorAll('footer');
 
   if (existingHeaders.length > 1) {
     existingHeaders.forEach((header, index) => index > 0 && header.remove());
@@ -77,7 +77,7 @@ function ensureProperLandmarkStructure() {
   headerElement.setAttribute('role', 'banner');
   body.prepend(headerElement);
 
-  const siteTitle = document.createElement('div');
+  const siteTitle = document.createElement('h1');
   siteTitle.textContent = 'Application Name';
   headerElement.appendChild(siteTitle);
 
@@ -131,10 +131,10 @@ function ensureProperLandmarkStructure() {
     mainElement.setAttribute('role', 'main');
 
     // Find primary content container (adjust selector based on your content structure)
-    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+    const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
 
     // Move existing content into main if not already inside one
-    if (!document.querySelector('main')) {
+    if (!contentContainer.querySelector('main')) {
       while (contentContainer.firstChild) {
         mainElement.appendChild(contentContainer.firstChild);
       }
@@ -150,10 +150,11 @@ function ensureProperLandmarkStructure() {
 function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
+    const shouldUseTitle = svg.querySelector('title') === null && svg.getAttribute('role') === 'img';
     const isBackground = svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', 'Description of SVG content');
     } else {
       const title = document.createElement('title');
@@ -174,9 +175,9 @@ function addScopeToTableHeaders() {
 }
 
 // New function to address accessibility issues from insight report
-function addressAccessibilityIssuesFromInsightReport(insightReport) {
+function processAccessibilityIssuesFromInsightReport(insightReport) {
   // Process each issue from the insight report and address accordingly
-  if (insightReport && Array.isArray(insightReport.issues)) {
+  if (insightReport && insightReport.issues) {
     insightReport.issues.forEach(issue => {
       switch (issue.code) {
         case 'REACT_015':
@@ -220,8 +221,9 @@ function addressAccessibilityIssuesFromInsightReport(insightReport) {
 }
 
 // Call all necessary functions
-wrapPrimaryContentInMain();
+processAccessibilityIssuesFromInsightReport();
 fixFakeLinks();
+ensureUniqueLandmarks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
@@ -236,6 +238,6 @@ module.exports = {
   ensureProperLandmarkStructure,
   addAccessibleSVGs,
   addScopeToTableHeaders,
-  addressAccessibilityIssuesFromInsightReport,
+  processAccessibilityIssuesFromInsightReport,
   dependencyGraphContent,
 };

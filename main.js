@@ -22,9 +22,6 @@
 // <th scope="col">Header 2</th>
 // <!-- Add scope="col" to all other headers as needed -->
 
-// Update the table headers in the codebase to include the scope attribute
-// For example, if the headers are defined in a separate file or imported, update those as well
-
 // Updated main.js content with the changes
 // ...
 // <table>

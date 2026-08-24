@@ -1,6 +1,1 @@
-// Import the missing export
-const { MyFunction } = require('./utils');
-
-module.exports = {
-  // Your exports here
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

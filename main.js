@@ -139,8 +139,6 @@ function addProperLandmarkRegions() {
   createInPageNavigation();
 }
 
-// ... (all functions and exports remain the same)
-
 // Add the new function: wrapPrimaryContentInMain
 function wrapPrimaryContentInMain(primaryContent) {
   if (!primaryContent || !primaryContent.parentNode || primaryContent.parentNode.getAttribute('role') === 'main') {
@@ -160,6 +158,11 @@ function wrapPrimaryContentInMain(primaryContent) {
 
   mainElement.appendChild(wrapper);
 }
+
+// IMPORTANT:
+// If the following function exists, move it BEFORE the wrapPrimaryContentInMain function
+// without changing the function name or causing any changes to its contents
+const someFunction = require('./utils').someFunction; // Assuming it exists in the `./utils` module and can be imported
 
 module.exports = {
   // ... (all exports remain the same)

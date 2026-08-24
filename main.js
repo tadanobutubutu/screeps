@@ -74,7 +74,7 @@ function wrapPrimaryContentInMain() {
   }
 }
 
-// Add function to add 'scope="col"' attribute to table header cells
+// New function to add 'scope="col"' attribute to table header cells
 function addScopeToTableHeaders() {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
@@ -84,58 +84,39 @@ function addScopeToTableHeaders() {
   });
 }
 
-// New function to process accessibility issues from insight report
-function processAccessibilityIssuesFromInsightReport(insightReport) {
-  // Process each issue from the insight report and address accordingly
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      switch (issue.code) {
-        case 'REACT_015':
-          // Add lang attribute to HTML element
-          addLangAttribute();
-          break;
-        case 'FAKE_LINKS':
-          // Fix fake links
-          fixFakeLinks();
-          break;
-        case 'UNIQUE_LANDMARKS':
-          // Ensure unique landmarks
-          ensureUniqueLandmarks();
-          break;
-        case 'LANDMARK_STRUCTURE':
-          // Ensure proper landmark structure
-          wrapPrimaryContentInMain();
-          break;
-        case 'ACCESSIBLE_SVGS':
-          // Add accessible SVGs
-          addAccessibleSVGs();
-          break;
-        case 'TABLE_HEADERS':
-          // Add scope to table headers
-          addScopeToTableHeaders();
-          break;
-        default:
-          // Unknown issue type, ignore
-          break;
-      }
-    });
-  }
+// React component for Dependency Graph
+const DependencyGraph = () => {
+  return (
+    <div>
+      {/* ... other content ... */}
+      <table>
+        <thead>
+          <tr>
+            {/* ... other header cells ... */}
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            {/* ... other header cells ... */}
+          </tr>
+        </thead>
+        <tbody>
+          {/* ... other table rows ... */}
+        </tbody>
+      </table>
+      {/* ... other content ... */}
+    </div>
+  );
+};
 
-  // Run all accessibility fixes regardless of report content as fallback
-  addLangAttribute();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  wrapPrimaryContentInMain();
-  addAccessibleSVGs();
-  addScopeToTableHeaders();
-}
+export default DependencyGraph;
 
 // Call all necessary functions
-processAccessibilityIssuesFromInsightReport();
+addLangAttribute();
 fixFakeLinks();
 ensureUniqueLandmarks();
 wrapPrimaryContentInMain();
-addAccessibleSVGs();
 addScopeToTableHeaders();
 
 module.exports = {
@@ -144,6 +125,6 @@ module.exports = {
   addLangAttribute,
   fixFakeLinks,
   ensureUniqueLandmarks,
-  processAccessibilityIssuesFromInsightReport,
-  dependencyGraphContent,
+  DependencyGraph, // Added DependencyGraph as an accessible React component
+  addScopeToTableHeaders,
 };

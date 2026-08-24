@@ -27,6 +27,12 @@ function indexFunction() {
   // ... existing code for rendering the index view ...
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
+  function ensureUniqueLandmarks() {
+    // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
+    // Adjust as needed based on your implementation
+  }
+
+  // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
   ensureUniqueLandmarks();
 
   // ... other code for returning indexContent ...

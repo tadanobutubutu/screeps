@@ -6,10 +6,10 @@ export { getElementById };
 function newIssueFunction() {
   if (typeof document === 'undefined') return;
 
-  // Implementation placeholder - to be filled based on issue requirements
   const elements = document.querySelectorAll('span, p');
   elements.forEach((element) => {
-    // Placeholder logic goes here
+    // Replace with your custom logic for the new issue
+    element.textContent = 'Replaced Text';
   });
 }
 
@@ -275,10 +275,15 @@ function establishLandmarkRegions() {
       nav.setAttribute('aria-label', 'Main Navigation');
       const parent = navLinks[0].closest('ul, .nav, .menu, .navigation');
       const container = parent || body;
-      container.parentNode.insertBefore(nav, container);
+      container.appendChild(nav);
       while (nav.nextSibling && nav.nextSibling.tagName && !landmarkTags.includes(nav.nextSibling.tagName.toLowerCase())) {
         nav.appendChild(nav.nextSibling);
       }
+      navLinks.forEach((link, index) => {
+        const listItem = document.createElement('li');
+        listItem.appendChild(link.cloneNode(true));
+        nav.appendChild(listItem);
+      });
     }
   }
 
@@ -291,10 +296,15 @@ function establishLandmarkRegions() {
       aside.setAttribute('role', 'complementary');
       const parent = asideElements[0].parentElement;
       const container = parent || body;
-      container.parentNode.insertBefore(aside, container);
+      container.appendChild(aside);
       while (aside.nextSibling && aside.nextSibling.tagName && !landmarkTags.includes(aside.nextSibling.tagName.toLowerCase())) {
         aside.appendChild(aside.nextSibling);
       }
+      asideElements.forEach((element, index) => {
+        const asideItem = document.createElement('div');
+        asideItem.appendChild(element.cloneNode(true));
+        aside.appendChild(asideItem);
+      });
     }
   }
 }
@@ -311,11 +321,3 @@ export {
   fixFakeLinks,
   establishLandmarkRegions
 };
-
-addLangAttribute();
-fixTableStructure();
-addMainLandmark();
-ensureUniqueLandmarks();
-fixFakeLinks();
-establishLandmarkRegions();
-newIssueFunction();

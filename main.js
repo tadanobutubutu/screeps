@@ -18,8 +18,6 @@ function correctFakeLinks(container) {
 // New function to address accessibility issues
 function addressAccessibilityIssues() {
   // Implementation for addressing accessibility issues from the insight report
-  // You can add your code here to solve REACT_0XX issues as necessary
-  // Example:
   // Adding lang attribute to HTML element
   document.documentElement.setAttribute("lang", "en");
 }

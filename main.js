@@ -5,8 +5,8 @@
 import myFunction from './myFunction';
 
 // Import the missing functions from the required files
-import myMissingFunction1 from './myMissingFunction1';
-import myMissingFunction2 from './myMissingFunction2';
+import myMissingFunction1 from ...
+import myMissingFunction2 from ...
 
 const Dashboard = () => {
   // Existing Dashboard code
@@ -36,32 +36,53 @@ const fixTableStructureIssues = () => {
     table.setAttribute('role', 'table');
     
     // Ensure proper table structure with thead and tbody
-    if (!table.querySelector('thead')) {
+    const existingThead = table.querySelector('thead');
+    if (!existingThead) {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('th, td');
+        const headerCells = firstRow.querySelectorAll('td');
         const headerRow = document.createElement('tr');
         headerCells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
+          th.setAttribute('scope', 'col');
           headerRow.appendChild(th);
+          if (cell.parentNode === firstRow) {
+            firstRow.removeChild(cell);
+          }
         });
         thead.appendChild(headerRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
     
-    if (!table.querySelector('tbody')) {
+    const existingTbody = table.querySelector('tbody');
+    if (!existingTbody) {
       const rows = table.querySelectorAll('tr');
       const tbody = document.createElement('tbody');
       rows.forEach(row => {
-        if (row.parentElement !== table.querySelector('thead')) {
+        if (row.parentElement !== table || row.closest('thead')) {
           tbody.appendChild(row);
         }
       });
-      table.appendChild(tbody);
+      if (tbody.children.length > 0) {
+        table.appendChild(tbody);
+      }
     }
+    
+    // Add scope attribute to existing th elements without scope
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const tr = th.parentElement;
+        if (tr && tr.parentElement && tr.parentElement.tagName === 'THEAD') {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
+      }
+    });
   });
 };
 
@@ -107,7 +128,7 @@ const fixFakeLinkIssues = () => {
     // Check if link has no href or empty href
     if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
       // Check if it's a fake link (looks like a link but doesn't navigate)
-      if (!link.textContent && !link.querySelector('img')) {
+      if (!link.textContent && link.querySelector('img')) {
         link.setAttribute('aria-label', 'Navigation link');
       }
     }

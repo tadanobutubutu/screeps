@@ -4,7 +4,7 @@
 // ----- END ORIGINAL CODE -----
 
 // New exports for the functions that address the open checks
-export function handleAccessibilityInsights() {
+function handleAccessibilityInsights() {
   ensureLangAttribute();
   addMainLandmark();
   addLandmarkRegions();

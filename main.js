@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
 const DependencyGraphObject = ({ children }) => (
-  <main>
+  <main lang="en">
     {children}
   </main>
 );
 
 const IndexObject = ({ children }) => (
-  <main>
+  <main lang="en">
     {children}
   </main>
 );

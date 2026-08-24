@@ -52,23 +52,35 @@ function ensureUniqueLandmarks() {
 
 // Add function to ensure proper landmark structure
 function ensureProperLandmarkStructure() {
-  // Remove existing landmarks to avoid duplication
-  const allHeaders = document.querySelectorAll('header');
-  const allFooters = document.querySelectorAll('footer');
-  const allMain = document.querySelectorAll('main');
-  
-  // Remove all existing landmarks
-  allHeaders.forEach(header => header.remove());
-  allFooters.forEach(footer => footer.remove());
-  allMain.forEach(main => main.remove());
+  // Remove extra headers and footers, keep first
+  const headers = document.querySelectorAll('header');
+  headers.forEach((header, i) => {
+    if (i > 0) header.remove();
+  });
 
-  // Create new landmarks and inject them
-  const body = document.body;
+  const footers = document.querySelectorAll('footer');
+  footers.forEach((footer, i) => {
+    if (i > 0) footer.remove();
+  });
+
+  // Ensure only one main element exists
+  const mains = document.querySelectorAll('main');
+  if (mains.length === 0) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    mainElement.id = 'content-main';
+    document.body.appendChild(mainElement);
+  } else if (mains.length > 1) {
+    // Remove all but the first main element
+    for (let i = 1; i < mains.length; i++) {
+      mains[i].remove();
+    }
+  }
 
   // Header - Banner
   const headerElement = document.createElement('header');
   headerElement.setAttribute('role', 'banner');
-  body.prepend(headerElement);
+  document.body.prepend(headerElement);
 
   const siteTitle = document.createElement('h1');
   siteTitle.textContent = 'Application Name';
@@ -77,7 +89,7 @@ function ensureProperLandmarkStructure() {
   // Navigation - Navigation
   const navElement = document.createElement('nav');
   navElement.setAttribute('role', 'navigation');
-  body.appendChild(navElement);
+  document.body.appendChild(navElement);
 
   const navList = document.createElement('ul');
   navList.setAttribute('role', 'menubar');
@@ -92,16 +104,19 @@ function ensureProperLandmarkStructure() {
   homeItem.appendChild(homeLink);
   navList.appendChild(homeItem);
 
-  // Main Content Area
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-  mainElement.id = 'content-main';
-  body.appendChild(mainElement);
+  // Main Content Area (already ensured to be singular)
+  const mainElement = document.querySelector('main');
+  if (!mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+  if (!mainElement.hasAttribute('id')) {
+    mainElement.id = 'content-main';
+  }
 
   // Footer - Content Info
   const footerElement = document.createElement('footer');
   footerElement.setAttribute('role', 'contentinfo');
-  body.appendChild(footerElement);
+  document.body.appendChild(footerElement);
 
   const copyright = document.createElement('p');
   copyright.textContent = '© 2023 Your Company. All rights reserved.';

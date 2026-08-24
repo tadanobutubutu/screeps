@@ -11,7 +11,7 @@
  * @param {Document} doc - The document object
  * @param {string} lang - The language code (e.g., 'en', 'es')
  */
-export function addLangAttribute(doc, lang = 'en') {
+function addLangAttribute(doc, lang = 'en') {
   if (doc && doc.documentElement) {
     doc.documentElement.lang = lang;
   }
@@ -22,7 +22,7 @@ export function addLangAttribute(doc, lang = 'en') {
  * @param {Document|Element} root - The root element to search within
  * @returns {Object} - Summary of fixes applied
  */
-export function fixTableStructure(root = document) {
+function fixTableStructure(root = document) {
   const tables = root.querySelectorAll('table');
   const summary = { fixed: 0, issues: [] };
 
@@ -79,7 +79,7 @@ export function fixTableStructure(root = document) {
  * @param {Document} doc - The document object
  * @returns {Element|null} - The main element added or existing main
  */
-export function addMainLandmark(doc = document) {
+function addMainLandmark(doc = document) {
   let main = doc.querySelector('main');
   
   if (!main) {
@@ -120,7 +120,7 @@ export function addMainLandmark(doc = document) {
  * @param {Document|Element} root - The root element to search within
  * @returns {Object} - Summary of SVGs fixed
  */
-export function addSvgAccessibleNames(root = document) {
+function addSvgAccessibleNames(root = document) {
   const svgs = root.querySelectorAll('svg');
   const summary = { fixed: 0, svgs: [] };
 
@@ -161,7 +161,7 @@ export function addSvgAccessibleNames(root = document) {
  * @param {Document} doc - The document object
  * @returns {Object} - Summary of landmarks fixed
  */
-export function ensureUniqueLandmarks(doc = document) {
+function ensureUniqueLandmarks(doc = document) {
   const landmarks = doc.querySelectorAll('header, nav, main, aside, footer, section, article');
   const summary = { fixed: 0, duplicates: [] };
   const seenIds = new Set();
@@ -218,7 +218,7 @@ export function ensureUniqueLandmarks(doc = document) {
  * @param {Document|Element} root - The root element to search within
  * @returns {Object} - Summary of fake links fixed
  */
-export function fixFakeLinkIssue(root = document) {
+function fixFakeLinkIssue(root = document) {
   const summary = { fixed: 0, elements: [] };
   
   // Find elements that look like links but are using button/interactive elements incorrectly
@@ -258,4 +258,38 @@ export function fixFakeLinkIssue(root = document) {
         if (element.id) newButton.id = element.id;
         
         element.parentNode.replaceChild(newButton, element);
-        summary.fixed
+        summary.fixed++;
+        summary.elements.push({ index: index + 1, type: 'button', fix: 'Converted to button' });
+      }
+    }
+  });
+  
+  return summary;
+}
+
+const { OAuth2Client } = require('google-auth-library');
+const http = require('http');
+
+const oAuth2Client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URL
+);
+
+function generateAuthUrl() {
+  return oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['openid', 'email', 'profile']
+  });
+}
+
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  oAuth2Client,
+  generateAuthUrl
+};

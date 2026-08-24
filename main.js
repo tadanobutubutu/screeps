@@ -28,7 +28,7 @@ const fixFakeLinkIssues = () => {
   });
 };
 
-// Accessibility fix for REACT_017: Add/fix 4 landmark issues
+// Accessibility fix for REACT_017: Add/fix 2 landmark issues
 const fixLandmarkIssues = () => {
   const landmarks = {
     'nav': 'navigation',

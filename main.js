@@ -20,22 +20,6 @@ function addAllSvgAccessibleNames() {
     svgs.forEach(addSvgAccessibleNames);
 }
 
-// Function to add scope attribute to th elements for accessibility
-function addScopeToTableHeaders() {
-    const tableHeaders = document.querySelectorAll('th');
-    tableHeaders.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
-}
-
-// Function to find all th elements on the page and add the scope attribute
-function addAllTableHeadersScope() {
-    const thElements = document.querySelectorAll('th');
-    thElements.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
-}
-
 // Function to implement addressing accessibility issues from insight report
 function addressAccessibilityIssuesFromInsightReport() {
     // The implementation will depend on the insight report details
@@ -47,16 +31,6 @@ function addressAccessibilityIssuesFromInsightReport() {
         label.textContent = 'Input description';
         input.parentNode.insertBefore(label, input);
     });
-}
-
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-    // Example implementation: Add scope attribute to all th elements
-    const tableHeaders = document.querySelectorAll('th');
-    tableHeaders.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
-    // Additional fixes can be added here based on the specific issues identified
 }
 
 // Function to add proper landmark regions to the page
@@ -88,7 +62,41 @@ function addProperLandmarkRegions() {
     });
 }
 
+// Function to find all th elements on the page and add the scope attribute
+function addAllTableHeadersScope() {
+    const thElements = document.querySelectorAll('th');
+    thElements.forEach(th => {
+        th.setAttribute('scope', 'col');
+    });
+}
+
 // New function to fix table structure issues
+function fixTableStructureIssues() {
+    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or ${headerRowCount} rows in TABLEs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        let hasThead = false;
+        let headerRowCount = 1; // Modify this number if required
+
+        const theads = table.querySelectorAll('thead');
+        theads.forEach(thead => {
+            if (thead.rows.length > 0) {
+                hasThead = true;
+            }
+        });
+
+        if (!hasThead && table.rows.length < headerRowCount) {
+            console.error("Table does not have a thead or enough header rows:", table);
+        }
+
+        const tableHeaders = document.querySelectorAll('th');
+        tableHeaders.forEach(th => {
+            th.setAttribute('scope', 'col');
+        });
+    });
+}
+
+// Function to fix table constraints
 function fixTableConstraints() {
     // Example implementation: Enforce at least one THEAD or `${headerRowCount}` rows in TABLEs
     const tables = document.querySelectorAll('table');

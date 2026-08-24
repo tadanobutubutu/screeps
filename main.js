@@ -6,7 +6,6 @@
 import axios from 'axios';
 
 // Skip navigation link for keyboard users
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

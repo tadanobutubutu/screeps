@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code from main.js before conflict markers (if any)
+// ... (preserved code)
+
+// New function or change requested in the issue
+// Adding the lang attribute to the root HTML element
+document.documentElement.lang = 'en';
+
+// Existing code from main.js after conflict markers (if any)
+// ... (preserved code)

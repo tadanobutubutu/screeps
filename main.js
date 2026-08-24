@@ -1,11 +1,36 @@
-// main.js - Entry point for the application with accessibility fixes for React components
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
+<?php
+// This is a placeholder for the actual content that needs to be wrapped
+// <div class="container">
+//     <h2>Quality & Metrics Reports</h2>
+//     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+//     <div class="links">
+//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+//     </div>
+// </div>
+<main>
+  <!-- Quality & Metrics Reports Section -->
+  <div class="container">
+    <h2>Quality & Metrics Reports</h2>
+    <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+    <div class="links">
+      <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+      <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+    </div>
+  </div>
+</main>
+
+<!-- Dependency Graph Content -->
+<main>
+  <!-- Dependency Graph Container -->
+  <div id="dependency-graph-container"></div>
+</main>
+
+<!-- Index View Content -->
+<main>
+  <!-- Index View Container -->
+  <div id="index-view-container"></div>
+</main>
 
 // Import content modules for dependency graphs and index views
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
@@ -71,7 +96,7 @@ function addMainLandmark() {
   return main;
 }
 
-// REACT_025: Ensure unique landmarks
+// REACT_025: Ensure unique landmark IDs
 function ensureUniqueLandmarkIds() {
   const landmarks = document.querySelectorAll('header, footer, aside, main, nav, [role="banner"], [role="contentinfo"], [role="complementary"], [role="main"], [role="navigation"], [role="search"]');
   const landmarkRoles = new Map();
@@ -400,28 +425,9 @@ function addressAccessibilityIssues() {
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
+?>
 
-// REACT_017: Validate landmark elements for accessibility
-function validateLandmark(landmark) {
-  if (!landmark) return false;
-  const validLandmarkRoles = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article', 'search'];
-  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-  return validLandmarkRoles.includes(role);
-}
-
-// REACT_017: Validate overall landmark structure
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('header, footer, nav, main, aside, section[aria-label], article, [role="search"]');
-  let hasIssues = false;
-  let landmarkCount = 0;
-  landmarks.forEach(landmark => {
-    if (!validateLandmark(landmark)) {
-      hasIssues = true;
-    }
-    landmarkCount++;
-  });
-  return {
-    valid: !hasIssues,
-    landmarkCount
-  };
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta

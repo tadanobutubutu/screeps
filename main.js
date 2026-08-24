@@ -49,3 +49,14 @@ module.exports = {
   CONFIG,
   VERSION
 };
+
+// New function requested in the issue
+function getTimestamp(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.getTime();
+}
+
+// Export the new function
+module.exports.getTimestamp = getTimestamp;

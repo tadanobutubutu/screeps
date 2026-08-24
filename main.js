@@ -12,6 +12,8 @@ function App() {
     <div>
       <DependencyGraphComponent />
       <IndexComponent />
+      {/* Adding aria-label to the IndexComponent to improve accessibility */}
+      <IndexComponent aria-label="Screeps Dashboard" />
     </div>
   );
 }

@@ -21,15 +21,24 @@ module.exports = {
              !node.value.type;
     }
 
+    // ... existing code for other rules ...
+
+    // New function to check for multiple <main> elements
+    function checkMultipleMainElements(node) {
+      if (node.type === 'JSXElement' && node.name.name === 'main') {
+        context.report({
+          node,
+          message: 'Keep a single <main>; use <section> or <article> for the other regions',
+          severity: 1, // warning severity
+          ruleId: 'REACT_025',
+        });
+      }
+    }
+
     return {
-      JSXAttribute(node) {
-        if (isBooleanPropMissingDefaultValue(node)) {
-          context.report({
-            node,
-            message: `Add a default value for the boolean prop 'is' to improve maintainability and avoid errors`,
-            severity: SEVERITY_WARNING_BOOLEAN_PROP,
-            ruleId: RULE_NAME_BOOLEAN_PROP,
-          });
+      JSXElement(node) {
+        if (node.openingElement.name.name === 'main') {
+          checkMultipleMainElements(node);
         }
       },
     };

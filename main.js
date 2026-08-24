@@ -1,12 +1,9 @@
-// Complete updated main.js content goes here
-
-// Sample React application addressing accessibility issues
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 function App() {
   return (
-    <div className="app-container">
+    <div className="app-container" lang="en">
       <header role="banner">
         <nav role="navigation" aria-label="Main navigation">
           <ul>

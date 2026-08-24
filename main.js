@@ -7,7 +7,7 @@ function renderDependencyGraphForScope(scope) {
 }
 
 // Update existing function to include the renderDependencyGraphForScope function
-function someFunctionThatUsesDependencyGraph() {
+function renderDependencyGraph() {
   const dependencies = getDependencies(); // Assume getDependencies() is a function that returns a list of dependencies for a given scope
 
   // Render the dependency graph for each scope
@@ -19,3 +19,10 @@ function someFunctionThatUsesDependencyGraph() {
 }
 
 // ... (other existing code, exports, and functions from main.js)
+
+// Required exports
+module.exports = {
+  renderDependencyGraphForScope,
+  renderDependencyGraph,
+  // Include other existing exports here to preserve them
+};

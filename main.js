@@ -8,4 +8,13 @@ function addScopeToTh(filePath) {
   console.log(`Changed anchor tag to button for better accessibility in ${filePath}`);
 }
 
+function addAriaAttribute(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  // Add an ARIA attribute to the button for accessibility
+  const updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added ARIA attribute to button for better accessibility in ${filePath}`);
+}
+
 addScopeToTh('docs/dependency-graph.html');
+addAriaAttribute('docs/dependency-graph.html');

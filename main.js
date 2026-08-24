@@ -52,6 +52,3 @@ module.exports = {
   createInPageButton,
   createAccessibleLink
 };
-```
-
-This resolves the Git merge conflict by adding the `validateTableAccessibility()` function call to the `getSvgAccessibleName()` function to also fix table structure issues (REACT_027).

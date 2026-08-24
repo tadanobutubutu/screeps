@@ -62,7 +62,7 @@ export function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
 }
 
-// Accessibility: Ensure that lang attribute is added to the document’s HTML element
+// Accessibility: Ensure that lang attribute is added to the document’s HTML element (NEW)
 function ensureLangAttribute() {
   const htmlElement = document.documentElement;
   htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content

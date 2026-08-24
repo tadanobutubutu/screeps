@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+=======
 // Import required module(s) for addressing the new issue
 import { getElementById } from './helpers.js';
 export { getElementById };
@@ -210,7 +213,7 @@ function addSvgAccessibleNames() {
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
-      textContent = 'SVG graphic ' + (index + 1);
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     } else {
       if (!title.id) {
@@ -264,7 +267,7 @@ function establishLandmarkRegions() {
   const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside'];
   const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
 
- // Check if there is already a navigation landmark
+  // Check if there is already a navigation landmark
   const existingNav = document.querySelector('nav, [role="navigation"]');
   if (!existingNav) {
     // Try to find a nav element or create one around navigation links
@@ -287,7 +290,7 @@ function establishLandmarkRegions() {
     }
   }
 
- // Check if there is already a complementary landmark
+  // Check if there is already a complementary landmark
   const existingAside = document.querySelector('aside, [role="complementary"]');
   if (!existingAside) {
     const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');
@@ -321,3 +324,4 @@ export {
   fixFakeLinks,
   establishLandmarkRegions
 };
+>>>>>>> origin/main

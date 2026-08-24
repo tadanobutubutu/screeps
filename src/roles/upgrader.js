@@ -144,10 +144,12 @@ function _getEnergyFromLink(creep, room) {
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestLink = null;
     let minDistance = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < links.length; i++) {
         const link = links[i];
         if (link.store[RESOURCE_ENERGY] >= 200) {
-            const dist = creep.pos ? creep.pos.getRangeTo(link) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(link) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestLink = link;
@@ -178,13 +180,15 @@ function _getEnergyFromContainer(creep, room) {
         // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
         let bestContainer = null;
         let minDistance = Infinity;
+        // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+        const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
         for (let i = 0; i < containers.length; i++) {
             const container = containers[i];
             if (
                 container.store[RESOURCE_ENERGY] >= 100 &&
                 container.pos.getRangeTo(controller) <= 5
             ) {
-                const dist = creep.pos ? creep.pos.getRangeTo(container) : 0;
+                const dist = hasGetRangeTo ? creep.pos.getRangeTo(container) : 0;
                 if (dist < minDistance) {
                     minDistance = dist;
                     bestContainer = container;
@@ -214,10 +218,12 @@ function _getEnergyFromDropped(creep, room) {
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestDrop = null;
     let minDistance = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
     for (let i = 0; i < dropped.length; i++) {
         const res = dropped[i];
         if (res.resourceType === RESOURCE_ENERGY && res.amount >= 50) {
-            const dist = creep.pos ? creep.pos.getRangeTo(res) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(res) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestDrop = res;

@@ -167,6 +167,8 @@ function _findBestRepairTarget(creep, room, wallTarget) {
     let minPriority = Infinity;
     let minHitsRatio = Infinity;
     let minDistance = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < structures.length; i++) {
         const s = structures[i];
@@ -174,7 +176,7 @@ function _findBestRepairTarget(creep, room, wallTarget) {
 
         const priority = REPAIR_PRIORITY[s.structureType] || 9;
         const hitsRatio = s.hits / s.hitsMax;
-        const distance = creep.pos ? creep.pos.getRangeTo(s) : 0;
+        const distance = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0;
 
         let isBetter = false;
         if (!bestTarget) {
@@ -380,11 +382,13 @@ function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
     let bestDrop = null;
     let minDropDist = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY && r.amount >= 30) {
-            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDropDist) {
                 minDropDist = dist;
                 bestDrop = r;
@@ -412,11 +416,13 @@ function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     let bestContainer = null;
     let minContainerDist = Infinity;
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';
 
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store[RESOURCE_ENERGY] >= 100) {
-            const dist = creep.pos ? creep.pos.getRangeTo(c) : 0;
+            const dist = hasGetRangeTo ? creep.pos.getRangeTo(c) : 0;
             if (dist < minContainerDist) {
                 minContainerDist = dist;
                 bestContainer = c;

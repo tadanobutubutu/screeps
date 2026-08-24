@@ -82,6 +82,27 @@
     });
   }
 
+  // New function to fix table structure issues
+  function fixTableConstraints() {
+    // Example implementation: Enforce at least one THEAD or `${headerRowCount}` rows in TABLEs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        let hasThead = false;
+        let headerRowCount = 1; // Modify this number if required
+
+        const theads = table.querySelectorAll('thead');
+        theads.forEach(thead => {
+            if (thead.rows.length > 0) {
+                hasThead = true;
+            }
+        });
+
+        if (!hasThead && table.rows.length < headerRowCount) {
+            console.error("Table does not have a thead or enough header rows:", table);
+        }
+    });
+  }
+
   // Initialize accessibility fixes
   function init() {
     setLanguageAttribute();
@@ -89,6 +110,7 @@
     addSvgAccessibleNames();
     ensureUniqueLandmarks();
     fixFakeLinks();
+    fixTableConstraints();
   }
 
   // Run on DOM ready
@@ -106,7 +128,7 @@
       addSvgAccessibleNames: addSvgAccessibleNames,
       ensureUniqueLandmarks: ensureUniqueLandmarks,
       fixFakeLinks: fixFakeLinks,
-      init: init
+      fixTableConstraints: fixTableConstraints
     };
   }
 })();

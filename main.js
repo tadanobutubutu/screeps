@@ -162,7 +162,7 @@ function handleCredentialResponse(response) {
 }
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-import { class1, function1, Object1 } from './path/to/module';
+// import { class1, function1, Object1 } from './path/to/module';
 
 // Export the functions for unique landmarks and adding Landmark Regions
 export { uniqueLandmarks, addLandmarkRegions };

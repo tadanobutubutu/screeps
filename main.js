@@ -10,7 +10,7 @@ export function rotateBack() {
   // Logic to rotate back
   // ...
 }
-export function updateDependencyGraphHTML(html) {
+export function updateUnrotateLink(html) {
   // Update the HTML file as follows:
   // Replace the <a id="unrotate" href="#">rotate back</a> with a <button id="unrotate" onclick="rotateBack()">rotate back</button>
   // Make sure to update the JavaScript to handle the button click if necessary
@@ -18,16 +18,18 @@ export function updateDependencyGraphHTML(html) {
 }
 // ... any additional code that was present ...
 
-<<<<<<< HEAD
 /** 
 * Adds aria-hidden="true" to SVG icon elements used for decorative purposes
 * This fixes the REACT_041 warning for missing accessible names
 
 * @param {string} svgContent - The SVG content string
 * @returns {string} - SVG content with aria-hidden attribute added */
-function makeIconAccessible(svgContent) {
+export function makeIconAccessible(svgContent) {
   // Match SVG opening tag and add aria-hidden if not already present
-  return svgContent.replace( /<svg(?![^>]*aria-hidden)([^>]*)>/gi, '<svg aria-hidden="true"$1>' );
+  return svgContent.replace( /<svg([^>]*)>/g, (match, attrs) => {
+    if (attrs.includes('aria-hidden')) return match;
+    return `<svg${attrs} aria-hidden="true">`;
+  });
 }
 /** 
 * Validates that icon SVGs have proper accessibility attributes
@@ -35,18 +37,18 @@ function makeIconAccessible(svgContent) {
 * @param {string} filePath - Path to the layout file
 * @param {string} svgContent - The SVG icon content
 * @returns {Object} - Validation result with pass/fail status */
-function validateIconAccessibility(svgContent) {
-  const hasAriaHidden = /aria-hidden=["']true["']/.test(svgContent);
+export function validateIconAccessibility(svgContent) {
+  const hasAriaHidden = svgContent.includes('aria-hidden="true"');
   const hasAriaLabel = /aria-label=/.test(svgContent);
-  const hasTitle = /<title[^>]*>/.test(svgContent);
+  const hasTitle = /<title>/.test(svgContent);
   const isAccessible = hasAriaHidden || hasAriaLabel || hasTitle;
   return {
     pass: isAccessible,
     message: isAccessible ? 'SVG icon has proper accessible name' : 'SVG icon is missing accessible name (REACT_041)'
   };
 }
+
 module.exports = {
   makeIconAccessible,
   validateIconAccessibility
 };
->>>>>>> origin/main

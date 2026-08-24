@@ -34,9 +34,11 @@ function addAllSvgAccessibleNames() {
 
 // New function to fix an issue where SVGs (e.g., favicons) are missing accessible name
 function addMissingSvgAccessibleNames() {
-    const svgs = document.querySelectorAll('svg:not([role="img"]):not([aria-labelledby])');
+    const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
-        if (!svg.querySelector('title') || !svg.querySelector('desc')) {
+        const title = svg.querySelector('title');
+        const desc = svg.querySelector('desc');
+        if (!title || !desc) {
             svg.setAttribute('aria-hidden', 'true');
         }
     });
@@ -105,7 +107,7 @@ function ensureUniqueLandmarks() {
     
     // Also track specific landmark elements (like <main>) to ensure uniqueness
     const seenMain = [];
-    const mainElements = document.querySelectorAll('main');
+    const mainElements = document.querySelectorAll('main, [role="main"]');
     
     mainElements.forEach((main, index) => {
         if (index === 0) {
@@ -129,7 +131,7 @@ function ensureUniqueLandmarks() {
     });
     
     // Handle elements with explicit role attributes
-    const landmarkElements = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"], [role="banner"], [role="search"]');
+    const landmarkElements = document.querySelectorAll('[role="complementary"], [role="contentinfo"], [role="banner"], [role="search"]');
     landmarkElements.forEach(el => {
         const role = el.getAttribute('role');
         if (role) {
@@ -186,7 +188,7 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
@@ -269,6 +271,7 @@ function fixFakeLinkIssue() {
 }
 
 // Additional calls to address accessibility items
+setHtmlLangAttribute();
 addAllSvgAccessibleNames();
 addMissingSvgAccessibleNames();
 fixTableStructureIssues();
@@ -277,6 +280,7 @@ fixTableConstraints();
 validateTableAccessibility();
 validateTableStructure();
 validateLandmark();
+validateLandmarkStructure();
 wrapPrimaryContentInMain();
 fixFakeLinkIssue();
 

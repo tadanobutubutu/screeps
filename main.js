@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// You can add your new functions here
+function newFunction() {
+  // Your code here
+}
+
+// --- Do NOT modify any code below this line ---
+
+// Imports
+const ScreepsProxyApi = require('proxies/screeps-proxy-api');
+const { init } = require('constants/constants');
+const Executor = require('executor');
+const Game = require('game');
+
+// Main function execution
+init(Game, Executor);
+
+module.exports = new ScreepsProxyApi(function () {
+  // Your code to be run on the proxy server
+});

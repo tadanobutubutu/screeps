@@ -3,99 +3,143 @@ import indexContent from './indexContent';
 
 function getHeadingLevels(html) {
   const headingLevels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-  const headings = ...; // Assume this is defined elsewhere
+  const headings = html.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-  headings?.forEach(heading => {
-    const headingLevel = ...; // Assume this is defined elsewhere
+  headings.forEach(heading => {
+    const headingLevel = parseInt(heading.tagName.charAt(1), 10);
     headingLevels[headingLevel]++;
   });
 
   return headingLevels;
 }
 
-function addLandmarkRoles() {
-  // Add landmark roles to main content
-  const contentWithLandmarks = ...; // Assume this is defined elsewhere
+function addLandmarkRoles(container) {
+  // Add landmark roles to main content if not already present
+  const main = container.querySelector('main, [role="main"]');
+  const nav = container.querySelector('nav, [role="navigation"]');
+  const header = container.querySelector('header, [role="banner"]');
+  const footer = container.querySelector('footer, [role="contentinfo"]');
+  const aside = container.querySelector('aside, [role="complementary"]');
 
-  // Replace the original content with the updated one
-  content = contentWithLandmarks;
+  if (main && !main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+  if (footer && !footer.getAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+  if (aside && !aside.getAttribute('role')) {
+    aside.setAttribute('role', 'complementary');
+  }
 }
 
-function addSvgAccessibleNames() {
+function addSvgAccessibleNames(container) {
   // Add accessible names to SVGs
-  // ... (You'll need to update this function based on your specific SVG elements)
+  const svgs = container.querySelectorAll('svg');
+
+  svgs.forEach(svg => {
+    // Skip if already has an accessible name
+    if (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby')) {
+      return;
+    }
+
+    // Try to use title element as accessible name
+    const title = svg.querySelector('title');
+    if (title && title.textContent.trim()) {
+      svg.setAttribute('aria-label', title.textContent.trim());
+    }
+  });
 }
 
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarks(container) {
   // Check for and fix duplicate landmark roles
-  // ... (You'll need to update this function based on your specific HTML structure)
-}
+  const landmarks = findLandmarks(container);
+  const uniqueLandmarks = [...new Set(landmarks)];
 
-function fixFakeLinkIssues() {
-  // Find and fix fake link issues
-  // ... (You'll need to update this function based on your specific HTML structure)
-}
-
-function addThScope() {
-  // Add scope attribute to <th> elements
-  // ... (You'll need to update this function based on your specific <th> elements)
-}
-
-// New Function for handling unique landmarks
-function checkForUniqueLandmarks(html) {
-  // Check for unique landmarks in the provided HTML
-  const uniqueLandmarks = [...new Set(findLandmarkRoles(html))];
-
-  if (uniqueLandmarks.length !== getUniqueLandmarkCount(html)) {
+  if (uniqueLandmarks.length !== landmarks.length) {
     throw new Error('Non-unique landmarks found in the HTML');
   }
 }
 
-function findLandmarkRoles(html) {
-  // Find landmark roles in the provided HTML
-  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+function fixFakeLinkIssues(container) {
+  // Find and fix fake link issues (anchors without href that look like links)
+  const fakeLinks = container.querySelectorAll('a:not([href]), a[href=""]');
 
-  return landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
 }
 
-function getUniqueLandmarkCount(html) {
-  // Count the unique landmark roles in the provided HTML
-  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+function addThScope(container) {
+  // Add scope attribute to <th> elements
+  const thElements = container.querySelectorAll('th');
 
-  return new Set(landmarks.map(landmark => landmark.getAttribute('aria-landmark'))).size;
+  thElements.forEach(th => {
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+}
+
+function findLandmarks(container) {
+  // Find landmark roles in the provided HTML
+  const landmarks = container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]');
+
+  return Array.from(landmarks).map(landmark => landmark.getAttribute('role'));
+}
+
+function countUniqueLandmarks(container) {
+  // Count the unique landmark roles in the provided HTML
+  const landmarks = container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]');
+
+  return new Set(Array.from(landmarks).map(landmark => landmark.getAttribute('role'))).size;
 }
 
 function addressIssuesFromInsightReport() {
   let content = dependencyGraphContent + indexContent;
-  const results = addressAccessibilityIssues();
 
-  // Add the lang attribute to the content
-  content = `
-    <html lang="en">
-      ${content}
-    </html>
-  `;
+  // Create a temporary container to manipulate the HTML
+  const container = document.createElement('div');
+  container.innerHTML = content;
 
   // Add landmark roles
-  addLandmarkRoles();
+  addLandmarkRoles(container);
 
   // Add accessible names to SVGs
-  addSvgAccessibleNames();
+  addSvgAccessibleNames(container);
 
   // Ensure unique landmarks
-  checkForUniqueLandmarks(content);
+  ensureUniqueLandmarks(container);
 
   // Fix fake link issues
-  fixFakeLinkIssues();
+  fixFakeLinkIssues(container);
 
   // Add scope attribute to <th> elements
-  addThScope();
+  addThScope(container);
+
+  // Add the lang attribute to the content
+  const htmlElement = document.createElement('html');
+  htmlElement.setAttribute('lang', 'en');
+  htmlElement.innerHTML = container.innerHTML;
+
+  const results = {
+    content: htmlElement.outerHTML,
+    headingLevels: getHeadingLevels(container),
+    uniqueLandmarkCount: countUniqueLandmarks(container)
+  };
 
   return results;
 }
 
 function addressAccessibilityIssues() {
-  // ... (existing code)
+  return addressIssuesFromInsightReport();
 }
 
 // Exports remain unchanged

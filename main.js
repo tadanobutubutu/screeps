@@ -37,6 +37,8 @@ function fixTableStructureIssues() {
         if (cell.tagName && cell.tagName.toLowerCase() === 'th') {
           if (i === 0) {
             cell.setAttribute('scope', 'col');
+          } else {
+            cell.setAttribute('scope', 'row');
           }
         }
       }
@@ -58,7 +60,7 @@ function addProperLandmarkRegions() {
 
 // New function for unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
   return [...landmarks].every(landmark => {
     return landmark.id && landmark.id !== '';
   });
@@ -66,7 +68,7 @@ function ensureUniqueLandmarks() {
 
 // New function for fixing one fake link issue
 function fixOneFakeLinkIssue() {
-  const fakeLink = document.querySelector('.fake-link, [role="link"]:not([href])');
+  const fakeLink = document.querySelector('a:not([href])');
   if (fakeLink) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
@@ -75,7 +77,7 @@ function fixOneFakeLinkIssue() {
 
 // NEW: Fix React Fake Link issue
 function fixReactFakeLinkIssue() {
-  const hashLinks = document.querySelectorAll('a[href="#"]');
+  const hashLinks = document.querySelectorAll('a[href^="#"]');
   for (let link of hashLinks) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -91,7 +93,7 @@ function fixReactFakeLinkIssue() {
 
 // New function for ensuring landmarks with unique IDs
 function hasUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
   return [...landmarks].every(landmark => {
     return landmark.id && landmark.id !== '';
   });
@@ -100,13 +102,13 @@ function hasUniqueLandmarks() {
 // New function for fixing fake link issues (general)
 function fixFakeLinkIssues() {
   // Fix generic fake links
-  const fakeLinks = document.querySelectorAll('.fake-link, [role="link"]:not([href])');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
   for (let fakeLink of fakeLinks) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
   }
   // Fix React-style fake links (anchor tags with hash href)
-  const hashLinks = document.querySelectorAll('a[href="#"]');
+  const hashLinks = document.querySelectorAll('a[href^="#"]');
   for (let link of hashLinks) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -120,33 +122,18 @@ function fixFakeLinkIssues() {
   }
 }
 
-// Export fixTableStructureIssues
-module.exports.fixTableStructureIssues = fixTableStructureIssues;
-// Export ensureUniqueLandmarks
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-// Export fixOneFakeLinkIssue
-module.exports.fixOneFakeLinkIssue = fixOneFakeLinkIssue;
-// Export fixReactFakeLinkIssue
-module.exports.fixReactFakeLinkIssue = fixReactFakeLinkIssue;
-// Export hasUniqueLandmarks
-module.exports.hasUniqueLandmarks = hasUniqueLandmarks;
-// Export fixFakeLinkIssues
-module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-
-function wrapPrimaryContentInMain() {
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (!mainContent) return;
-
-  const existingDiv = mainContent.parentElement || mainContent.parentNode;
-  if (!existingDiv) return;
-
-  const newDiv = document.createElement('div');
-  newDiv.className = 'primary-content-wrapper';
-  newDiv.setAttribute('role', 'main');
-
-  existingDiv.insertBefore(newDiv, mainContent);
-  newDiv.appendChild(mainContent);
-}
+module.exports = {
+  initialize,
+  getFilePath,
+  makeElementAccessible,
+  fixTableStructureIssues,
+  addProperLandmarkRegions,
+  fixFakeLinkIssues,
+  fixOneFakeLinkIssue,
+  ensureUniqueLandmarks,
+  fixReactFakeLinkIssue,
+  hasUniqueLandmarks
+};
 
 function newPreservedFunction() {
   return true;

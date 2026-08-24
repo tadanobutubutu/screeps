@@ -94,17 +94,15 @@ function hasUniqueLandmarks() {
   });
 }
 
-// New function for fixing one fake link issue
-function fixOneFakeLinkIssue() {
-  const fakeLink = document.querySelector('.fake-link');
-  if (fakeLink) {
+// New function for fixing fake link issues (general)
+function fixFakeLinkIssues() {
+  // Fix generic fake links
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  for (let fakeLink of fakeLinks) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
   }
-}
-
-// NEW: Fix React Fake Link issue
-function fixReactFakeLinkIssue() {
+  // Fix React-style fake links (anchor tags with hash href)
   const hashLinks = document.querySelectorAll('a[href^="#"]');
   for (let link of hashLinks) {
     const button = document.createElement('button');
@@ -117,14 +115,6 @@ function fixReactFakeLinkIssue() {
     }
     link.parentNode.replaceChild(button, link);
   }
-}
-
-// New function for ensuring landmarks with unique IDs
-function hasUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
-  return [...landmarks].every(landmark => {
-    return landmark.id && landmark.id !== '';
-  });
 }
 
 // New function exporting fixTableStructureIssues

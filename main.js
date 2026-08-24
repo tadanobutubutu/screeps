@@ -87,7 +87,6 @@ function handleAccessibilityInsights() {
 
 // Implementation of uniqueLandmarksHandler
 function uniqueLandmarksHandler() {
-  // Ensure all landmark elements (like <main>, <nav>, <aside>, etc.) have unique aria-label or id attributes
   const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
   const usedLabels = new Set();
 
@@ -117,22 +116,4 @@ function fixFakeLink() {
 }
 
 // Export the new function
-module.exports.handleAccessibilityInsights = handleAccessibilityInsights;
-
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const thead = table.querySelector('thead');
-    if (thead) {
-      thead.querySelectorAll('th').forEach(th => {
-        if (!th.hasAttribute('scope')) {
-          th.setAttribute('scope', 'col');
-        }
-      });
-    }
-  });
-}
-
-// Call the new function to fix the table structure issues
-fixTableStructureIssues();
+module.exports.uniqueLandmarksHandler = uniqueLandmarksHandler;

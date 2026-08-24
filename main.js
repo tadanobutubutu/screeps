@@ -2,54 +2,67 @@
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
-button.setAttribute('aria-label', 'My Button');
-button.setAttribute('role', 'button');
-button.setAttribute('aria-expanded', 'false');
-
-// New function to handle button click
-function handleButtonClick() {
-  const button = document.getElementById('myButton');
-  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
-  button.setAttribute('aria-expanded', isExpanded);
-}
-
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', 'en');
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
+// New function to handle button click
+function handleButtonClick(buttonId) {
+  const button = document.getElementById(buttonId);
+  if (button) {
+    const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+    button.setAttribute('aria-expanded', isExpanded);
+  }
 }
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href') || '#';
+      a.href = fakeLink.dataset.href || fakeLink.getAttribute('href') || '#';
       a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
+      a.setAttribute('role', 'button');
+      // Copy relevant attributes
+      Array.from(fakeLink.attributes).forEach(attr => {
+        if (attr.name !== 'href' && attr.name !== 'class') {
+          a.setAttribute(attr.name, attr.value);
+        }
+      });
+      fakeLink.parentNode.replaceChild(a, fakeLink);
     }
   });
 }
 
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header');
-  const existingFooters = document.querySelectorAll('footer');
+  const existingHeaders = Array.from(document.querySelectorAll('header[role="banner"]'));
+  const existingFooters = Array.from(document.querySelectorAll('footer[role="contentinfo"]'));
 
   if (existingHeaders.length > 1) {
-    existingHeaders.forEach((header, index) => index > 0 && header.remove());
+    existingHeaders.forEach((header, index) => {
+      if (index > 0) {
+        header.remove();
+      }
+    });
   }
   if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
+    existingFooters.forEach((footer, index) => {
+      if (index > 0) {
+        footer.remove();
+      }
+    });
   }
 }
 
 // New function to inject primary content into main landmark
 function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
+  let existingMains = Array.from(document.querySelectorAll('main, [role="main"]'));
 
   // Remove duplicate main elements if any
   existingMains.forEach((main, index) => {
@@ -59,18 +72,24 @@ function wrapPrimaryContentInMain() {
   });
 
   // If no main element exists, create and wrap primary content
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
+  let mainElement = document.querySelector('main, [role="main"]');
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+  }
 
   // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
+  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
 
   // Move existing content into main if not already inside one
-  if (!contentContainer.querySelector('main')) {
+  if (!contentContainer.closest('main, [role="main"]')) {
     while (contentContainer.firstChild) {
       mainElement.appendChild(contentContainer.firstChild);
     }
-    contentContainer.appendChild(mainElement);
+    if (mainElement.parentNode !== contentContainer) {
+      contentContainer.appendChild(mainElement);
+    }
   }
 }
 
@@ -84,8 +103,28 @@ function addScopeToTableHeaders() {
   });
 }
 
+// New function to add accessible names to SVGs
+function addAccessibleSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const existingTitle = svg.querySelector('title');
+    if (!existingTitle) {
+      const title = document.createElement('title');
+      title.textContent = svg.getAttribute('aria-label') || `SVG graphic ${index + 1}`;
+      title.id = `svg-title-${index}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+    // Ensure aria-labelledby points to the title
+    const ariaLabel = svg.getAttribute('aria-labelledby');
+    const titleId = existingTitle ? existingTitle.id : `svg-title-${index}`;
+    if (!ariaLabel && !svg.getAttribute('aria-label')) {
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
+
 // New function to process accessibility issues from insight report
-function processAccessibilityIssuesFromInsightReport(insightReport) {
+function processAccessibilityIssues(insightReport) {
   // Process each issue from the insight report and address accordingly
   if (insightReport && insightReport.issues) {
     insightReport.issues.forEach(issue => {
@@ -130,23 +169,23 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
   addScopeToTableHeaders();
 }
 
-// New function to add accessible names to SVGs
-function addAccessibleSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = document.createElement('title');
-    title.textContent = 'Descriptive title for SVG';
-    svg.appendChild(title);
-  });
+// Assuming you have a button with ID 'myButton'
+const myButton = document.getElementById('myButton');
+if (myButton) {
+  myButton.setAttribute('aria-label', 'My Button');
+  myButton.setAttribute('role', 'button');
 }
 
-// Call all necessary functions
-processAccessibilityIssuesFromInsightReport();
-fixFakeLinks();
-ensureUniqueLandmarks();
-wrapPrimaryContentInMain();
-addAccessibleSVGs();
-addScopeToTableHeaders();
+// Call all necessary functions on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      processAccessibilityIssues();
+    });
+  } else {
+    processAccessibilityIssues();
+  }
+}
 
 module.exports = {
   wrapPrimaryContentInMain,
@@ -154,7 +193,7 @@ module.exports = {
   addLangAttribute,
   fixFakeLinks,
   ensureUniqueLandmarks,
-  processAccessibilityIssuesFromInsightReport,
-  addAccessibleSVGs,
   addScopeToTableHeaders,
+  addAccessibleSVGs,
+  processAccessibilityIssues,
 };

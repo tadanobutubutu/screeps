@@ -7,7 +7,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
-import accessibilityModule from 'accessibility-module';
+const accessibilityModule = require('accessibility-module');
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
@@ -94,16 +94,6 @@ function addLandmarkRegions() {
         element.setAttribute('role', landmark);
       }
     });
-  });
-}
-
-// Fix 1 fake link issue
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    if (link.href === '#' || !link.href) {
-      link.setAttribute('role', 'button');
-    }
   });
 }
 
@@ -327,12 +317,11 @@ function wrapPrimaryContentInMain() {
   return mainElement;
 }
 
-// Example usage of the accessibility functions
-addressAccessibilityIssues();
-addLandmarkRegions();
-
-// Export all functions for use by other modules and tests
-export {
+module.exports = {
+  loop: function() {
+    // Placeholder logic for the Screeps loop
+    console.log('Loop executed');
+  },
   addLangAttribute,
   fixTableStructure,
   checkTableStructure,

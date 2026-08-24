@@ -1,7 +1,10 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && htmlElement.lang === '') {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -22,7 +25,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -95,7 +98,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = Array.from(firstRow.children);
+        const cells = firstRow.querySelectorAll('td');
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
@@ -112,7 +115,7 @@ const fixTableStructure = () => {
     }
 
     if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
+      const rows = table.querySelectorAll('tr');
       if (rows.length > 1) {
         const tbody = document.createElement('tbody');
         for (let i = 1; i < rows.length; i++) {

@@ -82,10 +82,9 @@ function handleAccessibilityInsights() {
   addSvgAccessibleNames();
   fixTableStructureIssues();
   fixFakeLinkIssue();
-  uniqueLandmarksHandler(); // Add uniqueLandmarksHandler here
-  restructureTable(); // Add restructureTable here
-  fixFakeLink(); // Add fixFakeLink here
-  // Implement the new function
+  uniqueLandmarksHandler(); // Add unique landmarks handler here
+  restructureTable(); // Add restructure table here
+  fixFakeLink(); // Add fix fake link here
   addressAccessibilityIssuesFromInsightReport();
 }
 

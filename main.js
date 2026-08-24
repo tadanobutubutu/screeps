@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
 // main.js
 // This is the main entry point for the Screeps application.
 // It exports a function that generates the page HTML, ensuring the primary
@@ -41,3 +45,13 @@ function generatePage() {
 
 // Export the function so tests can import and verify it.
 module.exports = { generatePage };
+
+// Render the React application if running in a browser environment.
+if (typeof document !== 'undefined') {
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
+}

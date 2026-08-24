@@ -189,7 +189,17 @@ const fixFakeLinkIssue = (document) => {
   return document;
 };
 
+const addressAccessibilityIssues = (document) => {
+  addLangAttribute(document);
+  fixTableStructure(document);
+  addMainLandmark(document);
+  ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
+  fixFakeLinkIssue(document);
+  return document;
+};
+
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };
+module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, addressAccessibilityIssues };

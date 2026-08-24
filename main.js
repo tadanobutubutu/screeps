@@ -65,7 +65,7 @@ export const addLangAttribute = (lang = 'en') => {
 
 // New function to wrap primary content in a main element
 export const wrapPrimaryContentInMain = (content) => {
-  return <main role="main">{content}</main>;
+  return <main>{content}</main>;
 };
 
 // New function to add accessible names to SVGs (REACT_041)
@@ -136,17 +136,5 @@ export const addProperLandmarkRegions = (elements) => {
   });
 };
 
-// Re-add the removed exports that might have been removed
-export { class1, function1, Object1 } from './path/to/module';
-
-// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
-// Assuming the issue was related to duplicate IDs or landmarks, ensure they are unique.
-// Since the code is not provided, this is a placeholder to illustrate the fix.
-// You would replace this with the actual code necessary to address the duplicate landmarks.
-const uniqueLandmarks = () => {
-  // Logic to ensure all landmarks are unique
-};
-
 // Make sure they are properly exported for other components:
-export { class1, function1, Object1, uniqueLandmarks };
-```
+export { class1, function1, Object1 };

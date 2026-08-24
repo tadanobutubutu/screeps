@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 import React, { useState } from 'react';
 import myFunction from './myFunction'; // Import the myFunction from the required file
 

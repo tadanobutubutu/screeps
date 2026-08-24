@@ -2,7 +2,6 @@
 // ... (Preserve this section)
 
 // TODO: Implement function for addressing accessibility issues from insight report
-// Preserve placeholer for the new function
 function addressAccessibilityIssues(insightReport) {
     // Your implementation here
     // This function should process the insight report and apply accessibility changes

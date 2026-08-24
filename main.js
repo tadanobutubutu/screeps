@@ -1,3 +1,7 @@
+// Screeps code (main.js)
+
+// Screeps-specific imports and dependencies here...
+
 // Import required module(s) for addressing the new issue
 import { getElementById } from './helpers.js';
 export { getElementById };

@@ -87,6 +87,49 @@ function addMainLandmark() {
 }
 
 /**
+ * Wrap primary content in a main landmark element
+ */
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined') return;
+
+  if (document.querySelector('main')) {
+    return;
+  }
+
+  const primaryContent = getElementById('content') || document.querySelector('#primary') || document.querySelector('.main-content') || document.querySelector('#main') || document.querySelector('.content') || document.querySelector('.primary-content');
+  if (primaryContent) {
+    const main = document.createElement('main');
+    if (primaryContent.parentNode) {
+      primaryContent.parentNode.insertBefore(main, primaryContent);
+      main.appendChild(primaryContent);
+    }
+    return;
+  }
+
+  const body = document.body;
+  if (!body) return;
+
+  const landmarkTags = ['header', 'footer', 'nav', 'aside'];
+  const landmarkRoles = ['banner', 'contentinfo', 'navigation', 'complementary'];
+  const children = Array.from(body.children);
+  const primaryChildren = children.filter((child) => {
+    const tag = child.tagName ? child.tagName.toLowerCase() : '';
+    const role = child.getAttribute ? (child.getAttribute('role') || '') : '';
+    return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
+  });
+
+  if (primaryChildren.length > 0) {
+    const main = document.createElement('main');
+    body.insertBefore(main, primaryChildren[0]);
+    primaryChildren.forEach((child) => {
+      if (child.parentNode === body) {
+        main.appendChild(child);
+      }
+    });
+  }
+}
+
+/**
  * REACT_025: Ensure unique landmarks
  * Ensures each landmark has a unique accessible name
  */
@@ -264,10 +307,11 @@ export {
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
+  wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addressAccessibilityIssues,
-  addressButtonAccessibility, // Add this new export
+  addressButtonAccessibility,
   dependencyGraphContent,
   indexContent
 };

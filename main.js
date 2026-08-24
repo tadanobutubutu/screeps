@@ -73,7 +73,7 @@ function handleAccessibilityIssues(issues) {
             default:
                 // Handle other accessibility changes based on the issue type
                 if (issue.element && issue.attributes) {
-                    Object.entries(issue.attributes).forEach(([attr, value]) => {
+                    Object.entries(issue.attributes || {}).forEach(([attr, value]) => {
                         issue.element.setAttribute(attr, value);
                     });
                 }
@@ -84,7 +84,7 @@ function handleAccessibilityIssues(issues) {
 // Implement table structure fix function
 function fixTableAccessibility(tables) {
     tables.forEach(table => {
-        const rows = table.querySelectorAll('tr');
+        const rows = table.querySelectorAll('tbody tr') || table.querySelectorAll('tr');
         rows.forEach(row => {
             const headers = row.querySelectorAll('th');
             const cells = row.querySelectorAll('td');
@@ -93,7 +93,8 @@ function fixTableAccessibility(tables) {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    th.id = `th-${table.id || table.getAttribute('aria-label') || Math.random().toString(36).substr(2, 9)}`;
+                    const tableId = table.id || table.getAttribute('aria-label') || `table-${Math.random().toString(36).substr(2, 9)}`;
+                    th.id = `th-${tableId}-${Math.random().toString(36).substr(2, 9)}`;
                 }
             });
             
@@ -147,7 +148,7 @@ function wrapPrimaryContentInMain() {
     const existingMain = document.querySelector('main');
     if (existingMain) {
         // Ensure the primary content (e.g., the container) is inside the existing main
-        const container = document.querySelector('#container, .container, [role="main"]');
+        const container = document.querySelector('[class*="container"], [id*="content"], [role="main"]');
         if (container && !existingMain.contains(container)) {
             existingMain.appendChild(container);
         }
@@ -155,10 +156,11 @@ function wrapPrimaryContentInMain() {
     }
 
     // No main element found; create one and wrap the primary content
-    const container = document.querySelector('.primary-content, #content, main-content');
+    const container = document.querySelector('[class*="container"], [id*="content"], [id*="main-content"]');
     const mainEl = document.createElement('main');
     if (container) {
         mainEl.appendChild(container);
+        document.body.insertBefore(mainEl, document.body.firstChild);
     } else {
         // Fallback: wrap the first non‑structural element of <body>
         const body = document.body;
@@ -166,10 +168,13 @@ function wrapPrimaryContentInMain() {
         const primary = children.find(child => !['header', 'footer', 'nav', 'aside', 'script', 'style'].includes(child.tagName.toLowerCase()));
         if (primary) {
             mainEl.appendChild(primary);
+            body.insertBefore(mainEl, body.firstChild);
         }
     }
     // Insert the new <main> element at the top of the body
-    document.body.insertBefore(mainEl, document.body.firstChild);
+    if (!document.querySelector('main')) {
+        document.body.insertBefore(mainEl, document.body.firstChild);
+    }
 }
 
 // Call the function to ensure the page has a <main> landmark
@@ -194,11 +199,3 @@ export {
     getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink
-};
-
-// ... (other existing exports)

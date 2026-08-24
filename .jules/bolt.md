@@ -29,3 +29,7 @@
 ## 2026-08-22 - Hoisting Position Method Verification in Target Search Loops
 **Learning:** Checking method presence (such as `typeof creep.pos.getRangeTo === 'function'`) inside structure search loops evaluates property lookups and type checks repeatedly per element per creep tick. Hoisting the boolean validation flag outside the loop reduces CPU overhead during spatial target scanning.
 **Action:** Always hoist object and method verification checks outside high-frequency iterations in Screeps role loops.
+
+## 2026-08-23 - Hoisting Method Validation in Builder Role Search Loops
+**Learning:** Evaluating object and method presence checks (e.g. `creep.pos && typeof creep.pos.getRangeTo === 'function'`) inside high-frequency `for` loops in builder energy retrieval routines (`_getEnergyFromDropped` and `_getEnergyFromContainer`) repeatedly evaluates property lookups on every loop iteration per creep per tick. Hoisting `const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';` outside the loop eliminates redundant property access operations.
+**Action:** Hoist position and method existence flags before iterating through resource/structure candidate arrays in creep energy gathering functions.

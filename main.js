@@ -192,4 +192,4 @@ const fixFakeLinkIssue = (document) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName };
+module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };

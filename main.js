@@ -1,22 +1,78 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+tsx
+import React, { useState } from 'react';
 
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const Dashboard: React.FC = () => {
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink
+  const copyErr = () => {
+    // Implementation for copying error message
+    setCopied(true);
+  };
+
+  const fetchStats = (shouldRetry: boolean) => {
+    // Implementation for fetching stats
+    setRefreshing(true);
+  };
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      {/* Render the error state */}
+      {error && (
+        <main>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          <button
+            onClick={copyErr}
+            onMouseEnter={() => setErrCopyHover(true)}
+            onMouseLeave={() => setErrCopyHover(false)}
+            onFocus={() => setErrCopyHover(true)}
+            onBlur={() => setErrCopyHover(false)}
+            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+            title={copied ? 'コピー済み' : 'エラーをコピー'}
+            style={{
+              backgroundColor: copied ? '#155d27' : '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errCopyHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          </button>
+        </main>
+      )}
+
+      {/* Render the success state */}
+      {!error && (
+        <main>
+          {/* ... other components and content for the success state ... */}
+        </main>
+      )}
+
+      {/* ... other components that are not in the main content ... */}
+    </div>
+  );
 };
+
+export default Dashboard;

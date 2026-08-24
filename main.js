@@ -28,28 +28,25 @@ const Table = ({ columns, data }) => {
 
 // Combine both components into a single DependencyGraph component
 const DependencyGraph = () => {
+  const columns = [
+    { header: 'src/constants.js', key: 'constants' },
+    { header: 'src/managers/roomManager.js', key: 'roomManager' },
+    { header: 'src/managers/spawnManager.js', key: 'spawnManager' },
+    { header: 'src/managers/towerManager.js', key: 'towerManager' },
+    { header: 'src/roles/builder.js', key: 'builder' },
+  ];
+
+  const data = [
+    // Original table rows would be added here
+    // Example placeholder row:
+    // { name: 'SampleRow', constants: true, roomManager: true, spawnManager: false, towerManager: true, builder: true }
+  ];
+
   // Maintain original content and structure
   return (
     <div>
       {/* ... other content ... */}
-      <table>
-        <thead>
-          <tr>
-            {/* ... other header cells ... */}
-            <th scope="col"><div>src/constants.js</div></th>
-            <th scope="col"><div>src/managers/roomManager.js</div></th>
-            <th scope="col"><div>src/managers/spawnManager.js</div></th>
-            <th scope="col"><div>src/managers/towerManager.js</div></th>
-            <th scope="col"><div>src/roles/builder.js</div></th>
-            {/* ... other header cells ... */}
-          </tr>
-        </thead>
-        <tbody>
-          {/* ... original table rows ... */}
-          {/* Add new table rows if present in the conflicting code */}
-          // ...
-        </tbody>
-      </table>
+      <Table columns={columns} data={data} />
       {/* ... other content ... */}
     </div>
   );
@@ -57,6 +54,3 @@ const DependencyGraph = () => {
 
 export default DependencyGraph;
 export { Table };
-```
-
-This solution assumes that the conflicting code contains new table rows that need to be added to the `DependencyGraph` component. You should review the conflicting code and make any necessary adjustments to the script as needed.

@@ -165,5 +165,6 @@ export {
   FakeLinkFixed, addLangAttribute, fixTableStructure,
   validateMainLandmark, validateUniqueLandmarks, validateLandmarkRoles,
   validateLandmarkStructure, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
+  validateTableStructure, validateLandmark,
+  getSvgAccessibleName, getAccessibleLabel
 };

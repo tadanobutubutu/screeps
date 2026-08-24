@@ -1,3 +1,4 @@
+// TODO: Address accessibility issues from insight report
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 const dependencyGraphModule = require('./dependencyGraph');
@@ -83,6 +84,8 @@ module.exports = {
   dependencyGraphFunction,
   indexFunction,
   ensureLangAttribute,
+  addMainLandmark,
+  addLangAttribute,
   addSvgAccessibleNames,
   fixTableStructureIssues,
   fixFakeLinkIssue,

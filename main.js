@@ -72,6 +72,19 @@ const App = () => {
       <a href="/home">Home</a>
       <table>
         {/* Table content */}
+        <thead>
+          <tr>
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            {/* ... other table headers with scope="col" */}
+          </tr>
+        </thead>
+        <tbody>
+          {/* Table rows */}
+        </tbody>
       </table>
       <svg>
         {/* SVG content */}

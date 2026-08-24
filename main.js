@@ -49,13 +49,38 @@ function fixTableStructure() {
   // Ensure tables have proper structure. Example implementation can be added here
 }
 
+// NEW: Validate table structure
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  let isValid = true;
+
+  tables.forEach(table => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaderCells = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(th => th.hasAttribute('scope'));
+
+    if (!hasCaption || !hasHeaderCells || !hasScope) {
+      isValid = false;
+    }
+  });
+
+  return isValid;
+}
+
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+  let main = document.querySelector('[role="main"]') || document.querySelector('main');
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.insertBefore(main, document.body.firstChild);
+  }
+  return main;
 }
+
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  return mainElements.length === 1;
 }
 
 // NEW: Validate unique landmarks
@@ -65,7 +90,7 @@ function validateLandmarkRoles() {
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const element = document.querySelector(`[role="${role}"]`);
+    const element = document.querySelector(`[role="${role}"]`) || document.querySelector(role);
     if (element) {
       foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
     }
@@ -79,6 +104,7 @@ function validateLandmarkRoles() {
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed,
+  addLangAttribute,
   fixTableStructure,
   validateTableStructure,
   validateLandmarkRoles,

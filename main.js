@@ -1,5 +1,12 @@
 // TODO: This is the existing code that needs to be preserved
-// ... existing code ...
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
+
 // main.js - Entry point for the application with accessibility fixes for React components
 import React from 'react';
 import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
@@ -238,7 +245,7 @@ export function ensureUniqueLandmarks(container = document) {
 export function createInPageButton(link) {
     if (!link) return null;
     return {
-        href: link.href,
+        href: link.href || '#',
         role: 'button',
         tabIndex: 0,
         text: link.textContent

@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Sampled code for adding the scope attribute
+const table = document.querySelector('table');
+
+if (table) {
+    for (let i = 0; i < table.rows.length; i++) {
+        const headers = table.rows[i].cells;
+        if (i === 0) {
+            for (let j = 0; j < headers.length; j++) {
+                headers[j].setAttribute('scope', 'col');
+            }
+        }
+    }
+}

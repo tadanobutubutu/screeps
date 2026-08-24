@@ -1,10 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// - REACT_036: Fix 1 fake link issue
-
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.querySelector('html');
@@ -58,32 +51,45 @@ const fixLandmarkIssues = () => {
   });
 };
 
-// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
 const uniqueLandmarks = () => {
+  let counter = 1;
+  const newId = (element) => {
+    if (!element) return false;
+
+    if (!element.id) {
+      let id = `landmark-${counter}`;
+      counter++;
+      return id;
+    }
+
+    return element.id;
+  };
+
   // Implementation to ensure all landmarks have unique IDs
   const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
   const existingIds = new Set();
   landmarks.forEach(landmark => {
-    if (landmark.id) {
-      existingIds.add(landmark.id);
+    const id = newId(landmark);
+    if (id) {
+      existingIds.add(id);
     }
   });
 
   return (element) => {
-    if (!element) return false;
-
-    if (!element.id) {
-      let counter = 1;
-      let newId = `landmark-${counter}`;
-      while (existingIds.has(newId)) {
-        counter++;
-        newId = `landmark-${counter}`;
+    const id = newId(element);
+    if (id) {
+      if (existingIds.has(id)) {
+        id = newId(element);
+        if (id) {
+          existingIds.add(id);
+        }
       }
-      element.id = newId;
-      existingIds.add(newId);
+      element.id = id;
+      return true;
     }
 
-    return true;
+    return false;
   };
 };
 
@@ -94,14 +100,9 @@ const addLandmarkRegions = () => {
   // to ensure landmarks are properly identified by screen readers
   const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
   landmarks.forEach(landmark => {
-    // Check if the landmark already has the proper role
     if (landmark.getAttribute('role') === null) {
-      // Add a default role if one is missing
       landmark.setAttribute('role', 'landmark');
     }
-    // Add any additional ARIA properties as needed for accessibility
-    // For example, you might want to set 'aria-labelledby' or 'aria-label'
-    // depending on the content and context of the landmark
   });
 };
 

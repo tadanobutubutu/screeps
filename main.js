@@ -1,6 +1,11 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+// Assuming 'main.js' imports and uses the icons from the provided TypeScript files
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-label=%22Screeps%20Dashboard%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+};
+
 // Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
     issues.forEach(issue => {
@@ -77,30 +82,30 @@ function fixTableAccessibility(tables) {
     tables.forEach(table => {
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
-            const headers = ...
-            const cells = ...
+            const headers = row.querySelectorAll('th');
+            const cells = row.querySelectorAll('td');
 
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + ... 9);
-                    const headerIndex = headers.indexOf(th);
+                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.random().toString(36).substr(2, 9);
+                    const headerIndex = Array.from(headers).indexOf(th);
                     th.id = tableId + '-th-' + headerIndex;
                 }
             });
 
             cells.forEach((td, index) => {
-                const rowHeaders = headers.filter(th => th.getAttribute('data-row-header') !== null);
+                const rowHeaders = Array.from(headers).filter(th => th.getAttribute('data-row-header') !== null);
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
             });
         });
 
-        const caption = ...
+        const caption = table.querySelector('caption');
         if (!caption && table.getAttribute('aria-label')) {
-            const generatedCaption = ...
+            const generatedCaption = document.createElement('caption');
             generatedCaption.textContent = table.getAttribute('aria-label');
             table.insertBefore(generatedCaption, table.firstChild);
         }
@@ -108,7 +113,7 @@ function fixTableAccessibility(tables) {
 }
 
 // Implement landmark handling function
-function ... {
+function ensureUniqueLandmarks(landmarkElements) {
     const usedRoles = new Map();
 
     landmarkElements.forEach(element => {
@@ -136,32 +141,32 @@ function ... {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-    const existingMain = ...
+    const existingMain = document.querySelector('main');
     if (existingMain) {
         return existingMain;
     }
 
     const body = document.body;
-    const main = ...
+    const main = document.createElement('main');
     
     while (body.firstChild) {
-        ...
+        main.appendChild(body.firstChild);
     }
     
-    ...
+    body.appendChild(main);
     return main;
 }
 
 // Call the function to ensure the page has a <main> landmark
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-        ... () => {
-            if ... {
-                ...
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.body) {
+                wrapPrimaryContentInMain();
             }
         });
-    } else if ... {
-        ...
+    } else if (document.body) {
+        wrapPrimaryContentInMain();
     }
 }
 
@@ -181,9 +186,9 @@ function validateTableAccessibility(table) {
     const rows = table.querySelectorAll('tbody tr');
     
     rows.forEach(row => {
-        const headers = ...
+        const headers = row.querySelectorAll('th');
         headers.forEach(th => {
-            if ... {
+            if (!th.getAttribute('scope')) {
                 errors.push('Header missing scope attribute');
             }
         });
@@ -196,11 +201,11 @@ function validateTableAccessibility(table) {
 function validateTableStructure(table) {
     const issues = [];
     
-    if ... && !table.getAttribute('aria-label')) {
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
         issues.push('Table missing caption or aria-label');
     }
     
-    const headers = ...
+    const headers = table.querySelectorAll('th');
     headers.forEach(th => {
         if (!th.id) {
             issues.push('Header missing id attribute');
@@ -233,7 +238,7 @@ export function anotherExistingFunction() {
     // ... (existing function code)
 }
 
-// Export new accessibility functions
+// Export new accessibility functions and icons
 export {
     handleAccessibilityIssues,
     fixTableAccessibility,
@@ -244,5 +249,6 @@ export {
     validateTableAccessibility,
     validateTableStructure,
     renderDependencyGraph,
-    renderIndexView
+    renderIndexView,
+    icons
 };

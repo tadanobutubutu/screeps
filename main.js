@@ -177,8 +177,8 @@ export function createSvgIcon(iconName, children = []) {
     };
 }
 
-// Fix REACT_041: Ensure accessible names for up to two SVG icons
-function ensureSvgAccessibleNames() {
+// Fix REACT_41: Ensure accessible names for up to two SVG icons
+export function ensureSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
     const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.querySelector('title'));
     toFix.slice(0, 2).forEach(svg => {
@@ -190,7 +190,7 @@ function ensureSvgAccessibleNames() {
     });
 }
 
-// Fix REACT_025 & REACT_017: Use semantic landmark elements
+// Fix REACT_25 & REACT_17: Use semantic landmark elements
 export function validateLandmark(element) {
     if (!element) return { valid: false, role: null };
     const role = element.getAttribute('role');
@@ -267,7 +267,7 @@ export function createAccessibleLink(url, text, isFakeLink = false) {
     return link;
 }
 
-function fixFakeLinks() {
+export function fixFakeLinks() {
     const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
     fakeLinks.forEach(link => {
         const button = document.createElement('button');
@@ -285,7 +285,6 @@ function fixFakeLinks() {
     });
 }
 
-// Fix REACT_017: Add proper landmark regions
 export function addLandmarkRegions(container = document) {
     let headerId = 'landmark-header';
     let navId = 'landmark-nav';
@@ -370,12 +369,13 @@ export function addLandmarkRegions(container = document) {
     return landmarkComponents;
 }
 
-function addressAccessibilityIssues() {
+export function addressAccessibilityIssues() {
     ensureSvgAccessibleNames();
     fixFakeLinks();
     wrapPrimaryContentInMain();
 }
 
+// Fix REACT_017: Add proper landmark regions
 export function wrapPrimaryContentInMain(container = document) {
     if (!container) return null;
     const existingMain = container.querySelector('main');

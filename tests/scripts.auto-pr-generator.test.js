@@ -16,6 +16,7 @@ describe('auto-pr-generator', () => {
         main;
 
     beforeEach(() => {
+        jest.clearAllMocks();
         originalEnv = { ...process.env };
         process.env.GITHUB_REPOSITORY = 'tadanobutubutu/screeps';
         process.env.ISSUE_NUMBER = '123';
@@ -35,6 +36,7 @@ describe('auto-pr-generator', () => {
         global.fetch = jest.fn();
 
         jest.spyOn(console, 'log').mockImplementation(() => {});
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
         jest.spyOn(console, 'error').mockImplementation(() => {});
         jest.spyOn(process, 'exit').mockImplementation(() => {});
     });
@@ -194,6 +196,26 @@ describe('auto-pr-generator', () => {
                 'git',
                 ['push', 'origin', 'fix/issue-123-test-issue'],
                 expect.any(Object)
+            );
+        });
+
+        it('should ignore path traversal attempts and not write files outside repository', async () => {
+            const issue = { number: 123, title: 'Test Issue' };
+            const analysis = {
+                rootCause: 'bug',
+                suggestedFix: {
+                    changes: [
+                        { file: '../../etc/passwd', code: 'malicious' },
+                        { file: '/etc/shadow', code: 'malicious' },
+                    ],
+                },
+            };
+
+            await createFixBranch(issue, analysis);
+
+            expect(fs.writeFileSync).not.toHaveBeenCalled();
+            expect(console.warn).toHaveBeenCalledWith(
+                expect.stringContaining('Security Warning: Ignored path traversal attempt')
             );
         });
 

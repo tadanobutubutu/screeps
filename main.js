@@ -144,7 +144,7 @@ function wrapPrimaryContentInMain() {
     const body = document.body;
     const main = document.createElement('main');
     while (body.firstChild) {
-        body.insertBefore(body.firstChild, main);
+        main.appendChild(body.firstChild);
     }
     body.appendChild(main);
     return main;

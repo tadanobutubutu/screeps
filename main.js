@@ -104,7 +104,6 @@ export function addMainLandmark(html) {
     return html;
   }
   
-  // Wrap content in main landmark
   // Try to match body content
   const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
@@ -164,4 +163,38 @@ export function ensureUniqueLandmarks(html) {
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
     const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // Assign unique IDs to landmarks
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
+    const idCounter = counters[lm];
+    html = html.replace(regex, (match) => {
+      const id = `${lm}-id-${idCounter}`;
+      return match.replace(/id="[^"]*"/i, '').replace(/<${lm}/, `<${lm} id="${id}"`);
+    });
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake link issues
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('href=')) {
+      return match;
+    }
+    return match.replace(/<a/, '<a href="#"');
+  });
+}

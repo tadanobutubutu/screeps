@@ -32,6 +32,56 @@ function addAllSvgAccessibleNames() {
     svgs.forEach(svg => addSvgAccessibleNames(svg));
 }
 
+export function updateDependencyGraphHTML(html) {
+  // Update the HTML file as follows:
+  // Replace the <a id="unrotate" href="#">rotate back</a> with a <button id="unrotate" onclick="rotateBack()">rotate back</button>
+  // Make sure to update the JavaScript to handle the button click if necessary
+  return html.replace(
+    /<a id="unrotate" href="#">rotate back<\/a>/g,
+    '<button id="unrotate" onclick="rotateBack()">rotate back</button>'
+  );
+}
+
+export function addMainLandmarkToDependencyGraph(html) {
+  // REACT_017: Wrap the primary content (data table) in a <main> landmark
+  // so keyboard and screen reader users can skip to it.
+  let updated = html;
+  if (!/<main[\s>]/i.test(updated)) {
+    updated = updated.replace(
+      /(<table id="table-rotated">)/,
+      '<main>\n$1'
+    );
+    // Close the <main> landmark before </body>
+    if (/<\/table>/i.test(updated) && !/<\/main>/i.test(updated)) {
+      updated = updated.replace(
+        /<\/table>([\s\S]*?)<\/body>/,
+        '</table>$1</main>\n</body>'
+      );
+    }
+  }
+  return updated;
+}
+
+export function addMainLandmarkToIndex(html) {
+  // REACT_017: Wrap the primary content (container with reports) in a
+  // <main> landmark so it can be skipped to.
+  let updated = html;
+  if (!/<main[\s>]/i.test(updated)) {
+    updated = updated.replace(
+      /(<div class="container">)/,
+      '<main>\n$1'
+    );
+    // Close the <main> landmark before </body>
+    if (/<div class="container">/i.test(updated) && !/<\/main>/i.test(updated)) {
+      updated = updated.replace(
+      /(<\/div>\s*)(<\/body>)/,
+        '$1</main>\n$2'
+      );
+    }
+  }
+  return updated;
+}
+
 // Function to implement addressing accessibility issues from insight report
 function fixInputAccessibility() {
     const inputs = document.querySelectorAll('input');
@@ -228,10 +278,22 @@ function wrapPrimaryContentInMain() {
 function fixFakeLinkIssue() {
     const links = document.querySelectorAll('a');
     links.forEach(link => {
-        const clickable = document.createElement('a');
-        clickable.href = link.getAttribute('href') || '#';
-        clickable.textContent = 'Click me';
-        link.appendChild(clickable);
+        const href = link.getAttribute('href');
+        if (href === '#' || href === '' || !href) {
+            const button = document.createElement('button');
+            button.textContent = link.textContent || 'Click me';
+            const onclick = link.getAttribute('onclick');
+            if (onclick) {
+                button.setAttribute('onclick', onclick);
+            }
+            if (link.id) {
+                button.id = link.id;
+            }
+            if (link.className) {
+                button.className = link.className;
+            }
+            link.parentNode.replaceChild(button, link);
+        }
     });
 }
 

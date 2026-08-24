@@ -71,28 +71,29 @@ function fixTableAccessibility(tables) {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tbody tr');
     rows.forEach(row => {
-      const headers = ...
-      const cells = ...
+      const headers = row.querySelectorAll('th');
+      const cells = row.querySelectorAll('td');
       headers.forEach((th) => {
         const isRowHeader = th.getAttribute('data-row-header') !== null;
         th.setAttribute('scope', isRowHeader ? 'row' : 'col');
         if (!th.id) {
           const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.floor(Math.random() * 10000);
-          const headerIndex = headers.indexOf(th);
+          const headerIndex = Array.from(headers).indexOf(th);
           th.id = tableId + '-th-' + headerIndex;
         }
       });
-      cells..forEach((td, index) => {
-        const rowHeaders = headers.filter(th => th.getAttribute('data-row-header') !== null);
+      cells.forEach((td, index) => {
+        const rowHeaders = Array.from(headers).filter(th => th.getAttribute('data-row-header') !== null);
         if (rowHeaders.length > index) {
           td.setAttribute('headers', rowHeaders[index].id);
         }
       });
     });
-    const caption = ...
+    const caption = table.querySelector('caption');
     if (!caption && table.getAttribute('aria-label')) {
-      const generatedCaption = ...
+      const generatedCaption = document.createElement('caption');
       generatedCaption.textContent = table.getAttribute('aria-label');
+      generatedCaption.style.display = 'none';
       table.insertBefore(generatedCaption, table.firstChild);
     }
   });
@@ -101,7 +102,8 @@ function fixTableAccessibility(tables) {
 // Implement landmark handling
 function ensureUniqueLandmarks() {
   const usedRoles = new Map();
-  ... => {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"], header, nav, main, footer, aside, section');
+  landmarks.forEach(element => {
     const role = element.getAttribute('role') || element.tagName.toLowerCase();
     const existingCount = usedRoles.get(role) || 0;
     usedRoles.set(role, existingCount + 1);
@@ -124,16 +126,24 @@ function ensureUniqueLandmarks() {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-  const existingMain = ...
+  const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
   const body = document.body;
-  const main = ...
+  const main = document.createElement('main');
+  main.id = 'main-content';
   while (body.firstChild) {
-    ...
+    const child = body.firstChild;
+    if (child.tagName === 'SCRIPT' || child.tagName === 'STYLE' || child.tagName === 'LINK' || child.tagName === 'META') {
+      body.removeChild(child);
+      body.appendChild(child);
+    } else {
+      body.removeChild(child);
+      main.appendChild(child);
+    }
   }
-  ...
+  body.appendChild(main);
   return main;
 }
 
@@ -152,9 +162,9 @@ function validateTableAccessibility(table) {
   const errors = [];
   const rows = table.querySelectorAll('tbody tr');
   rows.forEach(row => {
-    const headers = ...
-    headers.foreach(th => {
-      if ... {
+    const headers = row.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
         errors.push('Header missing scope attribute');
       }
     });
@@ -165,11 +175,12 @@ function validateTableAccessibility(table) {
 // Validate table structure
 function validateTableStructure(table) {
   const issues = [];
-  if ... && !table.getAttribute('aria-label')) {
+  const caption = table.querySelector('caption');
+  if (!caption && !table.getAttribute('aria-label')) {
     issues.push('Table missing caption or aria-label');
   }
-  const headers = ...
-  headers.foreach(th => {
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
     if (!th.id) {
       issues.push('Header missing id attribute');
     }

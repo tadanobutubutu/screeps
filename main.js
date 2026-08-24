@@ -3,10 +3,10 @@ import indexContent from './indexContent';
 
 function getHeadingLevels(html) {
   const headingLevels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-  const headings = ...
+  const headings = ...; // Assume this is defined elsewhere
 
   headings?.forEach(heading => {
-    const headingLevel = ...
+    const headingLevel = ...; // Assume this is defined elsewhere
     headingLevels[headingLevel]++;
   });
 
@@ -15,7 +15,7 @@ function getHeadingLevels(html) {
 
 function addLandmarkRoles() {
   // Add landmark roles to main content
-  const contentWithLandmarks = ...
+  const contentWithLandmarks = ...; // Assume this is defined elsewhere
 
   // Replace the original content with the updated one
   content = contentWithLandmarks;

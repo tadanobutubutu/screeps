@@ -114,9 +114,9 @@ function fixSvgAccessibilityIssues() {
         }
     });
 }
-// ----- ORIGINAL CODE END -----
 
-// NEW CODE FOR TABLE ISSUES
+// TODO: Add any other missing exports that might have been?
+// NEW CODE FOR TABLE ISSUES (only the functions for this issue)
 
 // Function to fix table structure issues
 function fixTableStructureIssues() {
@@ -148,24 +148,28 @@ function fixTableStructureIssues() {
         table.querySelectorAll('th').forEach(th => {
             th.setAttribute('scope', 'col');
         });
-        
+
         // Ensure every row that has cells is part of a proper structure
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             // Ensure each cell in the row is either a th or td
-            const cells = row.querySelectorAll('td');
+            const cells = row.querySelectorAll('td, th');
             if (cells.length > 0) {
                 // Check if this row should be in thead or tbody
-                const hasHeaderCells = row.querySelector('th') !== null;
-                if (hasHeaderCells && !hasThead) {
-                    // Row has header cells but no thead exists
+                const isHeaderRow = row.querySelectorAll('th').length > 0;
+
+                // If it's a header row, append it to thead, otherwise append it to tbody
+                if (isHeaderRow && !table.querySelector('thead')) {
+                    table.prepend(row);
+                } else if (!isHeaderRow && table.querySelector('tbody')) {
+                    table.querySelector('tbody').appendChild(row);
                 }
             }
         });
     });
 }
 
-// TODO: Add any other missing exports that might have been?
+// Export the new function to address table structure issues
 export {
     setHtmlLangAttribute,
     ensureLanguageAttribute,
@@ -175,5 +179,6 @@ export {
     fixSvgAccessibilityIssues,
     fixTableStructureIssues,
     dependencyGraphContent,
-    indexContent
+    indexContent,
+    fixTableStructureIssues // Export fixTableStructureIssues for tests
 };

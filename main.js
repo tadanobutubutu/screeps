@@ -1,9 +1,9 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
+// - REACT_015: Add lang attribute to HTML element ✓ FIXED
+// - REACT_017: Add/fix 4 landmark issues ✓ FIXED
+// - REACT_041: Add accessible names to 2 SVGs ✓ FIXED
+// - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED
+// - REACT_036: Fix 1 fake link issue ✓ FIXED
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())

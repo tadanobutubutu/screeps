@@ -1,6 +1,18 @@
-// Main module entry point
-var loop = require('./src/loop');
+// components/Dashboard.tsx
+import React from 'react';
 
-module.exports = {
-    loop: loop
+const Dashboard = ({ error, success }) => {
+  return (
+    <div>
+      {error && <main>Error: {error.message}</main>}
+      {success && <main>Success: {success.message}</main>}
+      {!error && !success && (
+        <main>
+          <!-- Other content that should be in the main area of the page -->
+        </main>
+      )}
+    </div>
+  );
 };
+
+export default Dashboard;

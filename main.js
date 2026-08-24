@@ -8,7 +8,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -51,7 +51,7 @@ function ensureUniqueLandmarks() {
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>
-  Object.keys(landmarks).forEach((landmarkType) => {
+  Object.keys(landmarks).forEach(landmarkType => {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
@@ -81,14 +81,14 @@ function ensureUniqueLandmarks() {
 
 // NEW FUNCTION: Add accessible name to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = Array.from(document.querySelectorAll('svg'));
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.getAttribute('role')) {
+    if (!svg.hasAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -109,7 +109,7 @@ function setLangAttribute() {
 
 // NEW FUNCTION: Fix fake link issue
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a');
+  const links = Array.from(document.querySelectorAll('a'));
   links.forEach(link => {
     if (!link.hasAttribute('href')) {
       link.setAttribute('href', '#');
@@ -128,4 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // EXPORT new functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };
+export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv, setLangAttribute, fixFakeLinkIssue };

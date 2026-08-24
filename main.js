@@ -31,7 +31,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -49,11 +49,11 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.keys(landmarks).forEach(role => {
-    const elements = document.querySelectorAll(role);
-    elements.forEach(element => {
-      if (element.getAttribute('role') !== landmarks[role]) {
-        element.setAttribute('role', landmarks[role]);
+  Object.entries(landmarks).forEach(([tag, role]) => {
+    const elements = document.getElementsByTagName(tag);
+    Array.from(elements).forEach(element => {
+      if (element.getAttribute('role') !== landmarks[tag]) {
+        element.setAttribute('role', role);
       }
     });
   });
@@ -86,8 +86,8 @@ const uniqueLandmarks = () => {
 const addLandmarkRegions = () => {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach(element => {
+    const elements = document.getElementsByTagName(landmark);
+    Array.from(elements).forEach(element => {
       if (!element.getAttribute('role')) {
         element.setAttribute('role', 'landmark');
       }
@@ -104,7 +104,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('th, td');
+        const cells = firstRow.querySelectorAll('td');
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;

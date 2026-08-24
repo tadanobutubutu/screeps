@@ -94,6 +94,36 @@ function newFunction(element) {
     }
   });
 
+  // Ensure a <main> landmark exists (REACT_017)
+  function ensureMainLandmark() {
+    let mainEl = document.querySelector('main');
+    if (!mainEl) {
+      mainEl = document.createElement('main');
+      mainEl.setAttribute('role', 'main');
+      const body = document.querySelector('body');
+      if (body) {
+        body.insertBefore(mainEl, body.firstChild);
+      } else {
+        document.documentElement.appendChild(mainEl);
+      }
+    } else if (!mainEl.hasAttribute('role')) {
+      mainEl.setAttribute('role', 'main');
+    }
+
+    // Move the primary content container (e.g., .container) inside <main> if it isn’t already there
+    const primary = document.querySelector('.container');
+    if (primary && !mainEl.contains(primary)) {
+      mainEl.appendChild(primary);
+    }
+  }
+
+  // Execute the helper once the DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureMainLandmark);
+  } else {
+    ensureMainLandmark();
+  }
+
   // Your implementation here
   // Example: Log a message to the console to indicate the function has been called
   console.log('newFunction has been called with element:', element);

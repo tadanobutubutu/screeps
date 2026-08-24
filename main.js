@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
-// main.js - Entry point for the application with accessibility fixes for React components
-// Addressed accessibility issues from insight report:
+ // main.js - Entry point for the application with accessibility fixes for React components
+ // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
@@ -88,7 +88,7 @@ function validateTableStructure() {
   return checkTableStructure();
 }
 
-// Add/fix 4 landmark issues
+// Add main landmark
 function addMainLandmark() {
   const main = document.querySelector('main') || document.querySelector('[role="main"]');
   if (main) {

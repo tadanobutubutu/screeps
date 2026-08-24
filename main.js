@@ -20,67 +20,33 @@ const addMainLandmark = (htmlContent = '') => {
         return htmlContent;
     }
 
-    // Check if main landmark already exists
-    if (/<main[^>]*>/.test(htmlContent) || /<div[^>]*role="main"[^>]*>/.test(htmlContent)) {
-        return htmlContent;
-    }
-
     // Add role="main" to the most appropriate container or wrap main content
     return htmlContent.replace(
         /(<body[^>]*>)([\s\S]*)(<\/body>)/,
-        '$1$2<div role="main">$3</div>'
+        '$1$2<main role="main">$3</main>'
     );
 };
 
-const ensureUniqueLandmarks = (htmlContent = '') => {
-    if (typeof htmlContent !== 'string') {
-        return htmlContent;
-    }
+// ... other functions...
 
-    let result = htmlContent;
-
-    // Ensure only one header landmark - convert subsequent headers to non-landmark
-    const headerMatches = result.match(/<header[^>]*>/g) || [];
-    if (headerMatches.length > 1) {
-        let headerCount = 0;
-        result = result.replace(/<header[^>]*>/g, (match) => {
-            headerCount++;
-            return headerCount === 1 ? match : match.replace(/role="banner"/, '');
-        });
-    }
-
-    // Ensure only one footer landmark - convert subsequent footers to non-landmark
-    const footerMatches = result.match(/<footer[^>]*>/g) || [];
-    if (footerMatches.length > 1) {
-        let footerCount = 0;
-        result = result.replace(/<footer[^>]*>/g, (match) => {
-            footerCount++;
-            return footerCount === 1 ? match : match.replace(/role="contentinfo"/, '');
-        });
-    }
-
-    return result;
-};
-
-const addAriaLabelToMyDiv = (htmlContent = '') => {
-    if (typeof htmlContent !== 'string') {
-        return htmlContent;
-    }
-
-    // Find divs with role="link" that lack accessible names
-    return htmlContent.replace(
-        /<div([^>]*)role="link"([^>]*)>/g,
-        (match, before, after) => {
-            const hasAriaLabel = /aria-label|aria-labelledby/.test(before + after);
-            if (hasAriaLabel) {
-                return match;
-            }
-
-            // Add aria-label with a default accessible name
-            return `<div${before}role="link" aria-label="Link"${after}>`;
-        }
+// Find and wrap the main content with a <main> tag
+const patchMainLandmarks = (htmlContent = '') => {
+    // Add role="main" to the docs/dependency-graph.html
+    htmlContent = htmlContent.replace(
+        /(<body[^>]*>)([\s\S]*<table[^>]*id="table-rotated".*<\/table>)(<\/body>)/,
+        '$1$2<main>$3</main>'
     );
+
+    // Add role="main" to the docs/index.html
+    htmlContent = htmlContent.replace(
+        /(<body[^>]*>)([\s\S]*<div[^>]*class="container".*<\/div>)(<\/body>)/,
+        '$1$2<main>$3</main>'
+    );
+
+    return htmlContent;
 };
+
+// ... other functions...
 
 // Fix table structure issues and update SVG accessible names will be added separately
 
@@ -94,6 +60,7 @@ module.exports = {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     addAriaLabelToMyDiv,
+    patchMainLandmarks, // Add the new function
     // ... other exports if any ...
 
     // New exports added to address the TODO

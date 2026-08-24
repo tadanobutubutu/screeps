@@ -7,6 +7,34 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
+/**
+ * Adds accessible name to an SVG element by adding aria-label and title element
+ * Addresses REACT_041: React SVG Accessible Name
+ * @param {string} svgContent - The SVG content/element
+ * @param {string} accessibleName - The accessible name to use
+ * @param {boolean} isDecorative - Whether the SVG is decorative (uses aria-hidden="true" instead)
+ * @returns {string} - SVG with accessible name added
+ */
+function getSvgAccessibleName(svgContent, accessibleName, isDecorative = false) {
+  if (isDecorative) {
+    // If decorative, just hide from screen readers
+    return svgContent.replace('<svg', '<svg aria-hidden="true"');
+  }
+  
+  // Add aria-label to the opening svg tag
+  let result = svgContent;
+  if (!svgContent.includes('aria-label')) {
+    result = svgContent.replace('<svg', `<svg aria-label="${accessibleName}"`);
+  }
+  
+  // Add title element if not present
+  if (!result.includes('<title>')) {
+    result = result.replace('<svg', `<svg><title>${accessibleName}</title>`);
+  }
+  
+  return result;
+}
+
 // Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 module.exports = {

@@ -34,15 +34,17 @@ function addMainLandmark() {
   main.setAttribute('role', 'main');
 }
 
+// Validate landmark
 function validateLandmark() {
   // Implementation code
 }
 
+// Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation code
 }
 
-// Ensure unique landmarks (2 issues)
+// Fix unique landmarks (2 issues)
 function fixUniqueLandmarks() {
   // Implementation code
 }
@@ -52,14 +54,17 @@ function fixFakeLinkIssue() {
   // Implementation code
 }
 
+// Validate link accessibility
 function validateLinkAccessibility() {
   // Implementation code
 }
 
+// Create in page button
 function createInPageButton() {
   // Implementation code
 }
 
+// Create accessible link
 function createAccessibleLink() {
   // Implementation code
 }
@@ -72,6 +77,35 @@ function addressAccessibilityIssues() {
   fixFakeLinkIssue();
 }
 
+// Function to check TH cell scope
+function hasValidTHScope(cell) {
+  const acceptedScopes = ['row', 'col', 'rowgroup', 'colgroup'];
+  return acceptedScopes.includes(cell.getAttribute('scope'));
+}
+
+// Function to fix table structure issues by checking TH cell scopes
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('th');
+
+      cells.forEach((cell, cellIndex) => {
+        if (!hasValidTHScope(cell)) {
+          let scope = 'col';
+          if (cellIndex === 0) {
+            scope = 'row';
+          }
+          cell.setAttribute('scope', scope);
+        }
+      });
+    });
+  });
+}
+
 // Example usage of the accessibility functions
 ...
 ...
@@ -80,3 +114,4 @@ function addressAccessibilityIssues() {
 ...
 // Add the new function at the end
 addressAccessibilityIssues();
+fixTableStructureIssues();

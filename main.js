@@ -7,54 +7,56 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 // Assuming you have a button with ID 'myButton'
-document.getElementById('myButton').setAttribute('aria-label', 'My Button');
-document.getElementById('myButton').setAttribute('role', 'button');
-document.getElementById('myButton').setAttribute('aria-pressed', 'false');
+const button = document.getElementById('myButton');
+button.setAttribute('aria-label', 'My Button');
+button.setAttribute('role', 'button');
+button.setAttribute('aria-expanded', 'false');
 
 // New function to handle button click
 function handleButtonClick() {
   const button = document.getElementById('myButton');
-  button.setAttribute('aria-pressed', button.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+  button.setAttribute('aria-expanded', isExpanded);
 }
 
 // Add the click event listener to the button
-document.getElementById('myButton').addEventListener('click', handleButtonClick);
+button.addEventListener('click', handleButtonClick);
 
 // Import dependencyGraphContent if it is used in the code
 const { dependencyGraphContent } = require('./dependencyGraph');
 
 // New function to ensure HTML lang attribute is set
-function addHtmlLangAttribute() {
+function addLangAttribute() {
   const html = document.documentElement;
   html.setAttribute('lang', 'en');
 }
 
 // Initialize the HTML lang attribute
-addHtmlLangAttribute();
+addLangAttribute();
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('[data-fake-link]');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href');
+      a.href = fakeLink.getAttribute('data-href') || '#';
       a.textContent = fakeLink.textContent;
-      fakeLink.parentNode.replaceChild(a, fakeLink);
+      fakeLink.replaceWith(a);
     }
   });
 }
 
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header');
-  const existingFooters = document.querySelectorAll('footer');
+  const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
+  const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
 
   if (existingHeaders.length > 1) {
-    existingHeaders.slice(1).forEach(header => header.remove());
+    existingHeaders.forEach((header, index) => index > 0 && header.remove());
   }
   if (existingFooters.length > 1) {
-    existingFooters.slice(1).forEach(footer => footer.remove());
+    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
   }
 }
 
@@ -78,14 +80,14 @@ function ensureProperLandmarkStructure() {
   headerElement.setAttribute('role', 'banner');
   body.prepend(headerElement);
 
-  const siteTitle = document.createElement('h1');
+  const siteTitle = document.createElement('div');
   siteTitle.textContent = 'Application Name';
   headerElement.appendChild(siteTitle);
 
   // Navigation - Navigation
   const navElement = document.createElement('nav');
   navElement.setAttribute('role', 'navigation');
-  body.appendChild(navElement);
+  headerElement.appendChild(navElement);
 
   const navList = document.createElement('ul');
   navList.setAttribute('role', 'menubar');
@@ -93,6 +95,7 @@ function ensureProperLandmarkStructure() {
   navElement.appendChild(navList);
 
   const homeItem = document.createElement('li');
+  homeItem.setAttribute('role', 'none');
   homeItem.setAttribute('role', 'menuitem');
   const homeLink = document.createElement('a');
   homeLink.href = '#';
@@ -120,19 +123,48 @@ function ensureProperLandmarkStructure() {
 function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const shouldUseTitle = !svg.closest('[lang="en"]');
-    const isBackground = svg.css('position') === 'absolute' && svgs.css('top') === '0' && svgs.css('left') === '0' && svgs.css('width') === '100%' && svgs.css('height') === '100%';
+    const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
+    const isBackground = svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
 
     if (shouldUseTitle || isBackground) {
-      svg.setAttribute('title', 'Description of SVG content');
-    } else {
       svg.setAttribute('aria-label', 'Description of SVG content');
+    } else {
+      const title = document.createElement('title');
+      title.textContent = 'Description of SVG content';
+      svg.prepend(title);
     }
   });
 }
 
+// Function to wrap primary content in main landmark
+function wrapPrimaryContentInMain() {
+  const existingMains = document.querySelectorAll('main');
+  
+  // Remove duplicate main elements if any
+  existingMains.forEach((main, index) => {
+    if (index > 0) {
+      main.remove();
+    }
+  });
+  
+  // If no main element exists, create and wrap primary content
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  
+  // Find primary content container (adjust selector based on your content structure)
+  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+  
+  // Move existing content into main if not already inside one
+  if (!document.querySelector('main')) {
+    while (contentContainer.firstChild) {
+      mainElement.appendChild(contentContainer.firstChild);
+    }
+    contentContainer.appendChild(mainElement);
+  }
+}
+
 // Call all necessary functions
-addHtmlLangAttribute();
+wrapPrimaryContentInMain();
 fixFakeLinks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();

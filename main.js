@@ -1,6 +1,6 @@
 // Original code that might have looked like this:
 /*
-<rootElement> ... </rootElement>
+<html> ... </html>
 */
 
 // Updated code with the lang attribute added to the HTML root element

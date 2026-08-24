@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
 // - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
@@ -11,13 +11,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.getAttribute('aria-label')) {
+  if (node.hasAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
-  if (node.getAttribute('aria-labelledby')) {
+  if (node.hasAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = node.ownerDocument.getElementById(labelledById);
+    const labelledElement = document.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
@@ -77,19 +77,19 @@ const fixTableStructure = (document) => {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
 
     if (!table.querySelector('tbody')) {
       const tbodies = table.querySelectorAll('tbody');
-      tbodies.forEach((tbody) => {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+      table.querySelectorAll('tr').forEach((row) => {
+        const rows = Array.from(table.querySelectorAll('tr'));
         if (rows.length > 0) {
           const newTbody = document.createElement('tbody');
           rows.forEach((row) => newTbody.appendChild(row));
-          tbody.parentNode.replaceChild(newTbody, tbody);
+          table.appendChild(newTbody);
         }
       });
     }
@@ -131,7 +131,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -147,7 +147,7 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach((role) => {
+  landmarkTypes.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     const seenRoleIds = new Set();
 
@@ -187,8 +187,8 @@ const fixFakeLinkIssue = (document) => {
     if (href && !link.textContent.trim()) {
       const accessibleName = getAccessibleName(link);
       if (!accessibleName) {
-        if (link.getAttribute('aria-label')) {
-          link.setAttribute('aria-label', link.getAttribute('aria-label'));
+        if (link.querySelector('img')) {
+          link.setAttribute('aria-label', 'Image link');
         } else if (link.title) {
           link.setAttribute('aria-label', link.title);
         } else {

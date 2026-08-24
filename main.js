@@ -1,18 +1,1 @@
-// Existing code and exports from current main.js
-// ...
-
-// New functions or changes requested in the issue
-function updateTableStructure() {
-  const tableElements = document.querySelectorAll('th');
-  tableElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
-      th.setAttribute('scope', 'col');
-    }
-  });
-}
-
-// Call the function to update the table structure
-updateTableStructure();
-
-// Existing code and exports from current main.js
-// ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

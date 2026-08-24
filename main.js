@@ -163,6 +163,16 @@ function createInPageButton() {
   document.body.insertBefore(button, document.body.firstChild);
 }
 
+// Function to validate landmarks
+function validateLandmark() {
+  const landmarks = document.querySelectorAll('main, header, nav, footer, aside');
+  landmarks.forEach(landmark => {
+    if (!landmark.getAttribute('role')) {
+      landmark.setAttribute('role', 'landmark');
+    }
+  });
+}
+
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();

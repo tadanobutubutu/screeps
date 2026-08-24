@@ -25,8 +25,8 @@ export function addSvgAccessibleNames() {
 }
 
 // - REACT_036: Fix 1 fake link issue
-export function addAriaLabelToMyDiv() {
-    const link = document.getElementById('link');
+export function fixFakeLink() {
+    const link = document.querySelector('a[href="#"]');
     if (link) {
         link.setAttribute("href", "#"); // replace "#" with the appropriate URL
         if (!link.getAttribute('aria-label')) {
@@ -40,20 +40,34 @@ export function wrapPrimaryContentInMain() {
     const mainContent = document.querySelector('.container'); // Assuming the primary content is within a div with class 'container'
     if (mainContent) {
         const mainTag = document.createElement('main');
+        const parent = mainContent.parentNode;
+        parent.insertBefore(mainTag, mainContent);
         while (mainContent.firstChild) {
             mainTag.appendChild(mainContent.firstChild);
         }
-        mainContent.appendChild(mainTag);
+        parent.removeChild(mainContent);
+        parent.insertBefore(mainTag, parent.firstChild);
     }
 }
 
 // - REACT_017: Add/fix 2 landmark issues
 export function addMainLandmark() {
-    wrapPrimaryContentInMain();
+    // Find primary content - try table-rotated first, then container
+    const tableRotated = document.getElementById('table-rotated');
+    const container = document.querySelector('.container');
+    
+    let mainContent = tableRotated || container;
+    
+    if (mainContent && !mainContent.closest('main')) {
+        const mainTag = document.createElement('main');
+        const parent = mainContent.parentNode;
+        parent.insertBefore(mainTag, mainContent);
+        mainTag.appendChild(mainContent);
+    }
 }
 
 // - REACT_027: Fix 26 table structure issues
-export function fixTableStructureIssues() {
+export function fixTableStructure() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         // Ensure tables have proper structure
@@ -81,7 +95,7 @@ export function fixTableStructureIssues() {
         // Ensure cells have proper scope attributes
         const headerCells = table.querySelectorAll('th');
         headerCells.forEach(th => {
-            if (!th.hasAttribute('scope')) {
+            if (!th.getAttribute('scope')) {
                 const row = th.closest('tr');
                 if (row && row.parentNode.nodeName === 'THEAD') {
                     th.setAttribute('scope', 'col');
@@ -114,9 +128,10 @@ export function ensureUniqueLandmarks() {
 // Call the functions to address accessibility issues
 addLangAttribute();
 addSvgAccessibleNames();
-addAriaLabelToMyDiv();
+fixFakeLink();
+wrapPrimaryContentInMain();
 addMainLandmark();
-fixTableStructureIssues();
+fixTableStructure();
 ensureUniqueLandmarks();
 
 // ... (other existing code, exports, and functions from main.js)

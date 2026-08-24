@@ -249,6 +249,16 @@ function addressAccessibilityIssues() {
   console.log('Accessibility issues addressed.');
 }
 
+// Automatically address accessibility issues when loaded in a browser environment
+if (typeof document !== 'undefined') {
+  // Run after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addressAccessibilityIssues);
+  } else {
+    addressAccessibilityIssues();
+  }
+}
+
 export {
   addLangAttribute,
   fixTableStructure,

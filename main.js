@@ -23,7 +23,7 @@ function App() {
           height="100" 
           viewBox="0 0 100 100" 
           role="img" 
-          aria-label="Decorative logo icon"
+          aria-label="[PERSON_NAME] logo icon"
         >
           <title>Company Logo Icon</title>
           <circle cx="50" cy="50" r="40" fill="#3498db" />

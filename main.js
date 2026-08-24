@@ -19,3 +19,14 @@ function someFunctionThatUsesDependencyGraph() {
 }
 
 // ... (other existing code, exports, and functions from main.js)
+
+// Existing exports and functions must remain unchanged
+export function existingFunction1() {
+  // ...
+}
+
+export function existingFunction2() {
+  // ...
+}
+
+// ... (other exports and functions)

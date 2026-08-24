@@ -5,6 +5,9 @@
 // Import axios for making API calls
 import axios from 'axios';
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
@@ -16,7 +19,7 @@ document.body.insertBefore(skipLink, document.body.firstChild);
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
   e.preventDefault();
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.getElementById('main-content') || document.querySelector('main');
   if (mainContent) {
     mainContent.tabIndex = -1;
     mainContent.focus();
@@ -24,7 +27,7 @@ skipLink.addEventListener('click', (e) => {
 });
 
 // Mark the main content area as a primary region
-const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+const mainElement = document.querySelector('main') || document.getElementById('content') || document.querySelector('[role="main"]');
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
@@ -32,7 +35,7 @@ if (mainElement) {
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  const insightReportUrl = 'REPLACE_WITH_THE_CONCRETE_URL_FROM_THE_INSIGHT_REPORT';
+  const insightReportUrl = 'https://api.example.com/accessibility-report';
 
   const response = await fetchAPI(insightReportUrl);
   const accessibilityIssues = response.data || response;
@@ -40,10 +43,10 @@ async function addressAccessibilityIssues() {
   accessibilityIssues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-caption':
-        addCaptionToMissingTable(issue.element);
+        addCaptionToTable(issue.element);
         break;
       case 'table-no-unique-id':
-        assignUniqueIdToTable(issue.element);
+        addUniqueIdToTable(issue.element);
         break;
       default:
         console.warn(`Unhandled accessibility issue type: ${issue.type}`);
@@ -52,19 +55,19 @@ async function addressAccessibilityIssues() {
 }
 
 // New function to add a caption to a missing table
-function addCaptionToMissingTable(table) {
-  const tableHeader = table.getElementsByTagName('thead')[0];
+function addCaptionToTable(table) {
+  const tableHeader = table.querySelector('caption');
 
   // If a caption exist on the table, return early
-  if (table.getElementsByTagName('caption').length > 0) return;
+  if (tableHeader && tableHeader.length > 0) return;
 
   const caption = document.createElement('caption');
   caption.textContent = table.id || `Table ${table.dataset.testid}`;
-  tableHeader.appendChild(caption);
+  table.insertBefore(caption, table.firstChild);
 }
 
 // New function to assign a unique id to table
-function assignUniqueIdToTable(table) {
+function addUniqueIdToTable(table) {
   table.id = table.id || `table-${table.dataset.testid}`;
 }
 

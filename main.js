@@ -131,6 +131,16 @@ function indexFunction() {
   return fixedContent;
 }
 
+// Accessibility: Ensure the <html> element has a lang attribute so screen readers pick the right voice
+function ensureLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const htmlElement = document.documentElement;
+    if (!htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  }
+}
+
 // ... other functions and exports ...
 
 // Fixed typo: EXTERNENAL_MODULES -> EXTERNAL_MODULES

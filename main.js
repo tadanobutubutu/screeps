@@ -25,8 +25,8 @@ function addAccessibleNameToSVGs() {
   // Iterate over each SVG and add an aria-label or title
   Object.keys(icons).forEach(key => {
     let svgString = icons[key];
-    let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard">`);
-    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, '<title>Screeps Dashboard</title></svg>');
+    let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${key}">`);
+    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, '<title>${key}</title></svg>');
     icons[key] = modifiedSVGString;
   });
 

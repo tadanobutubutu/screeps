@@ -49,11 +49,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      document.body.insertBefore(main, document.body.firstChild);
     }
   }, []);
 }
@@ -61,7 +61,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -77,7 +77,7 @@ function validateLandmarkRoles(element) {
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.getElementsByTagName('nav') : [];
+      const tagElements = role === 'navigation' ? Array.from(document.querySelectorAll(role)) : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -102,7 +102,7 @@ function getSvgAccessibleName(svgElement) {
     return null;
   }
   // ... existing logic ...
-  const title = document.querySelectorAll('title');
+  const title = svgElement.querySelector('title');
   if (title) {
     return title.textContent;
   }
@@ -145,9 +145,38 @@ function validateLandmark() {
   // ... existing logic ...
 }
 
-function validateLandmarkRoles() {
-  // ... existing logic ...
+function fixFakeLink(element) {
+  if (!element) return null;
+  
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const role = element.getAttribute('role');
+  const isClickable = element.getAttribute('onclick') || 
+                      window.getComputedStyle(element).cursor === 'pointer';
+  
+  // Check if this is a fake link (clickable non-anchor element)
+  const isFakeLink = tagName !== 'a' && isClickable && !role;
+  
+  if (isFakeLink) {
+    element.setAttribute('role', 'link');
+    
+    // Add tabindex if not already focusable
+    if (!element.hasAttribute('tabindex') && tagName !== 'button') {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    // Add keyboard event handlers if not present
+    if (!element.hasAttribute('onKeyDown')) {
+      element.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          element.click();
+        }
+      });
+    }
+  }
+  
+  return isFakeLink;
 }
 
 // Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };
+export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, fixFakeLink };

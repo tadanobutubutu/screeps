@@ -67,7 +67,7 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks
-function validateUniqueLandmarks() {
+function validateLandmarkRoles() {
   // Ensure landmarks like Header, Navigation, MainContent, Sidebar, Footer are unique
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   const foundLandmarks = {};
@@ -128,7 +128,7 @@ function fixFakeLinkIssue() {
 }
 
 // NEW: Check landmark validity
-function validateLandmarkRoles() {
+function checkLandmarkValidity() {
   // Ensure all landmarks have appropriate roles
   const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'region'];
   const landmarksWithRoles = document.querySelectorAll('[role]');
@@ -164,7 +164,6 @@ function validateLandmark() {
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
-  validateMainLandmark, validateUniqueLandmarks, validateLandmarkRoles,
-  validateLandmarkStructure, createInPageButton, validateTableAccessibility,
+  validateMainLandmark, validateLandmarkRoles, validateLandmarkStructure, createInPageButton, validateTableAccessibility,
   validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
 };

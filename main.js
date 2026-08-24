@@ -156,5 +156,5 @@ module.exports = {
   ensureUniqueLandmarks,
   processAccessibilityIssuesFromInsightReport,
   addAccessibleSVGs,
-  dependencyGraphContent,
+  addScopeToTableHeaders,
 };

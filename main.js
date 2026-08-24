@@ -2,10 +2,27 @@
 
 // Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
-skipLink.setAttribute('href', '#main-content');
-skipLink.setAttribute('class', 'skip-link');
+skipLink.href = '#main-content';
+skipLink.id = 'skip-link';
+skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.appendChild(skipLink);
+document.body.insertBefore(skipLink, document.body.firstChild);
+
+// Handle skip link click
+skipLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    mainContent.tabIndex = -1;
+    mainContent.focus();
+    mainContent.scrollIntoView();
+  }
+});
 
 // Mark the main content area as a primary region
-document.documentElement.setAttribute('role', 'main');
+const mainElement = document.querySelector('main');
+if (mainElement) {
+  mainElement.id = 'main-content';
+  mainElement.setAttribute('role', 'main');
+  mainElement.setAttribute('aria-label', 'Main content');
+}

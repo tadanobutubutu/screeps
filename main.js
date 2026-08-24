@@ -118,3 +118,21 @@ function fixFakeLink() {
 
 // Export the new function
 module.exports.handleAccessibilityInsights = handleAccessibilityInsights;
+
+// New function to fix table structure issues
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const thead = table.querySelector('thead');
+    if (thead) {
+      thead.querySelectorAll('th').forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+    }
+  });
+}
+
+// Call the new function to fix the table structure issues
+fixTableStructureIssues();

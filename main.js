@@ -28,8 +28,39 @@ function dependencyGraphFunction() {
 
   // New function for ensuring unique landmarks
   function ensureUniqueLandmarks() {
-    // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
-    // Adjust as needed based on your implementation
+    // Adjust this helpers functions as per your requirements
+    function getLandmarkId(landmarkType) {
+      return `${landmarkType}-${Date.now()}`;
+    }
+
+    const landmarks = {};
+
+    // Traverse the dependencyGraphContent and ensure unique landmark ids
+    function checkLandmarks(variant, node, parentId) {
+      if (node.type === 'node' && node.tag === 'div' && node.props.landmark) {
+        const landmarkType = node.props.landmark;
+        // Check if the landmark ID is unique
+        if (!landmarks[landmarkType]) {
+          landmarks[landmarkType] = getLandmarkId(landmarkType);
+          node.props.id = landmarks[landmarkType];
+        } else {
+          node.props.id = `${landmarks[landmarkType]}-${Date.now()}`;
+        }
+      }
+
+      for (let child of node.children) {
+        checkLandmarks(variant, child, node.props.id);
+      }
+    }
+
+    dependencyGraphContent.graph.nodes.forEach((node) => {
+      checkLandmarks(dependencyGraphContent.variant, node, null);
+    });
+  }
+
+  // New function for fixing table structure issues (yet to be implemented)
+  function fixTableStructureIssues() {
+    // Replace this placeholder with actual table structure fixes
   }
 
   // ---------------------------------------------------
@@ -48,7 +79,7 @@ function dependencyGraphFunction() {
 
     // Filter the required external modules from package.json and include them in exports
     const externalModuleExports = packageJson.dependencies;
-    EXTERNAL_MODULES.forEach((moduleName) => {
+    EXTERNERNAL_MODULES.forEach((moduleName) => {
       if (!externalModuleExports.hasOwnProperty(moduleName)) {
         console.warn(`The dependency graph indicates an external module (${moduleName}) that has no corresponding entry in package.json. Please double-check.`);
       } else {
@@ -102,4 +133,5 @@ module.exports = {
   indexFunction,
   ensureLangAttribute,
   ensureUniqueLandmarks,
+  // fixTableStructureIssues, // Add this export once the function is implemented
 };

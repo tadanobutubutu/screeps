@@ -7,6 +7,18 @@
 // 3. Resolve the conflicts appropriately
 
 // Example structure that might exist:
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+const someVar = require('some-module');
+
+function init() {
+  // initialization code
+}
+
+// ----- END ORIGINAL CODE-----
+
 module.exports = {
-  // Your exports here
+  loop: function() {
+    // main loop logic
+  }
 };

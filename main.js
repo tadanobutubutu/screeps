@@ -95,6 +95,15 @@ async function fetchAPI(url) {
   }
 }
 
+// Fix REACT_027: Add scope attributes to all <th> elements
+document.querySelectorAll('th').forEach(th => {
+  if (!th.hasAttribute('scope')) {
+    // Default to 'col' for column headers, but could be 'row' if needed
+    // Based on the issue, these are column headers
+    th.setAttribute('scope', 'col');
+  }
+});
+
 // Export the module with the new fetchAPI function added
 export { fetchAPI };
 export {};

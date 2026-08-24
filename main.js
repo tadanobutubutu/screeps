@@ -151,7 +151,7 @@ function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
-    const isBackground = svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
+    const isBackground = svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('aria-label', 'Description of SVG content');
@@ -173,6 +173,52 @@ function addScopeToTableHeaders() {
   });
 }
 
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  // Process each issue from the insight report and address accordingly
+  if (insightReport && Array.isArray(insightReport.issues)) {
+    insightReport.issues.forEach(issue => {
+      switch (issue.code) {
+        case 'REACT_015':
+          // Add lang attribute to HTML element
+          addLangAttribute();
+          break;
+        case 'FAKE_LINKS':
+          // Fix fake links
+          fixFakeLinks();
+          break;
+        case 'UNIQUE_LANDMARKS':
+          // Ensure unique landmarks
+          ensureUniqueLandmarks();
+          break;
+        case 'LANDMARK_STRUCTURE':
+          // Ensure proper landmark structure
+          ensureProperLandmarkStructure();
+          break;
+        case 'ACCESSIBLE_SVGS':
+          // Add accessible SVGs
+          addAccessibleSVGs();
+          break;
+        case 'TABLE_HEADERS':
+          // Add scope to table headers
+          addScopeToTableHeaders();
+          break;
+        default:
+          // Unknown issue type, ignore
+          break;
+      }
+    });
+  }
+  
+  // Run all accessibility fixes regardless of report content as fallback
+  addLangAttribute();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  ensureProperLandmarkStructure();
+  addAccessibleSVGs();
+  addScopeToTableHeaders();
+}
+
 // Call all necessary functions
 wrapPrimaryContentInMain();
 fixFakeLinks();
@@ -190,5 +236,6 @@ module.exports = {
   ensureProperLandmarkStructure,
   addAccessibleSVGs,
   addScopeToTableHeaders,
+  addressAccessibilityIssuesFromInsightReport,
   dependencyGraphContent,
 };

@@ -42,3 +42,22 @@
 // ...
 // // Rest of the main.js content
 // ...
+
+// Fix for REACT_036 — React Fake Link
+// The 'rotate back' link in docs/dependency-graph.html uses a hash-only href (#),
+// which does not navigate anywhere and causes accessibility issues for keyboard
+// and screen reader users.
+//
+// The fix replaces the fake <a> link with a <button> element so that keyboard
+// and screen reader behaviour is correct for in-page actions.
+//
+// In docs/dependency-graph.html, line 186, change:
+//   <a id="unrotate" href="#">rotate back</a>
+// to:
+//   <button id="unrotate" type="button">rotate back</button>
+//
+// Any associated JavaScript event listener that targets the anchor (e.g. via
+// getElementById('unrotate')) will continue to work since the id is preserved.
+// If the code relied on the anchor's default behaviour or href, ensure the
+// click handler calls preventDefault() if needed, though a button does not
+// need that for in-page actions.

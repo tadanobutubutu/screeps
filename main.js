@@ -3,6 +3,7 @@
 
 // Import required module(s) for addressing the new issue
 import { getElementById } from './helpers.js';
+export { getElementById };
 
 /**
  * REACT_015: Add lang attribute to HTML element

@@ -80,11 +80,8 @@ export function fixTableStructureIssues(html) {
     const hasTbody = table.includes('<tbody');
     const hasTfoot = table.includes('<tfoot');
     
-    if (hasThead || hasTbody || hasTfoot) {
-      // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
-        result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
-      }
+    if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
+      result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
     }
   });
   
@@ -104,7 +101,6 @@ export function addMainLandmark(html) {
     return html;
   }
   
-  // Wrap content in main landmark
   // Try to match body content
   const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
@@ -164,4 +160,44 @@ export function ensureUniqueLandmarks(html) {
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
     const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = 1 + (matches.length > 1 ? Math.max(...matches.map(m => parseInt(m.match(/id="[^"]+/i)[1], 10) || 0)) : 0);
+    }
+  });
+  
+  // Assign unique IDs to landmarks
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const idRegex = /id="[^"]+"/i;
+    const newHtml = html.replace(regex, (match, attrs) => {
+      const idMatch = attrs.match(idRegex);
+      const newId = idMatch ? idMatch[0] : `id="${lm}-${counters[lm]}"`
+      return `<${lm}${attrs.replace(idRegex, newId)}>`;
+    });
+    html = newHtml;
+    counters[lm]++;
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fake link issue fixed
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix fake links by adding `role="button"` or `role="link"` depending on the context
+  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+    // Check if the link is already a button or has a role attribute
+    if (attrs.includes('role="button"') || attrs.includes('role="link"') || attrs.includes('role="button" ') || attrs.includes('role="link" ')) {
+      return match;
+    }
+    
+    // Add role="button" to make the link behave as a button
+    return `<a${attrs} role="button">`;
+  });
+}

@@ -113,6 +113,24 @@ function wrapPrimaryContentInMain(primaryContent) {
   mainElement.appendChild(primaryContent);
 }
 
+// Add the new function: fixSvgAccessibilityIssues (REACT_041)
+function fixSvgAccessibilityIssues() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Check if SVG already has accessible name
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const hasTitleElement = svg.querySelector('title');
+    
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTitleElement) {
+      // Create title element in SVG namespace
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'SVG graphic'; // Fallback label
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
 // Call the new functions to address accessibility issues
 addressAccessibilityIssuesFromInsightReport();
 fixTableStructureIssues();

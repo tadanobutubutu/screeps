@@ -291,6 +291,14 @@ function fixFakeLinkIssue() {
     });
 }
 
+// Additional calls to address accessibility items
+setHtmlLangAttribute('en');
+ensureUniqueLandmarks();
+fixTableStructureIssues();
+fixFakeLinkIssue();
+addProperLandmarkRegions();
+wrapPrimaryContentInMain();
+
 export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,

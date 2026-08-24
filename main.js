@@ -36,7 +36,7 @@ const App = () => {
 const generateRotateBackControl = () => {
   // Before (accessibility issue):
   // return '<a id="unrotate" href="#">rotate back</a>';
-  
+
   // After (accessible fix):
   return '<button id="unrotate">rotate back</button>';
 };

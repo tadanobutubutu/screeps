@@ -203,5 +203,8 @@ const implementAccessibilityFixesFromReport = () => {
   Object.values(insightReport).forEach(functionToCall => functionToCall());
 };
 
+// Export the function for addressing accessibility issues from insight report
+export { implementAccessibilityFixesFromReport };
+
 // TODO: Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 // implementAccessibilityFixesFromReport();

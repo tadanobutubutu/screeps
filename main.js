@@ -41,6 +41,30 @@ function addThScope() {
   // ... (You'll need to update this function based on your specific <th> elements)
 }
 
+// New Function for handling unique landmarks
+function checkForUniqueLandmarks(html) {
+  // Check for unique landmarks in the provided HTML
+  const uniqueLandmarks = [...new Set(findLandmarkRoles(html))];
+
+  if (uniqueLandmarks.length !== getUniqueLandmarkCount(html)) {
+    throw new Error('Non-unique landmarks found in the HTML');
+  }
+}
+
+function findLandmarkRoles(html) {
+  // Find landmark roles in the provided HTML
+  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+
+  return landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
+}
+
+function getUniqueLandmarkCount(html) {
+  // Count the unique landmark roles in the provided HTML
+  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+
+  return new Set(landmarks.map(landmark => landmark.getAttribute('aria-landmark'))).size;
+}
+
 function addressIssuesFromInsightReport() {
   let content = dependencyGraphContent + indexContent;
   const results = addressAccessibilityIssues();
@@ -59,7 +83,7 @@ function addressIssuesFromInsightReport() {
   addSvgAccessibleNames();
 
   // Ensure unique landmarks
-  ensureUniqueLandmarks();
+  checkForUniqueLandmarks(content);
 
   // Fix fake link issues
   fixFakeLinkIssues();

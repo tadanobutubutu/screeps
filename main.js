@@ -3,7 +3,7 @@ import accessibilityModule from 'accessibility-module';
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
+  if (!html.getAttribute('lang')) {
     html.setAttribute('lang', 'en');
   }
 }
@@ -35,7 +35,19 @@ function fixTableStructure() {
 
 // Fix table structure issues by checking TH cell scopes
 function checkTableStructure() {
-  fixTableStructure();
+  const tables = document.querySelectorAll('table');
+  let hasIssues = false;
+
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!hasValidTHScope(th)) {
+        hasIssues = true;
+      }
+    });
+  });
+
+  return !hasIssues;
 }
 
 // Add/fix 4 landmark issues
@@ -46,17 +58,18 @@ function addMainLandmark() {
 
 // Validate landmark
 function validateLandmark() {
-  const main = document.querySelector('main');
+  const main = document.querySelector('[role="main"]');
   return main && main.getAttribute('role') === 'main';
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"]');
+  const landmarks = document.querySelectorAll('header, nav, main, footer, aside');
   if (landmarks.length > 1) {
     landmarks.forEach((landmark, index) => {
       if (index > 0) {
-        landmark.removeAttribute('role');
+        const tagName = landmark.tagName.toLowerCase();
+        landmark.setAttribute('aria-label', `${tagName}-${index}`);
       }
     });
   }
@@ -69,9 +82,9 @@ function fixUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
+    if (!link.hasAttribute('href') && !link.getAttribute('onclick')) {
       link.setAttribute('role', 'button');
     }
   });
@@ -83,7 +96,7 @@ function validateLinkAccessibility() {
   let hasIssues = false;
   
   links.forEach(link => {
-    if (!link.textContent.trim() && !link.querySelector('img')) {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
       hasIssues = true;
     }
   });
@@ -96,14 +109,22 @@ function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to main content';
   button.className = 'skip-link';
+  button.addEventListener('click', () => {
+    const main = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (main) {
+      main.focus();
+    }
+  });
   document.body.insertBefore(button, document.body.firstChild);
 }
 
 // Create accessible link
 function createAccessibleLink() {
-  const links = document.querySelectorAll('a:not([href])');
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
-    link.setAttribute('href', '#');
+    if (!link.getAttribute('href')) {
+      link.setAttribute('href', '#');
+    }
   });
 }
 

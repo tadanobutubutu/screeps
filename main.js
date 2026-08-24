@@ -117,3 +117,4 @@ function fixFakeLink() {
 
 // Export the new function
 module.exports.uniqueLandmarksHandler = uniqueLandmarksHandler;
+```

@@ -37,15 +37,15 @@ const generateRotateBackControl = () => {
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = document.getElementById('unrotate');
+  const unrotateBtn = ...
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', () => {
+    ... () => {
       // rotation logic here
     });
   }
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...
 
 // Export if using module system
 export { generateRotateBackControl, setupRotateBack };

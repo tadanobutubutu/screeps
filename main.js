@@ -16,7 +16,7 @@ const myNewFunction = () => {
 
 // Function to enhance accessibility
 const enhanceAccessibility = () => {
-  // Implement accessibility improvements based on insight report
+  // Set the language attribute on the root element to address REACT_015
   document.documentElement.lang = 'en';
 
   const tables = document.querySelectorAll('table');
@@ -26,15 +26,19 @@ const enhanceAccessibility = () => {
   });
 
   const mainContent = document.querySelector('main');
-  mainContent.setAttribute('role', 'main');
+  if (mainContent) {
+    mainContent.setAttribute('role', 'main');
+  }
 
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    svg.setAttribute('aria-labelledby', 'svgLabel1');
+    // ... handle SVG accessibility labels
   });
 
-  const navigation = document.querySelector('#navigation');
-  navigation.setAttribute('role', 'navigation');
+  const navigation = document.querySelector('nav');
+  if (navigation) {
+    navigation.setAttribute('role', 'navigation');
+  }
 
   const links = document.querySelectorAll('a');
   links.forEach(link => {

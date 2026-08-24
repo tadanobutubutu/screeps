@@ -1,29 +1,47 @@
-// Assuming the current `main.js` looks something like this:
-// (Note: This is a hypothetical example and not the actual code from the repository)
+// Assuming 'getDependencyGraph' is a function that returns the HTML for the dependency graph
+// and 'getDependencyGraphData' is a function that returns the data needed to generate the HTML
 
-// Before changes:
-// import React from 'react';
-// import Dashboard from './components/Dashboard';
+// ... (other code)
 
-// export default function App() {
-//   return (
-//     <div>
-//       <Dashboard />
-//     </div>
-//   );
-// }
+// Example of how you might render the dependency graph in your server-side code
+const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
 
-// After changes to resolve REACT_025:
-import React from 'react';
-import Dashboard from './components/Dashboard';
+// Output the HTML to the response or send it to the client
+// This could be part of a Next.js page or a similar server-rendering setup
 
-export default function App() {
-  return (
-    <div>
-      {/* Assuming the Dashboard component has a prop that determines its state */}
-      <Dashboard isSuccessful={true} />
-      {/* If the Dashboard component needs to render different content based on state,
-          it should handle the rendering logic internally without duplicating the <main> element */}
-    </div>
-  );
-}
+// Before:
+// <table>
+//   <thead>
+//     <tr>
+//       <th><div>src/constants.js</div></th>
+//       <th><div>src/managers/roomManager.js</div></th>
+//       <th><div>src/managers/spawnManager.js</div></th>
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// After:
+// <table>
+//   <thead>
+//     <tr>
+//       <th scope="col"><div>src/constants.js</div></th>
+//       <th scope="col"><div>src/managers/roomManager.js</div></th>
+//       <th scope="col"><div>src/managers/spawnManager.js</div></th>
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// You would render the updated HTML like this:
+// res.send(`
+//   ${dependencyGraphHtml}
+// `);
+
+// ... (other code)

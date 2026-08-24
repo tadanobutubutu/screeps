@@ -1,3 +1,6 @@
+Looking at this conflict, I can see that the HEAD version contains substantial code that needs to be preserved, while the origin/main version is just a request for more information. The conflict markers appear to be in a comment block, so I'll remove the conflict markers and keep the meaningful code from HEAD.
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -122,3 +125,4 @@ function fixFakeLink(linkElement) {
   // Implementation details not provided here
 }
 // ----- END ORIGINAL CODE -----
+```

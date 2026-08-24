@@ -1,9 +1,1 @@
-// Before:
-// <div>
-//   <span>My content</span>
-// </div>
-
-// After:
-// <div lang="en">
-//   <span lang="en">My content</span>
-// </div>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

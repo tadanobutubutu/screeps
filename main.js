@@ -2,31 +2,25 @@
 // ... (Preserve this section)
 
 // TODO: Implement function for addressing accessibility issues from insight report
-// Preserve placeholer for the new function
 function addressAccessibilityIssues(insightReport) {
-    // Your implementation here
-    // This function should process the insight report and apply accessibility changes
-    // For example, you might update DOM elements, add ARIA attributes, etc.
-    // The actual implementation will depend on the specifics of the insight report format
-    // and the accessibility requirements
-    // Example:
     insightReport.forEach(issue => {
-        if (issue.type === 'lang') {
-            document.documentElement.lang = issue.value;
+        switch(issue.type){
+            case 'lang':
+                document.documentElement.lang = issue.value;
+                break;
+            case 'aria':
+                // Add ARIA attributes as required
+                break;
+            default:
+                // Handle other accessibility changes based on the issue type
         }
-        // Other accessibility changes based on the issue type
     });
 }
 
-// Implement fixTableStructureIssues(); function as requested
+// Implement fixTableStructureIssues() function as requested
 function fixTableStructureIssues() {
-    // Implementation for fixing table structure issues
-    // This could involve iterating over tables, adding or removing classes, ensuring proper headers, etc.
-    // Example:
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
-        // Add or remove classes, or perform other DOM manipulations to fix the table structure
-        // Example:
         if (!table.querySelector('th')) {
             table.querySelector('tr').insertAdjacentHTML('afterbegin', '<th scope="col">Header</th>');
         }
@@ -34,15 +28,10 @@ function fixTableStructureIssues() {
     });
 }
 
-// Implement addProperLandmarkRegions(); function as requested
+// Implement addProperLandmarkRegions() function as requested
 function addProperLandmarkRegions() {
-    // Implementation for adding proper landmark regions to the document
-    // This could involve adding roles, states, and properties for landmark elements
-    // Example:
     const landmarkElements = document.querySelectorAll('.landmark');
     landmarkElements.forEach(element => {
-        // Add roles, states, and properties to landmark elements
-        // Example:
         element.setAttribute('role', 'navigation');
         // Other landmark additions
     });

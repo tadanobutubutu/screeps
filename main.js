@@ -1,4 +1,6 @@
 // TODO: Address accessibility issues from insight report
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -204,7 +206,7 @@ function fixTableConstraints() {
             const caption = document.createElement('caption');
             caption.textContent = 'Data table';
             table.insertBefore(caption, table.firstChild);
-        }
+        });
     });
 }
 // NEW CODE FOR TABLE ISSUES END

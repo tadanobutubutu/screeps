@@ -95,5 +95,3 @@ function addressAccessibilityIssues() {
     summary: `Accessibility Check: lang=${hasLang}, main=${mainCount}, header=${hasHeader}, nav=${hasNav}, footer=${hasFooter}, SVGs without accessible names=${svgWithoutTitleCount}, fake links=${fakeLinkCount}`
   };
 }
-
-// ... (existing code continuation)

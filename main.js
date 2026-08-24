@@ -72,8 +72,8 @@ function validateTableStructure(htmlContent) {
     let result = `<table${attrs || ''}>`;
 
     // Check if thead exists
-    const hasThead = /<thead/i.test(content);
-    const hasTbody = /<tbody/i.test(content);
+    const hasThead = /<thead[\s\S]*?<\/thead>/i.test(content);
+    const hasTbody = /<tbody[\s\S]*?<\/tbody>/i.test(content);
 
     // If no thead or tbody, wrap content appropriately
     if (!hasThead && !hasTbody) {
@@ -90,19 +90,8 @@ function validateTableStructure(htmlContent) {
         result += `<tbody>${content}</tbody>`;
       }
     } else if (hasThead && hasTbody) {
-      // If both thead and tbody exist, ensure they are properly closed
-      // and add any missing structure
-      if (!/<\/thead>/i.test(content) || !/<\/tbody>/i.test(content)) {
-        // Ensure proper closing tags
-        if (!/<\/thead>/i.test(content)) {
-          result += `<thead></thead>`;
-        }
-        if (!/<\/tbody>/i.test(content)) {
-          result += `<tbody></tbody>`;
-        }
-      }
-      result += `</table>`;
-      return result;
+      // Both thead and tbody exist: preserve existing content
+      result += content;
     } else if (!hasThead && hasTbody) {
       // No thead but has tbody - extract first row for thead if appropriate
       const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/i);

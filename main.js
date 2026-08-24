@@ -51,11 +51,21 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    const body = document.body;
+    
+    // Move existing content into the main landmark
+    while (body.firstChild) {
+      mainElement.appendChild(body.firstChild);
+    }
+    body.appendChild(mainElement);
+  }
 }
+
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+  const main = document.querySelector('main');
+  return main !== null;
 }
 
 // NEW: Validate unique landmarks
@@ -65,9 +75,9 @@ function validateLandmarkRoles() {
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const element = document.querySelector(`[role="${role}"]`);
-    if (element) {
-      foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 0) {
+      foundLandmarks[role] = (foundLandmarks[role] || 0) + elements.length;
     }
   });
 
@@ -75,12 +85,12 @@ function validateLandmarkRoles() {
   return Object.values(foundLandmarks).every(count => count === 1);
 }
 
-// Additional exports if needed (e. g., functions for testing)
+// Additional exports if needed (e.g., functions for testing)
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed,
   fixTableStructure,
-  validateTableStructure,
   validateLandmarkRoles,
-  validateMainLandmark
+  validateMainLandmark,
+  addMainLandmark
 };

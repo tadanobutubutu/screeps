@@ -15,14 +15,14 @@
 // ...
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js
-import { dependencyGraphContent } from './dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './indexContent.js';
-import { addLangAttribute } from './addLangAttribute.js';
-import { fixTableStructure } from './fixTableStructure.js';
+import { addLangAttribute } from ...
+import { fixTableStructure } from ...
 import { addMainLandmark } from './addMainLandmark.js';
-import { ensureUniqueLandmarks } from './ensureUniqueLandmarks.js';
-import { addSvgAccessibleNames } from './addSvgAccessibleNames.js';
-import { fixFakeLinkIssue } from './fixFakeLinkIssue.js';
+import { ensureUniqueLandmarks } from ...
+import { addSvgAccessibleNames } from ...
+import { fixFakeLinkIssue } from ...
 
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -39,9 +39,9 @@ function addressAccessibilityIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = table.querySelectorAll('th');
+    const headers = firstRow ? firstRow.querySelectorAll('th') : table.querySelectorAll('th');
     headers.forEach((th) => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         const row = th.closest('tr');
         const isInThead = !!th.closest('thead');
         const isFirstRow = firstRow && row === firstRow;
@@ -73,9 +73,12 @@ function addressAccessibilityIssues() {
 
   const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
-    const fallbackMain = document.querySelector('[role="main"]') || document.querySelector('.main') || document.querySelector('.content');
+    const fallbackMain = document.body.querySelector('div[role="main"]') || document.body.querySelector('[role="main"]') || document.createElement('main');
     if (fallbackMain) {
       fallbackMain.setAttribute('role', 'main');
+      if (!mains.length && fallbackMain.tagName !== 'MAIN') {
+        document.body.appendChild(fallbackMain);
+      }
     }
   }
 
@@ -103,21 +106,22 @@ function addressAccessibilityIssues() {
         title.id = titleId;
       }
     }
-    if (!svg.getAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', titleId);
     }
   });
 
   // REACT_036: Fix 1 fake link issue
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a[onclick]');
+  const fakeLinks = document.querySelectorAll('a[href=""], a[onclick]');
   fakeLinks.forEach((link) => {
     const href = link.getAttribute('href');
-    const hasClick = typeof link.onclick === 'function' || link.getAttribute('onclick');
+    const hasClick = typeof link.onclick === 'function' || link.hasAttribute('onclick');
     if (link.getAttribute('role') === 'button' || hasClick || !href || href === '#' || href === '') {
       if (link.getAttribute('role') !== 'button') {
         link.setAttribute('role', 'button');
       }
-      if (!link.hasAttribute('tabindex')) {
+      if (!link.hasAttribute('tabindex') && !link.getAttribute('href')) {
         link.setAttribute('tabindex', '0');
       }
     }
@@ -127,7 +131,7 @@ function addressAccessibilityIssues() {
 }
 
 function renderDependencyGraph() {
-  const graphContainer = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph') || document.querySelector('main');
+  const graphContainer = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph') || document.querySelector('#graph');
   if (graphContainer) {
     graphContainer.innerHTML = dependencyGraphContent || indexContent || '<p>No dependency graph available.</p>';
   }

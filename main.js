@@ -80,11 +80,8 @@ export function fixTableStructureIssues(html) {
     const hasTbody = table.includes('<tbody');
     const hasTfoot = table.includes('<tfoot');
     
-    if (hasThead || hasTbody || hasTfoot) {
-      // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
-        result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
-      }
+    if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
+      result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
     }
   });
   
@@ -163,5 +160,44 @@ export function ensureUniqueLandmarks(html) {
   
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    counters[lm] = 0;
+  });
+  
+  // Add unique IDs to landmarks
+  html = html.replace(/<(\w+)[^>]*>/gi, (match, tag) => {
+    if (landmarks.includes(tag)) {
+      counters[tag]++;
+      return `<${tag} id="${tag}-${counters[tag]}">`;
+    }
+    return match;
+  });
+  
+  return html;
+}
+
+/**
+ * Removes duplicate main elements from HTML
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with duplicate main elements removed
+ */
+export function removeDuplicateMain(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Remove all but the first main element
+  return html.replace(/<main[^>]*>/gi, (match, attrs, index) => {
+    if (index === 0) {
+      return match;
+    }
+    return '';
+  });
+}
+
+/**
+ * Removes duplicate main elements from HTML
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with duplicate main elements removed
+ */
+export function fixDuplicateMainInDashboard(html) {
+  // Call removeDuplicateMain to fix the issue in Dashboard component
+  return removeDuplicateMain(html);
+}

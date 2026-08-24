@@ -36,6 +36,8 @@ function Header() {
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
+          <li><a href="/services">Services</a></li>
+          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
     </header>
@@ -96,7 +98,7 @@ function AccessibleLinks() {
   );
 }
 
-// Fixed SVGs with accessible names (fixes REACT_041)
+// Fixed SVGs with accessible name (fixes REACT_041)
 function AccessibleSVGs() {
   return (
     <div>

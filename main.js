@@ -32,6 +32,6 @@ function addProperLandmarkRegions() {
   const firstDiv = document.querySelector('div');
 
   if (firstDiv) {
-    firstDiv.setAttribute('aria-role', 'banner');
+    firstDiv.setAttribute('role', 'banner'); // Corrected attribute name to 'role' instead of 'aria-role'
   }
 }

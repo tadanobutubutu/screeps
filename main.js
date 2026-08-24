@@ -95,7 +95,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td');
+        const cells = Array.from(firstRow.children);
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
@@ -109,16 +109,16 @@ const fixTableStructure = () => {
         thead.appendChild(newRow);
         table.insertBefore(thead, table.firstChild);
       }
-      
-      if (!table.querySelector('tbody')) {
-        const rows = table.querySelectorAll('tr');
-        if (rows.length > 1) {
-          const tbody = document.createElement('tbody');
-          for (let i = 1; i < rows.length; i++) {
-            tbody.appendChild(rows[i]);
-          }
-          table.appendChild(tbody);
+    }
+
+    if (!table.querySelector('tbody')) {
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length > 1) {
+        const tbody = document.createElement('tbody');
+        for (let i = 1; i < rows.length; i++) {
+          tbody.appendChild(rows[i]);
         }
+        table.appendChild(tbody);
       }
     }
   });

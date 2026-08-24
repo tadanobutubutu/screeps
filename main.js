@@ -98,7 +98,7 @@ function fixTableAccessibility(tables) {
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th[data-row-header]');
+                const rowHeaders = Array.from(row.querySelectorAll('th[data-row-header]'));
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -147,7 +147,7 @@ function wrapPrimaryContentInMain() {
     const existingMain = document.querySelector('main');
     if (existingMain) {
         // Ensure the primary content (e.g., the container) is inside the existing main
-        const container = document.querySelector('#container, .container, [role="main"]');
+        const container = document.querySelector('#container, .container, [role="main"], .primary-content, #content, main-content');
         if (container && !existingMain.contains(container)) {
             existingMain.appendChild(container);
         }
@@ -155,7 +155,7 @@ function wrapPrimaryContentInMain() {
     }
 
     // No main element found; create one and wrap the primary content
-    const container = document.querySelector('.primary-content, #content, main-content');
+    const container = document.querySelector('#container, .container, [role="main"], .primary-content, #content, main-content');
     const mainEl = document.createElement('main');
     if (container) {
         mainEl.appendChild(container);

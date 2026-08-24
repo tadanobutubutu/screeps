@@ -245,6 +245,9 @@ const addSkipLink = () => {
   }
 };
 
+// Export the new accessibility functions
+export { addAriaLabelsToForm, ensureSvgAltText, addSkipLink };
+
 // ------------------------------------------------------------------------------
 
 // REACT_037: Google sign-in logic

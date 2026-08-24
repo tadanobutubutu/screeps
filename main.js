@@ -21,6 +21,13 @@ module.exports = {
              !node.value.type;
     }
 
+    // New function to check for the lang attribute in the HTML tag
+    function checkLangAttribute(node) {
+      return node.type === 'JSXOpeningElement' &&
+             node.name.name === 'html' &&
+             !node.attributes.some(attr => attr.name.name === 'lang');
+    }
+
     return {
       JSXAttribute(node) {
         if (isBooleanPropMissingDefaultValue(node)) {
@@ -29,6 +36,16 @@ module.exports = {
             message: `Add a default value for the boolean prop 'is' to improve maintainability and avoid errors`,
             severity: SEVERITY_WARNING_BOOLEAN_PROP,
             ruleId: RULE_NAME_BOOLEAN_PROP,
+          });
+        }
+      },
+      JSXOpeningElement(node) {
+        if (checkLangAttribute(node)) {
+          context.report({
+            node,
+            message: '<html> has no lang attribute',
+            severity: 'critical',
+            ruleId: 'REACT_015',
           });
         }
       },

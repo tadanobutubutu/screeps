@@ -25,8 +25,5 @@ export { newFunction1 };
 export { newFunction2 };
 
 // Preserve merge conflicts markers, if any
-<<<<<<< HEAD
 // Your original changes
-=======
 // Changes from another branch or pull request
->>>>>>> 74c6dfbe1f8fca171d1034993617186b49b936e9

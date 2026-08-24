@@ -62,7 +62,8 @@ function ensureUniqueLandmarks() {
 
 // New function to inject primary content into main landmark
 function wrapPrimaryContentInMain() {
-  let existingMains = Array.from(document.querySelectorAll('main, [role="main"]'));
+  let mainElement;
+  const existingMains = Array.from(document.querySelectorAll('main, [role="main"]'));
 
   // Remove duplicate main elements if any
   existingMains.forEach((main, index) => {
@@ -71,25 +72,23 @@ function wrapPrimaryContentInMain() {
     }
   });
 
+  // Search for primary content container (adjust selector based on your content structure)
+  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+
   // If no main element exists, create and wrap primary content
-  let mainElement = document.querySelector('main, [role="main"]');
-  
-  if (!mainElement) {
+  if (!existingMains.length) {
     mainElement = document.createElement('main');
     mainElement.setAttribute('role', 'main');
+  } else {
+    mainElement = existingMains[0];
   }
-
-  // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
 
   // Move existing content into main if not already inside one
   if (!contentContainer.closest('main, [role="main"]')) {
     while (contentContainer.firstChild) {
       mainElement.appendChild(contentContainer.firstChild);
     }
-    if (mainElement.parentNode !== contentContainer) {
-      contentContainer.appendChild(mainElement);
-    }
+    contentContainer.appendChild(mainElement);
   }
 }
 

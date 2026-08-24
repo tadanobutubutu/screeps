@@ -57,52 +57,8 @@ function getSvgAccessibleName() {
 }
 
 // Wrap primary content in main element for accessibility
-function wrapPrimaryContentInMain() {
-  // Check if a main element already exists
-  let mainElement = document.querySelector('main');
-
-  if (mainElement) {
-    return mainElement;
-  }
-
-  // Find body content excluding common landmark elements
-  const body = document.body;
-  const excludedTags = ['header', 'nav', 'footer', 'aside', 'script', 'style', 'link', 'meta'];
-  const mainContent = [];
-
-  // Get all direct children of body
-  Array.from(body.children).forEach(child => {
-    if (!excludedTags.includes(child.tagName.toLowerCase())) {
-      mainContent.push(child);
-    }
-  });
-
-  // If no content to wrap, return null
-  if (mainContent.length === 0) {
-    return null;
-  }
-
-  // Create main element
-  mainElement = document.createElement('main');
-  mainElement.setAttribute('id', 'main-content');
-
-  // Move content into main element (insert in reverse order to maintain position)
-  while (mainContent.length > 0) {
-    const child = mainContent.pop();
-    mainElement.insertBefore(child, mainElement.firstChild);
-  }
-
-  // Insert main element after header if one exists
-  const header = document.querySelector('header');
-  if (header && header.nextSibling) {
-    header.parentNode.insertBefore(mainElement, header.nextSibling);
-  } else if (header) {
-    header.parentNode.appendChild(mainElement);
-  } else {
-    body.insertBefore(mainElement, body.firstChild);
-  }
-
-  return mainElement;
+function addMainLandmark() {
+  return wrapPrimaryContentInMain();
 }
 
 // REACT_025: Ensure unique landmarks

@@ -50,11 +50,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -62,7 +62,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -78,7 +78,7 @@ function validateLandmarkRoles() {
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
+      const tagElements = role === 'navigation' ? Array.from(document.querySelectorAll('nav')) : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       foundLandmarks[role] = totalCount;
     });

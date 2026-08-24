@@ -20,6 +20,9 @@ function dependencyGraphFunction() {
     if (!dependencyGraphContent.element.getAttribute('aria-label')) {
       dependencyGraphContent.element.setAttribute('aria-label', 'Dependency graph visualization');
     }
+    if (!dependencyGraphContent.element.getAttribute('lang')) {
+      dependencyGraphContent.element.setAttribute('lang', 'en');
+    }
     if (!dependencyGraphContent.element.getAttribute('aria-hidden')) {
       dependencyGraphContent.element.setAttribute('aria-hidden', '0');
     }
@@ -45,6 +48,9 @@ function indexFunction() {
     }
     if (!indexContent.element.getAttribute('tabindex')) {
       indexContent.element.setAttribute('tabindex', '-1');
+    }
+    if (!indexContent.element.getAttribute('lang')) {
+      indexContent.element.setAttribute('lang', 'en');
     }
   }
   

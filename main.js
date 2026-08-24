@@ -2,17 +2,42 @@
 // TODO: Address accessibility issues from insight report: 
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark, addSidebarLandmark, addFooterLandmark, addNavLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-// Commit: 16b23d2ea3c82541850f8d1c43a3781a65503246
-<!-- todo-hash: 6468a1295031a6500a8981582d2e182e6d55a296 -->
+// Commit: 702856a2876e2ba2f1eac658760396578b2cc1ac
+// <!-- todo-hash: 83f0496a80e2e11c60da1d5cdd882ac4533e0f42 -->
 
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
+function addSidebarLandmark() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    sidebar.setAttribute('role', 'navigation');
+    sidebar.setAttribute('aria-label', 'Sidebar navigation');
+  }
+}
+
+function addFooterLandmark() {
+  const footer = document.getElementById('footer');
+  if (footer) {
+    footer.setAttribute('role', 'contentinfo');
+    footer.setAttribute('aria-label', 'Footer information');
+  }
+}
+
+function addNavLandmark() {
+  const nav = document.getElementById('nav');
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Navigation');
+  }
+}
+
+// Existing functions
 function addLangAttribute() {
   const html = document.documentElement;
   html.setAttribute('lang', getLangAttribute());
@@ -209,6 +234,9 @@ function addressAccessibilityIssues() {
   addFaviconAccessibleName();
   addSvgAccessibleNames();
   addMainLandmark();
+  addSidebarLandmark();
+  addFooterLandmark();
+  addNavLandmark();
   ensureUniqueLandmarks();
   fixFakeLinkIssue();
   validateTableAccessibility();

@@ -1,6 +1,12 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addAccessibleNamesToSVGs)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: fixLandmarkIssues, addLandmarkRegions)
+// - REACT_027: React Table Structure (26 occurrences) (DONE: fixTableStructure)
+// - Address accessibility issues for image alt texts (DONE: fixImageAltTexts)
+// - REACT_025: Ensure unique landmarks (DONE: uniqueLandmarks)
+// - REACT_037: Google sign-in logic (DONE: googleSignIn)
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
@@ -32,7 +38,7 @@ const fixFakeLinkIssues = () => {
   });
 };
 
-// Accessibility fix for REACT_017: Add/fix 2 landmark issues
+// Accessibility fix for REACT_017: Add/fix 2 landmark issues and add Landmark Regions
 const fixLandmarkIssues = () => {
   const landmarks = {
     'nav': 'navigation',
@@ -54,7 +60,6 @@ const fixLandmarkIssues = () => {
   });
 };
 
-// Accessibility fix for adding proper landmark regions
 const addLandmarkRegions = () => {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
@@ -107,7 +112,7 @@ const fixTableStructure = () => {
   });
 };
 
-// Address accessibility issues from insight report
+// Address accessibility issues from insight report for image alt texts
 const fixImageAltTexts = () => {
   const images = document.querySelectorAll('img');
   images.forEach((img) => {
@@ -117,22 +122,24 @@ const fixImageAltTexts = () => {
   });
 };
 
-// Accessibility fix for REACT_025: Ensure unique landmarks
+// REACT_025: Ensure unique landmarks
 const uniqueLandmarks = () => {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
-      elements.forEach((el, index) => {
+      let index = 1;
+      elements.forEach((el) => {
         if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role} ${index + 1}`);
+          el.setAttribute('aria-label', `${role} ${index}`);
         }
+        index++;
       });
     }
   });
 };
 
-// Accessibility fix for REACT_037: Google sign-in logic
+// REACT_037: Google sign-in logic
 const googleSignIn = () => {
   // Check if Google Identity Services is available
   if (typeof google !== 'undefined' && google.accounts) {

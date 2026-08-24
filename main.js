@@ -6,14 +6,14 @@
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: ...
+// - REACT_036: Fix 1 fake link issue (DONE: replaceFakeLinkWithButton)
 
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 
 function handleRotateBack() {
   // New function to handle rotating back behavior
-  console.log('Rotating back');
+  console.('Rotating back');
 }
 
 // NEW FUNCTION: Add lang attribute to HTML element
@@ -23,9 +23,9 @@ function addLangAttribute() {
 
 // NEW FUNCTION: Add main landmark with accessible name
 function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main');
-  mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
+  const mainElements = ...;
+  ... index) => {
+    if ... && ... {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {
@@ -36,11 +36,11 @@ function addMainLandmark() {
 }
 
 // NEW FUNCTION: Fix table structure issues
-function fixTableStructureIssues() {
+function ... {
   // Add scope attribute to th elements that are missing it
-  const thElements = document.querySelectorAll('th');
+  const thElements = ...;
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if ... {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -48,8 +48,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
-        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
+        const rowIndex = parentRow ? ... : -1;
+        const cellIndex = parentRow ? ... : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -60,12 +60,12 @@ function fixTableStructureIssues() {
   });
 
   // Ensure tables have proper caption elements
-  const tables = document.querySelectorAll('table');
+  const tables = ...;
   tables.forEach((table) => {
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
+    if ... {
+      const caption = ...;
       caption.textContent = 'Data table';
-      table.insertBefore(caption, table.firstChild);
+      ... table.firstChild);
     }
   });
 }
@@ -74,34 +74,34 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main'),
-    nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('header'),
-    footer: document.querySelectorAll('footer'),
-    aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    main: ...,
+    nav: ...,
+    header: ...,
+    footer: ...,
+    aside: ...,
+    section: ...
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>
-  Object.keys(landmarks).forEach((landmarkType) => {
+  ... => {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (landmarkType === 'main' && index > 0) {
           // Convert extra <main> elements to <section> so only one main landmark remains
-          const section = document.createElement('section');
+          const section = ...;
           for (let i = 0; i < element.attributes.length; i++) {
             const attr = element.attributes[i];
             section.setAttribute(attr.name, attr.value);
           }
           while (element.firstChild) {
-            section.appendChild(element.firstChild);
+            ...;
           }
           if (element.parentNode) {
-            element.parentNode.replaceChild(section, element);
+            ... element);
           }
         } else {
-          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          if (!element.getAttribute('aria-label') && ... {
             const label = `${landmarkType} ${index + 1}`;
             element.setAttribute('aria-label', label);
           }
@@ -113,24 +113,24 @@ function ensureUniqueLandmarks() {
 
 // NEW FUNCTION: Add accessible name to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...;
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
+    if ... && ... {
+      ... `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.getAttribute('role')) {
+    if ... {
       svg.setAttribute('role', 'img');
     }
   });
 }
 
 // NEW FUNCTION: Add aria-label to the 'myDiv' element
-function addAriaLabelToMyDiv() {
-  const myDiv = document.getElementById('myDiv');
+function ... {
+  const myDiv = ...;
   if (myDiv) {
-    myDiv.setAttribute('aria-label', 'My div');
+    ... 'My div');
   }
 }
 
@@ -139,10 +139,10 @@ function App() {
   useEffect(() => {
     addLangAttribute();
     addMainLandmark();
-    fixTableStructureIssues();
+    ...
     ensureUniqueLandmarks();
-    addSvgAccessibleNames();
-    addAriaLabelToMyDiv();
+    ...
+    ...
   }, []);
 
   return (
@@ -159,7 +159,7 @@ function App() {
             {/* Existing App content */}
 
             {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
+            <button id="unrotate" type="button" onClick={handleRotateBack}>rotate back</button>
 
             {/* Example of adding scope attribute to a <th> element */}
             <table>

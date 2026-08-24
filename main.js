@@ -64,9 +64,7 @@ function validateMainLandmark() {
     const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
-      return false;
     }
-    return true;
   }, []);
 }
 
@@ -77,7 +75,7 @@ function validateLandmarkRoles() {
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
+      const tagElements = role === 'navigation' ? Array.from(document.querySelectorAll('nav')) : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -85,9 +83,7 @@ function validateLandmarkRoles() {
     });
     if (foundLandmarks.main > 1) {
       console.error('More than one "main" landmark found.');
-      return false;
     }
-    return true;
   }, []);
 }
 
@@ -141,12 +137,16 @@ function validateTableStructure() {
   // ... existing logic ...
 }
 
-function validateLandmark() {
+function validateLandmark(element) {
   // ... existing logic ...
-}
-
-function validateUniqueLandmarks() {
-  // ... existing logic ...
+  useEffect(() => {
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (!mainElement) {
+      console.error('No main landmark found in the document.');
+      return false;
+    }
+    return true;
+  }, []);
 }
 
 // Additional exports if needed

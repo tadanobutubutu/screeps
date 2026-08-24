@@ -37,6 +37,18 @@ function addMainLandmark() {
   }
 }
 
+// New function to wrap primary content in a <main> element (NEW)
+function wrapPrimaryContentInMain() {
+  const mainContentSelector = 'div.container'; // This selector should be updated to match the actual main content container
+  const mainContent = document.querySelector(mainContentSelector);
+
+  if (mainContent) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    mainContent.parentNode.replaceChild(mainElement, mainContent);
+  }
+}
+
 // Added the required exports
 module.exports = {
   dependencyGraphFunction,

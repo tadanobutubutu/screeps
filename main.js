@@ -15,6 +15,9 @@ function handleButtonClick() {
   button.setAttribute('aria-expanded', isExpanded);
 }
 
+// Import dependencyGraphContent if it is used in the code
+const { dependencyGraphContent } = require('./dependencyGraph');
+
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
@@ -23,7 +26,7 @@ function addLangAttribute() {
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('.fake-link, [data-fake-link]');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
@@ -130,13 +133,39 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
   addScopeToTableHeaders();
 }
 
+// New function to add accessible SVGs
+function addAccessibleSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
+    const isBackground = svg.css && svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
+
+    if (shouldUseTitle || isBackground) {
+      svg.setAttribute('aria-label', 'Description of SVG content');
+    } else {
+      const title = document.createElement('title');
+      title.textContent = 'Description of SVG content';
+      svg.prepend(title);
+    }
+  });
+}
+
 // Call all necessary functions
 processAccessibilityIssuesFromInsightReport();
-fixFakeLinks();
-ensureUniqueLandmarks();
-wrapPrimaryContentInMain();
-addAccessibleSVGs();
-addScopeToTableHeaders();
+
+// React root mount integration (from origin/main)
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+if (typeof document !== 'undefined') {
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
+}
 
 module.exports = {
   wrapPrimaryContentInMain,
@@ -146,4 +175,6 @@ module.exports = {
   ensureUniqueLandmarks,
   processAccessibilityIssuesFromInsightReport,
   dependencyGraphContent,
+  addAccessibleSVGs,
+  addScopeToTableHeaders
 };

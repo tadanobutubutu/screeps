@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// existing code...
+
+// New function to be exported
+function newFunction() {
+  // Function implementation...
+}
+
+// Export the function
+module.exports = {
+  oldFunction: oldFunction,
+  anotherFunction: anotherFunction,
+  newFunction // Add this line to export the newFunction
+};
+
+// Additional code...

@@ -58,29 +58,6 @@ const fixLandmarkIssues = () => {
   });
 };
 
-// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
-const uniqueLandmarks = () => {
-  const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
-  const existingIds = new Set();
-
-  return (element) => {
-    if (!element) return false;
-
-    if (!element.id) {
-      let counter = 1;
-      let newId = element.tagName.toLowerCase() + '-' + counter;
-      while (existingIds.has(newId)) {
-        counter++;
-        newId = element.tagName.toLowerCase() + '-' + counter;
-      }
-      element.id = newId;
-      existingIds.add(newId);
-    }
-
-    return true;
-  };
-};
-
 // Accessibility fix for adding proper landmark regions
 const addLandmarkRegions = () => {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];

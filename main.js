@@ -8,8 +8,8 @@ module.exports = {
    * @returns {boolean} - True if the SVG needs an accessible name
    */
   needsAccessibleName(svg) {
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
     const hasTitleChild = svg.querySelector('title') !== null;
     const isHidden = svg.getAttribute('aria-hidden') === 'true';
 
@@ -33,7 +33,7 @@ module.exports = {
       svg.insertBefore(title, svg.firstChild);
       
       // Ensure role="img" is set for screen readers
-      if (!svg.hasAttribute('role')) {
+      if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
     } else if (type === 'aria-label' && value) {
@@ -52,11 +52,11 @@ module.exports = {
    * @param {string} [accessibleName] - Optional name for the SVG
    * @returns {string} - Fixed SVG markup
    */
-  processSvgAccessibility(filePath, svgContent, accessibleName) {
+  processLayoutFile(filePath, svgContent, accessibleName) {
     // For decorative favicon SVGs, add aria-hidden="true"
-    if (filePath.includes('layout.tsx') && accessibleName) {
+    if (svgContent && accessibleName) {
       // Check if it's a favicon icon definition
-      if (svgContent.includes('icon:') || svgContent.includes('icons:')) {
+      if (filePath.includes('layout.tsx') || filePath.includes('icon')) {
         // Add aria-label to the SVG
         return svgContent.replace(
           /<svg([^>]*)>/,

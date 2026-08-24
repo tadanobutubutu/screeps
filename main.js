@@ -168,7 +168,6 @@ const wrapPrimaryContentInMain = () => {
   if (existingMain) return;
 
   // Find the primary content container
-  // Looking for common primary content patterns
   const primaryContentSelectors = [
     '#primary-content',
     '#main-content',
@@ -187,25 +186,21 @@ const wrapPrimaryContentInMain = () => {
     }
   }
 
-  // If no specific primary content selector found, 
-  // wrap the first content section that appears after header/hero sections
+  // If no specific primary content selector found, try to identify main content
   if (!primaryContent) {
-    const bodyChildren = Array.from(document.body.children);
-    const headerElements = document.querySelectorAll('header, .hero, .banner');
-    
-    // Find content that comes after typical header elements
-    for (const child of bodyChildren) {
-      const isHeader = Array.from(headerElements).some(header => 
-        header.contains(child) || header === child
-      );
-      
-      if (!isHeader && child.textContent.trim() && !child.closest('main')) {
-        // Skip navigation, aside, and footer elements
-        const tagName = child.tagName.toLowerCase();
-        if (!['NAV', 'ASIDE', 'FOOTER', 'HEADER'].includes(tagName)) {
-          primaryContent = child;
-          break;
-        }
+    // Look for common content containers
+    const contentSelectors = [
+      '.dashboard-content',
+      '.content-wrapper',
+      '.app-content',
+      'section:not(nav):not(aside)'
+    ];
+
+    for (const selector of contentSelectors) {
+      const element = document.querySelector(selector);
+      if (element && !element.closest('main') && !element.closest('nav') && !element.closest('aside')) {
+        primaryContent = element;
+        break;
       }
     }
   }
@@ -230,6 +225,27 @@ const wrapPrimaryContentInMain = () => {
   }
 };
 
+function renderApp() {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard App</title>
+</head>
+<body>
+  <header role="banner">
+    <h1>Dashboard</h1>
+    <nav role="navigation">
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#settings">Settings</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="primary-content">
     <button type="button" onclick="handleClick()">
       Click me instead of using fake link
     </button>

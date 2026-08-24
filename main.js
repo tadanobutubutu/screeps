@@ -10,19 +10,16 @@ function addLandmarkRegions(container, regions = []) {
     complementary: 'complementary',
     contentinfo: 'contentinfo'
   };
-  
   const regionConfig = regions.length > 0 ? regions : defaultRegions;
   
   if (typeof container === 'string') {
     container = document.querySelector(container);
   }
-  
   if (!container) {
     return null;
   }
-  
+
   const addedRegions = {};
-  
   regionConfig.forEach(regionType => {
     if (landmarkRoles[regionType]) {
       const element = document.createElement('div');
@@ -39,6 +36,5 @@ function addLandmarkRegions(container, regions = []) {
 // Here's an example of how to export a required function from another file:
 module.exports = {
   requiredFunction: requiredFunction,
-  // New function to be added as per the issue
   addLandmarkRegions: addLandmarkRegions
 };

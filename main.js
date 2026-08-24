@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 React Fake Link issue
+// main.js - Updated to fix REACT_025 React Unique Landmarks issue
 
 function rotateImage(imageId, degrees) {
     const img = document.getElementById(imageId);
@@ -24,6 +24,26 @@ function init() {
         container.appendChild(createUnrotateButton());
     }
 }
+
+// Assuming the following component structure in Dashboard.tsx:
+// <Dashboard>
+//   <div id="controls">
+//     {/* ... */}
+//   </div>
+//   <div>
+//     {/* ... */}
+//   </div>
+// </Dashboard>
+
+// To fix the issue, ensure that there is only one <main> element in the component.
+// Replace any other <main> elements with appropriate landmarks like <section> or <article>.
+// For example:
+// <section id="error-state">
+//   <main>Error content here</main>
+// </section>
+// <section id="success-state">
+//   <main>Success content here</main>
+// </section>
 
 document.addEventListener('DOMContentLoaded', init);
 

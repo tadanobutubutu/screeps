@@ -3,6 +3,8 @@
  * Handles UI interactions for the application
  */
 
+// TODO: Address accessibility issues from insight report
+
 (function() {
     'use strict';
 

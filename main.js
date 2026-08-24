@@ -8,7 +8,7 @@ function createInPageNavigation() {
   // ... Kept unchanged
 }
 
-// Add a new function: addLangAttribute (REACT_015)
+// Add a new function: addLangattribute (REACT_015)
 function addLangAttribute() {
   const html = document.documentElement;
   if (!html.hasAttribute('lang')) {

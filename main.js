@@ -1,4 +1,3 @@
-// Assuming the main.js file is a component that renders HTML content
 import React from 'react';
 
 const DependencyGraph = () => {

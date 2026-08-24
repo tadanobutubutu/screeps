@@ -69,7 +69,7 @@ function addLandmarkRegions() {
     navElement = document.createElement('nav');
     navElement.setAttribute('aria-label', 'Main navigation');
     
-    const navContainer = document.querySelector('nav.container, .navbar, header');
+    const navContainer = document.querySelector('div.navbar, header');
     if (navContainer && navContainer.parentNode) {
       navContainer.parentNode.insertBefore(navElement, navContainer);
       navElement.appendChild(navContainer);

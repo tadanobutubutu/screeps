@@ -6,7 +6,7 @@
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: ...
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssues)
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -74,12 +74,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main'),
-    nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('header'),
-    footer: document.querySelectorAll('footer'),
-    aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section[aria-label]'))
   };
 
   // Add unique labels to duplicate landmarks
@@ -111,6 +111,36 @@ function addSvgAccessibleNames() {
   });
 }
 
+// NEW FUNCTION: Fix fake link issues
+function fixFakeLinkIssues() {
+  // Find elements that look like links but are not <a> tags
+  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"], button:not([href])');
+  fakeLinks.forEach((element) => {
+    if (element.getAttribute('role') === 'link') {
+      // Replace role="link" with proper button or anchor element handling
+      const parent = element.parentElement;
+      if (parent && (parent.tagName === 'A' || parent.querySelector('a'))) {
+        // If inside an anchor, remove the fake role
+        element.removeAttribute('role');
+      } else {
+        // Otherwise, convert to button role
+        element.setAttribute('role', 'button');
+        element.setAttribute('tabindex', '0');
+      }
+    }
+  });
+
+  // Fix clickable divs/spans that should be buttons
+  const clickableDivs = document.querySelectorAll('div[onclick], span[onclick]');
+  clickableDivs.forEach((element) => {
+    const role = element.getAttribute('role');
+    if (!role || role === 'link') {
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+    }
+  });
+}
+
 function App() {
   return (
     <html lang="en">
@@ -121,7 +151,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1>Accessible Application</h1>
+          <h1 id="main-heading">Accessible Application</h1>
           <div className="app-content">
             {/* Existing App content */}
 
@@ -153,6 +183,7 @@ function App() {
           fixTableStructureIssues();
           ensureUniqueLandmarks();
           addSvgAccessibleNames();
+          fixFakeLinkIssues();
         </script>
       </body>
     </html>
@@ -166,4 +197,4 @@ document.documentElement.lang = 'en';
 export default App;
 
 // Export the new functions
-export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, fixFakeLinkIssues };

@@ -158,7 +158,7 @@ function ensureUniqueLandmarks(landmarks) {
   const seen = new Set();
   
   landmarks.forEach(landmark => {
-    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
+    const identifier = landmark.id || (landmark.getAttribute ? landmark.getAttribute('role') : undefined) || landmark.label || JSON.stringify(landmark);
     if (!seen.has(identifier)) {
       seen.add(identifier);
       unique.push(landmark);
@@ -188,7 +188,7 @@ function validateLandmarkStructure(doc) {
   const headerElements = doc.querySelectorAll('header, [role="banner"]');
   headerElements.forEach(header => {
     const parent = header.parentElement;
-    if (parent && (parent.tagName === 'ARTICLE' || parent.tagName === 'ASIDE' || parent.getAttribute?.('role') === 'complementary')) {
+    if (parent && (parent.tagName === 'ARTICLE' || parent.tagName === 'ASIDE' || (parent.getAttribute ? parent.getAttribute('role') : undefined) === 'complementary')) {
       errors.push('Header should not be nested inside article, aside, or complementary landmarks.');
     }
   });
@@ -295,7 +295,7 @@ function deduplicateLandmarks(landmarks) {
   const seen = new Set();
   
   landmarks.forEach(landmark => {
-    const identifier = landmark.id || landmark.getAttribute?.('role') || landmark.label || JSON.stringify(landmark);
+    const identifier = landmark.id || (landmark.getAttribute ? landmark.getAttribute('role') : undefined) || landmark.label || JSON.stringify(landmark);
     if (!seen.has(identifier)) {
       seen.add(identifier);
       unique.push(landmark);

@@ -1,7 +1,3 @@
-<<<<<<< HEAD >>>// Resolved main.js with conflict markers addressed
-// Keeping all existing code, exports, and functions intact
-// Only adding necessary changes to fix <main> issue
-
 function generateHTMLContent() {
   let htmlContent = `<div class="container"> <h2>Quality & Metrics Reports</h2> <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p> <div class="links"> <a href="plato-report/index.html">📊 Plato Code Complexity Report</a> <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a> </div> </div>`;
 
@@ -21,8 +17,36 @@ function wrapContentInMain(content) {
 
 // Preserve existing index.html generation
 function generateIndexHtml() {
-  const primaryContent = `<div class="container"> <h2>Quality & Metrics Reports</h2> <p>This repository is fully optimized... </p> <div class="links">... </div> </div>`;
-  return `<!DOCTYPE html> <html> <body> ${wrapContentInMain(primaryContent)} </body> </html>`;
+  const primaryContent = `
+    <div class="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+        <div class="links">
+            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+    </div>
+  `;
+
+  // Wrap the primary content in a <main> element
+  const mainContent = wrapContentInMain(primaryContent);
+
+  // Return the complete HTML content for index.html
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, scale=1.0">
+        <title>Quality & Metrics Reports</title>
+        <!-- Additional head elements here -->
+    </head>
+    <body>
+        ${mainContent}
+        <!-- Additional body elements here -->
+    </body>
+    </html>
+  `;
 }
 
 // Balance both implementations for dependency graphs

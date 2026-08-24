@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 // Import required module(s)
 const { getMainElement } = require('./utils'); // Assuming we have '/utils/utils.js' with the necessary function `getMainElement`
 

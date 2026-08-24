@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom/client';
 
 function App() {
   return (
-    <div className="app-container">
+    <div ...
       <header role="banner">
         <nav role="navigation" aria-label="Main navigation">
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
+            <li><a ...
             <li><button type="button">Contact</button></li>
           </ul>
         </nav>
@@ -61,10 +61,12 @@ function App() {
   );
 }
 
-// Set language attribute on the HTML element
-document.documentElement.setAttribute('lang', 'en');
+// TODO: Import required module(s) and export the necessary function(s) here
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Set language attribute on the HTML element
+... 'en');
+
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

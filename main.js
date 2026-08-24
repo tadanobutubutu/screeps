@@ -25,7 +25,8 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-labelledby') && !main.getAttribute('aria-label')) {
+    const existingHeading = main.querySelector('h1, h2');
+    if (existingHeading && existingHeading.textContent.trim()) {
       if (index === 0) {
         main.setAttribute('aria-labelledby', 'main-heading');
       } else {
@@ -48,8 +49,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
-        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.cells).indexOf(th) : -1;
+        const cellIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -74,12 +75,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main'),
-    nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('header'),
-    footer: document.querySelectorAll('footer'),
-    aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section'))
   };
 
   // Add unique labels to duplicate landmarks
@@ -101,7 +102,7 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Original code preserved below
 // ...
 
@@ -40,6 +37,9 @@ function addressAccessibilityIssues() {
     // Ensure tables have proper structure with thead and tbody
     let modifiedContent = htmlContent;
 
+    // Call the existing landmark validation function
+    const landmarkValidatedHtmlContent = validateLandmark(htmlContent);
+
     // Pattern to match table elements that need structure
     const tableRegex = /<table(\s[^>]*)?>([\s\S]*?)<\/table>/gi;
 
@@ -51,9 +51,15 @@ function addressAccessibilityIssues() {
       const hasTbody = /<tbody[\s\S]*?<\/tbody>/i.test(content);
 
       // If no thead or tbody, wrap content appropriately
+      // Ensure the table landmark is properly set (ReACT_017)
       if (!hasThead && !hasTbody) {
-        // Wrap all content in tbody
-        result += `<tbody>${content}</tbody>`;
+        if (landmarkValidatedHtmlContent.match(/<table/i)) {
+          // Wrap all content in tbody
+          result += `<tbody>${content}</tbody>`;
+        } else {
+          // Wrap content in both thead and tbody, with proper landmark (ReACT_017)
+          result += `<thead><tr></tr></thead><tbody>${content}</tbody>`;
+        }
       } else if (hasThead && !hasTbody) {
         // Extract thead and wrap remaining in tbody
         const theadMatch = content.match(/<thead[\s\S]*?<\/thead>/i);
@@ -62,7 +68,8 @@ function addressAccessibilityIssues() {
           const remaining = content.replace(theadMatch[0], '');
           result += `<tbody>${remaining}</tbody>`;
         } else {
-          result += `<tbody>${content}</tbody>`;
+          // Wrap content in both thead and tbody, with proper landmark (ReACT_017)
+          result += `<thead><tr></tr></thead><tbody>${content}</tbody>`;
         }
       } else if (hasThead && hasTbody) {
         // Both thead and tbody exist: preserve existing content
@@ -78,10 +85,11 @@ function addressAccessibilityIssues() {
             const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
             result += restContent;
           } else {
-            result += content;
+            result += `<thead><tr></tr></thead>${content}`;
           }
         } else {
-          result += content;
+          // Wrap content in both thead and tbody, with proper landmark (ReACT_017)
+          result += `<thead><tr></tr></thead><tbody>${content}</tbody>`;
         }
       } else {
         result += content;
@@ -98,20 +106,82 @@ function addressAccessibilityIssues() {
   function validateLandmark(htmlContent) {
     let modifiedContent = htmlContent;
 
-    // Add main landmark if not present
-    if (!/<main/i.test(htmlContent)) {
-      // Wrap content in main tag
-      const bodyMatch = htmlContent.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
-      if (bodyMatch) {
-        modifiedContent = modifiedContent.replace(
-          /<body(\s[^>]*)?>([\s\S]*)<\/body>/i,
-          '<body$1><main>$2</main></body>'
-        );
-      } else {
-        // If no body tag, wrap everything in main
-        modifiedContent = `<main>${modifiedContent}</main>`;
+    // Ensure proper landmark elements are used
+    // - Use <header> for site header (not multiple)
+    // - Use <nav> for navigation regions with aria-label
+    // - Use <main> for main content (only one per page)
+    // - Use <footer> for footer content
+
+    // Extract landmark elements
+    const landmarks = {
+      header: document.querySelectorAll('header:not([role])'),
+      nav: document.querySelectorAll('nav'),
+      main: document.querySelectorAll('main'),
+      footer: document.querySelectorAll('footer:not([role])'),
+      aside: document.querySelectorAll('aside:not([aria-label])')
+    };
+
+    // Add role and aria-labels to landmark elements
+    const headerIndex = 0;
+    landmarks.header.forEach((header) => {
+      if (!header.getAttribute('role')) {
+        header.setAttribute('role', 'banner');
+        if (headerIndex === 0) {
+          header.setAttribute('aria-label', 'Site header');
+        }
+        headerIndex++;
+      }
+    });
+
+    let navIndex = 0;
+    landmarks.nav.forEach((nav) => {
+      if (!nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+        let ariaLabel = 'Main Navigation';
+        if (nav.getAttribute('aria-labelledby')) {
+          const labelledBy = nav.getAttribute('aria-labelledby').split(' ');
+          if (labelledBy.includes(ariaLabel)) {
+            return;
+          }
+        }
+        nav.setAttribute('aria-label', ariaLabel);
+        navIndex++;
+      }
+    });
+
+    if (landmarks.main.length === 0) {
+      modifiedContent = `<main>${modifiedContent}</main>`;
+    } else {
+      const main = landmarks.main[0];
+      if (!main.getAttribute('role')) {
+        main.setAttribute('role', 'main');
       }
     }
+
+    landmarks.footer.forEach((footer) => {
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
+    });
+
+    // Fix SVGs to have accessible names
+    const svgs = modifiedContent.querySelectorAll('svg');
+    svgs.forEach((svg, index) => {
+      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        const titleId = `svg-title-${index}`;
+        let title = svg.querySelector('title');
+        if (!title) {
+          title = document.createElement('title');
+          title.id = titleId;
+          title.textContent = `SVG graphic ${index + 1}`;
+          svg.insertBefore(title, svg.firstChild);
+        } else if (!title.id) {
+          title.id = titleId;
+        }
+        svg.setAttribute('aria-labelledby', title.id);
+      }
+    });
+
     return modifiedContent;
   }
 
@@ -170,7 +240,30 @@ function addressAccessibilityIssues() {
   export default function Home({ projects }) {
     // ... existing code
   }
-}
-```
 
-This resolved file merges the changes related to table structure validation, landmark validation, and the creation of new functions to handle accessibility concerns such as ensuring unique landmarks and adding ARIA labels to fake links. It preserves the existing dependency graph rendering function and the main component, with no loss of functionality.
+  // New TableValidation component
+  function TableValidation({ tableData }) {
+    const fixedTableData = fixTableStructureIssues(tableData);
+    return (
+      <table>
+        {/* Table headers */}
+        <thead>
+          {fixedTableData[0].Header.map((header, index) => (
+            <th key={index}>{header}</th>
+          ))}
+        </thead>
+        {/* Table body */}
+        <tbody>
+          {fixedTableData.slice(1).map((row, index) => (
+            <tr key={index}>
+              {row.map((cell, cellIndex) => (
+                <td key={`cell-${index}${cellIndex}`}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  export { TableValidation };

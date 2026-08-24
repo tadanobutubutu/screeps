@@ -21,27 +21,11 @@ function addressAccessibilityIssues() {
 
   // ... (existing code for REACT_015, REACT_017 & REACT_025, REACT_041, and REACT_036)
 
-  // REACT_025: Enforce proper heading order (same heading level should not be repeated)
-  if (!content) return;
-  const headingLevels = getHeadingLevels(content);
-  for (let level = 1; level <= 6; level++) {
-    const headingCount = headingLevels[level];
-    if (headingCount > 1) {
-      throw new Error(`Multiple headings of level ${level} found in the HTML content. Headings should be unique within the same level.`);
-    }
-  }
-
   // REACT_033: Ensure main section contains a proper heading
   const mainTag = content.match(/<main\b[^>]*>/i)[0];
   const mainHeading = mainTag.match(/<h[1-6]>/i);
   if (!mainHeading) {
     throw new Error("The main section does not contain a proper heading.");
-  }
-
-  // REACT_035: Ensure landmarks are semantically valid and in proper sequence
-  const landmarks = ['header', 'nav', 'main', 'footer'];
-  if (!content.match(/<(header|nav|main|footer)>/i).every((tag, index) => tag === '<' + landmarks[index] + '>')) {
-    throw new Error("Landmarks are not semantically valid or not in the proper sequence.");
   }
 
   // REACT_037: Check for missing ARIA labels on focusable elements

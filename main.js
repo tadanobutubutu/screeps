@@ -89,7 +89,7 @@ function fixTableAccessibility(tables) {
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th[data-row-header]');
+                const rowHeaders = Array.from(row.querySelectorAll('th'));
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }

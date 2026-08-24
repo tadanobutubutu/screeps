@@ -9,7 +9,6 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
@@ -18,7 +17,6 @@ skipLink.addEventListener('click', (e) => {
   if (mainContent) {
     mainContent.tabIndex = -1;
     mainContent.focus();
-    mainContent.scrollIntoView();
   }
 });
 
@@ -27,14 +25,14 @@ const mainElement = document.querySelector('main');
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
-  mainElement.setAttribute('aria-label', 'Main content');
 }
 
 // Your new accessibility improvements
-document.documentElement.setAttribute('lang', 'en');
+document.documentElement.lang = 'en';
 
 document.querySelectorAll('table').forEach(table => {
-  if (!table.querySelector('th')) {
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
     table.setAttribute('role', 'presentation'); // Tables without headers are presentational
   } else {
     // Ensure tables with headers have proper caption for context
@@ -51,10 +49,11 @@ document.querySelectorAll('table').forEach(table => {
 });
 
 document.querySelectorAll('svg').forEach(svg => {
-  if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+  const title = svg.querySelector('title');
+  if (!title && svg.textContent.trim()) {
     const title = document.createElement('title');
     title.textContent = 'SVG content description';
-    svg.appendChild(title);
+    svg.insertBefore(title, svg.firstChild);
   }
 });
 
@@ -65,7 +64,7 @@ landmarkElements.forEach(landmark => {
     if (!element.hasAttribute('role')) {
       element.setAttribute('role', element.tagName.toLowerCase());
     }
-    // Ensure elements have accessible names where appropriate
+    // Ensure elements have accessible name where appropriate
     if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
       const tagName = element.tagName.toLowerCase();
       element.setAttribute('aria-label', `${tagName} content`);
@@ -73,7 +72,7 @@ landmarkElements.forEach(landmark => {
   });
 });
 
-document.querySelectorAll('a[aria-label]').forEach(link => {
+document.querySelectorAll('a').forEach(link => {
   link.setAttribute('role', 'link');
 });
 // ----- END ORIGINAL CODE (unchanged) -----

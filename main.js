@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import required module(s) and export the new necessary function(s) here in main.js
 import React from 'react';
 
@@ -140,6 +137,10 @@ export function ensureUniqueLandmarks(container) {
   return container;
 }
 
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
 // REACT_017 & REACT_025: Landmark structure with unique identifiers
 export const PageLayout = ({
   headerContent,
@@ -200,6 +201,47 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
+// REACT_041: Helper function to make SVG metadata objects accessible for favicons
+export function makeSvgAccessible(svgString, accessibleName = 'Screeps Dashboard') {
+  // Check if SVG already has title or aria-label
+  const hasTitle = svgString.includes('<title>');
+  const hasAriaLabel = svgString.includes('aria-label=');
+  
+  if (hasTitle || hasAriaLabel) {
+    return svgString;
+  }
+  
+  // Add title element after opening svg tag for accessible name
+  return svgString.replace(
+    '<svg',
+    `<svg aria-label="${accessibleName}"`
+  );
+}
+
+// REACT_041: Alternative - mark decorative SVGs as aria-hidden
+export function makeSvgDecorative(svgString) {
+  const hasAriaHidden = svgString.includes('aria-hidden');
+  const hasAriaLabel = svgString.includes('aria-label=');
+  
+  if (hasAriaHidden || hasAriaLabel) {
+    return svgString;
+  }
+  
+  return svgString.replace(
+    '<svg',
+    '<svg aria-hidden="true"'
+  );
+}
+
+// REACT_041: Create favicon icon configuration with accessible name
+export function createAccessibleFaviconIcon(iconSvg) {
+  return {
+    icon: iconSvg,
+    // Ensure the SVG string has an accessible name
+    _accessibleIconSvg: makeSvgAccessible(iconSvg)
+  };
+}
+
 // Export all new accessibility-friendly components
 export {
   RotateBackButton,
@@ -212,8 +254,8 @@ export {
   PageLayout,
   fixTableStructureIssues,
   ensureUniqueLandmarks,
-  generateId // Added missing function
+  generateId,
+  makeSvgAccessible,
+  makeSvgDecorative,
+  createAccessibleFaviconIcon
 };
-```
-
-The main goal here was to combine the changes from both branches, keeping all added functionality and preserving existing code. The resulting file contains the requested accessibility improvements, the missing `generateId()` function, and exported all applicable new components. Please review the merged version to ensure it compiles and functionalities as expected.

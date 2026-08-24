@@ -1,4 +1,3 @@
-// Sampled code for adding the scope attribute
 const table = document.querySelector('table');
 
 if (table) {

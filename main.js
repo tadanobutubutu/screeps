@@ -1,3 +1,11 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+// - REACT_036: Fix 1 fake link issue
+//
+
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
@@ -12,8 +20,8 @@ function addressAccessibilityIssues() {
   // Ensure the document.documentElement has lang attribute set
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', htmlElement.lang || 'en');
+    if (!htmlElement.lang) {
+      htmlElement.lang = htmlElement.lang || 'en';
     }
   }
 
@@ -42,31 +50,47 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     // Fix landmark regions with proper labels
     const landmarks = {
-      header: document.querySelectorAll('header'),
+      header: document.querySelectorAll('header:not([role])'),
       nav: document.querySelectorAll('nav'),
       main: document.querySelectorAll('main'),
-      footer: document.querySelectorAll('footer'),
-      aside: document.querySelectorAll('aside')
+      footer: document.querySelectorAll('footer:not([role])'),
+      aside: document.querySelectorAll('aside:not([aria-label])')
     };
 
     // Add aria-labels to nav elements that need them
     let navIndex = 0;
     landmarks.nav.forEach((nav) => {
-      if (!nav.hasAttribute('aria-label') && !nav.querySelector('[role="navigation"]')) {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
         const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
         nav.setAttribute('aria-label', navLabels[navIndex] || `Navigation ${navIndex + 1}`);
         navIndex++;
       }
     });
 
+    // Add role="banner" to header if not already present and only one exists
+    if (landmarks.header.length === 1) {
+      const header = landmarks.header[0];
+      if (!header.getAttribute('role')) {
+        header.setAttribute('role', 'banner');
+      }
+    }
+
+    // Add role="contentinfo" to footer if not already present and only one exists
+    if (landmarks.footer.length === 1) {
+      const footer = landmarks.footer[0];
+      if (!footer.getAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+      }
+    }
+
     // Fix SVGs to have accessible names
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-      if (!svg.hasAttribute('aria-labelledby') && !svg.hasAttribute('aria-label')) {
+      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
         const titleId = `svg-title-${index}`;
         let title = svg.querySelector('title');
         if (!title) {
-          title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+          title = document.createElement('title');
           title.id = titleId;
           title.textContent = `SVG graphic ${index + 1}`;
           svg.insertBefore(title, svg.firstChild);
@@ -80,7 +104,7 @@ function addressAccessibilityIssues() {
     // Fix fake links (links that don't navigate)
     const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
     fakeLinks.forEach((link) => {
-      if (link.hasAttribute('onclick') || (!link.href || link.href === '#' || link.href === '')) {
+      if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
         // Check if it's actually a link or a button
         if (link.getAttribute('role') === 'button' || link.onclick) {
           // Convert to proper button

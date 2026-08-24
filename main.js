@@ -203,6 +203,18 @@ function fixSvgAccessibilityIssues() {
   });
 }
 
+// Add the new function to address REACT_017 React Landmarks issue
+function fixReactLandmarkIssue() {
+  if (!document.querySelector('main')) {
+    const content = document.querySelector('.container') || document.querySelector('#table-rotated');
+    if (content) {
+      const main = document.createElement('main');
+      content.parentNode.insertBefore(main, content);
+      main.appendChild(content);
+    }
+  }
+}
+
 module.exports = {
   rotate,
   rotateBack,
@@ -218,5 +230,6 @@ module.exports = {
   isWithinLandmark,
   wrapInLandmark,
   fixSvgAccessibilityIssues,
+  fixReactLandmarkIssue,
   someFunction
 };

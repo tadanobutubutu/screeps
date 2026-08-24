@@ -1,4 +1,1 @@
-<﻿ReportType>
-<﻿Content>
-¡Hola! ¿Podrías ayudarme a resolver un conflicto de Git en un archivo de JavaScript? 
-</ography>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

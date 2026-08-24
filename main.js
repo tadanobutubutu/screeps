@@ -34,7 +34,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -42,7 +42,7 @@ const fixFakeLinkIssues = () => {
 
 // Accessibility fix for REACT_017: Add/fix 2 landmark issues and add Landmark Regions
 const fixLandmarkIssues = () => {
-  const landmarkMap = {
+  const landmarks = {
     'nav': 'navigation',
     'main': 'main',
     'header': 'banner',
@@ -52,8 +52,8 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarkMap).forEach(([selector, role]) => {
-    const elements = document.querySelectorAll(selector);
+  Object.entries(landmarks).forEach(([tag, role]) => {
+    const elements = document.querySelectorAll(tag);
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -260,3 +260,16 @@ export {
 
 // Export the imported module members
 export { class1, function1, Object1 };
+
+// Add the fix for REACT_017: Add <main> landmark to docs/index.html
+document.addEventListener('DOMContentLoaded', () => {
+  const indexContent = document.querySelector('#content');
+  if (indexContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(indexContent);
+    const container = document.createElement('div');
+    container.classList.add('container');
+    mainElement.appendChild(container);
+    document.body.appendChild(mainElement);
+  }
+});

@@ -77,7 +77,15 @@ module.exports = {
 
     // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
-    // ... rest of the existing fixAccessibility code remains unchanged for REACT_041
+    svgElements.forEach(svg => {
+      const titleElement = svg.querySelector('title');
+      const ariaLabel = svg.getAttribute('aria-label');
+      const ariaHidden = svg.getAttribute('aria-hidden');
+
+      if (!titleElement && !ariaLabel && !ariaHidden) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    });
 
     // REACT_017: Add IDs to other landmark elements
     const headers = document.querySelectorAll('header');

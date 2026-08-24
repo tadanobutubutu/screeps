@@ -1,18 +1,23 @@
-// Original main.js content with conflict markers removed
 module.exports = {
-  // Existing exports and functions
-  someFunction: () => {
-    // Existing function code
-  },
-  // ...
+  // Main application entry point
+  app: require('./app'),
   
-  // New functions or changes requested in the issue
-  fixSvgAccessibleName: (svgContent) => {
-    const svgString = `<svg xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
-    return svgString.replace(/<svg/g, '<svg aria-label="Descriptive label for SVG">');
-  }
+  // Configuration
+  config: require('./config'),
   
-  // ...
+  // Utility functions
+  utils: require('./utils'),
+};
+
+// Named exports for individual modules
+module.exports.hello = require('./hello');
+module.exports.User = require('./models/User');
+module.exports.validateInput = require('./validateInput');
+
+// New function to enhance SVG accessibility
+module.exports.fixSvgAccessibleName = (svgContent) => {
+  const svgString = `<svg xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
+  return svgString.replace(/<svg/g, '<svg aria-label="Descriptive label for SVG">');
 };
 
 // Example usage of the new function to fix the issue in the affected files

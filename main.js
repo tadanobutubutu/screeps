@@ -17,6 +17,12 @@
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js
 import { dependencyGraphContent } from './dependencyGraphContent.js';
 import { indexContent } from './indexContent.js';
+import { addLangAttribute } from './addLangAttribute.js';
+import { fixTableStructure } from './fixTableStructure.js';
+import { addMainLandmark } from './addMainLandmark.js';
+import { ensureUniqueLandmarks } from './ensureUniqueLandmarks.js';
+import { addSvgAccessibleNames } from './addSvgAccessibleNames.js';
+import { fixFakeLinkIssue } from './fixFakeLinkIssue.js';
 
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -140,4 +146,4 @@ renderDependencyGraph();
 // Existing code preserved below
 // ...
 
-export { addressAccessibilityIssues, renderDependencyGraph };
+export { addressAccessibilityIssues, renderDependencyGraph, addLangAttribute, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, fixFakeLinkIssue };

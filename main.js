@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Example of fixing REACT_015 issue
+// Before:
+// <div lang="en" className="content">...</div>
+
+// After:
+// <div className="content" lang="en">...</div>

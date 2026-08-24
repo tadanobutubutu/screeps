@@ -104,6 +104,15 @@ export const wrapPrimaryContentInMain = (content) => {
   return <main>{content}</main>;
 };
 
+// New function to wrap secondary content in a section element (REACT_025)
+export const wrapSecondaryContentInSection = (content, ariaLabel) => {
+  return (
+    <section aria-label={ariaLabel}>
+      {content}
+    </section>
+  );
+};
+
 // New function to add accessible names to SVGs (REACT_041)
 export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
   if (!svgElement) return null;
@@ -163,6 +172,14 @@ export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
   );
 };
 
+// Function to determine appropriate landmark element (REACT_025)
+export const getLandmarkElement = (isPrimary, label) => {
+  if (isPrimary) {
+    return <main role="main">{label}</main>;
+  }
+  return <section aria-label={label} />;
+};
+
 // Main component
 export default function Home({ projects }) {
   const handleRotateBack = () => {
@@ -205,11 +222,13 @@ export {
   getLangAttribute, 
   getFullLangAttribute,
   wrapPrimaryContentInMain, 
+  wrapSecondaryContentInSection,
   createLandmark,
   getSvgAccessibleName,
   getSvgAriaLabel,
   validateLandmark,
   validateLandmarkStructure,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
+  getLandmarkElement
 };

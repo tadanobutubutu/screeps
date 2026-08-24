@@ -24,11 +24,27 @@ function fixDependencyDashboard() {
 // module.exports.loop = function() { /* ... */ }
 // ----- END ORIGINAL CODE-----
 
+// Address accessibility issues from insight report
+// Add a descriptive title and meta description for screen readers
+const title = 'Dependency Dashboard';
+const description = 'An interactive view of project dependencies and their impact on build performance.';
+const metaTag = `<meta name="description" content="${description}">`;
+
 // Create a function to generate the html string with the lang attribute
 function generateHtmlWithLang() {
   const html = `
+<!DOCTYPE html>
 <html lang="en">
-<!-- ... Your existing html content ... -->
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  ${metaTag}
+  <!-- ... Your existing html content ... -->
+</head>
+<body>
+  <!-- Additional accessibility landmarks can go here -->
+  ${document.body ? '' : ''}
+</body>
 </html>
   `;
 

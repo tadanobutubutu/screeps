@@ -24,7 +24,7 @@ const App = () => {
 // If this is rendered in HTML directly, change:
 // <a id="unrotate" href="#">rotate back</a>
 // to:
-// <button id="unrotate">rotate back</button>
+<button id="unrotate">rotate back</button>
 
 // If main.js contains code that generates this HTML, here's the fix:
 const generateRotateBackControl = () => {

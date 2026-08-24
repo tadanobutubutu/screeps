@@ -29,7 +29,7 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Add the new function: fixFakeLinkIssue (REACT_036)
+// Add a new function: fixFakeLinkIssue (REACT_036)
 function fixFakeLinkIssue() {
   // Find elements that look like links but aren't (e.g., spans, divs with click handlers)
   const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not([role="link"])');
@@ -60,7 +60,7 @@ function fixFakeLinkIssue() {
   });
 }
 
-// Add the new function: addProperLandmarkRegions (referenced in exports)
+// Add the new function: fixProperLandmarkRegions (referenced in exports)
 function addProperLandmarkRegions() {
   // Ensure main landmark exists
   if (!document.querySelector('main, [role="main"]')) {

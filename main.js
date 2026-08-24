@@ -321,4 +321,87 @@ export function addLandmarkRegions(container = document) {
                 type: 'nav',
                 props: {
                     id: navId,
-                    role: 'navigation
+                    role: 'navigation',
+                    'aria-label': 'Main navigation',
+                    className: 'landmark-nav',
+                    children: [nav]
+                }
+            };
+        }
+    });
+
+    const mainEl = container.querySelector('main');
+    if (mainEl) {
+        mainId = mainEl.id || mainEl.getAttribute('id') || mainEl.getAttribute('data-testid') || mainId;
+        landmarkComponents[2] = {
+            type: 'main',
+            props: {
+                id: mainId,
+                role: 'main',
+                'aria-label': 'Main content',
+                className: 'landmark-main',
+                children: [mainEl]
+            }
+        };
+    }
+
+    const footer = container.querySelector('footer');
+    if (footer) {
+        footerId = footer.id || footer.getAttribute('id') || footer.getAttribute('data-testid') || footerId;
+        landmarkComponents[3] = {
+            type: 'footer',
+            props: {
+                id: footerId,
+                role: 'contentinfo',
+                'aria-label': 'Site footer',
+                className: 'landmark-footer',
+                children: [footer]
+            }
+        };
+    }
+
+    return landmarkComponents;
+}
+
+function addressAccessibilityIssues() {
+    ensureSvgAccessibleNames();
+    fixFakeLinks();
+    wrapPrimaryContentInMain();
+}
+
+export function wrapPrimaryContentInMain(container = document) {
+    if (!container) return null;
+    const existingMain = container.querySelector('main');
+    if (existingMain) {
+        return existingMain;
+    }
+    const selectors = ['#primary', '#content', '#main', '.primary', '.content', '.main'];
+    let primary = null;
+    for (const selector of selectors) {
+        primary = container.querySelector(selector);
+        if (primary) break;
+    }
+    if (!primary) {
+        const children = Array.from(container.children || []);
+        for (const child of children) {
+            if (child.nodeType === 1) {
+                const tag = child.tagName.toLowerCase();
+                if (tag !== 'header' && tag !== 'nav' && tag !== 'footer' && tag !== 'aside' && tag !== 'script' && tag !== 'style') {
+                    primary = child;
+                    break;
+                }
+            }
+        }
+    }
+    if (primary) {
+        const main = document.createElement('main');
+        main.id = primary.id || 'main-content';
+        main.setAttribute('role', 'main');
+        if (primary.parentNode) {
+            primary.parentNode.insertBefore(main, primary);
+            main.appendChild(primary);
+        }
+        return main;
+    }
+    return null;
+}

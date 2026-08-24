@@ -1,15 +1,1 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-function App() {
-  return (
-    <main aria-label="Main content">
-      <div>
-        <h1>Hello, world!</h1>
-        {/* ... other components ... */}
-      </div>
-    </main>
-  );
-}
-
-ReactDOM.render(<App />, document.getElementById('root'));
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

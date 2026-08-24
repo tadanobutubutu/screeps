@@ -1,3 +1,4 @@
+// TODO: Add exports for new functions if needed
 import { class1, function1, Object1 } from './path/to/module';
 import React from 'react';
 import Head from 'next/head';
@@ -154,10 +155,29 @@ export const validateLandmarkStructure = (element) => {
   return true;
 };
 
-// New function to add ARIA label to a fake link (REACT_036)
-export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
+// New function to create an accessible in-page button (REACT_036)
+export const createInPageButton = ({ content, onClick, id, ariaLabel }) => {
   return (
-    <a href={href} aria-label={ariaLabel}>
+    <button
+      type="button"
+      onClick={onClick}
+      id={id}
+      aria-label={ariaLabel}
+    >
+      {content}
+    </button>
+  );
+};
+
+// New function to create an accessible link (REACT_036)
+export const createAccessibleLink = ({ href, content, ariaLabel, onClick, ...props }) => {
+  return (
+    <a
+      href={href}
+      onClick={onClick}
+      aria-label={ariaLabel}
+      {...props}
+    >
       {content}
     </a>
   );
@@ -177,17 +197,17 @@ export default function Home({ projects }) {
       <html lang="en">
         <body>
           <main role="main">
-            <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
-            <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+            <div ... __html: dependencyGraphContent }} />
+            <div ... __html: indexContent }} />
             <button 
               id="unrotate" 
-              onClick={handleRotateBack}
+              ...
               aria-label="Rotate back"
             >
               rotate back
             </button>
             {projects && projects.map && projects.map((project) => (
-              <div key={project.id}>{project.name}</div>
+              <div ...
             ))}
           </main>
         </body>

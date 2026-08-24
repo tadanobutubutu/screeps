@@ -1,4 +1,3 @@
-tsx
 // Hypothetical before and after code snippet for Dashboard.tsx
 
 // Before:

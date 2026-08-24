@@ -105,7 +105,39 @@ function addLandmarkRegions() {
 
 // New implementation for fixTableStructureIssues()
 function fixTableStructureIssues() {
-  // Your implementation here
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure the table has a <thead> element
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    // Ensure the table has a <tbody> element
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        // Only move rows that are not already inside thead
+        if (row.parentNode !== thead) {
+          tbody.appendChild(row);
+        }
+      });
+      if (tbody.children.length > 0) {
+        table.appendChild(tbody);
+      }
+    }
+    // Add scope attributes to all <th> elements
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
 }
 
 // Added the required exports

@@ -1,7 +1,7 @@
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
+// TODO: Address accessibility issues from insight report:
+ // TODO: Add back any required exports that might have been?
+ // (This comment remains as-is)
 
-// Common utility functions that might have been exported previously
 const VERSION = '1.0.0';
 
 function hello() {

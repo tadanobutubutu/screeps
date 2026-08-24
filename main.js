@@ -101,6 +101,19 @@ function addFaviconAccessibleName() {
   }
 }
 
+// TODO: Implement wrapPrimaryContentInMain function
+
+function wrapPrimaryContentInMain() {
+  const mainElement = document.getElementById('main');
+  if (mainElement) {
+    mainElement.innerHTML = '';
+    // Move the first child of the body (usually the main content) into the main element
+    if (document.body.firstChild) {
+      mainElement.appendChild(document.body.firstChild);
+    }
+  }
+}
+
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a[href="#"]');
@@ -113,7 +126,7 @@ function validateLinkAccessibility() {
   return isValid;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or
+// Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
 

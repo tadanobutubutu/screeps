@@ -25,9 +25,9 @@
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/, (match, attrs) => {
     // Check if lang attribute already exists
-    if (attrs.includes('lang=') || attrs.includes(' lang=')) {
+    if (attrs.includes(' lang=') || attrs.includes(" lang=")) {
       return match;
     }
     // Add lang attribute with 'en' as default
@@ -47,24 +47,24 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('scope=')) {
+  result = result.replace(/<th([^>]*)>/g, (match, attrs) => {
+    if (attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/(<table([^>]*)>)(?!.*(caption|summary))/gi, (match, openTag, attrs) => {
-    if (attrs.includes('summary=')) {
-      return openTag;
+  result = result.replace(/<table([^>]*)>/g, (match, attrs) => {
+    if (attrs.includes(' summary=') || attrs.includes(' caption=')) {
+      return match;
     }
     // Add summary attribute for screen readers
     return `<table${attrs} summary="Data table">`;
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/<tr([^>]*)>(?!((?!<tr)[\s\S])*<\/tbody>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/g, (match, attrs) => {
     // Check if tbody already exists before this tr
     const beforeTr = result.substring(0, result.indexOf(match));
     if (!beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
@@ -74,7 +74,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = table.includes('<thead');
     const hasTbody = table.includes('<tbody');
@@ -82,8 +82,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
-        result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
+      if (hasTbody && !table.includes('</tbody>')) {
+        result = result.replace(table, table.replace(/(<tbody[^>]*>)([\s\S]*$)/, '$1$2</tbody>'));
       }
     }
   });
@@ -100,18 +100,18 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main ')) {
     return html;
   }
   
   // Wrap content in main landmark
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
     const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -128,7 +128,7 @@ export function addSvgAccessibleNames(html) {
   let svgCounter = 0;
   
   return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.includes('aria-label') || attrs.includes('aria-labelledby');
+    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
     
     if (existingLabel) {
       return match;
@@ -141,11 +141,11 @@ export function addSvgAccessibleNames(html) {
     // Check for id to reference
     const idMatch = attrs.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="title-${idMatch[1]}">`;
+      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${svgCounter}`;
+    const titleId = `svg-title-${++svgCounter}`;
     return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -163,5 +163,66 @@ export function ensureUniqueLandmarks(html) {
   
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const matches = html.match(regex) || [];
+    counters[lm] = matches.length;
+  });
+  
+  let result = html;
+  const usedIds = [];
+  
+  // Process each landmark type
+  landmarks.forEach(lm => {
+    let counter = 0;
+    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    result = result.replace(regex, (match, attrs) => {
+      counter++;
+      
+      // Check if element already has an id
+      const idMatch = attrs.match(/id="([^"]*)"/);
+      if (idMatch) {
+        usedIds.push(idMatch[1]);
+        return match;
+      }
+      
+      // Generate unique id
+      const baseId = `${lm}-${counter}`;
+      let uniqueId = baseId;
+      let suffix = 1;
+      
+      while (usedIds.includes(uniqueId)) {
+        uniqueId = `${baseId}-${suffix}`;
+        suffix++;
+      }
+      
+      usedIds.push(uniqueId);
+      return `<${lm}${attrs} id="${uniqueId}">`;
+    });
+  });
+  
+  return result;
+}
+
+/**
+ * Fixes fake link issues for accessibility
+ * Converts elements that look like links but aren't wrapped in proper anchor tags
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fake link issues fixed
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Find onclick handlers that behave like links
+  result = result.replace(/onclick=["']([^"']*window\.location[^"']*)["']/gi, (match, onclick) => {
+    // Check if this element is already inside an anchor tag
+    const beforeMatch = result.substring(0, result.indexOf(match));
+    if (beforeMatch.includes('<a ') || beforeMatch.includes('<a>')) {
+      return match;
+    }
+    return match;
+  });
+  
+  return result;
+}

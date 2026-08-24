@@ -75,6 +75,33 @@ function validateLandmarkRoles() {
   return Object.values(foundLandmarks).every(count => count === 1);
 }
 
+// NEW: Fix SVG accessibility issues
+function getSvgAccessibleName(svgElement) {
+  const title = svgElement.querySelector('title');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (title) {
+    return title.textContent;
+  } else if (ariaLabel) {
+    return ariaLabel;
+  }
+  return null;
+}
+
+function addAccessibleNameToSVG(svgElement) {
+  const accessibleName = getSvgAccessibleName(svgElement);
+  if (accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
+  } else {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+}
+
+// NEW: Apply accessibility fixes to SVG elements
+function fixSVGAccessibility() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(addAccessibleNameToSVG);
+}
+
 // ... already existing functions specific to DOM manipulation
 
 // Additional exports if needed (e. g., functions for testing)
@@ -82,5 +109,5 @@ export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
   validateMainLandmark, validateLandmarkRoles, validateMainLandmark, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
+  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, fixSVGAccessibility
 };

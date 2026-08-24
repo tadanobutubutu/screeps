@@ -80,11 +80,8 @@ export function fixTableStructureIssues(html) {
     const hasTbody = table.includes('<tbody');
     const hasTfoot = table.includes('<tfoot');
     
-    if (hasThead || hasTbody || hasTfoot) {
-      // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
-        result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
-      }
+    if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
+      result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
     }
   });
   
@@ -104,7 +101,6 @@ export function addMainLandmark(html) {
     return html;
   }
   
-  // Wrap content in main landmark
   // Try to match body content
   const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
@@ -164,4 +160,41 @@ export function ensureUniqueLandmarks(html) {
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
     const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      matches.forEach((match, index) => {
+        const idSuffix = counters[lm] > 1 ? `-${index + 1}` : '';
+        const id = `${lm.toLowerCase()}${idSuffix}`;
+        html = html.replace(match, match.replace(/<${lm}/, `<${lm} id="${id}"`);
+      });
+    }
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fake link issue fixed
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Replace non-descriptive link text with descriptive text
+  return html.replace(/<a [^>]*>([^<]*)<\/a>/gi, (match, text) => {
+    // Assuming a simple heuristic: if text is less than 10 characters, make it descriptive
+    if (text.length < 10) {
+      return `<a ${match.replace(text, 'More information')}>More information</a>`;
+    }
+    return match;
+  });
+}

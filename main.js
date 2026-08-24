@@ -25,5 +25,13 @@ const setupRotateBack = () => {
   }
 };
 
+// Additional function to add lang attribute to the HTML element for accessibility
+const addLangAttribute = () => {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.lang) {
+    htmlElement.lang = 'en'; // Default to English
+  }
+};
+
 // Export if using module system
-// module.exports = { generateRotateBackControl, setupRotateBack };
+// module.exports = { generateRotateBackControl, setupRotateBack, addLangAttribute };

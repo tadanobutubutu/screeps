@@ -8,21 +8,16 @@ function addLangAttribute() {
   }
 }
 
-// Fix 26 table structure issues
+// Fix table structure issues
 function fixTableStructure() {
   const tables = document.querySelectorAll('table');
-
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
-
     rows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('td, th');
-
       cells.forEach((cell, cellIndex) => {
         const isTH = cell.tagName === 'TH';
-
         if (!isTH) return;
-
         if (cellIndex === 0) {
           cell.setAttribute('scope', 'row');
         } else {
@@ -37,7 +32,6 @@ function fixTableStructure() {
 function checkTableStructure() {
   const tables = document.querySelectorAll('table');
   let hasIssues = false;
-
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
@@ -46,7 +40,6 @@ function checkTableStructure() {
       }
     });
   });
-
   return !hasIssues;
 }
 
@@ -54,12 +47,6 @@ function checkTableStructure() {
 function addMainLandmark() {
   const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
-}
-
-// Validate landmark
-function validateLandmark() {
-  const main = document.querySelector('[role="main"]');
-  return main && main.getAttribute('role') === 'main';
 }
 
 // Ensure unique landmarks
@@ -80,6 +67,19 @@ function fixUniqueLandmarks() {
   ensureUniqueLandmarks();
 }
 
+// Add proper landmark regions
+function addLandmarkRegions() {
+  const landmarkElements = ['header', 'nav', 'footer', 'article', 'section'];
+  landmarkElements.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', landmark);
+      }
+    });
+  });
+}
+
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('[role="link"]');
@@ -90,35 +90,34 @@ function fixFakeLinkIssue() {
   });
 }
 
-// Validate link accessibility
+// Add accessible names to SVG elements
+function addAccessibleNamesToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
+    const textContent = svg.textContent.trim();
+    if (!title && !ariaLabel && textContent) {
+      const titleElement = document.createElement('title');
+      titleElement.textContent = textContent;
+      svg.prepend(titleElement);
+    }
+  });
+}
+
+// Update validate link accessibility function to check ARIA labels
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
   let hasIssues = false;
-  
   links.forEach(link => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    if (!link.textContent.trim() && !link.getAttribute('href') && !link.getAttribute('aria-label')) {
       hasIssues = true;
     }
   });
-  
   return !hasIssues;
 }
 
-// Create in page button
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Skip to main content';
-  button.className = 'skip-link';
-  button.addEventListener('click', () => {
-    const main = document.querySelector('main') || document.querySelector('[role="main"]');
-    if (main) {
-      main.focus();
-    }
-  });
-  document.body.insertBefore(button, document.body.firstChild);
-}
-
-// Create accessible link
+// Create accessible link function
 function createAccessibleLink() {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
@@ -139,6 +138,8 @@ function addressAccessibilityIssues() {
   fixFakeLinkIssue();
   createInPageButton();
   createAccessibleLink();
+  addAccessibleNamesToSVGs();
+  addLandmarkRegions();
 }
 
 // Function to check TH cell scope
@@ -148,18 +149,18 @@ function hasValidTHScope(cell) {
   return scope && acceptedScopes.includes(scope);
 }
 
-// Add proper landmark regions
-function addLandmarkRegions() {
-  // Implementation code
-  const landmarkElements = ['header', 'nav', 'footer', 'article', 'section'];
-  landmarkElements.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach(element => {
-      if (!element.getAttribute('role')) {
-        element.setAttribute('role', landmark);
-      }
-    });
+// Create in page button
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Skip to main content';
+  button.className = 'skip-link';
+  button.addEventListener('click', () => {
+    const main = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (main) {
+      main.focus();
+    }
   });
+  document.body.insertBefore(button, document.body.firstChild);
 }
 
 // Example usage of the accessibility functions

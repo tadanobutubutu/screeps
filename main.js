@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 export const metadata = {
     // ... other metadata
     icons: {
-        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+        icon: ... ... viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 ...
     },
 };
 
@@ -15,7 +15,7 @@ const Dashboard = () => {
   const [errRetryHover, setErrRetryHover] = useState(false);
 
   const copyErr = () => {
-    navigator.clipboard.writeText(error).then(() => {
+    ... => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
     });
@@ -45,11 +45,12 @@ const Dashboard = () => {
               {error}
             </pre>
             <button
+              type="button"
               onClick={copyErr}
               onMouseEnter={() => setErrCopyHover(true)}
-              onMouseLeave={() => setErrCopyHover(false)}
+              onMouseLeave={() => ...
               onFocus={() => setErrCopyHover(true)}
-              onBlur={() => setErrCopyHover(false)}
+              onBlur={() => ...
               aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
               title={copied ? 'コピー済み' : 'エラーをコピー'}
               style={{
@@ -68,8 +69,11 @@ const Dashboard = () => {
               {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
             </button>
             <button
-              onClick={fetchStats}
+              type="button"
+              ...
               disabled={refreshing}
+              aria-disabled={refreshing}
+              aria-busy={refreshing}
               onMouseEnter={() => setErrRetryHover(true)}
               onMouseLeave={() => setErrRetryHover(false)}
             >
@@ -83,8 +87,11 @@ const Dashboard = () => {
             <h1 style={{ color: '#b71c1c' }}>成功</h1>
             <p>統計が取得されました。</p>
             <button
-              onClick={fetchStats}
+              type="button"
+              ...
               disabled={refreshing}
+              aria-disabled={refreshing}
+              aria-busy={refreshing}
               style={{
                 /* ... existing styles ... */
               }}

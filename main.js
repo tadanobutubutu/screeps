@@ -36,17 +36,54 @@ document.documentElement.lang = 'en';
 // Ensure tables have proper structure and unique captions
 document.querySelectorAll('table').forEach(table => {
   // ... (existing code)
+
+  // Add unique 'id' to each table
+  table.id = table.id || `table-${table.dataset.testid}`;
+
+  // Add proper ARIA attributes for table, table header, and table body
+  const tableHeader = table.querySelector('thead');
+  const tableBody = table.querySelector('tbody');
+
+  if (tableHeader && tableBody) {
+    table.setAttribute('role', 'table');
+    tableHeader.setAttribute('role', 'columnheader');
+    tableBody.setAttribute('role', 'rowgroup');
+  }
 });
 
 // Improve SVG accessibility: add title and accessible name
 document.querySelectorAll('svg').forEach(svg => {
   // ... (existing code)
+
+  // Add an appropriate ARIA label for each SVG
+  svg.setAttribute('aria-labelledby', `svg-title-${svg.id}`);
 });
 
-// Ensure unique landmark roles and add descriptive aria-labels where missing
-// ... (existing code)
+// Add landmarks with unique ids and appropriate roles
+const headerLandmark = document.createElement('header');
+headerLandmark.id = 'header-landmark';
+headerLandmark.setAttribute('role', 'banner');
+document.body.insertBefore(headerLandmark, document.body.firstChild);
 
-// Mark all links with the appropriate ARIA role
+const mainLandmark = document.createElement('main');
+mainLandmark.id = 'main-content';
+mainLandmark.setAttribute('role', 'main');
+headerLandmark.appendChild(mainLandmark);
+
+const footerLandmark = document.createElement('footer');
+footerLandmark.id = 'footer-landmark';
+footerLandmark.setAttribute('role', 'contentinfo');
+document.body.appendChild(footerLandmark);
+
+// Ensure unique landmark roles (for 2 issues)
+const landmarks = document.querySelectorAll('[role="landmark"]');
+landmarks.forEach((landmark, idx) => {
+  if (idx > 0) {
+    landmark.setAttribute('aria-label', `Landmark ${idx + 1}`);
+  }
+});
+
+// Ensure all fake links are marked with appropriate ARIA role
 // ... (existing code)
 
 // New function to make API calls using axios

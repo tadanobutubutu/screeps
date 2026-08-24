@@ -33,10 +33,10 @@ function addAllSvgAccessibleNames() {
 }
 
 // New function to fix an issue where SVGs (e.g., favicons) are missing accessible name
-function addAriaHiddenToSvgIcons() {
+function addMissingSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
-        if (!svg.hasAttribute('aria-hidden')) {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
             svg.setAttribute('aria-hidden', 'true');
         }
     });
@@ -57,7 +57,7 @@ function fixTableStructureIssues() {
             const headerRow = document.createElement('tr');
 
             // Move existing <th> elements into the header row
-            const existingThs = Array.from(table.querySelectorAll('th'));
+            const existingThs = table.querySelectorAll('th');
             existingThs.forEach(th => {
                 const newTh = th.cloneNode(true);
                 newTh.setAttribute('scope', 'col');
@@ -99,14 +99,57 @@ function fixTableConstraints() {
 // New function to address unique landmark concerns
 function ensureUniqueLandmarks() {
     // Guarantees that each landmark role appears at most once on the page.
-    // If duplicate roles are detected, the extra role attributes are removed.
+    // If duplicate roles are detected, the extra role attributes are removed or
+    // elements are converted to semantic alternatives.
     const seenRoles = new Set();
-    document.querySelectorAll('[role]').forEach(el => {
-        const role = el.getAttribute('role');
-        if (seenRoles.has(role)) {
-            el.removeAttribute('role');
+    
+    // Also track specific landmark elements (like <main>) to ensure uniqueness
+    const seenMain = [];
+    const mainElements = document.querySelectorAll('main');
+    
+    mainElements.forEach((main, index) => {
+        if (index === 0) {
+            seenMain.push(main);
         } else {
-            seenRoles.add(role);
+            // Convert duplicate <main> elements to <section> elements
+            const section = document.createElement('section');
+            // Copy all attributes except id-related ones to avoid conflicts
+            Array.from(main.attributes).forEach(attr => {
+                if (attr.name !== 'id' || !document.getElementById(attr.value)) {
+                    section.setAttribute(attr.name, attr.value);
+                }
+            });
+            // Move all children to the new section
+            while (main.firstChild) {
+                section.appendChild(main.firstChild);
+            }
+            // Replace the main element with section
+            main.parentNode.replaceChild(section, main);
+        }
+    });
+    
+    // Handle elements with explicit role attributes
+    const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="banner"], [role="search"]');
+    landmarkElements.forEach(el => {
+        const role = el.getAttribute('role');
+        if (role) {
+            if (seenRoles.has(role)) {
+                // Convert to a more generic element for duplicates
+                const newEl = document.createElement('div');
+                // Copy children
+                while (el.firstChild) {
+                    newEl.appendChild(el.firstChild);
+                }
+                // Copy remaining attributes
+                Array.from(el.attributes).forEach(attr => {
+                    if (attr.name !== 'role') {
+                        newEl.setAttribute(attr.name, attr.value);
+                    }
+                });
+                el.parentNode.replaceChild(newEl, el);
+            } else {
+                seenRoles.add(role);
+            }
         }
     });
 }
@@ -125,7 +168,7 @@ function getFullLangAttribute() {
 function validateTableAccessibility() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
-        const hasHeader = table.querySelector('th');
+        const hasHeader = table.querySelector('th, thead');
         if (!hasHeader) {
             console.warn('Table missing header cells');
         }
@@ -143,14 +186,14 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
 }
 
 function validateLandmarkStructure() {
-    const main = document.querySelector('main');
+    const main = document.querySelector('main, [role="main"]');
     if (!main) {
         console.warn('Missing main landmark');
     }
@@ -202,7 +245,7 @@ function fixFakeLinkIssue() {
     // Removes any nested anchor elements that might have been added previously.
     document.querySelectorAll('a').forEach(link => {
         // Set href to '#' if missing or empty
-        if (!link.hasAttribute('href') || link.getAttribute('href') === '') {
+        if (!link.getAttribute('href') || link.getAttribute('href') === '') {
             link.setAttribute('href', '#');
         }
         // Provide accessible text if the link is empty
@@ -215,27 +258,30 @@ function fixFakeLinkIssue() {
         // Clean up any stray nested <a> elements that might have been added earlier
         const nestedAnchor = link.querySelector('a');
         if (nestedAnchor) {
-            nestedAnchor.parentNode.replaceChild(link, nestedAnchor);
+            link.removeChild(nestedAnchor);
         }
     });
 }
 
 // Additional calls to address accessibility items
-setHtmlLangAttribute('en');
-ensureUniqueLandmarks();
+addAllSvgAccessibleNames();
 fixTableStructureIssues();
-addAriaHiddenToSvgIcons();
+ensureUniqueLandmarks();
+fixTableConstraints();
+validateTableAccessibility();
+validateTableStructure();
+validateLandmark();
+validateLandmarkStructure();
 fixFakeLinkIssue();
-addProperLandmarkRegions();
-wrapPrimaryContentInMain();
+addMissingSvgAccessibleNames();
 
 export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,
     addAllSvgAccessibleNames,
-    addAriaHiddenToSvgIcons,
+    addMissingSvgAccessibleNames,
     fixTableStructureIssues,
-    addProperLandmarkRegions,
+    ensureUniqueLandmarks,
     fixTableConstraints,
     getLangAttribute,
     getFullLangAttribute,

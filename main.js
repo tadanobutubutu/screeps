@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// ... existing code ...
+
+// Add aria-label to the button
+document.querySelector('.my-button').setAttribute('aria-label', 'My Button');
+
+// ... rest of the code ...
+
+// Exports remain unchanged
+module.exports = {
+  // ... existing exports ...
+};

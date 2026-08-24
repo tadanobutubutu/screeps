@@ -18,7 +18,11 @@ module.exports.loop = function() {
 
   // Main game loop logic
   if (Game.spawns['Spawn1']) {
-    // Spawn logic
+    // Spawn logic for Spawn1
+  }
+  // Additional spawn logic from origin/main (e.g., Spawn2)
+  if (Game.spawns['Spawn2']) {
+    // Spawn logic for Spawn2
   }
   
   // Run ticks and other processes

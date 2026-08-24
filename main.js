@@ -55,8 +55,6 @@ function ensureUniqueLandmarks() {
 
 // Add function to ensure proper landmark structure
 function ensureProperLandmarkStructure() {
-  // [NEW] ADD YOUR CODE HERE if any other landmark structure changes are needed
-
   // Remove existing landmarks to avoid duplication
   const allHeaders = document.querySelectorAll('header');
   const allFooters = document.querySelectorAll('footer');
@@ -113,7 +111,7 @@ function ensureProperLandmarkStructure() {
   copyright.textContent = '© 2023 Your Company. All rights reserved.';
   footerElement.appendChild(copyright);
 
-  // Add function to wrap primary content in main landmark (new)
+  // Add function to wrap primary content in main landmark
   function wrapPrimaryContentInMain() {
     const existingMains = document.querySelectorAll('main');
 
@@ -149,7 +147,7 @@ function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
-    const isBackground = svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
+    const isBackground = svg.css && svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('aria-label', 'Description of SVG content');
@@ -172,12 +170,26 @@ function addScopeToTableHeaders() {
 }
 
 // Call all necessary functions
-wrapPrimaryContentInMain();
+addLangAttribute();
 fixFakeLinks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
 addScopeToTableHeaders();
+
+// React root mount integration (from origin/main)
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+if (typeof document !== 'undefined') {
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    document.getElementById('root')
+  );
+}
 
 module.exports = {
   wrapPrimaryContentInMain,

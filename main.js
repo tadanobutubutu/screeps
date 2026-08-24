@@ -76,6 +76,54 @@ function createAccessibleLink(href, text, isFakeLink) {
   return link;
 }
 
+// New functions to address REACT_017 - React Landmarks issue
+function hasMainLandmark(htmlString) {
+  if (typeof htmlString !== 'string') {
+    return false;
+  }
+  const mainRegex = /<main(\s[^>]*)?>/i;
+  return mainRegex.test(htmlString);
+}
+
+function extractMainLandmarkContent(htmlString) {
+  if (typeof htmlString !== 'string' || !hasMainLandmark(htmlString)) {
+    return null;
+  }
+  
+  const mainRegex = /<main(\s[^>]*)?>([\s\S]*?)<\/main>/i;
+  const match = htmlString.match(mainRegex);
+  return match ? match[2] : null;
+}
+
+function validateMainLandmarkPresence(htmlString) {
+  return hasMainLandmark(htmlString);
+}
+
+function getLandmarkIssues(htmlString) {
+  const issues = [];
+  
+  if (!hasMainLandmark(htmlString)) {
+    issues.push({
+      rule: 'REACT_017',
+      severity: 'warning',
+      message: 'Page has no <main> landmark',
+      description: 'Wrap the primary content in <main> so it can be skipped to'
+    });
+  }
+  
+  return issues;
+}
+
+function wrapContentInMain(content) {
+  if (typeof content !== 'string') {
+    return '<main></main>';
+  }
+  
+  // Remove existing main tags if present to avoid nesting
+  const unwrappedContent = content.replace(/<\/?main[^>]*>/gi, '');
+  return `<main>\n${unwrappedContent}\n</main>`;
+}
+
 // Export all required items
 module.exports = {
   config,
@@ -90,5 +138,10 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
+  hasMainLandmark,
+  extractMainLandmarkContent,
+  validateMainLandmarkPresence,
+  getLandmarkIssues,
+  wrapContentInMain
 };

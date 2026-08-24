@@ -170,7 +170,7 @@ export {
     setHtmlLangAttribute,
     ensureLanguageAttribute,
     addSvgAccessibleNames,
-    handleSvgAccessibilityWithFallbackOptions,
+    handleSvgAccessibleWithFallbackOptions,
     addAllSvgAccessibleNames,
     fixSvgAccessibilityIssues,
     fixTableStructureIssues,

@@ -136,6 +136,7 @@ function addProperLandmarkRegions() {
   // Call the new functions to address accessibility issues
   addressAccessibilityIssuesFromInsightReport();
   fixTableStructureIssues();
+  fixSvgAccessibilityIssues();
   createInPageNavigation();
 }
 
@@ -192,6 +193,16 @@ function wrapInLandmark(elem, landmarkRole) {
   landmark.appendChild(elem);
 }
 
+// Add the new function to fix SVG accessible name issues
+function fixSvgAccessibilityIssues() {
+  document.querySelectorAll('svg').forEach(svg => {
+    const hasAccessibleName = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby') || svg.querySelector('title');
+    if (!hasAccessibleName && !svg.hasAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+}
+
 module.exports = {
   rotate,
   rotateBack,
@@ -206,5 +217,6 @@ module.exports = {
   wrapPrimaryContentInMain,
   isWithinLandmark,
   wrapInLandmark,
+  fixSvgAccessibilityIssues,
   someFunction
 };

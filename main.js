@@ -51,11 +51,12 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+  document.querySelector('main').setAttribute('role', 'main');
 }
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+  const mainElement = document.querySelector('main');
+  expect(mainElement).toBeDefined();
+  expect(mainElement.getAttribute('role')).toEqual('main');
 }
 
 // NEW: Validate unique landmarks
@@ -81,6 +82,6 @@ function validateLandmarkRoles() {
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
-  validateMainLandmark, validateLandmarkRoles, validateMainLandmark, createInPageButton, validateTableAccessibility,
+  validateMainLandmark, validateLandmarkRoles, addMainLandmark, createInPageButton, validateTableAccessibility,
   validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
 };

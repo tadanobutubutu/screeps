@@ -28,7 +28,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -114,4 +114,5 @@ const addLandmarkRegions = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+import { class1, function1, Object1 } from './path/to/module';
 export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues };

@@ -4,17 +4,45 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { BmCoreSc, BmLandmarkSc } from '@bm-code/sc'; // assuming you have this library installed
 
+// Fix 1 fake link issue
+// Assuming you have identified a fake link with the id "fake-link" in your existing code
+const fixFakeLink = () => {
+  const fakeLink = document.querySelector('#fake-link');
+  if (fakeLink) {
+    fakeLink.remove();
+  }
+};
+fixFakeLink();
+
 // Add lang attribute to HTML element
-const App = ({ className }) => (
-  <html lang="en">
-    <head>
-      // Existing head content
-    </head>
-    <body className={className}>
-      // Existing body content
-    </body>
-  </html>
-);
+const App = ({ className }) => {
+  const [rotation, setRotation] = useState(0);
+
+  return (
+    <html lang="en">
+      <head>
+        // Existing head content
+      </head>
+      <body className={className}>
+        {/* Existing body content */}
+        <img 
+          src="/path/to/image.jpg" 
+          alt="" 
+          style={{ transform: `rotate(${rotation}deg)` }} 
+        />
+        <button onClick={() => setRotation(r => r + 90)}>
+          Rotate
+        </button>
+        <button onClick={() => setRotation(0)}>
+          Reset
+        </button>
+        <button onClick={() => setRotation(r => r === 360 ? r - 360 : r + 90)}>
+          Toggle Rotation
+        </button>
+      </body>
+    </html>
+  );
+};
 
 App.propTypes = {
   className: PropTypes.string.isRequired,
@@ -54,15 +82,5 @@ BmLandmarkSc.withLandmarks(landmarks)(App);
 BmLandmarkSc.withLandmarks(landmarks)(Header);
 BmLandmarkSc.withLandmarks(landmarks)(Main);
 BmLandmarkSc.withLandmarks(landmarks)(Footer);
-
-// Fix 1 fake link issue
-// Assuming you have identified a fake link with the id "fake-link" in your existing code
-const fixFakeLink = () => {
-  const fakeLink = document.querySelector('#fake-link');
-  if (fakeLink) {
-    fakeLink.remove();
-  }
-};
-fixFakeLink();
 
 export { App, Header, Main, Footer, Logo, Icon };

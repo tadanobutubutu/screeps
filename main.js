@@ -93,6 +93,17 @@ const fixTableStructure = (document) => {
         }
       });
     }
+
+    // Add scope attributes to header cells
+    const thead = table.querySelector('thead');
+    if (thead) {
+      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+    }
+
+    const tbodies = table.querySelectorAll('tbody');
+    tbodies.forEach(tbody => {
+      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+    });
   });
   return document;
 };

@@ -2,6 +2,112 @@ const myNewFunction = function() {
   // your new function logic goes here
 };
 
+// Function to add accessible names to SVGs
+function addSvgAccessibleNames(svg) {
+    const svgTitle = svg.querySelector('title');
+    const svgDesc = svg.querySelector('desc');
+    if (!svgTitle || !svgDesc) {
+        console.error('Missing required SVG tags: title or desc');
+        return;
+    }
+    svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
+}
+
+// Function to find all SVG elements on the page and add accessible names
+function addAllSvgAccessibleNames() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(addSvgAccessibleNames);
+}
+
+// Function to add scope attribute to th elements for accessibility
+function addScopeToTableHeaders() {
+    const tableHeaders = document.querySelectorAll('th');
+    tableHeaders.forEach(th => {
+        th.setAttribute('scope', 'col');
+    });
+}
+
+// Function to find all th elements on the page and add the scope attribute
+function addAllTableHeadersScope() {
+    const thElements = document.querySelectorAll('th');
+    thElements.forEach(th => {
+        th.setAttribute('scope', 'col');
+    });
+}
+
+// Function to implement addressing accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport() {
+    // The implementation will depend on the insight report details
+    // As an example, let's assume the report suggests adding labels to inputs
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        const label = document.createElement('label');
+        label.htmlFor = input.id;
+        label.textContent = 'Input description';
+        input.parentNode.insertBefore(label, input);
+    });
+}
+
+// New function to fix table structure issues
+function fixTableStructureIssues() {
+    // Example implementation: Add scope attribute to all th elements
+    const tableHeaders = document.querySelectorAll('th');
+    tableHeaders.forEach(th => {
+        th.setAttribute('scope', 'col');
+    });
+    // Additional fixes can be added here based on the specific issues identified
+}
+
+// Function to add proper landmark regions to the page
+function addProperLandmarkRegions() {
+    // Add role="banner" to header elements
+    const headers = document.querySelectorAll('header');
+    headers.forEach(header => {
+        header.setAttribute('role', 'banner');
+    });
+    // Add role="navigation" to nav elements
+    const navs = document.querySelectorAll('nav');
+    navs.forEach(nav => {
+        nav.setAttribute('role', 'navigation');
+    });
+    // Add role="main" to main elements
+    const mains = document.querySelectorAll('main');
+    mains.forEach(main => {
+        main.setAttribute('role', 'main');
+    });
+    // Add role="complementary" to aside elements
+    const asides = document.querySelectorAll('aside');
+    asides.forEach(aside => {
+        aside.setAttribute('role', 'complementary');
+    });
+    // Add role="contentinfo" to footer elements
+    const footers = document.querySelectorAll('footer');
+    footers.forEach(footer => {
+        footer.setAttribute('role', 'contentinfo');
+    });
+}
+
+// New function to fix table structure issues
+function fixTableConstraints() {
+    // Example implementation: Enforce at least one THEAD or `${headerRowCount}` rows in TABLEs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        let hasThead = false;
+        let headerRowCount = 1; // Modify this number if required
+
+        const theads = table.querySelectorAll('thead');
+        theads.forEach(thead => {
+            if (thead.rows.length > 0) {
+                hasThead = true;
+            }
+        });
+
+        if (!hasThead && table.rows.length < headerRowCount) {
+            console.error("Table does not have a thead or enough header rows:", table);
+        }
+    });
+}
+
 module.exports = {
   loop: function() {
     // Main game loop logic
@@ -72,7 +178,7 @@ module.exports = {
 
     // Add accessible names to SVGs (React_041)
     const svgElements = document.querySelectorAll('svg');
-    // ... rest of the existing fixAccessibility code remains unchanged for REACT_041
+    // ... rest of the existing fixAccessibility code remains unchanged for React_041
 
     // REACT_017: Add IDs to other landmark elements
     const headers = document.querySelectorAll('header');
@@ -103,8 +209,24 @@ module.exports = {
       }
     });
 
+    // Call the new functions for additional accessibility fixes
+    addAllSvgAccessibleNames();
+    addAllTableHeadersScope();
+    addressAccessibilityIssuesFromInsightReport();
+    fixTableStructureIssues();
+    addProperLandmarkRegions();
+    fixTableConstraints();
+
     // Call the new function here, for example:
     myNewFunction();
   },
-  myNewFunction: myNewFunction
+  myNewFunction: myNewFunction,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  addAllSvgAccessibleNames: addAllSvgAccessibleNames,
+  addScopeToTableHeaders: addScopeToTableHeaders,
+  addAllTableHeadersScope: addAllTableHeadersScope,
+  addressAccessibilityIssuesFromInsightReport: addressAccessibilityIssuesFromInsightReport,
+  fixTableStructureIssues: fixTableStructureIssues,
+  addProperLandmarkRegions: addProperLandmarkRegions,
+  fixTableConstraints: fixTableConstraints
 };

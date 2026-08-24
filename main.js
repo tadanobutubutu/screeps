@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// ... existing code ...
 // main.js - Entry point for the application with accessibility fixes for React components
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -14,7 +12,7 @@ import accessibilityModule from 'accessibility-module';
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
+  if (!html.getAttribute('lang')) {
     html.setAttribute('lang', 'en');
   }
 }
@@ -25,7 +23,7 @@ function fixTableStructure() {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
     rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('th');
+      const cells = row.querySelectorAll('th, td');
       cells.forEach((cell, cellIndex) => {
         const isTH = cell.tagName === 'TH';
         if (!isTH) return;
@@ -46,7 +44,7 @@ function checkTableStructure() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!hasValidTHScope(th)) {
+      if (!th.hasAttribute('scope')) {
         hasIssues = true;
       }
     });
@@ -64,7 +62,7 @@ function addMainLandmark() {
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('nav, main, footer, aside');
+  const landmarks = document.querySelectorAll('main, footer, aside');
   if (landmarks.length > 1) {
     landmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -101,7 +99,7 @@ function addLandmarkRegions() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     if (link.href === '#' || !link.href) {
       link.setAttribute('role', 'button');
@@ -124,7 +122,7 @@ function createInPageButton() {
 }
 
 // Add accessible names to SVG elements
-function addAccessibleNamesToSVG() {
+function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = svg.querySelector('title');
@@ -143,7 +141,7 @@ function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
   let hasIssues = false;
   links.forEach(link => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
       hasIssues = true;
     }
   });
@@ -166,13 +164,13 @@ function addressAccessibilityIssues() {
   fixTableStructure();
   checkTableStructure();
   addMainLandmark();
-  fixUniqueLandmarks();
+  ensureUniqueLandmarks();
   validateLandmark();
   addLandmarkRegions();
   fixFakeLinkIssue();
   createInPageButton();
   createAccessibleLink();
-  addAccessibleNamesToSVG();
+  addSvgAccessibleNames();
 }
 
 // Function to check TH cell scope
@@ -184,7 +182,7 @@ function hasValidTHScope(cell) {
 
 // Add/fix 4 landmark issues (by validating landmarks)
 function validateLandmark() {
-  const landmarks = document.querySelectorAll('header, nav, footer, aside');
+  const landmarks = document.querySelectorAll('nav, footer, aside');
   landmarks.forEach(landmark => {
     if (!landmark.getAttribute('role')) {
       landmark.setAttribute('role', 'landmark');
@@ -194,7 +192,7 @@ function validateLandmark() {
 
 // Fix the fake link issue with buttons
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a');
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     if (link.href === '#' || !link.href) {
       // Replace the link with a button for in-page actions
@@ -210,10 +208,10 @@ function fixFakeLinkIssue() {
       });
       
       // Preserve ARIA attributes for accessibility
-      if (link.hasAttribute('aria-label')) {
+      if (link.getAttribute('aria-label')) {
         button.setAttribute('aria-label', link.getAttribute('aria-label'));
       }
-      if (link.hasAttribute('aria-labelledby')) {
+      if (link.getAttribute('aria-labelledby')) {
         button.setAttribute('aria-labelledby', link.getAttribute('aria-labelledby'));
       }
       
@@ -241,7 +239,7 @@ function validateTableAccessibility() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!hasValidTHScope(th)) {
+      if (!th.hasAttribute('scope')) {
         hasIssues = true;
       }
     });
@@ -254,7 +252,7 @@ function validateTableStructure() {
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('header, nav, footer, aside, main');
+  const landmarks = document.querySelectorAll('nav, footer, aside, main');
   for (let i = 0; i < landmarks.length; i++) {
     if (!landmarks[i].getAttribute('role')) {
       return false;
@@ -280,6 +278,55 @@ function getSvgAccessibleName() {
   return '';
 }
 
+// Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain() {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (mainElement) {
+    return mainElement;
+  }
+  
+  // Find body content excluding common landmark elements
+  const body = document.body;
+  const excludedTags = ['header', 'nav', 'footer', 'aside', 'script', 'style', 'link', 'meta'];
+  const mainContent = [];
+  
+  // Get all direct children of body
+  Array.from(body.children).forEach(child => {
+    if (!excludedTags.includes(child.tagName.toLowerCase())) {
+      mainContent.push(child);
+    }
+  });
+  
+  // If no content to wrap, return null
+  if (mainContent.length === 0) {
+    return null;
+  }
+  
+  // Create main element
+  mainElement = document.createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  
+  // Move content into main element (insert in reverse order to maintain position)
+  while (mainContent.length > 0) {
+    const child = mainContent.pop();
+    mainElement.appendChild(child);
+  }
+  
+  // Insert main element after header if one exists
+  const header = body.querySelector('header');
+  if (header && header.nextSibling) {
+    body.insertBefore(mainElement, header.nextSibling);
+  } else if (header) {
+    body.appendChild(mainElement);
+  } else {
+    body.insertBefore(mainElement, body.firstChild);
+  }
+  
+  return mainElement;
+}
+
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
@@ -295,7 +342,7 @@ export {
   addLandmarkRegions,
   fixFakeLinkIssue,
   createInPageButton,
-  addAccessibleNamesToSVG,
+  addSvgAccessibleNames,
   validateLinkAccessibility,
   createAccessibleLink,
   addressAccessibilityIssues,
@@ -306,5 +353,6 @@ export {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmarkStructure,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  wrapPrimaryContentInMain
 };

@@ -109,16 +109,16 @@ const fixTableStructure = () => {
         thead.appendChild(newRow);
         table.insertBefore(thead, table.firstChild);
       }
-    }
-    
-    if (!table.querySelector('tbody')) {
-      const rows = table.querySelectorAll('tr');
-      if (rows.length > 1) {
-        const tbody = document.createElement('tbody');
-        for (let i = 1; i < rows.length; i++) {
-          tbody.appendChild(rows[i]);
+      
+      if (!table.querySelector('tbody')) {
+        const rows = table.querySelectorAll('tr');
+        if (rows.length > 1) {
+          const tbody = document.createElement('tbody');
+          for (let i = 1; i < rows.length; i++) {
+            tbody.appendChild(rows[i]);
+          }
+          table.appendChild(tbody);
         }
-        table.appendChild(tbody);
       }
     }
   });
@@ -144,4 +144,4 @@ const fixImageAltTexts = () => {
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, fixTableStructure };
+export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, fixTableStructure, fixImageAltTexts };

@@ -15,7 +15,6 @@ function newFunction() {
 
 // Preserve all existing exports
 module.exports = {
-  // Add or adjust exported objects as needed
   newFunction: newFunction,
   // ... other existing exports
 };

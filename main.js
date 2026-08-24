@@ -37,14 +37,51 @@ function ensureUniqueLandmarks() {
 }
 
 function addLandmarkRegions() {
-  // ... (remaining code for addLandmarkRegions is the same)
+  const banners = document.querySelectorAll('header[role="banner"]');
+  if (banners.length === 0) {
+    const banner = document.createElement('header');
+    banner.setAttribute('role', 'banner');
+    document.body.appendChild(banner);
+  }
+
+  const footers = document.querySelectorAll('footer[role="contentinfo"]');
+  if (footers.length === 0) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.appendChild(footer);
+  }
+
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+  }
 }
 
-function wrapPrimaryContentInMain() {
-  // ... (remaining code for wrapPrimaryContentInMain is the same)
+function addLandmarkRegions() {
+  const banners = document.querySelectorAll('header[role="banner"]');
+  if (banners.length === 0) {
+    const banner = document.createElement('header');
+    banner.setAttribute('role', 'banner');
+    document.body.appendChild(banner);
+  }
+
+  const footers = document.querySelectorAll('footer[role="contentinfo"]');
+  if (footers.length === 0) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.appendChild(footer);
+  }
+
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+  }
 }
 
-// New function
 function addProperLandmarkRegions() {
   const existingMains = document.querySelectorAll('main, [role="main"]');
   const existingBanners = document.querySelectorAll('header[role="banner"]');
@@ -71,30 +108,6 @@ function addProperLandmarkRegions() {
       contentContainer.firstChild.closest('main, [role="main"], header[role="banner"]').appendChild(contentContainer.firstChild);
     }
     contentContainer.appendChild(contentContainer.closest('main, [role="main"], header[role="banner"]'));
-  }
-}
-
-// The following function was moved from the initial addLandmarkRegions function
-function addLandmarkRegions() {
-  const banners = document.querySelectorAll('header[role="banner"]');
-  if (banners.length === 0) {
-    const banner = document.createElement('header');
-    banner.setAttribute('role', 'banner');
-    document.body.appendChild(banner);
-  }
-
-  const footers = document.querySelectorAll('footer[role="contentinfo"]');
-  if (footers.length === 0) {
-    const footer = document.createElement('footer');
-    footer.setAttribute('role', 'contentinfo');
-    document.body.appendChild(footer);
-  }
-
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    document.body.appendChild(main);
   }
 }
 

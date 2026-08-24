@@ -80,7 +80,7 @@ export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed,
   fixTableStructure,
-  validateTableStructure,
+  validateTableStructure, // Assuming validateTableStructure is a typo and should be validateLandmarkRoles
   validateLandmarkRoles,
   validateMainLandmark
 };

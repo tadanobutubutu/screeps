@@ -159,6 +159,34 @@ function wrapPrimaryContentInMain(primaryContent) {
   mainElement.appendChild(wrapper);
 }
 
+// Add the new function to check if an element is within a landmark
+function isWithinLandmark(elem, landmarks) {
+  let current = elem;
+  const landmarkParents = [];
+
+  while (current) {
+    if (landmarks.includes(current.nodeName.toLowerCase())) {
+      landmarkParents.unshift(current);
+    }
+
+    current = current.parentNode;
+  }
+
+  return landmarkParents.length > 0;
+}
+
+// Add the new function to wrap an element in a landmark
+function wrapInLandmark(elem, landmarkRole) {
+  if (!elem) {
+    return;
+  }
+
+  const landmark = document.createElement(landmarkRole);
+  landmark.setAttribute('role', landmarkRole);
+  elem.parentNode.insertBefore(landmark, elem);
+  landmark.appendChild(elem);
+}
+
 // IMPORTANT:
 // If the following function exists, move it BEFORE the wrapPrimaryContentInMain function
 // without changing the function name or causing any changes to its contents

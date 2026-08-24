@@ -164,16 +164,8 @@ function addSvgAccessibleNames() {
 }
 
 /**
- * Placeholder content for dependency graph
+ * Address button accessibility issue
  */
-const dependencyGraphContent = '';
-
-/**
- * Placeholder content for index
- */
-const indexContent = '';
-
-// Add a new function to address the accessibility issue on the button
 function addressButtonAccessibility() {
   if (typeof document === 'undefined') return;
 
@@ -201,7 +193,7 @@ function addressAccessibilityIssues() {
   // REACT_015: Add lang attribute to HTML element
   addLangAttribute();
 
-  // REACT_027: Fix 26 table structure issues
+  // REACT_027: Fix table structure issues
   fixTableStructure();
 
   // REACT_017: Add/fix 4 landmark issues
@@ -244,7 +236,7 @@ export {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addressAccessibilityIssues,
-  addressButtonAccessibility, // Add this new export
+  addressButtonAccessibility, // Added export
   dependencyGraphContent,
   indexContent
 };

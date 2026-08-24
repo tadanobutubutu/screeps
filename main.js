@@ -23,11 +23,38 @@ function renderLandmarkStructure(content) {
 }
 
 function App() {
+  const modules = [
+    'src/constants.js',
+    'src/managers/roomManager.js',
+    'src/managers/spawnManager.js',
+    'src/managers/towerManager.js',
+    'src/managers/creepManager.js',
+    'src/managers/memory.js',
+    'src/roles/builder.js',
+    'src/roles/harvester.js',
+    'src/roles/upgrader.js',
+    'src/roles/repairer.js',
+    'src/roles/claimer.js',
+    'src/roles/fighter.js',
+    'src/utils.js',
+  ];
   return (
     <div>
       <a href="/home">Home</a>
       <table>
-        {/* Table content */}
+        <thead>
+          <tr>
+            {modules.map(mod => <th key={mod} scope="col"><div>{mod}</div></th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {modules.map(mod => (
+            <tr key={mod}>
+              <th scope="row"><div>{mod}</div></th>
+              <td>...</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
       <svg aria-label="App SVG">
         {/* SVG content */}

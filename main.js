@@ -28,6 +28,11 @@ const setAccessibleName = (node, accessibleName) => {
   if (node && node.svg && node.svg.setAttribute) {
     node.svg.setAttribute('aria-label', accessibleName);
   }
+
+  // Additional fallback if needed (replace with your library's method)
+  if (node && node.querySelector && node.querySelector('[aria-label]')) {
+    node.querySelector('[aria-label]').setAttribute('aria-label', accessibleName);
+  }
 };
 
 // Existing exports and functions continue to be preserved

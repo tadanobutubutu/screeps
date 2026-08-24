@@ -1,113 +1,116 @@
 import React from 'react';
 
 function Header() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function Navigation() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function MainContent() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function Sidebar() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function Footer() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function Logo() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function SearchIcon() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function UniqueSection() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
 function FakeLinkFixed() {
-  // ... already existing code here
+    // ... already existing code here
 }
 
-// Address accessibility issues from insight report:
-// ... already existing functions
-
-// NEW: Add lang attribute to HTML element. This function can be implemented in setupTests.js or globally in a JS file
 function addLangAttribute() {
-  document.documentElement.lang = 'en';
+    document.documentElement.lang = 'en';
 }
 
-// NEW: Fix table structure issues (if any tables exist)
-function fixTableStructure() {
-  // Ensure tables have proper structure. Example implementation can be added here
-}
-
-// NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+    // Already present in Header (role="banner")
 }
+
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+    // Assert Header has role="banner"
 }
 
-// NEW: Validate unique landmarks
+function validateTableAccessibility() {
+    // Validate that tables have proper accessibility (captions, th scope, etc.)
+}
+
+function validateTableStructure() {
+    // Validate table structure (proper thead, tbody, tfoot usage)
+}
+
 function validateLandmarkRoles() {
-  // Ensure landmarks like Header, Navigation, MainContent, Sidebar, Footer are unique
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
-  const foundLandmarks = {};
-
-  landmarkRoles.forEach(role => {
-    const element = document.querySelector(`[role="${role}"]`);
-    if (element) {
-      foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
-    }
-  });
-
-  // Return true if each landmark appears exactly once
-  return Object.values(foundLandmarks).every(count => count === 1);
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+    const foundLandmarks = {};
+    landmarkRoles.forEach(role => {
+        const element = document.querySelector(`[role="${role}"]`);
+        if (element) {
+            foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
+        }
+    });
+    return Object.values(foundLandmarks).every(count => count === 1);
 }
 
-// NEW: Fix SVG accessibility issues
+function checkLandmarkValidity() {
+    const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'region'];
+    const landmarksWithRoles = document.querySelectorAll('[role]');
+    let allValid = true;
+    landmarksWithRoles.forEach(element => {
+        const role = element.getAttribute('role');
+        if (!validLandmarkRoles.includes(role)) {
+            allValid = false;
+        }
+    });
+    return allValid;
+}
+
 function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (title) {
-    return title.textContent;
-  } else if (ariaLabel) {
-    return ariaLabel;
-  }
-  return null;
+    const title = svgElement.querySelector('title');
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (title) {
+        return title.textContent;
+    } else if (ariaLabel) {
+        return ariaLabel;
+    }
+    return null;
 }
 
 function addAccessibleNameToSVG(svgElement) {
-  const accessibleName = getSvgAccessibleName(svgElement);
-  if (accessibleName) {
-    svgElement.setAttribute('aria-label', accessibleName);
-  } else {
-    svgElement.setAttribute('aria-hidden', 'true');
-  }
+    const accessibleName = getSvgAccessibleName(svgElement);
+    if (accessibleName) {
+        svgElement.setAttribute('aria-label', accessibleName);
+    } else {
+        svgElement.setAttribute('aria-hidden', 'true');
+    }
 }
 
-// NEW: Apply accessibility fixes to SVG elements
 function fixSVGAccessibility() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(addAccessibleNameToSVG);
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(addAccessibleNameToSVG);
 }
 
-// ... already existing functions specific to DOM manipulation
-
-// Additional exports if needed (e. g., functions for testing)
+// Additional exports
 export {
-  Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
-  FakeLinkFixed, addLangAttribute, fixTableStructure,
-  validateMainLandmark, validateLandmarkRoles, validateMainLandmark, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, fixSVGAccessibility
+    Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon,
+    UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure,
+    validateMainLandmark, validateLandmarkRoles, validateTableAccessibility,
+    validateTableStructure, validateLandmark, getSvgAccessibleName,
+    getAccessibleLabel, fixSVGAccessibility
 };

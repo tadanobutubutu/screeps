@@ -49,11 +49,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      document.body.insertBefore(main, document.body.firstChild);
     }
   }, []);
 }
@@ -61,7 +61,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.getElementsByTagName('main')[0];
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -102,7 +102,7 @@ function getSvgAccessibleName(svgElement) {
     return null;
   }
   // ... existing logic ...
-  const title = document.querySelectorAll('title');
+  const title = svgElement.querySelector('title');
   if (title) {
     return title.textContent;
   }
@@ -142,10 +142,6 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-  // ... existing logic ...
-}
-
-function validateLandmarkRoles() {
   // ... existing logic ...
 }
 

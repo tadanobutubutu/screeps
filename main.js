@@ -6,7 +6,7 @@ const App = () => {
   // Existing code and logic
   return (
     // JSX code that might be causing accessibility issues
-    <div>
+    <main>
       <a href="/home">Home</a>
       <table>
         {/* Table content */}
@@ -14,7 +14,7 @@ const App = () => {
       <svg>
         {/* SVG content */}
       </svg>
-    </div>
+    </main>
   );
 };
 

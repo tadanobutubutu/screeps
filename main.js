@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// Accessibility fixes have been applied
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
@@ -72,6 +73,22 @@ function fixOneFakeLinkIssue() {
   if (fakeLink) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
+  }
+}
+
+// Implement fixReactFakeLinkIssue to fix React fake link issue
+function fixReactFakeLinkIssue() {
+  const hashLinks = document.querySelectorAll('a[href^="#"]');
+  for (let link of hashLinks) {
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.textContent = link.textContent;
+    if (link.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', link.getAttribute('aria-label'));
+    } else {
+      button.setAttribute('aria-label', link.textContent || 'Action');
+    }
+    link.parentNode.replaceChild(button, link);
   }
 }
 

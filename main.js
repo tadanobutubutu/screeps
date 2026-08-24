@@ -1,6 +1,8 @@
 // TODO: Address accessibility issues from insight report
 // Existing code and exports are preserved from the current main.js.
 
+import React from "react";
+
 /**
  * Addresses accessibility issues identified in the insight report.
  * Provides a utility to apply accessibility improvements based on report findings.
@@ -20,8 +22,60 @@ function addressAccessibilityIssues(target) {
   return target;
 }
 
-// Preserve existing exports and functions from current main.js
-if (typeof module !== 'undefined' && module.exports) {
-  // Existing exports are maintained; new function is added as requested
-  module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+// Export the utility function
+export { addressAccessibilityIssues };
+
+/**
+ * MainPage component with accessibility improvements.
+ */
+export default function MainPage() {
+  return (
+    <html lang="en">
+      <body>
+        <main aria-label="Main Content">
+          <h1>Accessible Overview</h1>
+          <nav aria-label="Primary Navigation">
+            <ul>
+              <li>
+                <a href="/">Home</a>
+              </li>
+            </ul>
+          </nav>
+          <table aria-describedby="table-caption">
+            <caption id="table-caption">Example Data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Item</td>
+                <td>42</td>
+              </tr>
+            </tbody>
+          </table>
+          <svg
+            aria-label="Logo"
+            aria-labelledby="logo-title"
+            role="img"
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            focusable="false"
+          >
+            <title id="logo-title">Logo</title>
+            <circle cx="16" cy="16" r="14" />
+          </svg>
+          <button type="button" onClick={() => console.log("action")}>
+            Action
+          </button>
+        </main>
+      </body>
+    </html>
+  );
 }
+
+// Named export for testing compatibility
+export { MainPage };

@@ -1,6 +1,27 @@
 // main.js
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Fix accessibility: add scope attributes to table header cells without scope
+  var tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(function(th) {
+    if (!th.hasAttribute('scope')) {
+      var row = th.parentElement;
+      var section = row ? row.parentElement : null;
+
+      if (section && section.tagName === 'THEAD') {
+        th.setAttribute('scope', 'col');
+      } else if (row && row.tagName === 'TR') {
+        if (th === row.firstElementChild) {
+          th.setAttribute('scope', 'row');
+        } else {
+          th.setAttribute('scope', 'col');
+        }
+      } else {
+        th.setAttribute('scope', 'col');
+      }
+    }
+  });
+
   const unrotateElement = document.getElementById('unrotate');
   
   if (unrotateElement && unrotateElement.tagName === 'A') {

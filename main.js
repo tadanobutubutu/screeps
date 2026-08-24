@@ -7,5 +7,11 @@ const getAccessibleName = (node) => {
     accessibleName = title || text;
   }
 
+  // TODO: New code to be added here
+  // New function or changes requested in the issue
+
   return accessibleName;
 };
+
+// Existing exports and functions continue to be preserved
+// No changes to exports are allowed

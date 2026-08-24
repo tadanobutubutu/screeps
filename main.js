@@ -79,5 +79,8 @@ async function fetchAPI(url) {
   }
 }
 
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en');
+
 // Export the module with the new fetchAPI function added
 export { fetchAPI, fetchAPI as default, addressAccessibilityIssues };

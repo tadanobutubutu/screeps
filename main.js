@@ -22,10 +22,18 @@ function getStatus() {
   return { status: 'ok', message: 'Application running' };
 }
 
+// New function to be added based on the GitHub issue
+function handleAccessibilityCheck() {
+  // Placeholder logic for handling accessibility checks
+  // This should be replaced with actual accessibility check logic
+  console.log('Accessibility check performed...');
+}
+
 // Combine all exports
 module.exports = {
   version: module.exports.version,
   initialize,
   cleanup,
-  getStatus
+  getStatus,
+  handleAccessibilityCheck // New export added here
 };

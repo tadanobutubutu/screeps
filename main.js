@@ -11,7 +11,7 @@ function addLandmarkRegions(container, regions = []) {
     contentinfo: 'contentinfo'
   };
   const regionConfig = regions.length > 0 ? regions : defaultRegions;
-  
+
   if (typeof container === 'string') {
     container = document.querySelector(container);
   }
@@ -28,13 +28,28 @@ function addLandmarkRegions(container, regions = []) {
       addedRegions[regionType] = element;
     }
   });
-  
+
   return addedRegions;
 }
 
-// TODO: Add back any required exports that might have been removed
-// Here's an example of how to export a required function from another file:
+// Function for adding missing <main> landmark to the specified HTML elements
+function addMainLandmark(htmlElements) {
+  htmlElements.forEach(element => {
+    const mainElement = element.getElementsByTagName('main')[0];
+    if (!mainElement) {
+      const main = document.createElement('main');
+      main.className = 'landmark-main';
+      element.parentNode.insertBefore(main, element);
+      if (element.firstChild) {
+        main.appendChild(element.firstChild);
+        element.removeChild(element.firstChild);
+      }
+    }
+  });
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
-  addLandmarkRegions: addLandmarkRegions
+  addLandmarkRegions: addLandmarkRegions,
+  addMainLandmark: addMainLandmark
 };

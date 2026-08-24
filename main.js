@@ -62,46 +62,6 @@ const addLandmarkRegions = () => {
   });
 };
 
-// Accessibility fix for REACT_027: React Table Structure (26 occurrences)
-const fixTableStructure = () => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    if (!existingThead) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td, th');
-        cells.forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          if (cell.getAttribute('scope')) {
-            th.setAttribute('scope', cell.getAttribute('scope'));
-          } else {
-            th.setAttribute('scope', 'col');
-          }
-          newRow.appendChild(th);
-        });
-        thead.appendChild(newRow);
-        table.insertBefore(thead, table.firstChild);
-      }
-    }
-
-    const existingTbody = table.querySelector('tbody');
-    if (!existingTbody) {
-      const rows = table.querySelectorAll('tr');
-      if (rows.length > 1) {
-        const tbody = document.createElement('tbody');
-        for (let i = 1; i < rows.length; i++) {
-          tbody.appendChild(rows[i]);
-        }
-        table.appendChild(tbody);
-      }
-    }
-  });
-};
-
 // Address accessibility issues from insight report for image alt texts
 const fixImageAltTexts = () => {
   const images = document.querySelectorAll('img');
@@ -178,10 +138,9 @@ const implementAccessibilityFixesFromReport = () => {
     'REACT_025': uniqueLandmarks,
     'REACT_037': googleSignIn,
     // Add any other issues
-    // TODO: Address the new issues by binding them to appropriate functions from the insight report object
-    'NEW_ISSUE_1': () => {},
-    'NEW_ISSUE_2': () => {},
-    // ...
+    'NEW_ISSUE_1': addAriaLabelsToForm,
+    'NEW_ISSUE_2': ensureSvgAltText,
+    // ... (additional issues can be added here)
   };
 
   Object.values(insightReport).forEach((functionToCall) => {
@@ -191,7 +150,6 @@ const implementAccessibilityFixesFromReport = () => {
   });
 };
 
-// Export the function for addressing accessibility issues from insight report
 export { implementAccessibilityFixesFromReport };
 
 // REACT_040: Replace my-button with actual button id for accessibility
@@ -219,4 +177,102 @@ const fixButtonIdentifiers = () => {
 // Export the function for fixing button identifiers
 export { fixButtonIdentifiers };
 
-import { class1, function1, Object1 } from './path/to/module';
+// New accessibility functions ---------------------------------------------------------
+
+// Add ARIA labels to form elements that lack them
+const addAriaLabelsToForm = () => {
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    const fields = form.querySelectorAll('input, select, textarea, button');
+    fields.forEach(field => {
+      if (!field.getAttribute('aria-label') && !field.getAttribute('aria-labelledby')) {
+        // Attempt to use associated label text
+        const label = field.closest('label')?.previousElementSibling;
+        if (label && label.tagName.toLowerCase() === 'label') {
+          const labelText = label.textContent.trim();
+          if (labelText) {
+            field.setAttribute('aria-label', labelText);
+            return;
+          }
+        }
+        // Fallback to placeholder or generic label
+        const placeholder = field.getAttribute('placeholder');
+        if (placeholder) {
+          field.setAttribute('aria-label', placeholder);
+        } else {
+          field.setAttribute('aria-label', 'Form field');
+        }
+      }
+    });
+  });
+};
+
+// Ensure SVG elements with role="img" have accessible labels
+const ensureSvgAltText = () => {
+  const svgs = document.querySelectorAll('svg[role="img"]');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label')) {
+      svg.setAttribute('aria-label', 'Accessible SVG');
+    }
+  });
+};
+
+// Add a skip link to allow bypassing navigation for screen reader users
+const addSkipLink = () => {
+  if (!document.getElementById('skip-link')) {
+    const skipLink = document.createElement('a');
+    skipLink.id = 'skip-link';
+    skipLink.href = '#main';
+    skipLink.setAttribute('class', 'skip-link');
+    skipLink.setAttribute('aria-label', 'Skip to main content');
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-999px';
+    skipLink.style.top = '-999px';
+    skipLink.style.zIndex = '1000';
+    document.body.prepend(skipLink);
+
+    skipLink.addEventListener('focus', () => {
+      skipLink.style.left = '0';
+      skipLink.style.top = '0';
+    });
+
+    skipLink.addEventListener('focusout', () => {
+      skipLink.style.left = '-999px';
+      skipLink.style.top = '-999px';
+    });
+
+    document.body.appendChild(skipLink);
+  }
+};
+
+// ------------------------------------------------------------------------------
+
+// REACT_037: Google sign-in logic
+// (function already defined above)
+
+// ------------------------------------------------------------------------------
+
+// REACT_040: Replace my-button with actual button id for accessibility
+const fixButtonIdentifiers = () => {
+  const buttonIdMap = {
+    'my-button': 'primary-action-btn'
+  };
+  
+  Object.entries(buttonIdMap).forEach(([oldId, newId]) => {
+    const button = document.getElementById(oldId);
+    if (button) {
+      button.id = newId;
+      button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
+    }
+  });
+  
+  function getAccessibleName(button) {
+    return button.getAttribute('aria-label') || 
+           button.getAttribute('aria-labelledby') ||
+           button.textContent?.trim() ||
+           button.value;
+  }
+};
+
+// Export the function for fixing button identifiers
+export { fixButtonIdentifiers };

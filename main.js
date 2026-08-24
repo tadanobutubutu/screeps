@@ -49,3 +49,11 @@ module.exports = {
   CONFIG,
   VERSION
 };
+
+// New function as per the issue
+function getTimestamp() {
+  return Date.now();
+}
+
+// Export the new function
+module.exports.getTimestamp = getTimestamp;

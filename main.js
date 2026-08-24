@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Address accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -31,10 +31,10 @@ function addSvgAccessibleNames(svg) {
         return;
     }
     if (!svgTitle.id) {
-        svgTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        svgTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
     }
     if (!svgDesc.id) {
-        svgDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 9);
+        svgDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
     }
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
@@ -59,14 +59,14 @@ function enhanceSvgAccessibility() {
             newTitle.textContent = svg.getAttribute('aria-label') || 
                                   svg.getAttribute('alt') || 
                                   'Decoration';
-            newTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+            newTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
             svg.insertBefore(newTitle, svg.firstChild);
             
             // Create desc element if needed
             if (!svg.getAttribute('aria-label') && !svg.getAttribute('alt')) {
                 const newDesc = document.createElement('desc');
                 newDesc.textContent = 'Graphical element';
-                newDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 9);
+                newDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
                 svg.appendChild(newDesc);
             }
             
@@ -77,7 +77,7 @@ function enhanceSvgAccessibility() {
             // Only title is missing
             const newTitle = document.createElement('title');
             newTitle.textContent = 'Icon';
-            newTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+            newTitle.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
             svg.insertBefore(newTitle, svg.firstChild);
             
             svg.setAttribute('role', 'img');
@@ -86,7 +86,7 @@ function enhanceSvgAccessibility() {
             // Only desc is missing
             const newDesc = document.createElement('desc');
             newDesc.textContent = svg.getAttribute('aria-label') || 'Graphical element';
-            newDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 9);
+            newDesc.id = 'svg-desc-' + Math.random().toString(36).substring(2, 11);
             svg.appendChild(newDesc);
             
             svg.setAttribute('role', 'img');

@@ -67,7 +67,8 @@ if (typeof document !== 'undefined') {
  * Adds a main landmark to the application.
  */
 function addMainLandmark() {
-  // Placeholder for adding main landmark
+  const htmlTag = document.documentElement;
+  htmlTag.setAttribute('role', 'main');
 }
 
 /**
@@ -168,6 +169,13 @@ export {
   App,
   generateRotateBackControl,
   setupRotateBack,
+  addMainLandmark,
+  addSvgAccessibleName,
+  createSvgAccessibilityProps,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  validateLinkAccessibility,
+  createAccessibleLink,
   // ... other exports
 };
 

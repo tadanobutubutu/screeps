@@ -1,5 +1,3 @@
-// Fixed layout icon definitions for REACT_041 — added aria-hidden="true" to decorative SVGs
-
 module.exports = {
   dashboardLayout: {
     icons: {

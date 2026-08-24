@@ -8,8 +8,13 @@ function Navigation() {
   // ... already existing code here
 }
 
-function MainContent() {
+function MainContent({ isSuccess, children, errorContent }) {
   // ... already existing code here
+  return (
+    <main id="main-content" role="main">
+      {isSuccess ? children : errorContent}
+    </main>
+  );
 }
 
 function Sidebar() {
@@ -51,11 +56,18 @@ function fixTableStructure() {
 
 // NEW: Add Main landmark and validate validity
 function addMainLandmark() {
-  document.querySelector('header').setAttribute('role', 'banner');
+  const mainElement = document.querySelector('main');
+  if (mainElement) {
+    mainElement.setAttribute('role', 'main');
+    mainElement.setAttribute('aria-label', 'Main content');
+    return true;
+  }
+  return false;
 }
+
 function validateMainLandmark() {
-  const header = document.querySelector('header');
-  expect(header.getAttribute('role')).toEqual('banner');
+  const mainElements = document.querySelectorAll('main');
+  return mainElements.length === 1;
 }
 
 // NEW: Validate unique landmarks
@@ -65,9 +77,9 @@ function validateLandmarkRoles() {
   const foundLandmarks = {};
 
   landmarkRoles.forEach(role => {
-    const element = document.querySelector(`[role="${role}"]`);
-    if (element) {
-      foundLandmarks[role] = (foundLandmarks[role] || 0) + 1;
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    if (elements.length > 0) {
+      foundLandmarks[role] = (foundLandmarks[role] || 0) + elements.length;
     }
   });
 
@@ -79,8 +91,8 @@ function validateLandmarkRoles() {
 export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed,
+  addLangAttribute,
   fixTableStructure,
-  validateTableStructure,
-  validateLandmarkRoles,
-  validateMainLandmark
+  validateMainLandmark,
+  validateLandmarkRoles
 };

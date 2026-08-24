@@ -52,13 +52,12 @@ function addProperLandmarkRegions() {
   if (htmlElement) htmlElement.setAttribute('lang', 'en');
 }
 
-// Function for unique landmarks
+// New function for unique landmarks
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
-  const landmarkIds = new Set([...landmarks].map(landmark => landmark.id || ''));
-  if (landmarks.length > landmarkIds.size) {
-    console.warn('Not all landmarks have unique IDs:', [...landmarks].map(landmark => landmark.id || 'no-id'));
-  }
+  return [...landmarks].every(landmark => {
+    return landmark.id && landmark.id !== '';
+  });
 }
 
 // New function for fixing one fake link issue
@@ -127,9 +126,8 @@ module.exports.fixOneFakeLinkIssue = fixOneFakeLinkIssue;
 module.exports.fixReactFakeLinkIssue = fixReactFakeLinkIssue;
 // New function exporting hasUniqueLandmarks
 module.exports.hasUniqueLandmarks = hasUniqueLandmarks;
-
-// New function exporting makeElementAccessible
-exports.makeElementAccessible = makeElementAccessible;
+// New function exporting fixFakeLinkIssues
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
 
 function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');

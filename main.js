@@ -131,3 +131,69 @@ function fixTableConstraints() {
 
 // Export the new functions
 export { setHtmlLangAttribute, addAllSvgAccessibleNames, addAllTableHeadersScope, fixInputAccessibility, fixTableStructureIssues, addProperLandmarkRegions, fixTableConstraints };
+
+// Additional functions required by the issue
+function getLangAttribute() {
+    const html = document.querySelector('html');
+    return html ? html.getAttribute('lang') : null;
+}
+
+function getFullLangAttribute() {
+    const html = document.querySelector('html');
+    if (!html) return null;
+    return html.getAttribute('lang');
+}
+
+function validateTableAccessibility() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const hasHeader = table.querySelector('th');
+        if (!hasHeader) {
+            console.warn('Table missing header cells');
+        }
+    });
+}
+
+function validateTableStructure() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const hasThead = table.querySelector('thead');
+        if (!hasThead) {
+            console.warn('Table missing THEAD');
+        }
+    });
+}
+
+function validateLandmark() {
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    if (landmarks.length === 0) {
+        console.warn('No landmark regions found');
+    }
+}
+
+function validateLandmarkStructure() {
+    const main = document.querySelector('main, [role="main"]');
+    if (!main) {
+        console.warn('Missing main landmark');
+    }
+}
+
+function getSvgAccessibleName(svg) {
+    const title = svg.querySelector('title');
+    return title ? title.textContent : '';
+}
+
+function createInPageButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Click me';
+    return button;
+}
+
+function createAccessibleLink() {
+    const link = document.createElement('a');
+    link.textContent = 'Accessible link';
+    link.setAttribute('href', '#');
+    return link;
+}
+
+export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink };

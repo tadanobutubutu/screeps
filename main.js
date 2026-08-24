@@ -1,16 +1,1 @@
-typescript
-import React, { ReactNode } from 'react';
-
-const SuccessState = ({ children }: { children: ReactNode }) => (
-  <main aria-label="Dashboard - Success state">
-    {children}
-  </main>
-);
-
-const ErrorState = ({ children }: { children: ReactNode }) => (
-  <main aria-label="Dashboard - Error state">
-    {children}
-  </main>
-);
-
-// Now, use the SuccessState or ErrorState components as needed, keeping only one main landmark in your render method
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

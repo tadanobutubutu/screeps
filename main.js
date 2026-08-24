@@ -8,10 +8,8 @@ const indexModule = require('./index');
 function dependencyGraphFunction() {
   const { dependencyGraphContent } = dependencyGraphModule;
 
-  // ... existing code for rendering the dependency graph ...
-
-  // New function for extracting external module names from the dependency graph
-  function extractExternalModules(dependencyGraphContent) {
+  // Function for extracting external module names from the dependency graph
+  function getExternalModules() {
     const externalModules = [];
 
     // Traverse through all nodes in the dependency graph and extract the external packages
@@ -26,53 +24,115 @@ function dependencyGraphFunction() {
     return externalModules;
   }
 
-  // New function for ensuring unique landmarks
+  // Function for ensuring unique landmarks
   function ensureUniqueLandmarks() {
-    // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
-    // Adjust as needed based on your implementation
+    const landmarks = new Map();
+    let counter = 0;
+
+    // Reassign IDs with uniqueness guarantee
+    if (dependencyGraphContent.landmarks) {
+      dependencyGraphContent.landmarks.forEach((landmark) => {
+        const baseId = landmark.id || `landmark-${counter}`;
+        const uniqueId = landmarks.has(baseId) ? `${baseId}-${counter}` : baseId;
+        landmarks.set(baseId, uniqueId);
+        landmark.id = uniqueId;
+        counter++;
+      });
+    }
+    return dependencyGraphContent;
   }
 
   // ---------------------------------------------------
 
-  // New constant region for external modules
-  const EXTERNAL_MODULES = extractExternalModules(dependencyGraphContent);
+  // Constant region for external modules
+  const EXTERNAL_MODULES = getExternalModules();
 
-  // ... existing code for rendering the dependency graph ...
+  // Render the dependency graph
+  const nodes = dependencyGraphContent.graph.nodes;
+  const edges = dependencyGraphContent.graph.edges;
+  const width = 800;
+  const height = 600;
 
-  // Accessibility: Add back any required exports that might have been removed (if any external modules are present)
+  // Create SVG for visualization
+  const svg = `<svg role="img" aria-label="Dependency graph visualization" width="${width}" height="${height}">
+    <title>Module Dependency Graph</title>
+    <desc>A visual representation of the module dependencies in the project</desc>`;
+
+  // Add edges
+  edges.forEach((edge) => {
+    const sourceNode = nodes.find(n => n.id === edge.source);
+    const targetNode = nodes.find(n => n.id === edge.target);
+    if (sourceNode && targetNode) {
+      svg += `<line x1="${sourceNode.x}" y1="${sourceNode.y}" x2="${targetNode.x}" y2="${targetNode.y}" stroke="#666" stroke-width="2" />`;
+    }
+  });
+
+  // Add nodes
+  nodes.forEach((node) => {
+    const isExternal = node.type === 'package' && EXTERNAL_MODULES.includes(node.name);
+    const fillColor = isExternal ? '#ff6b6b' : '#4dabf7';
+    svg += `<circle cx="${node.x}" cy="${node.y}" r="20" fill="${fillColor}" aria-label="${node.name}" />`;
+    svg += `<text x="${node.x}" y="${node.y + 35}" text-anchor="middle">${node.name}</text>`;
+  });
+
+  svg += '</svg>';
+
+  // Accessibility: Add back any required exports that might have been removed
   if (EXTERNAL_MODULES.length > 0) {
-    // Assuming that the package.json file lists all the required external modules
-    // Adjust the path to your package.json file as needed
     const packageJsonPath = './package.json';
-    const packageJson = require(packageJsonPath);
+    let packageJson;
 
-    // Filter the required external modules from package.json and include them in exports
-    const externalModuleExports = packageJson.dependencies;
-    EXTERNERNAL_MODULES.forEach((moduleName) => {
-      if (!externalModuleExports.hasOwnProperty(moduleName)) {
-        console.warn(`The dependency graph indicates an external module (${moduleName}) that has no corresponding entry in package.json. Please double-check.`);
-      } else {
-        const requiredModule = require(moduleName);
-        // This will include only non-default exports from the external modules
-        Object.entries(requiredModule).forEach(([exportName, exportedValue]) => {
-          if (exportName !== '.') {
-            // Assuming that the exported values have a 'default' property to indicate if they are default exports
-            if (exportedValue.default) {
-              module.exports[exportName] = exportedValue.default;
-            } else {
-              module.exports[exportName] = exportedValue;
-            }
+    try {
+      packageJson = require(packageJsonPath);
+    } catch (error) {
+      console.warn('package.json not found, skipping external module validation');
+    }
+
+    if (packageJson) {
+      Object.keys(packageJson.dependencies || {}).forEach((moduleName) => {
+        if (!EXTERNAL_MODULES.includes(moduleName)) {
+          console.warn(`The dependency graph indicates an external module (${moduleName}) that has no corresponding entry in package.json. Please double-check.`);
+        } else {
+          try {
+            const requiredModule = require(moduleName);
+            Object.entries(requiredModule).forEach(([exportName, exportedValue]) => {
+              if (exportName !== '.') {
+                if (exportedValue && exportedValue.default) {
+                  module.exports[exportName] = exportedValue.default;
+                } else {
+                  module.exports[exportName] = exportedValue;
+                }
+              }
+            });
+          } catch (error) {
+            console.warn(`Failed to require external module: ${moduleName}`);
           }
-        });
+        }
+      });
+    }
+  }
+
+  // Accessibility: Implement fixes for 26 table structure issues (fixTableStructureIssues)
+  function fixTableStructureIssues(content) {
+    // Add proper table headers and structure for accessibility
+    const tablePattern = /<table[^>]*>([\s\S]*?)<\/table>/g;
+    return content.replace(tablePattern, (match, tableContent) => {
+      if (!tableContent.includes('<th')) {
+        // Add scope attributes to header cells
+        const headerRowMatch = tableContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/);
+        if (headerRowMatch) {
+          const headerRow = headerRowMatch[1];
+          const headers = headerRow.replace(/<td/g, '<th scope="col"').replace(/<\/td>/g, '</th>');
+          return match.replace(headerRow, headers);
+        }
       }
+      return match;
     });
   }
 
-  // Accessibility: Implement fixes for 26 table structure issues (new function fixTableStructureIssues)
-  // This step remains to be implemented based on the specific accessibility issues found in the report
-
-  // Ensure the returned content has proper accessibility attributes (existing code)
-  // ...
+  // Ensure the returned content has proper accessibility attributes
+  dependencyGraphContent.html = fixTableStructureIssues(dependencyGraphContent.html || '');
+  dependencyGraphContent.svg = svg;
 
   return dependencyGraphContent;
 }
@@ -82,16 +142,64 @@ function dependencyGraphFunction() {
 function indexFunction() {
   const { indexContent } = indexModule;
 
-  // ... existing code for rendering the index view ...
+  // Render the index view
+  const title = indexContent.title || 'Project Index';
+  const navigation = indexContent.navigation || [];
 
-  // Accessibility: Add back any required exports that might have been removed (if any)
-  // This step is optional since the index view doesn't directly import any external modules
+  let navHtml = '<nav role="navigation" aria-label="Main navigation"><ul>';
+  navigation.forEach((item) => {
+    navHtml += `<li><a href="${item.url}">${item.label}</a></li>`;
+  });
+  navHtml += '</ul></nav>';
 
-  // ...
+  const mainContent = `
+    <header role="banner">
+      <h1>${title}</h1>
+    </header>
+    <main role="main" id="main-content">
+      ${navHtml}
+      <section aria-labelledby="overview-heading">
+        <h2 id="overview-heading">Project Overview</h2>
+        <p>Welcome to the project documentation index.</p>
+      </section>
+    </main>
+    <footer role="contentinfo">
+      <p>&copy; 2024 Project Team</p>
+    </footer>
+  `;
 
-  // Accessibility: Implement ensureUniqueLandmarks function as requested (not demonstrated here)
+  indexContent.html = mainContent;
 
   return indexContent;
+}
+
+// Helper function to ensure lang attribute on HTML elements
+function ensureLangAttribute(html) {
+  if (html.includes('<html') && !html.includes('lang=')) {
+    return html.replace('<html', '<html lang="en"');
+  }
+  return html;
+}
+
+// Helper function to ensure unique landmarks
+function ensureUniqueLandmarks(html) {
+  const landmarkIds = new Map();
+  let counter = 0;
+  const roles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
+
+  roles.forEach((role) => {
+    const pattern = new RegExp(`<[^>]*role=["']${role}["'][^>]*>`, 'gi');
+    html = html.replace(pattern, (match) => {
+      if (match.includes('id=')) {
+        return match;
+      }
+      counter++;
+      const id = `${role}-${counter}`;
+      return match.replace('>', ` id="${id}">`);
+    });
+  });
+
+  return html;
 }
 
 // ... other functions and exports ...

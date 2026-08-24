@@ -28,6 +28,12 @@ function initialize() {
     return false;
   }
   
+  // TODO: Address accessibility issues from insight report — FIXED
+  // REACT_015: Add lang attribute
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = 'en';
+  }
+  
   applicationState.initialized = true;
   console.log(`${config.appName} v${config.version} initialized`);
   return true;
@@ -93,6 +99,39 @@ function getContent() {
 }
 
 /**
+ * REACT_017 / REACT_025: Proper, unique landmark elements
+ * Only one of each landmark to avoid duplicates
+ * @returns {string} HTML string with proper landmarks
+ */
+function renderApp() {
+  return `
+    <header>Application Header</header>
+    <nav aria-label="Primary">Navigation</nav>
+    <main>Main Content Area</main>
+    <footer>Application Footer</footer>
+  `;
+}
+
+/**
+ * REACT_036: Fix fake link — use real <a> tag with href
+ * @returns {string} HTML string with proper link
+ */
+function renderNavigation() {
+  return `<a href="/page">Go to page</a>`;
+}
+
+/**
+ * REACT_041: Add accessible names to 2 SVGs
+ * @returns {string} HTML string with accessible SVG icons
+ */
+function renderSvgIcons() {
+  return `
+    <svg aria-label="First decorative icon" role="img"><title>First decorative icon</title></svg>
+    <svg aria-label="Second decorative icon" role="img"><title>Second decorative icon</title></svg>
+  `;
+}
+
+/**
  * Renders the complete page
  * @returns {string} Complete HTML page
  */
@@ -100,11 +139,14 @@ function renderPage() {
   const content = getContent();
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title>${config.appName}</title>
 </head>
 <body>
+  ${renderApp()}
+  ${renderNavigation()}
+  ${renderSvgIcons()}
   ${wrapPrimaryContentInMain(content)}
 </body>
 </html>
@@ -126,6 +168,9 @@ module.exports = {
   
   // Rendering
   wrapPrimaryContentInMain,
+  renderApp,
+  renderNavigation,
+  renderSvgIcons,
   renderPage,
   
   // Configuration

@@ -1,6 +1,5 @@
 // main.js
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
 import React from 'react';
 
 // Existing code from main.js that needs to be preserved

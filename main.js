@@ -281,7 +281,7 @@ function addressAccessibilityIssues() {
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
-      title.textContent = 'SVG graphic ' + (index + 1);
+      textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     } else {
       if (!title.id) {

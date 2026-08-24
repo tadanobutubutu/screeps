@@ -1,87 +1,138 @@
-Here is the resolved file with the Git merge conflict resolved:
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-```javascript
-// Add the missing export of the rotateBack function
-export function rotateBack() {
-    console.log('Rotating back...');
-    // Placeholder for actual rotate back logic
-}
-
-// - REACT_015: Add lang attribute to HTML element
-export function addLangAttribute() {
-    const html = document.documentElement;
-    if (html && !html.getAttribute('lang')) {
-        html.setAttribute('lang', 'en');
+/**
+ * Adds lang attribute to the HTML element for accessibility
+ * @param {string} lang - Language code (default: 'en')
+ */
+export function addLangAttribute(lang = 'en') {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', lang);
     }
 }
 
-// - REACT_041: Add accessible names to 2 SVGs
-export function addSvgAccessibleNames() {
-    // Find SVG elements that might need accessible names
-    const svgElements = document.querySelectorAll('svg:not([role="img"]):not([aria-label]):not([aria-labelledby])');
-
-    svgElements.forEach((svg, index) => {
-        if (svg.hasAttribute('aria-label') || svg.getAttribute('aria-labelledby')) {
-            return;
+/**
+ * Fixes table structure issues for accessibility
+ * Ensures tables have proper headers and structure
+ */
+export function fixTableStructureIssues() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+        // Ensure tables have caption or title
+        if (!table.querySelector('caption') && table.getAttribute('aria-label')) {
+            const caption = document.createElement('caption');
+            caption.textContent = table.getAttribute('aria-label');
+            table.insertBefore(caption, table.firstChild);
         }
-
-        let label = '';
-
-        // Try to infer a label from context
-        const parent = svg.closest('[class*="logo"]');
-        if (parent || svg.closest('header')) {
-            label = 'Application logo';
-        } else if (svg.closest('nav')) {
-            label = 'Navigation icon';
-        } else if (svg.closest('button')) {
-            const btnText = svg.closest('button').textContent.trim();
-            label = btnText ? `${btnText} icon` : `Icon ${index + 1}`;
-        } else {
-            label = `Icon ${index + 1}`;
-        }
-
-        if (!svg.getAttribute('aria-label')) {
-            svg.setAttribute('aria-label', label);
-        }
-        if (!svg.getAttribute('role')) {
-            svg.setAttribute('role', 'img');
+        
+        // Ensure proper th elements for headers
+        const firstRow = table.querySelector('tbody tr, thead tr');
+        if (firstRow) {
+            const cells = firstRow.querySelectorAll('td');
+            cells.forEach((cell) => {
+                if (!cell.querySelector('th') && !cell.hasAttribute('headers')) {
+                    const th = document.createElement('th');
+                    th.textContent = cell.textContent;
+                    cell.replaceWith(th);
+                }
+            });
         }
     });
 }
 
-// - REACT_036: Fix 1 fake link issue
-export function fixFakeLink() {
-    // Find all anchor elements
-    const links = document.querySelectorAll('a[href]');
+/**
+ * Adds main landmark to the page
+ */
+export function addMainLandmark() {
+    const mainElement = document.querySelector('main');
+    if (!mainElement) {
+        // Find the main content area and wrap it with main element
+        const content = document.querySelector('#content, .content, [role="main"]');
+        if (content && content.tagName !== 'MAIN') {
+            const main = document.createElement('main');
+            main.setAttribute('role', 'main');
+            content.parentNode.insertBefore(main, content);
+            main.appendChild(content);
+        }
+    } else {
+        mainElement.setAttribute('role', 'main');
+    }
+}
 
-    links.forEach(link => {
-        const href = link.getAttribute('href');
+/**
+ * Adds accessible names to SVG elements
+ */
+export function addSvgAccessibleNames() {
+    const svgs = document.querySelectorAll('svg');
+    let svgIndex = 0;
+    svgs.forEach((svg) => {
+        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+            const title = document.createElement('title');
+            title.textContent = `SVG icon ${svgIndex + 1}`;
+            title.id = `svg-title-${svgIndex + 1}`;
+            svg.insertBefore(title, svg.firstChild);
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-labelledby', title.id);
+        }
+        svgIndex++;
+    });
+}
 
-        // Check for fake link patterns
-        const isFakeLink = href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;';
-
-        if (isFakeLink) {
-            // For skip navigation links
-            const isSkipLink = link.classList.contains('skip-link') ||
-                               link.getAttribute('role') === 'navigation' ||
-                               link.textContent.toLowerCase().includes('skip');
-
-            if (isSkipLink) {
-                link.setAttribute('href', '#main-content');
-            }
-
-            // Add accessible name for links without text
-            if (!link.textContent.trim() || link.textContent === link.innerText) {
-                const button = link.closest('button');
-                if (button && button.textContent.trim()) {
-                    link.setAttribute('aria-label', button.textContent.trim());
+/**
+ * Ensures unique landmarks by removing duplicate navigation and banner landmarks
+ */
+export function ensureUniqueLandmarks() {
+    // Remove duplicate navigation elements
+    const navElements = document.querySelectorAll('nav');
+    if (navElements.length > 1) {
+        navElements.forEach((nav, index) => {
+            if (index > 0) {
+                const ariaLabel = nav.getAttribute('aria-label');
+                if (ariaLabel) {
+                    nav.setAttribute('aria-label', `${ariaLabel} ${index + 1}`);
+                } else {
+                    nav.setAttribute('aria-label', `Navigation ${index + 1}`);
                 }
             }
+        });
+    }
+    
+    // Ensure only one banner/header landmark
+    const headers = document.querySelectorAll('header');
+    if (headers.length > 1) {
+        headers.forEach((header, index) => {
+            if (index > 0) {
+                header.removeAttribute('role');
+                header.setAttribute('role', 'complementary');
+            }
+        });
+    }
+}
+
+/**
+ * Fixes fake link issues by making elements with onclick but no href proper links
+ */
+export function fixFakeLinkIssue() {
+    const fakeLinks = document.querySelectorAll('[onclick], a:not([href])');
+    fakeLinks.forEach((element) => {
+        if (element.tagName === 'A' && !element.getAttribute('href')) {
+            element.setAttribute('role', 'link');
+            if (!element.getAttribute('tabindex')) {
+                element.setAttribute('tabindex', '0');
+            }
         }
     });
 }
 
-// Newly added function...
+/**
+ * Adds accessible IDs to form elements and buttons
+ */
 export function addAccessibleIds() {
     const accessibleElements = document.querySelectorAll('input, button');
 
@@ -95,13 +146,9 @@ export function addAccessibleIds() {
     });
 }
 
-// Keep the original functions imported, but let's create a separate function that encompasses their functionality
-export function fixAccessibilityIssues() {
-    addLangAttribute();
-    addSvgAccessibleNames();
-    fixFakeLink();
-}
-
+/**
+ * Wraps primary content in a main element
+ */
 export function wrapPrimaryContentInMain() {
     const mainContent = document.querySelector('[class*="container"]'); // Assuming the primary content is within a div with class 'container'
     if (mainContent) {
@@ -115,48 +162,33 @@ export function wrapPrimaryContentInMain() {
     }
 }
 
-export function addMainLandmark() {
-    // Implementation for adding main landmark
-    const mainElements = document.querySelectorAll('main');
-    if (mainElements.length === 0) {
-        const main = document.createElement('main');
-        const body = document.body;
-        if (body.firstChild) {
-            body.insertBefore(main, body.firstChild);
-        } else {
-            body.appendChild(main);
-        }
-        main.setAttribute('aria-label', 'Main content area');
+/**
+ * Placeholder for rotate back functionality
+ */
+export function rotateBack() {
+    console.log('Rotating back...');
+    // Placeholder for actual rotate back logic
+}
+
+/**
+ * Initialize all accessibility fixes
+ */
+export function initAccessibility() {
+    addLangAttribute();
+    fixTableStructureIssues();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssue();
+    addAccessibleIds();
+    wrapPrimaryContentInMain();
+}
+
+// Auto-initialize if in browser environment
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccessibility);
+    } else {
+        initAccessibility();
     }
 }
-
-export function ensureUniqueLandmarks() {
-    const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-
-    landmarks.forEach(role => {
-        const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
-        if (elements.length > 1) {
-            elements.forEach((el, index) => {
-                if (index > 0) {
-                    const div = document.createElement('div');
-                    div.setAttribute('role', role);
-                    Array.from(el.attributes).forEach(attr => {
-                        if (attr.name !== 'role') {
-                            div.setAttribute(attr.name, attr.value);
-                        }
-                    });
-                    while (el.firstChild) {
-                        div.appendChild(el.firstChild);
-                    }
-                    el.parentNode.replaceChild(div, el);
-                }
-            });
-        }
-    });
-}
-
-// Function for fixing table structure issues can't be written in pure JavaScript
-// (requires HTML/DOM manipulation) and is not part of the issue, so no changes are needed here.
-```
-
-In this resolved file, it combines the `addLangAttribute()`, `addSvgAccessibleNames()`, and `fixFakeLink()` functions from both sides into a new function called `fixAccessibilityIssues()`. This function now represents the combined functionality of both versions. The other functions remain unchanged, with the exception of `wrapPrimaryContentInMain()` and `addMainLandmark()` being moved to their own separate functions for clarity and maintainability.

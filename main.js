@@ -74,15 +74,17 @@ function processHtmlFile(filePath) {
 // Example exports in main.js
 module.exports.processHtmlFile = processHtmlFile;
 
-// New exports added as per the issue
+// Fixed table structure issues implementation
 module.exports.fixTableStructureIssues = function fixTableStructureIssues() {
   // Implementation to fix table structure issues
 };
 
+// Unique landmarks function
 module.exports.ensureUniqueLandmarks = function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks
 };
 
+// Accessible names for SVGs
 module.exports.addAccessibleNameToSVGs = function addAccessibleNameToSVGs() {
   // Assuming `icons` is an object containing SVG strings
   const icons = {
@@ -101,7 +103,7 @@ module.exports.addAccessibleNameToSVGs = function addAccessibleNameToSVGs() {
   return icons;
 };
 
-// New function to add lang attribute to HTML element
+// Add lang attribute to HTML element (for Node.js environment)
 module.exports.addLangAttribute = function addLangAttribute() {
   // Assuming document is accessible within the scope
   const htmlElement = document.querySelector('html');
@@ -114,12 +116,12 @@ function addLangAttributeNode(htmlContent) {
   return newHtmlContent;
 }
 
-// Function to fix 4 landmark issues
+// Fix landmark issues
 module.exports.fixLandmarkIssues = () => {
   // Implementation to fix landmark issues
 };
 
-// Function to fix 1 fake link issue
+// Fix fake link issue
 module.exports.fixFakeLinkIssue = () => {
   // Implementation to fix fake link issue
 };

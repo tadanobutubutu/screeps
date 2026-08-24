@@ -92,7 +92,40 @@ function addAllTableHeadersScope() {
 
 // New function to fix table structure issues
 function fixTableStructureIssues() {
-    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or headerRowCount rows in TABLEs
+    // Addresses table structure issues by ensuring each table has a <thead>
+    // with at least one header row and that all <th> elements have a
+    // 'scope' attribute set to 'col'.
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const hasThead = table.querySelector('thead');
+
+        // If no <thead> exists, create one and populate it with existing <th> elements
+        if (!hasThead) {
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            // Move existing <th> elements into the header row
+            const existingThs = Array.from(table.querySelectorAll('th'));
+            existingThs.forEach(th => {
+                const newTh = th.cloneNode(true);
+                newTh.setAttribute('scope', 'col');
+                headerRow.appendChild(newTh);
+            });
+
+            thead.appendChild(headerRow);
+            table.prepend(thead);
+        }
+
+        // Ensure all <th> elements have the 'scope' attribute set to 'col'
+        table.querySelectorAll('th').forEach(th => {
+            th.setAttribute('scope', 'col');
+        });
+    });
+}
+
+// Function to fix table constraints (ensures basic structural validation)
+function fixTableConstraints() {
+    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
         let hasThead = false;
@@ -108,15 +141,25 @@ function fixTableStructureIssues() {
         if (!hasThead && table.rows.length < headerRowCount) {
             console.error("Table does not have a thead or enough header rows:", table);
         }
-
-        const tableHeaders = table.querySelectorAll('th');
-        tableHeaders.forEach(th => {
-            th.setAttribute('scope', 'col');
-        });
     });
 }
 
-// Function to fix table constraints
+// New function to address unique landmark concerns
+function ensureUniqueLandmarks() {
+    // Guarantees that each landmark role appears at most once on the page.
+    // If duplicate roles are detected, the extra role attributes are removed.
+    const seenRoles = new Set();
+    document.querySelectorAll('[role]').forEach(el => {
+        const role = el.getAttribute('role');
+        if (seenRoles.has(role)) {
+            el.removeAttribute('role');
+        } else {
+            seenRoles.add(role);
+        }
+    });
+}
+
+// Function to fix table constraints (duplicate of fixTableConstraints for clarity)
 function fixTableConstraints() {
     // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
     const tables = document.querySelectorAll('table');
@@ -226,12 +269,25 @@ function wrapPrimaryContentInMain() {
 
 // New function to fix an issue with fake links
 function fixFakeLinkIssue() {
-    const links = document.querySelectorAll('a');
-    links.forEach(link => {
-        const clickable = document.createElement('a');
-        clickable.href = link.getAttribute('href') || '#';
-        clickable.textContent = 'Click me';
-        link.appendChild(clickable);
+    // Ensures every <a> tag has a meaningful href and accessible text.
+    // Removes any nested anchor elements that might have been added previously.
+    document.querySelectorAll('a').forEach(link => {
+        // Set href to '#' if missing or empty
+        if (!link.hasAttribute('href') || link.getAttribute('href') === '') {
+            link.setAttribute('href', '#');
+        }
+        // Provide accessible text if the link is empty
+        if (!link.textContent.trim()) {
+            link.textContent = 'Link';
+        }
+        // Ensure role is set to 'link' (default is already link, but explicit is safe)
+        link.setAttribute('role', 'link');
+
+        // Clean up any stray nested <a> elements that might have been added earlier
+        const nestedAnchor = link.querySelector('a');
+        if (nestedAnchor) {
+            nestedAnchor.parentNode.replaceChild(link, nestedAnchor);
+        }
     });
 }
 

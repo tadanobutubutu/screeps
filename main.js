@@ -32,7 +32,7 @@ export default function App() {
         </ul>
       </nav>
 
-      <main role="main" aria-label="Main Content">
+      <main aria-label="Main Content">
         <h2>Main Content</h2>
       </main>
 

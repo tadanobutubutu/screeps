@@ -148,3 +148,5 @@ renderDependencyGraph();
 
 // Existing code preserved below
 // ...
+
+export { addressAccessibilityIssues, renderDependencyGraph };

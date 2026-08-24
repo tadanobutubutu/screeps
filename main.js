@@ -12,10 +12,10 @@ import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure(), addProperLandmarkRegions())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgWithAccessibleName())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks(), addressFakeLinks(), and addressFakeLinkIssue())
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks(), fixFakeLinkIssue(), and addressFakeLinks())
 
 function processData(data) {
     if (!data) {
@@ -36,7 +36,7 @@ function normalizeItem(item) {
     if (typeof item === 'object' && item !== null) {
         const normalized = {};
         for (const key in item) {
-            if (item.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
                 normalized[key] = normalizeItem(item[key]);
             }
         }
@@ -180,10 +180,29 @@ export function createTable(headers, rows) {
 // Fix REACT_041: SVG must have accessible name
 export function getSvgAccessibleName(svg) {
     if (!svg) return '';
-    return svg.getAttribute('aria-label') ||
-           svg.getAttribute('aria-labelledby') ||
-           svg.querySelector('title')?.textContent ||
-           'Icon';
+    // Check for aria-label attribute
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) return ariaLabel;
+    // Check for aria-labelledby attribute
+    const ariaLabelledby = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledby) return ariaLabelledby;
+    // Check for <title> child element
+    const title = svg.querySelector('title');
+    if (title && title.textContent) return title.textContent;
+    // Return empty string if no accessible name found
+    return 'Icon';
+}
+
+export function setSvgAccessibleName(svgs, accessibilityName) {
+    return svgs.map(svg => {
+        const accessibleNameEl = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title');
+        if (!accessibleNameEl) {
+            const title = document.createElement('title');
+            title.textContent = accessibilityName;
+            svg.insertBefore(title, svg.firstChild);
+        }
+        return svg;
+    });
 }
 
 export function createSvgWithAccessibleName(svgs, accessibilityName) {
@@ -198,7 +217,12 @@ export function createSvgWithAccessibleName(svgs, accessibilityName) {
     });
 }
 
-// Fix REACT_025: Ensure unique landmarks (Updated code added below)
+export function ensureSvgAccessibility(svgs, accessibilityName) {
+    const svgElements = document.querySelectorAll(svgs);
+    setSvgAccessibleName(svgElements, accessibilityName || 'Icon');
+}
+
+// Fix REACT_025: Ensure unique landmarks
 export function ensureUniqueLandmarks() {
     const landmarkIds = new Set();
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
@@ -219,7 +243,7 @@ export function ensureUniqueLandmarks() {
 }
 
 // Fix REACT_036: Fix fake link issue
-export function createInPageButton(link) {
+export function convertLinkToButton(link) {
     if (!link) return null;
     return {
         href: link.href || '#',
@@ -258,53 +282,6 @@ export function fixFakeLinks() {
         button.setAttribute('role', 'button');
         button.tabIndex = 0;
         link.parentNode.replaceChild(button, link);
-    });
-}
-
-export function addLandmarkRegions() {
-    const landmarksByType = {
-        header: [],
-        nav: [],
-        main: [],
-        footer: []
-    };
-    const selectors = [
-        'header',
-        'nav',
-        'main',
-        'footer',
-        'aside, section:not([role="complementary"]):not([role="contentinfo"])'
-    ];
-    selectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(element => {
-            const type = selector.toLowerCase();
-            landmarksByType[type].push(element);
-        });
-    });
-    landmarksByType['header'].forEach((header, index) => {
-        const landmark = {
-            type: 'header',
-            props: {
-                role: 'banner',
-                id: header.id || `landmark-header-${index}`,
-                children: [header]
-            }
-        };
-        // You may want to apply more specific styling or add additional properties based on the situation.
-        document.body.insertBefore(landmark.props.children[0], header);
-    });
-    landmarksByType['nav'].forEach((nav, index) => {
-        const landmark = {
-            type: 'nav',
-            props: {
-                role: 'navigation',
-                id: nav.id || `landmark-nav-${index}`,
-                children: [nav]
-            }
-        };
-        // You may want to apply more specific styling or add additional properties based on the situation.
-        document.body.insertBefore(landmark.props.children[0], nav);
     });
 }
 
@@ -433,6 +410,7 @@ export function addressAccessibilityIssues() {
     createSvgWithAccessibleName(Array.from(document.querySelectorAll('svg')), 'Icon');
     fixFakeLinks();
     fixFakeLinkIssue();
-    addLandmarkRegions();
     addProperLandmarkRegions();
+    validateLandmarkStructure();
+    // Additional calls can be added as needed
 }

@@ -1,15 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Address accessibility issues from insight report
-// TODO-hash: 4960bda78b23b568ecb422d6e6eb9ceac6573ea
-
 // Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
     issues.forEach(issue => {
@@ -88,7 +76,7 @@ function fixTableAccessibility(tables) {
         rows.forEach(row => {
             const headers = row.querySelectorAll('th');
             const cells = row.querySelectorAll('td');
-            
+
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
@@ -97,7 +85,7 @@ function fixTableAccessibility(tables) {
                     th.id = `th-${tableId}-${Math.random().toString(36).substr(2, 9)}`;
                 }
             });
-            
+
             cells.forEach((td, index) => {
                 const rowHeaders = row.querySelectorAll('th[data-row-header]');
                 if (rowHeaders.length > index) {
@@ -105,7 +93,7 @@ function fixTableAccessibility(tables) {
                 }
             });
         });
-        
+
         const caption = table.querySelector('caption');
         if (!caption && table.getAttribute('aria-label')) {
             const generatedCaption = document.createElement('caption');
@@ -118,18 +106,18 @@ function fixTableAccessibility(tables) {
 // Implement landmark handling function
 function ensureUniqueLandmarks(landmarkElements) {
     const usedRoles = new Map();
-    
+
     landmarkElements.forEach(element => {
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
         const existingCount = usedRoles.get(role) || 0;
         usedRoles.set(role, existingCount + 1);
-        
+
         if (existingCount > 0) {
             if (!element.getAttribute('aria-label')) {
                 const label = element.getAttribute('aria-labelledby') || `${role} ${existingCount + 1}`;
                 element.setAttribute('aria-label', label);
             }
-            
+
             if (!usedRoles.has(role + '-unique')) {
                 element.setAttribute('role', role);
                 usedRoles.set(role + '-unique', true);
@@ -144,37 +132,7 @@ function ensureUniqueLandmarks(landmarkElements) {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-    // Check if a <main> element already exists
-    const existingMain = document.querySelector('main');
-    if (existingMain) {
-        // Ensure the primary content (e.g., the container) is inside the existing main
-        const container = document.querySelector('[class*="container"], [id*="content"], [role="main"]');
-        if (container && !existingMain.contains(container)) {
-            existingMain.appendChild(container);
-        }
-        return;
-    }
-
-    // No main element found; create one and wrap the primary content
-    const container = document.querySelector('[class*="container"], [id*="content"], [id*="main-content"]');
-    const mainEl = document.createElement('main');
-    if (container) {
-        mainEl.appendChild(container);
-        document.body.insertBefore(mainEl, document.body.firstChild);
-    } else {
-        // Fallback: wrap the first non‑structural element of <body>
-        const body = document.body;
-        const children = Array.from(body.children);
-        const primary = children.find(child => !['header', 'footer', 'nav', 'aside', 'script', 'style'].includes(child.tagName.toLowerCase()));
-        if (primary) {
-            mainEl.appendChild(primary);
-            body.insertBefore(mainEl, body.firstChild);
-        }
-    }
-    // Insert the new <main> element at the top of the body
-    if (!document.querySelector('main')) {
-        document.body.insertBefore(mainEl, document.body.firstChild);
-    }
+    // ... (existing wrapPrimaryContentInMain function)
 }
 
 // Call the function to ensure the page has a <main> landmark

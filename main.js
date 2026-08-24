@@ -5,21 +5,12 @@ import Head from 'next/head';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
-
 // Existing function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
   if (!tableData) return null;
-  
+
   const { rows = [], caption } = tableData;
-  
+
   // Ensure proper table structure with thead and tbody
   return {
     ...tableData,
@@ -33,21 +24,21 @@ export const fixTableStructureIssues = (tableData) => {
 // New function to ensure unique landmarks (REACT_025)
 export const ensureUniqueLandmarks = (landmarks) => {
   if (!landmarks || !Array.isArray(landmarks)) return [];
-  
+
   const seenIds = new Set();
-  
+
   return landmarks.map((landmark) => {
     let { id } = landmark;
     let suffix = 1;
     const baseId = id;
-    
+
     while (seenIds.has(id)) {
       id = `${baseId}-${suffix}`;
       suffix++;
     }
-    
+
     seenIds.add(id);
-    
+
     return {
       ...landmark,
       id
@@ -87,7 +78,7 @@ export const wrapPrimaryContentInMain = (content) => {
 // New function to add accessible names to SVGs (REACT_041)
 export const addAccessibleNameToSVG = (svgElement, accessibleName) => {
   if (!svgElement) return null;
-  
+
   return React.cloneElement(svgElement, {
     'aria-label': accessibleName,
     role: 'img'
@@ -114,9 +105,9 @@ export const createLandmark = (element, landmarkType, id) => {
     search: 'search',
     form: 'form'
   };
-  
+
   const role = landmarkRoles[landmarkType] || landmarkType;
-  
+
   return React.cloneElement(element, {
     role,
     id: id || `${landmarkType}-landmark`
@@ -162,13 +153,13 @@ export default function Home({ projects }) {
       <Head>
         <title>Dependency Graph</title>
       </Head>
-      <html lang="en">
+      <html {...getFullLangAttribute()}>
         <body>
-          <main role="main">
+          <wrapPrimaryContentInMain>
             <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
             <div dangerouslySetInnerHTML={{ __html: indexContent }} />
-            <button 
-              id="unrotate" 
+            <button
+              id="unrotate"
               onClick={handleRotateBack}
               aria-label="Rotate back"
             >
@@ -177,7 +168,7 @@ export default function Home({ projects }) {
             {projects && projects.map && projects.map((project) => (
               <div key={project.id}>{project.name}</div>
             ))}
-          </main>
+          </wrapPrimaryContentInMain>
         </body>
       </html>
     </div>
@@ -185,17 +176,18 @@ export default function Home({ projects }) {
 }
 
 // Consolidated list of utility functions
-export { 
-  fixTableStructureIssues, 
-  ensureUniqueLandmarks, 
-  addAriaLabelToFakeLink, 
-  addLangAttribute, 
-  getLangAttribute, 
+export {
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addAriaLabelToFakeLink,
+  addLangAttribute,
+  getLangAttribute,
   getFullLangAttribute,
-  wrapPrimaryContentInMain, 
-  createLandmark,
+  wrapPrimaryContentInMain,
+  addAccessibleNameToSVG,
   getSvgAccessibleName,
   getSvgAriaLabel,
+  createLandmark,
   validateLandmark,
   validateLandmarkStructure,
   validateTableAccessibility,

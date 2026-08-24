@@ -1,5 +1,3 @@
-// main.js
-
 document.addEventListener('DOMContentLoaded', function() {
   // Preserve existing code from main.js
   const unrotateElement = document.getElementById('unrotate');

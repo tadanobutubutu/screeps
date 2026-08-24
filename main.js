@@ -18,6 +18,8 @@ function handleButtonClick() {
 // Add the click event listener to the button
 button.addEventListener('click', handleButtonClick);
 
+// Import required module(s) and export the new necessary function(s) here in main.js
+// Example of a new function that could be exported
 // Import dependencyGraphContent if it is used in the code
 const { dependencyGraphContent } = require('./dependencyGraph');
 
@@ -188,4 +190,5 @@ module.exports = {
   ensureProperLandmarkStructure,
   addAccessibleSVGs,
   addScopeToTableHeaders,
+  dependencyGraphContent,
 };

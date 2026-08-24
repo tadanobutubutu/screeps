@@ -1,11 +1,17 @@
 // TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by ... getSvgAriaLabel(), ... and createAccessibleSvg())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (htmlElement && htmlElement.lang === '') {
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.lang = 'en';
   }
 };
 
@@ -25,7 +31,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -98,7 +104,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td');
+        const cells = firstRow.querySelectorAll('th, td');
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;

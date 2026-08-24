@@ -42,6 +42,16 @@ const enhanceAccessibility = () => {
       link.textContent = 'Link text';
     }
   });
+
+  // Ensure there is only one <main> element by removing any additional ones
+  const allMains = document.querySelectorAll('main');
+  if (allMains.length > 1) {
+    allMains.forEach((main, index) => {
+      if (index > 0) {
+        main.remove();
+      }
+    });
+  }
 };
 
 // Update the module.exports object

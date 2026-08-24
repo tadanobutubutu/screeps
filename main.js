@@ -54,5 +54,17 @@ function addressAccessibilityIssuesFromInsightReport() {
   });
 }
 
+// New function to fix table structure issues
+function fixTableStructureIssues() {
+  // Example implementation: Add scope attribute to all th elements
+  const tableHeaders = document.querySelectorAll('th');
+
+  tableHeaders.forEach(th => {
+    th.setAttribute('scope', 'col');
+  });
+
+  // Additional fixes can be added here based on the specific issues identified
+}
+
 // Export the new functions
-export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues };

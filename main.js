@@ -26,3 +26,8 @@ document.getElementById('myButton').addEventListener('click', handleButtonClick)
 // }
 
 // Note: The above examples are just placeholders and should be replaced with the actual function names and content usage.
+
+// Export the handleButtonClick function if it's used outside of this file
+module.exports = {
+  handleButtonClick
+};

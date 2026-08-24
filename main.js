@@ -21,7 +21,7 @@ function dependencyGraphFunction() {
       dependencyGraphContent.element.setAttribute('aria-label', 'Dependency graph visualization');
     }
     if (!dependencyGraphContent.element.getAttribute('aria-hidden')) {
-      dependencyGraphContent.element.setAttribute('aria-hidden', '0');
+      dependencyGraphContent.element.setAttribute('aria-hidden', 'false');
     }
   }
   

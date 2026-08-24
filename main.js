@@ -66,7 +66,7 @@ initialize(() => {
     addressAccessibilityIssues();
 });
 
- // Fix REACT_015: Add proper lang attribute to HTML element
+// Fix REACT_015: Add proper lang attribute to HTML element
 export function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }

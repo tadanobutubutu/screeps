@@ -1,8 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Assuming you have a button with ID 'myButton'
 const button = document.getElementById('myButton');
 button.setAttribute('aria-label', 'My Button');
 button.setAttribute('role', 'button');
@@ -79,7 +74,7 @@ function addScopeToTableHeaders() {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
+    header.setAttribute('scope', 'col');
     }
   });
 }

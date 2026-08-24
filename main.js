@@ -6,15 +6,22 @@ const App = () => {
   // Existing code and logic
   return (
     // JSX code that might be causing accessibility issues
-    <div>
-      <a href="/home">Home</a>
-      <table>
-        {/* Table content */}
-      </table>
-      <svg>
-        {/* SVG content */}
-      </svg>
-    </div>
+    <html lang="en">
+      <head>
+        {/* Existing head content */}
+      </head>
+      <body>
+        <div>
+          <a href="/home">Home</a>
+          <table>
+            {/* Table content */}
+          </table>
+          <svg>
+            {/* SVG content */}
+          </svg>
+        </div>
+      </body>
+    </html>
   );
 };
 

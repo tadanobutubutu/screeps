@@ -1,1 +1,1 @@
-const someVar = require('some-module'); function init() { // Existing code logic } module.exports.loop = function() { // Existing loop logic }
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

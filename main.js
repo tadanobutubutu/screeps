@@ -72,22 +72,23 @@ function handleAccessibilityIssues(issues) {
 // Implement table structure fix function
 function fixTableAccessibility(tables) {
     tables.forEach(table => {
-        const rows = table.querySelectorAll('tbody tr') || table.querySelectorAll('tr');
+        const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
-            const headers = row.querySelectorAll('th');
-            const cells = row.querySelectorAll('td');
+            const headers = Array.from(row.querySelectorAll('th'));
+            const cells = Array.from(row.querySelectorAll('td'));
 
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    const tableId = table.id || table.getAttribute('aria-label') || `table-${Math.random().toString(36).substr(2, 9)}`;
-                    th.id = `th-${tableId}-${Math.random().toString(36).substr(2, 9)}`;
+                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.random().toString(36).substr(2, 9);
+                    const headerIndex = headers.indexOf(th);
+                    th.id = tableId + '-th-' + headerIndex;
                 }
             });
 
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th[data-row-header]');
+                const rowHeaders = headers.filter(th => th.getAttribute('data-row-header') !== null);
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -132,11 +133,79 @@ function ensureUniqueLandmarks(landmarkElements) {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-    // ... (existing wrapPrimaryContentInMain function)
+    const existingMain = document.querySelector('main');
+    if (existingMain) {
+        return existingMain;
+    }
+
+    const body = document.body;
+    const main = document.createElement('main');
+    
+    while (body.firstChild) {
+        main.appendChild(body.firstChild);
+    }
+    
+    body.appendChild(main);
+    return main;
 }
 
 // Call the function to ensure the page has a <main> landmark
-wrapPrimaryContentInMain();
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!document.querySelector('main')) {
+                wrapPrimaryContentInMain();
+            }
+        });
+    } else if (!document.querySelector('main')) {
+        wrapPrimaryContentInMain();
+    }
+}
+
+// Helper function to get lang attribute
+function getLangAttribute() {
+    return document.documentElement.lang;
+}
+
+// Helper function to get full lang attribute with region
+function getFullLangAttribute() {
+    return document.documentElement.lang;
+}
+
+// Validate table accessibility
+function validateTableAccessibility(table) {
+    const errors = [];
+    const rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const headers = row.querySelectorAll('th');
+        headers.forEach(th => {
+            if (!th.hasAttribute('scope')) {
+                errors.push('Header missing scope attribute');
+            }
+        });
+    });
+    
+    return errors;
+}
+
+// Validate table structure
+function validateTableStructure(table) {
+    const issues = [];
+    
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+        issues.push('Table missing caption or aria-label');
+    }
+    
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+        if (!th.id) {
+            issues.push('Header missing id attribute');
+        }
+    });
+    
+    return issues;
+}
 
 // Exporting functions as required (do not remove or rename any existing exports)
 export function someExistingFunction() {

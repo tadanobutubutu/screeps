@@ -2,10 +2,10 @@
 // (This comment remains as-is)
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (NEW FUNCTION fixTableStructureIssues)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (NEW FUNCTION ensureUniqueLandmarks)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: ...
 
 import React from 'react';
@@ -25,7 +25,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-labelledby') && !main.getAttribute('aria-label')) {
+    if (!main.hasAttribute('aria-labelledby') && !main.hasAttribute('aria-label')) {
       if (index === 0) {
         main.setAttribute('aria-labelledby', 'main-heading');
       } else {
@@ -74,26 +74,51 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main'),
-    nav: document.querySelectorAll('nav'),
-    header: document.querySelectorAll('header'),
-    footer: document.querySelectorAll('footer'),
-    aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section'))
   };
 
-  // Add unique labels to duplicate landmarks
+  // Add unique labels to duplicate landmarks (skip main as it's unique per page)
   Object.keys(landmarks).forEach((landmarkType) => {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
-        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+        const hasId = element.id;
+        if (!hasLabel && !hasId) {
           const label = `${landmarkType} ${index + 1}`;
           element.setAttribute('aria-label', label);
         }
       });
     }
   });
+
+  // Handle main landmarks specifically - ensure only one primary main
+  const mainElements = landmarks.main;
+  if (mainElements.length > 1) {
+    mainElements.forEach((main, index) => {
+      if (index > 0) {
+        // For duplicate main elements, change to article or section
+        const newElement = document.createElement('article');
+        newElement.setAttribute('aria-label', `Content section ${index + 1}`);
+        // Copy all child nodes
+        while (main.firstChild) {
+          newElement.appendChild(main.firstChild);
+        }
+        // Copy attributes
+        Array.from(main.attributes).forEach((attr) => {
+          if (attr.name !== 'role' && attr.name !== 'aria-labelledby') {
+            newElement.setAttribute(attr.name, attr.value);
+          }
+        });
+        main.parentNode.replaceChild(newElement, main);
+      }
+    });
+  }
 }
 
 // NEW FUNCTION: Add accessible name to SVGs
@@ -101,11 +126,11 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.getAttribute('role')) {
+    if (!svg.hasAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -121,7 +146,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1>Accessible Application</h1>
+          <h1 id="main-heading">Accessible Application</h1>
           <div className="app-content">
             {/* Existing App content */}
 

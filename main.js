@@ -84,7 +84,7 @@ function addUniqueLandmarks() {
 
 function fixFakeLinkIssue() {
   const links = document.querySelectorAll('a[href="#"]');
-  const isValid = !links.length;
+  let isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
       isValid = false;
@@ -108,7 +108,7 @@ function wrapPrimaryContentInMain() {
   if (mainElement) {
     mainElement.innerHTML = '';
     // Move the first child of the body (usually the main content) into the main element
-    if (document.body.firstChild) {
+    if (document.body.firstChild && document.body.firstChild !== mainElement) {
       mainElement.appendChild(document.body.firstChild);
     }
   }
@@ -117,7 +117,7 @@ function wrapPrimaryContentInMain() {
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a[href="#"]');
-  const isValid = !links.length;
+  let isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
       isValid = false;
@@ -126,7 +126,7 @@ function validateLinkAccessibility() {
   return isValid;
 }
 
-// Identify and update specific functions that render dependency graphs or
+// TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
 

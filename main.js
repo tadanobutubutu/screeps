@@ -3,14 +3,12 @@
 
 // New changes required for the issue
 // Add a <main> element to wrap the primary content
+// This is a hypothetical example and may need to be adjusted based on actual HTML structure
 
 // Assuming the primary content starts right after the opening <div> in index.html
 // and ends before the closing </div>, we can wrap it in a <main> tag.
 
 // Example of how to wrap the primary content in a <main> tag
-// This is a hypothetical example and may need to be adjusted based on actual HTML structure
-
-// Wrap the content from index.html between the <main> tags
 // This is a placeholder for the actual content that needs to be wrapped
 // <div class="container">
 //     <h2>Quality & Metrics Reports</h2>

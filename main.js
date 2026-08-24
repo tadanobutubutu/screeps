@@ -19,6 +19,15 @@ function addressAccessibilityIssues() {
   // Combine content from both sources for accessibility checking
   let content = dependencyGraphContent + indexContent;
 
+  // Fix missing scope attributes on <th> elements
+  content = content.replace(/<th\b([^>]*)>/gi, (match, attr) => {
+    if (!/\bscope\s*=\s*["'][^"']+\b/i.test(attr)) {
+      // Insert scope attribute
+      return match.replace('>', ' scope="col">');
+    }
+    return match;
+  });
+
   // ... (existing code for REACT_015, REACT_017 & REACT_025, REACT_041, and REACT_036)
 
   // REACT_033: Ensure main section contains a proper heading

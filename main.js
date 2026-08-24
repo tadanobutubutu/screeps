@@ -232,20 +232,10 @@ function fixFakeLinks() {
 }
 
 /**
- * Placeholder content for dependencyGraphContent
+ * REACT_018: Properly establish landmark regions for accessibility
+ * Ensures all necessary landmark elements are present and correctly configured
  */
-const dependencyGraphContent = '';
-
-/**
- * Placeholder content for indexContent
- */
-const indexContent = '';
-
-/**
- * REACT_017: Add/fix landmark issues - add proper landmark regions
- * Adds navigation and complementary landmarks for better accessibility
- */
-function addLandmarkRegions() {
+function addProperLandmarkRegions() {
   if (typeof document === 'undefined') return;
 
   const body = document.body;
@@ -288,7 +278,10 @@ function addLandmarkRegions() {
   }
 }
 
-// Add a new function to address the button accessibility issue
+/**
+ * Add a new function to address the button accessibility issue
+ * This function calls the sub-functions to address issues
+ */
 function addressButtonAccessibility() {
   if (typeof document === 'undefined') return;
 
@@ -323,7 +316,7 @@ function addressAccessibilityIssues() {
   addMainLandmark();
 
   // Add proper landmark regions for accessibility
-  addLandmarkRegions();
+  addProperLandmarkRegions();
 
   // REACT_025: Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();

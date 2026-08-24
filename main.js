@@ -3,14 +3,13 @@ import indexContent from './indexContent';
 
 // Function to use indexContent as per requirement (Let's assume it needs to be used here)
 function useIndexContent() {
-  // Using indexContent as required
-  // ... (Add your code here)
+  // Using indexContent as required (Add your code here)
+  // ...
 }
 
 // New function to address accessibility issues
 function addressAccessibilityIssues() {
-  // Implementation for addressing accessibility issues from the insight report
-  // You can add your code here to solve REACT_0XX issues as necessary
+  // Implementation for addressing accessibility issues from the insight report (Add your code here to solve REACT_0XX issues as necessary)
   // Example:
   // Adding lang attribute to HTML element
   console.log("en");
@@ -24,6 +23,7 @@ function init() {
   addressAccessibilityIssues();
 }
 
+// Preserve existing exports
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,

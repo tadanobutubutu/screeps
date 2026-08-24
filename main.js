@@ -1,3 +1,6 @@
+Here is the resolved `main.js` file with both changes integrated:
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -12,7 +15,7 @@ const indexModule = require('./index');
 function dependencyGraphFunction() {
   // ... existing code for rendering the dependency graph ...
 
-  // New function for ensuring unique landmarks (added)
+  // New function for ensuring unique landmarks (added and integrated)
   function ensureUniqueLandmarks() {
     // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
     // Adjust as needed based on your implementation
@@ -30,21 +33,18 @@ function indexFunction() {
   // ... existing code for rendering the index view ...
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
-  function ensureUniqueLandmarks() {
-    // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
-    // Adjust as needed based on your implementation
-  }
-
-  // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
   ensureUniqueLandmarks();
 
-  // ... other code for returning indexContent ...
-}
+  // Accessibility: Additional function to ensure the lang attribute is added to the document's HTML element (integrated)
+  function ensureLangAttribute() {
+    // Code to ensure the lang attribute is set correctly
+    // (Implementation details are not provided here)
+  }
 
-// Accessibility: Ensure that lang attribute is added to the document's HTML element
-function ensureLangAttribute() {
-  // Code to ensure the lang attribute is set correctly
-  // (Implementation details are not provided here)
+  // Accessibility: Call ensureLangAttribute after rendering the index view (new)
+  ensureLangAttribute();
+
+  // ... other code for returning indexContent ...
 }
 
 // Accessibility: Add <main> landmark to the main content area of each HTML page (unchanged)
@@ -92,10 +92,11 @@ function fixFakeLinkIssue() {
 module.exports = {
   dependencyGraphFunction,
   indexFunction,
-  ensureLangAttribute,
+  ensureLangAttribute, // Integrated additional function
   addMainLandmark,
   addLangAttribute,
   addSvgAccessibleNames,
   fixTableStructureIssues,
   fixFakeLinkIssue,
 };
+```

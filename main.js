@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const tableWithIssues = [
+  ['Id1', 'Name1', 'Type1'],
+  ['Id2', 'Name2', 'Type2'],
+  ['Id3', 'Name3', 'Type3'],
+  ['Id4', '', ''], // Empty cells will be removed
+  ['', '', ''], // Rows with no values will be removed
+];
+
+const tableWithoutIssues = [
+  ['Id1', 'Name1', 'Type1'],
+  ['Id2', 'Name2', 'Type2'],
+  ['Id3', 'Name3', 'Type3'],
+];

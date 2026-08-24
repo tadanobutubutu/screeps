@@ -1,5 +1,3 @@
-// ... existing code ...
-
 // Wrap the new function with ARIA attributes for accessibility
 function newFunction(element) {
   // Address React Table Structure accessibility issues (REACT_027)
@@ -13,10 +11,10 @@ function newFunction(element) {
     // Body rows
     element.querySelectorAll('tbody tr').forEach(row => {
       row.setAttribute('role', 'row');
-      row.querySelectorAll('td, th').forEach(cell => {
+      row.querySelectorAll('td').forEach(cell => {
         cell.setAttribute('role', 'gridcell');
         // Ensure unique accessible names for header cells
-        const cells = row.querySelectorAll('td, th');
+        const cells = row.querySelectorAll('td');
         const cellIndex = Array.from(cells).indexOf(cell);
         const headerCell = element.querySelector(`thead th:nth-child(${cellIndex + 1})`);
         if (headerCell) {
@@ -32,17 +30,17 @@ function newFunction(element) {
 
   // Add landmark roles for html elements (REACT_015)
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement) {
     htmlElement.setAttribute('lang', 'en');
   }
 
   // Add/fix 4 landmark issues (REACT_017)
   const landmarks = ['banner', 'navigation', 'main', 'contentinfo'];
   let landmarkIndex = 0;
-  const landmarkElements = document.querySelectorAll('[role="complementary"], header, nav, main, footer');
+  const landmarkElements = document.querySelectorAll('header, nav, main, footer');
   landmarkElements.forEach(landmark => {
     if (landmark && landmarkIndex < landmarks.length) {
-      if (!landmark.hasAttribute('role')) {
+      if (!landmark.getAttribute('role')) {
         landmark.setAttribute('role', landmarks[landmarkIndex++]);
       }
     }
@@ -78,7 +76,7 @@ function newFunction(element) {
       });
 
   // Ensure unique landmarks (REACT_025) - Updated code added below
-  const landmarkCollection = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarkCollection = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
   const countByRole = new Map();
 
   landmarkCollection.forEach(landmark => {

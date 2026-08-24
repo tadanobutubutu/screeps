@@ -7,8 +7,14 @@ const newFunc = () => {
   // ... new functionality ...
 };
 
+// Add the removed export back, following the current format
+export const removedFunc = () => {
+  // ... original functionality of the removed function ...
+};
+
 module.exports = {
   mainFunc,
-  newFunc, // Added new function to the exports
+  newFunc,
+  removedFunc, // Added back the removed export
   // ... other exports if any ...
 };

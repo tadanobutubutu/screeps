@@ -112,11 +112,20 @@ function ensureProperLandmarkStructure() {
 function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    const shouldUseTitle = !svg.closest('[lang="en"]');
-    const isBackground = svg.css('position') === 'absolute' && svgs.css('top') === '0' && svgs.css('left') === '0' && svgs.css('width') === '100%' && svgs.css('height') === '100%';
+    if (svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title') || svg.getAttribute('aria-hidden') === 'true') {
+      return;
+    }
 
-    if (shouldUseTitle || isBackground) {
-      svg.setAttribute('title', 'Description of SVG content');
+    const shouldUseTitle = !svg.closest('[lang="en"]');
+    const style = window.getComputedStyle ? window.getComputedStyle(svg) : null;
+    const isBackground = style && style.position === 'absolute' && (style.top === '0px' || style.top === '0') && (style.left === '0px' || style.left === '0') && (style.width === '100%' || (typeof window !== 'undefined' && window.innerWidth && style.width === window.innerWidth + 'px')) && (style.height === '100%' || (typeof window !== 'undefined' && window.innerHeight && style.height === window.innerHeight + 'px'));
+
+    if (isBackground) {
+      svg.setAttribute('aria-hidden', 'true');
+    } else if (shouldUseTitle) {
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      title.textContent = 'Description of SVG content';
+      svg.insertBefore(title, svg.firstChild);
     } else {
       svg.setAttribute('aria-label', 'Description of SVG content');
     }

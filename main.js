@@ -21,8 +21,8 @@ export default function MainPage() {
             <caption>Example Data</caption>
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Value</th>
+                <th ...
+                <th ...
               </tr>
             </thead>
             <tbody>

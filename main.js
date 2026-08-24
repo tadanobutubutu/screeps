@@ -53,7 +53,25 @@ function validateLandmarkStructure(element) {
 }
 
 function getSvgAccessibleName(svgElement) {
-  return svgElement ? svgElement.getAttribute('aria-label') || '' : '';
+  if (!svgElement) {
+    return '';
+  }
+  // Check for aria-label first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  // Check for aria-labelledby reference
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    return ariaLabelledBy;
+  }
+  // Check for title element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+  return '';
 }
 
 function createInPageButton(text, onClick) {

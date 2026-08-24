@@ -11,7 +11,7 @@ import { indexContent } from './indexContent';
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName(), getSvgAriaLabel(), addAccessibleNameToSVG(), and createAccessibleSvg())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
@@ -123,6 +123,50 @@ export const getSvgAriaLabel = (label) => {
   return label || 'SVG graphic';
 };
 
+// New function to create a fully accessible SVG element (REACT_041)
+export const createAccessibleSvg = (svgProps, children, accessibleName) => {
+  const { titleId, title, ...rest } = svgProps;
+  
+  return (
+    <svg
+      {...rest}
+      role="img"
+      aria-labelledby={titleId || 'svg-title'}
+      aria-label={accessibleName || title || 'SVG graphic'}
+    >
+      {titleId && <title id={titleId}>{title || 'SVG graphic'}</title>}
+      {children}
+    </svg>
+  );
+};
+
+// New function to validate SVG accessibility (REACT_041)
+export const validateSvgAccessibility = (svgElement) => {
+  if (!svgElement) return { valid: false, issues: ['SVG element is null or undefined'] };
+  
+  const issues = [];
+  const props = svgElement.props || {};
+  
+  // Check for accessible name
+  const hasAriaLabel = props['aria-label'];
+  const hasAriaLabelledby = props['aria-labelledby'];
+  const hasTitleChild = props.children && 
+    React.Children.toArray(props.children).some(
+      child => child && child.type === 'title'
+    );
+  const hasRoleImg = props.role === 'img';
+  const isAriaHidden = props['aria-hidden'] === 'true';
+  
+  if (!isAriaHidden && !hasAriaLabel && !hasAriaLabelledby && !hasTitleChild) {
+    issues.push('SVG is missing accessible name (aria-label, aria-labelledby, or <title> child)');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues
+  };
+};
+
 // New function to add landmark attributes to elements (REACT_017)
 export const createLandmark = (element, landmarkType, id) => {
   const landmarkRoles = {
@@ -152,15 +196,6 @@ export const validateLandmark = (landmarkType) => {
 export const validateLandmarkStructure = (element) => {
   if (!element || !element.props || !element.props.role) return false;
   return true;
-};
-
-// New function to add ARIA label to a fake link (REACT_036)
-export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
-  return (
-    <a href={href} aria-label={ariaLabel}>
-      {content}
-    </a>
-  );
 };
 
 // Main component
@@ -208,6 +243,9 @@ export {
   createLandmark,
   getSvgAccessibleName,
   getSvgAriaLabel,
+  addAccessibleNameToSVG,
+  createAccessibleSvg,
+  validateSvgAccessibility,
   validateLandmark,
   validateLandmarkStructure,
   createInPageButton,

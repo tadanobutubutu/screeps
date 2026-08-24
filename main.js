@@ -54,4 +54,3 @@
 // ... (Add similar changes for the remaining rules as necessary)
 
 // Complete updated main.js content:
-//

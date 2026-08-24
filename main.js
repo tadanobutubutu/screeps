@@ -30,7 +30,7 @@ function fixFakeLinks() {
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href');
+      a.href = fakeLink.getAttribute('data- href');
       a.textContent = fakeLink.textContent;
       fakeLink.parentNode.replaceChild(a, fakeLink);
     }
@@ -130,6 +130,20 @@ ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
 
+// New function to fix React Table Structure (REACT_027)
+function fixTableHeadersScope() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Call the new function to apply the fix
+fixTableHeadersScope();
+
 module.exports = {
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  fixTableHeadersScope
 };

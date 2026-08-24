@@ -17,10 +17,10 @@ function addSvgAccessibleNames(svg) {
         return;
     }
     if (!svgTitle.id) {
-        svgTitle.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+        svgTitle.id = `svg-title-${Date.now()}`;
     }
     if (!svgDesc.id) {
-        svgDesc.id = `svg-desc-${Math.random().toString(36).substr(2, 9)}`;
+        svgDesc.id = `svg-desc-${Date.now()}`;
     }
     svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
 }
@@ -33,42 +33,42 @@ function addAllSvgAccessibleNames() {
 
 // Function to implement addressing accessibility issues from insight report
 function fixInputAccessibility() {
-    const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+    const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
         if (!input.id) {
-            input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+            input.id = `input-${Date.now()}`;
         }
-        const label = document.createElement('label');
+        const label = document.querySelector(`label[for="${input.id}"]`);
         label.htmlFor = input.id;
         label.textContent = 'Input description';
-        input.parentNode.insertBefore(label, input);
+        input.setAttribute('aria-describedby', label.id);
     });
 }
 
 // Function to add proper landmark regions to the page
 function addProperLandmarkRegions() {
     // Add role="banner" to header elements
-    const headers = document.querySelectorAll('header:not([role])');
+    const headers = document.querySelectorAll('header');
     headers.forEach(header => {
         header.setAttribute('role', 'banner');
     });
     // Add role="navigation" to nav elements
-    const navs = document.querySelectorAll('nav:not([role])');
+    const navs = document.querySelectorAll('nav');
     navs.forEach(nav => {
         nav.setAttribute('role', 'navigation');
     });
     // Add role="main" to main elements
-    const mains = document.querySelectorAll('main:not([role])');
+    const mains = document.querySelectorAll('main');
     mains.forEach(main => {
         main.setAttribute('role', 'main');
     });
     // Add role="complementary" to aside elements
-    const asides = document.querySelectorAll('aside:not([role])');
+    const asides = document.querySelectorAll('aside');
     asides.forEach(aside => {
         aside.setAttribute('role', 'complementary');
     });
     // Add role="contentinfo" to footer elements
-    const footers = document.querySelectorAll('footer:not([role])');
+    const footers = document.querySelectorAll('footer');
     footers.forEach(footer => {
         footer.setAttribute('role', 'contentinfo');
     });
@@ -76,7 +76,7 @@ function addProperLandmarkRegions() {
 
 // Function to find all th elements on the page and add the scope attribute
 function addAllTableHeadersScope() {
-    const thElements = document.querySelectorAll('th:not([scope])');
+    const thElements = document.querySelectorAll('th');
     thElements.forEach(th => {
         th.setAttribute('scope', 'col');
     });
@@ -129,9 +129,6 @@ function fixTableConstraints() {
     });
 }
 
-// Export the new functions
-export { setHtmlLangAttribute, addAllSvgAccessibleNames, addAllTableHeadersScope, fixInputAccessibility, fixTableStructureIssues, addProperLandmarkRegions, fixTableConstraints };
-
 // Additional functions required by the issue
 function getLangAttribute() {
     const html = document.querySelector('html');
@@ -165,14 +162,14 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
 }
 
 function validateLandmarkStructure() {
-    const main = document.querySelector('main, [role="main"]');
+    const main = document.querySelector('[role="main"]');
     if (!main) {
         console.warn('Missing main landmark');
     }
@@ -196,28 +193,44 @@ function createAccessibleLink() {
     return link;
 }
 
-export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink };
-
 function wrapPrimaryContentInMain() {
-    if (document.querySelector('main, [role="main"]')) {
+    if (document.querySelector('[role="main"]')) {
         return;
     }
     const body = document.body;
     if (!body) {
         return;
     }
-    const nonLandmarks = Array.from(body.children).filter(child => {
-        const tag = child.tagName.toLowerCase();
-        return !['header', 'nav', 'aside', 'footer', 'script', 'style', 'main', 'noscript'].includes(tag);
+    const nonLandmarks = Array.from(body.children).filter(element => {
+        const tag = element.tagName.toLowerCase();
+        return !['header', 'nav', 'aside', 'footer', 'script', 'style', 'main'].includes(tag);
     });
     if (nonLandmarks.length === 0) {
         return;
     }
     const mainEl = document.createElement('main');
-    mainEl.setAttribute('role', 'main');
     const first = nonLandmarks[0];
-    first.parentNode.insertBefore(mainEl, first);
+    body.insertBefore(mainEl, first);
     nonLandmarks.forEach(child => mainEl.appendChild(child));
 }
 
-export { wrapPrimaryContentInMain };
+// Export all functions
+export { 
+    setHtmlLangAttribute, 
+    addAllSvgAccessibleNames, 
+    addAllTableHeadersScope, 
+    fixInputAccessibility, 
+    fixTableStructureIssues, 
+    addProperLandmarkRegions, 
+    fixTableConstraints,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
+    wrapPrimaryContentInMain
+};

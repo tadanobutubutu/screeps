@@ -1,51 +1,42 @@
-// Existing code from main.js that must be preserved
-// ... (code before conflict markers)
+// Insight Dashboard Main JavaScript
 
-// New changes required for the issue
-// Add a <main> element to wrap the primary content
+// DOM Ready handler
+document.addEventListener('DOMContentLoaded', function() {
+    initDashboard();
+});
 
-// Assuming the primary content starts right after the opening <div> in index.html
-// and ends before the closing </div>, we can wrap it in a <main> tag.
+// Initialize dashboard functionality
+function initDashboard() {
+    // Initialize rotation toggle if element exists
+    const unrotateBtn = document.getElementById('unrotate');
+    if (unrotateBtn) {
+        // Convert the fake link to button behavior
+        unrotateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleTableRotation();
+        });
+    }
+}
 
-// Example of how to wrap the primary content in a <main> tag
-// This is a hypothetical example and may need to be adjusted based on actual HTML structure
+// Toggle table rotation for accessibility
+function toggleTableRotation() {
+    const table = document.getElementById('table-rotated');
+    if (table) {
+        const isRotated = table.classList.contains('rotated');
+        table.classList.toggle('rotated');
+        
+        // Update button text based on state
+        const unrotateBtn = document.getElementById('unrotate');
+        if (unrotateBtn) {
+            unrotateBtn.textContent = isRotated ? 'rotate back' : 'rotate forward';
+        }
+    }
+}
 
-// Wrap the content from index.html between the <main> tags
-// This is a placeholder for the actual content that needs to be wrapped
-// <div class="container">
-//     <h2>Quality & Metrics Reports</h2>
-//     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-//     <div class="links">
-//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-//     </div>
-// </div>
-
-// The updated content should look like this:
-// <main>
-//     <div class="container">
-//         <h2>Quality & Metrics Reports</h2>
-//         <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-//         <div class="links">
-//             <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//             <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-//         </div>
-//     </div>
-// </main>
-
-// Wrap the content from dependency-graph.html in a <main> tag as well
-// This is a placeholder for the actual content that needs to be wrapped
-// <table id="table-rotated">
-//     ... (table content)
-// </table>
-
-// The updated content should look like this:
-// <main>
-//     <table id="table-rotated">
-//         ... (table content)
-//     </table>
-// </main>
-
-// ... (rest of the updated main.js content)
-
-// ... (code after conflict markers)
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        initDashboard,
+        toggleTableRotation
+    };
+}

@@ -1,6 +1,3 @@
-Here is the resolved content for the `main.js` file:
-
-```javascript
 // Add the missing export of the rotateBack function
 export function rotateBack() {
     console.log('Rotating back...');
@@ -15,21 +12,19 @@ export function addLangAttribute() {
     }
 }
 
-// - REACT_041: Add accessible names to 2 SVGs
+// Merged: Add accessible names to 2 SVGs and also handle 'svg3' and 'svg4'
 export function addSvgAccessibleNames() {
-    const svg1 = document.querySelector('svg');
-    if (svg1) {
-        svg1.setAttribute('aria-hidden', 'true');
-    }
-    const svg2 = document.querySelectorAll('svg')[1];
-    if (svg2) {
-        svg2.setAttribute('aria-hidden', 'true');
-    }
-    const svg3 = document.getElementById('svg3'); // Add an import for it if it's not available
+    const svgs = [...document.querySelectorAll('svg')];
+    svgs.forEach(svg => {
+        if (svg.getAttribute('id')) return;
+
+        svg.setAttribute('aria-hidden', 'true');
+    });
+    const svg3 = document.getElementById('svg3');
     if (svg3) {
         svg3.setAttribute('aria-label', "SVG element with ID svg3");
     }
-    const svg4 = document.getElementById('svg4'); // Add an import for it if it's not available
+    const svg4 = document.getElementById('svg4');
     if (svg4) {
         svg4.setAttribute('aria-label', "SVG element with ID svg4");
     }
@@ -46,13 +41,13 @@ export function fixFakeLink() {
     }
 }
 
-// Newly added functions...
+// Modified: addAccessibleIds function now includes elements with aria-label
 export function addAccessibleIds() {
-    const accessibleElements = document.querySelectorAll('button, a, input, [aria-label]'); // Include elements with aria-label
+    const accessibleElements = document.querySelectorAll('button, a, input, [aria-label]');
 
     let elementIndex = 1;
     accessibleElements.forEach((element) => {
-        if (element.getAttribute('id')) return; // Skip elements with an id attribute
+        if (element.getAttribute('id')) return;
 
         const currentId = `${element.nodeName.toLowerCase()}-${elementIndex}`;
         element.setAttribute('id', currentId);
@@ -61,7 +56,6 @@ export function addAccessibleIds() {
 }
 
 // ... (other existing code, exports, and functions from main.js)
-=========================================
 ```
 
-In this resolved version, the `addSvgAccessibleNames()` function has been modified to handle 4 SVG elements including 'svg3' and 'svg4'. The `addAccessibleIds()` function now also includes elements with `aria-label`.
+The `addSvgAccessibleNames` function now handles all SVG elements, and the `addAccessibleIds` function includes elements with `aria-label`. The unnecessary conflict markers have been removed as well.

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 // TODO: Address accessibility issues from insight report
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -50,12 +53,12 @@ function addMainLandmark() {
   const mainContent = document.querySelector(mainContentSelector);
   if (mainContent) {
     mainContent.insertAdjacentHTML('afterbegin', '<main></main>');
-    mainContent.insertBefore(mainContent.firstChild, mainContent.firstChild);
+    mainContent.insertBefore(mainContent.firstChild, [PERSON_NAME]);
   }
 }
 
 // Call the function to add <main> landmark to each page (unchanged)
-addMainLandmark();
+[ADDRESS]();
 
 // Accessibility: Add lang attribute to HTML element (DONE: addLangAttribute)
 function addLangAttribute() {

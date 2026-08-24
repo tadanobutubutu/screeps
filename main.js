@@ -6,6 +6,10 @@ import { Layout } from './Layout'; // Import the Layout component
 const App = () => {
   return (
     <div>
+      {/* Skip link for keyboard accessibility */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Layout />
     </div>
   );
@@ -18,9 +22,12 @@ export default App;
 const Layout = ({ icons }) => {
   return (
     <div>
-      {/* Assuming the icons prop is an object with keys like 'favicon' and values as SVG strings */}
-      <link rel="icon" href={`data:image/svg+xml;utf8,${encodeURIComponent(icons.favicon)}`} aria-hidden="true" />
-      {/* Other layout content */}
+      {/* Skip link target */}
+      <main id="main-content" role="main">
+        {/* Assuming the icons prop is an object with keys like 'favicon' and values as SVG strings */}
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" aria-hidden="true" />
+        {/* Other layout content */}
+      </main>
     </div>
   );
 };
@@ -31,7 +38,7 @@ export { Layout };
 
 // Example of how you might define the icons in a separate file or within the component
 const icons = {
-  favicon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  favicon: '<svg viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...',
   // ... other icons
 };
 

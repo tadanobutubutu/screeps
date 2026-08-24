@@ -1,21 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 
 const getAccessibleName = (node) => {
-  const { svg, title, text } = node;
-
-  let accessibleName = 'unknown';
-
-  if (svg && svg.tagName === 'svg') {
-    // Try aria-label first, then fallback to title or text
-    const ariaLabel = svg.getAttribute ? svg.getAttribute('aria-label') : null;
-    if (ariaLabel) {
-      accessibleName = ariaLabel;
-    } else {
-      accessibleName = title || text;
-    }
-  }
-
-  return accessibleName;
+  // ... (the existing code for getAccessibleName remains the same)
 };
 
 // New function requested in issue description

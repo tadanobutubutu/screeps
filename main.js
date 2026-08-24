@@ -81,10 +81,10 @@ const styles = {
 export function FormComponent({ hasError, isSuccess }) {
   if (hasError) {
     return (
-      <section style={styles.errorWrapper}>
+      <section style={styles.errorWrapper} aria-live="polite">
         <article style={styles.errorCard}>
           <h1 style={styles.errorTitle}>Error</h1>
-          <p style={styles.errorMessage}>
+          <p style={styles.errorMessage} aria-live="assertive">
             An error occurred. Please try again later.
           </p>
         </article>
@@ -109,10 +109,24 @@ export function FormComponent({ hasError, isSuccess }) {
     <main style={styles.wrapper}>
       <div style={styles.card}>
         <h1 style={styles.title}>Login</h1>
-        <form style={styles.form}>
-          <input type="text" placeholder="Username" style={styles.input} />
-          <input type="password" placeholder="Password" style={styles.input} />
-          <button type="submit" style={styles.button}>
+        <form style={styles.form} noValidate>
+          <input
+            type="text"
+            placeholder="Username"
+            style={styles.input}
+            aria-label="Username"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            style={styles.input}
+            aria-label="Password"
+          />
+          <button
+            type="submit"
+            style={styles.button}
+            aria-label="Submit"
+          >
             Submit
           </button>
         </form>

@@ -1,4 +1,3 @@
-tsx
 // Hypothetical before and after code snippet for Dashboard.tsx
 
 // Before:
@@ -17,7 +16,6 @@ tsx
 //   </section>
 // </main>
 
-// New function to add lang attribute to docs/dependency-graph.html
 const fs = require('fs');
 
 function addLangAttribute(filePath) {

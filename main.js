@@ -93,6 +93,13 @@ function hasValidTHScope(cell) {
 // Add proper landmark regions
 function addProperLandmarkRegions() {
   // Implementation code
+  const landmarkElements = ['header', 'nav', 'footer', 'article', 'section'];
+  landmarkElements.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (element) {
+      element.setAttribute('role', landmark);
+    }
+  });
 }
 
 // Example usage of the accessibility functions

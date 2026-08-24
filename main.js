@@ -7,7 +7,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-
 // Address accessibility issues from insight report
 // TODO-hash: 4960bda78b23b568ecb422d6e6eb9ceac6573ea
 

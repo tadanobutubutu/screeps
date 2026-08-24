@@ -1,9 +1,14 @@
 // Add new function for rendering dependency graph for a specific scope
 function renderDependencyGraphForScope(scope) {
     // Implement the logic for generating and rendering the dependency graph for the given scope
-    // For the purpose of this example, we will just log the scope to the console
+    // For the purpose of this example, we will just log the scope to the console and add comments for testing
     console.log(`Rendering dependency graph for scope: ${scope}`);
     // Placeholder for actual rendering logic
+
+    // Example: Add comments for testing purposes
+    if (scope === 'test-scope') {
+        console.log(' Testing rendering for scope: test-scope');
+    }
 }
 
 // Update existing function to include the renderDependencyGraphForScope function
@@ -42,30 +47,8 @@ export const testUtils = {
     // Other utilities...
 };
 
-// Update the 'rotate back' link in docs/dependency-graph.html to use a <button> element
-// In docs/dependency-graph.html, find the following line and replace it:
-// <a id="unrotate" href="#">rotate back</a>
-// With:
-// <button id="unrotate">rotate back</button>
-// Then, add the new rotateBack function as follows:
-
-function rotateBack() {
+// New export to handle rotate back functionality
+export function rotateBack() {
     console.log('Rotating back...');
     // Placeholder for actual rotate back logic
 }
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// document.documentElement.setAttribute('lang', 'en');
-
-// - REACT_017: Add/fix 4 landmark issues
-// Placeholder for adding landmark roles
-
-// - REACT_041: Add accessible names to 2 SVGs
-// Placeholder for adding accessible names to SVGs
-
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// Placeholder for ensuring unique landmarks
-
-// - REACT_036: Fix 1 fake link issue
-// Placeholder for fixing fake link issues

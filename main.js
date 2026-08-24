@@ -1,6 +1,3 @@
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
 // Import required module(s) for addressing the new issue
 import { getElementById } from './helpers.js';
 export { getElementById };
@@ -244,7 +241,54 @@ const dependencyGraphContent = '';
  */
 const indexContent = '';
 
-// Add a new function to address the accessibility issue on the button
+/**
+ * REACT_017: Add/fix landmark issues - add proper landmark regions
+ * Adds navigation and complementary landmarks for better accessibility
+ */
+function addLandmarkRegions() {
+  if (typeof document === 'undefined') return;
+
+  const body = document.body;
+  if (!body) return;
+
+  const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside'];
+  const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
+
+  // Check if there is already a navigation landmark
+  const existingNav = document.querySelector('nav[role="navigation"], nav:not([role]), [role="navigation"]');
+  if (!existingNav) {
+    // Try to find a nav element or create one around navigation links
+    const navLinks = document.querySelectorAll('a[href], ul li a, .nav a, .menu a, .navigation a');
+    if (navLinks.length > 0) {
+      const nav = document.createElement('nav');
+      nav.setAttribute('role', 'navigation');
+      nav.setAttribute('aria-label', 'Main Navigation');
+      const parent = navLinks[0].closest('ul, ol, div, span');
+      const container = parent || body;
+      container.parentNode.insertBefore(nav, container);
+      nav.appendChild(container);
+    }
+  }
+
+  // Check if there is already a complementary landmark
+  const existingAside = document.querySelector('aside[role="complementary"], aside:not([role]), [role="complementary"]');
+  if (!existingAside) {
+    const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');
+    if (asideElements.length > 0) {
+      const aside = document.createElement('aside');
+      aside.setAttribute('role', 'complementary');
+      aside.setAttribute('aria-label', 'Related Content');
+      const firstAside = asideElements[0];
+      firstAside.parentNode.insertBefore(aside, firstAside);
+      while (firstAside.firstChild) {
+        aside.appendChild(firstAside.firstChild);
+      }
+      firstAside.parentNode.removeChild(firstAside);
+    }
+  }
+}
+
+// Add a new function to address the button accessibility issue
 function addressButtonAccessibility() {
   if (typeof document === 'undefined') return;
 
@@ -277,6 +321,9 @@ function addressAccessibilityIssues() {
 
   // REACT_017: Add/fix 4 landmark issues
   addMainLandmark();
+
+  // Add proper landmark regions for accessibility
+  addLandmarkRegions();
 
   // REACT_025: Ensure unique landmarks (2 issues)
   ensureUniqueLandmarks();
@@ -312,6 +359,7 @@ export {
   addSvgAccessibleNames,
   addressAccessibilityIssues,
   addressButtonAccessibility,
+  addLandmarkRegions,
   dependencyGraphContent,
   indexContent
 };

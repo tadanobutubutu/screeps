@@ -23,7 +23,7 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
     if (!htmlElement.lang) {
-      htmlElement.lang = htmlElement.lang || 'en';
+      htmlElement.lang = 'en';
     }
   }
 
@@ -68,7 +68,7 @@ function addressAccessibilityIssues() {
     landmarks.nav.forEach((nav) => {
       if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
         const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
-        nav.setAttribute('aria-label', navLabels[navIndex] || `Navigation ${navIndex + 1}`);
+        nav.setAttribute('aria-label', navLabels[navIndex] || 'Navigation ' + (navIndex + 1));
         navIndex++;
       }
     });
@@ -93,36 +93,36 @@ function addressAccessibilityIssues() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
       if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        const titleId = `svg-title-${index + 1}`;
+        const titleId = 'svg-title-' + (index + 1);
         let title = svg.querySelector('title');
         if (!title) {
           title = document.createElement('title');
           title.id = titleId;
-          title.textContent = `SVG graphic ${index + 1}`;
+          title.textContent = 'SVG graphic ' + (index + 1);
           svg.insertBefore(title, svg.firstChild);
         } else if (!title.id) {
           title.id = titleId;
         }
-        svg.setAttribute('aria-labelledby', title.id);
+        svg.setAttribute('aria-labelledby', titleId);
       }
     });
 
     // Fix fake links (links that don't navigate)
-    const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+    const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""]');
     fakeLinks.forEach((link) => {
       if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
         // Check if it's actually a link or a button
         if (link.getAttribute('role') === 'button' || link.onclick) {
           // Convert to proper button
           link.setAttribute('role', 'button');
-          link.setAttribute('tabindex', '0');
+          link.setAttribute('aria-pressed', '0');
         }
       }
     });
 
     // Ensure main landmark is present and unique
     if (landmarks.main.length === 0) {
-      const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
+      const mainContent = document.querySelector('main') || document.querySelector('[role="main"]') || document.querySelector('article') || document.querySelector('div[role="main"]');
       if (mainContent) {
         mainContent.setAttribute('role', 'main');
       }

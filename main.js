@@ -32,6 +32,16 @@ function addAllSvgAccessibleNames() {
     svgs.forEach(svg => addSvgAccessibleNames(svg));
 }
 
+// New function to fix an issue where SVGs (e.g., favicons) are missing accessible name
+function addAriaHiddenToSvgIcons() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        if (!svg.hasAttribute('aria-hidden')) {
+            svg.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
 // New function to fix table structure issues
 function fixTableStructureIssues() {
     // Addresses table structure issues by ensuring each table has a <thead>
@@ -214,6 +224,7 @@ function fixFakeLinkIssue() {
 setHtmlLangAttribute('en');
 ensureUniqueLandmarks();
 fixTableStructureIssues();
+addAriaHiddenToSvgIcons();
 fixFakeLinkIssue();
 addProperLandmarkRegions();
 wrapPrimaryContentInMain();
@@ -222,8 +233,7 @@ export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,
     addAllSvgAccessibleNames,
-    addAllTableHeadersScope,
-    fixInputAccessibility, // not added, already resolved in initial code
+    addAriaHiddenToSvgIcons,
     fixTableStructureIssues,
     addProperLandmarkRegions,
     fixTableConstraints,

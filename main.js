@@ -2,7 +2,7 @@
 // The functions below have been created to match the exported names
 
 // Import required module(s) for addressing the new issue
-import { getElementById } from './helpers.js'; // Assume there is a helpers.js where you can find the getElementById function
+import { getElementById } from './helpers.js';
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -164,12 +164,39 @@ function addSvgAccessibleNames() {
 }
 
 /**
- * Placeholder content for dependency graph
+ * REACT_036: Fix 1 fake link issue
+ */
+function fixFakeLinks() {
+  if (typeof document === 'undefined') return;
+
+  const links = document.querySelectorAll('a[href^="#"]');
+  links.forEach((link) => {
+    if (link.hasAttribute('tabindex')) {
+      link.removeAttribute('tabindex');
+    }
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const srcElement = e.srcElement || e.target;
+      const target = srcElement.hash;
+      const dest = document.querySelector(target);
+
+      if (dest) {
+        // Set focus on the target element
+        dest.focus();
+        // Scroll to the target position
+        scrollTo({ top: dest.offsetTop, behavior: 'smooth' });
+      }
+    });
+  });
+}
+
+/**
+ * Placeholder content for dependencyGraphContent
  */
 const dependencyGraphContent = '';
 
 /**
- * Placeholder content for index
+ * Placeholder content for indexContent
  */
 const indexContent = '';
 
@@ -214,22 +241,7 @@ function addressAccessibilityIssues() {
   addSvgAccessibleNames();
 
   // REACT_036: Fix 1 fake link issue
-  const fakeLinks = document.querySelectorAll('a');
-  fakeLinks.forEach((link) => {
-    const href = link.getAttribute('href');
-    const hasClick = typeof link.onclick === 'function' ||
-                     link.hasAttribute('ng-click') ||
-                     link.hasAttribute('v-on:click') ||
-                     link.hasAttribute('@click');
-    if (link.getAttribute('role') === 'button' || hasClick || !href || href === '#' || href === '') {
-      if (link.getAttribute('role') !== 'button') {
-        link.setAttribute('role', 'button');
-      }
-      if (!link.hasAttribute('tabindex') || link.getAttribute('tabindex') !== '0') {
-        link.setAttribute('tabindex', '0');
-      }
-    }
-  });
+  fixFakeLinks();
 
   // Call the new function to address the button accessibility issue
   addressButtonAccessibility();

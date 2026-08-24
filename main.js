@@ -40,7 +40,7 @@ function createSvgAccessibilityProps() {
   // Implementation code
 }
 
-// Ensure unique landmarks (2 issues)
+// Add accessible names to 2 SVGs
 function ensureUniqueLandmarks() {
   // Implementation code
 }

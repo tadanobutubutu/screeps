@@ -6,12 +6,12 @@ import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
 
-function getLangAttribute() {
+function addLangAttribute() {
   const html = document.documentElement;
-  return html.getAttribute('lang') || 'en';
+  html.setAttribute('lang', getLangAttribute());
 }
 
-function getFullLangAttribute() {
+function getLangAttribute() {
   const lang = document.documentElement.lang;
   return lang ? lang : 'en';
 }
@@ -58,31 +58,6 @@ function validateTableStructure() {
   return isValid;
 }
 
-function getSvgAccessibleName() {
-  const svgs = document.querySelectorAll('svg');
-  for (let i = 0; i < svgs.length; i++) {
-    const svg = svgs[i];
-    const ariaLabel = svg.getAttribute('aria-label');
-    if (ariaLabel) return ariaLabel;
-    const title = svg.getAttribute('title');
-    if (title) return title;
-  }
-  return '';
-}
-
-// REACT_025: Ensure unique landmarks
-// Fixed by simplifying the code to add aria-labelledby attribute
-function ... {
-  const landmarks = [... document.querySelectorAll('nav, footer, aside, main, header')];
-  landmarks.forEach(landmark => {
-    const role = landmark.role || landmark.tagName.toLowerCase();
-    if (role && landmark.id) {
-      landmark.setAttribute('aria-labelledby', landmark.id);
-    }
-  });
-}
-
-// REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
@@ -93,6 +68,29 @@ function addSvgAccessibleNames() {
     titleEl.textContent = title;
     svg.appendChild(titleEl);
   });
+}
+
+// REACT_025: Ensure unique landmarks
+// Fixed by simplifying the code to add aria-labelledby attribute
+function addUniqueLandmarks() {
+  const landmarks = [... document.querySelectorAll('nav, footer, aside, main, header')];
+  landmarks.forEach(landmark => {
+    const role = landmark.role || landmark.tagName.toLowerCase();
+    if (role && landmark.id) {
+      landmark.setAttribute('aria-labelledby', landmark.id);
+    }
+  });
+}
+
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a[href="#"]');
+  const isValid = !links.length;
+  links.forEach(link => {
+    if (link.textContent) {
+      isValid = false;
+    }
+  });
+  return isValid;
 }
 
 // Helper function to add title to favicon for accessibility
@@ -204,6 +202,8 @@ function addressAccessibilityIssues() {
   addLangAttribute();
   addFaviconAccessibleName();
   addSvgAccessibleNames();
+  addUniqueLandmarks();
+  fixFakeLinkIssue();
 }
 
 // Example usage of the accessibility functions

@@ -8,7 +8,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Existing content */}
+        {children}
+        {/* New content to handle the unique landmarks */}
+        <main id="primary-content">
+          {/* Primary content goes here */}
+          {children}
+        </main>
+      </body>
     </html>
   );
 }

@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 
 // Existing code from main.js that needs to be preserved
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
   myCustomIcon: 'data:image/svg+xml,<svg aria-label="My Custom Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>My Custom Icon</title><text y="0.9em" font-size="90">🌐</text></svg>',
 };
 

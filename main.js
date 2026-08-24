@@ -36,7 +36,7 @@ function normalizeItem(item) {
     if (typeof item === 'object' && item !== null) {
         const normalized = {};
         for (const key in item) {
-            if (item.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
                 normalized[key] = normalizeItem(item[key]);
             }
         }
@@ -48,7 +48,7 @@ function normalizeItem(item) {
 function extractMetadata(data) {
     const metadata = {
         type: Array.isArray(data) ? 'array' : typeof data,
-        length: Array.isArray(data) ? data.length : (typeof data === 'object' ? Object.keys(data).length : 0),
+        length: Array.isArray(data) ? data.length : (typeof data === 'object' && data !== null ? Object.keys(data).length : 0),
         timestamp: Date.now()
     };
     return metadata;
@@ -66,7 +66,7 @@ initialize(() => {
     addressAccessibilityIssues();
 });
 
- // Fix REACT_015: Add proper lang attribute to HTML element
+// Fix REACT_015: Add proper lang attribute to HTML element
 export function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }
@@ -283,7 +283,6 @@ export function addLandmarkRegions() {
                 children: [header]
             }
         };
-        // You may want to apply more specific styling or add additional properties based on the situation.
         document.body.insertBefore(landmark.props.children[0], header);
     });
     landmarksByType['nav'].forEach((nav, index) => {
@@ -295,7 +294,6 @@ export function addLandmarkRegions() {
                 children: [nav]
             }
         };
-        // You may want to apply more specific styling or add additional properties based on the situation.
         document.body.insertBefore(landmark.props.children[0], nav);
     });
 }

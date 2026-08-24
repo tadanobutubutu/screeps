@@ -10,13 +10,40 @@ function createAccessibleSVG(iconData, ariaLabel) {
   };
 }
 
-// Example usage of the createAccessibleSVG function in the layout component
-const icons = {
-  icon: createAccessibleSVG(
-    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-    'Screeps Dashboard Icon'
-  ),
-};
+// Main module for Screeps documentation generation
+// Handles table structure validation and rendering
 
-// Export the icons for use throughout the application
-export { icons };
+/**
+ * Generates a React table with proper scope attributes for accessibility
+ */
+function generateAccessibleTable() {
+  const table = `
+    <table>
+      <thead>
+        <tr>
+          <th scope="col"><div>src/constants.js</div></th>
+          <th scope="col"><div>src/managers/roomManager.js</div></th>
+          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <th scope="col"><div>src/managers/towerManager.js</div></th>
+          <th scope="col"><div>src/roles/builder.js</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td scope="row"><div>Header Cell</div></td>
+          <td scope="row"><div>Data Cell</div></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+  
+  // Export the generated table
+  return table;
+}
+
+// Example usage
+const accessibleTable = generateAccessibleTable();
+console.log(accessibleTable);
+
+// Export for use in other modules
+export { createAccessibleSVG, generateAccessibleTable };

@@ -1,10 +1,1 @@
-function main() {
-  return 'Hello, World!';
-}
-
-// Adding a new function to add aria-label to SVGs for accessibility
-function addAriaLabelToSVG(svgString) {
-  return svgString.replace(/<svg/g, '<svg aria-label="Accessible Name for SVG"');
-}
-
-module.exports = { main, addAriaLabelToSVG };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

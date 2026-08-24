@@ -66,6 +66,7 @@ function ensureUniqueLandmarks() {
 function hasMultipleMainElements() {
   return document.querySelectorAll('main').length > 1;
 }
+
 // Set default language attribute for the HTML root element
 if (typeof document !== 'undefined') {
   document.documentElement.lang = 'en';

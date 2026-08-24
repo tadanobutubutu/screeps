@@ -1,13 +1,21 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// - REACT_036: Fix 1 fake link issue
+// TODO: initialize logic (preserved from original)
+const initialize = () => {
+  addLangAttribute();
+  addAccessibleNamesToSVGs();
+  fixFakeLinkIssues();
+  fixLandmarkIssues();
+  
+  // Initialize unique landmarks
+  const uniqueLandmarkChecker = uniqueLandmarks();
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
+  landmarks.forEach(landmark => uniqueLandmarkChecker(landmark));
+  
+  addLandmarkRegions();
+};
 
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
   }
@@ -21,14 +29,14 @@ const addAccessibleNamesToSVGs = () => {
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
-      svg.appendChild(titleElement);
+      svg.insertBefore(titleElement, svg.firstChild);
     }
   });
 };
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#]');
+  const fakeLinks = document.querySelectorAll('.fake-link, [role="link"]:not([href])');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -48,11 +56,11 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.keys(landmarks).forEach(role => {
+  Object.entries(landmarks).forEach(([role, expectedRole]) => {
     const elements = document.querySelectorAll(role);
     elements.forEach(element => {
-      if (element.getAttribute('role') !== landmarks[role]) {
-        element.setAttribute('role', landmarks[role]);
+      if (element.getAttribute('role') !== expectedRole) {
+        element.setAttribute('role', expectedRole);
       }
     });
   });
@@ -61,7 +69,7 @@ const fixLandmarkIssues = () => {
 // Accessibility fix for REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
 const uniqueLandmarks = () => {
   // Implementation to ensure all landmarks have unique IDs
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
   const existingIds = new Set();
   landmarks.forEach(landmark => {
     if (landmark.id) {
@@ -74,10 +82,10 @@ const uniqueLandmarks = () => {
 
     if (!element.id) {
       let counter = 1;
-      let newId = `landmark-${counter}`;
+      let newId = element.tagName.toLowerCase() + '-' + counter;
       while (existingIds.has(newId)) {
         counter++;
-        newId = `landmark-${counter}`;
+        newId = element.tagName.toLowerCase() + '-' + counter;
       }
       element.id = newId;
       existingIds.add(newId);
@@ -92,7 +100,7 @@ const addLandmarkRegions = () => {
   // Implementation to add proper landmark regions for accessibility
   // This function would likely involve adding ARIA roles and properties
   // to ensure landmarks are properly identified by screen readers
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
   landmarks.forEach(landmark => {
     // Check if the landmark already has the proper role
     if (landmark.getAttribute('role') === null) {
@@ -114,4 +122,4 @@ const addLandmarkRegions = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues };
+export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, initialize };

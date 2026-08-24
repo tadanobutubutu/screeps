@@ -52,6 +52,35 @@ function indexFunction() {
   return indexContent;
 }
 
+// Accessibility: Updated app/layout.tsx and dashboard/app/layout.tsx to include aria-label for SVGs
+function updateLayoutAccessibility() {
+  const layoutFiles = ['app/layout.tsx', 'dashboard/app/layout.tsx'];
+  layoutFiles.forEach((filePath) => {
+    const layoutContent = require(filePath);
+    if (layoutContent && layoutContent.icons) {
+      Object.keys(layoutContent.icons).forEach((key) => {
+        const iconData = layoutContent.icons[key];
+        const svgString = iconData.icon;
+        const svgData = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+        const svgElement = svgData.documentElement;
+
+        // Add a title element to provide an accessible name
+        if (!svgElement.querySelector('title')) {
+          const title = document.createElement('title');
+          title.textContent = key; // Use the key as the title for simplicity
+          svgElement.appendChild(title);
+        }
+
+        // Replace the icon data with the updated SVG string
+        layoutContent.icons[key].icon = 'data:image/svg+xml,' + svgData.toString();
+      });
+    }
+  });
+}
+
+// Execute the accessibility update
+updateLayoutAccessibility();
+
 // ... other functions and exports
 
 // Added the required exports

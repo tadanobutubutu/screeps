@@ -34,9 +34,9 @@ function addAllSvgAccessibleNames() {
 
 // New function to fix an issue where SVGs (e.g., favicons) are missing accessible name
 function addMissingSvgAccessibleNames() {
-    const svgs = document.querySelectorAll('svg');
+    const svgs = document.querySelectorAll('svg:not([role="img"]):not([aria-labelledby])');
     svgs.forEach(svg => {
-        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        if (!svg.querySelector('title') || !svg.querySelector('desc')) {
             svg.setAttribute('aria-hidden', 'true');
         }
     });
@@ -129,7 +129,7 @@ function ensureUniqueLandmarks() {
     });
     
     // Handle elements with explicit role attributes
-    const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="banner"], [role="search"]');
+    const landmarkElements = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"], [role="banner"], [role="search"]');
     landmarkElements.forEach(el => {
         const role = el.getAttribute('role');
         if (role) {
@@ -186,7 +186,7 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
@@ -218,7 +218,8 @@ function createAccessibleLink() {
 }
 
 function wrapPrimaryContentInMain() {
-    const main = document.querySelector('main');
+    // Check if a main element already exists
+    const main = document.querySelector('main, [role="main"]');
     if (main) {
         return;
     }
@@ -226,16 +227,20 @@ function wrapPrimaryContentInMain() {
     if (!body) {
         return;
     }
+    // Find non-landmark children of body that should be wrapped in main
     const nonLandmarks = Array.from(body.children).filter(element => {
         const tag = element.tagName.toLowerCase();
-        return !['header', 'nav', 'aside', 'footer', 'script', 'style'].includes(tag);
+        return !['header', 'nav', 'aside', 'footer', 'script', 'style', 'link', 'meta'].includes(tag);
     });
     if (nonLandmarks.length === 0) {
         return;
     }
+    // Create main element
     const mainEl = document.createElement('main');
     const first = nonLandmarks[0];
+    // Insert main element before the first non-landmark content
     body.insertBefore(mainEl, first);
+    // Move all non-landmark content into the main element
     nonLandmarks.forEach(child => mainEl.appendChild(child));
 }
 
@@ -258,22 +263,22 @@ function fixFakeLinkIssue() {
         // Clean up any stray nested <a> elements that might have been added earlier
         const nestedAnchor = link.querySelector('a');
         if (nestedAnchor) {
-            link.removeChild(nestedAnchor);
+            nestedAnchor.remove();
         }
     });
 }
 
 // Additional calls to address accessibility items
 addAllSvgAccessibleNames();
+addMissingSvgAccessibleNames();
 fixTableStructureIssues();
 ensureUniqueLandmarks();
 fixTableConstraints();
 validateTableAccessibility();
 validateTableStructure();
 validateLandmark();
-validateLandmarkStructure();
+wrapPrimaryContentInMain();
 fixFakeLinkIssue();
-addMissingSvgAccessibleNames();
 
 export {
     setHtmlLangAttribute,

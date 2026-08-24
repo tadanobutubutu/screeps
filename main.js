@@ -3,22 +3,18 @@ import { dependencyGraphContent } from './dependencyGraphContent.js';
 import { indexContent } from './indexContent.js';
 
 // Assuming you have a button with ID 'myButton'
-... 'My Button');
-... 'button');
-... 'false');
+const button = document.getElementById('myButton');
+button.innerHTML = 'My Button';
+button.type = 'button';
+button.disabled = false;
 
 // New function to handle button click
 function handleButtonClick() {
-  const button = ...
-  ... 'true');
+  button.disabled = true;
 }
 
 // Attach click event listener to the button
-... handleButtonClick);
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
+button.addEventListener('click', handleButtonClick);
 
 // Function to render dependency graph
 function renderDependencyGraph() {

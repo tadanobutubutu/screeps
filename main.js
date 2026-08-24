@@ -32,12 +32,13 @@ function App() {
       <svg aria-label="App SVG">
         {/* SVG content */}
       </svg>
+      {/* After (accessible fix): */}
+      <button id="unrotate">rotate back</button>
     </div>
   );
 }
 
 const generateRotateBackControl = () => {
-  // After (accessible fix):
   return '<button id="unrotate">rotate back</button>';
 };
 

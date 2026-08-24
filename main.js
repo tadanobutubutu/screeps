@@ -145,9 +145,5 @@ function validateLandmark() {
   // ... existing logic ...
 }
 
-function validateUniqueLandmarks() {
-  // ... existing logic ...
-}
-
 // Additional exports if needed
 export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel };

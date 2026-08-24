@@ -25,4 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Replace the anchor with the button
     unrotateElement.parentNode.replaceChild(button, unrotateElement);
   }
+
+  // Assuming the rest of the main.js functionality is here
+  // ...
 });

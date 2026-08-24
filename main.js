@@ -294,8 +294,9 @@ function addressAccessibilityIssues() {
   addLandmarkRegions();
   validateUniqueLandmarks();
   addSvgAccessibleNames();
-  fixFaviconAccessibility(); // Added for REACT_041: Fix favicon accessibility
   fixFakeLinkIssue();
+  // ADD NEW FUNCTION
+  fixFaviconAccessibility();
 }
 
 // Example usage of the accessibility functions

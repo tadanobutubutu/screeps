@@ -10,7 +10,7 @@
 const generateRotateBackControl = () => {
   // Before (accessibility issue):
   // return '<a id="unrotate" href="#">rotate back</a>';
-  
+
   // After (accessible fix):
   return '<button id="unrotate">rotate back</button>';
 };
@@ -26,4 +26,5 @@ const setupRotateBack = () => {
 };
 
 // Export if using module system
+// Note: Preserving the existing exports to not interfere with the existing code
 // module.exports = { generateRotateBackControl, setupRotateBack };

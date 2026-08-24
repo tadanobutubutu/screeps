@@ -300,6 +300,44 @@ export function addLandmarkRegions() {
     });
 }
 
+// Fix REACT_017: Validate landmark structure and roles
+export function validateLandmark(landmark) {
+    if (!landmark) return false;
+    const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region', 'search'];
+    const role = landmark.getAttribute('role');
+    if (role && validRoles.includes(role)) {
+        return true;
+    }
+    const tagName = landmark.tagName.toLowerCase();
+    const validTags = ['header', 'nav', 'main', 'footer', 'aside'];
+    if (validTags.includes(tagName)) {
+        return true;
+    }
+    return false;
+}
+
+export function validateLandmarkStructure() {
+    const issues = [];
+    const landmarks = document.querySelectorAll('header, nav, main, footer, aside, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="form"], [role="region"], [role="search"]');
+    const ids = new Set();
+    landmarks.forEach((landmark, index) => {
+        if (!validateLandmark(landmark)) {
+            issues.push(`Landmark at index ${index} has invalid structure or role`);
+        }
+        const id = landmark.id;
+        if (id) {
+            if (ids.has(id)) {
+                issues.push(`Duplicate landmark ID: ${id}`);
+            } else {
+                ids.add(id);
+            }
+        } else {
+            issues.push(`Landmark at index ${index} missing id attribute`);
+        }
+    });
+    return { valid: issues.length === 0, issues };
+}
+
 export function addressAccessibilityIssues() {
     ensureUniqueLandmarks();
     createSvgWithAccessibleName(Array.from(document.querySelectorAll('svg')), 'Icon');

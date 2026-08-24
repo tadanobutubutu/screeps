@@ -150,15 +150,6 @@ function wrapPrimaryContentInMain() {
     return main;
 }
 
-// Call the function to ensure the page has a <main> landmark
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', wrapPrimaryContentInMain);
-    } else {
-        wrapPrimaryContentInMain();
-    }
-}
-
 // Helper function to get lang attribute
 function getLangAttribute() {
     return document.documentElement.lang;

@@ -1,13 +1,14 @@
 import dependencyGraphContent from './dependencyGraphContent';
 import indexContent from './indexContent';
 
+
 // Function to fetch heading levels from the HTML content
 function getHeadingLevels(html) {
   const headingLevels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-  const headings = html.match(/<h[1-6][^>]*>/g);
+  const headings = ...
 
   headings?.forEach(heading => {
-    const headingLevel = parseInt(heading.slice(1));
+    const headingLevel = ...
     headingLevels[headingLevel]++;
   });
 
@@ -24,16 +25,16 @@ function addressIssuesFromInsightReport() {
 
   // Address additional accessibility issues requested in the insight report
   // Example: let's assume the insight report identified missing ARIA roles on <div> elements (REACT_038)
-  const divElementsWithoutRole = content.matchAll(/<div\b[^>]*>(?![@role|role=\s*["'][^"']+\b)/gi);
+  const divElementsWithoutRole = ...
   let divsWithoutRoleCount = 0;
-  divElementsWithoutRole.forEach(() => divsWithoutRoleCount++);
+  ... => ...
 
   if (divsWithoutRoleCount > 0) {
-    throw new Error(`${divsWithoutRoleCount} <div> elements are missing ARIA roles.`);
+    throw new ... <div> elements are missing ARIA roles.`);
   }
 
   // Update the summary values for consistency with original return shape
-  results.summary += `, missing ARIA roles on <div> elements=${divsWithoutRoleCount}`;
+  results.ummary += `, missing ARIA roles on <div> ...
 
   return results;
 }

@@ -7,10 +7,9 @@ const getAccessibleName = (node) => {
 
   if (svg && svg.tagName === 'svg') {
     // Try aria-label first, then fallback to title or text
-    if (svg.getAttribute && svg.getAttribute('aria-label')) {
-      accessibleName = svg.getAttribute('aria-label');
-    } else if (svg.getAttribute && svg.getAttribute('aria-labelledby')) {
-      accessibleName = svg.getAttribute('aria-labelledby');
+    const ariaLabel = svg.getAttribute ? svg.getAttribute('aria-label') : null;
+    if (ariaLabel) {
+      accessibleName = ariaLabel;
     } else {
       accessibleName = title || text;
     }
@@ -30,8 +29,11 @@ const setAccessibleName = (node, accessibleName) => {
   }
 
   // Additional fallback if needed (replace with your library's method)
-  if (node && node.querySelector && node.querySelector('[aria-label]')) {
-    node.querySelector('[aria-label]').setAttribute('aria-label', accessibleName);
+  if (node && node.querySelector) {
+    const titleEl = node.querySelector('title');
+    if (titleEl) {
+      titleEl.textContent = accessibleName;
+    }
   }
 };
 

@@ -26,8 +26,22 @@ function addLandmarkRegions(container, regions = []) {
       element.setAttribute('role', landmarkRoles[regionType]);
       element.className = `landmark-region landmark-${regionType}`;
       addedRegions[regionType] = element;
+      if (regionType === 'main') {
+        element.setAttribute('aria-labelledby', 'main-label'); // Add an aria-labelledby attribute to ID the main landmark
+      }
     }
   });
+
+  if (container.getElementById('main-label')) {
+    // Reuse existing 'main' label if available
+    addedRegions.main.setAttribute('aria-labelledby', 'main-label');
+  } else {
+    // Create a label for the 'main' landmark if one doesn't already exist
+    const mainLabel = document.createElement('h1');
+    mainLabel.id = 'main-label';
+    mainLabel.innerHTML = 'Main Content';
+    container.insertBefore(mainLabel, container.firstChild);
+  }
 
   return addedRegions;
 }
@@ -39,11 +53,7 @@ function addMainLandmark(htmlElements) {
     if (!mainElement) {
       const main = document.createElement('main');
       main.className = 'landmark-main';
-      element.parentNode.insertBefore(main, element);
-      if (element.firstChild) {
-        main.appendChild(element.firstChild);
-        element.removeChild(element.firstChild);
-      }
+      element.appendChild(main);
     }
   });
 }

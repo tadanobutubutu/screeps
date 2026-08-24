@@ -1,7 +1,3 @@
-/*
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-*/
-
 import React from "react";
 
 export default function MainPage() {
@@ -21,8 +17,8 @@ export default function MainPage() {
             <caption>Example Data</caption>
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Value</th>
+                <th>Header 1</th>
+                <th>Header 2</th>
               </tr>
             </thead>
             <tbody>

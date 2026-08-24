@@ -1,3 +1,7 @@
+// main.js - Entry point for the application with accessibility fixes for React components
+import React from 'react';
+import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add/fix 4 landmark issues
@@ -6,16 +10,12 @@
 // - REACT_036: Fix 1 fake link issue
 
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgWithAccessibleName())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
-
-// main.js - Entry point for the application with accessibility fixes for React components
-import React from 'react';
-import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
+// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinks(), addressFakeLinks(), and addressFakeLinkIssue())
 
 function processData(data) {
     if (!data) {
@@ -88,6 +88,14 @@ export function createHtmlElement(language = 'en') {
 export function setLangAttribute(elem, language) {
     if (elem && elem.hasAttribute) {
         elem.lang = language || 'en';
+    }
+}
+
+// New function: addLangAttribute (REACT_015)
+export function addLangAttribute() {
+    const html = document.documentElement;
+    if (!html.hasAttribute('lang')) {
+        html.setAttribute('lang', 'en');
     }
 }
 
@@ -338,9 +346,93 @@ export function validateLandmarkStructure() {
     return { valid: issues.length === 0, issues };
 }
 
+// New function: addProperLandmarkRegions (fixes REACT_017 issues)
+export function addProperLandmarkRegions() {
+    // Ensure main landmark exists
+    if (!document.querySelector('main, [role="main"]')) {
+        const mainContent = document.querySelector('#main-content, .main-content, [role="main"]');
+        if (mainContent) {
+            mainContent.setAttribute('role', 'main');
+        } else {
+            // Wrap primary content in main
+            wrapPrimaryContentInMain(document.body);
+        }
+    }
+
+    // Ensure banner landmark
+    if (!document.querySelector('header, [role="banner"]')) {
+        const header = document.querySelector('header, .header, #header');
+        if (header) header.setAttribute('role', 'banner');
+    }
+
+    // Ensure navigation landmarks
+    document.querySelectorAll('nav, .nav, #nav, .navigation').forEach((nav, index) => {
+        if (!nav.hasAttribute('role')) nav.setAttribute('role', 'navigation');
+        if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+            nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+        }
+    });
+
+    // Ensure contentinfo landmark
+    if (!document.querySelector('footer, [role="contentinfo"]')) {
+        const footer = document.querySelector('footer, .footer, #footer');
+        if (footer) footer.setAttribute('role', 'contentinfo');
+    }
+
+    // Ensure complementary landmarks
+    document.querySelectorAll('aside, .sidebar, .complementary').forEach((aside, index) => {
+        if (!aside.hasAttribute('role')) aside.setAttribute('role', 'complementary');
+        if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+            aside.setAttribute('aria-label', `Complementary ${index + 1}`);
+        }
+    });
+}
+
+// New function: wrapPrimaryContentInMain
+export function wrapPrimaryContentInMain(primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+}
+
+// New function: fixFakeLinkIssue (REACT_036)
+export function fixFakeLinkIssue() {
+  // Find elements that look like links but aren't (e.g., spans, divs with click handlers)
+  const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not([role="link"])');
+  fakeLinks.forEach(elem => {
+    // Convert to proper link or button
+    if (elem.getAttribute('href')) {
+      // Has href, make it a proper link
+      elem.setAttribute('role', 'link');
+      elem.setAttribute('tabindex', '0');
+      // Add keyboard support
+      elem.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          elem.click();
+        }
+      });
+    } else {
+      // No href, make it a button
+      elem.setAttribute('role', 'button');
+      elem.setAttribute('tabindex', '0');
+      elem.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          elem.click();
+        }
+      });
+    }
+  });
+}
+
 export function addressAccessibilityIssues() {
+    addLangAttribute();
     ensureUniqueLandmarks();
     createSvgWithAccessibleName(Array.from(document.querySelectorAll('svg')), 'Icon');
     fixFakeLinks();
+    fixFakeLinkIssue();
     addLandmarkRegions();
+    addProperLandmarkRegions();
 }

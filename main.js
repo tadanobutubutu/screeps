@@ -6,23 +6,25 @@ import { HTMLAttributes, ReactElement } from 'react';
 class Main extends Component {
   render() {
     // Add lang attribute to HTML element
-    const htmlAttributes: ... = {
+    const htmlAttributes = {
       lang: 'en', // Update this with the desired language
     };
 
     // Fix table structure issues (assuming you're using functional components for tables)
     // For brevity, I'll only show one table with suggested changes
-    const Table = ({ children }) => {
+    const Table = ({ children, id }) => {
       // Accessible table structure using semantic HTML components
       return (
-        <table aria-label="Accessible Table">
+        <table id={id} aria-label="Accessible Table">
           <thead>
             <tr>
               <th>Header 1</th>
               <th>Header 2</th>
             </tr>
           </thead>
-          ...
+          <tbody>
+            {children}
+          </tbody>
         </table>
       );
     };
@@ -54,16 +56,18 @@ class Main extends Component {
 
     return (
       <div {...htmlAttributes}>
-        <Landmarks>
-          {/* Keep existing code/components as is */}
-          <Table ...
-          {/* Add updated table with better structure */}
-          <Table id="updatedTable">...</Table>
-          {/* Keep existing SVGs as is */}
-          {Logo()}
-          {MenuIcon()}
-          {fixedLink}
-        </Landmarks>
+        <Landmarks />
+        {/* Keep existing code/components as is */}
+        <Table id="updatedTable">
+          <tr>
+            <td>Data 1</td>
+            <td>Data 2</td>
+          </tr>
+        </Table>
+        {/* Keep existing SVGs as is */}
+        {Logo()}
+        {MenuIcon()}
+        {fixedLink}
         {/* Keep existing mainContent as is */}
         <main id="mainContent" {...uniqueMainContent}>
           {this.props.children}

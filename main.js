@@ -51,8 +51,22 @@ const setupRotateBack = () => {
   }
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// Initialize the application on the client side
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setupRotateBack(); // Ensure button wiring after DOM is ready
+    ReactDOM.render(<App />, document.getElementById('root'));
+  });
+}
 
-// Export if using module system
-export { generateRotateBackControl, setupRotateBack };
-// module.exports = { generateRotateBackControl, setupRotateBack };
+// Export functions for testing and reuse
+export {
+  icons,
+  renderAccessibleSVG,
+  renderLandmarkStructure,
+  generateRotateBackControl,
+  setupRotateBack,
+};
+
+// Add the lang attribute to the root HTML element
+document.documentElement.lang = 'en';

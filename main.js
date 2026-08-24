@@ -1,8 +1,1 @@
-const { someFunction } = require('./utils');
-
-export const someFunction = someFunction;
-
-// TODO: Add back any required exports that might have been removed
-// Here is an example of how to export a required function from another module:
-// Import functions from other modules if needed
-// const { someFunction } = require('./utils');
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

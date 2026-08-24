@@ -171,3 +171,6 @@ export { uniqueLandmarks, addLandmarkRegions };
 
 // Export the new function for Google sign-in logic
 export { googleSignIn };
+
+// Export the remaining accessibility functions
+export { addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, fixTableStructure, fixImageAltTexts };

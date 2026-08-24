@@ -8,20 +8,18 @@ function addLangAttribute() {
 // Fix 26 table structure issues
 function fixTableStructure() {
   const tables = document.querySelectorAll('table');
-  
+
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
-    
+
     rows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('th, td');
-      
+
       cells.forEach((cell, cellIndex) => {
         if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          // If this is the first column, it's a row header
           if (cellIndex === 0) {
             cell.setAttribute('scope', 'row');
           } else {
-            // Otherwise it's a column header
             cell.setAttribute('scope', 'col');
           }
         }
@@ -32,36 +30,20 @@ function fixTableStructure() {
 
 // Add/fix 4 landmark issues
 function addMainLandmark() {
-  // Implementation code
+  const main = document.querySelector('main');
+  main.setAttribute('role', 'main');
 }
 
 function validateLandmark() {
   // Implementation code
 }
 
-function ... {
-  // Implementation code
-}
-
-function validateLandmarkStructure() {
-  // Implementation code
-}
-
-// Add accessible names to 2 SVGs
-function addSvgAccessibleNames() {
-  // Implementation code
-}
-
-function getSvgAccessibleName() {
-  // Implementation code
-}
-
-function ... {
+function ensureUniqueLandmarks() {
   // Implementation code
 }
 
 // Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks() {
+function fixUniqueLandmarks() {
   // Implementation code
 }
 
@@ -78,12 +60,16 @@ function createInPageButton() {
   // Implementation code
 }
 
-function ... {
+function createAccessibleLink() {
   // Implementation code
 }
 
-function createAccessibleLink() {
-  // Implementation code
+// Address accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  fixTableStructure();
+  addMainLandmark();
+  fixUniqueLandmarks();
+  fixFakeLinkIssue();
 }
 
 // Example usage of the accessibility functions
@@ -92,12 +78,5 @@ function createAccessibleLink() {
 ...
 ...
 ...
-...
-...
-...
-...
-...
-...
-...
-...
-...
+// Add the new function at the end
+addressAccessibilityIssues();

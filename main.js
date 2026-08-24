@@ -32,8 +32,7 @@ if (mainElement) {
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  // Replace `` with the concrete URL from the insight report
-  const insightReportUrl = ``;
+  const insightReportUrl = 'REPLACE_WITH_THE_CONCRETE_URL_FROM_THE_INSIGHT_REPORT';
 
   const response = await fetchAPI(insightReportUrl);
   const accessibilityIssues = response.data || response;
@@ -54,14 +53,14 @@ async function addressAccessibilityIssues() {
 
 // New function to add a caption to a missing table
 function addCaptionToMissingTable(table) {
-  // ... (existing code to get table header)
+  const tableHeader = table.getElementsByTagName('thead')[0];
 
   // If a caption exist on the table, return early
-  if (tableCaption) return;
+  if (table.getElementsByTagName('caption').length > 0) return;
 
   const caption = document.createElement('caption');
   caption.textContent = table.id || `Table ${table.dataset.testid}`;
-  table.insertBefore(caption, tableHeader);
+  tableHeader.appendChild(caption);
 }
 
 // New function to assign a unique id to table

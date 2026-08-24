@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addAccessibleNamesToSVGs)

@@ -1,8 +1,8 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 //
@@ -16,6 +16,7 @@
 // ...
 
 // TODO: Implement function for addressing accessibility issues from insight report
+// New function to address accessibility issues as per the insight report
 // New function implementation addressing accessibility issues from insight report
 function addressAccessibilityIssues() {
   // REACT_015: Add lang attribute to HTML element
@@ -23,7 +24,7 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
     if (!htmlElement.lang) {
-      htmlElement.lang = 'en';
+      htmlElement.lang = htmlElement.lang || 'en';
     }
   }
 
@@ -31,7 +32,7 @@ function addressAccessibilityIssues() {
   // This would involve iterating over all tables and applying ARIA roles and labels where needed
   // ...
 
-  // REACT_017: Add/fix 2 landmark issues
+  // REACT_017: Add/fix 4 landmark issues
   // Ensure proper landmark elements are used
   // - Use <header> for site header (not multiple)
   // - Use <nav> for navigation regions with aria-label
@@ -56,11 +57,11 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     // Fix landmark regions with proper labels
     const landmarks = {
-      header: document.querySelectorAll('header'),
+      header: document.querySelectorAll('header:not([role])'),
       nav: document.querySelectorAll('nav'),
       main: document.querySelectorAll('main'),
-      footer: document.querySelectorAll('footer'),
-      aside: document.querySelectorAll('aside')
+      footer: document.querySelectorAll('footer:not([role])'),
+      aside: document.querySelectorAll('aside:not([aria-label])')
     };
 
     // Add aria-labels to nav elements that need them
@@ -68,7 +69,7 @@ function addressAccessibilityIssues() {
     landmarks.nav.forEach((nav) => {
       if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
         const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
-        nav.setAttribute('aria-label', navLabels[navIndex] || 'Navigation ' + (navIndex + 1));
+        nav.setAttribute('aria-label', navLabels[navIndex] || `Navigation ${navIndex + 1}`);
         navIndex++;
       }
     });
@@ -93,22 +94,22 @@ function addressAccessibilityIssues() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
       if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        const titleId = 'svg-title-' + (index + 1);
+        const titleId = `svg-title-${index + 1}`;
         let title = svg.querySelector('title');
         if (!title) {
           title = document.createElement('title');
           title.id = titleId;
-          title.textContent = 'SVG graphic ' + (index + 1);
+          title.textContent = `SVG graphic ${index + 1}`;
           svg.insertBefore(title, svg.firstChild);
         } else if (!title.id) {
           title.id = titleId;
         }
-        svg.setAttribute('aria-labelledby', titleId);
+        svg.setAttribute('aria-labelledby', title.id);
       }
     });
 
     // Fix fake links (links that don't navigate)
-    const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""]');
+    const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
     fakeLinks.forEach((link) => {
       if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
         // Check if it's actually a link or a button
@@ -116,6 +117,7 @@ function addressAccessibilityIssues() {
           // Convert to proper button
           link.setAttribute('role', 'button');
           link.setAttribute('aria-pressed', '0');
+          link.setAttribute('tabindex', '0');
         }
       }
     });

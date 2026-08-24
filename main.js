@@ -299,6 +299,19 @@ function establishLandmarkRegions() {
   }
 }
 
+// Add back any required exports that might have been removed
+export {
+  newIssueFunction,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  establishLandmarkRegions,
+};
+
 addLangAttribute();
 fixTableStructure();
 addMainLandmark();

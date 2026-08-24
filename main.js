@@ -21,15 +21,20 @@ const addMainLandmark = (htmlContent = '') => {
     }
 
     // Check if main landmark already exists
-    if (/<main[^>]*>/.test(htmlContent) || /<div[^>]*role="main"[^>]*>/.test(htmlContent)) {
+    const isMainLandmarkExists = (element) => element.nodeName.toLowerCase() === 'main' || element.getAttribute('role') === 'main';
+    const root = htmlContent.document.querySelector('html');
+    const mainElement = root.querySelector(':scope main') || root.querySelector(':scope div[role="main"]');
+
+    if (mainElement) {
         return htmlContent;
     }
 
     // Add role="main" to the most appropriate container or wrap main content
-    return htmlContent.replace(
-        /(<body[^>]*>)([\s\S]*)(<\/body>)/,
-        '$1$2<div role="main">$3</div>'
-    );
+    const body = root.querySelector('body');
+    const newMain = document.createElement('main');
+    body.insertBefore(newMain, body.firstChild);
+
+    return htmlContent;
 };
 
 const ensureUniqueLandmarks = (htmlContent = '') => {
@@ -38,24 +43,26 @@ const ensureUniqueLandmarks = (htmlContent = '') => {
     }
 
     let result = htmlContent;
+    let headerCounter = 0;
+    let footerCounter = 0;
 
     // Ensure only one header landmark - convert subsequent headers to non-landmark
     const headerMatches = result.match(/<header[^>]*>/g) || [];
     if (headerMatches.length > 1) {
-        let headerCount = 0;
-        result = result.replace(/<header[^>]*>/g, (match) => {
-            headerCount++;
-            return headerCount === 1 ? match : match.replace(/role="banner"/, '');
+        headerMatches.forEach((match) => {
+            headerCounter++;
+            headerCounter === 2 ? (match = match.replace(/role="banner"/, '')) : null;
+            result = result.replace(match, match.replace(/role="banner"/, ''));
         });
     }
 
     // Ensure only one footer landmark - convert subsequent footers to non-landmark
     const footerMatches = result.match(/<footer[^>]*>/g) || [];
     if (footerMatches.length > 1) {
-        let footerCount = 0;
-        result = result.replace(/<footer[^>]*>/g, (match) => {
-            footerCount++;
-            return footerCount === 1 ? match : match.replace(/role="contentinfo"/, '');
+        footerMatches.forEach((match) => {
+            footerCounter++;
+            footerCounter === 2 ? (match = match.replace(/role="contentinfo"/, '')) : null;
+            result = result.replace(match, match.replace(/role="contentinfo"/, ''));
         });
     }
 
@@ -77,14 +84,21 @@ const addAriaLabelToMyDiv = (htmlContent = '') => {
             }
 
             // Add aria-label with a default accessible name
-            return `<div${before}role="link" aria-label="Link"${after}>`;
+            return `<div${before}aria-label="Link" role="link"${after}>`;
         }
     );
 };
 
-// Fix table structure issues and update SVG accessible names will be added separately
+// Fix table structure issues will be addressed separately
 
 // ... existing exports if any ...
+
+// React Table Structure improvement
+const fixTableStructureIssues = (htmlContent = '') => {
+    /* Add code to fix table structure issues based on the `REACT_027` rule */
+};
+
+// ... other exports if any ...
 
 module.exports = {
     mainFunc,

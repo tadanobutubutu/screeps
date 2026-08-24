@@ -12,6 +12,9 @@ const indexModule = require('./index');
 function dependencyGraphFunction() {
   // ... existing code for rendering the dependency graph ...
 
+  // Updated: Import and use dependencyGraphContent from dependencyGraphModule
+  const dependencyGraphContent = dependencyGraphModule.dependencyGraphContent;
+
   // New function for ensuring unique landmarks (added)
   function ensureUniqueLandmarks() {
     // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
@@ -22,12 +25,16 @@ function dependencyGraphFunction() {
   ensureUniqueLandmarks();
 
   // ... other code for returning dependencyGraphContent ...
+  return dependencyGraphContent;
 }
 
 // Accessibility: Updated indexFunction to use indexContent directly
 // with proper accessibility attributes and semantic HTML
 function indexFunction() {
   // ... existing code for rendering the index view ...
+
+  // Updated: Import and use indexContent from indexModule
+  const indexContent = indexModule.indexContent;
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
   function ensureUniqueLandmarks() {
@@ -39,6 +46,7 @@ function indexFunction() {
   ensureUniqueLandmarks();
 
   // ... other code for returning indexContent ...
+  return indexContent;
 }
 
 // Accessibility: Ensure that lang attribute is added to the document's HTML element

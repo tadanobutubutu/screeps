@@ -1,5 +1,5 @@
 // Address accessibility issues from insight report
-// TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
+// TODO-hash: 4960bda78b23b568ecb422d6e6eb9ceac6573ea
 
 // TODO: Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
@@ -49,7 +49,7 @@ function handleAccessibilityIssues(issues) {
                 // Fix 1 fake link issue
                 if (issue.element) {
                     const href = issue.element.getAttribute('href');
-                    if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                    if (href && !href.startsWith('#') && href !== '') {
                         // Valid link, ensure proper semantics
                         issue.element.setAttribute('role', 'link');
                     }
@@ -80,18 +80,16 @@ function fixTableAccessibility(tables) {
             const headers = row.querySelectorAll('th');
             const cells = row.querySelectorAll('td');
             
-            headers.forEach((th, index) => {
-                if (!th.hasAttribute('scope')) {
-                    const isRowHeader = th.getAttribute('data-row-header') !== null;
-                    th.setAttribute('scope', isRowHeader ? 'row' : 'col');
-                }
+            headers.forEach((th) => {
+                const isRowHeader = th.getAttribute('data-row-header') !== null;
+                th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    th.id = `th-${table.id || 'table'}-${row.rowIndex}-${index}`;
+                    th.id = `th-${table.id || table.getAttribute('aria-label') || Math.random().toString(36).substr(2, 9)}`;
                 }
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th');
+                const rowHeaders = row.querySelectorAll('th[data-row-header]');
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -117,8 +115,8 @@ function ensureUniqueLandmarks(landmarkElements) {
         usedRoles.set(role, existingCount + 1);
         
         if (existingCount > 0) {
-            if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-                const label = element.getAttribute('data-landmark-label') || `${role} ${existingCount + 1}`;
+            if (!element.getAttribute('aria-label')) {
+                const label = element.getAttribute('aria-labelledby') || `${role} ${existingCount + 1}`;
                 element.setAttribute('aria-label', label);
             }
             

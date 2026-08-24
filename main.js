@@ -185,11 +185,3 @@ if (typeof document !== 'undefined') {
   addAccessibleSVGs();
   addScopeToTableHeaders();
 }
-
-// Make sure to preserve all existing code and exports
-// If there were any conflicting changes, resolve them according to the rules provided
-// For example, if there were any conflicting exports, decide which one to keep and update the imports/exports accordingly
-
-// Note: dependencyGraphContent was referenced in HEAD but not defined.
-// If needed, import or define it here before exporting.
-// export { dependencyGraphContent };

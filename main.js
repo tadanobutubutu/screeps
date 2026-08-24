@@ -1,2 +1,1 @@
-html
-L188, L189, L190, L191, L192, L193, L194, L195, L196, L197, L198, L199, L200, L535, L536, L537, L538, L539, L540, L541, L542, L543, L544, L545, L546, L547
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

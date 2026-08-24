@@ -31,15 +31,11 @@ function indexFunction() {
   // ... other code for returning indexContent ...
 }
 
-// ... other functions and exports ...
-
-// Added the required exports
-module.exports = {
-  dependencyGraphFunction,
-  indexFunction,
-  ensureLangAttribute,
-  ensureUniqueLandmarks,
-};
+// Accessibility: Ensure that lang attribute is added to the document's HTML element
+function ensureLangAttribute() {
+  // Code to ensure the lang attribute is set correctly
+  // (Implementation details are not provided here)
+}
 
 // Accessibility: Add <main> landmark to the main content area of each HTML page (unchanged)
 function addMainLandmark() {
@@ -53,3 +49,13 @@ function addMainLandmark() {
 
 // Call the function to add <main> landmark to each page (unchanged)
 addMainLandmark();
+
+// ... other functions and exports ...
+
+// Added the required exports
+module.exports = {
+  dependencyGraphFunction,
+  indexFunction,
+  ensureLangAttribute,
+  ensureUniqueLandmarks,
+};

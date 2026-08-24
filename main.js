@@ -14,6 +14,8 @@ function generateAuthUrl() {
   });
 }
 
+// TODO: Address accessibility issues from insight report
+
 module.exports = {
   oAuth2Client,
   generateAuthUrl

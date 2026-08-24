@@ -20,16 +20,27 @@ const getAccessibleName = (node) => {
 
 // New function requested in issue description
 const setAccessibleName = (node, accessibleName) => {
+  // Implementation details for setting the accessible name
+  // You may need to use appropriate methods or attributes to set the accessible name based on the DOM library or framework being used.
+
+  // Assuming your library or framework has a method `setAttribute` to set attributes
   if (!node) {
     return;
   }
 
+  // Try to set aria-label directly on node if it supports setAttribute
   if (typeof node.setAttribute === 'function') {
     node.setAttribute('aria-label', accessibleName);
-    return;
+    return; // Set on the node itself and exit
   }
 
-  if (node.querySelector) {
+  // Fallback: try to set on the SVG element if available
+  if (node.svg && typeof node.svg.setAttribute === 'function') {
+    node.svg.setAttribute('aria-label', accessibleName);
+  }
+
+  // Set title element textContent and fallback aria-label element
+  if (typeof node.querySelector === 'function') {
     const titleEl = node.querySelector('title');
     if (titleEl) {
       titleEl.textContent = accessibleName;

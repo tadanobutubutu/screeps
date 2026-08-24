@@ -126,7 +126,7 @@ function App() {
             {/* Existing App content */}
 
             {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" type="button">Rotate back</button>
+            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
 
             {/* Example of adding scope attribute to a <th> element */}
             <table>

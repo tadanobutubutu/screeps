@@ -17,7 +17,7 @@ function MainComponent() {
           {/* Unique landmark content */}
         </div>
         <div id="fake-link">
-          <a href="#unique-landmark">Link to Unique Landmark</a>
+          <a ... to Unique Landmark</a>
         </div>
         <svg aria-labelledby="svg-title" viewBox="0 0 100 100">
           <title id="svg-title">SVG Title</title>
@@ -30,3 +30,4 @@ function MainComponent() {
 }
 
 export default MainComponent;
+export { MainComponent };

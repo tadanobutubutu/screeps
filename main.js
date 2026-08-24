@@ -1,8 +1,8 @@
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
 };
 
@@ -14,14 +14,15 @@ const addAccessibleNamesToSVGs = () => {
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
-      svg.appendChild(titleElement);
+      svg.insertBefore(titleElement, svg.firstChild);
+      svg.setAttribute('role', 'img');
     }
   });
 };
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('[href="#"], [href="javascript:void(0)"], [href="javascript:undefined"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -51,24 +52,18 @@ const fixLandmarkIssues = () => {
 
 // Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
 const uniqueLandmarks = () => {
-  // Implementation to ensure all landmarks have unique IDs
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
   const existingIds = new Set();
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      existingIds.add(landmark.id);
-    }
-  });
 
   return (element) => {
     if (!element) return false;
 
     if (!element.id) {
       let counter = 1;
-      let newId = `landmark-${counter}`;
+      let newId = element.tagName.toLowerCase() + '-' + counter;
       while (existingIds.has(newId)) {
         counter++;
-        newId = `landmark-${counter}`;
+        newId = element.tagName.toLowerCase() + '-' + counter;
       }
       element.id = newId;
       existingIds.add(newId);
@@ -80,19 +75,49 @@ const uniqueLandmarks = () => {
 
 // Accessibility fix for adding proper landmark regions
 const addLandmarkRegions = () => {
-  // Implementation to add proper landmark regions for accessibility
-  // This function would likely involve adding ARIA roles and properties
-  // to ensure landmarks are properly identified by screen readers
-  const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
   landmarks.forEach(landmark => {
-    // Check if the landmark already has the proper role
-    if (landmark.getAttribute('role') === null) {
-      // Add a default role if one is missing
+    if (!landmark.getAttribute('role')) {
       landmark.setAttribute('role', 'landmark');
     }
-    // Add any additional ARIA properties as needed for accessibility
-    // For example, you might want to set 'aria-labelledby' or 'aria-label'
-    // depending on the content and context of the landmark
+  });
+};
+
+// Accessibility fix for REACT_027: React Table Structure (26 occurrences)
+const fixTableStructure = () => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const newRow = document.createElement('tr');
+        const cells = firstRow.querySelectorAll('th, td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          if (cell.getAttribute('scope')) {
+            th.setAttribute('scope', cell.getAttribute('scope'));
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+          newRow.appendChild(th);
+        });
+        thead.appendChild(newRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    
+    if (!table.querySelector('tbody')) {
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 1) {
+        const tbody = document.createElement('tbody');
+        for (let i = 1; i < rows.length; i++) {
+          tbody.appendChild(rows[i]);
+        }
+        table.appendChild(tbody);
+      }
+    }
   });
 };
 
@@ -106,4 +131,4 @@ const addLandmarkRegions = () => {
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues };
+export { class1, function1, Object1, uniqueLandmarks, addLandmarkRegions, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLinkIssues, fixLandmarkIssues, fixTableStructure };

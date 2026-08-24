@@ -143,3 +143,5 @@ module.exports.getFullLangAttribute = getFullLangAttribute;
 module.exports.getSvgAccessibleName = getSvgAccessibleName;
 module.exports.createInPageButton = createInPageButton;
 module.exports.createAccessibleLink = createAccessibleLink;
+
+// TODO: Address accessibility issues from insight report

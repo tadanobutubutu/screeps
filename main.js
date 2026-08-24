@@ -1,17 +1,17 @@
-// Main entry point for the Screeps bot repository
 import React from 'react';
 import ReactDOM from 'react-dom';
 import DependencyGraphComponent from './components/DependencyGraphComponent';
 import IndexComponent from './components/IndexComponent';
 
-export default DependencyGraphComponent;
-export default IndexComponent;
+export { DependencyGraphComponent };
+export { IndexComponent };
 
 function App() {
   return (
     <div>
       <DependencyGraphComponent />
       <IndexComponent />
+      <Dashboard />
     </div>
   );
 }
@@ -32,17 +32,6 @@ function Dashboard() {
         <div>Some success message or component</div>
       )}
     </main>
-  );
-}
-
-// Replace the render logic for the App component to include the Dashboard component
-function App() {
-  return (
-    <div>
-      <DependencyGraphComponent />
-      <IndexComponent />
-      <Dashboard />
-    </div>
   );
 }
 

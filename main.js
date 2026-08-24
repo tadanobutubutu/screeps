@@ -14,7 +14,8 @@
 // Original code preserved below
 // ...
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+
+// TODO: Import required module( s) and export the new necessary function(s) here in main.js
 import { dependencyGraphContent } from ...
 import { indexContent } from './indexContent.js';
 import { addLangAttribute } from ...
@@ -36,12 +37,12 @@ function addressAccessibilityIssues() {
 
   // REACT_027: Fix 26 table structure issues
   // Add scope="col" or scope="row" to <th> elements so assistive technologies can associate headers
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = firstRow ? firstRow.querySelectorAll('th') : table.querySelectorAll('th');
+    const headers = firstRow ? ... : ...
     headers.forEach((th) => {
-      if (!th.getAttribute('scope')) {
+      if ... {
         const row = th.closest('tr');
         const isInThead = !!th.closest('thead');
         const isFirstRow = firstRow && row === firstRow;
@@ -55,7 +56,7 @@ function addressAccessibilityIssues() {
   });
 
   // REACT_017: Add/fix 2 landmark issues
-  const headers = document.querySelectorAll('header');
+  const headers = ...
   if (headers.length === 1) {
     const header = headers[0];
     if (!header.getAttribute('role')) {
@@ -63,7 +64,7 @@ function addressAccessibilityIssues() {
     }
   }
 
-  const footers = document.querySelectorAll('footer');
+  const footers = ...
   if (footers.length === 1) {
     const footer = footers[0];
     if (!footer.getAttribute('role')) {
@@ -71,31 +72,77 @@ function addressAccessibilityIssues() {
     }
   }
 
-  const mains = document.querySelectorAll('main');
+  const mains = ...
   if (mains.length === 0) {
-    const fallbackMain = document.body.querySelector('div[role="main"]') || document.body.querySelector('[role="main"]') || document.createElement('main');
+    const fallbackMain = ... || ... || ...
     if (fallbackMain) {
-      fallbackMain.setAttribute('role', 'main');
+      ... 'main');
       if (!mains.length && fallbackMain.tagName !== 'MAIN') {
-        document.body.appendChild(fallbackMain);
+        ...
       }
     }
   }
 
   // REACT_025: Ensure unique landmarks (2 issues)
+  // Handler for unique landmarks - ensures each landmark has a unique accessible name
+  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section[aria-labelledby], section[aria-label]');
+  const landmarkLabels = new Map();
+  
+  landmarks.forEach((landmark) => {
+    // Get existing label or generate one
+    let label = landmark.getAttribute('aria-label') || 
+                (landmark.getAttribute('aria-labelledby') ? document.getElementById(landmark.getAttribute('aria-labelledby'))?.textContent : null);
+    
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || tagName;
+    
+    // Check if this landmark already has a label, if not generate one
+    if (!label) {
+      // Count existing landmarks of the same type for numbering
+      const count = landmarkLabels.get(role) || 0;
+      landmarkLabels.set(role, count + 1);
+      
+      // Generate appropriate label based on landmark type
+      const defaultLabels = {
+        'nav': ['Main Navigation', 'Secondary Navigation', 'Footer Navigation', 'Sidebar Navigation'],
+        'main': ['Main Content'],
+        'header': ['Site Header', 'Page Header'],
+        'footer': ['Site Footer', 'Page Footer'],
+        'aside': ['Sidebar', 'Related Content'],
+        'section': ['Section']
+      };
+      
+      const roleLabels = defaultLabels[role] || defaultLabels['section'];
+      label = roleLabels[count] || `${role.charAt(0).toUpperCase() + role.slice(1)} ${count + 1}`;
+      
+      landmark.setAttribute('aria-label', label);
+    } else {
+      // Track existing labeled landmarks
+      const count = landmarkLabels.get(label) || 0;
+      landmarkLabels.set(label, count + 1);
+      
+      // If duplicate label exists, make it unique
+      if (landmarkLabels.get(label) > 1) {
+        const newLabel = `${label} ${landmarkLabels.get(label)}`;
+        landmark.setAttribute('aria-label', newLabel);
+      }
+    }
+  });
+
+  // Also ensure nav elements specifically have unique accessible names
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.getAttribute('aria-label')) {
-      const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
+    if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+      const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation', 'Sidebar Navigation'];
       nav.setAttribute('aria-label', navLabels[index] || 'Navigation ' + (index + 1));
     }
   });
 
   // REACT_041: Add accessible names to 2 SVGs
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
     const titleId = 'svg-title-' + (index + 1);
-    let title = svg.querySelector('title');
+    let title = ...
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
@@ -106,23 +153,23 @@ function addressAccessibilityIssues() {
         title.id = titleId;
       }
     }
-    if (!svg.getAttribute('role')) {
+    if ... {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 
   // REACT_036: Fix 1 fake link issue
-  const fakeLinks = document.querySelectorAll('a[href=""], a[onclick]');
-  fakeLinks.forEach((link) => {
-    const href = link.getAttribute('href');
-    const hasClick = typeof link.onclick === 'function' || link.hasAttribute('onclick');
+  const fakeLinks = ... a[onclick]');
+  ... => {
+    const href = ...
+    const hasClick = typeof link.onclick === 'function' || ...
     if (link.getAttribute('role') === 'button' || hasClick || !href || href === '#' || href === '') {
       if (link.getAttribute('role') !== 'button') {
         link.setAttribute('role', 'button');
       }
-      if (!link.hasAttribute('tabindex') && !link.getAttribute('href')) {
-        link.setAttribute('tabindex', '0');
+      if ... && ... {
+        ... '0');
       }
     }
   });
@@ -130,8 +177,77 @@ function addressAccessibilityIssues() {
   console.log('Accessibility issues addressed.');
 }
 
+/**
+ * Handler to ensure unique landmarks in the document
+ * Assigns unique aria-labels to landmarks that don't have accessible names
+ * @returns {number} Number of landmarks that were labeled
+ */
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return 0;
+  
+  let count = 0;
+  
+  // Get all landmark elements
+  const landmarkSelectors = 'nav, main, header, footer, aside, section';
+  const landmarks = document.querySelectorAll(landmarkSelectors);
+  
+  // Track labels to ensure uniqueness
+  const labelCounts = {};
+  
+  landmarks.forEach((landmark) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const currentLabel = landmark.getAttribute('aria-label');
+    const labelledBy = landmark.getAttribute('aria-labelledby');
+    
+    // Skip if already has an accessible name
+    if (currentLabel || labelledBy) {
+      // Track and make unique if duplicates exist
+      if (currentLabel) {
+        if (!labelCounts[currentLabel]) {
+          labelCounts[currentLabel] = 1;
+        } else {
+          labelCounts[currentLabel]++;
+          landmark.setAttribute('aria-label', `${currentLabel} ${labelCounts[currentLabel]}`);
+          count++;
+        }
+      }
+      return;
+    }
+    
+    // Generate unique label based on landmark type
+    const defaultLabels = {
+      'nav': ['Main Navigation', 'Secondary Navigation', 'Footer Navigation', 'Sidebar Navigation'],
+      'main': ['Main Content'],
+      'header': ['Site Header', 'Page Header'],
+      'footer': ['Site Footer', 'Page Footer'],
+      'aside': ['Sidebar', 'Related Content'],
+      'section': ['Section']
+    };
+    
+    const labels = defaultLabels[tagName] || ['Section'];
+    
+    // Find next available label
+    let labelIndex = labelCounts[tagName] || 0;
+    let newLabel = labels[labelIndex] || `${tagName.charAt(0).toUpperCase() + tagName.slice(1)} ${labelIndex + 1}`;
+    
+    // Check if label already exists on page
+    while (labelCounts[newLabel] && labelCounts[newLabel] > 0) {
+      labelIndex++;
+      newLabel = labels[labelIndex] || `${tagName.charAt(0).toUpperCase() + tagName.slice(1)} ${labelIndex + 1}`;
+    }
+    
+    labelCounts[tagName] = labelIndex + 1;
+    labelCounts[newLabel] = 1;
+    
+    landmark.setAttribute('aria-label', newLabel);
+    count++;
+  });
+  
+  return count;
+}
+
 function renderDependencyGraph() {
-  const graphContainer = document.getElementById('dependency-graph') || document.querySelector('.dependency-graph') || document.querySelector('#graph');
+  const graphContainer = ... || ... || ...
   if (graphContainer) {
     graphContainer.innerHTML = dependencyGraphContent || indexContent || '<p>No dependency graph available.</p>';
   }

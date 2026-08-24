@@ -79,6 +79,7 @@ function createAccessibleLink(href, text, isFakeLink) {
   link.textContent = text || 'Link';
   if (isFakeLink) {
     link.setAttribute('role', 'link');
+    link.setAttribute('aria-label', 'Click to perform action');
   }
   return link;
 }

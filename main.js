@@ -21,3 +21,4 @@ const icons = {
 // Rest of the main.js content...
 
 // Output the complete updated main.js content inside a
+// block, but note that the actual changes should be made in the HTML file.

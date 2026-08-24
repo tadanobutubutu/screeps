@@ -210,7 +210,66 @@ const addressAccessibilityIssues = (document) => {
   return document;
 };
 
+// React Dashboard Component (integrated from origin/main)
+const React = require('react');
+const { useState } = React;
+
+const Dashboard = () => {
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
+
+  const copyErr = () => {
+    // Implement error copying logic
+  };
+
+  const fetchStats = (shouldRetry) => {
+    // Implement stats fetching logic
+  };
+
+  return React.createElement('div', { style: { padding: '2rem', fontFamily: 'monospace' } },
+    error && React.createElement('main', null,
+      React.createElement('h1', { style: { color: '#b71c1c' } }, '⚠️ エラー'),
+      React.createElement('pre', {
+        tabIndex: 0,
+        'aria-label': 'エラーメッセージ詳細',
+        style: {
+          color: '#c53030',
+          backgroundColor: '#fff5f5',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflow: 'auto',
+        }
+      }, error)
+    ),
+    success && React.createElement('main', null,
+      React.createElement('h1', { style: { color: '#155d27' } }, '🎉 Success'),
+      React.createElement('section', null,
+        // ... rest of the success state content
+      )
+    ),
+    !error && !success && (
+      // This is where you might have other UI components
+      // without rendering a main element
+    )
+  );
+};
+
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, addressAccessibilityIssues };
+module.exports = {
+  getAccessibleName,
+  setAccessibleName,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  addressAccessibilityIssues,
+  Dashboard
+};

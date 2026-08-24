@@ -23,7 +23,23 @@ function addAllSvgAccessibleNames() {
   svgs.forEach(addSvgAccessibleNames);
 }
 
-// [...] (You can add other functions to address table structure issues, landmark issues, unique landmarks, fake link issues etc.)
+// Function to add scope attribute to th elements for accessibility
+function addScopeToTableHeaders() {
+  const tableHeaders = document.querySelectorAll('th');
+
+  tableHeaders.forEach(th => {
+    th.setAttribute('scope', 'col');
+  });
+}
+
+// Function to find all th elements on the page and add the scope attribute
+function addAllTableHeadersScope() {
+  const thElements = document.querySelectorAll('th');
+
+  thElements.forEach(th => {
+    th.setAttribute('scope', 'col');
+  });
+}
 
 // Export the new functions
-export { addAllSvgAccessibleNames };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope };

@@ -92,7 +92,7 @@ function ensureProperLandmarkStructure() {
   const navList = document.createElement('ul');
   navList.setAttribute('role', 'menubar');
   navList.id = 'mainMenu';
-  navElement.appendChild(navList);
+  navElement.appendChild(nalist);
 
   const homeItem = document.createElement('li');
   homeItem.setAttribute('role', 'none');

@@ -56,11 +56,11 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     // Fix landmark regions with proper labels
     const landmarks = {
-      header: document.querySelectorAll('header:not([role])'),
+      header: document.querySelectorAll('header'),
       nav: document.querySelectorAll('nav'),
       main: document.querySelectorAll('main'),
-      footer: document.querySelectorAll('footer:not([role])'),
-      aside: document.querySelectorAll('aside:not([aria-label])')
+      footer: document.querySelectorAll('footer'),
+      aside: document.querySelectorAll('aside')
     };
 
     // Add aria-labels to nav elements that need them
@@ -93,7 +93,7 @@ function addressAccessibilityIssues() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
       if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        const titleId = `svg-title-${index}`;
+        const titleId = `svg-title-${index + 1}`;
         let title = svg.querySelector('title');
         if (!title) {
           title = document.createElement('title');
@@ -108,7 +108,7 @@ function addressAccessibilityIssues() {
     });
 
     // Fix fake links (links that don't navigate)
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+    const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
     fakeLinks.forEach((link) => {
       if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
         // Check if it's actually a link or a button
@@ -122,7 +122,7 @@ function addressAccessibilityIssues() {
 
     // Ensure main landmark is present and unique
     if (landmarks.main.length === 0) {
-      const mainContent = document.querySelector('[role="main"]');
+      const mainContent = document.querySelector('[role="main"]') || document.querySelector('main');
       if (mainContent) {
         mainContent.setAttribute('role', 'main');
       }

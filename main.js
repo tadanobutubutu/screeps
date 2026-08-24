@@ -34,7 +34,7 @@ function addMainLandmark() {
   }
 }
 
-// New function to wrap primary content in a <main> element (NEW)
+// Function for wrapping primary content in a <main> element (merged from both changes)
 function wrapPrimaryContentInMain() {
   const mainContentSelector = 'div.container'; // This selector should be updated to match the actual main content container
   const mainContent = document.querySelector(mainContentSelector);
@@ -42,7 +42,7 @@ function wrapPrimaryContentInMain() {
   if (mainContent) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
-    mainElement.appendChild(mainContent);
+    mainContent.appendChild(mainElement);
   }
 }
 
@@ -50,39 +50,39 @@ function wrapPrimaryContentInMain() {
 function addLandmarkRegions() {
   // Add <main> landmark region if it doesn't exist
   let mainElement = document.querySelector('main');
-  
+
   if (!mainElement) {
     mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
-    
+
     const mainContent = document.querySelector('div.container');
     if (mainContent && mainContent.parentNode) {
       mainContent.parentNode.insertBefore(mainElement, mainContent);
       mainElement.appendChild(mainContent);
     }
   }
-  
+
   // Add <nav> landmark region for navigation if it doesn't exist
   let navElement = document.querySelector('nav');
-  
+
   if (!navElement) {
     navElement = document.createElement('nav');
     navElement.setAttribute('aria-label', 'Main navigation');
-    
+
     const navContainer = document.querySelector('nav.container, .navbar, header');
     if (navContainer && navContainer.parentNode) {
       navContainer.parentNode.insertBefore(navElement, navContainer);
       navElement.appendChild(navContainer);
     }
   }
-  
+
   // Add <header> landmark region for site branding if it doesn't exist
   let headerElement = document.querySelector('header');
-  
+
   if (!headerElement) {
     headerElement = document.createElement('header');
     headerElement.setAttribute('role', 'banner');
-    
+
     const body = document.body;
     if (body.firstChild) {
       body.insertBefore(headerElement, body.firstChild);
@@ -90,14 +90,14 @@ function addLandmarkRegions() {
       body.appendChild(headerElement);
     }
   }
-  
+
   // Add <footer> landmark region if it doesn't exist
   let footerElement = document.querySelector('footer');
-  
+
   if (!footerElement) {
     footerElement = document.createElement('footer');
     footerElement.setAttribute('role', 'contentinfo');
-    
+
     const body = document.body;
     body.appendChild(footerElement);
   }
@@ -109,7 +109,7 @@ module.exports = {
   indexFunction,
   ensureLangAttribute,
   addMainLandmark,
-  wrapPrimaryContentInMain,
+  wrapPrimaryContentInMain, // merged function
   addLandmarkRegions,
   handleAccessibilityInsights,
   uniqueLandmarksHandler,

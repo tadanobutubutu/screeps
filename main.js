@@ -1,1 +1,30 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+// dashboard/app/layout.tsx
+import React from 'react';
+
+const DashboardLayout: React.FC = ({ children }) => {
+  return (
+    <div>
+      {/* Other components */}
+      <link rel="icon" href="/icons/icon.png" />
+      {/* ... */}
+    </div>
+  );
+};
+
+export default DashboardLayout;
+
+// app/layout.tsx
+import React from 'react';
+
+const AppLayout: React.FC = ({ children }) => {
+  return (
+    <div>
+      {/* Other components */}
+      <link rel="icon" href="/icons/icon.png" />
+      {/* ... */}
+    </div>
+  );
+};
+
+export default AppLayout;

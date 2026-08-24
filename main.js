@@ -1,26 +1,5 @@
-// Function to rotate an element
-function rotateElement(elementId, degrees) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.style.transform = `rotate(${degrees}deg)`;
-    }
-}
+// Screeps code (main.js)
 
-// Reset rotation - changed from <a href="#"> to <button>
-function resetRotation() {
-    const element = document.getElementById('myImage');
-    if (element) {
-        element.style.transform = 'rotate(0deg)';
-    }
-}
+// Screeps-specific imports and dependencies here...
 
-// Event listener for the rotate back button
-document.addEventListener('DOMContentLoaded', function() {
-    const unrotateBtn = document.getElementById('unrotate');
-    if (unrotateBtn) {
-        unrotateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            resetRotation();
-        });
-    }
-});
+// ...your existing Screeps code here...

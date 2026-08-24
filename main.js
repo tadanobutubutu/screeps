@@ -9,7 +9,7 @@ module.exports.loop = function() {
     var builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder');
     
     if (harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
+        var newName = '[PERSON_NAME]' + Game.time;
         Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, 
             {memory: {role: 'harvester'}});
     }
@@ -26,7 +26,7 @@ module.exports.loop = function() {
             {memory: {role: 'builder'}});
     }
     
-    for (var name in Game.rooms) {
+    for (var name in [ADDRESS]) {
         console.log('Room "' + name + '" has ' + Game.rooms[name].energyAvailable + ' energy');
     }
     

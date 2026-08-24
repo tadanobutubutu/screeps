@@ -220,6 +220,95 @@ function wrapPrimaryContentInMain() {
   return mainElement;
 }
 
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('nav, footer, aside, main, header');
+  const landmarkRoles = new Map();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      if (landmarkRoles.has(role)) {
+        landmark.setAttribute('aria-label', `${role}-${landmarkRoles.get(role)}`);
+        landmarkRoles.set(role, landmarkRoles.get(role) + 1);
+      } else {
+        landmarkRoles.set(role, 1);
+      }
+    }
+  });
+}
+
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (!title) {
+        const newTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        newTitle.textContent = `SVG graphic ${index + 1}`;
+        svg.insertBefore(newTitle, svg.firstChild);
+      }
+    }
+  });
+}
+
+// Fake link / accessible link creation helpers
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('type', 'button');
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
+function createAccessibleLink(href, label) {
+  const link = document.createElement('a');
+  link.setAttribute('href', href);
+  link.setAttribute('aria-label', label);
+  link.textContent = label;
+  return link;
+}
+
+// Validate link accessibility (fake link check)
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a');
+  let hasIssues = false;
+  links.forEach(link => {
+    if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
+      hasIssues = true;
+    }
+  });
+  return !hasIssues;
+}
+
+// Check valid TH scope attribute
+function hasValidTHScope(th) {
+  const scope = th.getAttribute('scope');
+  return scope === 'row' || scope === 'col' || scope === 'rowgroup' || scope === 'colgroup';
+}
+
+// Add main landmark wrapper
+function addMainLandmark() {
+  return wrapPrimaryContentInMain();
+}
+
+// Fix unique landmarks - wrapper for validateLandmarkStructure
+function fixUniqueLandmarks() {
+  return validateLandmarkStructure();
+}
+
+// Main entry: Address all accessibility issues
+function addressAccessibilityIssues() {
+  addLangAttribute();
+  fixTableStructure();
+  addLandmarkRegions();
+  ensureUniqueLandmarks();
+  addSvgAccessibleNames();
+  fixFakeLinkIssue();
+}
+
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();

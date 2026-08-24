@@ -80,6 +80,16 @@ processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 // Add missing scope attributes to table header cells (fixes REACT_027)
 addMissingScopeToHeaders();
 
+// Fix REACT_015: Add lang attribute to <html>
+function addHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+addHtmlLangAttribute();
+
 // ... existing exports and functions may remain in main.js
 
 module.exports = {
@@ -87,5 +97,6 @@ module.exports = {
   addressAccessibilityIssues,
   processAccessibilityIssues,
   wrapperFunction,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addHtmlLangAttribute
 };

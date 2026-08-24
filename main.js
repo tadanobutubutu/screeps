@@ -8,8 +8,6 @@ export const icons = {
   apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
 };
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
@@ -34,7 +32,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -42,7 +40,7 @@ const fixFakeLinkIssues = () => {
 
 // Accessibility fix for REACT_017: Add/fix 2 landmark issues and add Landmark Regions
 const fixLandmarkIssues = () => {
-  const landmarkMap = {
+  const landmarks = {
     'nav': 'navigation',
     'main': 'main',
     'header': 'banner',
@@ -52,8 +50,8 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarkMap).forEach(([selector, role]) => {
-    const elements = document.querySelectorAll(selector);
+  Object.entries(landmarks).forEach(([tag, role]) => {
+    const elements = document.querySelectorAll(tag);
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -257,6 +255,3 @@ export {
   announceToScreenReader,
   implementAccessibilityFixesFromReport
 };
-
-// Export the imported module members
-export { class1, function1, Object1 };

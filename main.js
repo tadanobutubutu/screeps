@@ -101,7 +101,7 @@ function fixUniqueLandmarks() {
     section.setAttribute('role', 'region');
     // Add aria-label if not present
     if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
-      section.setAttribute('aria-label', `Content section ${index}`);
+      section.setAttribute('aria-label', `Content section ${index + 1}`);
     }
     // Move children
     while (mainEl.firstChild) {
@@ -177,7 +177,7 @@ function createInPageButton(label, onClick) {
 }
 
 function createAccessibleLink(href, label) {
-  const link = document.createElement('a');
+  const link = document.createElement('a', { hidden: true });
   link.setAttribute('href', href);
   link.setAttribute('aria-label', label);
   link.textContent = label;
@@ -273,7 +273,7 @@ function addLandmarkRegions() {
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
   fakeLinks.forEach(link => {
-    const button = document.createElement('button');
+    const button = document.createElement('button', { hidden: true });
     button.textContent = link.textContent;
     button.setAttribute('type', 'button');
     // Copy all attributes except href

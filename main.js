@@ -130,6 +130,16 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
   addScopeToTableHeaders();
 }
 
+// New function to add accessible names to SVGs
+function addAccessibleSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = document.createElement('title');
+    title.textContent = 'Descriptive title for SVG';
+    svg.appendChild(title);
+  });
+}
+
 // Call all necessary functions
 processAccessibilityIssuesFromInsightReport();
 fixFakeLinks();
@@ -145,5 +155,6 @@ module.exports = {
   fixFakeLinks,
   ensureUniqueLandmarks,
   processAccessibilityIssuesFromInsightReport,
+  addAccessibleSVGs,
   dependencyGraphContent,
 };

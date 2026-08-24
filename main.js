@@ -37,7 +37,16 @@ document.querySelectorAll('table').forEach(table => {
   if (!table.querySelector('th')) {
     table.setAttribute('role', 'presentation'); // Tables without headers are presentational
   } else {
-    // ... (the rest of the table structure code provided by you)
+    // Ensure tables with headers have proper caption for context
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Data table';
+      table.insertBefore(caption, table.firstChild);
+    }
+    // Add border attribute for visual clarity if not present
+    if (!table.hasAttribute('border')) {
+      table.setAttribute('border', '1');
+    }
   }
 });
 
@@ -51,7 +60,17 @@ document.querySelectorAll('svg').forEach(svg => {
 
 const landmarkElements = ['main', 'nav', 'aside', 'header', 'footer', 'article', 'section'];
 landmarkElements.forEach(landmark => {
-  // ... (the rest of the landmark code provided by you)
+  document.querySelectorAll(landmark).forEach(element => {
+    // Add landmark roles if not already present
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', element.tagName.toLowerCase());
+    }
+    // Ensure elements have accessible names where appropriate
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+      const tagName = element.tagName.toLowerCase();
+      element.setAttribute('aria-label', `${tagName} content`);
+    }
+  });
 });
 
 document.querySelectorAll('a[aria-label]').forEach(link => {

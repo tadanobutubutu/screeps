@@ -281,3 +281,28 @@ function getSvgAccessibleName() {
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
+
+// Export all functions for use by other modules and tests
+export {
+  addLangAttribute,
+  fixTableStructure,
+  checkTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  fixUniqueLandmarks,
+  addLandmarkRegions,
+  fixFakeLinkIssue,
+  createInPageButton,
+  addAccessibleNamesToSVG,
+  validateLinkAccessibility,
+  createAccessibleLink,
+  addressAccessibilityIssues,
+  hasValidTHScope,
+  validateLandmark,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName
+};

@@ -1,4 +1,4 @@
-``import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
@@ -10,8 +10,52 @@ import SearchIcon from './components/SearchIcon';
 import UniqueSection from './components/UniqueSection';
 import FakeLinkFixed from './components/FakeLinkFixed';
 
-React.component.defaultProps = {...React.component.defaultProps, 'lang': 'en'};
+// Accessibility helper functions
+function getSvgAccessibleName(svgContent, accessibleName, isDecorative = false) {
+  if (isDecorative) {
+    return svgContent.replace('<svg', '<svg aria-hidden="true"');
+  }
+  let result = svgContent;
+  if (!svgContent.includes('aria-label')) {
+    result = svgContent.replace('<svg', `<svg aria-label="${accessibleName}"`);
+  }
+  if (!result.includes('<title>')) {
+    result = result.replace('<svg', `<svg><title>${accessibleName}</title>`);
+  }
+  return result;
+}
+function getLangAttribute() {
+  // Implementation here
+}
+function getFullLangAttribute() {
+  // Implementation here
+}
+function validateTableAccessibility() {
+  // Implementation here
+}
+function validateTableStructure() {
+  // Implementation here
+}
+function validateLandmark() {
+  // Implementation here
+}
+function validateLandmarkStructure() {
+  // Implementation here
+}
+function createInPageButton() {
+  // Implementation here
+}
+function createAccessibleLink() {
+  // Implementation here
+}
 
+// Set default language for React components
+React.component.defaultProps = {
+  ...React.component.defaultProps,
+  lang: 'en',
+};
+
+// Main application component
 const App = () => {
   return (
     <Router>
@@ -41,6 +85,7 @@ const App = () => {
   );
 };
 
+// Logo component
 const Logo = () => (
   <svg role="img" aria-labelledby="logo-title logo-description">
     ...
@@ -49,14 +94,6 @@ const Logo = () => (
   </svg>
 );
 
-const Icon = () => (
-  <svg role="img" aria-labelledby="icon-title icon-description">
-    ...
-    <title id="icon-title">Contact Us Icon</title>
-    <desc id="icon-description">This is the Contact Us icon</desc>
-  </svg>
-);
-
-// Export the App and the two SVG components
+// Export the default App component and any additional components or utilities as needed
 export default App;
-export { Logo, Icon };``
+export { Logo, getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink };

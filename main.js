@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+=======
 // Import required module(s) for addressing the new issue
 import { getElementById } from './helpers.js';
 export { getElementById };
@@ -321,3 +324,4 @@ export {
   fixFakeLinks,
   establishLandmarkRegions
 };
+>>>>>>> origin/main

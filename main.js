@@ -43,7 +43,6 @@ const appState = {
   version: '1.0.0'
 };
 
-// TODO: Implement remaining exports
 module.exports = {
   initializeApp,
   processData,

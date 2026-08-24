@@ -1,8 +1,6 @@
 import dependencyGraphContent from './dependencyGraphContent';
 import indexContent from './indexContent';
 
-// ... (existing code)
-
 // Function to fetch heading levels from the HTML content
 function getHeadingLevels(html) {
   const headingLevels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };

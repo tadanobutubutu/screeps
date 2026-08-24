@@ -214,15 +214,25 @@ function wrapPrimaryContentInMain() {
     nonLandmarks.forEach(child => mainEl.appendChild(child));
 }
 
-// Export all functions
-export { 
-    setHtmlLangAttribute, 
+// New function to fix an issue with fake links
+function fixFakeLinkIssue() {
+    const links = document.querySelectorAll('a[href="#"]');
+    links.forEach(link => {
+        link.removeAttribute('href');
+        const clickable = document.createElement('span');
+        clickable.textContent = 'Click me';
+        link.appendChild(clickable);
+    });
+}
+
+export {
+    setHtmlLangAttribute,
     addSvgAccessibleNames,
-    addAllSvgAccessibleNames, 
-    addAllTableHeadersScope, 
-    fixInputAccessibility, 
-    fixTableStructureIssues, 
-    addProperLandmarkRegions, 
+    addAllSvgAccessibleNames,
+    addAllTableHeadersScope,
+    fixInputAccessibility,
+    fixTableStructureIssues,
+    addProperLandmarkRegions,
     fixTableConstraints,
     getLangAttribute,
     getFullLangAttribute,
@@ -233,5 +243,6 @@ export {
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
-    wrapPrimaryContentInMain
+    wrapPrimaryContentInMain,
+    fixFakeLinkIssue // Add the new function to exports
 };

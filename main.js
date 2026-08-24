@@ -53,7 +53,7 @@ function validateLandmarkStructure(element) {
 }
 
 function getSvgAccessibleName(svgElement) {
-  return svgElement ? svgElement.getAttribute('aria-label') || '' : '';
+  return svgElement ? svgElement.getAttribute('aria-label') || svgElement.textContent || '' : '';
 }
 
 function createInPageButton(text, onClick) {
@@ -76,6 +76,18 @@ function createAccessibleLink(href, text, isFakeLink) {
   return link;
 }
 
+// New function to replace fake link with accessible button for in-page actions
+function createRotateBackButton(text, onClick) {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.textContent = text || 'rotate back';
+  button.setAttribute('type', 'button');
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  return button;
+}
+
 // Export all required items
 module.exports = {
   config,
@@ -90,5 +102,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
+  createRotateBackButton
 };

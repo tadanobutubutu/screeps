@@ -1,14 +1,1 @@
-// Main application entry point
-const app = {
-  init: function() {
-    console.log("Application initialized");
-  },
-  start: function() {
-    // Initialize the application
-  }
-};
-
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = app;
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

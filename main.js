@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Original content of main.js with conflict markers
+/*
+<<<<<<< HEAD
+// Existing code...
+// Some code that might conflict with the changes
+// Existing code...
+
+// Conflicting code
+<<<<<<< HEAD
+// Some conflicting code
+=======
+
+>>>>>>> branch-name
+// Some conflicting code
+
+// Existing code...
+// Some code that might conflict with the changes
+// Existing code...
+*/

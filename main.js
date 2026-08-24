@@ -98,7 +98,7 @@ function fixTableAccessibility(tables) {
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = Array.from(row.querySelectorAll('th'));
+                const rowHeaders = Array.from(row.querySelectorAll('th[data-row-header]'));
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -143,7 +143,7 @@ function ensureUniqueLandmarks(landmarkElements) {
 
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain() {
-    const primaryContent = document.querySelector('[role="main"]') || document.querySelector('main');
+    const primaryContent = document.querySelector('main') || document.querySelector('[role="main"]');
     if (primaryContent) {
         let mainElement = document.querySelector('main');
         if (mainElement) {
@@ -204,7 +204,7 @@ function validateLandmark(elements) {
     (elements || []).forEach(element => {
         if (!element) return;
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        if (['main', 'nav', 'aside', 'header', 'footer', 'section', 'form'].includes(role)) {
+        if (['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'].includes(role)) {
             if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
                 element.setAttribute('aria-label', role);
             }
@@ -220,15 +220,24 @@ function validateLandmarkStructure(elements) {
 
 function getSvgAccessibleName(svgElement) {
     if (!svgElement) return '';
+    
     let name = '';
+    
+    // Check for existing title child element
     const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
-    if (title) {
-        name = title.textContent || '';
+    if (title && title.textContent) {
+        name = title.textContent.trim();
     }
+    
+    // Check for aria-label attribute
     if (!name) {
         const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
-        if (ariaLabel) name = ariaLabel;
+        if (ariaLabel) {
+            name = ariaLabel.trim();
+        }
     }
+    
+    // If no accessible name found, add one
     if (!name) {
         name = 'Accessible SVG';
         if (svgElement.insertBefore) {
@@ -240,6 +249,7 @@ function getSvgAccessibleName(svgElement) {
             svgElement.setAttribute('role', 'img');
         }
     }
+    
     return name;
 }
 

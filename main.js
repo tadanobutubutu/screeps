@@ -1,3 +1,18 @@
+// Assuming this is the structure of the icons object
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐛</text></svg>',
+};
+
+// Function to create an SVG element with aria-label
+function createAccessibleSVG(data, label) {
+  return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>${label}</title><text y=".9em" font-size="90">${label}</text></svg>`;
+}
+
+// Update the icons object with aria-label
+icons.icon = createAccessibleSVG(icons.icon, 'Screeps Dashboard');
+icons.apple = createAccessibleSVG(icons.apple, 'Screeps Dashboard');
+
 // Address accessibility issues from insight report
 // Main entry point for the library
 // Version: 1.0.0
@@ -5,7 +20,6 @@
 // Import axios for making API calls
 import axios from 'axios';
 
-// Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
@@ -13,7 +27,6 @@ skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
 document.body.insertBefore(skipLink, document.body.firstChild);
 
-// Handle skip link click
 skipLink.addEventListener('click', (e) => {
   e.preventDefault();
   const mainContent = document.getElementById('main-content') || document.querySelector('main');
@@ -23,14 +36,12 @@ skipLink.addEventListener('click', (e) => {
   }
 });
 
-// Mark the main content area as a primary region
 const mainElement = document.querySelector('main') || document.getElementById('content') || document.querySelector('[role="main"]');
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
 }
 
-// New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
   const insightReportUrl = 'https://api.example.com/accessibility-report';
 
@@ -51,7 +62,6 @@ async function addressAccessibilityIssues() {
   });
 }
 
-// New function to add a caption to a missing table
 function addCaptionToTable(table) {
   const tableHeader = table.querySelector('caption');
 
@@ -63,12 +73,10 @@ function addCaptionToTable(table) {
   table.insertBefore(caption, table.firstChild);
 }
 
-// New function to assign a unique id to table
 function addUniqueIdToTable(table) {
   table.id = table.id || `table-${table.dataset.testid}`;
 }
 
-// New function for API calls
 async function fetchAPI(url) {
   try {
     const response = await axios.get(url);
@@ -79,5 +87,5 @@ async function fetchAPI(url) {
   }
 }
 
-// Export the module with the new fetchAPI function added
+// Newly exported function for API calls
 export { fetchAPI, fetchAPI as default, addressAccessibilityIssues };

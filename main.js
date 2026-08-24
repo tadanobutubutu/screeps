@@ -76,5 +76,7 @@ export {
   setupRotateBack,
 };
 
-// Add the lang attribute to the root HTML element
-document.documentElement.lang = 'en';
+if (typeof document !== 'undefined') {
+  // Add the lang attribute to the root HTML element
+  document.documentElement.lang = 'en';
+}

@@ -161,12 +161,23 @@ function wrapPrimaryContentInMain() {
   }
 }
 
+// Add function to add 'scope="col"' attribute to table header cells
+function addScopeToTableHeaders() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
 // Call all necessary functions
 wrapPrimaryContentInMain();
 fixFakeLinks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
+addScopeToTableHeaders();
 
 module.exports = {
   wrapPrimaryContentInMain

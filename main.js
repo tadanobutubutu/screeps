@@ -1,11 +1,1 @@
-const getAccessibleName = (node) => {
-  const { svg, title, text } = node;
-
-  let accessibleName = 'unknown';
-
-  if (svg && svg.nodeName.toLowerCase() === 'svg') {
-    accessibleName = title || text;
-  }
-
-  return accessibleName;
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

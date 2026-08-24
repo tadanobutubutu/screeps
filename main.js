@@ -77,14 +77,14 @@ function fixTableAccessibility(tables) {
     tables.forEach(table => {
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
-            const headers = ...
-            const cells = ...
+            const headers = row.querySelectorAll('th');
+            const cells = row.querySelectorAll('td');
 
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + ... 9);
+                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.floor(Math.random() * 1000000);
                     const headerIndex = headers.indexOf(th);
                     th.id = tableId + '-th-' + headerIndex;
                 }
@@ -98,9 +98,9 @@ function fixTableAccessibility(tables) {
             });
         });
 
-        const caption = ...
+        const caption = table.querySelector('caption');
         if (!caption && table.getAttribute('aria-label')) {
-            const generatedCaption = ...
+            const generatedCaption = document.createElement('caption');
             generatedCaption.textContent = table.getAttribute('aria-label');
             table.insertBefore(generatedCaption, table.firstChild);
         }
@@ -108,10 +108,10 @@ function fixTableAccessibility(tables) {
 }
 
 // Implement landmark handling function
-function ... {
+function ensureUniqueLandmarks() {
     const usedRoles = new Map();
 
-    landmarkElements.forEach(element => {
+    document.querySelectorAll('[role]').forEach(element => {
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
         const existingCount = usedRoles.get(role) || 0;
         usedRoles.set(role, existingCount + 1);
@@ -136,32 +136,28 @@ function ... {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-    const existingMain = ...
+    const existingMain = document.querySelector('main');
     if (existingMain) {
         return existingMain;
     }
 
     const body = document.body;
-    const main = ...
-    
+    const main = document.createElement('main');
     while (body.firstChild) {
-        ...
+        body.insertBefore(body.firstChild, main);
     }
-    
-    ...
+    body.appendChild(main);
     return main;
 }
 
 // Call the function to ensure the page has a <main> landmark
 if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
-        ... () => {
-            if ... {
-                ...
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            wrapPrimaryContentInMain();
         });
-    } else if ... {
-        ...
+    } else {
+        wrapPrimaryContentInMain();
     }
 }
 
@@ -181,9 +177,9 @@ function validateTableAccessibility(table) {
     const rows = table.querySelectorAll('tbody tr');
     
     rows.forEach(row => {
-        const headers = ...
+        const headers = row.querySelectorAll('th');
         headers.forEach(th => {
-            if ... {
+            if (!th.hasAttribute('scope')) {
                 errors.push('Header missing scope attribute');
             }
         });
@@ -196,11 +192,11 @@ function validateTableAccessibility(table) {
 function validateTableStructure(table) {
     const issues = [];
     
-    if ... && !table.getAttribute('aria-label')) {
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
         issues.push('Table missing caption or aria-label');
     }
     
-    const headers = ...
+    const headers = table.querySelectorAll('th');
     headers.forEach(th => {
         if (!th.id) {
             issues.push('Header missing id attribute');

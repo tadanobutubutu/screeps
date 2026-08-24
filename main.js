@@ -1,6 +1,3 @@
-// Sample React Table Component demonstrating proper scope attributes
-// This fix addresses REACT_027 - React Table Structure warning
-
 import React from 'react';
 
 const Table = ({ columns, data }) => {
@@ -29,4 +26,30 @@ const Table = ({ columns, data }) => {
   );
 };
 
-export default Table;
+const DependencyGraph = () => {
+  return (
+    <div>
+      {/* ... other content ... */}
+      <table>
+        <thead>
+          <tr>
+            {/* ... other header cells ... */}
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            {/* ... other header cells ... */}
+          </tr>
+        </thead>
+        <tbody>
+          {/* ... other table rows ... */}
+        </tbody>
+      </table>
+      {/* ... other content ... */}
+    </div>
+  );
+};
+
+export default DependencyGraph;
+export { Table };

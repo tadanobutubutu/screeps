@@ -17,7 +17,7 @@ export function rotateBack() {
   // ...
 }
 
-export function updateDependencyGraphHTML(html) {
+export function updateHtmlFile(html) {
   // Update the HTML file as follows:
   // Replace the <a id="unrotate" href="#">rotate back</a> with a <button id="unrotate" onclick="rotateBack()">rotate back</button>
   // Make sure to update the JavaScript to handle the button click if necessary

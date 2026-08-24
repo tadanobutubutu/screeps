@@ -26,6 +26,10 @@ const addAriaLabelToMyDiv = () => {
   // ... implementation for REACT_036 ...
 };
 
+const addLangAttribute = () => {
+  // ... implementation for REACT_015: Add lang attribute to HTML element ...
+};
+
 module.exports = {
   mainFunc,
   newFunc,
@@ -34,5 +38,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   addAriaLabelToMyDiv,
+  addLangAttribute,
   // ... other exports if any ...
 };

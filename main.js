@@ -52,14 +52,33 @@ function addMainLandmark(htmlElements) {
     const mainElement = element.getElementsByTagName('main')[0];
     if (!mainElement) {
       const main = document.createElement('main');
+      main.setAttribute('role', 'main'); // Add 'role' attribute to the main element
       main.className = 'landmark-main';
       element.appendChild(main);
     }
   });
 }
 
+// Function to identify and correct fake links
+function correctFakeLinks(container) {
+  const links = container.getElementsByTagName('a');
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    if (
+      link.getAttribute('href') === '#' ||
+      link.getAttribute('href') === null ||
+      link.getAttribute('href') === '' ||
+      (!link.hasAttribute('href') && link.innerText === '')
+    ) {
+      link.removeAttribute('href'); // Remove href attribute for fake links
+      link.setAttribute('aria-hidden', 'true'); // Hide fake links using aria-hidden attribute
+    }
+  }
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,
-  addMainLandmark: addMainLandmark
+  addMainLandmark: addMainLandmark,
+  correctFakeLinks: correctFakeLinks
 };

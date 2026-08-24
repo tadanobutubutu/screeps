@@ -2,7 +2,7 @@
 // For example, if the page is in English, set lang to 'en'
 function setHtmlLangAttribute(lang = 'en') {
     const html = document.querySelector('html');
-    if (html && !html.getAttribute('lang')) {
+    if (html && html.tagName) {
         html.setAttribute('lang', lang);
     }
 }
@@ -17,11 +17,12 @@ function addSvgAccessibleNames(svg) {
         return;
     }
     if (!svgTitle.id) {
-        svgTitle.id = `svg-title-${Date.now()}`;
+        svgTitle.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
     }
     if (!svgDesc.id) {
-        svgDesc.id = `svg-desc-${Date.now()}`;
+        svgDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 9);
     }
+    svg.setAttribute('role', 'img');
     svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
 }
 
@@ -36,12 +37,19 @@ function fixInputAccessibility() {
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
         if (!input.id) {
-            input.id = `input-${Date.now()}`;
+            input.id = 'input-' + Math.random().toString(36).substr(2, 9);
         }
         const label = document.querySelector(`label[for="${input.id}"]`);
-        label.htmlFor = input.id;
-        label.textContent = 'Input description';
-        input.setAttribute('aria-describedby', label.id);
+        if (!label) {
+            const newLabel = document.createElement('label');
+            newLabel.htmlFor = input.id;
+            newLabel.textContent = 'Input description';
+            input.parentNode.insertBefore(newLabel, input);
+            newLabel.id = 'label-' + input.id;
+        } else {
+            label.textContent = 'Input description';
+            label.id = 'label-' + input.id;
+        }
     });
 }
 
@@ -138,7 +146,8 @@ function getLangAttribute() {
 function getFullLangAttribute() {
     const html = document.querySelector('html');
     if (!html) return null;
-    return html.getAttribute('lang');
+    const lang = html.getAttribute('lang');
+    return lang ? lang : null;
 }
 
 function validateTableAccessibility() {
@@ -162,7 +171,7 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
@@ -194,7 +203,8 @@ function createAccessibleLink() {
 }
 
 function wrapPrimaryContentInMain() {
-    if (document.querySelector('[role="main"]')) {
+    const main = document.querySelector('main');
+    if (main) {
         return;
     }
     const body = document.body;
@@ -203,7 +213,7 @@ function wrapPrimaryContentInMain() {
     }
     const nonLandmarks = Array.from(body.children).filter(element => {
         const tag = element.tagName.toLowerCase();
-        return !['header', 'nav', 'aside', 'footer', 'script', 'style', 'main'].includes(tag);
+        return !['header', 'nav', 'aside', 'footer', 'script', 'style'].includes(tag);
     });
     if (nonLandmarks.length === 0) {
         return;
@@ -216,10 +226,10 @@ function wrapPrimaryContentInMain() {
 
 // New function to fix an issue with fake links
 function fixFakeLinkIssue() {
-    const links = document.querySelectorAll('a[href="#"]');
+    const links = document.querySelectorAll('.fake-link, [data-link="true"]');
     links.forEach(link => {
-        link.removeAttribute('href');
-        const clickable = document.createElement('span');
+        const clickable = document.createElement('a');
+        clickable.href = link.getAttribute('data-href') || '#';
         clickable.textContent = 'Click me';
         link.appendChild(clickable);
     });
@@ -244,5 +254,5 @@ export {
     createInPageButton,
     createAccessibleLink,
     wrapPrimaryContentInMain,
-    fixFakeLinkIssue // Add the new function to exports
+    fixFakeLinkIssue
 };

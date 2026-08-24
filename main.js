@@ -55,12 +55,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main, [role="main"]'),
-    nav: document.querySelectorAll('nav, [role="navigation"]'),
-    header: document.querySelectorAll('header, [role="banner"]'),
-    footer: document.querySelectorAll('footer, [role="contentinfo"]'),
-    aside: document.querySelectorAll('aside, [role="complementary"]'),
-    section: document.querySelectorAll('section, [role="region"]'),
+    main: document.querySelectorAll('[role="main"]'),
+    nav: document.querySelectorAll('nav'),
+    header: document.querySelectorAll('[role="banner"]'),
+    footer: document.querySelectorAll('[role="contentinfo"]'),
+    aside: document.querySelectorAll('aside'),
+    section: document.querySelectorAll('[role="region"]'),
   };
 
   // Add unique labels to duplicate landmarks
@@ -69,12 +69,17 @@ function ensureUniqueLandmarks() {
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-          const label = `${landmarkType}-${index + 1}`;
+          const label = `${landmarkType} ${index + 1}`;
           element.setAttribute('aria-label', label);
         }
       });
     }
   });
+}
+
+// NEW FUNCTION: Add accessible name to HTML element (REACT_015)
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
 }
 
 // NEW FUNCTION: Add accessible names to SVGs
@@ -102,7 +107,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1 id="main-heading">Content</h1>
+          <h1 id="main-heading">Welcome</h1>
           <div className="app-content">
             {/* Existing App content */}
 
@@ -131,20 +136,18 @@ function App() {
           // Set language attribute on the HTML element
           document.documentElement.lang = 'en';
           // Apply accessibility fixes
+          addLangAttribute();
           fixTableStructureIssues();
-          ensureUniqueLandmarks();
           addSvgAccessibleNames();
+          ensureUniqueLandmarks();
         </script>
       </body>
     </html>
   );
 }
 
-// Set language attribute on the HTML element
-document.documentElement.lang = 'en';
-
 // Export App component
 export default App;
 
 // Export the new functions
-export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addLangAttribute };

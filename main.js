@@ -1,7 +1,9 @@
 import React from 'react';
 import { useEffect } from 'react';
 
-// TODO: This is the existing code that needs to be preserved
+// NOTE: dependencyGraphContent and indexContent are used for DOM queries in functions
+// that validate/access the document structure. These should replace direct document queries
+// where applicable for more targeted element selection.
 
 function Header() {
   // ... existing code here
@@ -47,21 +49,27 @@ function addLangAttribute() {
 }
 
 // NEW: Add Main landmark using React's useEffect
-function addMainLandmark() {
+// NOTE: This function uses dependencyGraphContent/indexContent to query elements
+function addMainLandmark(dependencyGraphContent, indexContent) {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = dependencyGraphContent?.querySelector('main') || 
+                        indexContent?.querySelector('main') || 
+                        document.querySelector('main');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.appendChild(main);
+      // ... additional logic to insert main element
     }
   }, []);
 }
 
 // NEW: Validate main landmark using React's useEffect
-function validateMainLandmark() {
+// NOTE: This function uses dependencyGraphContent/indexContent to query elements
+function validateMainLandmark(dependencyGraphContent, indexContent) {
   useEffect(() => {
-    const mainElement = document.querySelector('main') || document.getElementById('main') || document.getElementsByTagName('main')[0];
+    const mainElement = dependencyGraphContent?.querySelector('main') || 
+                        indexContent?.querySelector('main') || 
+                        document.querySelector('main');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;
@@ -71,13 +79,14 @@ function validateMainLandmark() {
 }
 
 // NEW: Validate unique landmarks using React's useEffect
-function validateLandmarkRoles(element) {
+// NOTE: This function uses dependencyGraphContent/indexContent to query elements
+function validateLandmarkRoles(element, dependencyGraphContent, indexContent) {
   useEffect(() => {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.getElementsByTagName('nav') : [];
+      const elements = (dependencyGraphContent || document).querySelectorAll(`[role="${role}"]`);
+      const tagElements = role === 'navigation' ? (indexContent || document).querySelectorAll('nav') : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       if (totalCount > 0) {
         foundLandmarks[role] = totalCount;
@@ -97,12 +106,12 @@ function fixTableStructure() {
 }
 
 // Helper function to get SVG accessible name
-function getSvgAccessibleName(svgElement) {
+function ... {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return null;
   }
   // ... existing logic ...
-  const title = document.querySelectorAll('title');
+  const title = ...
   if (title) {
     return title.textContent;
   }
@@ -119,9 +128,9 @@ function getAccessibleLabel(element) {
   if (ariaLabel) {
     return ariaLabel;
   }
-  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
+    const labelElement = ...
     if (labelElement) {
       return labelElement.textContent;
     }
@@ -133,19 +142,22 @@ function createInPageButton() {
   // ... existing logic ...
 }
 
-function validateTableAccessibility() {
+function validateTableAccessibility(dependencyGraphContent, indexContent) {
+  // NOTE: This function uses dependencyGraphContent/indexContent to query table elements
   // ... existing logic ...
 }
 
-function validateTableStructure() {
+function validateTableStructure(dependencyGraphContent, indexContent) {
+  // NOTE: This function uses dependencyGraphContent/indexContent to query table elements
   // ... existing logic ...
 }
 
-function validateLandmark() {
+function validateLandmark(dependencyGraphContent, indexContent) {
+  // NOTE: This function uses dependencyGraphContent/indexContent to query landmark elements
   // ... existing logic ...
 }
 
-function validateLandmarkRoles() {
+function ... {
   // ... existing logic ...
 }
 

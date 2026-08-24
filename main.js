@@ -1,11 +1,3 @@
-tsx
-// Before changes:
-// <main>...</main> <!-- This is the error state <main> -->
-// <main>...</main> <!-- This is the success state <main> -->
-
-// After changes:
-// We will wrap the different states within a single <main> element.
-
 import React, { useState } from 'react';
 
 const Dashboard: React.FC = () => {

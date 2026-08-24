@@ -154,8 +154,17 @@ export const validateLandmarkStructure = (element) => {
   return true;
 };
 
-// New function to add ARIA label to a fake link (REACT_036)
-export const addAriaLabelToFakeLink = (content, ariaLabel, href = "#") => {
+// New function to create in-page button (REACT_036)
+export const createInPageButton = (label, onClick, type = "button") => {
+  return (
+    <button type={type} onClick={onClick} aria-label={label}>
+      {label}
+    </button>
+  );
+};
+
+// New function to create accessible link (REACT_036)
+export const createAccessibleLink = (href, content, ariaLabel) => {
   return (
     <a href={href} aria-label={ariaLabel}>
       {content}

@@ -9,16 +9,20 @@ const indexModule = require('./indexModule');
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
 
+// Import dependency graph content directly from the module
+const { dependencyGraphContent } = require('./dependencyGraphModule');
+
+// Import index content directly from the module
+const { indexContent } = require('./indexModule');
+
 // Update dependencyGraphFunction to import and use dependencyGraphContent directly
 function dependencyGraphFunction() {
-  const { dependencyGraphContent } = dependencyGraphModule;
   // ... existing code for rendering the dependency graph
   return dependencyGraphContent;
 }
 
 // Update indexFunction to import and use indexContent directly
 function indexFunction() {
-  const { indexContent } = indexModule;
   // ... existing code for rendering the index view
   return indexContent;
 }

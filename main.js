@@ -8,9 +8,8 @@
 // - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 
 // main.js - Entry point for the application with accessibility fixes for React components
-import React from 'react';
-import { dependencyGraphContent, indexContent } from './dependencyGraphContent';
 
+// Data processing functions from HEAD
 function processData(data) {
     if (!data) {
         return null;
@@ -48,39 +47,41 @@ function extractMetadata(data) {
     return metadata;
 }
 
-const initialize = (callback) => {
-    const appData = processData({ dependencyGraphContent, indexContent });
-    if (callback && typeof callback === 'function') {
-        callback(appData);
-    }
-    return appData;
-};
+// CommonJS requires from origin/main
+const fs = require('fs');
+const path = require('path');
 
-initialize(() => {
+// Define some basic functionality
+function initialize() {
+    console.log('Initializing application...');
+    // Process data if available (from HEAD)
+    const appData = processData({ /* dependencyGraphContent, indexContent */ });
+    // Run accessibility fixes
     addressAccessibilityIssues();
-});
+    return appData;
+}
 
- // Fix REACT_015: Add proper lang attribute to HTML element
-export function getLangAttribute() {
+// Helper function
+function getFilePath(filename) {
+    return path.join(__dirname, filename);
+}
+
+// Fix REACT_015: Add proper lang attribute to HTML element
+function getLangAttribute() {
     return document.documentElement.lang || 'en';
 }
 
-export function getFullLangAttribute(lang = 'en') {
-    return lang;
+function makeElementAccessible(element) {
+    if (!element || !element.tagName) return;
+    if (element.tagName.toLowerCase() === 'html') {
+        element.setAttribute('lang', 'en');
+    } else if (element.tagName.toLowerCase() === 'svg') {
+        element.setAttribute('aria-label', 'SVG description');
+    }
 }
 
-export function createHtmlElement(language = 'en') {
-    return {
-        type: 'html',
-        props: {
-            lang: language,
-            children: []
-        }
-    };
-}
-
-// Fix REACT_027: Proper table structure with th scope
-export function validateTableAccessibility(table) {
+// Fix REACT_027: Table structure validation and fixing
+function validateTableAccessibility(table) {
     if (!table) return false;
     const headers = table.querySelectorAll('th');
     let isValid = true;
@@ -92,7 +93,7 @@ export function validateTableAccessibility(table) {
     return isValid;
 }
 
-export function validateTableStructure(table) {
+function validateTableStructure(table) {
     if (!table) return { valid: false, issues: [] };
     const issues = [];
     const hasThead = table.querySelector('thead');
@@ -112,53 +113,24 @@ export function validateTableStructure(table) {
     return { valid: issues.length === 0, issues };
 }
 
-export function createTable(headers, rows) {
-    return {
-        type: 'table',
-        props: {
-            children: [
-                {
-                    type: 'thead',
-                    props: {
-                        children: [
-                            {
-                                type: 'tr',
-                                props: {
-                                    children: headers.map(header => ({
-                                        type: 'th',
-                                        props: {
-                                            scope: 'col',
-                                            children: [header]
-                                        }
-                                    }))
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    type: 'tbody',
-                    props: {
-                        children: rows.map(row => ({
-                            type: 'tr',
-                            props: {
-                                children: row.map(cell => ({
-                                    type: 'td',
-                                    props: {
-                                        children: [cell]
-                                    }
-                                }))
-                            }
-                        }))
+function fixTableStructureIssues() {
+    const tables = document.querySelectorAll('table');
+    for (let table of tables) {
+        for (let i = 0; i < table.rows.length; i++) {
+            for (let j = 0; j < table.rows[i].cells.length; j++) {
+                let cell = table.rows[i].cells[j];
+                if (cell.tagName && cell.tagName.toLowerCase() === 'th') {
+                    if (i === 0) {
+                        cell.setAttribute('scope', 'col');
                     }
                 }
-            ]
+            }
         }
-    };
+    }
 }
 
-// Fix REACT_041: SVG must have accessible name
-export function getSvgAccessibleName(svg) {
+// Fix REACT_041: SVG accessible names
+function getSvgAccessibleName(svg) {
     if (!svg) return '';
     return svg.getAttribute('aria-label') || 
            svg.getAttribute('aria-labelledby') || 
@@ -166,18 +138,6 @@ export function getSvgAccessibleName(svg) {
            'Icon';
 }
 
-export function createSvgIcon(iconName, children = []) {
-    return {
-        type: 'svg',
-        props: {
-            'aria-label': iconName,
-            role: 'img',
-            children
-        }
-    };
-}
-
-// Fix REACT_041: Ensure accessible names for up to two SVG icons
 function ensureSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
     const toFix = Array.from(svgs).filter(svg => !svg.getAttribute('aria-label') && !svg.querySelector('title'));
@@ -190,8 +150,8 @@ function ensureSvgAccessibleNames() {
     });
 }
 
-// Fix REACT_025 & REACT_017: Use semantic landmark elements
-export function validateLandmark(element) {
+// Fix REACT_025 & REACT_017: Landmark validation and uniqueness
+function validateLandmark(element) {
     if (!element) return { valid: false, role: null };
     const role = element.getAttribute('role');
     const tagName = element.tagName.toLowerCase();
@@ -207,7 +167,7 @@ export function validateLandmark(element) {
     return { valid: false, role: null };
 }
 
-export function validateLandmarkStructure(container = document) {
+function validateLandmarkStructure(container = document) {
     const landmarks = container.querySelectorAll('header, nav, main, footer, aside, section');
     const issues = [];
     const seenIds = new Set();
@@ -222,193 +182,127 @@ export function validateLandmarkStructure(container = document) {
     return { valid: issues.length === 0, issues };
 }
 
-export function ensureUniqueLandmarks(container = document) {
-    const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
-    const seenIds = new Set();
-    landmarks.forEach(landmark => {
-        const elements = container.querySelectorAll(landmark);
-        elements.forEach((element) => {
-            let id = element.id;
-            if (!id) {
-                id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-            }
-            if (seenIds.has(id)) {
-                id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-            }
-            element.id = id;
-            seenIds.add(id);
-        });
+function ensureUniqueLandmarks() {
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
+    return [...landmarks].every(landmark => {
+        return landmark.id && landmark.id !== '';
     });
 }
 
-// Fix REACT_036: Fix fake link issue
-export function createInPageButton(link) {
-    if (!link) return null;
-    return {
-        href: link.href || '#',
-        role: 'button',
-        tabIndex: 0,
-        text: link.textContent
-    };
+function hasUniqueLandmarks() {
+    const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
+    return [...landmarks].every(landmark => {
+        return landmark.id && landmark.id !== '';
+    });
 }
 
-export function createAccessibleLink(url, text, isFakeLink = false) {
-    const link = {
-        type: 'a',
-        props: {
-            href: url,
-            children: [text]
-        }
-    };
-    if (isFakeLink) {
-        link.props.role = 'button';
-        link.props.tabIndex = 0;
+// Add proper landmark regions for improved accessibility
+function addProperLandmarkRegions() {
+    const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+    const navigation = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+    const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+    if (mainContent) mainContent.setAttribute('role', 'main');
+    if (navigation) navigation.setAttribute('role', 'navigation');
+    if (footer) footer.setAttribute('role', 'contentinfo');
+    const htmlElement = document.documentElement;
+    if (htmlElement) htmlElement.setAttribute('lang', 'en');
+}
+
+// Fix REACT_036: Fix fake link issues
+function fixOneFakeLinkIssue() {
+    const fakeLink = document.querySelector('.fake-link');
+    if (fakeLink) {
+        fakeLink.textContent = 'Example Link';
+        fakeLink.href = '#';
     }
-    return link;
 }
 
-function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
-    fakeLinks.forEach(link => {
+function fixReactFakeLinkIssue() {
+    const hashLinks = document.querySelectorAll('a[href^="#"]');
+    for (let link of hashLinks) {
         const button = document.createElement('button');
-        button.type = 'button';
+        button.setAttribute('type', 'button');
         button.textContent = link.textContent;
-        // Copy over attributes except href
-        Array.from(link.attributes).forEach(attr => {
-            if (attr.name !== 'href') {
-                button.setAttribute(attr.name, attr.value);
-            }
-        });
-        button.setAttribute('role', 'button');
-        button.tabIndex = 0;
-        link.parentNode.replaceChild(button, link);
-    });
-}
-
-// Fix REACT_017: Add proper landmark regions
-export function addLandmarkRegions(container = document) {
-    let headerId = 'landmark-header';
-    let navId = 'landmark-nav';
-    let mainId = 'landmark-main';
-    let footerId = 'landmark-footer';
-    let landmarkComponents = [null, null, null, null];
-
-    const header = container.querySelector('header');
-    if (header) {
-        headerId = header.id || header.getAttribute('id') || header.getAttribute('data-testid') || headerId;
-        landmarkComponents[0] = {
-            type: 'header',
-            props: {
-                id: headerId,
-                role: 'banner',
-                'aria-label': 'Site header',
-                className: 'landmark-header',
-                children: [header]
-            }
-        };
-    }
-
-    const navs = container.querySelectorAll('nav');
-    navs.forEach((nav, index) => {
-        if (nav.id) {
-            navId = nav.id || nav.getAttribute('id') || nav.getAttribute('data-testid') || navId;
-            landmarkComponents[1] = {
-                type: 'nav',
-                props: {
-                    id: navId,
-                    role: 'navigation',
-                    'aria-label': 'Main navigation',
-                    className: 'landmark-nav',
-                    children: [nav]
-                }
-            };
+        if (link.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', link.getAttribute('aria-label'));
         } else {
-            nav.id = navId;
-            landmarkComponents[1] = {
-                type: 'nav',
-                props: {
-                    id: navId,
-                    role: 'navigation',
-                    'aria-label': 'Main navigation',
-                    className: 'landmark-nav',
-                    children: [nav]
-                }
-            };
+            button.setAttribute('aria-label', link.textContent || 'Action');
         }
-    });
-
-    const mainEl = container.querySelector('main');
-    if (mainEl) {
-        mainId = mainEl.id || mainEl.getAttribute('id') || mainEl.getAttribute('data-testid') || mainId;
-        landmarkComponents[2] = {
-            type: 'main',
-            props: {
-                id: mainId,
-                role: 'main',
-                'aria-label': 'Main content',
-                className: 'landmark-main',
-                children: [mainEl]
-            }
-        };
+        link.parentNode.replaceChild(button, link);
     }
-
-    const footer = container.querySelector('footer');
-    if (footer) {
-        footerId = footer.id || footer.getAttribute('id') || footer.getAttribute('data-testid') || footerId;
-        landmarkComponents[3] = {
-            type: 'footer',
-            props: {
-                id: footerId,
-                role: 'contentinfo',
-                'aria-label': 'Site footer',
-                className: 'landmark-footer',
-                children: [footer]
-            }
-        };
-    }
-
-    return landmarkComponents;
 }
 
+function fixFakeLinkIssues() {
+    // Fix generic fake links
+    const fakeLinks = document.querySelectorAll('.fake-link');
+    for (let fakeLink of fakeLinks) {
+        fakeLink.textContent = 'Example Link';
+        fakeLink.href = '#';
+    }
+    // Fix React-style fake links (anchor tags with hash href)
+    const hashLinks = document.querySelectorAll('a[href^="#"]');
+    for (let link of hashLinks) {
+        const button = document.createElement('button');
+        button.setAttribute('type', 'button');
+        button.textContent = link.textContent;
+        if (link.getAttribute('aria-label')) {
+            button.setAttribute('aria-label', link.getAttribute('aria-label'));
+        } else {
+            button.setAttribute('aria-label', link.textContent || 'Action');
+        }
+        link.parentNode.replaceChild(button, link);
+    }
+}
+
+// Wrap primary content in main landmark
+function wrapPrimaryContentInMain() {
+    const mainContent = document.querySelector('main');
+    if (!mainContent) return;
+
+    const existingDiv = document.querySelector('.content-wrapper') || document.querySelector('[role="main"]') || mainContent.parentElement;
+    if (!existingDiv) return;
+
+    const newDiv = document.createElement('div');
+    newDiv.className = 'primary-content-wrapper';
+    newDiv.setAttribute('role', 'main');
+
+    existingDiv.insertBefore(newDiv, mainContent);
+    newDiv.appendChild(mainContent);
+}
+
+function newPreservedFunction() {
+    return true;
+}
+
+// Aggregate accessibility fixes
 function addressAccessibilityIssues() {
     ensureSvgAccessibleNames();
-    fixFakeLinks();
+    fixFakeLinkIssues();
     wrapPrimaryContentInMain();
 }
 
-export function wrapPrimaryContentInMain(container = document) {
-    if (!container) return null;
-    const existingMain = container.querySelector('main');
-    if (existingMain) {
-        return existingMain;
-    }
-    const selectors = ['#primary', '#content', '#main', '.primary', '.content', '.main'];
-    let primary = null;
-    for (const selector of selectors) {
-        primary = container.querySelector(selector);
-        if (primary) break;
-    }
-    if (!primary) {
-        const children = Array.from(container.children || []);
-        for (const child of children) {
-            if (child.nodeType === 1) {
-                const tag = child.tagName.toLowerCase();
-                if (tag !== 'header' && tag !== 'nav' && tag !== 'footer' && tag !== 'aside' && tag !== 'script' && tag !== 'style') {
-                    primary = child;
-                    break;
-                }
-            }
-        }
-    }
-    if (primary) {
-        const main = document.createElement('main');
-        main.id = primary.id || 'main-content';
-        main.setAttribute('role', 'main');
-        if (primary.parentNode) {
-            primary.parentNode.insertBefore(main, primary);
-            main.appendChild(primary);
-        }
-        return main;
-    }
-    return null;
-}
+// Export public functions
+module.exports = {
+    initialize,
+    getFilePath,
+    makeElementAccessible,
+    newPreservedFunction,
+    fixTableStructureIssues,
+    addProperLandmarkRegions,
+    fixFakeLinkIssues,
+    fixOneFakeLinkIssue,
+    ensureUniqueLandmarks,
+    fixReactFakeLinkIssue,
+    hasUniqueLandmarks,
+    wrapPrimaryContentInMain,
+    // Additional exports from HEAD
+    processData,
+    normalizeItem,
+    extractMetadata,
+    getLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    getSvgAccessibleName,
+    validateLandmark,
+    validateLandmarkStructure
+};

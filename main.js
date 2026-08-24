@@ -25,29 +25,31 @@ function addressAccessibilityIssues() {
   // REACT_025: Ensure unique landmarks (2 issues)
   // REACT_036: Fix 1 fake link issue
   
+  // Combine content from both sources for accessibility checking
+  const content = dependencyGraphContent + indexContent;
+  
   // Address REACT_015: Ensure lang attribute is set on HTML element
-  const htmlLangRegex = /<html[^>]*lang=["'][^"']*["'][^>]*>/i;
-  const hasLang = htmlLangRegex.test(indexContent);
+  const htmlLangRegex = /<html[^>]*\slang\s*=/i;
+  const hasLang = htmlLangRegex.test(content);
   
   // Address REACT_017 & REACT_025: Ensure landmark regions exist and are unique
   // Check for main landmark - should have exactly one
-  const mainMatches = indexContent.match(/<main[^>]*>/gi);
+  const mainMatches = content.match(/<main[^>]*>/gi);
   const mainCount = mainMatches ? mainMatches.length : 0;
   
   // Check for proper landmark regions (header, nav, main, footer)
-  const hasHeader = /<header[^>]*>/i.test(indexContent);
-  const hasNav = /<nav[^>]*>/i.test(indexContent);
-  const hasFooter = /<footer[^>]*>/i.test(indexContent);
+  const hasHeader = /<header[^>]*>/i.test(content);
+  const hasNav = /<nav[^>]*>/i.test(content);
+  const hasFooter = /<footer[^>]*>/i.test(content);
   
   // Address REACT_041: Add accessible names to SVGs
   // Check for SVGs without title or aria-label
-  const svgWithoutTitle = /<svg(?![^>]*\b(aria-label|<title)[^>]*>)[^>]*>/gi;
-  const svgMatches = indexContent.match(svgWithoutTitle);
-  const svgWithoutAccessibleName = svgMatches ? svgMatches.length : 0;
+  const svgWithoutTitle = content.match(/<svg(?![^>]*\b(?:aria-label|title)[^>]*>)[^>]*>/gi);
+  const svgCount = (content.match(/<svg[^>]*>/gi) || []).length;
   
   // Address REACT_036: Fix fake links (links without proper href or with href="#")
-  const fakeLinkPattern = /<a(?![^>]*href=["'][^"']+["'])[^>]*>/gi;
-  const fakeLinks = indexContent.match(fakeLinkPattern);
+  const fakeLinkPattern = /<a\s+(?!href\s*=\s*["'][^"#])[^>]*>/gi;
+  const fakeLinks = content.match(fakeLinkPattern);
   const fakeLinkCount = fakeLinks ? fakeLinks.length : 0;
   
   return {
@@ -56,9 +58,10 @@ function addressAccessibilityIssues() {
     hasHeader,
     hasNav,
     hasFooter,
-    svgWithoutAccessibleName,
+    svgWithoutTitleCount: svgWithoutTitle ? svgWithoutTitle.length : 0,
+    svgCount,
     fakeLinkCount,
-    summary: `Accessibility Check: lang=${hasLang}, main=${mainCount}, header=${hasHeader}, nav=${hasNav}, footer=${hasFooter}, SVGs without names=${svgWithoutAccessibleName}, fake links=${fakeLinkCount}`
+    summary: `Accessibility Check: lang=${hasLang}, main=${mainCount}, header=${hasHeader}, nav=${hasNav}, footer=${hasFooter}, SVGs without accessible names=${svgWithoutTitle ? svgWithoutTitle.length : 0}, fake links=${fakeLinkCount}`
   };
 }
 

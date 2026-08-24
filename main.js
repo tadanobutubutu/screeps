@@ -4,11 +4,13 @@ const getAccessibleName = (node) => {
   let accessibleName = 'unknown';
 
   if (svg && svg.nodeName.toLowerCase() === 'svg') {
-    accessibleName = title || text;
+    // Try aria-label first, then fallback to title or text
+    if (svg.hasAttribute('aria-label')) {
+      accessibleName = svg.getAttribute('aria-label');
+    } else {
+      accessibleName = title || text;
+    }
   }
-
-  // TODO: New code to be added here
-  // New function or changes requested in the issue
 
   return accessibleName;
 };

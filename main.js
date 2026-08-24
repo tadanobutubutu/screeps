@@ -171,14 +171,14 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
 }
 
 function validateLandmarkStructure() {
-    const main = document.querySelector('[role="main"]');
+    const main = document.querySelector('main');
     if (!main) {
         console.warn('Missing main landmark');
     }
@@ -226,10 +226,10 @@ function wrapPrimaryContentInMain() {
 
 // New function to fix an issue with fake links
 function fixFakeLinkIssue() {
-    const links = document.querySelectorAll('.fake-link, [data-link="true"]');
+    const links = document.querySelectorAll('a');
     links.forEach(link => {
         const clickable = document.createElement('a');
-        clickable.href = link.getAttribute('data-href') || '#';
+        clickable.href = link.getAttribute('href') || '#';
         clickable.textContent = 'Click me';
         link.appendChild(clickable);
     });

@@ -181,5 +181,11 @@ addScopeToTableHeaders();
 
 module.exports = {
   wrapPrimaryContentInMain,
-  // Include other exports as they are, do not remove or rename them
+  handleButtonClick,
+  addLangAttribute,
+  fixFakeLinks,
+  ensureUniqueLandmarks,
+  ensureProperLandmarkStructure,
+  addAccessibleSVGs,
+  addScopeToTableHeaders,
 };

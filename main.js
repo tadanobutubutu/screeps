@@ -25,7 +25,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.hasAttribute('aria-label')) {
+    if (!main.getAttribute('aria-label')) {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {
@@ -40,7 +40,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -48,8 +48,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
-        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.cells).indexOf(th) : -1;
+        const cellIndex = parentRow ? Array.from(parentRow.cells).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -116,11 +116,11 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -159,7 +159,7 @@ function App() {
             {/* Existing App content */}
 
             {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
+            <button id="unrotate" type="button" onClick={handleRotateBack}>rotate back</button>
 
             {/* Example of adding scope attribute to a <th> element */}
             <table>

@@ -58,7 +58,7 @@ const fixLandmarkIssues = () => {
   });
 };
 
-// Accessibility fix for REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+// Accessibility fix for ensuring unique landmarks (2 issues)
 const uniqueLandmarks = () => {
   // Implementation to ensure all landmarks have unique IDs
   const landmarks = document.querySelectorAll('[role], nav, main, header, footer, aside, section, article');

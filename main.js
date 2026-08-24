@@ -122,21 +122,130 @@ function fixFakeLinkIssues() {
   }
 }
 
-module.exports = {
-  initialize,
-  getFilePath,
-  makeElementAccessible,
-  fixTableStructureIssues,
-  addProperLandmarkRegions,
-  fixFakeLinkIssues,
-  fixOneFakeLinkIssue,
-  ensureUniqueLandmarks,
-  fixReactFakeLinkIssue,
-  hasUniqueLandmarks
-};
+// NEW: Fix React SVG Accessible Name issues
+function fixSvgAccessibleNames() {
+  const svgElements = document.querySelectorAll('svg');
+  for (let svg of svgElements) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = svg.getAttribute('data-description') || 'SVG description';
+      svg.insertBefore(title, svg.firstChild);
+    }
+  }
+}
+
+// NEW: Ensure all landmarks have unique IDs
+function ensureLandmarksHaveUniqueIds() {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
+  const usedIds = new Set();
+  for (let landmark of landmarks) {
+    if (!landmark.id || landmark.id === '' || usedIds.has(landmark.id)) {
+      let newId = landmark.getAttribute('role') || 'landmark';
+      let counter = 1;
+      let uniqueId = newId;
+      while (usedIds.has(uniqueId)) {
+        uniqueId = `${newId}-${counter}`;
+        counter++;
+      }
+      landmark.id = uniqueId;
+      usedIds.add(uniqueId);
+    } else {
+      usedIds.add(landmark.id);
+    }
+  }
+}
+
+// NEW: Fix React Language Attribute
+function fixHtmlLanguageAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// NEW: Enhanced table structure fixes for React tables
+function fixReactTableStructure() {
+  const tables = document.querySelectorAll('table');
+  for (let table of tables) {
+    // Ensure table has caption or summary
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+      const caption = document.createElement('caption');
+      caption.textContent = table.getAttribute('data-table-title') || 'Data table';
+      caption.style.display = 'none'; // Visually hidden but accessible
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    // Fix header cell scopes
+    const headerCells = table.querySelectorAll('th');
+    for (let th of headerCells) {
+      if (!th.getAttribute('scope')) {
+        const parentRow = th.closest('tr');
+        const parentSection = th.closest('thead, tfoot, tbody');
+        if (parentSection && parentSection.tagName.toLowerCase() === 'thead') {
+          th.setAttribute('scope', 'col');
+        } else if (parentSection && parentSection.tagName.toLowerCase() === 'tfoot') {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
+      }
+    }
+    
+    // Associate data cells with headers
+    const dataCells = table.querySelectorAll('td');
+    for (let td of dataCells) {
+      if (!td.getAttribute('headers')) {
+        const headers = [];
+        const row = td.closest('tr');
+        const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+        const cellIndex = Array.from(row.children).indexOf(td);
+        
+        // Find column headers
+        const thead = table.querySelector('thead');
+        if (thead) {
+          const headerRow = thead.rows[thead.rows.length - 1];
+          if (headerRow && headerRow.cells[cellIndex]) {
+            const headerCell = headerRow.cells[cellIndex];
+            if (headerCell.id) {
+              headers.push(headerCell.id);
+            } else {
+              headerCell.id = `col-${cellIndex}`;
+              headers.push(headerCell.id);
+            }
+          }
+        }
+        
+        // Find row headers
+        const firstCell = row.cells[0];
+        if (firstCell && firstCell.tagName.toLowerCase() === 'th' && firstCell !== td) {
+          if (firstCell.id) {
+            headers.push(firstCell.id);
+          } else {
+            firstCell.id = `row-${rowIndex}`;
+            headers.push(firstCell.id);
+          }
+        }
+        
+        if (headers.length > 0) {
+          td.setAttribute('headers', headers.join(' '));
+        }
+      }
+    }
+  }
+}
 
 function newPreservedFunction() {
   return true;
+}
+
+// NEW: Wrapper function to run all accessibility fixes
+function runAllAccessibilityFixes() {
+  fixHtmlLanguageAttribute();
+  fixSvgAccessibleNames();
+  fixReactTableStructure();
+  addProperLandmarkRegions();
+  ensureLandmarksHaveUniqueIds();
+  fixFakeLinkIssues();
 }
 
 module.exports = {
@@ -151,5 +260,10 @@ module.exports = {
   ensureUniqueLandmarks,
   fixReactFakeLinkIssue,
   hasUniqueLandmarks,
-  wrapPrimaryContentInMain
+  wrapPrimaryContentInMain,
+  fixSvgAccessibleNames,
+  ensureLandmarksHaveUniqueIds,
+  fixHtmlLanguageAttribute,
+  fixReactTableStructure,
+  runAllAccessibilityFixes
 };

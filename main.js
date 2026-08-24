@@ -113,7 +113,7 @@ function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = !svg.closest('[lang="en"]');
-    const isBackground = svg.css('position') === 'absolute' && svgs.css('top') === '0' && svgs.css('left') === '0' && svgs.css('width') === '100%' && svgs.css('height') === '100%';
+    const isBackground = svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('title', 'Description of SVG content');
@@ -129,6 +129,17 @@ fixFakeLinks();
 ensureProperLandmarkStructure();
 ensureUniqueLandmarks();
 addAccessibleSVGs();
+
+// Update th elements to include scope attribute
+function updateTableHeaders() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    th.setAttribute('scope', 'col');
+  });
+}
+
+// Call the function to update table headers
+updateTableHeaders();
 
 module.exports = {
   wrapPrimaryContentInMain

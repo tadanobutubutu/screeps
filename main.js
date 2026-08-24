@@ -112,7 +112,10 @@ function addAriaLabelToMyDiv() {
 
 // NEW FUNCTION: Set language attribute on HTML element
 function setLangAttribute() {
-  document.documentElement.lang = 'en';
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 // NEW FUNCTION: Fix fake link issue

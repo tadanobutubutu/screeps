@@ -1,6 +1,6 @@
-// Assuming the original content of main.js is here and the conflict markers are not shown.
+// main.js
 
-// Add the following function to handle the SVG creation with accessible names
+// Helper function to create an accessible SVG element
 function createAccessibleSVG(iconData, ariaLabel) {
   return {
     __html: iconData,
@@ -18,6 +18,5 @@ const icons = {
   ),
 };
 
-// Rest of the main.js content...
-
-// Output the complete updated main.js content inside a
+// Export the icons for use throughout the application
+export { icons };

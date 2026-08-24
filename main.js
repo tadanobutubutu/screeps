@@ -34,7 +34,7 @@ function addressAccessibilityIssues() {
       if (insertionPoint !== -1) {
         content = content.slice(0, insertionPoint) + `\n<${tag}></${tag}>` + content.slice(insertionPoint);
       } else {
-        content += `\n<${tag}></${${tag}}>`;
+        content += `\n<${tag}></${tag}>`;
       }
     }
   });
@@ -93,6 +93,7 @@ function addressAccessibilityIssues() {
   const hasFooter = /<footer\b/i.test(content);
   const svgWithoutTitle = content.match(/<svg\b[^>]*>(?![^>]*\b(?:aria-label|title)\b)[^>]*>/gi) || [];
   const svgWithoutTitleCount = svgWithoutTitle.length;
+  const svgCount = (content.match(/<svg\b[^>]*>/gi) || []).length;
   const fakeLinkPattern = /<a\s+(?!href\s*=\s*["'][^"#])[^>]*>/gi;
   const fakeLinks = content.match(fakeLinkPattern) || [];
   const fakeLinkCount = fakeLinks.length;
@@ -103,8 +104,8 @@ function addressAccessibilityIssues() {
     hasHeader,
     hasNav,
     hasFooter,
-    svgWithoutTitleCount: svgWithoutTitleCount,
-    svgCount: (content.match(/<svg\b[^>]*>/gi) || []).length,
+    svgWithoutTitleCount,
+    svgCount,
     fakeLinkCount,
     summary: `Accessibility Check: lang=${hasLang}, main=${mainCount}, header=${hasHeader}, nav=${hasNav}, footer=${hasFooter}, SVGs without accessible names=${svgWithoutTitleCount}, fake links=${fakeLinkCount}`
   };

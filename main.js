@@ -217,6 +217,7 @@ function wrapPrimaryContentInMain() {
 // Export all functions
 export { 
     setHtmlLangAttribute, 
+    addSvgAccessibleNames,
     addAllSvgAccessibleNames, 
     addAllTableHeadersScope, 
     fixInputAccessibility, 

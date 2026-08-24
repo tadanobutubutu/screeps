@@ -2,7 +2,10 @@ import accessibilityModule from 'accessibility-module';
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
-  // Implementation code
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
 }
 
 // Fix 26 table structure issues
@@ -13,12 +16,12 @@ function fixTableStructure() {
     const rows = table.querySelectorAll('tr');
 
     rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('th, td');
+      const cells = row.querySelectorAll('td, th');
 
       cells.forEach((cell, cellIndex) => {
         const isTH = cell.tagName === 'TH';
 
-        if (!isTH || cell.hasAttribute('scope')) return;
+        if (!isTH) return;
 
         if (cellIndex === 0) {
           cell.setAttribute('scope', 'row');
@@ -31,78 +34,113 @@ function fixTableStructure() {
 }
 
 // Fix table structure issues by checking TH cell scopes
-function fixTableStructureIssues() {
+function checkTableStructure() {
   fixTableStructure();
 }
 
 // Add/fix 4 landmark issues
 function addMainLandmark() {
-  const main = document.querySelector('main');
+  const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
 }
 
 // Validate landmark
 function validateLandmark() {
-  // Implementation code
+  const main = document.querySelector('main');
+  return main && main.getAttribute('role') === 'main';
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  // Implementation code
+  const landmarks = document.querySelectorAll('[role="main"]');
+  if (landmarks.length > 1) {
+    landmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        landmark.removeAttribute('role');
+      }
+    });
+  }
 }
 
 // Fix unique landmarks (2 issues)
 function fixUniqueLandmarks() {
-  // Implementation code
+  ensureUniqueLandmarks();
 }
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  // Implementation code
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
 }
 
 // Validate link accessibility
 function validateLinkAccessibility() {
-  // Implementation code
+  const links = document.querySelectorAll('a');
+  let hasIssues = false;
+  
+  links.forEach(link => {
+    if (!link.textContent.trim() && !link.querySelector('img')) {
+      hasIssues = true;
+    }
+  });
+  
+  return !hasIssues;
 }
 
 // Create in page button
 function createInPageButton() {
-  // Implementation code
+  const button = document.createElement('button');
+  button.textContent = 'Skip to main content';
+  button.className = 'skip-link';
+  document.body.insertBefore(button, document.body.firstChild);
 }
 
 // Create accessible link
 function createAccessibleLink() {
-  // Implementation code
+  const links = document.querySelectorAll('a:not([href])');
+  links.forEach(link => {
+    link.setAttribute('href', '#');
+  });
 }
 
 // Address accessibility issues from the insight report
 function addressAccessibilityIssues() {
+  addLangAttribute();
   fixTableStructure();
+  checkTableStructure();
   addMainLandmark();
+  validateLandmark();
   fixUniqueLandmarks();
   fixFakeLinkIssue();
+  createInPageButton();
+  createAccessibleLink();
 }
 
 // Function to check TH cell scope
 function hasValidTHScope(cell) {
   const acceptedScopes = ['row', 'col', 'rowgroup', 'colgroup'];
-  return acceptedScopes.includes(cell.getAttribute('scope'));
+  const scope = cell.getAttribute('scope');
+  return scope && acceptedScopes.includes(scope);
 }
 
 // Add proper landmark regions
-function addProperLandmarkRegions() {
+function addLandmarkRegions() {
   // Implementation code
   const landmarkElements = ['header', 'nav', 'footer', 'article', 'section'];
   landmarkElements.forEach(landmark => {
-    const element = document.querySelector(landmark);
-    if (element) {
-      element.setAttribute('role', landmark);
-    }
+    const elements = document.querySelectorAll(landmark);
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', landmark);
+      }
+    });
   });
 }
 
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
-fixTableStructureIssues();
-addProperLandmarkRegions();
+addLandmarkRegions();

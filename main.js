@@ -9,7 +9,7 @@ const main = () => {
   validateTableStructure();
   // Validate Landmark Structure
   validateLandmark();
-  validateUniqueLandmarks();
+  validateUniqueLandmarks;
   validateLandmarkStructure();
   // Validate Link Accessibility
   validateLinkAccessibility();

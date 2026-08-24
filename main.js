@@ -16,16 +16,23 @@ function fixTableStructure() {
       const cells = row.querySelectorAll('th, td');
 
       cells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          if (cellIndex === 0) {
-            cell.setAttribute('scope', 'row');
-          } else {
-            cell.setAttribute('scope', 'col');
-          }
+        const isTH = cell.tagName === 'TH';
+
+        if (!isTH || cell.hasAttribute('scope')) return;
+
+        if (cellIndex === 0) {
+          cell.setAttribute('scope', 'row');
+        } else {
+          cell.setAttribute('scope', 'col');
         }
       });
     });
   });
+}
+
+// Fix table structure issues by checking TH cell scopes
+function fixTableStructureIssues() {
+  fixTableStructure();
 }
 
 // Add/fix 4 landmark issues
@@ -83,30 +90,7 @@ function hasValidTHScope(cell) {
   return acceptedScopes.includes(cell.getAttribute('scope'));
 }
 
-// Function to fix table structure issues by checking TH cell scopes
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-
-    rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('th');
-
-      cells.forEach((cell, cellIndex) => {
-        if (!hasValidTHScope(cell)) {
-          let scope = 'col';
-          if (cellIndex === 0) {
-            scope = 'row';
-          }
-          cell.setAttribute('scope', scope);
-        }
-      });
-    });
-  });
-}
-
-// Function to add proper landmark regions
+// Add proper landmark regions
 function addProperLandmarkRegions() {
   // Implementation code
 }

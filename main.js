@@ -273,4 +273,6 @@ const anotherExistingCode = 'more code that should be preserved';
 document.addEventListener('DOMContentLoaded', () => {
   fixFakeLink();
   wrapPrimaryContentInMain();
+  addLangAttribute();
+  addAccessibleNamesToSVGs();
 });

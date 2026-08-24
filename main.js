@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 import Head from 'next/head';
 
 export default function Main() {
@@ -79,3 +81,4 @@ export default function Main() {
 }
 
 export { Main };
+// ----- END ORIGINAL CODE -----

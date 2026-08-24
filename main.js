@@ -1,5 +1,4 @@
 // main.js - Entry point for the application with accessibility fixes for React components
-
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
 
@@ -78,14 +77,12 @@ function addMainLandmark() {
 function ensureUniqueLandmarks() {
   const landmarks = [...document.querySelectorAll('nav, footer, aside, main, header')];
   const idMap = new Map();
-
   landmarks.forEach(landmark => {
     let currentId = landmark.id;
     if (!currentId) {
       currentId = `${landmark.tagName.toLowerCase()}-${Date.now()}`;
       landmark.id = currentId;
     }
-
     if (idMap.has(currentId)) {
       let counter = 1;
       const newId = `${currentId}-${counter}`;
@@ -96,7 +93,6 @@ function ensureUniqueLandmarks() {
       landmark.id = newId;
       currentId = newId;
     }
-
     idMap.set(currentId, true);
     landmark.setAttribute('aria-labelledby', currentId);
   });
@@ -157,9 +153,8 @@ function wrapPrimaryContentInMain() {
   }
 }
 
-// Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"], a[href$="javascript:void(0)"], a[href$="javascript:void(0)"]');
+  const links = document.querySelectorAll('a[href="#"], a[href$="javascript:void(0)"]');
   let isValid = true;
   links.forEach(link => {
     if (link.href.endsWith('#') && link.textContent.trim()) {
@@ -170,23 +165,5 @@ function validateLinkAccessibility() {
   return isValid;
 }
 
-// Example usage of the accessibility functions
-addressAccessibilityIssues();
-
 // Export all functions for testing and external use
-export {
-  addLangAttribute,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  addSvgAccessibleNames,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  addSidebarLandmark,
-  addFooterLandmark,
-  addNavLandmark,
-  addFaviconAccessibleName,
-  wrapPrimaryContentInMain,
-  validateLinkAccessibility
-};
+export { addLangAttribute, getLangAttribute, validateTableAccessibility, validateTableStructure, addSvgAccessibleNames, addMainLandmark, ensureUniqueLandmarks, fixFakeLinkIssue, addSidebarLandmark, addFooterLandmark, addNavLandmark, addFaviconAccessibleName, wrapPrimaryContentInMain, validateLinkAccessibility };

@@ -98,7 +98,7 @@ function fixTableAccessibility(tables) {
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = Array.from(row.querySelectorAll('th[data-row-header]'));
+                const rowHeaders = row.querySelectorAll('th[data-row-header]');
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -147,7 +147,7 @@ function wrapPrimaryContentInMain() {
     const existingMain = document.querySelector('main');
     if (existingMain) {
         // Ensure the primary content (e.g., the container) is inside the existing main
-        const container = document.querySelector('.container');
+        const container = document.querySelector('#container, .container, [role="main"]');
         if (container && !existingMain.contains(container)) {
             existingMain.appendChild(container);
         }
@@ -155,7 +155,7 @@ function wrapPrimaryContentInMain() {
     }
 
     // No main element found; create one and wrap the primary content
-    const container = document.querySelector('.container');
+    const container = document.querySelector('.primary-content, #content, main-content');
     const mainEl = document.createElement('main');
     if (container) {
         mainEl.appendChild(container);
@@ -163,13 +163,13 @@ function wrapPrimaryContentInMain() {
         // Fallback: wrap the first non‑structural element of <body>
         const body = document.body;
         const children = Array.from(body.children);
-        const primary = children.find(child => !['header', 'footer', 'nav', 'aside'].includes(child.tagName.toLowerCase()));
+        const primary = children.find(child => !['header', 'footer', 'nav', 'aside', 'script', 'style'].includes(child.tagName.toLowerCase()));
         if (primary) {
             mainEl.appendChild(primary);
         }
     }
     // Insert the new <main> element at the top of the body
-    body.insertBefore(mainEl, body.firstChild);
+    document.body.insertBefore(mainEl, document.body.firstChild);
 }
 
 // Call the function to ensure the page has a <main> landmark

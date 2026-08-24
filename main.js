@@ -76,6 +76,15 @@ function processAccessibilityIssues(callback, accessibilityInsights) {
 processAccessibilityIssues(addressAccessibilityIssues, accessibilityInsights);
 
 // Wrap the primary content element in the main container
+function wrapContentInMain() {
+  const primaryContent = document.querySelector('#primary-content');
+  if (primaryContent) {
+    wrapPrimaryContentInMain(primaryContent);
+  }
+}
+
+// Call the function to wrap the content in the main container
+wrapContentInMain();
 
 // Add missing scope attributes to table header cells (fixes REACT_027)
 addMissingScopeToHeaders();
@@ -87,5 +96,6 @@ module.exports = {
   addressAccessibilityIssues,
   processAccessibilityIssues,
   wrapperFunction,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  wrapContentInMain // New export to wrap the primary content in main
 };

@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+// For app/layout.tsx - Add aria-hidden="true" to the SVG icons since they appear to be decorative favicons
+
+// For dashboard/app/layout.tsx - Same fix

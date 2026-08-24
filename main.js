@@ -101,6 +101,20 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Create in page button
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'Skip to main content';
+  button.className = 'skip-link';
+  button.addEventListener('click', () => {
+    const main = document.querySelector('main') || document.querySelector('[role="main"]');
+    if (main) {
+      main.focus();
+    }
+  });
+  document.body.prepend(button);
+}
+
 // Add accessible names to SVG elements
 function addAccessibleNamesToSVG() {
   const svgs = document.querySelectorAll('svg');
@@ -160,26 +174,43 @@ function hasValidTHScope(cell) {
   return scope && acceptedScopes.includes(scope);
 }
 
-// Create in page button
-function createInPageButton() {
-  const button = document.createElement('button');
-  button.textContent = 'Skip to main content';
-  button.className = 'skip-link';
-  button.addEventListener('click', () => {
-    const main = document.querySelector('main') || document.querySelector('[role="main"]');
-    if (main) {
-      main.focus();
-    }
-  });
-  document.body.prepend(button);
-}
-
-// Function to validate landmarks
+// Add/fix 4 landmark issues (by validating landmarks)
 function validateLandmark() {
   const landmarks = document.querySelectorAll('header, nav, footer, aside');
   landmarks.forEach(landmark => {
     if (!landmark.getAttribute('role')) {
       landmark.setAttribute('role', 'landmark');
+    }
+  });
+}
+
+// Fix the fake link issue with buttons
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a');
+  fakeLinks.forEach(link => {
+    if (link.href === '#' || !link.href) {
+      // Replace the link with a button for in-page actions
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.setAttribute('type', 'button');
+      
+      // Copy all attributes except href
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Preserve ARIA attributes for accessibility
+      if (link.hasAttribute('aria-label')) {
+        button.setAttribute('aria-label', link.getAttribute('aria-label'));
+      }
+      if (link.hasAttribute('aria-labelledby')) {
+        button.setAttribute('aria-labelledby', link.getAttribute('aria-labelledby'));
+      }
+      
+      // Replace the link with the button in the DOM
+      link.parentNode.replaceChild(button, link);
     }
   });
 }

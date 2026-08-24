@@ -1,14 +1,1 @@
-import React from 'react';
-
-const MyComponent = () => {
-  // Hypothetical function to simulate an input with a missing 'lang' attribute
-  const handleInputChange = (event) => {
-    // Some logic
-  };
-
-  return (
-    <input type="text" onChange={handleInputChange} /> // Missing 'lang' attribute
-  );
-};
-
-export default MyComponent;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -140,13 +140,29 @@ export const addProperLandmarkRegions = (elements) => {
 export { class1, function1, Object1 } from './path/to/module';
 
 // Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
-// Assuming the issue was related to duplicate IDs or landmarks, ensure they are unique.
-// Since the code is not provided, this is a placeholder to illustrate the fix.
-// You would replace this with the actual code necessary to address the duplicate landmarks.
-const uniqueLandmarks = () => {
-  // Logic to ensure all landmarks are unique
+const uniqueLandmarks = (landmarks) => {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+  
+  const seenIds = new Set();
+  
+  return landmarks.map((landmark) => {
+    let { id } = landmark;
+    let suffix = 1;
+    const baseId = id;
+    
+    while (seenIds.has(id)) {
+      id = `${baseId}-${suffix}`;
+      suffix++;
+    }
+    
+    seenIds.add(id);
+    
+    return {
+      ...landmark,
+      id
+    };
+  });
 };
 
 // Make sure they are properly exported for other components:
 export { class1, function1, Object1, uniqueLandmarks };
-```

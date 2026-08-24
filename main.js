@@ -8,6 +8,7 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
+document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
@@ -36,12 +37,12 @@ document.querySelectorAll('table').forEach(table => {
     table.setAttribute('role', 'presentation'); // Tables without headers are presentational
   } else {
     // Add border attribute for visual clarity if not present
-    if (!table.hasAttribute('border')) {
+    if (!table.getAttribute('border')) {
       table.setAttribute('border', '1');
     }
     // Ensure table headers have scope attributes for better screen reader context
     headers.forEach(header => {
-      if (!header.hasAttribute('scope')) {
+      if (!header.getAttribute('scope')) {
         header.setAttribute('scope', 'col'); // default to column scope; adjust if needed
       }
     });
@@ -63,7 +64,8 @@ document.querySelectorAll('svg').forEach(svg => {
     svg.insertBefore(titleElem, svg.firstChild);
   }
   // If there is no accessible name, provide a generic one
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+  if (!title && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Illustration');
   }
 });
@@ -75,19 +77,22 @@ const landmarkCounter = {};
 landmarkElements.forEach(landmark => {
   document.querySelectorAll(landmark).forEach(element => {
     // Add landmark roles if not already present
-    if (!element.hasAttribute('role')) {
+    if (!element.getAttribute('role')) {
       element.setAttribute('role', element.tagName.toLowerCase());
     }
     // Ensure elements have accessible name where appropriate
-    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      const tagName = element.tagName.toLowerCase();
-      element.setAttribute('aria-label', `${tagName} content`);
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'main' && !element.getAttribute('aria-label') && !element.id) {
+      element.setAttribute('aria-label', 'Main content');
+    }
+    if (tagName === 'nav' && !element.getAttribute('aria-label') && !element.id) {
+      element.setAttribute('aria-label', 'Navigation');
     }
     // Ensure each landmark element has a unique identifier for debugging and future styling
-    if (!element.hasAttribute('id')) {
+    if (!element.id) {
       const count = landmarkCounter[tagName] || 0;
       landmarkCounter[tagName] = count + 1;
-      element.setAttribute('id', `${tagName}-${count + 1}`);
+      element.id = `${tagName}-${count + 1}`;
     }
   });
 });

@@ -1,17 +1,10 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element ✓ FIXED
-// - REACT_017: Add landmark roles and fix landmark issues ✓ FIXED
-// - REACT_041: Add accessible names to 2 SVGs ✓ FIXED
-// - REACT_025: Ensure unique landmarks (2 issues) ✓ FIXED
-// - REACT_036: Fix 1 fake link issue ✓ FIXED
-
 (function() {
   'use strict';
 
   // REACT_015: Add lang attribute to HTML element
   function setLanguageAttribute() {
     var htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
       htmlElement.setAttribute('lang', 'en');
     }
   }
@@ -19,13 +12,13 @@
   // REACT_017: Add landmark roles and fix landmark issues
   function ensureLandmarkRoles() {
     var mainElement = document.querySelector('main');
-    if (mainElement && !mainElement.getAttribute('role')) {
+    if (mainElement && !mainElement.hasAttribute('role')) {
       mainElement.setAttribute('role', 'main');
     }
 
     var navElements = document.querySelectorAll('nav');
     navElements.forEach(function(nav) {
-      if (!nav.getAttribute('role') && !nav.tagName.match(/^(nav|header|footer|aside|main)$/i)) {
+      if (nav && !nav.hasAttribute('role')) {
         nav.setAttribute('role', 'navigation');
       }
     });
@@ -33,7 +26,7 @@
 
   // REACT_041: Add accessible names to 2 SVGs
   function addSvgAccessibleNames() {
-    var svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+    var svgs = document.querySelectorAll('svg');
     svgs.forEach(function(svg, index) {
       var title = svg.querySelector('title');
       if (title) {
@@ -41,28 +34,30 @@
         title.setAttribute('id', titleId);
         svg.setAttribute('aria-labelledby', titleId);
       } else {
-        svg.setAttribute('aria-label', 'SVG icon ' + (index + 1));
+        var newTitle = document.createElement('title');
+        newTitle.textContent = 'SVG icon ' + (index + 1);
+        svg.insertBefore(newTitle, svg.firstChild);
       }
     });
   }
 
   // REACT_025: Ensure unique landmarks (2 issues)
   function ensureUniqueLandmarks() {
-    var landmarks = document.querySelectorAll('[role="navigation"], nav');
-    landmarks.forEach(function(landmark, index) {
-      var existingLabel = landmark.getAttribute('aria-label');
+    var navLandmarks = document.querySelectorAll('nav');
+    navLandmarks.forEach(function(nav, index) {
+      var existingLabel = nav.getAttribute('aria-label');
       if (!existingLabel) {
         if (index === 0) {
-          landmark.setAttribute('aria-label', 'Main navigation');
+          nav.setAttribute('aria-label', 'Main navigation');
         } else {
-          landmark.setAttribute('aria-label', 'Secondary navigation');
+          nav.setAttribute('aria-label', 'Secondary navigation');
         }
       }
     });
 
-    var footers = document.querySelectorAll('footer, [role="contentinfo"]');
+    var footers = document.querySelectorAll('footer');
     footers.forEach(function(footer, index) {
-      if (!footer.getAttribute('aria-label') && index > 0) {
+      if (footer && index > 0) {
         footer.setAttribute('aria-label', 'Secondary footer');
       }
     });
@@ -70,14 +65,14 @@
 
   // REACT_036: Fix 1 fake link issue
   function fixFakeLinks() {
-    var links = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a:not([href])');
+    var links = document.querySelectorAll('a:not([href])');
     links.forEach(function(link) {
       var isButton = link.getAttribute('role') === 'button' || 
                      link.classList.contains('btn') || 
                      link.classList.contains('button');
       
       if (isButton) {
-        if (!link.getAttribute('role')) {
+        if (link.getAttribute('role') !== 'button') {
           link.setAttribute('role', 'button');
         }
         if (!link.getAttribute('tabindex')) {

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 
 export const metadata = {
     // ... other metadata
+    language: 'ja',
     icons: {
-        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+        icon: <svg role="img" aria-label="Screeps Dashboard" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em">...</text></svg>,
     },
 };
 
@@ -15,7 +16,7 @@ const Dashboard = () => {
   const [errRetryHover, setErrRetryHover] = useState(false);
 
   const copyErr = () => {
-    navigator.clipboard.writeText(error).then(() => {
+    ... => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
     });
@@ -28,7 +29,7 @@ const Dashboard = () => {
   return (
     <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
       <main>
-        {error && (
+        {error ? (
           <>
             <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
             <pre
@@ -47,9 +48,9 @@ const Dashboard = () => {
             <button
               onClick={copyErr}
               onMouseEnter={() => setErrCopyHover(true)}
-              onMouseLeave={() => setErrCopyHover(false)}
+              onMouseLeave={() => ...
               onFocus={() => setErrCopyHover(true)}
-              onBlur={() => setErrCopyHover(false)}
+              onBlur={() => ...
               aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
               title={copied ? 'コピー済み' : 'エラーをコピー'}
               style={{
@@ -68,7 +69,7 @@ const Dashboard = () => {
               {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
             </button>
             <button
-              onClick={fetchStats}
+              ...
               disabled={refreshing}
               onMouseEnter={() => setErrRetryHover(true)}
               onMouseLeave={() => setErrRetryHover(false)}
@@ -76,14 +77,12 @@ const Dashboard = () => {
               {/* ... existing success button ... */}
             </button>
           </>
-        )}
-
-        {!error && (
+        ) : (
           <section>
             <h1 style={{ color: '#b71c1c' }}>成功</h1>
             <p>統計が取得されました。</p>
             <button
-              onClick={fetchStats}
+              ...
               disabled={refreshing}
               style={{
                 /* ... existing styles ... */

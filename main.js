@@ -11,6 +11,9 @@ document.getElementById('unrotate').outerHTML = `
   <button onclick="rotateBack()">rotate back</button>
 `;
 
+// Adding lang attribute to the HTML tag
+document.querySelector('html').setAttribute('lang', 'en');
+
 // ...
 // Rest of the main.js content
 // ...

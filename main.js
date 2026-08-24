@@ -1,13 +1,1 @@
-// main.js
-document.addEventListener('DOMContentLoaded', function() {
-    const mainContent = `
-        <main>
-            <table id="table-rotated">
-                <!-- table content here -->
-            </table>
-        </main>
-    `;
-
-    // Assuming you are inserting this content into the body of the HTML document
-    document.body.innerHTML = mainContent;
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

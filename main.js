@@ -40,7 +40,6 @@ function addLandmarkRegions() {
   // ... (existing code for addLandmarkRegions is the same)
 }
 
-// New function requested in issue
 function addProperLandmarkRegions() {
   /**
    * Adds proper landmark regions to the document for improved accessibility.
@@ -74,14 +73,13 @@ function addProperLandmarkRegions() {
   }
 }
 
-// Add the requested new function to the exports
 module.exports = {
   addLangAttribute,
   handleButtonClick,
   fixFakeLinks,
   ensureUniqueLandmarks,
   addLandmarkRegions,
-  addProperLandmarkRegions, // NEW EXPORT
+  addProperLandmarkRegions,
 };
 
 // Add the function to be completed (TODO comment)

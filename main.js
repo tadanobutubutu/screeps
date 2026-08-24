@@ -65,6 +65,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         disabled={refreshing}
         onMouseEnter={() => setErrRetryHover(true)}
         onMouseLeave={() => setErrRetryHover(false)}
+        aria-label="リフレッシュ"
+        title="リフレッシュ"
       >
         {refreshing ? '🔄 リフレッシュ中...' : '🔄 リフレッシュ'}
       </button>

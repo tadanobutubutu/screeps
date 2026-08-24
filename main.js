@@ -98,7 +98,6 @@ function ensureProperLandmarkStructure() {
   navElement.appendChild(navList);
 
   const homeItem = document.createElement('li');
-  homeItem.setAttribute('role', 'none');
   homeItem.setAttribute('role', 'menuitem');
   const homeLink = document.createElement('a');
   homeLink.href = '#';
@@ -127,7 +126,8 @@ function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
-    const isBackground = svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
+    const style = window.getComputedStyle(svg);
+    const isBackground = style.position === 'absolute' && style.top === '0px' && style.left === '0px' && style.width === '100%' && style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('aria-label', 'Description of SVG content');

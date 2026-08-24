@@ -21,7 +21,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -29,8 +29,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = Array.from(parentRow.parentNode.children).indexOf(parentRow);
-        const cellIndex = Array.from(parentRow.children).indexOf(th);
+        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : 0;
+        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : 0;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -43,7 +43,8 @@ function fixTableStructureIssues() {
   // Ensure tables have proper caption elements
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
-    if (!table.querySelector('caption')) {
+    const existingCaption = table.querySelector('caption');
+    if (!existingCaption) {
       const caption = document.createElement('caption');
       caption.textContent = 'Data table';
       table.insertBefore(caption, table.firstChild);
@@ -55,12 +56,12 @@ function fixTableStructureIssues() {
 function ensureUniqueLandmarks() {
   // Get all landmark elements
   const landmarks = {
-    main: document.querySelectorAll('main, [role="main"]'),
-    nav: document.querySelectorAll('nav, [role="navigation"]'),
-    header: document.querySelectorAll('header, [role="banner"]'),
-    footer: document.querySelectorAll('footer, [role="contentinfo"]'),
-    aside: document.querySelectorAll('aside, [role="complementary"]'),
-    section: document.querySelectorAll('section, [role="region"]'),
+    main: document.querySelectorAll('[role="main"]'),
+    nav: document.querySelectorAll('nav'),
+    header: document.querySelectorAll('[role="banner"]'),
+    footer: document.querySelectorAll('[role="contentinfo"]'),
+    aside: document.querySelectorAll('aside'),
+    section: document.querySelectorAll('[role="region"]'),
   };
 
   // Add unique labels to duplicate landmarks
@@ -68,8 +69,8 @@ function ensureUniqueLandmarks() {
     const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
-        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-          const label = `${landmarkType}-${index + 1}`;
+        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          const label = `${landmarkType.charAt(0).toUpperCase() + landmarkType.slice(1)} ${index + 1}`;
           element.setAttribute('aria-label', label);
         }
       });
@@ -82,14 +83,19 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     // Add accessible name using aria-label if not present
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
     // Add role="img" for better screen reader support
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
+}
+
+// NEW FUNCTION: Add lang attribute to HTML element
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
 }
 
 function App() {
@@ -102,7 +108,7 @@ function App() {
       </head>
       <body>
         <main role="main" aria-labelledby="main-heading">
-          <h1 id="main-heading">Content</h1>
+          <h1 id="main-heading">Main Content</h1>
           <div className="app-content">
             {/* Existing App content */}
 
@@ -147,4 +153,4 @@ document.documentElement.lang = 'en';
 export default App;
 
 // Export the new functions
-export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+export { handleRotateBack, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addLangAttribute };

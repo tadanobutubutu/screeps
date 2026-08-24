@@ -11,6 +11,21 @@ function addressAccessibilityIssues(insightReport) {
             case 'aria':
                 // Add ARIA attributes as required
                 break;
+            case 'svg':
+                // Add accessible names to 2 SVGs
+                break;
+            case 'landmark':
+                // Add/fix 4 landmark issues
+                break;
+            case 'unique-landmarks':
+                // Ensure unique landmarks (2 issues)
+                break;
+            case 'fake-link':
+                // Fix 1 fake link issue
+                break;
+            case 'scope':
+                // Add scope attribute to th elements
+                break;
             default:
                 // Handle other accessibility changes based on the issue type
         }

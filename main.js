@@ -197,3 +197,27 @@ function createAccessibleLink() {
 }
 
 export { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink };
+
+function wrapPrimaryContentInMain() {
+    if (document.querySelector('main, [role="main"]')) {
+        return;
+    }
+    const body = document.body;
+    if (!body) {
+        return;
+    }
+    const nonLandmarks = Array.from(body.children).filter(child => {
+        const tag = child.tagName.toLowerCase();
+        return !['header', 'nav', 'aside', 'footer', 'script', 'style', 'main', 'noscript'].includes(tag);
+    });
+    if (nonLandmarks.length === 0) {
+        return;
+    }
+    const mainEl = document.createElement('main');
+    mainEl.setAttribute('role', 'main');
+    const first = nonLandmarks[0];
+    first.parentNode.insertBefore(mainEl, first);
+    nonLandmarks.forEach(child => mainEl.appendChild(child));
+}
+
+export { wrapPrimaryContentInMain };

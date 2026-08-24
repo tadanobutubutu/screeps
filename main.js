@@ -34,7 +34,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -177,6 +177,17 @@ export { class1, function1, Object1 };
 
 // Export the handleCredentialResponse function for external use
 export { handleCredentialResponse };
+
+// Add the fix for REACT_017: Add <main> landmark to docs/index.html
+const indexContent = document.querySelector('#content');
+if (indexContent) {
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(indexContent);
+  const container = document.createElement('div');
+  container.classList.add('container');
+  mainElement.appendChild(container);
+  document.body.appendChild(mainElement);
+}
 
 // TODO: Implement function for addressing accessibility issues from insight report
 const implementAccessibilityFixesFromReport = () => {

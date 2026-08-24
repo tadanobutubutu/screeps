@@ -1,3 +1,5 @@
+const { visitJSXElement } = require('../utils/astUtils');
+
 const mainFunc = () => {
   // ... existing functionality ...
 };

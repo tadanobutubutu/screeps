@@ -8,20 +8,17 @@
 // Example exports in main.js
 module.exports.function1 = function1;
 module.exports.function2 = function2;
-// New exports added as per the issue
 module.exports.newFunction = newFunction;
 
-// New function to fix table structure issues
+// New functions to address accessibility issues
 function fixTableStructureIssues() {
   // Implementation to fix table structure issues
 }
 
-// New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks
 }
 
-// Function to add accessible name to SVGs
 function addAccessibleNameToSVGs() {
   // Assuming `icons` is an object containing SVG strings
   const icons = {
@@ -32,49 +29,48 @@ function addAccessibleNameToSVGs() {
   // Iterate over each SVG and add an aria-label or title
   Object.keys(icons).forEach(key => {
     let svgString = icons[key];
-    let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard">`);
-    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, '<title>Screeps Dashboard</title></svg>');
+    let modifiedSVGString = svgString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${key}">`);
+    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, '<title>${key}</title></svg>');
     icons[key] = modifiedSVGString;
   });
 
   return icons;
 }
 
-// Assuming this function is used to set the icons, you would call it like this:
+// Function to set the icons with added accessible names
 const updatedIcons = addAccessibleNameToSVGs();
 
-// Implementation to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Assuming there is a function that gets the rendered HTML of the component
-  const renderComponent = (Component) => {
-    // ... implementation to render the component
-  };
-
-  // Example usage of the function
-  renderComponent(Dashboard);
+// Function to add lang attribute to HTML element
+function addLangAttribute() {
+  // Assuming document is accessible within the scope
+  const htmlElement = document.querySelector('html');
+  htmlElement.setAttribute('lang', 'en'); // Example value
 }
 
-// Ensure that the unique landmarks function is called
+// Function to identify and assign appropriate roles to elements for REACT_017
+function fixLandmarkIssues() {
+  // Implementation to fix landmark issues
+}
+
+// Function to replace <a> tags without href or with javascript:void(0) with <button> tags for REACT_036
+function fixFakeLinkIssue() {
+  // Implementation to fix fake link issue
+}
+
+// Function to ensure unique landmarks
 ensureUniqueLandmarks();
 
-/**
- * Additional accessibility fixes based on insight report
- */
+// Ensure that the unique landmarks function is called
+addLangAttribute();
 
+// Combine fixes from both conflicts
 function fixLanguageAttribute() {
-  // REACT_015: Add lang attribute to HTML element
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.setAttribute('lang', 'en');
   }
 }
 
-function fixLandmarkIssues() {
-  // REACT_017: Add/fix 4 landmark issues
-  // Implementation to identify and assign appropriate roles (main, nav, footer, etc.) to elements
-}
-
 function fixFakeLinks() {
-  // REACT_036: Fix 1 fake link issue
   // Implementation to replace <a> tags without href or with javascript:void(0) with <button> tags
 }
 

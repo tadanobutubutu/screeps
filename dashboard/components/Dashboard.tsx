@@ -141,6 +141,17 @@ export default function Dashboard() {
                 } else if (e.key.toLowerCase() === 'c' && stats) {
                     e.preventDefault();
                     copySummary();
+                } else if (e.key.toLowerCase() === 'a') {
+                    e.preventDefault();
+                    setAutoRefresh((prev) => {
+                        const nextState = !prev;
+                        showToast(
+                            nextState
+                                ? '自動更新を有効にしました'
+                                : '自動更新を無効にしました'
+                        );
+                        return nextState;
+                    });
                 }
             }
         };
@@ -398,14 +409,31 @@ export default function Dashboard() {
                         <span
                             className="interactive-hint"
                             tabIndex={0}
-                            title="最後にデータが更新された時間です"
-                            aria-label="最後にデータが更新された時間です"
+                            role="status"
+                            aria-live="polite"
+                            title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
+                            aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
                             style={{ fontSize: '0.8rem', color: '#718096' }}
                         >
                             🕒 {lastUpdated.toLocaleTimeString()}
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <kbd
+                            aria-label="キーボードショートカット Alt + A キーで自動更新の有効/無効を切り替えられます"
+                            title="Alt + A キーで自動更新を切り替えられます"
+                            style={{
+                                backgroundColor: '#f7fafc',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                padding: '0.1rem 0.4rem',
+                                fontSize: '0.7rem',
+                                color: '#4a5568',
+                                boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                            }}
+                        >
+                            Alt + A
+                        </kbd>
                         <label
                             className="auto-refresh-label"
                             onMouseEnter={() => setAutoRefreshHover(true)}
@@ -429,7 +457,7 @@ export default function Dashboard() {
                                 outline: autoRefreshFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '1px',
                             }}
-                            title="60秒ごとに自動でデータを更新します"
+                            title="60秒ごとに自動でデータを更新します (Alt + A)"
                         >
                             <input
                                 type="checkbox"
@@ -443,7 +471,7 @@ export default function Dashboard() {
                                     width: '0.9rem',
                                     height: '0.9rem',
                                 }}
-                                aria-label="自動更新 (60秒ごと)"
+                                aria-label="自動更新 (60秒ごと, Alt + A)"
                             />
                             <span
                                 style={{
@@ -939,7 +967,14 @@ export default function Dashboard() {
                               </button>
                           ))
                         : !roomQuery && (
-                              <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>なし</span>
+                              <span
+                                  role="status"
+                                  aria-live="polite"
+                                  aria-label="アクティブな部屋はありません"
+                                  style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.75rem' }}
+                              >
+                                  なし
+                              </span>
                           )}
                 </div>
             </div>

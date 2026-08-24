@@ -1,11 +1,1 @@
-// Original code that might be in conflict
-// dependencyGraphContent.someMethod();
-
-// Updated code
-// dependencyGraphContent.indexContent.someMethod();
-
-// Or if it's being used as a property
-// const value = dependencyGraphContent.someProperty;
-
-// Updated code
-const value = dependencyGraphContent.indexContent.someProperty;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

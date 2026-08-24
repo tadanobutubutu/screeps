@@ -7,7 +7,27 @@ function addLangAttribute() {
 
 // Fix 26 table structure issues
 function fixTableStructure() {
-  // Implementation code
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('th, td');
+      
+      cells.forEach((cell, cellIndex) => {
+        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+          // If this is the first column, it's a row header
+          if (cellIndex === 0) {
+            cell.setAttribute('scope', 'row');
+          } else {
+            // Otherwise it's a column header
+            cell.setAttribute('scope', 'col');
+          }
+        }
+      });
+    });
+  });
 }
 
 // Add/fix 4 landmark issues
@@ -19,7 +39,7 @@ function validateLandmark() {
   // Implementation code
 }
 
-function validateUniqueLandmarks() {
+function ... {
   // Implementation code
 }
 
@@ -36,7 +56,7 @@ function getSvgAccessibleName() {
   // Implementation code
 }
 
-function createSvgAccessibilityProps() {
+function ... {
   // Implementation code
 }
 
@@ -58,7 +78,7 @@ function createInPageButton() {
   // Implementation code
 }
 
-function validateLinkOrButton() {
+function ... {
   // Implementation code
 }
 
@@ -67,18 +87,17 @@ function createAccessibleLink() {
 }
 
 // Example usage of the accessibility functions
-accessibilityModule.addLangAttribute();
-accessibilityModule.fixTableStructure();
-accessibilityModule.addMainLandmark();
-accessibilityModule.validateLandmark();
-accessibilityModule.validateUniqueLandmarks();
-accessibilityModule.validateLandmarkStructure();
-accessibilityModule.addSvgAccessibleNames();
-accessibilityModule.getSvgAccessibleName();
-accessibilityModule.createSvgAccessibilityProps();
-accessibilityModule.ensureUniqueLandmarks();
-accessibilityModule.fixFakeLinkIssue();
-accessibilityModule.validateLinkAccessibility();
-accessibilityModule.createInPageButton();
-accessibilityModule.validateLinkOrButton();
-accessibilityModule.createAccessibleLink();
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...
+...

@@ -10,22 +10,6 @@ function dependencyGraphFunction() {
 
   // ... existing code for rendering the dependency graph ...
 
-  // New function for extracting external module names from the dependency graph
-  function extractExternalModules(dependencyGraphContent) {
-    const externalModules = [];
-
-    // Traverse through all nodes in the dependency graph and extract the external packages
-    const nodes = dependencyGraphContent.graph.nodes;
-    nodes.forEach((node) => {
-      if (node.type === 'package' && node.package === 'external-package') {
-        externalModules.push(node.name);
-      }
-    });
-
-    // Return the list of extracted external modules
-    return externalModules;
-  }
-
   // New function for ensuring unique landmarks
   function ensureUniqueLandmarks() {
     // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
@@ -103,3 +87,16 @@ module.exports = {
   ensureLangAttribute,
   ensureUniqueLandmarks,
 };
+
+// Accessibility: Add <main> landmark to the main content area of each HTML page
+function addMainLandmark() {
+  const mainContentSelector = 'div.container'; // This selector should be updated to match the actual main content container
+  const mainContent = document.querySelector(mainContentSelector);
+  if (mainContent) {
+    mainContent.insertAdjacentHTML('afterbegin', '<main></main>');
+    mainContent.insertBefore(mainContent.firstChild, mainContent.firstChild);
+  }
+}
+
+// Call the function to add <main> landmark to each page
+addMainLandmark();

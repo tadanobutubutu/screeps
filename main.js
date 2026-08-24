@@ -1,10 +1,1 @@
-// main.js - Add lang attribute to the HTML element
-import { render } from 'react-dom';
-import App from './App';
-
-const rootElement = document.getElementById('root');
-
-// Ensure HTML lang attribute is set for accessibility (REACT_015)
-document.documentElement.setAttribute('lang', 'en');
-
-render(<App />, rootElement);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

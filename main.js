@@ -1,103 +1,3 @@
-// Example exports in main.js
-module.exports.function1 = function1;
-module.exports.function2 = function2;
-module.exports.newFunction = newFunction;
-
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-  // Implementation to fix table structure issues
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-      }
-    }
-
-    if (!table.querySelector('tbody')) {
-      const tbodies = table.querySelectorAll('tbody');
-      table.querySelectorAll('tr').forEach((row) => {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        if (rows.length > 0) {
-          const newTbody = document.createElement('tbody');
-          rows.forEach((row) => newTbody.appendChild(row));
-          table.appendChild(newTbody);
-        }
-      });
-    }
-
-    // Add scope attributes to header cells
-    const thead = table.querySelector('thead');
-    if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
-    }
-
-    const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
-    });
-  });
-}
-
-// New function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation to ensure unique landmarks
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    const seenRoleIds = new Set();
-
-    elements.forEach((element, index) => {
-      const id = element.id;
-
-      if (id) {
-        if (seenRoleIds.has(id)) {
-          const newId = `${role}-${index + 1}`;
-          element.id = newId;
-          usedIds.add(newId);
-          seenRoleIds.add(newId);
-        } else {
-          seenRoleIds.add(id);
-          usedIds.add(id);
-        }
-      } else {
-        let newId = `${role}-${index + 1}`;
-        let counter = 1;
-        while (usedIds.has(newId)) {
-          newId = `${role}-${index + 1}-${counter}`;
-          counter++;
-        }
-        element.id = newId;
-        usedIds.add(newId);
-      }
-    });
-  });
-}
-
-// Function to add accessible name to SVGs
-function addAccessibleNameToSVGs() {
-  // Assuming `icons` is an object containing SVG strings
-  const icons = {
-    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
-  };
-
-  // Iterate over each SVG and add an aria-label or title
-  Object.keys(icons).forEach(key => {
-    let modifiedSVGString = icons[key];
-    modifiedSVGString = modifiedSVGString.replace(/<svg.*?>/g, `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="${key} Icon">`);
-    modifiedSVGString = modifiedSVGString.replace(/<\/svg>/g, `<title>${key} Icon</title></svg>`);
-    icons[key] = modifiedSVGString;
-  });
-  
-  return icons;
-}
-
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -310,9 +210,6 @@ const addressAccessibilityIssues = (document) => {
   return document;
 };
 
-// Existing exports and functions continue to be preserved
-// No changes to exports are allowed
-
 const fetchAPI = async (url) => {
   try {
     const response = await fetch(url);
@@ -335,9 +232,6 @@ const addUniqueIdToTable = (table) => {
   table.id = table.id || `table-${table.dataset.testid}`;
 };
 
-// Ensure that the unique landmarks function is called
-ensureUniqueLandmarks();
-
 // Existing functions from main.js
 function function1() {
   // Implementation for function1
@@ -352,4 +246,20 @@ function newFunction() {
   // Implementation for newFunction
 }
 
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable };
+module.exports = { 
+  getAccessibleName, 
+  setAccessibleName, 
+  addLangAttribute, 
+  fixTableStructure, 
+  addMainLandmark, 
+  addSvgAccessibleNames, 
+  ensureUniqueLandmarks, 
+  fixFakeLinkIssue, 
+  addressAccessibilityIssues,
+  fetchAPI,
+  addCaptionToTable,
+  addUniqueIdToTable,
+  function1,
+  function2,
+  newFunction
+};

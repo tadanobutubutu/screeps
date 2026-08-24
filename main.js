@@ -4,6 +4,15 @@
 // New changes required for the issue
 // Add a <main> element to wrap the primary content
 
+/**
+ * Wraps content in a <main> landmark for accessibility
+ * @param {string} content - The HTML content to wrap
+ * @returns {string} - Content wrapped in <main> tags
+ */
+function wrapInMainLandmark(content) {
+    return `<main>\n${content}\n</main>`;
+}
+
 // Assuming the primary content starts right after the opening <div> in index.html
 // and ends before the closing </div>, we can wrap it in a <main> tag.
 
@@ -16,8 +25,8 @@
 //     <h2>Quality & Metrics Reports</h2>
 //     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
 //     <div class="links">
-//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+//         <a ... Plato Code Complexity Report</a>
+//         <a ... Dependency Graph ...
 //     </div>
 // </div>
 
@@ -27,8 +36,8 @@
 //         <h2>Quality & Metrics Reports</h2>
 //         <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
 //         <div class="links">
-//             <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//             <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+//             <a ... Plato Code Complexity Report</a>
+//             <a ... Dependency Graph ...
 //         </div>
 //     </div>
 // </main>

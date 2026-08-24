@@ -161,7 +161,32 @@ export function ensureUniqueLandmarks(html) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
   const counters = {};
   
-  // Initialize counters for each landmark type
+  let result = html;
+
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
-    const matches = html.match(regex
+    const regex = new RegExp(`<${lm}(?![^>]*id=)([^>]*)>`, 'gi');
+    
+    result = result.replace(regex, (match, attrs) => {
+      if (!counters[lm]) counters[lm] = 1;
+      const id = `${lm}-${counters[lm]++}`;
+      return `<${lm}${attrs} id="${id}">`;
+    });
+  });
+
+  return result;
+}
+
+/**
+ * Fixes fake links (href="#") by replacing them with buttons
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake links
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Replace <a href="#">...</a> with <button type="button">...</button>
+  // This is a simple regex approach for a common accessibility issue
+  return html.replace(/<a\s+href=["']#["'][^>]*>([\s\S]*?)<\/a>/gi, (match, content) => {
+    return `<button type="button" class="fake-link-replacement">${content}</button>`;
+  });
+}

@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report
+// TODO: Address accessibility issues from insight report:
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 

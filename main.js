@@ -1,7 +1,10 @@
-// TODO: Please provide the actual contents of main.js
-
 function main() {
   return 'Hello, World!';
 }
 
-module.exports = { main };
+// Adding a new function to add aria-label to SVGs for accessibility
+function addAriaLabelToSVG(svgString) {
+  return svgString.replace(/<svg/g, '<svg aria-label="Accessible Name for SVG"');
+}
+
+module.exports = { main, addAriaLabelToSVG };

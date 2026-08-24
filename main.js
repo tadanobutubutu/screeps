@@ -1,10 +1,10 @@
 import accessibilityModule from 'accessibility-module';
 
-// Add lang attribute to HTML element
+// Add Lang attribute to HTML element
 function addLangAttribute() {
   const html = document.documentElement;
   if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', 'en');
+    html.setAttribute('lang', getLangAttribute());
   }
 }
 
@@ -44,35 +44,29 @@ function checkTableStructure() {
 }
 
 // Add/fix 4 landmark issues
-function addMainLandmark() {
-  const main = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (main) {
-    main.setAttribute('role', 'main');
+function validateLandmark() {
+  const landmarks = document.querySelectorAll('nav, footer, aside, main');
+  for (let i = 0; i < landmarks.length; i++) {
+    if (!landmarks[i].getAttribute('role')) {
+      landmarks[i].setAttribute('role', 'landmark');
+    }
   }
 }
 
-// Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('main, footer, aside');
-  if (landmarks.length > 1) {
-    landmarks.forEach((landmark, index) => {
-      if (index > 0) {
-        const tagName = landmark.tagName.toLowerCase();
-        if (tagName === 'nav') {
-          landmark.setAttribute('role', 'navigation');
-        } else if (tagName === 'footer') {
-          landmark.setAttribute('role', 'contentinfo');
-        } else if (tagName === 'aside') {
-          landmark.setAttribute('role', 'complementary');
-        }
+  const landmarks = document.querySelectorAll('nav, footer, aside, main');
+  const landmarkRoles = new Map();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      if (landmarkRoles.has(role)) {
+        landmark.setAttribute('aria-label', `${role}-${landmarkRoles.get(role)}`);
+        landmarkRoles.set(role, landmarkRoles.get(role) + 1);
+      } else {
+        landmarkRoles.set(role, 1);
       }
-    });
-  }
-}
-
-// Fix unique landmarks (2 issues)
-function fixUniqueLandmarks() {
-  ensureUniqueLandmarks();
+    }
+  });
 }
 
 // Add proper landmark regions
@@ -120,7 +114,7 @@ function fixFakeLinkIssue() {
 }
 
 // Add accessible names to SVG elements
-function addAccessibleNamesToSVG() {
+function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = svg.querySelector('title');
@@ -132,59 +126,6 @@ function addAccessibleNamesToSVG() {
       svg.prepend(titleElement);
     }
   });
-}
-
-// Update validate link accessibility function to check ARIA labels
-function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a');
-  let hasIssues = false;
-  links.forEach(link => {
-    if (!link.textContent.trim() && !link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby')) {
-      hasIssues = true;
-    }
-  });
-  return !hasIssues;
-}
-
-// Create accessible link function
-function createAccessibleLink() {
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    if (!link.href || link.href === '#') {
-      link.setAttribute('href', '#');
-    }
-  });
-}
-
-// Address accessibility issues from the insight report
-function addressAccessibilityIssues() {
-  addLangAttribute();
-  fixTableStructure();
-  checkTableStructure();
-  addMainLandmark();
-  ensureUniqueLandmarks();
-  validateLandmark();
-  addLandmarkRegions();
-  fixFakeLinkIssue();
-  createAccessibleLink();
-  addAccessibleNamesToSVG();
-}
-
-// Function to check TH cell scope
-function hasValidTHScope(cell) {
-  const acceptedScopes = ['row', 'col', 'rowgroup', 'colgroup'];
-  const scope = cell.getAttribute('scope');
-  return scope && acceptedScopes.includes(scope);
-}
-
-// Add/fix 4 landmark issues (by validating landmarks)
-function validateLandmark() {
-  const landmarks = document.querySelectorAll('nav, footer, aside, main');
-  for (let i = 0; i < landmarks.length; i++) {
-    if (!landmarks[i].getAttribute('role')) {
-      landmarks[i].setAttribute('role', 'landmark');
-    }
-  }
 }
 
 // Wrap primary content in main element for accessibility
@@ -237,7 +178,14 @@ function wrapPrimaryContentInMain() {
 }
 
 module.exports = {
-  addressAccessibilityIssues,
-  hasValidTHScope,
-  wrapPrimaryContentInMain
+  addLangAttribute,
+  fixTableStructure,
+  checkTableStructure,
+  validateLandmark,
+  ensureUniqueLandmarks,
+  addLandmarkRegions,
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  wrapPrimaryContentInMain,
+  hasValidTHScope
 };

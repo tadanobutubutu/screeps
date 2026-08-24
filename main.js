@@ -17,7 +17,16 @@ const getAccessibleName = (node) => {
   return accessibleName;
 };
 
+// New function requested in issue description
+const setAccessibleName = (node, accessibleName) => {
+  // Implementation details for setting the accessibleName
+  // You may need to use appropriate methods or attributes to set the accessible name based on the DOM library or framework being used.
+
+  // Assuming your library or framework has a method `setAttribute` to set attributes
+  node.setAttribute('aria-label', accessibleName);
+};
+
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName };
+module.exports = { getAccessibleName, setAccessibleName };

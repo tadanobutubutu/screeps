@@ -16,5 +16,15 @@ function newFunction() {
 // Preserve all existing exports
 module.exports = {
   newFunction: newFunction,
-  // ... other existing exports
+  getLangAttribute: getLangAttribute,
+  getFullLangAttribute: getFullLangAttribute,
+  validateTableAccessibility: validateTableAccessibility,
+  validateTableStructure: validateTableStructure,
+  validateLandmark: validateLandmark,
+  validateLandmarkStructure: validateLandmarkStructure,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  getSvgAccessibleName: getSvgAccessibleName,
+  createInPageButton: createInPageButton,
+  createAccessibleLink: createAccessibleLink,
+  handleAccessibilityIssues: handleAccessibilityIssues
 };

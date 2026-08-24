@@ -13,7 +13,7 @@ function addressAccessibilityIssues() {
   // You can add your code here to solve REACT_0XX issues as necessary
   // Example:
   // Adding lang attribute to HTML element
-  document.documentElement.setAttribute("lang", "en");
+  console.log("en");
 }
 
 // Add a new function for initializing the functions
@@ -30,5 +30,6 @@ module.exports = {
   addMainLandmark: addMainLandmark,
   correctFakeLinks: correctFakeLinks,
   useIndexContent: useIndexContent, // Add the new function for using indexContent, if needed
+  addressAccessibilityIssues: addressAccessibilityIssues, // Export the new accessibility function
   init: init, // Export the updated init function with added function calls
 };

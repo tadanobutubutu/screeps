@@ -6,10 +6,10 @@ function Component() {
   // Assuming there is an error handling section that was wrapped in <main>
   if (error) {
     return (
-      <section aria-labelledby="error-heading">  // Use <section> instead of <main>
+      <main aria-labelledby="error-heading">
         <h1 id="error-heading">Error</h1>
         {/* ... error content ... */}
-      </section>
+      </main>
     );
   }
 

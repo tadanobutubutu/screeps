@@ -148,6 +148,7 @@ function fixFakeLinkIssue() {
   });
 }
 
+// ----- END ORIGINAL CODE -----
 // Added the required exports
 module.exports = {
   dependencyGraphFunction,
@@ -167,5 +168,3 @@ module.exports = {
   fixFakeLink,
   // ...
 };
-
-// ----- END ORIGINAL CODE -----

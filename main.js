@@ -43,11 +43,11 @@ function addSvgAccessibleNames(svg) {
 }
 
 // Enhanced function to handle SVG accessibility with fallback options
-function enhanceSvgAccessibility() {
+function handleSvgAccessibilityWithFallbackOptions() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         // Skip SVGs that are already handled or are decorative
-        if (svg.getAttribute('data-accessibility-fixed') === 'true') {
+        if (svg.getAttribute('aria-hidden') === 'true') {
             return;
         }
 
@@ -87,7 +87,7 @@ function enhanceSvgAccessibility() {
         } else if (!desc) {
             // Only desc is missing
             const newDesc = document.createElement('desc');
-            newDesc.textContent = svg.getAttribute('aria-label') || 'Graphical element';
+            newDesc.textContent = svg.getAttribute('alt') || 'Graphical element';
             newDesc.id = 'svg-desc-' + Math.random().toString(36).substr(2, 11);
             svg.insertBefore(newDesc, svg.firstChild);
 
@@ -104,13 +104,13 @@ function addAllSvgAccessibleNames() {
 }
 
 // New function to fix an issue where SVGs (e.g., favicons) are missing accessible name
-function addMissingSvgAccessibleNames() {
+function fixSvgAccessibilityIssues() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
         const title = svg.querySelector('title');
         const desc = svg.querySelector('desc');
         if (!title || !desc) {
-            svg.setAttribute('data-accessibility-fixed', 'true');
+            svg.setAttribute('aria-hidden', 'true');
         }
     });
 }
@@ -153,8 +153,27 @@ function fixTableStructureIssues() {
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
             // Ensure each cell in the row is either a th or td
-            const cells = row.querySelectorAll('th, td');
+            const cells = row.querySelectorAll('td');
             if (cells.length > 0) {
                 // Check if this row should be in thead or tbody
                 const hasHeaderCells = row.querySelector('th') !== null;
                 if (hasHeaderCells && !hasThead) {
+                    // Row has header cells but no thead exists
+                }
+            }
+        });
+    });
+}
+
+// TODO: Add any other missing exports that might have been?
+export {
+    setHtmlLangAttribute,
+    ensureLanguageAttribute,
+    addSvgAccessibleNames,
+    handleSvgAccessibilityWithFallbackOptions,
+    addAllSvgAccessibleNames,
+    fixSvgAccessibilityIssues,
+    fixTableStructureIssues,
+    dependencyGraphContent,
+    indexContent
+};

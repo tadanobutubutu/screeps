@@ -1,9 +1,7 @@
-Here is the resolved `main.js` file with the Git merge conflict resolved:
-
-```javascript
-// Accessibility improvements
 import React from 'react';
 import ReactDOM from 'react-dom';
+
+import { Graph } from './Graph';
 
 export const HtmlLangProvider = ({ lang, children }) => {
   React.useEffect(() => {
@@ -207,11 +205,8 @@ export function ensureUniqueLandmarks(container) {
   return container;
 }
 
-// Accessibility-related functionality from the original main.js
-// ... (Add their content here)
-// ...
+export const Graph = require('./Graph').Graph;
 
 export default function App() {
   // ... (Add the app initialization and rendering code here)
 }
-```

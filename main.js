@@ -58,6 +58,7 @@ function fixFakeLinkIssue() {
 }
 
 // ----- END ORIGINAL CODE -----
+
 // Added the required exports
 module.exports = {
   dependencyGraphFunction,
@@ -75,14 +76,16 @@ module.exports = {
   // ...
 };
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// New function implementation addressing accessibility issues from insight report
+// Implementation of handleAccessibilityInsights
 function handleAccessibilityInsights() {
   ensureLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
   fixTableStructureIssues();
   fixFakeLinkIssue();
+  uniqueLandmarksHandler(); // Add uniqueLandmarksHandler here
+  restructureTable(); // Add restructureTable here
+  fixFakeLink(); // Add fixFakeLink here
 }
 
 // Implementation of uniqueLandmarksHandler

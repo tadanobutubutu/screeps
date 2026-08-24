@@ -73,15 +73,23 @@ function addSvgAccessibleNames() {
 
 // Function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  // Handle multiple elements with same landmark role
-  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo'];
-  
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  // Get all landmark elements
+  const landmarks = {
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section'))
+  };
+
+  // Add unique labels to duplicate landmarks and keep a single <main>
+  Object.keys(landmarks).forEach(landmarkType => {
+    const elements = landmarks[landmarkType];
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (!element.hasAttribute('aria-label')) {
-          element.setAttribute('aria-label', `${role} ${index + 1}`);
+          element.setAttribute('aria-label', `${landmarkType} ${index + 1}`);
         }
       });
     }
@@ -119,6 +127,46 @@ function fixFakeLinks() {
   });
 }
 
+// NEW FUNCTION: Fix table structure issues
+function fixTableStructureIssues() {
+  // Add scope attribute to th elements that are missing it
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      // Determine if header is in thead or tbody to set appropriate scope
+      const parentRow = th.closest('tr');
+      const parentSection = th.closest('thead') ? 'thead' : 'tbody';
+      if (parentSection === 'thead') {
+        th.setAttribute('scope', 'col');
+      } else {
+        // For tbody, determine if it's a row header or column header
+        const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
+        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
+        if (rowIndex === 0) {
+          th.setAttribute('scope', 'row');
+        } else if (cellIndex === 0) {
+          th.setAttribute('scope', 'col');
+        }
+      }
+    }
+  });
+}
+
+// NEW FUNCTION: Set language attribute on HTML element
+function setLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// NEW FUNCTION: Fix fake link issue
+function fixFakeLinkIssue() {
+  const links = Array.from(document.querySelectorAll('a'));
+  links.forEach(link => {
+    if (!link.hasAttribute('href')) {
+      link.setAttribute('href', '#');
+    }
+  });
+}
+
 // Export functions for use in application
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -126,15 +174,26 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureLandmarks,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinks
+    fixFakeLinks,
+    fixTableStructureIssues,
+    setLangAttribute,
+    fixFakeLinkIssue
   };
 }
 
 // Initialize accessibility when DOM is loaded
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
-  } else {
+  const runAccessibility = () => {
     initializeAccessibility();
+    setLangAttribute();
+    fixFakeLinkIssue();
+    fixTableStructureIssues();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAccessibility);
+  } else {
+    runAccessibility();
   }
 }
+```

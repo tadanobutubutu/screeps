@@ -72,23 +72,23 @@ function handleAccessibilityIssues(issues) {
 // Implement table structure fix function
 function fixTableAccessibility(tables) {
     tables.forEach(table => {
-        const rows = table.querySelectorAll('tbody tr');
+        const rows = table.querySelectorAll('tbody tr') || table.querySelectorAll('tr');
         rows.forEach(row => {
-            const headers = Array.from(row.querySelectorAll('th'));
-            const cells = Array.from(row.querySelectorAll('td'));
+            const headers = row.querySelectorAll('th');
+            const cells = row.querySelectorAll('td');
 
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.random().toString(36).substr(2, 9);
-                    const headerIndex = headers.indexOf(th);
-                    th.id = tableId + '-th-' + headerIndex;
+                    const tableId = table.id || table.getAttribute('aria-label') || `table-${Math.random().toString(36).substr(2, 9)}`;
+                    const headerIndex = Array.from(headers).indexOf(th);
+                    th.id = `${tableId}-th-${headerIndex}`;
                 }
             });
 
             cells.forEach((td, index) => {
-                const rowHeaders = headers.filter(th => th.getAttribute('data-row-header') !== null);
+                const rowHeaders = row.querySelectorAll('th[data-row-header]');
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }

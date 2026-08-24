@@ -1,3 +1,10 @@
+Looking at this Git conflict, I can see the issue clearly now. The HEAD branch contains a well-structured `main.js` file with accessibility improvements, while the incoming `origin/main` branch only contains a question asking for the file contents - it doesn't introduce any actual code changes.
+
+In this case, the resolution is straightforward: since the `origin/main` branch doesn't provide any meaningful code changes (just a request to see the file), we should keep all the functionality from HEAD intact. There's nothing to merge from the `origin/main` side, so we simply remove the conflict markers and keep the existing code.
+
+Here's the resolved file:
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report
 // TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
@@ -88,3 +95,4 @@ module.exports = {
   dependencyGraphFunction,
   indexFunction,
 };
+```

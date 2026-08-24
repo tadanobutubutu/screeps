@@ -22,7 +22,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('[href="#"], [href="javascript:void(0)"], [href="javascript:undefined"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -52,7 +52,7 @@ const fixLandmarkIssues = () => {
 
 // Accessibility fix for REACT_025: Ensure unique landmarks (2 issues)
 const uniqueLandmarks = () => {
-  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
+  const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   const existingIds = new Set();
 
   return (element) => {
@@ -75,11 +75,14 @@ const uniqueLandmarks = () => {
 
 // Accessibility fix for adding proper landmark regions
 const addLandmarkRegions = () => {
-  const landmarks = document.querySelectorAll('nav, main, header, footer, aside, section, article');
+  const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('role')) {
-      landmark.setAttribute('role', 'landmark');
-    }
+    const elements = document.querySelectorAll(landmark);
+    elements.forEach(element => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', 'landmark');
+      }
+    });
   });
 };
 
@@ -92,7 +95,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('th, td');
+        const cells = firstRow.querySelectorAll('td');
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
@@ -122,10 +125,10 @@ const fixTableStructure = () => {
 };
 
 // Address accessibility issues from insight report
-const fixInsightReportAccessibility = () => {
+const fixImageAltTexts = () => {
   const images = document.querySelectorAll('img');
   images.forEach((img) => {
-    if (!img.hasAttribute('alt')) {
+    if (!img.getAttribute('alt')) {
       img.setAttribute('alt', 'Image description');
     }
   });

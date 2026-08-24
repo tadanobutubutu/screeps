@@ -83,6 +83,55 @@ function createAccessibleLink(href, text, isFakeLink) {
   return link;
 }
 
+// React Landmarks - REACT_017: Main landmark functions
+function hasMainLandmark(container) {
+  const main = container.querySelector('main');
+  return main !== null;
+}
+
+function getMainLandmark(container) {
+  return container.querySelector('main');
+}
+
+function validateMainLandmark(container) {
+  const main = container.querySelector('main');
+  if (!main) {
+    return {
+      valid: false,
+      error: 'Page has no <main> landmark'
+    };
+  }
+  return {
+    valid: true,
+    element: main
+  };
+}
+
+function createMainLandmark(id) {
+  const main = document.createElement('main');
+  if (id) {
+    main.id = id;
+  }
+  return main;
+}
+
+function wrapInMainLandmark(element, id) {
+  const main = createMainLandmark(id);
+  const parent = element.parentNode;
+  parent.insertBefore(main, element);
+  main.appendChild(element);
+  return main;
+}
+
+function validateLandmarkMain(element) {
+  // Validate that the landmark contains a main landmark
+  const main = element.querySelector('main');
+  if (!main) {
+    return false;
+  }
+  return true;
+}
+
 // Export all required items
 module.exports = {
   config,
@@ -97,5 +146,11 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink
+  createAccessibleLink,
+  hasMainLandmark,
+  getMainLandmark,
+  validateMainLandmark,
+  createMainLandmark,
+  wrapInMainLandmark,
+  validateLandmarkMain
 };

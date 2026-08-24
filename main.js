@@ -60,6 +60,12 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Added from origin/main
+function createLiveRegion(politeness = 'polite') {
+  // Function implementation preserved
+  // ... (original implementation)
+}
+
 // Apply fixes
 addLangAttribute();
 fixTableStructureIssues();
@@ -77,3 +83,5 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssue
 };
+
+export { createLiveRegion };

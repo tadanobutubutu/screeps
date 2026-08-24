@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 // This is the main entry point for the application
 // Import necessary modules
 const fs = require('fs');
@@ -42,9 +46,9 @@ function fixTableStructureIssues() {
 
 // Add proper landmark regions for improved accessibility
 function addProperLandmarkRegions() {
-  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
-  const navigation = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]') || document.querySelector('.main-content');
+  const navigation = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.querySelector('.navigation');
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.querySelector('.footer');
   if (mainContent) mainContent.setAttribute('role', 'main');
   if (navigation) navigation.setAttribute('role', 'navigation');
   if (footer) footer.setAttribute('role', 'contentinfo');
@@ -54,7 +58,7 @@ function addProperLandmarkRegions() {
 
 // New function for unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="contentinfo"]');
   return [...landmarks].every(landmark => {
     return landmark.id && landmark.id !== '';
   });
@@ -62,7 +66,7 @@ function ensureUniqueLandmarks() {
 
 // New function for fixing one fake link issue
 function fixOneFakeLinkIssue() {
-  const fakeLink = document.querySelector('.fake-link');
+  const fakeLink = document.querySelector('.fake-link, [role="link"]:not([href])');
   if (fakeLink) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
@@ -71,7 +75,7 @@ function fixOneFakeLinkIssue() {
 
 // NEW: Fix React Fake Link issue
 function fixReactFakeLinkIssue() {
-  const hashLinks = document.querySelectorAll('a[href^="#"]');
+  const hashLinks = document.querySelectorAll('a[href="#"]');
   for (let link of hashLinks) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -87,7 +91,7 @@ function fixReactFakeLinkIssue() {
 
 // New function for ensuring landmarks with unique IDs
 function hasUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="contentinfo"]');
   return [...landmarks].every(landmark => {
     return landmark.id && landmark.id !== '';
   });
@@ -96,13 +100,13 @@ function hasUniqueLandmarks() {
 // New function for fixing fake link issues (general)
 function fixFakeLinkIssues() {
   // Fix generic fake links
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('.fake-link, [role="link"]:not([href])');
   for (let fakeLink of fakeLinks) {
     fakeLink.textContent = 'Example Link';
     fakeLink.href = '#';
   }
   // Fix React-style fake links (anchor tags with hash href)
-  const hashLinks = document.querySelectorAll('a[href^="#"]');
+  const hashLinks = document.querySelectorAll('a[href="#"]');
   for (let link of hashLinks) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -116,24 +120,24 @@ function fixFakeLinkIssues() {
   }
 }
 
-// New function exporting fixTableStructureIssues
+// Export fixTableStructureIssues
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
-// New function exporting ensureUniqueLandmarks
+// Export ensureUniqueLandmarks
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-// New function exporting fixOneFakeLinkIssue
+// Export fixOneFakeLinkIssue
 module.exports.fixOneFakeLinkIssue = fixOneFakeLinkIssue;
-// New function exporting fixReactFakeLinkIssue
+// Export fixReactFakeLinkIssue
 module.exports.fixReactFakeLinkIssue = fixReactFakeLinkIssue;
-// New function exporting hasUniqueLandmarks
+// Export hasUniqueLandmarks
 module.exports.hasUniqueLandmarks = hasUniqueLandmarks;
-// New function exporting fixFakeLinkIssues
+// Export fixFakeLinkIssues
 module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
 
 function wrapPrimaryContentInMain() {
-  const mainContent = document.querySelector('main');
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
   if (!mainContent) return;
 
-  const existingDiv = document.querySelector('.content-wrapper') || document.querySelector('[role="main"]') || mainContent.parentElement;
+  const existingDiv = mainContent.parentElement || mainContent.parentNode;
   if (!existingDiv) return;
 
   const newDiv = document.createElement('div');

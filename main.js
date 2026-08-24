@@ -14,7 +14,7 @@ function renderDependencyGraph() {
   // This should import and use dependencyGraphContent/indexContent from the
   // appropriate modules to render the graph
   // Example:
-  // const { indexContent } = require('dependencyGraphModule');
+  // const { indexContent } = ...
   // ... rendering logic using indexContent
   console.log('Dependency graph rendered.');
 }

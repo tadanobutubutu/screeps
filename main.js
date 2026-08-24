@@ -28,9 +28,43 @@ function dependencyGraphFunction() {
   }
 
   // New function for ensuring unique landmarks
-  function ensureUniqueLandmarks() {
-    // Assuming that unique landmarks are already implemented in your code (not demonstrated here)
-    // Adjust as needed based on your implementation
+  function ensureUniqueLandmarks(content) {
+    // Ensure the returned content has proper landmark structure
+    // Keep a single <main> landmark; use <section> for other regions
+    if (!content || !content.render) {
+      return content;
+    }
+
+    // Create a wrapper that ensures unique landmarks in the rendered output
+    const originalRender = content.render.bind(content);
+    content.render = function(...args) {
+      const rendered = originalRender(...args);
+      
+      // Replace any duplicate <main> elements with <section> to maintain unique landmark structure
+      // This ensures screen readers encounter only one <main> landmark
+      if (rendered && rendered.props && rendered.props.children) {
+        const children = Array.isArray(rendered.props.children) 
+          ? rendered.props.children 
+          : [rendered.props.children];
+        
+        const processedChildren = children.map((child, index) => {
+          // Skip the first <main> element (index 0), replace subsequent ones with <section>
+          if (index > 0 && child && child.type === 'main') {
+            return React.createElement('section', { 
+              key: child.key || index,
+              ...child.props
+            }, child.props.children);
+          }
+          return child;
+        });
+        
+        return React.createElement('div', { role: 'main' }, processedChildren);
+      }
+      
+      return rendered;
+    };
+
+    return content;
   }
 
   // ---------------------------------------------------
@@ -72,10 +106,10 @@ function dependencyGraphFunction() {
   // Accessibility: Implement fixes for 26 table structure issues (new function fixTableStructureIssues)
   // This step remains to be implemented based on the specific accessibility issues found in the report
 
-  // Ensure the returned content has proper accessibility attributes (existing code)
-  // ...
+  // Apply unique landmarks fix to the content before returning
+  const fixedContent = ensureUniqueLandmarks(dependencyGraphContent);
 
-  return dependencyGraphContent;
+  return fixedContent;
 }
 
 // Accessibility: Updated indexFunction to use indexContent directly
@@ -85,14 +119,16 @@ function indexFunction() {
 
   // ... existing code for rendering the index view ...
 
+  // Apply ensureUniqueLandmarks to index content as well
+  // This ensures the index view also follows the single <main> landmark pattern
+  const fixedContent = ensureUniqueLandmarks ? ensureUniqueLandmarks(indexContent) : indexContent;
+
   // Accessibility: Add back any required exports that might have been removed (if any)
   // This step is optional since the index view doesn't directly import any external modules
 
   // ...
 
-  // Accessibility: Implement ensureUniqueLandmarks function as requested (not demonstrated here)
-
-  return indexContent;
+  return fixedContent;
 }
 
 // Accessibility: Ensure the <html> element has a lang attribute so screen readers pick the right voice

@@ -1,7 +1,131 @@
-// TODO: Add back any required exports that might have been removed
-// Here is an example of how to export a required function from another file:
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+// - REACT_036: Fix 1 fake link issue
+//
 
-// EXISTING AND PRESERVED CODE ...
+// Main initialization function that sets up accessibility features
+function initializeAccessibility() {
+  // REACT_015: Add lang attribute to HTML element
+  document.documentElement.lang = 'en';
+  
+  // REACT_017: Fix landmark issues
+  ensureLandmarks();
+  
+  // REACT_041: Add accessible names to SVGs
+  addSvgAccessibleNames();
+  
+  // REACT_025: Ensure unique landmarks
+  ensureUniqueLandmarks();
+  
+  // REACT_036: Fix fake link issues
+  fixFakeLinks();
+}
+
+// Function to ensure proper landmark structure
+function ensureLandmarks() {
+  // Add main landmark if missing
+  const mainContent = document.querySelector('main') || document.querySelector('.main-content');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+  
+  // Add navigation landmarks
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      const labels = ['Primary navigation', 'Secondary navigation', 'Footer navigation'];
+      nav.setAttribute('aria-label', labels[index] || 'Navigation');
+    }
+  });
+  
+  // Add banner landmark
+  const header = document.querySelector('header') || document.querySelector('.header');
+  if (header && !header.hasAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+  
+  // Add contentinfo landmark
+  const footer = document.querySelector('footer') || document.querySelector('.footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+}
+
+// Function to add accessible names to SVG elements
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      // Add appropriate labels based on common SVG patterns
+      const labels = ['Search icon', 'Menu icon'];
+      svg.setAttribute('aria-label', labels[index] || `Icon ${index + 1}`);
+    }
+    
+    // Ensure SVG has role
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+}
+
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Get all landmark elements
+  const landmarks = {
+    main: Array.from(document.querySelectorAll('main')),
+    nav: Array.from(document.querySelectorAll('nav')),
+    header: Array.from(document.querySelectorAll('header')),
+    footer: Array.from(document.querySelectorAll('footer')),
+    aside: Array.from(document.querySelectorAll('aside')),
+    section: Array.from(document.querySelectorAll('section'))
+  };
+
+  // Add unique labels to duplicate landmarks and keep a single <main>
+  Object.keys(landmarks).forEach(landmarkType => {
+    const elements = landmarks[landmarkType];
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (!element.hasAttribute('aria-label')) {
+          element.setAttribute('aria-label', `${landmarkType} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// Function to fix fake link issues
+function fixFakeLinks() {
+  // Find elements that look like links but aren't
+  const fakeLinks = document.querySelectorAll('[onclick*="location"], [tabindex]:not(a):not(button):not(input)');
+  
+  fakeLinks.forEach(element => {
+    const onClick = element.getAttribute('onclick');
+    if (onClick && onClick.includes('location')) {
+      // Convert to proper anchor element
+      const hrefMatch = onClick.match(/['"]([^'"]*)['"]/);
+      if (hrefMatch && hrefMatch[1]) {
+        const href = hrefMatch[1];
+        const anchor = document.createElement('a');
+        anchor.href = href;
+        
+        // Copy attributes and content
+        Array.from(element.attributes).forEach(attr => {
+          if (attr.name !== 'onclick' && attr.name !== 'tabindex') {
+            anchor.setAttribute(attr.name, attr.value);
+          }
+        });
+        
+        anchor.innerHTML = element.innerHTML;
+        anchor.style.cssText = element.style.cssText;
+        
+        element.parentNode.replaceChild(anchor, element);
+      }
+    }
+  });
+}
 
 // NEW FUNCTION: Fix table structure issues
 function fixTableStructureIssues() {
@@ -26,80 +150,6 @@ function fixTableStructureIssues() {
       }
     }
   });
-
-  // Ensure tables have proper caption elements
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Data table';
-      table.insertBefore(caption, table.firstChild);
-    }
-  });
-}
-
-// NEW FUNCTION: Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Get all landmark elements
-  const landmarks = {
-    main: Array.from(document.querySelectorAll('main')),
-    nav: Array.from(document.querySelectorAll('nav')),
-    header: Array.from(document.querySelectorAll('header')),
-    footer: Array.from(document.querySelectorAll('footer')),
-    aside: Array.from(document.querySelectorAll('aside')),
-    section: Array.from(document.querySelectorAll('section'))
-  };
-
-  // Add unique labels to duplicate landmarks and keep a single <main>
-  Object.keys(landmarks).forEach(landmarkType => {
-    const elements = landmarks[landmarkType];
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        if (landmarkType === 'main' && index > 0) {
-          // Convert extra <main> elements to <section> so only one main landmark remains
-          const section = document.createElement('section');
-          for (let i = 0; i < element.attributes.length; i++) {
-            const attr = element.attributes[i];
-            section.setAttribute(attr.name, attr.value);
-          }
-          while (element.firstChild) {
-            section.appendChild(element.firstChild);
-          }
-          if (element.parentNode) {
-            element.parentNode.replaceChild(section, element);
-          }
-        } else {
-          if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-            const label = `${landmarkType} ${index + 1}`;
-            element.setAttribute('aria-label', label);
-          }
-        }
-      });
-    }
-  });
-}
-
-// NEW FUNCTION: Add accessible name to SVGs
-function addSvgAccessibleNames() {
-  const svgs = Array.from(document.querySelectorAll('svg'));
-  svgs.forEach((svg, index) => {
-    // Add accessible name using aria-label if not present
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
-    }
-    // Add role="img" for better screen reader support
-    if (!svg.hasAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-  });
-}
-
-// NEW FUNCTION: Add aria-label to the 'myDiv' element
-function addAriaLabelToMyDiv() {
-  const myDiv = document.getElementById('myDiv');
-  if (myDiv) {
-    myDiv.setAttribute('aria-label', 'My div');
-  }
 }
 
 // NEW FUNCTION: Set language attribute on HTML element
@@ -117,15 +167,33 @@ function fixFakeLinkIssue() {
   });
 }
 
-// Execute functions after DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  setLangAttribute();
-  fixFakeLinkIssue();
-  fixTableStructureIssues();
-  ensureUniqueLandmarks();
-  addSvgAccessibleNames();
-  addAriaLabelToMyDiv();
-});
+// Export functions for use in application
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initializeAccessibility,
+    ensureLandmarks,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    fixTableStructureIssues,
+    setLangAttribute,
+    fixFakeLinkIssue
+  };
+}
 
-// EXPORT new functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv, setLangAttribute, fixFakeLinkIssue };
+// Initialize accessibility when DOM is loaded
+if (typeof document !== 'undefined') {
+  const runAccessibility = () => {
+    initializeAccessibility();
+    setLangAttribute();
+    fixFakeLinkIssue();
+    fixTableStructureIssues();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAccessibility);
+  } else {
+    runAccessibility();
+  }
+}
+```

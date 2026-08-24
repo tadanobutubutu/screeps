@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
@@ -80,7 +80,7 @@ function makeElementAccessible(element) {
     }
 }
 
-// Accessibility fix for REACT_015: Add lang attribute to HTML element (from origin/main)
+// Fix REACT_015: Add lang attribute to HTML element (from origin/main)
 function addLangAttribute() {
     const htmlElement = document.documentElement;
     if (htmlElement && !htmlElement.hasAttribute('lang')) {
@@ -137,7 +137,7 @@ function fixTableStructureIssues() {
     }
 }
 
-// Enhanced table validation from origin/main (renamed to avoid conflict)
+// Enhanced table validation from origin/main (combines and improves upon existing functions)
 function validateTableStructureAndScopeTh() {
     const tables = document.querySelectorAll('table');
 
@@ -208,35 +208,40 @@ function validateTableStructureAndScopeTh() {
         }
 
         // Add scope to table headers
-        addScopeToTableHeaders();
+        addScopeToTableHeadersForTable(table);
     });
 }
 
+function addScopeToTableHeadersForTable(table) {
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, index) => {
+        if (!th.hasAttribute('scope')) {
+            // Determine if header is in thead (column header) or tbody (row header)
+            const parentRow = th.closest('tr');
+            const parentSection = parentRow ? parentRow.closest('thead, tbody, tfoot') : null;
+            if (parentSection && parentSection.tagName.toLowerCase() === 'thead') {
+                th.setAttribute('scope', 'col');
+            } else if (parentSection && parentSection.tagName.toLowerCase() === 'tbody') {
+                // Check if it's the first cell in the row (likely row header)
+                const rowCells = parentRow.querySelectorAll('th, td');
+                if (rowCells[0] === th) {
+                    th.setAttribute('scope', 'row');
+                } else {
+                    th.setAttribute('scope', 'col');
+                }
+            } else {
+                // Default to column header
+                th.setAttribute('scope', 'col');
+            }
+        }
+    });
+}
+
+// Add scope to all table headers globally
 function addScopeToTableHeaders() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
-        const headers = table.querySelectorAll('th');
-        headers.forEach((th, index) => {
-            if (!th.hasAttribute('scope')) {
-                // Determine if header is in thead (column header) or tbody (row header)
-                const parentRow = th.closest('tr');
-                const parentSection = parentRow ? parentRow.closest('thead, tbody, tfoot') : null;
-                if (parentSection && parentSection.tagName.toLowerCase() === 'thead') {
-                    th.setAttribute('scope', 'col');
-                } else if (parentSection && parentSection.tagName.toLowerCase() === 'tbody') {
-                    // Check if it's the first cell in the row (likely row header)
-                    const rowCells = parentRow.querySelectorAll('th, td');
-                    if (rowCells[0] === th) {
-                        th.setAttribute('scope', 'row');
-                    } else {
-                        th.setAttribute('scope', 'col');
-                    }
-                } else {
-                    // Default to column header
-                    th.setAttribute('scope', 'col');
-                }
-            }
-        });
+        addScopeToTableHeadersForTable(table);
     });
 }
 
@@ -261,7 +266,7 @@ function ensureSvgAccessibleNames() {
     });
 }
 
-// Accessibility fix for REACT_041: Add accessible names to 2 SVGs (from origin/main)
+// Enhanced SVG accessibility from origin/main
 function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
@@ -383,7 +388,7 @@ function fixFakeLinkIssues() {
     }
 }
 
-// ==== FROM ORIGIN/MAIN: Fix REACT_036 (Fake Link) - Replace hash-only <a id="unrotate"> with proper <button> ====
+// Specific fix for REACT_036: Replace hash-only <a id="unrotate"> with proper <button>
 function fixFakeLink() {
     const link = document.getElementById('unrotate');
     if (!link) return;
@@ -426,7 +431,7 @@ function wrapPrimaryContentInMain_HEAD() {
     newDiv.appendChild(mainContent);
 }
 
-// ==== FROM ORIGIN/MAIN: Enhanced wrapPrimaryContentInMain with better content detection ====
+// Enhanced wrapPrimaryContentInMain with better content detection (from origin/main)
 function wrapPrimaryContentInMain() {
     // Check if main element already exists to avoid duplication
     const existingMain = document.querySelector('main');
@@ -505,8 +510,9 @@ function addressAccessibilityIssues() {
     addLangAttribute();
     ensureSvgAccessibleNames();
     addAccessibleNamesToSVGs();
-    fixTableStructureIssues();
-    validateTableStructureAndScopeTh();
+    validateTableStructureAndScopeTh(); // Use enhanced table validation
+    fixTableStructureIssues(); // Apply basic table fixes first
+    addScopeToTableHeaders(); // Add scope attributes globally
     fixFakeLinkIssues();
     fixFakeLink(); // Specific fix for #unrotate
     addProperLandmarkRegions();

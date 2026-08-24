@@ -50,11 +50,11 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]');
     if (!mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      document.body.appendChild(main);
     }
   }, []);
 }
@@ -62,7 +62,7 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
       return false;

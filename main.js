@@ -3,6 +3,14 @@
 
 // EXISTING AND PRESERVED CODE ...
 
+// NEW FUNCTION: Add lang attribute to HTML element
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // NEW FUNCTION: Fix table structure issues
 function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
@@ -94,6 +102,21 @@ function addSvgAccessibleNames() {
   });
 }
 
+// NEW FUNCTION: Fix fake links
+function fixFakeLinks() {
+  // Fix fake links by ensuring they have role="link" and are keyboard accessible
+  const potentialFakeLinks = document.querySelectorAll('[onclick]');
+  potentialFakeLinks.forEach((el) => {
+    const tag = el.tagName.toLowerCase();
+    if ((tag === 'div' || tag === 'span') && !el.getAttribute('role')) {
+      el.setAttribute('role', 'link');
+      if (!el.getAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
+    }
+  });
+}
+
 // NEW FUNCTION: Add aria-label to the 'myDiv' element
 function addAriaLabelToMyDiv() {
   const myDiv = document.getElementById('myDiv');
@@ -103,4 +126,4 @@ function addAriaLabelToMyDiv() {
 }
 
 // EXPORT new functions
-export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };
+export { fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv, addLangAttribute, fixFakeLinks };

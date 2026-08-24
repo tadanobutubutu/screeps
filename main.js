@@ -177,7 +177,8 @@ function createInPageButton(label, onClick) {
 }
 
 function createAccessibleLink(href, label) {
-  const link = document.createElement('a', { hidden: true });
+  const link = document.createElement('a');
+  link.hidden = true;
   link.setAttribute('href', href);
   link.setAttribute('aria-label', label);
   link.textContent = label;
@@ -273,7 +274,8 @@ function addLandmarkRegions() {
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
   fakeLinks.forEach(link => {
-    const button = document.createElement('button', { hidden: true });
+    const button = document.createElement('button');
+    button.hidden = true;
     button.textContent = link.textContent;
     button.setAttribute('type', 'button');
     // Copy all attributes except href

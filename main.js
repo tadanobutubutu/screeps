@@ -1,9 +1,1 @@
-// Import the necessary modules
-import dependencyGraphContent from './dependencyGraphContent/index';
-import { indexContent } from './dependencyGraphContent/index';
-
-// TODO: Add a note explaining the correct usage of dependencyGraphContent/indexContent
-
-// TODO: Update relevant functions to utilize dependencyGraphContent/indexContent where appropriate
-
-// Existing code and exports remain unchanged
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -1,11 +1,13 @@
-// Current main.js content - the file needs to be provided
-// Based on the issue, it likely contains an anchor tag like:
-// <a id="unrotate" href="#">rotate back</a>
+// Sampled code for adding the scope attribute
+const table = document.querySelector('table');
 
-// Example fix for the React Fake Link issue:
-// Change the HTML from:
-// <a id="unrotate" href="#">rotate back</a>
-// To:
-// <button id="unrotate">rotate back</button>
-
-// And update any JavaScript handlers accordingly
+if (table) {
+    for (let i = 0; i < table.rows.length; i++) {
+        const headers = table.rows[i].cells;
+        if (i === 0) {
+            for (let j = 0; j < headers.length; j++) {
+                headers[j].setAttribute('scope', 'col');
+            }
+        }
+    }
+}

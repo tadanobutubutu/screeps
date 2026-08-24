@@ -19,7 +19,7 @@ const getAccessibleName = (node) => {
 
 // New function requested in issue description
 const setAccessibleName = (node, accessibleName) => {
-  // Implementation details for setting the accessibleName
+  // Implementation details for setting the accessible name
   // You may need to use appropriate methods or attributes to set the accessible name based on the DOM library or framework being used.
 
   // Assuming your library or framework has a method `setAttribute` to set attributes

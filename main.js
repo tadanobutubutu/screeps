@@ -210,7 +210,7 @@ function addSvgAccessibleNames() {
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
-      title.textContent = 'SVG graphic ' + (index + 1);
+      textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     } else {
       if (!title.id) {
@@ -318,5 +318,4 @@ addMainLandmark();
 ensureUniqueLandmarks();
 fixFakeLinks();
 establishLandmarkRegions();
-
-// TODO: Add the code for the new function here
+newIssueFunction();

@@ -94,6 +94,39 @@ function hasUniqueLandmarks() {
   });
 }
 
+// New function for fixing one fake link issue
+function fixOneFakeLinkIssue() {
+  const fakeLink = document.querySelector('.fake-link');
+  if (fakeLink) {
+    fakeLink.textContent = 'Example Link';
+    fakeLink.href = '#';
+  }
+}
+
+// NEW: Fix React Fake Link issue
+function fixReactFakeLinkIssue() {
+  const hashLinks = document.querySelectorAll('a[href^="#"]');
+  for (let link of hashLinks) {
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.textContent = link.textContent;
+    if (link.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', link.getAttribute('aria-label'));
+    } else {
+      button.setAttribute('aria-label', link.textContent || 'Action');
+    }
+    link.parentNode.replaceChild(button, link);
+  }
+}
+
+// New function for ensuring landmarks with unique IDs
+function hasUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
+  return [...landmarks].every(landmark => {
+    return landmark.id && landmark.id !== '';
+  });
+}
+
 // New function exporting fixTableStructureIssues
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 // New function exporting ensureUniqueLandmarks

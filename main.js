@@ -1,5 +1,3 @@
-=======
-
 // Existing code goes here
 
 // Add the missing 'lang' attribute to the root element:
@@ -50,4 +48,3 @@ addAriaLabelsToSVGs();
 module.exports = {
   // Maintain existing exports if any, or add new functions/objects as needed
 };
->>>>>>>

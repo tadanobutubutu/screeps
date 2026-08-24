@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Import the lang attribute helper
+import LangAttribute from 'react-lang-attribute';
+
+// Wrap the component with LangAttribute
+export default function YourComponent() {
+  // Existing component logic here...
+
+  return (
+    <LangAttribute>
+      {/* Existing JSX structure here... */}
+    </LangAttribute>
+  );
+}

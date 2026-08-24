@@ -16,7 +16,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -24,7 +24,7 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
         const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'row');
@@ -104,7 +104,7 @@ function addSvgAccessibleNames() {
 
 // NEW FUNCTION: Add aria-label to the 'myDiv' element
 function addAriaLabelToMyDiv() {
-  const myDiv = document.getElementById('myDiv');
+  const myDiv = document.getElementById('myDiv') || document.querySelector('.myDiv');
   if (myDiv) {
     myDiv.setAttribute('aria-label', 'My div');
   }

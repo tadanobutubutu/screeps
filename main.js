@@ -84,7 +84,7 @@ function fixReactFakeLinkIssue() {
   }
 }
 
-// Function for landmarks with unique IDs
+// New function for ensuring landmarks with unique IDs
 function hasUniqueLandmarks() {
   return [...document.querySelectorAll('[role="main"], [role="navigation"], [role="contentinfo"]')].every((landmark) => {
     return landmark.id && landmark.id !== '';
@@ -101,6 +101,9 @@ exports.fixOneFakeLinkIssue = fixOneFakeLinkIssue;
 exports.fixReactFakeLinkIssue = fixReactFakeLinkIssue;
 // New function exporting hasUniqueLandmarks
 exports.hasUniqueLandmarks = hasUniqueLandmarks;
+
+// New function exporting makeElementAccessible
+exports.makeElementAccessible = makeElementAccessible;
 
 function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');
@@ -121,11 +124,11 @@ module.exports = {
   initialize,
   getFilePath,
   makeElementAccessible,
-  newPreservedFunction, // You may have missed this in your original response, please preserve it without changes
+  newPreservedFunction,
   fixTableStructureIssues,
   addProperLandmarkRegions,
-  fixFakeLinkIssues,
-  fixOneFakeLinkIssue, // Renamed it to avoid naming conflicts
+  fixFakeLinkIssues, // Renamed it to avoid naming conflicts
+  fixOneFakeLinkIssue,
   ensureUniqueLandmarks,
   fixReactFakeLinkIssue,
   hasUniqueLandmarks,

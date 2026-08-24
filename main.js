@@ -99,3 +99,6 @@ module.exports = {
   createInPageButton,
   createAccessibleLink
 };
+
+// Add lang attribute to the root html element
+document.documentElement.lang = getFullLangAttribute();

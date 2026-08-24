@@ -7,15 +7,15 @@ import ReactDOM from 'react-dom';
 
 // Add an accessible name to the SVGs in the icons object
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
-  myCustomIcon: 'data:image/svg+xml,<svg aria-label="My Custom Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>My Custom Icon</title><text y="0.9em" font-size="90">🌐</text></svg>',
+  icon: ... ... viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" ...
+  apple: ... ... viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" ...
+  myCustomIcon: ... aria-label="My Custom Icon" ... viewBox="0 0 100 100"><title>My Custom Icon</title><text y="0.9em" ...
 };
 
 // Prevent duplication of existing exports (both new changes are integrated)
 const currentExports = {}; // Assuming that currentExports has already been defined with appropriate values
-Object.entries(currentExports).forEach(([key, value]) => {
-  if (!icons.hasOwnProperty(key)) {
+... value]) => {
+  if ... {
     icons[key] = value;
   }
 });
@@ -80,9 +80,9 @@ const generateRotateBackControl = () => {
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = document.getElementById('unrotate');
+  const unrotateBtn = ...
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', () => {
+    ... () => {
       // rotation logic here
     });
   }
@@ -91,15 +91,15 @@ const setupRotateBack = () => {
 // Initialize the application
 function renderApp() {
   if (typeof document !== 'undefined') {
-    if (document.getElementById('root')) {
-      ReactDOM.render(<App />, document.getElementById('root'));
+    if ... {
+      ReactDOM.render(<App />, ...
     }
     setupRotateBack();
   }
 }
 
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', renderApp);
+  ... renderApp);
 }
 
 // Export functions for testing

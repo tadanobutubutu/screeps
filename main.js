@@ -6,7 +6,7 @@ import { HTMLAttributes, ReactElement } from 'react';
 class Main extends Component {
   render() {
     // Add lang attribute to HTML element
-    const htmlAttributes: ... = {
+    const htmlAttributes: HTMLAttributes<HTMLElement> = {
       lang: 'en', // Update this with the desired language
     };
 
@@ -18,11 +18,11 @@ class Main extends Component {
         <table aria-label="Accessible Table">
           <thead>
             <tr>
-              <th>Header 1</th>
-              <th>Header 2</th>
+              <th scope="col">Header 1</th>
+              <th scope="col">Header 2</th>
             </tr>
           </thead>
-          ...
+          {/* ... rest of the table */}
         </table>
       );
     };
@@ -47,7 +47,7 @@ class Main extends Component {
     // Fix fake link issue
     // Assuming `fakeLink` is the element causing the issue. Update it as necessary
     const fixedLink = (
-      <a href="#" onClick={() => console.warn('Fake Link clicked')}>
+      <a href="#" onClick={() => console.warn('Fake Link clicked')} aria-label="Click to proceed">
         Fake Link
       </a>
     );
@@ -56,7 +56,7 @@ class Main extends Component {
       <div {...htmlAttributes}>
         <Landmarks>
           {/* Keep existing code/components as is */}
-          <Table ...
+          <Table ... />
           {/* Add updated table with better structure */}
           <Table id="updatedTable">...</Table>
           {/* Keep existing SVGs as is */}

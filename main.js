@@ -1,5 +1,4 @@
 // <<< START OF CONFLICT >>>
-// The original code from one branch before the merge conflict
 function someFunction() {
   // ... code ...
 }

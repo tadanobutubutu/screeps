@@ -14,29 +14,64 @@ export function addLangAttribute() {
 
 // - REACT_041: Add accessible names to 2 SVGs
 export function addSvgAccessibleNames() {
-    // Find SVG elements in app/layout.tsx and dashboard/app/layout.tsx
-    const svg1 = document.querySelector('svg');
-    if (svg1 && !svg1.getAttribute('aria-label') && !svg1.getAttribute('aria-labelledby')) {
-        svg1.setAttribute('aria-label', 'Application logo');
-        svg1.setAttribute('role', 'img');
-    }
-    const svg2 = document.querySelectorAll('svg')[1];
-    if (svg2 && !svg2.getAttribute('aria-label') && !svg2.getAttribute('aria-labelledby')) {
-        svg2.setAttribute('aria-label', 'Navigation icon');
-        svg2.setAttribute('role', 'img');
-    }
+    // Find SVG elements that might need accessible names
+    const svgElements = document.querySelectorAll('svg:not([role="img"]):not([aria-label]):not([aria-labelledby])');
+    
+    svgElements.forEach((svg, index) => {
+        if (svg.hasAttribute('aria-label') || svg.getAttribute('aria-labelledby')) {
+            return;
+        }
+        
+        let label = '';
+        
+        // Try to infer a label from context
+        const parent = svg.closest('[class*="logo"]');
+        if (parent || svg.closest('header')) {
+            label = 'Application logo';
+        } else if (svg.closest('nav')) {
+            label = 'Navigation icon';
+        } else if (svg.closest('button')) {
+            const btnText = svg.closest('button').textContent.trim();
+            label = btnText ? `${btnText} icon` : `Icon ${index + 1}`;
+        } else {
+            label = `Icon ${index + 1}`;
+        }
+        
+        if (!svg.getAttribute('aria-label')) {
+            svg.setAttribute('aria-label', label);
+        }
+        if (!svg.getAttribute('role')) {
+            svg.setAttribute('role', 'img');
+        }
+    });
 }
 
 // - REACT_036: Fix 1 fake link issue
 export function fixFakeLink() {
-    const links = document.querySelectorAll('a');
+    // Find all anchor elements
+    const links = document.querySelectorAll('a[href]');
+    
     links.forEach(link => {
         const href = link.getAttribute('href');
-        if (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
-            if (!href || href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;') {
-                link.setAttribute("href", "#main-content");
-                if (!link.textContent.trim() || link.textContent === link.getAttribute('href')) {
-                    link.setAttribute('aria-label', 'Skip to main content');
+        
+        // Check for fake link patterns
+        const isFakeLink = href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;';
+        
+        if (isFakeLink) {
+            // For skip navigation links
+            const isSkipLink = link.classList.contains('skip-link') || 
+                               link.getAttribute('role') === 'navigation' ||
+                               link.textContent.toLowerCase().includes('skip');
+            
+            if (isSkipLink) {
+                link.setAttribute('href', '#main-content');
+            }
+            
+            // Add accessible name for links without text
+            if (!link.textContent.trim() || link.textContent === link.innerText) {
+                const button = link.closest('button');
+                if (button && button.textContent.trim()) {
+                    link.setAttribute('aria-label', button.textContent.trim());
                 }
             }
         }
@@ -45,12 +80,12 @@ export function fixFakeLink() {
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = document.querySelectorAll('a, input, button');
-
+    const accessibleElements = document.querySelectorAll('input, button');
+    
     let elementIndex = 1;
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
-
+        
         const currentId = `access-${elementIndex}`;
         element.setAttribute('id', currentId);
         elementIndex++;
@@ -59,13 +94,15 @@ export function addAccessibleIds() {
 
 // Add the new functions for the remaining accessibility issues
 export function wrapPrimaryContentInMain() {
-    const mainContent = document.querySelector('.container'); // Assuming the primary content is within a div with class 'container'
+    const mainContent = document.querySelector('[class*="container"]'); // Assuming the primary content is within a div with class 'container'
     if (mainContent) {
         const mainTag = document.createElement('main');
+        
         while (mainContent.firstChild) {
             mainTag.appendChild(mainContent.firstChild);
         }
-        mainContent.parentNode.replaceChild(mainTag, mainContent);
+        
+        mainContent.appendChild(mainTag);
     }
 }
 
@@ -86,8 +123,9 @@ export function addMainLandmark() {
 
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+    
     landmarks.forEach(role => {
-        const elements = document.querySelectorAll(role);
+        const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {

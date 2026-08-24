@@ -1,11 +1,23 @@
-// Current main.js content - the file needs to be provided
-// Based on the issue, it likely contains an anchor tag like:
-// <a id="unrotate" href="#">rotate back</a>
+import React from 'react';
 
-// Example fix for the React Fake Link issue:
-// Change the HTML from:
-// <a id="unrotate" href="#">rotate back</a>
-// To:
-// <button id="unrotate">rotate back</button>
+function RotateableImage() {
+  const handleUnrotate = () => {
+    const element = document.getElementById('rotateable');
+    if (element) {
+      element.classList.remove('rotated');
+    }
+  };
 
-// And update any JavaScript handlers accordingly
+  return (
+    <div className="rotate-container">
+      <div id="rotateable" className="rotated">
+        <img src="/image.jpg" alt="Rotatable content" />
+      </div>
+      <button id="unrotate" onClick={handleUnrotate}>
+        rotate back
+      </button>
+    </div>
+  );
+}
+
+export default RotateableImage;

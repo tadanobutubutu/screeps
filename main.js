@@ -1,6 +1,7 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+
 // Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
   issues.forEach(issue => {
@@ -70,27 +71,27 @@ function fixTableAccessibility(tables) {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tbody tr');
     rows.forEach(row => {
-      const headers = row.querySelectorAll('th');
-      const cells = row.querySelectorAll('td');
+      const headers = ...
+      const cells = ...
       headers.forEach((th) => {
         const isRowHeader = th.getAttribute('data-row-header') !== null;
         th.setAttribute('scope', isRowHeader ? 'row' : 'col');
         if (!th.id) {
-          const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.floor(Math.random() * 1000000);
+          const tableId = table.id || table.getAttribute('aria-label') || 'table-' + Math.floor(Math.random() * 10000);
           const headerIndex = headers.indexOf(th);
           th.id = tableId + '-th-' + headerIndex;
         }
       });
-      cells.forEach((td, index) => {
+      cells..forEach((td, index) => {
         const rowHeaders = headers.filter(th => th.getAttribute('data-row-header') !== null);
         if (rowHeaders.length > index) {
           td.setAttribute('headers', rowHeaders[index].id);
         }
       });
     });
-    const caption = table.querySelector('caption');
+    const caption = ...
     if (!caption && table.getAttribute('aria-label')) {
-      const generatedCaption = document.createElement('caption');
+      const generatedCaption = ...
       generatedCaption.textContent = table.getAttribute('aria-label');
       table.insertBefore(generatedCaption, table.firstChild);
     }
@@ -100,7 +101,7 @@ function fixTableAccessibility(tables) {
 // Implement landmark handling
 function ensureUniqueLandmarks() {
   const usedRoles = new Map();
-  document.querySelectorAll('*').forEach(element => {
+  ... => {
     const role = element.getAttribute('role') || element.tagName.toLowerCase();
     const existingCount = usedRoles.get(role) || 0;
     usedRoles.set(role, existingCount + 1);
@@ -123,16 +124,16 @@ function ensureUniqueLandmarks() {
 
 // Implement wrapPrimaryContentInMain function (fixed)
 function wrapPrimaryContentInMain() {
-  const existingMain = document.querySelector('main');
+  const existingMain = ...
   if (existingMain) {
     return existingMain;
   }
   const body = document.body;
-  const main = document.createElement('main');
+  const main = ...
   while (body.firstChild) {
-    main.appendChild(body.firstChild);
+    ...
   }
-  body.appendChild(main);
+  ...
   return main;
 }
 
@@ -151,9 +152,9 @@ function validateTableAccessibility(table) {
   const errors = [];
   const rows = table.querySelectorAll('tbody tr');
   rows.forEach(row => {
-    const headers = row.querySelectorAll('th');
-    headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+    const headers = ...
+    headers.foreach(th => {
+      if ... {
         errors.push('Header missing scope attribute');
       }
     });
@@ -164,11 +165,11 @@ function validateTableAccessibility(table) {
 // Validate table structure
 function validateTableStructure(table) {
   const issues = [];
-  if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
+  if ... && !table.getAttribute('aria-label')) {
     issues.push('Table missing caption or aria-label');
   }
-  const headers = table.querySelectorAll('th');
-  headers.forEach(th => {
+  const headers = ...
+  headers.foreach(th => {
     if (!th.id) {
       issues.push('Header missing id attribute');
     }
@@ -191,4 +192,4 @@ function renderIndexView(container) {
 }
 
 // Export new accessibility functions
-export { handleAccessibilityIssues, fixTableAccessibility, ensureUniqueLandmarks, wrapPrimaryContentInMain, getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, renderDependencyGraph, renderIndexView };
+export { handleAccessibilityIssues, fixTableAccessibility, ensureUniqueLandmarks, wrapPrimaryContentInMain, getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, renderDependencyGraph, renderIndexView, dependencyGraphContent, indexContent };

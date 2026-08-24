@@ -9,24 +9,24 @@ module.exports = {
   newFunctionForTheIssue,
   addLangAttribute,
   dependencyGraphContent,
-  indexContent
+  indexContent,
+
+  // Added functionality
+  setHtmlLangAttribute,
+  ensureLanguageAttribute,
+  addSvgAccessibleNames,
+  addAllSvgAccessibleNames,
+  addMissingSvgAccessibleNames,
+  enhanceSvgAccessibility,
+  fixTableStructureIssues,
+  fixTableConstraints
 };
 
-// icons: { 
-//   icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>', 
-//   "aria-label": "Screeps Dashboard" 
-// },
-
-// TODO: Address accessibility issues from insight report: 
-// - REACT_015: Add lang attribute to HTML element 
-// - REACT_017: Add/fix 4 landmark issues 
-// - REACT_025: Ensure unique landmarks (2 issues) 
-// - REACT_036: Fix 1 fake link issue 
-
+// TODO: Address accessibility issues from insight report
 const dependencyGraphContent = (dependencies = {}) => {
-// ... old implementation preserved ...
+  // ... old implementation preserved ...
 };
 
-const indexContent = (items = [], options = {}) {
-// ... old implementation preserved ...
+const indexContent = (items = [], options = {}) => {
+  // ... old implementation preserved ...
 };

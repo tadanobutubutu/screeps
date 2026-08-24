@@ -15,14 +15,6 @@ function handleButtonClick() {
   button.setAttribute('aria-expanded', isExpanded);
 }
 
-// Add the click event listener to the button
-button.addEventListener('click', handleButtonClick);
-
-// Import required module(s) and export the new necessary function(s) here in main.js
-// Example of a new function that could be exported
-// Import dependencyGraphContent if it is used in the code
-const { dependencyGraphContent } = require('./dependencyGraph');
-
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
@@ -55,116 +47,34 @@ function ensureUniqueLandmarks() {
   }
 }
 
-// Add function to ensure proper landmark structure
-function ensureProperLandmarkStructure() {
-  // [NEW] ADD YOUR CODE HERE if any other landmark structure changes are needed
+// New function to inject primary content into main landmark
+function wrapPrimaryContentInMain() {
+  const existingMains = document.querySelectorAll('main');
 
-  // Remove existing landmarks to avoid duplication
-  const allHeaders = document.querySelectorAll('header');
-  const allFooters = document.querySelectorAll('footer');
-  const allMain = document.querySelectorAll('main');
-
-  // Remove all existing landmarks
-  allHeaders.forEach(header => header.remove());
-  allFooters.forEach(footer => footer.remove());
-  allMain.forEach(main => main.remove());
-
-  // Create new landmarks and inject them
-  const body = document.body;
-
-  // Header - Banner
-  const headerElement = document.createElement('header');
-  headerElement.setAttribute('role', 'banner');
-  body.prepend(headerElement);
-
-  const siteTitle = document.createElement('h1');
-  siteTitle.textContent = 'Application Name';
-  headerElement.appendChild(siteTitle);
-
-  // Navigation - Navigation
-  const navElement = document.createElement('nav');
-  navElement.setAttribute('role', 'navigation');
-  headerElement.appendChild(navElement);
-
-  const navList = document.createElement('ul');
-  navList.setAttribute('role', 'menubar');
-  navList.id = 'mainMenu';
-  navElement.appendChild(navList);
-
-  const homeItem = document.createElement('li');
-  homeItem.setAttribute('role', 'none');
-  homeItem.setAttribute('role', 'menuitem');
-  const homeLink = document.createElement('a');
-  homeLink.href = '#';
-  homeLink.textContent = 'Home';
-  homeItem.appendChild(homeLink);
-  navList.appendChild(homeItem);
-
-  // Main Content Area
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
-  mainElement.id = 'content-main';
-  body.appendChild(mainElement);
-
-  // Footer - Content Info
-  const footerElement = document.createElement('footer');
-  footerElement.setAttribute('role', 'contentinfo');
-  body.appendChild(footerElement);
-
-  const copyright = document.createElement('p');
-  copyright.textContent = '© 2023 Your Company. All rights reserved.';
-  footerElement.appendChild(copyright);
-
-  // Add function to wrap primary content in main landmark (new)
-  function wrapPrimaryContentInMain() {
-    const existingMains = document.querySelectorAll('main');
-
-    // Remove duplicate main elements if any
-    existingMains.forEach((main, index) => {
-      if (index > 0) {
-        main.remove();
-      }
-    });
-
-    // If no main element exists, create and wrap primary content
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('role', 'main');
-
-    // Find primary content container (adjust selector based on your content structure)
-    const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
-
-    // Move existing content into main if not already inside one
-    if (!contentContainer.querySelector('main')) {
-      while (contentContainer.firstChild) {
-        mainElement.appendChild(contentContainer.firstChild);
-      }
-      contentContainer.appendChild(mainElement);
-    }
-  }
-
-  // Call the wrapPrimaryContentInMain function
-  wrapPrimaryContentInMain();
-}
-
-// Add Accessible SVGs Function
-function addAccessibleSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const shouldUseTitle = svg.querySelector('title') === null && svg.getAttribute('role') === 'img';
-    const isBackground = svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
-
-    if (shouldUseTitle || isBackground) {
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', 'Description of SVG content');
-    } else {
-      const title = document.createElement('title');
-      title.textContent = 'Description of SVG content';
-      svg.prepend(title);
+  // Remove duplicate main elements if any
+  existingMains.forEach((main, index) => {
+    if (index > 0) {
+      main.remove();
     }
   });
+
+  // If no main element exists, create and wrap primary content
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+
+  // Find primary content container (adjust selector based on your content structure)
+  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
+
+  // Move existing content into main if not already inside one
+  if (!contentContainer.querySelector('main')) {
+    while (contentContainer.firstChild) {
+      mainElement.appendChild(contentContainer.firstChild);
+    }
+    contentContainer.appendChild(mainElement);
+  }
 }
 
-// Function to add 'scope="col"' attribute to table header cells
+// Add function to add 'scope="col"' attribute to table header cells
 function addScopeToTableHeaders() {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
@@ -174,7 +84,7 @@ function addScopeToTableHeaders() {
   });
 }
 
-// New function to address accessibility issues from insight report
+// New function to process accessibility issues from insight report
 function processAccessibilityIssuesFromInsightReport(insightReport) {
   // Process each issue from the insight report and address accordingly
   if (insightReport && insightReport.issues) {
@@ -194,7 +104,7 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
           break;
         case 'LANDMARK_STRUCTURE':
           // Ensure proper landmark structure
-          ensureProperLandmarkStructure();
+          wrapPrimaryContentInMain();
           break;
         case 'ACCESSIBLE_SVGS':
           // Add accessible SVGs
@@ -210,12 +120,12 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
       }
     });
   }
-  
+
   // Run all accessibility fixes regardless of report content as fallback
   addLangAttribute();
   fixFakeLinks();
   ensureUniqueLandmarks();
-  ensureProperLandmarkStructure();
+  wrapPrimaryContentInMain();
   addAccessibleSVGs();
   addScopeToTableHeaders();
 }
@@ -224,8 +134,7 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
 processAccessibilityIssuesFromInsightReport();
 fixFakeLinks();
 ensureUniqueLandmarks();
-ensureProperLandmarkStructure();
-ensureUniqueLandmarks();
+wrapPrimaryContentInMain();
 addAccessibleSVGs();
 addScopeToTableHeaders();
 
@@ -235,9 +144,6 @@ module.exports = {
   addLangAttribute,
   fixFakeLinks,
   ensureUniqueLandmarks,
-  ensureProperLandmarkStructure,
-  addAccessibleSVGs,
-  addScopeToTableHeaders,
   processAccessibilityIssuesFromInsightReport,
   dependencyGraphContent,
 };

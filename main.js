@@ -1,3 +1,6 @@
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
     issues.forEach(issue => {
@@ -207,6 +210,20 @@ function validateTableStructure(table) {
     return issues;
 }
 
+// Function to render dependency graph using imported content
+function renderDependencyGraph(container) {
+    if (container && dependencyGraphContent) {
+        container.innerHTML = dependencyGraphContent;
+    }
+}
+
+// Function to render index view using imported content
+function renderIndexView(container) {
+    if (container && indexContent) {
+        container.innerHTML = indexContent;
+    }
+}
+
 // Exporting functions as required (do not remove or rename any existing exports)
 export function someExistingFunction() {
     // ... (existing function code)
@@ -225,5 +242,7 @@ export {
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    renderDependencyGraph,
+    renderIndexView
 };

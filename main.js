@@ -1,7 +1,6 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-
 // Implement function for addressing accessibility issues from insight report
 function handleAccessibilityIssues(issues) {
   issues.forEach(issue => {

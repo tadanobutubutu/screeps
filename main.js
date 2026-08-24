@@ -99,3 +99,4 @@ module.exports = {
   fixTableStructureIssues,
   fixFakeLinkIssue,
 };
+// ----- END ORIGINAL CODE -----

@@ -1,10 +1,6 @@
-import React from 'react';
-import { dependencyGraphContent } from './dependencyGraph.js';
-import { indexContent } from './index.js';
-
+// TODO: This is the existing code that needs to be preserved
 // ... existing code ...
-
-// Import content modules for dependency graphs and index views
+import React from 'react';
 import { dependencyGraphContent } from './dependencyGraph.js';
 import { indexContent } from './index.js';
 
@@ -94,17 +90,8 @@ function validateTableStructure(htmlContent) {
         result += `<tbody>${content}</tbody>`;
       }
     } else if (hasThead && hasTbody) {
-      // If both thead and tbody exist, ensure they are properly closed
-      // and add any missing structure
-      if (!/<\/thead>/i.test(content) || !/<\/tbody>/i.test(content)) {
-        // Ensure proper closing tags
-        if (!/<\/thead>/i.test(content)) {
-          result += `<thead></thead>`;
-        }
-        if (!/<\/tbody>/i.test(content)) {
-          result += `<tbody></tbody>`;
-        }
-      }
+      // If both thead and tbody exist, preserve content
+      result += content;
       result += `</table>`;
       return result;
     } else if (!hasThead && hasTbody) {
@@ -145,7 +132,7 @@ function validateLandmark(htmlContent) {
     const bodyMatch = htmlContent.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       modifiedContent = modifiedContent.replace(
-        /<body$1>([\s\S]*)<\/body>/i,
+        /<body(\s[^>]*)?>([\s\S]*)<\/body>/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
@@ -275,13 +262,11 @@ function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
   // Process matches in reverse order to preserve indices when replacing
   for (let i = matches.length - 1; i >= 0; i--) {
     const m = matches[i];
-    const svgOpenTag = m.openTag || '';
-    const svgInnerContent = m.content;
 
     // Check if SVG already has a title, aria-label, or aria-hidden
-    const hasTitle = /<title/i.test(svgInnerContent);
-    const hasAriaLabel = /aria-label=/i.test(svgOpenTag);
-    const isAriaHidden = /aria-hidden\s*=\s*["']true["']/i.test(svgOpenTag);
+    const hasTitle = /<title/i.test(m.content);
+    const hasAriaLabel = /aria-label=/i.test(m.openTag || '');
+    const isAriaHidden = /aria-hidden\s*=\s*["']true["']/i.test(m.openTag || '');
 
     // If SVG is hidden from screen readers, skip it
     if (isAriaHidden) {
@@ -295,14 +280,14 @@ function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
 
     // Get accessible name from title if it exists
     let accessibleName = defaultName;
-    const titleMatch = svgInnerContent.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = m.content.match(/<title[^>]*>([^<]*)<\/title>/i);
     if (titleMatch) {
       accessibleName = titleMatch[1].trim();
     }
 
     // If accessible name is empty, use defaultName
     if (!accessibleName) {
-      const firstElementMatch = svgInnerContent.match(/<[a-zA-Z]/);
+      const firstElementMatch = m.content.match(/<[a-zA-Z]/);
       if (firstElementMatch) {
         const elementName = firstElementMatch[0].toLowerCase();
         accessibleName = capitalizeFirstLetter(elementName) + ' Image';
@@ -311,9 +296,9 @@ function addSvgAccessibleName(htmlContent, defaultName = 'Decorative image') {
 
     // Add accessible name using title element
     const titleElement = `<title>${accessibleName}</title>`;
-    const closingBracketIndex = svgOpenTag.indexOf('>');
-    const newSvg = `<svg${svgOpenTag.substring(0, closingBracketIndex)}>${titleElement}${svgInnerContent}</svg>`;
-    
+    const insertPos = m.fullMatch.indexOf('>') + 1;
+    const newSvg = m.fullMatch.substring(0, insertPos) + titleElement + m.fullMatch.substring(insertPos);
+
     modifiedContent = modifiedContent.substring(0, m.index) + newSvg + modifiedContent.substring(m.endIndex);
   }
 
@@ -420,25 +405,25 @@ function addProperLandmarkRegions(htmlContent) {
 
   // Add role="banner" to header if missing
   modifiedContent = modifiedContent.replace(
-    /<header(?![^>]*\brole\s*=/i)([^>]*)>/gi,
+    /<header(?![^>]*\brole\s*=)([^>]*)>/gi,
     '<header role="banner"$1>'
   );
 
   // Add role="navigation" to nav if missing
   modifiedContent = modifiedContent.replace(
-    /<nav(?![^>]*\brole\s*=/i)([^>]*)>/gi,
+    /<nav(?![^>]*\brole\s*=)([^>]*)>/gi,
     '<nav role="navigation"$1>'
   );
 
   // Add role="main" to main if missing
   modifiedContent = modifiedContent.replace(
-    /<main(?![^>]*\brole\s*=/i)([^>]*)>/gi,
+    /<main(?![^>]*\brole\s*=)([^>]*)>/gi,
     '<main role="main"$1>'
   );
 
   // Add role="contentinfo" to footer if missing
   modifiedContent = modifiedContent.replace(
-    /<footer(?![^>]*\brole\s*=/i)([^>]*)>/gi,
+    /<footer(?![^>]*\brole\s*=)([^>]*)>/gi,
     '<footer role="contentinfo"$1>'
   );
 

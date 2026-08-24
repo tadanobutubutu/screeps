@@ -112,7 +112,7 @@ function wrapPrimaryContentInMain() {
   const children = Array.from(body.children);
   const primaryChildren = children.filter((child) => {
     const tag = child.tagName ? child.tagName.toLowerCase() : '';
-    const role = child.getAttribute ? child.getAttribute('role') || '' : '';
+    const role = child.getAttribute('role') || tagName;
     return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
   });
 
@@ -167,7 +167,7 @@ function ensureUniqueLandmarks() {
         landmark.setAttribute('aria-label', newLabel);
       }
     }
-    
+
     landmarkLabels.set(role, (landmarkLabels.get(role) || 0) + 1);
     landmarkLabels.set(label, (landmarkLabels.get(label) || 0) + 1);
   });
@@ -248,7 +248,7 @@ function establishLandmarkRegions() {
   const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside'];
   const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
 
-  // Check if there is already a navigation landmark
+ // Check if there is already a navigation landmark
   const existingNav = document.querySelector('nav:not([role]), [role="navigation"]');
   if (!existingNav) {
     // Try to find a nav element or create one around navigation links
@@ -266,8 +266,28 @@ function establishLandmarkRegions() {
     }
   }
 
-  // Check if there is already a complementary landmark
+ // Check if there is already a complementary landmark
   const existingAside = document.querySelector('aside:not([role]), [role="complementary"]');
   if (!existingAside) {
     const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');
-    if (asideElements.length
+    if (asideElements.length > 0) {
+      const aside = document.createElement('aside');
+      aside.setAttribute('role', 'complementary');
+      const parent = asideElements[0].parentNode;
+      const container = parent || body;
+      container.parentNode.insertBefore(aside, container);
+      while (aside.nextSibling && !landmarkTags.includes(aside.nextSibling.tagName ? aside.nextSibling.tagName.toLowerCase() : '')) {
+        aside.appendChild(aside.nextSibling);
+      }
+    }
+  }
+}
+
+addLangAttribute();
+fixTableStructure();
+addMainLandmark();
+wrapPrimaryContentInMain();
+ensureUniqueLandmarks();
+addSvgAccessibleNames();
+fixFakeLinks();
+establishLandmarkRegions();

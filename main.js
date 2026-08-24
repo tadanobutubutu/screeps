@@ -1,1 +1,14 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Function to ensure lang attribute is set on HTML element
+export function setHtmlLanguageAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
+  }
+}
+
+// Call this during app initialization
+if (typeof document !== 'undefined') {
+  setHtmlLanguageAttribute();
+}

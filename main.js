@@ -2,10 +2,11 @@
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
 
 // Address accessibility issues from insight report
 // TODO-hash: 4960bda78b23b568ecb422d6e6eb9ceac6573ea
@@ -45,7 +46,7 @@ function handleAccessibilityIssues(issues) {
                     }
                 }
                 break;
-            case 'unique-landmarks':
+            case 'unique-landmark':
                 // Ensure unique landmarks (2 issues)
                 if (issue.element && issue.uniqueRole) {
                     issue.element.setAttribute('role', issue.uniqueRole);
@@ -143,25 +144,27 @@ function ensureUniqueLandmarks(landmarkElements) {
 
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain() {
-    const primaryContent = document.querySelector('.primary-content');
+    const primaryContent = document.querySelector('[role="main"]') || document.querySelector('main');
     if (primaryContent) {
-        const mainElement = document.querySelector('main');
+        let mainElement = document.querySelector('main');
         if (mainElement) {
-            mainElement.appendChild(primaryContent);
+            // Already wrapped, do nothing
         } else {
             mainElement = document.createElement('main');
-            mainElement.appendChild(primaryContent);
-            document.body.insertBefore(mainElement, document.body.firstChild);
+            while (primaryContent.firstChild) {
+                mainElement.appendChild(primaryContent.firstChild);
+            }
+            primaryContent.appendChild(mainElement);
         }
     }
 }
 
 function getLangAttribute() {
-    return document.documentElement.getAttribute('lang') || 'en';
+    return document.documentElement.lang || 'en';
 }
 
 function getFullLangAttribute() {
-    const lang = document.documentElement.getAttribute('lang') || 'en';
+    const lang = document.documentElement.lang || 'en';
     return lang;
 }
 
@@ -171,7 +174,16 @@ function validateTableAccessibility(tables) {
     }
     (tables || []).forEach(table => {
         if (table && table.tagName === 'TABLE') {
-            fixTableAccessibility([table]);
+            // Validate table accessibility
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(row => {
+                const headers = row.querySelectorAll('th');
+                headers.forEach(th => {
+                    if (!th.getAttribute('scope')) {
+                        th.setAttribute('scope', 'col');
+                    }
+                });
+            });
         }
     });
 }
@@ -193,7 +205,7 @@ function validateLandmark(elements) {
     (elements || []).forEach(element => {
         if (!element) return;
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        if (['main', 'nav', 'aside', 'header', 'footer', 'section', 'form', 'search'].includes(role)) {
+        if (['main', 'nav', 'aside', 'header', 'footer', 'section', 'form'].includes(role)) {
             if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
                 element.setAttribute('aria-label', role);
             }

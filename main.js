@@ -2,16 +2,7 @@
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-function setHtmlLangAttribute(lang = 'en') {
-    const html = document.documentElement;
-    if (html && html.tagName) {
-        html.setAttribute('lang', lang);
-    }
-}
-
+// ------------------- ADDING LANG ATTRIBUTE TO HTML ELEMENT --------------------
 // Enhanced function to ensure language attribute is properly set
 function ensureLanguageAttribute() {
     const html = document.documentElement;
@@ -24,8 +15,8 @@ function ensureLanguageAttribute() {
     }
 }
 
+// ------------------------ ADDING SVG ACCESSIBLE NAMES -------------------------
 // Function to add accessible names to SVGs
-// You can refactor and improve it based on the SVG structure in your project
 function addSvgAccessibleNames(svg) {
     const svgTitle = svg.querySelector('title');
     const svgDesc = svg.querySelector('desc');
@@ -116,8 +107,7 @@ function fixSvgAccessibilityIssues() {
     });
 }
 
-// TODO: Add any other missing exports that might have been?
-// NEW CODE FOR TABLE ISSUES (only the functions for this issue)
+// TABLE STRUCTURE ISSUES FIXES
 
 // Function to fix table structure issues
 function fixTableStructureIssues() {
@@ -172,7 +162,7 @@ function fixTableStructureIssues() {
     });
 }
 
-// NEW CODE FOR LANDMARK ISSUES
+// LANDMARK ISSUES FIXES
 
 // Function to fix landmark issues by ensuring proper landmark regions
 function fixLandmarkIssues() {
@@ -195,24 +185,24 @@ function fixLandmarkIssues() {
     // Ensure unique landmarks (REACT_025)
     const landmarks = document.querySelectorAll('header, footer, main, nav, aside, section[aria-label], section[aria-labelledby]');
     const landmarkTypes = {};
-    
+
     landmarks.forEach(landmark => {
         const tagName = landmark.tagName.toLowerCase();
         const role = landmark.getAttribute('role');
         const key = role || tagName;
-        
+
         if (landmarkTypes[key]) {
             // Add aria-label to make landmark unique
             if (!landmark.getAttribute('aria-label')) {
                 const existingLabels = ['primary', 'secondary', 'tertiary', 'additional', 'footer', 'header', 'navigation', 'sidebar'];
                 let labelIndex = 0;
                 let label = existingLabels[labelIndex] || `section-${labelIndex}`;
-                
+
                 while (document.querySelector(`[aria-label="${label}"]`)) {
                     labelIndex++;
                     label = existingLabels[labelIndex] || `section-${labelIndex}`;
                 }
-                
+
                 landmark.setAttribute('aria-label', label);
             }
         } else {
@@ -221,31 +211,31 @@ function fixLandmarkIssues() {
     });
 }
 
-// NEW CODE FOR FAKE LINK ISSUES (REACT_036)
+// FAKE LINK ISSUES FIXES (REACT_036)
 
 // Function to fix fake link issues (links that are not <a> tags or buttons)
 function fixFakeLinkIssues() {
     // Find elements with onclick that look like links but aren't <a> or <button>
     const fakeLinks = document.querySelectorAll('[onclick]');
-    
+
     fakeLinks.forEach(element => {
         const tagName = element.tagName.toLowerCase();
         const role = element.getAttribute('role');
-        
+
         // Skip if it's already a proper interactive element
         if (tagName === 'a' || tagName === 'button') {
             return;
         }
-        
+
         // Check if it looks like a link
         const cursorStyle = window.getComputedStyle(element).cursor;
         const isClickable = cursorStyle === 'pointer';
         const hasHref = element.hasAttribute('href');
-        
+
         if (isClickable && !hasHref && !role) {
             // Convert to button for proper accessibility
             element.setAttribute('role', 'button');
-            
+
             // Add keyboard support
             if (!element.hasAttribute('tabindex')) {
                 element.setAttribute('tabindex', '0');
@@ -265,15 +255,6 @@ function runAccessibilityFixes() {
 
 // Export the new functions to address accessibility issues
 export {
-    setHtmlLangAttribute,
-    ensureLanguageAttribute,
-    addSvgAccessibleNames,
-    handleSvgAccessibility,
-    addAllSvgAccessibleNames,
-    fixSvgAccessibilityIssues,
-    fixTableStructureIssues,
-    fixLandmarkIssues,
-    fixFakeLinkIssues,
     runAccessibilityFixes,
     dependencyGraphContent,
     indexContent

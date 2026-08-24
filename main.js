@@ -13,7 +13,7 @@ function addLangAttribute() {
   }
 }
 
-// Add the new function: ensureUniqueLandmarks (REACT_025)
+// Add a new function: ensureUniqueLandmarks (REACT_025)
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], header, nav, main, aside, footer');
   const seenRoles = new Set();
@@ -100,6 +100,14 @@ function addProperLandmarkRegions() {
       aside.setAttribute('aria-label', `Complementary ${index + 1}`);
     }
   });
+}
+
+// Add the new function: wrapPrimaryContentInMain
+function wrapPrimaryContentInMain(primaryContent) {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  mainElement.appendChild(primaryContent);
 }
 
 // Call the new functions to address accessibility issues

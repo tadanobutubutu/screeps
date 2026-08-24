@@ -2,7 +2,7 @@
 // ... (Preserve this section)
 
 // TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
+// Preserve placeholer for the new function
 function addressAccessibilityIssues(insightReport) {
     // Your implementation here
     // This function should process the insight report and apply accessibility changes
@@ -10,12 +10,12 @@ function addressAccessibilityIssues(insightReport) {
     // The actual implementation will depend on the specifics of the insight report format
     // and the accessibility requirements
     // Example:
-    // insightReport.forEach(issue => {
-    //     if (issue.type === 'lang') {
-    //         document.documentElement.lang = issue.value;
-    //     }
-    //     // Other accessibility changes based on the issue type
-    // });
+    insightReport.forEach(issue => {
+        if (issue.type === 'lang') {
+            document.documentElement.lang = issue.value;
+        }
+        // Other accessibility changes based on the issue type
+    });
 }
 
 // Implement fixTableStructureIssues(); function as requested

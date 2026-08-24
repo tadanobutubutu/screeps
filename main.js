@@ -179,6 +179,28 @@ function ensureUniqueLandmarks(htmlContent) {
   return validateLandmark(validateLandmarkStructure(htmlContent));
 }
 
+// Function to add accessible name to SVGs based on Insight Code REACT_041
+function addAccessibleNameToSVGsForInsightCode(htmlContent) {
+  // Regex to find SVG elements without an accessible name
+  const svgRegex = /<svg[^>]*>([\s\S]*?)(?=<\/svg>)/gi;
+  
+  let modifiedContent = htmlContent;
+  let match;
+  
+  // Loop through all SVG elements and add aria-label or title as accessible name
+  while ((match = svgRegex.exec(modifiedContent)) !== null) {
+    const svgContent = match[1];
+    const accessibleName = 'Accessible SVG Content'; // Default accessible name
+    
+    // Check if SVG already has a title or aria-hidden
+    if (!svgContent.includes('<title') && !svgContent.includes('aria-hidden="true"')) {
+      modifiedContent = modifiedContent.replace(match[0], getSvgAccessibleName(match[0], accessibleName));
+    }
+  }
+  
+  return modifiedContent;
+}
+
 // Export wrapMainTags function
 module.exports = {
   // ... existing exports ...
@@ -193,6 +215,7 @@ module.exports = {
   createAccessibleLink,
   createInPageButton,
   addAccessibleNameToSVGs,
-  fixTableStructureIsses,
-  ensureUniqueLandmarks
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addAccessibleNameToSVGsForInsightCode // New export for the new function
 };

@@ -303,6 +303,85 @@ function addressAccessibilityIssues() {
 addressAccessibilityIssues();
 addLandmarkRegions();
 
+// REACT_017: Validate landmark elements for accessibility
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  const validLandmarkRoles = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article', 'search'];
+  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+  return validLandmarkRoles.includes(role);
+}
+
+// REACT_017: Validate overall landmark structure
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section[aria-label], section[aria-labelledby], article, [role="search"]');
+  let hasIssues = false;
+  let mainCount = 0;
+  
+  landmarks.forEach(landmark => {
+    if (!validateLandmark(landmark)) {
+      hasIssues = true;
+    }
+    if (landmark.tagName.toLowerCase() === 'main' || landmark.getAttribute('role') === 'main') {
+      mainCount++;
+    }
+    // Check for accessible names on landmarks that require them
+    if (['nav', 'aside', 'section', 'article'].includes(landmark.tagName.toLowerCase()) || 
+        ['navigation', 'complementary', 'region', 'article'].includes(landmark.getAttribute('role'))) {
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        hasIssues = true;
+      }
+    }
+  });
+  
+  if (mainCount !== 1) {
+    hasIssues = true;
+  }
+  
+  return !hasIssues;
+}
+
+// Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain() {
+  // Check if main already exists
+  if (document.querySelector('main')) {
+    return false;
+  }
+  
+  // Find the primary content area (common patterns)
+  const primaryContent = document.querySelector('[role="main"], #main-content, #content, .main-content, .content, article');
+  
+  if (primaryContent && primaryContent.tagName !== 'MAIN') {
+    const main = document.createElement('main');
+    // Preserve attributes
+    Array.from(primaryContent.attributes).forEach(attr => {
+      main.setAttribute(attr.name, attr.value);
+    });
+    // Move children
+    while (primaryContent.firstChild) {
+      main.appendChild(primaryContent.firstChild);
+    }
+    // Replace
+    primaryContent.parentNode.replaceChild(main, primaryContent);
+    return true;
+  }
+  
+  // If no primary content found, wrap body content in main (excluding header/footer/nav)
+  const body = document.body;
+  const main = document.createElement('main');
+  const excludeSelectors = 'header, footer, nav, aside';
+  const childrenToMove = Array.from(body.children).filter(child => 
+    !child.matches(excludeSelectors) && child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE'
+  );
+  
+  if (childrenToMove.length > 0) {
+    childrenToMove.forEach(child => main.appendChild(child));
+    body.insertBefore(main, body.querySelector('footer') || body.firstChild);
+    return true;
+  }
+  
+  return false;
+}
+
 // Export all functions for use by other modules and tests
 export {
   addLangAttribute,
@@ -325,5 +404,7 @@ export {
   validateUniqueLandmarks,
   getSvgAccessibleName,
   wrapPrimaryContentInMain,
-  fixFaviconAccessibility // Added for REACT_041: Fix favicon accessibility
+  fixFaviconAccessibility, // Added for REACT_041: Fix favicon accessibility
+  validateLandmark,
+  validateLandmarkStructure
 };

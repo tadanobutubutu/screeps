@@ -1,20 +1,20 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-// - REACT_036: Fix 1 fake link issue
-//
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+// TODO: Address accessibility issues from insight report: 
+// - REACT_015: Add lang attribute to HTML element 
+// - REACT_017: Add/fix 4 landmark issues 
+// - REACT_041: Add accessible names to 2 SVGs 
+// - REACT_025: Ensure unique landmarks (2 issues) 
+// - Updated code added below 
+// - REACT_036: Fix 1 fake link issue 
+// 
+// TODO: This is the existing code that needs to be preserved 
+// Addressed accessibility issues from insight report: 
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute()) 
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure()) 
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure()) 
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...) 
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...) 
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink()) 
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 const someVar = require('some-module');
 
 function init() {
@@ -25,11 +25,7 @@ module.exports.loop = function() {
   // Existing loop logic
 }
 
-// ----- END ORIGINAL CODE -----
-
-// BEGIN NEW FUNCTION ADDED REQUESTED IN ISSUE
-
-// New function that has been requested to be added to the main.js file.
+// BEGIN NEW FUNCTION ADDED REQUESTED IN ISSUE 
 function newFunction() {
   // Implementation of the new function
 }

@@ -16,16 +16,23 @@ function fixTableStructure() {
       const cells = row.querySelectorAll('th, td');
 
       cells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          if (cellIndex === 0) {
-            cell.setAttribute('scope', 'row');
-          } else {
-            cell.setAttribute('scope', 'col');
-          }
+        const isTH = cell.tagName === 'TH';
+
+        if (!isTH || cell.hasAttribute('scope')) return;
+
+        if (cellIndex === 0) {
+          cell.setAttribute('scope', 'row');
+        } else {
+          cell.setAttribute('scope', 'col');
         }
       });
     });
   });
+}
+
+// Fix table structure issues by checking TH cell scopes
+function fixTableStructureIssues() {
+  fixTableStructure();
 }
 
 // Add/fix 4 landmark issues
@@ -34,15 +41,17 @@ function addMainLandmark() {
   main.setAttribute('role', 'main');
 }
 
+// Validate landmark
 function validateLandmark() {
   // Implementation code
 }
 
+// Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation code
 }
 
-// Ensure unique landmarks (2 issues)
+// Fix unique landmarks (2 issues)
 function fixUniqueLandmarks() {
   // Implementation code
 }
@@ -52,14 +61,17 @@ function fixFakeLinkIssue() {
   // Implementation code
 }
 
+// Validate link accessibility
 function validateLinkAccessibility() {
   // Implementation code
 }
 
+// Create in page button
 function createInPageButton() {
   // Implementation code
 }
 
+// Create accessible link
 function createAccessibleLink() {
   // Implementation code
 }
@@ -72,8 +84,18 @@ function addressAccessibilityIssues() {
   fixFakeLinkIssue();
 }
 
-// Example usage of the accessibility functions
-// ... (existing usage code preserved)
+// Function to check TH cell scope
+function hasValidTHScope(cell) {
+  const acceptedScopes = ['row', 'col', 'rowgroup', 'colgroup'];
+  return acceptedScopes.includes(cell.getAttribute('scope'));
+}
 
-// Add the new function at the end
+// Add proper landmark regions
+function addProperLandmarkRegions() {
+  // Implementation code
+}
+
+// Example usage of the accessibility functions
 addressAccessibilityIssues();
+fixTableStructureIssues();
+addProperLandmarkRegions();

@@ -103,7 +103,7 @@ function ensureUniqueLandmarks() {
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = document.querySelectorAll('a[href="#]');
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {

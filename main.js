@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import required module(s) and export the new necessary function(s) here in main.js
 import React from 'react';
 
@@ -168,6 +165,15 @@ export const PageLayout = ({
   );
 };
 
+// REACT_017: Content wrapper with main landmark for page sections
+export const MainContent = ({ children, id, className, ...props }) => {
+  return (
+    <main id={id} className={className} {...props}>
+      {children}
+    </main>
+  );
+};
+
 // REACT_041: SVG components with accessible name
 export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props }) => {
   return (
@@ -200,6 +206,11 @@ export const SettingsIcon = (props) => (
   </AccessibleIconSVG>
 );
 
+// Helper function for generating unique IDs
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
 // Export all new accessibility-friendly components
 export {
   RotateBackButton,
@@ -210,10 +221,8 @@ export {
   SettingsIcon,
   AppWrapper,
   PageLayout,
+  MainContent,
   fixTableStructureIssues,
   ensureUniqueLandmarks,
-  generateId // Added missing function
+  generateId
 };
-```
-
-The main goal here was to combine the changes from both branches, keeping all added functionality and preserving existing code. The resulting file contains the requested accessibility improvements, the missing `generateId()` function, and exported all applicable new components. Please review the merged version to ensure it compiles and functionalities as expected.

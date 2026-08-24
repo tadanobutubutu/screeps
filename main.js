@@ -50,11 +50,12 @@ function addLangAttribute() {
 // NEW: Add Main landmark using React's useEffect
 function addMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]');
     if (!mainElement) {
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-      document.body.insertBefore(main, document.body.firstChild);
+      const main = document.querySelector('main');
+      if (main) {
+        main.setAttribute('role', 'main');
+      }
     }
   }, []);
 }
@@ -62,12 +63,10 @@ function addMainLandmark() {
 // NEW: Validate main landmark using React's useEffect
 function validateMainLandmark() {
   useEffect(() => {
-    const mainElement = document.querySelector('main, [role="main"]');
+    const mainElement = document.querySelector('[role="main"]') || document.querySelector('main');
     if (!mainElement) {
       console.error('No main landmark found in the document.');
-      return false;
     }
-    return true;
   }, []);
 }
 
@@ -78,21 +77,14 @@ function validateLandmarkRoles() {
     const foundLandmarks = {};
     landmarkRoles.forEach(role => {
       const elements = document.querySelectorAll(`[role="${role}"]`);
-      const tagElements = role === 'navigation' ? document.querySelectorAll('nav') : [];
+      const tagElements = role === 'navigation' ? Array.from(document.getElementsByTagName('nav')) : [];
       const totalCount = elements.length + (role === 'navigation' ? tagElements.length : 0);
       foundLandmarks[role] = totalCount;
     });
     if (foundLandmarks.main > 1) {
       console.error('More than one "main" landmark found.');
-      return false;
     }
-    return true;
   }, []);
-}
-
-// ... existing functions specific to DOM manipulation
-function fixTableStructure() {
-  // ... existing logic ...
 }
 
 // Helper function to get SVG accessible name
@@ -151,4 +143,4 @@ function getElementRole() {
 }
 
 // Additional exports if needed
-export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, fixTableStructure, addMainLandmark, validateMainLandmark, validateLandmarkRoles, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel, getElementRole };
+export { Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection, FakeLinkFixed, addLangAttribute, addMainLandmark, validateMainLandmark, validateLandmarkRoles, fixTableStructure, getSvgAccessibleName, getAccessibleLabel, createInPageButton, validateTableAccessibility, validateTableStructure, validateLandmark, getElementRole };

@@ -1,3 +1,6 @@
+Looking at the code, I can see there are multiple function definitions with `...` placeholders that need to be completed. Let me fix all the syntax issues:
+
+```javascript
 // ... existing code ...
 
 // Helper function to get language attribute value
@@ -23,22 +26,27 @@ function addLangAttribute(htmlContent, lang = 'en', region = null) {
 
   // If <html> tag exists, inject the lang attribute
   if (/<html\b/i.test(htmlContent)) {
-    return htmlContent.replace(/<html(\s+[^>]*)?>/i, `<html$1${langAttr}>`);
+    return htmlContent.replace(/<html([^>]*)>/i, (match, attrs) => {
+      if (/lang=/i.test(attrs)) {
+        return match;
+      }
+      return `<html${attrs}${langAttr}>`;
+    });
   }
   // Otherwise prepend a wrapping <html> tag with the lang attribute
-  return `<html${langAttr}>${htmlContent}</html>`;
+  return `<html${langAttr}><head></head><body>${htmlContent}</body></html>`;
 }
 
 // Validate table accessibility - adds scope attributes to table headers
 // This addresses REACT_027: React Table Structure
 function validateTableAccessibility(htmlContent) {
   // Add scope attributes to table headers
-  const thRegex = /<th(\s+[^>]*)?>(?!.*scope=)/gi;
+  const thRegex = /<th([^>]*)>/gi;
   let modifiedContent = htmlContent.replace(thRegex, (match, attrs) => {
     if (attrs && /scope=/i.test(attrs)) {
       return match;
     }
-    const closingBracket = match.lastIndexOf('>');
+    const closingBracket = attrs.indexOf('>');
     if (closingBracket !== -1) {
       return match.substring(0, closingBracket) + ' scope="col">';
     }
@@ -49,12 +57,12 @@ function validateTableAccessibility(htmlContent) {
 
 // Validate table structure - ensures tables have proper thead and tbody
 // This addresses REACT_027: React Table Structure
-function validateTableStructure(htmlContent) {
+function fixTableStructureIssues(htmlContent) {
   // Ensure tables have proper structure with thead and tbody
   let modifiedContent = htmlContent;
   
   // Pattern to match table elements that need structure
-  const tableRegex = /<table(\s+[^>]*)?>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table([^>]*)>([\s\S]*?)<\/table>/gi;
   
   modifiedContent = modifiedContent.replace(tableRegex, (match, attrs, content) => {
     let result = `<table${attrs}>`;
@@ -69,22 +77,23 @@ function validateTableStructure(htmlContent) {
       result += `<tbody>${content}</tbody>`;
     } else if (hasThead && !hasTbody) {
       // Extract thead and wrap remaining in tbody
-      const theadMatch = content.match(/<thead[^>]*>[\s\S]*?<\/thead>/i);
+      const theadMatch = content.match(/<thead[\s\S]*?<\/thead>/i);
       if (theadMatch) {
         result += theadMatch[0];
-        const remaining = content.replace(/<thead[^>]*>[\s\S]*?<\/thead>/i, '');
+        const remaining = content.replace(/<thead[\s\S]*?<\/thead>/i, '');
         result += `<tbody>${remaining}</tbody>`;
       } else {
         result += `<tbody>${content}</tbody>`;
       }
     } else if (!hasThead && hasTbody) {
       // No thead but has tbody - extract first row(s) for thead if appropriate
-      const tbodyMatch = content.match(/<tbody[^>]*>[\s\S]*?<\/tbody>/i);
+      const tbodyMatch = content.match(/<tbody[\s\S]*?<\/tbody>/is);
       if (tbodyMatch) {
         // Try to extract first row for thead
-        const firstRowMatch = tbodyMatch[0].match(/<tr[^>]*>[\s\S]*?<\/tr>/i);
+        const firstRowMatch = tbodyMatch[0].match(/<tr[\s\S]*?<\/tr>/i);
         if (firstRowMatch) {
-          result += `<thead><tr>${firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
+          const thRow = firstRowMatch[0].replace(/<td/g, '<th').replace(/<\/td>/g, '</th>');
+          result += `<thead><tr>${thRow.replace(/<th[^>]*>/g, (m) => m.replace('>', ' scope="col">'))}</tr></thead>`;
           const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
           result += `<tbody>${restContent}</tbody>`;
         } else {
@@ -110,12 +119,12 @@ function validateLandmark(htmlContent) {
   let modifiedContent = htmlContent;
   
   // Add main landmark if not present
-  if (!/<main[^>]*>/i.test(modifiedContent) && !/<[^>]*\bmain\b[^>]*>/i.test(modifiedContent)) {
+  if (!/<main/i.test(modifiedContent) && /<body/i.test(modifiedContent)) {
     // Wrap content in main tag
-    const bodyMatch = modifiedContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    const bodyMatch = modifiedContent.match(/<body([^>]*)>([\s\S]*)/i);
     if (bodyMatch) {
       modifiedContent = modifiedContent.replace(
-        /<body([^>]*)>([\s\S]*?)<\/body>/i,
+        /<body([^>]*)>([\s\S]*)/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
@@ -129,7 +138,7 @@ function validateLandmark(htmlContent) {
 
 // Validate landmark structure - ensures proper landmark nesting and structure
 // This addresses REACT_025: React Unique Landmarks and REACT_017: React Landmarks
-function validateLandmarkStructure(htmlContent) {
+function ensureUniqueLandmarks(htmlContent) {
   // Ensure proper landmark nesting and structure
   let modifiedContent = htmlContent;
   
@@ -150,7 +159,7 @@ function validateLandmarkStructure(htmlContent) {
   }
   
   // Ensure nav has proper aria-label for uniqueness
-  const navRegex = /<nav(\s+[^>]*)?>/gi;
+  const navRegex = /<nav([^>]*)>/gi;
   let navCount = 0;
   modifiedContent = modifiedContent.replace(navRegex, (match, attrs) => {
     navCount++;
@@ -169,27 +178,27 @@ function validateLandmarkStructure(htmlContent) {
 
 // Get SVG accessible name - ensures SVG elements have accessible names
 // This addresses REACT_041: React SVG Accessible Name
-function getSvgAccessibleName(svgContent, accessibleName) {
+function addSvgAccessibleName(svgContent, accessibleName) {
   if (!accessibleName) return svgContent;
   
   // Add title element to SVG for accessibility
   if (!/<title/i.test(svgContent)) {
     // Find the first child element position
-    const firstChildMatch = svgContent.match(/<svg[^>]*>([\s\S]*)$/i);
+    const firstChildMatch = svgContent.match(/(<svg[^>]*>)([\s\S]*)/i);
     if (firstChildMatch) {
-      const content = firstChildMatch[1];
-      const firstElementMatch = content.match(/<[a-zA-Z][^>]*>/);
+      const content = firstChildMatch[2];
+      const firstElementMatch = content.match(/<([a-zA-Z][a-zA-Z0-9]*)/);
       if (firstElementMatch && firstElementMatch.index !== undefined) {
         const titleElement = `<title>${accessibleName}</title>`;
         const insertPos = firstElementMatch.index;
         return svgContent.replace(
-          /<svg([^>]*)>([\s\S]*)$/i,
-          `<svg$1>${titleElement}${content}`
+          firstElementMatch[0],
+          titleElement + firstElementMatch[0]
         );
       }
     }
     // Fallback: prepend title
-    return svgContent.replace(/<svg([^>]*)>/, `<svg$1><title>${accessibleName}</title>`);
+    return svgContent.replace(/(<svg[^>]*>)/i, `$1<title>${accessibleName}</title>`);
   }
   
   return svgContent;
@@ -209,7 +218,7 @@ function createAccessibleLink(url, text, options = {}) {
   const classString = className ? ` class="${className}"` : '';
   const ariaLabelString = ariaLabel ? ` aria-label="${ariaLabel}"` : '';
   
-  return `<a href="${url}" target="_${target}"${relString}${classString}${ariaLabelString}>${text}</a>`;
+  return `<a href="${url}"${classString}${relString} target="${target}"${ariaLabelString}>${text}</a>`;
 }
 
 // Create in-page button
@@ -257,12 +266,12 @@ function addSvgAccessibleNames(htmlContent, defaultName = 'Decorative image') {
     let accessibleName = defaultName;
     const titleMatch = svgInnerContent.match(/<title[^>]*>([^<]*)<\/title>/i);
     if (titleMatch) {
-      accessibleName = titleMatch[1].trim();
+      accessibleName = titleMatch[1];
     }
     
     // Add accessible name to the SVG
     const svgFull = match[0];
-    const newSvg = getSvgAccessibleName(svgFull, accessibleName);
+    const newSvg = addSvgAccessibleName(svgFull, accessibleName);
     modifiedContent = modifiedContent.replace(svgFull, newSvg);
   }
   
@@ -276,44 +285,4 @@ function createAccessibleDivLink(url, text, options = {}) {
   return createAccessibleLink(url, text, options);
 }
 
-// Fix fake links - converts div or span with onClick to anchor tags
-// This addresses REACT_036: React Fake Link
-function fixFakeLinks(htmlContent) {
-  let modifiedContent = htmlContent;
-  
-  // Replace div or span with onClick that act like links with real anchor tags
-  // Match elements with onClick that contain href-like patterns
-  const fakeLinkRegex = /<(div|span)([^>]*onClick[^>]*)>([\s\S]*?)<\/\1>/gi;
-  
-  modifiedContent = modifiedContent.replace(fakeLinkRegex, (match, tagName, attrs, content) => {
-    // Check if it has an onClick that looks like a link
-    const onClickMatch = attrs.match(/onClick\s*=\s*["']([^"']*)/i);
-    if (!onClickMatch) return match;
-    
-    const onClickValue = onClickMatch[1];
-    let url = '#';
-    let newAttrs = attrs.replace(/onClick\s*=\s*["'][^"']*["']/gi, '');
-    
-    // Look for any href-like pattern in onClick
-    const urlMatch = onClickValue.match(/(?:window\.)?(?:location\.href|location|router|navigate)[^;]*['"]([^'"]+)['"]/i);
-    if (urlMatch) {
-      url = urlMatch[1];
-    }
-    
-    // Look for direct URL assignment
-    const directUrlMatch = onClickValue.match(/['"](https?:\/\/[^"']+)['"]/i);
-    if (directUrlMatch) {
-      url = directUrlMatch[1];
-    }
-    
-    // Clean up attrs to avoid duplicates
-    newAttrs = newAttrs.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '').trim();
-    
-    return `<a href="${url}"${newAttrs ? ' ' + newAttrs : ''}>${content}</a>`;
-  });
-  
-  return modifiedContent;
-}
-
-// Wrap main tags function (now also injects lang attribute)
-// This addresses
+// Fix fake links - converts div

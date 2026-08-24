@@ -33,7 +33,6 @@ module.exports = {
     }
   },
 
-  // Functions from origin/main
   oldFunction: function() {
     // ... old code ...
   },
@@ -52,7 +51,10 @@ module.exports = {
       // Logic to traverse the DOM tree and remove any additional <main> tags
       // This is a placeholder and would need to be implemented based on the actual application structure
     };
-    
-    // Example usage: renderTree(document.body);
+
+     /* You might need to add some additional logic or adapt the function
+        to suit your specific use case, as mentioned in the comment above */
+
+     // Example usage: renderTree(document.body);
   },
 };

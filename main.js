@@ -1,1 +1,47 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming 'getDependencyGraph' is a function that returns the HTML for the dependency graph
+// and 'getDependencyGraphData' is a function that returns the data needed to generate the HTML
+
+// ... (other code)
+
+// Example of how you might render the dependency graph in your server-side code
+const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
+
+// Output the HTML to the response or send it to the client
+// This could be part of a Next.js page or a similar server-rendering setup
+
+// Before:
+// <table>
+//   <thead>
+//     <tr>
+//       <th><div>src/constants.js</div></th>
+//       <th><div>src/managers/roomManager.js</div></th>
+//       <th><div>src/managers/spawnManager.js</div></th>
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// After:
+// <table>
+//   <thead>
+//     <tr>
+//       <th scope="col"><div>src/constants.js</div></th>
+//       <th scope="col"><div>src/managers/roomManager.js</div></th>
+//       <th scope="col"><div>src/managers/spawnManager.js</div></th>
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// You would render the updated HTML like this:
+// res.send(`
+//   ${dependencyGraphHtml}
+// `);
+
+// ... (other code)

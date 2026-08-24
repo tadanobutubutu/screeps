@@ -132,6 +132,21 @@ function ensureUniqueLandmarks(landmarkElements) {
     });
 }
 
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain() {
+    const primaryContent = document.querySelector('.primary-content');
+    if (primaryContent) {
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            mainElement.appendChild(primaryContent);
+        } else {
+            mainElement = document.createElement('main');
+            mainElement.appendChild(primaryContent);
+            document.body.insertBefore(mainElement, document.body.firstChild);
+        }
+    }
+}
+
 // Exporting functions as required (do not remove or rename any existing exports)
 export function someExistingFunction() {
     // ... (existing function code)
@@ -142,6 +157,6 @@ export function anotherExistingFunction() {
 }
 
 // Export new accessibility functions
-export { handleAccessibilityIssues, fixTableAccessibility, ensureUniqueLandmarks };
+export { handleAccessibilityIssues, fixTableAccessibility, ensureUniqueLandmarks, wrapPrimaryContentInMain };
 
 // ... (other existing exports)

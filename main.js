@@ -37,18 +37,18 @@ export default someModule;
   // Add new function for react-table structure
   const EnhancedTable = ({ children }) => {
     // Uncomment this line when available, mainElement
-    // const { mainElement } = require('./mainElement');
+    // const { mainElement } = ...
     return React.cloneElement(children, { role: 'table' });
   };
-  module.exports.EnhancedTable = EnhancedTable;
+  ... = EnhancedTable;
 
   // Update the duplicateMainElements function to include the original changes
   const removeDuplicateMainElements = (children) => {
-    const mainElements = React.Children.toArray(children).filter(
+    const mainElements = ...
       (child) => child.type === 'main'
     );
     if (mainElements.length > 1) {
-      console.warn('Duplicate <main> elements detected. Only one <main> element is allowed.');
+      ... <main> elements detected. Only one <main> element is allowed.');
       return React.cloneElement(mainElements[0], { children: mainElements.slice(1) });
     }
     return children;
@@ -57,13 +57,27 @@ export default someModule;
   // Add lang attribute to the root element (new change)
   function addLangAttributeToRoot() {
     const rootElement = document.documentElement;
-    if (!rootElement.hasAttribute('lang')) {
-      rootElement.setAttribute('lang', 'en');
+    if (rootElement && !rootElement.lang) {
+      rootElement.lang = 'en';
     }
   }
 
   // Call the function to add lang attribute to the root element
   addLangAttributeToRoot();
+
+  // Remove duplicate main elements to ensure unique landmarks
+  function ensureUniqueMainElements() {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length > 1) {
+      console.warn(`Multiple <main> elements detected (${mainElements.length}). Only one <main> element is allowed.`);
+      for (let i = 1; i < mainElements.length; i++) {
+        mainElements[i].remove();
+      }
+    }
+  }
+
+  // Call the function to ensure unique main elements
+  ensureUniqueMainElements();
 })();
 
 import React from 'react';
@@ -73,9 +87,9 @@ import { useTable } from 'react-table';
 const Logo = () => <img src="/logo.svg" alt="Accessible Name for Logo" />;
 const MenuIcon = () => <img src="/menu.svg" alt="Accessible Name for Menu Icon" />;
 const FixedLink = () => (
-  <a href="#" onClick={() => console.warn('Fake Link clicked')}>
+  <button type="button" onClick={() => console.warn('Fake Link clicked')}>
     Fake Link
-  </a>
+  </button>
 );
 
 // Main component, updated with new table components and accessibility elements
@@ -108,15 +122,15 @@ export default function Main() {
   return (
     <div {...htmlAttributes}>
       {/* Landmarks */}
-      <header id="banner">Header</header>
-      <main id="mainContent">
+      <header id="banner" role="banner">Header</header>
+      <main id="mainContent" role="main">
         {/* Accessible table structure */}
         <table aria-label="Accessible Table">
           <thead>
             <tr>
               {allColumns.map((column) => (
                 <th key={column.id} scope="col">
-                  ... ?? column.Header}
+                  {column.render('Header') ?? column.Header}
                 </th>
               ))}
             </tr>
@@ -139,7 +153,7 @@ export default function Main() {
         <MenuIcon />
         <FixedLink>Fake Link</FixedLink>
       </main>
-      <footer>Footer</footer>
+      <footer role="contentinfo">Footer</footer>
     </div>
   );
 }

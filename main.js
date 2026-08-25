@@ -15,12 +15,17 @@ function createReactContext() {
   };
 
   const mockDocument = new window.Document();
-  const body = mockDocument.createElement('body');
+  const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  mockDocument.appendChild(body);
+  const rootElement = mockDocument.getElementById('root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
-  return window;
+  
+  return {
+    window,
+    document: mockDocument,
+    rootElement
+  };
 }
 
 // Find the appropriate spot inside the addAriaLabelledbyIfNeeded function
@@ -34,7 +39,7 @@ function addAriaLabelledbyIfNeeded(elem) {
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
   const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = ReactDOMServer.renderToString(content);
+  const contentString = context.window.ReactDOM.renderToString(content);
   
   // ... (Pre-existing logic)
 }
@@ -43,7 +48,7 @@ function addAriaLabelledbyIfNeeded(elem) {
 // and use that context to render React components:
 
 function initAriaLabels() {
-  const elements = document.querySelectorAll('[aria-label-required]');
+  const elements = [];
   elements.forEach((elem) => {
     const id = elem.id || 'aria-label-' + Math.floor(Math.random() * 9);
     elem.id = id;

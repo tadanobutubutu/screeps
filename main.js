@@ -304,4 +304,3 @@ if (typeof document !== 'undefined') {
     initAccessibility();
   }
 }
-```

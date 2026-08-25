@@ -114,11 +114,23 @@ function getSvgAccessibleName(svgElement) {
   return svgElement.querySelector('title').textContent;
 }
 
+// Implement createInPageButton functionality
+function createInPageButton(label, onClick, className) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  if (className) {
+    button.className = className;
+  }
+  button.addEventListener('click', onClick);
+  return button;
+}
+
 // Include the new functions as an export
 module.exports = {
   // ... (Pre-existing exports)
 
   validateLandmarkStructure, // Add the new function to the exports
   validateLandmarks,         // Add the new function to the exports
-  getSvgAccessibleName      // Add the new function to the exports
+  getSvgAccessibleName,      // Add the new function to the exports
+  createInPageButton         // Add the new function to the exports
 };

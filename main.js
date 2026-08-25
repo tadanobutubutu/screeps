@@ -20,3 +20,10 @@ function handleConflict() {
 }
 
 // ... existing exports
+
+// Ensure that handleConflict is exported
+module.exports = {
+  calculateGraphMetrics,
+  handleConflict,
+  // ... existing exports
+};

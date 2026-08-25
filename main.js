@@ -36,31 +36,6 @@ function toggleRotation() {
     img.style.transform = `rotate(${rotation}deg)`;
 }
 
-// Fix REACT_025 & REACT_017: Use semantic landmark elements with unique labels
-// (as the issue asks for the fix for React, I'm assuming there's some other place to apply these changes)
-
-// Ensure unique landmarks across the application
-export function ensureUniqueLandmarks(container = document) {
-  const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
-  const seenIds = new Set();
-
-  landmarks.forEach((landmarkName) => {
-    const elements = container.querySelectorAll(landmarkName);
-    elements.forEach((element) => {
-      let id = element.id;
-      if (!id) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-        element.id = id;
-      }
-      if (seenIds.has(id)) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-        element.id = id;
-      }
-      seenIds.add(id);
-    });
-  });
-}
-
 // Function for adding proper landmark regions
 export function addLandmarks(content) {
   let headerId = 'landmark-header';
@@ -137,41 +112,6 @@ export function addLandmarks(content) {
 
   return landmarkComponents;
 }
-
-const enhanceFocusVisibility = function() {
-  // Function to enhance focus visibility for keyboard navigation
-  const style = document.createElement('style');
-  style.textContent = `
-    *:focus {
-      outline: 2px solid #005fcc;
-      outline-offset: 2px;
-    }
-    svg *:focus {
-      outline: none;
-    }
-    *:focus-visible {
-      outline: 2px solid #005fcc;
-      outline-offset: 2px;
-    }
-  `;
-  document.head.appendChild(style);
-};
-
-const addressAccessibilityIssues = function() {
-  // Function to address accessibility issues:
-  // - REACT_015: Add lang attribute (already handled)
-  // - REACT_017, REACT_025, REACT_036: Not handled because the requested elements and issues are not present
-  // - REACT_041: Already handled with the createSvgIcon function
-
-  // Enhance focus visibility for keyboard navigation
-  enhanceFocusVisibility();
-
-  // Ensure unique landmarks (pass document as container)
-  ensureUniqueLandmarks();
-
-  // Fix REACT_015: Set language attribute on HTML root element
-  setLanguageAttribute('en');
-};
 
 // ... (The remaining code from original main.js)
 

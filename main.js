@@ -19,7 +19,7 @@ export const addRequiredLandmarks = () => {
   }
 
   // Add main landmark (REACT_017)
-  const mainLandmark = document.querySelector('main') || document.createElement('main');
+  const mainLandmark = document.querySelector('[role="main"]') || document.querySelector('main') || document.querySelector('#main-content') || document.querySelector('.main');
   if (mainLandmark) {
     mainLandmark.setAttribute('role', 'main');
     if (!mainLandmark.id) {
@@ -37,7 +37,7 @@ export const addRequiredLandmarks = () => {
   });
 
   // Ensure unique landmarks (REACT_025)
-  const landmarks = document.querySelectorAll('[role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="contentinfo"]');
   const uniqueIds = new Set();
   landmarks.forEach((landmark) => {
     const id = landmark.id;
@@ -174,19 +174,4 @@ export const MainComponent = () => {
 // Function to render dependency graph (in main.js originally)
 export const renderDependencyGraph = () => {
   // This function renders a dependency graph using content from dependencyGraphContent module.
-  // Import and use dependencyGraphContent from its dedicated module for better maintainability and content separation.
-  const graphContent = dependencyGraphContent || 'Default dependency graph content';
-  // Render graphContent somewhere (implementation details omitted)
-  console.log('Rendering dependency graph:', graphContent);
-};
-
-// Function to render index view (in main.js originally)
-export const renderIndexView = () => {
-  // This function renders an index view using content from indexContent module.
-  // Import and use indexContentModule from its dedicated module for better maintainability and content separation.
-  const indexContent = indexContentModule || 'Default index view content';
-  // Render indexContent somewhere (implementation details omitted)
-  console.log('Rendering index view:', indexContent);
-};
-
-export default MainComponent;
+  //

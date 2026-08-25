@@ -11,13 +11,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.getAttribute('aria-label')) {
+  if (node.hasAttribute && node.hasAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
-  if (node.getAttribute('aria-labelledby')) {
+  if (node.hasAttribute && node.hasAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = node.ownerDocument.getElementById(labelledById);
+    const labelledElement = document.getElementById ? document.getElementById(labelledById) : null;
     return labelledElement ? labelledElement.textContent : null;
   }
 
@@ -27,7 +27,7 @@ const getAccessibleName = (node) => {
     }
   }
 
-  const titleEl = node.querySelector('title');
+  const titleEl = node.querySelector ? node.querySelector('title') : null;
   if (titleEl && titleEl.textContent) {
     return titleEl.textContent;
   }
@@ -77,19 +77,19 @@ const fixTableStructure = (document) => {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
 
     if (!table.querySelector('tbody')) {
       const tbodies = table.querySelectorAll('tbody');
-      tbodies.forEach((tbody) => {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+      table.querySelectorAll('tr').forEach((row) => {
+        const rows = table.querySelectorAll('tr');
         if (rows.length > 0) {
           const newTbody = document.createElement('tbody');
           rows.forEach((row) => newTbody.appendChild(row));
-          tbody.parentNode.replaceChild(newTbody, tbody);
+          table.appendChild(newTbody);
         }
       });
     }
@@ -131,7 +131,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && svg.id) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -181,22 +181,42 @@ const ensureUniqueLandmarks = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const links = document.querySelectorAll('a');
-  links.forEach((link) => {
-    const href = link.getAttribute('href');
-    if (href && !link.textContent.trim()) {
-      const accessibleName = getAccessibleName(link);
-      if (!accessibleName) {
-        if (link.getAttribute('aria-label')) {
-          link.setAttribute('aria-label', link.getAttribute('aria-label'));
-        } else if (link.title) {
-          link.setAttribute('aria-label', link.title);
-        } else {
-          link.setAttribute('aria-label', 'Link');
-        }
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+
+  fakeLinks.forEach((link) => {
+    const button = document.createElement('button');
+
+    // Copy inner HTML (content and child elements)
+    button.innerHTML = link.innerHTML;
+
+    // Copy id if exists
+    if (link.id) {
+      button.id = link.id;
+    }
+
+    // Copy className if exists
+    if (link.className) {
+      button.className = link.className;
+    }
+
+    // Copy data attributes
+    Array.from(link.attributes).forEach((attr) => {
+      if (attr.name.startsWith('data-')) {
+        button.setAttribute(attr.name, attr.value);
       }
+    });
+
+    // Copy click handler if present
+    if (link.onclick) {
+      button.onclick = link.onclick;
+    }
+
+    // Replace the link with button
+    if (link.parentNode) {
+      link.parentNode.replaceChild(button, link);
     }
   });
+
   return document;
 };
 

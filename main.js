@@ -1,1 +1,5 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Before:
+// <div>Content without lang attribute</div>
+
+// After:
+// <div lang="en">Content with lang attribute</div>

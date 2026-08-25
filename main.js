@@ -1,14 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// Add lang attribute to HTML element (REACT_015)
 const addLangAttribute = function(html) {
     if (html && typeof html === 'string') {
         return html.replace(/<html/, '<html lang="en"');

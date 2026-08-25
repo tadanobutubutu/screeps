@@ -94,13 +94,13 @@ function formatDate(date) {
 }
 
 // REACT_015: Add lang attribute to HTML element
-function addLangAttribute(html, lang = 'en') {
+function ... lang = 'en') {
   if (!html) return html;
   const langPattern = /\s*lang\s*=\s*["'][^"']*["']/i;
   if (langPattern.test(html)) {
     return html.replace(langPattern, ` lang="${lang}"`);
   }
-  return html.replace(/(<html[^>]*)>/i, `<html$1 lang="${lang}">`);
+  return ... `<html$1 lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -148,9 +148,9 @@ function addMainLandmark(html) {
   const mainWithId = ...;
   
   if (!mainWithId) {
-    html = html.replace(/(<main)/, '<main$1 id="main-content">');
+    html = ... '<main$1 id="main-content">');
     if ... {
-      html = html.replace(/(<main[^>]*)>/, '<main$1 id="main-content" role="main">');
+      html = ... '<main$1 id="main-content" role="main">');
     }
   }
   
@@ -243,7 +243,7 @@ function fixButtonAccessibility(buttons) {
       /^button$/i,
       /^button-\d+$/i,
       /^btn-\d+$/i,
-      /^(?:placeholder|temp|tmp|test|id)\d*$/i
+      ...
     ];
     
     const hasPlaceholderId = button.id && placeholderPatterns.some(pattern => pattern.test(button.id));
@@ -253,10 +253,10 @@ function fixButtonAccessibility(buttons) {
       let semanticId = '';
       
       if (button['aria-label']) {
-        semanticId = button['aria-label'].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        semanticId = ... ... '');
       } else if (button.textContent || button.innerText) {
         const text = button.textContent || button.innerText || '';
-        semanticId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 50);
+        semanticId = ... ... '').substring(0, 50);
       } else if (button.type) {
         semanticId = `button-${button.type}`;
       } else {
@@ -267,7 +267,7 @@ function fixButtonAccessibility(buttons) {
       let finalId = semanticId;
       let counter = 1;
       while (seenIds.has(finalId)) {
-        finalId = `${semanticId}-${counter}`;
+        finalId = ...
         counter++;
       }
       
@@ -278,7 +278,7 @@ function fixButtonAccessibility(buttons) {
       let finalId = button.id;
       let counter = 1;
       while (seenIds.has(finalId)) {
-        finalId = `${button.id}-${counter}`;
+        finalId = ...
         counter++;
       }
       if (finalId !== button.id) {
@@ -288,7 +288,7 @@ function fixButtonAccessibility(buttons) {
     }
     
     // Ensure button has accessible name
-    if (!button['aria-label'] && !button['aria-labelledby'] && !button.getAttribute?.('aria-hidden')) {
+    if (!button['aria-label'] && ... && ... {
       if (button.textContent || button.innerText) {
         button['aria-label'] = (button.textContent || button.innerText || '').trim();
       }
@@ -298,8 +298,8 @@ function fixButtonAccessibility(buttons) {
   });
 }
 
-// Export the new functions, preserving the existing exports
-export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain };
+// Export all functions from main module
+export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain, renderSkipLink, renderLandmarkNavigation, formatDate };
 export * from './otherModule';
 export { myOtherFunction };
-export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility, renderSkipLink, renderLandmarkNavigation, formatDate };
+export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility };

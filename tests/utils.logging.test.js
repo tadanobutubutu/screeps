@@ -167,17 +167,28 @@ describe('utils.logging', () => {
     });
 
     describe('tryCatch', () => {
-        test('returns the function result when it succeeds', () => {
-            const result = logging.tryCatch(() => 21 * 2, 'ctx');
+        test('returns the function result when it succeeds with arguments', () => {
+            const fn = jest.fn((a, b) => a + b);
+            const result = logging.tryCatch(fn, 'successCtx', 20, 22);
             expect(result).toBe(42);
+            expect(fn).toHaveBeenCalledWith(20, 22);
         });
 
         test('logs an error and returns undefined when the function throws', () => {
-            const result = logging.tryCatch(() => {
-                throw new Error('kaboom');
-            }, 'ctx');
+            logging.clear(); // Ensure log history is clean
+            const dummyError = new Error('kaboom');
+            const fn = jest.fn(() => {
+                throw dummyError;
+            });
+            const result = logging.tryCatch(fn, 'errorCtx', 'arg1');
+
             expect(result).toBeUndefined();
-            expect(logging.getErrors().length).toBeGreaterThan(0);
+            expect(fn).toHaveBeenCalledWith('arg1');
+
+            const errors = logging.getErrors();
+            expect(errors).toHaveLength(1);
+            expect(errors[0].level).toBe('error');
+            expect(errors[0].message).toBe('[errorCtx] kaboom');
         });
     });
 });

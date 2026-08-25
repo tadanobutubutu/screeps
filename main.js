@@ -23,13 +23,19 @@ function getSvgAccessibleName(svgContent, accessibleName, isDecorative = false) 
   
   // Add aria-label to the opening svg tag
   let result = svgContent;
-  if (!svgContent.includes('aria-label')) {
-    result = svgContent.replace('<svg', `<svg aria-label="${accessibleName}"`);
+  if (!result.includes('aria-label')) {
+    result = result.replace('<svg', `<svg aria-label="${accessibleName}"`);
   }
   
   // Add title element if not present
-  if (!result.includes('<title>')) {
-    result = result.replace('<svg', `<svg><title>${accessibleName}</title>`);
+  if (!result.includes('<title')) {
+    result = result.replace('</svg>', `<title>${accessibleName}</title></svg>`).replace('<svg', '<svg><title>' + accessibleName + '</title>');
+    // Fix: if the SVG had no closing tag replacement matched, use the simpler approach
+    if (result === svgContent) {
+      result = result.replace('<svg', `<svg><title>${accessibleName}</title>`);
+    } else if (!result.includes('<title>')) {
+      result = result.replace('<svg', `<svg><title>${accessibleName}</title>`);
+    }
   }
   
   return result;

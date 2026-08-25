@@ -73,11 +73,8 @@ function getSvgAccessibleName(svgElement) {
 // New function: getLangAttribute & getFullLangAttribute
 // New function: validateUniqueLandmarks
 // New function: createInPageButton & createAccessibleLink
-// (These functions are not provided in the provided code snippet. You should implement them according to the issue description.)
+// (These functions are not provided due to brevity. Implement them according to the issue description.)
 
-// Attach event listeners
-document.querySelector('.rotate-btn').addEventListener('click', rotate);
-document.querySelector('.rotate-back-btn').addEventListener('click', rotateBack);
 // New event listener for the toggle rotation functionality
 document.querySelector('.toggle-rotation-btn').addEventListener('click', toggleRotation);
 

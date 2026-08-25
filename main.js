@@ -6,7 +6,8 @@ import { indexContent } from './content/indexContent.js';
 // Existing functions
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', getLangAttribute());
+  const lang = getLangAttribute();
+  html.setAttribute('lang', lang);
 }
 
 function getLangAttribute() {
@@ -22,7 +23,7 @@ function validateTableAccessibility() {
     headers.forEach(th => {
       if (!th.scope) {
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+        const isFirstInCol = th.cellIndex === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -59,16 +60,17 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
-    svg.setAttribute('aria-labelledby', `${svg.id || `svg-${index}`}-title`);
+    const titleId = `${svg.id || 'svg-' + index}-title`;
     const titleEl = document.createElement('title');
-    titleEl.id = `${svg.id || 'svg-' + index}-title`;
+    titleEl.id = titleId;
     titleEl.textContent = title;
-    svg.appendChild(titleEl);
+    svg.insertBefore(titleEl, svg.firstChild);
+    svg.setAttribute('aria-labelledby', titleId);
   });
 }
 
 function addMainLandmark() {
-  const main = document.getElementById('main') || document.body;
+  const main = document.querySelector('main') || document.body;
   if (main) {
     main.setAttribute('role', 'main');
     main.setAttribute('aria-label', 'Main content of the application');
@@ -76,7 +78,7 @@ function addMainLandmark() {
 }
 
 function ensureUniqueLandmarks() {
-  const landmarks = [...document.querySelectorAll('nav, footer, aside, main, header')];
+  const landmarks = document.querySelectorAll('footer, aside, main, header');
   const idMap = new Map();
 
   landmarks.forEach(landmark => {
@@ -98,17 +100,16 @@ function ensureUniqueLandmarks() {
     }
 
     idMap.set(currentId, true);
-    landmark.setAttribute('aria-labelledby', currentId);
   });
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#"]');
-  const isValid = !links.length;
+  const links = document.querySelectorAll('a:not([href])');
+  const isValid = links.length === 0;
   links.forEach(link => {
     if (link.textContent) {
-      link.setAttribute('href', 'javascript:void(0)');
-      link.setAttribute('tabindex', '-1');
+      link.setAttribute('href', '#');
+      link.setAttribute('role', 'link');
     }
   });
   return isValid;
@@ -116,7 +117,7 @@ function fixFakeLinkIssue() {
 
 // New functions requested by the issue
 function addSidebarLandmark() {
-  const sidebar = document.getElementById('sidebar');
+  const sidebar = document.querySelector('.sidebar, [role="complementary"]');
   if (sidebar) {
     sidebar.setAttribute('role', 'navigation');
     sidebar.setAttribute('aria-label', 'Sidebar navigation');
@@ -124,7 +125,7 @@ function addSidebarLandmark() {
 }
 
 function addFooterLandmark() {
-  const footer = document.getElementById('footer');
+  const footer = document.querySelector('footer');
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
     footer.setAttribute('aria-label', 'Footer information');
@@ -132,7 +133,7 @@ function addFooterLandmark() {
 }
 
 function addNavLandmark() {
-  const nav = document.getElementById('nav');
+  const nav = document.querySelector('nav');
   if (nav) {
     nav.setAttribute('role', 'navigation');
     nav.setAttribute('aria-label', 'Navigation');
@@ -141,33 +142,48 @@ function addNavLandmark() {
 
 // Helper function to add title to favicon for accessibility
 function addFaviconAccessibleName() {
-  const faviconLink = document.querySelector('link[rel="icon"]');
+  const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
   if (faviconLink) {
     faviconLink.setAttribute('aria-label', 'Favicon');
   }
 }
 
 function wrapPrimaryContentInMain() {
-  const mainElement = document.getElementById('main');
+  const mainElement = document.querySelector('main');
   if (mainElement) {
+    const existingContent = mainElement.innerHTML;
     mainElement.innerHTML = '';
-    if (document.body.firstChild) {
-      mainElement.appendChild(document.body.firstChild);
+    if (existingContent) {
+      mainElement.innerHTML = existingContent;
     }
   }
 }
 
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"], a[href$="javascript:void(0)"], a[href$="javascript:void(0)"]');
+  const links = document.querySelectorAll('a');
   let isValid = true;
   links.forEach(link => {
-    if (link.href.endsWith('#') && link.textContent.trim()) {
-      link.setAttribute('href', 'javascript:void(0)');
+    if (!link.href && link.textContent.trim()) {
+      link.setAttribute('href', '#');
       isValid = false;
     }
   });
   return isValid;
+}
+
+// Main function to address all accessibility issues
+function addressAccessibilityIssues() {
+  addLangAttribute();
+  validateTableAccessibility();
+  addSvgAccessibleNames();
+  addMainLandmark();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+  addSidebarLandmark();
+  addFooterLandmark();
+  addNavLandmark();
+  addFaviconAccessibleName();
 }
 
 // Example usage of the accessibility functions

@@ -12,6 +12,42 @@ const getLangAttribute = () => {
   return null;
 };
 
+// Function to validate landmark regions
+const validateLandmark = () => {
+  const results = {
+    valid: true,
+    errors: []
+  };
+
+  if (typeof document !== 'undefined') {
+    // Check for main landmark (should have exactly one)
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length === 0) {
+      results.valid = false;
+      results.errors.push('Missing main landmark - page should have exactly one main element');
+    } else if (mainElements.length > 1) {
+      results.valid = false;
+      results.errors.push(`Multiple main landmarks found - should have exactly one (found ${mainElements.length})`);
+    }
+
+    // Check for header landmark
+    const headerElements = document.querySelectorAll('header');
+    if (headerElements.length === 0) {
+      results.valid = false;
+      results.errors.push('Missing header landmark - page should have at least one header element');
+    }
+
+    // Check for footer landmark
+    const footerElements = document.querySelectorAll('footer');
+    if (footerElements.length === 0) {
+      results.valid = false;
+      results.errors.push('Missing footer landmark - page should have at least one footer element');
+    }
+  }
+
+  return results;
+};
+
 // Function to validate table structure
 const validateTableStructure = () => {
   const results = {
@@ -23,8 +59,8 @@ const validateTableStructure = () => {
     const tables = document.querySelectorAll('table');
 
     tables.forEach((table, index) => {
-      const ths = table.querySelectorAll('th');
-      const tds = table.querySelectorAll('td');
+      const ths = table.querySelectorAll('thead th');
+      const tds = table.querySelectorAll('tbody td');
 
       // Check if number of ths and tds match
       if (ths.length !== tds.length) {
@@ -60,6 +96,12 @@ const Root = () => {
     console.error(tableStructureError.errors);
   }
 
+  // Add validateLandmark validation
+  const landmarkError = validateLandmark();
+  if (!landmarkError.valid) {
+    console.error(landmarkError.errors);
+  }
+
   return (
     <html lang="en">
       {/* Other JSX elements... */}
@@ -76,6 +118,6 @@ const Root = () => {
   );
 };
 
-export { Root, handleRotateBack, newFunction, getLangAttribute, validateTableAccessibility };
+export { Root, handleRotateBack, newFunction, getLangAttribute, validateLandmark, validateTableAccessibility };
 
 ReactDOM.render(<Root />, ...);

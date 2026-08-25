@@ -14,12 +14,6 @@ function generateDependencyGraphData() {
       //... existing link validation logic ...
     }
 
-    // Call the landmark managing function
-    manageLandmarks();
-
-    // Call the link fixing function
-    fixFakeLink();
-
     // Add/fix 4 landmark issues (REACT_017)
     // Assuming you are using a library for landmark management
     room.htmlElement.setAttribute('role', 'region'); // Add 'region' landmark
@@ -45,15 +39,6 @@ function generateDependencyGraphData() {
   // Assuming you are using a routine to check for and validate all links
   //... existing link validation logic ...
 
-  // Add/fix 4 landmark issues (REACT_017)
-  // Assuming you are using a library for landmark management
-  room.htmlElement.setAttribute('role', 'region'); // Add 'region' landmark
-  room.container.setAttribute('role', 'article'); // Add 'article' landmark
-  // Add/fix more landmarks as needed
-
-  // Ensure unique landmarks (REACT_025)
-  // Known unique landmarks are 'region' and 'article' in this example
-
   // ... existing room processing code ...
 
   // New Function (REACT_020) to render the dependency graph
@@ -69,12 +54,11 @@ function generateDependencyGraphData() {
   // Render the dependency graph with the data
   renderDependencyGraph({ /* ... existing graph data ... */ });
 
-  return { // ... existing reduced object ...
-  };
+  return { /* ... existing reduced object ... */ };
 }
 
 // Preserve existing exports in order
-module.exports.generateDependencyGraphData = generateDependencyGraphData;
+module.exports = generateDependencyGraphData;
 
 module.exports.prototype = {
   // ... existing prototype exports ...

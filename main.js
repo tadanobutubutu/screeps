@@ -199,6 +199,14 @@ function fixTableStructureIssues(tables) {
   });
 }
 
+// REACT_027: Fix table structure issues in HTML - add scope to th elements
+export function fixTableStructureInHtml(html) {
+  if (!html) return html;
+  
+  // Add scope="col" to <th> elements that don't have a scope attribute
+  return html.replace(/<th\b(?![^>]*\bscope\s*=)([^>]*)>/gi, '<th scope="col"$1>');
+}
+
 // REACT_017: Add/fix landmark issues - ensure main landmark exists
 function addMainLandmark(html) {
   if (!html) return html;

@@ -140,4 +140,4 @@ renderDependencyGraph();
 // Existing code preserved below
 // ...
 
-export { addressAccessibilityIssues, renderDependencyGraph };
+export { dependencyGraphContent, indexContent, addressAccessibilityIssues, renderDependencyGraph };

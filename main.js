@@ -104,3 +104,4 @@ document.querySelectorAll('section').forEach(section => {
 document.querySelectorAll('a[aria-label]').forEach(link => {
   link.setAttribute('role', 'link');
 });
+// ----- END ORIGINAL CODE (unchanged) -----

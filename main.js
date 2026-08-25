@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+(function() {
+  // Hamilton.js parser
+  require('html-parser2');
+
+  // Add the <html> tag with lang attribute
+  const html = `
+    <html lang="en">
+    ${document.documentElement.outerHTML}
+  `;
+
+  // Your code goes here
+
+})();

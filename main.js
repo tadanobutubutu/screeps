@@ -44,6 +44,36 @@ const addAccessibleNamesToSVGs = () => {
   });
 };
 
+// Function to add scope attributes to table header cells
+const addScopeToTableHeaders = () => {
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Get all th elements
+    const headers = table.querySelectorAll('th');
+    
+    headers.forEach(th => {
+      // Skip if already has scope attribute
+      if (th.hasAttribute('scope')) return;
+      
+      // Determine if header is in thead or first column/row
+      const parentRow = th.closest('tr');
+      const parentThead = th.closest('thead');
+      const isFirstCell = parentRow && parentRow.cells[0] === th;
+      const isInThead = !!parentThead;
+      
+      // Determine if this is a row header or column header
+      // Row headers are typically first in a row
+      // Column headers are typically in thead
+      if (isInThead) {
+        th.setAttribute('scope', 'col');
+      } else if (isFirstCell) {
+        th.setAttribute('scope', 'row');
+      }
+    });
+  });
+};
+
 // Function to validate table structure and add scope to <th> elements
 const validateTableStructure = () => {
   const tables = document.querySelectorAll('table');
@@ -118,22 +148,6 @@ const validateTableStructure = () => {
     addScopeToTableHeaders();
   });
 };
-
-// PRESERVE all existing code, exports, and functions from current main.js
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-// ----- END ORIGINAL CODE -----
-
-// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, unique, ... addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
@@ -237,8 +251,27 @@ const wrapPrimaryContentInMain = () => {
   }
 };
 
+// PRESERVE all existing code, exports, and functions from current main.js
+// Example:
+// const someVar = require('some-module');
+// function init() { /* ... */ }
+// module.exports.loop = function() { /* ... */ }
+
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Example:
+// const someVar = require('some-module');
+// function init() { /* ... */ }
+// module.exports.loop = function() { /* ... */ }
+// ----- END ORIGINAL CODE -----
+
+// Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
+export { class1, function1, Object1, unique, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain, addScopeToTableHeaders, validateTableStructure };
+
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   fixFakeLink();
   addAccessibleNamesToSVGs();
+  addLangAttribute();
+  validateTableStructure();
+  wrapPrimaryContentInMain();
 });

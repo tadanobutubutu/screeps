@@ -49,7 +49,7 @@ function ensureUniqueLandmarks() {
     existingHeaders.forEach((header, index) => index > 0 && header.remove());
   }
   if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
+    existingFooters.forEach((footer, index) => index > 0  && footer.remove());
   }
 }
 

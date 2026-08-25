@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Address accessibility issues from insight report
 
 const getAccessibleName = (node) => {
   const { svg, title, text } = node;

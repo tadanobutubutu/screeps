@@ -87,7 +87,7 @@ function addMainLandmark(filePath) {
     const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       const bodyContent = bodyMatch[1];
-      const wrappedContent = `<main>${bodyContent}</main>`;
+      const wrappedContent = `<main role="main">${bodyContent}</main>`;
       content = content.replace(bodyContent, wrappedContent);
     }
   }
@@ -100,30 +100,46 @@ function ensureUniqueLandmarks(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   // Ensure unique accessible names for landmarks
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
+
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-    const replacements = [];
-    let count = 0;
     let match;
+    let existingIds = [];
+    let count = 0;
+
     while ((match = regex.exec(content)) !== null) {
       const attrs = match[2];
-      if (attrs.includes('id=') || attrs.includes('aria-label=')) {
-        continue;
+      if (attrs.includes('id=')) {
+        const idAttr = attrs.match(/id=['"]([^'"]*)['"]/i)[1];
+        existingIds.push(idAttr);
       }
       count++;
-      if (count > 1) {
-        const newId = `${landmark}-${count}`;
-        const newTag = `<${landmark} id="${newId}"${attrs}>`;
-        replacements.push({ index: match.index, length: match[0].length, newTag });
+    }
+
+    existingIds = Array.from(new Set(existingIds));
+
+    regex = new RegExp(`<(${landmark})([^>]*(?:id=['"])(.*?)['"][^>]*)>`, 'gi');
+
+    let updatedContent = content;
+    let index = 0;
+
+    while ((match = regex.exec(content)) !== null) {
+      const idAttr = match[3];
+      const idExists = existingIds.includes(idAttr);
+      if (!idExists || (count > 1 && idAttr === existingIds[0])) {
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${idAttr}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
+      } else {
+        // Generate unique ID based on the landmark type
+        const uniqueId = `${landmark}-${count}`;
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${uniqueId}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
+        count++;
       }
+      index = match.index + match[0].length;
     }
-    replacements.sort((a, b) => b.index - a.index);
-    for (const r of replacements) {
-      content = content.substring(0, r.index) + r.newTag + content.substring(r.index + r.length);
-    }
+
+    content = updatedContent;
   });
-  
+
   fs.writeFileSync(filePath, content);
   console.log(`Ensured unique landmarks in ${filePath}`);
 }
@@ -134,16 +150,17 @@ function addSvgAccessibleNames(filePath) {
   // Add accessible names to SVGs
   const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
-  const updatedContent = content.replace(svgRegex, (match, attrs) => {
-    const hasTitle = attrs.includes('<title') || attrs.includes('aria-label');
-    if (hasTitle) {
-      return match;
-    }
+  let updatedContent = content;
+
+  let match;
+  let idx = 0;
+
+  while ((match = svgRegex.exec(content)) !== null) {
+    idx = match.index;
+    updatedContent = updatedContent.substring(0, idx + match[0].length) + `<svg role="img" aria-label="SVG image ${svgIndex}"${match[1]}>` + updatedContent.substring(idx + match[0].length);
     svgIndex++;
-    // Add role and aria-label to SVG
-    const newAttrs = ` role="img" aria-label="SVG image ${svgIndex}"${attrs}`;
-    return `<svg${newAttrs}>`;
-  });
+  }
+
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
@@ -164,34 +181,32 @@ function addAltAttribute(filePath) {
 function replaceButtonId(filePath, newButtonId) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  
+
   // Replace my-button with the actual button id
   const buttonIdRegex = /id=["']my-button["']/gi;
   let match;
-  let replacementCount = 0;
-  
+
   // Replace id attributes
   const updatedContent = content.replace(buttonIdRegex, (match) => {
-    replacementCount++;
     return `id="${newButtonId}"`;
   });
-  
+
   // Also replace any references in aria-controls, aria-labelledby, etc.
   const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
     return `${attr}="${newButtonId}"`;
   });
-  
+
   // Replace data attributes if any
   const dataRefRegex = /data-target=["']my-button["']/gi;
   const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
     return `data-target="${newButtonId}"`;
   });
-  
+
   fs.writeFileSync(filePath, finalFinalContent);
-  console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${replacementCount} replacement(s) made)`);
-  
-  return replacementCount;
+  console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${countReplacements} replacement(s) made)`);
+
+  return countReplacements;
 }
 
 function addressAccessibilityIssues(reportPath) {

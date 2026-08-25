@@ -35,7 +35,7 @@ export function formatDate(dateString) {
     month: 'long',
     day: 'numeric'
   };
-  return new Date(dateString).toLocaleDateString('en-US', options);
+  return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
 export function validateProject(project) {
@@ -57,7 +57,7 @@ function validateTableAccessibility(htmlContent) {
     if (attrs && /scope=/i.test(attrs)) {
       return match;
     }
-    const closingBracket = attrs ? attrs.lastIndexOf('>') : -1;
+    const closingBracket = attrs ? attrs.indexOf('>') : -1;
     if (closingBracket !== -1) {
       return match.substring(0, closingBracket) + ' scope="col">';
     }
@@ -73,14 +73,14 @@ function validateTableStructure(htmlContent) {
   let modifiedContent = htmlContent;
 
   // Pattern to match table elements that need structure
-  const tableRegex = /<table(\s[^>]*)?>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table([^>]*)>([\s\S]*?)<\/table>/gi;
 
   modifiedContent = modifiedContent.replace(tableRegex, (match, attrs, content) => {
     let result = `<table${attrs || ''}>`;
 
     // Check if thead exists
-    const hasThead = /<thead[\s\S]*?<\/thead>/i.test(content);
-    const hasTbody = /<tbody[\s\S]*?<\/tbody>/i.test(content);
+    const hasThead = /<thead/i.test(content);
+    const hasTbody = /<tbody/i.test(content);
 
     // If no thead or tbody, wrap content appropriately
     if (!hasThead && !hasTbody) {
@@ -106,7 +106,8 @@ function validateTableStructure(htmlContent) {
         // Try to extract first row for thead
         const firstRowMatch = tbodyMatch[0].match(/<tr[\s\S]*?<\/tr>/i);
         if (firstRowMatch) {
-          result += `<thead><tr>${firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>')}</tr></thead>`;
+          const thContent = firstRowMatch[0].replace(/<td/gi, '<th').replace(/<\/td>/gi, '</th>');
+          result += `<thead><tr>${thContent.replace(/<th([^>]*)>/gi, '<th$1 scope="col">')}</tr></thead>`;
           const restContent = tbodyMatch[0].replace(firstRowMatch[0], '');
           result += restContent;
         } else {
@@ -134,10 +135,10 @@ function validateLandmark(htmlContent) {
   // Add main landmark if not present
   if (!/<main/i.test(htmlContent)) {
     // Wrap content in main tag
-    const bodyMatch = htmlContent.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
+    const bodyMatch = htmlContent.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       modifiedContent = modifiedContent.replace(
-        /<body(\s[^>]*)?>([\s\S]*)<\/body>/i,
+        /<body([^>]*)>([\s\S]*)<\/body>/i,
         '<body$1><main>$2</main></body>'
       );
     } else {
@@ -153,7 +154,7 @@ export const PROJECT_STATUSES = ['Active', 'Pending', 'Completed', 'Archived'];
 
 // New function to fix table structure issues (REACT_027)
 export const fixTableStructureIssues = (tableData) => {
-  if (!Array.isArray(tableData) || !tableData[0] || typeof tableData[0] !== 'object' || !tableData[0].hasOwnProperty('Header') || !tableData[0].hasOwnProperty('accessor')) {
+  if (!Array.isArray(tableData) || !tableData[0] || typeof tableData[0] !== 'object' || !tableData[0].name) {
     throw new Error('Invalid table data structure');
   }
   return tableData;
@@ -190,7 +191,7 @@ export const wrapPrimaryContentInMain = (content) => {
   return <main>{content}</main>;
 };
 
-// New function to address accessibility issues as per the insight report
+// Function to address accessibility issues as per the insight report
 function addressAccessibilityIssues() {
   // Placeholder for the actual accessibility improvements
   // This should be replaced with the real code based on the insight report
@@ -203,7 +204,7 @@ function renderDependencyGraph() {
   // This should import and use dependencyGraphContent/indexContent from the
   // appropriate modules to render the graph
   // Example:
-  // const { indexContent } = require('dependencyGraphModule');
+  // const { indexContent } = ...
   // ... rendering logic using indexContent
   console.log('Dependency graph rendered.');
 }
@@ -253,8 +254,8 @@ export default function Home({ projects }) {
       <nav role="navigation" aria-label="Main navigation" id="main-navigation">
         <ul>
           <li><a href="/">Home</a></li>
+          <li><a href="/projects">Projects</a></li>
           <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
         </ul>
       </nav>
 
@@ -263,38 +264,4 @@ export default function Home({ projects }) {
           <h2>Project List</h2>
             
           <table>
-            <caption>Project List</caption>
-            <thead>
-              <tr>
-                {columns.map((col, index) => (
-                  <th key={index}>{col.Header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {projects && projects.map((project) => (
-                <tr key={project.id}>
-                  <td>{project.name}</td>
-                  <td>{project.status}</td>
-                  <td>{project.updated}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section>
-          <h2 id="icons-heading">Accessible Icons</h2>
-          <div className="icons-container">
-            <createAccessibleSVG iconName="Settings icon" />
-            <createAccessibleSVG iconName="Home icon" />
-          </div>
-        </section>
-      </main>
-
-      <footer role="contentinfo" id="footer">
-        <p>&copy; 2024 Project Manager</p>
-      </footer>
-    </div>
-  );
-}
+            <caption>

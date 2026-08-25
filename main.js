@@ -35,8 +35,9 @@ function addAriaLabelledbyIfNeeded(elem) {
   }
 }
 
-// Add a new function for adding `aria-labelledby` to elements on initialization
 function initAriaLabels() {
+  // This function is redefined to avoid overwriting the existing code
+  // Add a new function for adding `aria-labelledby` to elements on initialization
   document.querySelectorAll('[aria-labelledby]').forEach((elem) => {
     const id = elem.getAttribute('aria-labelledby');
     const labels = document.querySelectorAll(`#${id}`);
@@ -89,7 +90,7 @@ function validateLandmark(landmark) {
   };
 }
 
-// Add a new function for validating landmark structure on elements
+// Add a function for validating landmarks
 function validateLandmarks(landmarks) {
   const validLandmarks = [];
   const invalidLandmarks = [];
@@ -106,6 +107,26 @@ function validateLandmarks(landmarks) {
   return { validLandmarks, invalidLandmarks };
 }
 
+// Add a new function for validating landmarks on elements
+function validateLandmarksOnElements(elements) {
+  const validElements = [];
+  const invalidElements = [];
+
+  elements.forEach((elem) => {
+    if (elem.tagName === 'DIV' && elem.hasAttribute('role')) {
+      const landmark = elem;
+      const validationResult = validateLandmark(landmark);
+      if (validationResult.isValid) {
+        validElements.push(landmark);
+      } else {
+        invalidElements.push({ landmark, issues: validationResult.issues });
+      }
+    }
+  });
+
+  return { validElements, invalidElements };
+}
+
 // Add a new function for getting the SVG accessible name
 function getSvgAccessibleName(svgElement) {
   if (!svgElement || !svgElement.querySelector('title')) {
@@ -120,5 +141,9 @@ module.exports = {
 
   validateLandmarkStructure, // Add the new function to the exports
   validateLandmarks,         // Add the new function to the exports
+  validateLandmarksOnElements, // Add the new function to the exports
   getSvgAccessibleName      // Add the new function to the exports
 };
+```
+
+This resolved the conflict by preserving both changes: it kept the changes of the first commit in the `addAriaLabels` function declaration and merged the new `validateLandmarksOnElements` function from the second commit. It also merged the new validation function for SVG accessible names.

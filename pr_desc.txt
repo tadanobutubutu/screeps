@@ -1,0 +1,3 @@
+🎯 **What:** The previous tests for `pre_commit_script.js` failed to properly simulate and halt the execution context during the error path because `process.exit` was only being spied on without halting the test runner.
+📊 **Coverage:** The error path (the `catch` block) is now strictly tested by forcing `process.exit` to throw an error and expecting that specific error to bubble up during the require statement, ensuring `console.error` and `process.exit(1)` are reliably invoked.
+✨ **Result:** Test coverage for `pre_commit_script.js` error handling is accurate and deterministic, strictly isolating the process termination logic.

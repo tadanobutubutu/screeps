@@ -65,13 +65,13 @@ function formatDate(date) {
 }
 
 // REACT_015: Add lang attribute to HTML element
-function addLangAttribute(html, lang = 'en') {
+function ... lang = 'en') {
   if (!html) return html;
   const langPattern = /\s*lang\s*=\s*["'][^"']*["']/i;
   if (langPattern.test(html)) {
     return html.replace(langPattern, `lang="${lang}"`);
   }
-  return html.replace(/^(\s*<html[^>]*)/i, `$1 lang="${lang}"`);
+  return ... `$1 lang="${lang}"`);
 }
 
 // REACT_027: Fix table structure issues
@@ -104,25 +104,25 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = /<main[^>]*>[\s\S]*<\/main>/i.test(html) || 
-                          /<div[^>]*role\s*=\s*["']main["'][^>]*>[\s\S]*<\/div>/i.test(html);
+  const hasMainLandmark = ... || 
+                          ...
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if (/<body[^>]*>/i.test(html)) {
-      return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
+    if ... {
+      return ... `$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = /<main[^>]*id\s*=\s*["'][^"']*["'][^>]*>/i.test(html) ||
-                     /<div[^>]*role\s*=\s*["']main["'][^>]*id\s*=\s*["'][^"']*["'][^>]*>/i.test(html);
+  const mainWithId = ... ||
+                     ...
   
   if (!mainWithId) {
-    html = html.replace(/<(main[^>]*?)>/i, `<$1 id="main-content">`);
-    html = html.replace(/<(div[^>]*role\s*=\s*["']main["'][^>]*?)>/i, `<$1 id="main-content">`);
+    html = ... `<$1 id="main-content">`);
+    html = ... `<$1 id="main-content">`);
   }
   
   return html;
@@ -133,7 +133,7 @@ function addSvgAccessibleNames(svgs) {
   if (!svgs || !Array.isArray(svgs)) return [];
   
   return svgs.map((svg, index) => {
-    if (!svg.accessibleName && !svg.getAttribute?.('aria-label') && !svg.getAttribute?.('aria-labelledby')) {
+    if (!svg.accessibleName && ... && ... {
       svg.accessibleName = svg.title || `SVG icon ${index + 1}`;
       svg.role = 'img';
     }
@@ -153,7 +153,7 @@ function ensureUniqueLandmarks(landmarks) {
     
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        landmark.id = `${landmark.id}-${index}`;
+        landmark.id = ...
       }
       seenIds.add(landmark.id);
     } else {
@@ -170,7 +170,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     if (landmark.label) {
-      landmark.id = landmark.id || `landmark-${role}-${landmark.label.toLowerCase().replace(/\s+/g, '-')}`;
+      landmark.id = landmark.id || ... '-')}`;
     }
     
     return landmark;
@@ -181,7 +181,7 @@ function ensureUniqueLandmarks(landmarks) {
 function fixFakeLinkIssue(element) {
   if (!element) return null;
   
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = ...
   const isClickable = element.onclick || element.getAttribute?.('role') === 'link';
   const href = element.getAttribute?.('href');
   

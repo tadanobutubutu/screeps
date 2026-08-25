@@ -4,6 +4,51 @@ import React from 'react';
 const dependencyGraphModule = ...
 const indexModule = require('./index');
 
+// Accessibility: Helper function to ensure SVG elements have accessible names
+// This prevents screen readers from announcing "image" or ignoring SVG elements entirely
+function ensureSvgAccessibleNames(svgContent) {
+  if (!svgContent || typeof svgContent !== 'string') {
+    return svgContent;
+  }
+  
+  // Check if the SVG already has aria-label, aria-labelledby, or a <title> element
+  const hasAriaLabel = /aria-label\s*=/i.test(svgContent);
+  const hasAriaLabelledby = /aria-labelledby\s*=/i.test(svgContent);
+  const hasTitleElement = /<title[^>]*>/i.test(svgContent);
+  const hasHiddenAttribute = /aria-hidden\s*=\s*["']true["']/i.test(svgContent);
+  
+  // If SVG already has an accessible name or is intentionally hidden, return as-is
+  if (hasAriaLabel || hasAriaLabelledby || hasTitleElement || hasHiddenAttribute) {
+    return svgContent;
+  }
+  
+  // Extract title from the SVG content if available
+  const titleMatch = svgContent.match(/<title[^>]*>([^<]*)<\/title>/i);
+  const titleText = titleMatch ? titleMatch[1].trim() : 'Dashboard Icon';
+  
+  // Add aria-labelledby attribute pointing to an existing title, or add a title element
+  if (titleMatch) {
+    // SVG has a title element, add aria-labelledby to reference it
+    const titleTagMatch = svgContent.match(/<title([^>]*)>/i);
+    const existingId = titleTagMatch && titleTagMatch[1] ? titleTagMatch[1].match(/id\s*=\s*["']([^"']+)["']/) : null;
+    
+    if (existingId) {
+      // Title already has an ID, reference it
+      return svgContent.replace(/<svg([^>]*)>/i, `<svg$1 aria-labelledby="${existingId[1]}">`);
+    } else {
+      // Add ID to existing title and reference it
+      const titledSvgContent = svgContent.replace(
+        /<title([^>]*)>/i,
+        `<title$1 id="svg-title-${Math.random().toString(36).substr(2, 9)}">`
+      );
+      return titledSvgContent;
+    }
+  }
+  
+  // If no title exists, add aria-label with a default descriptive text
+  return svgContent.replace(/<svg([^>]*)>/i, `<svg$1 aria-label="${titleText}">`);
+}
+
 // Accessibility: Updated dependencyGraphFunction to use dependencyGraphContent directly
 // with proper accessibility attributes and semantic HTML
 function dependencyGraphFunction() {
@@ -28,7 +73,7 @@ function dependencyGraphFunction() {
   }
 
   // New function for ensuring unique landmarks
-  function ensureUniqueLandmarks(content) {
+  function ... {
     // Ensure the returned content has proper landmark structure
     // Keep a single <main> landmark; use <section> for other regions
     if (!content || !content.render) {
@@ -107,7 +152,7 @@ function dependencyGraphFunction() {
   // This step remains to be implemented based on the specific accessibility issues found in the report
 
   // Apply unique landmarks fix to the content before returning
-  const fixedContent = ensureUniqueLandmarks(dependencyGraphContent);
+  const fixedContent = ...
 
   return fixedContent;
 }
@@ -121,7 +166,7 @@ function indexFunction() {
 
   // Apply ensureUniqueLandmarks to index content as well
   // This ensures the index view also follows the single <main> landmark pattern
-  const fixedContent = ensureUniqueLandmarks ? ensureUniqueLandmarks(indexContent) : indexContent;
+  const fixedContent = ensureUniqueLandmarks ? ... : indexContent;
 
   // Accessibility: Add back any required exports that might have been removed (if any)
   // This step is optional since the index view doesn't directly import any external modules
@@ -135,8 +180,8 @@ function indexFunction() {
 function ensureLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
     const htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
+    if ... {
+      ... 'en');
     }
   }
 }
@@ -149,4 +194,5 @@ module.exports = {
   indexFunction,
   ensureLangAttribute,
   ensureUniqueLandmarks,
+  ensureSvgAccessibleNames,
 };

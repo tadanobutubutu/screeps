@@ -11,14 +11,14 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.hasAttribute('aria-label')) {
-    return node.getAttribute('aria-label');
+  if (node.hasAttribute && node.hasAttribute('aria-labelledby')) {
+    const labelledById = node.getAttribute('aria-labelledby');
+    const labelledElement = node.ownerDocument ? node.ownerDocument.getElementById(labelledById) : null;
+    return labelledElement ? labelledElement.textContent : null;
   }
 
-  if (node.hasAttribute('aria-labelledby')) {
-    const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = document.getElementById(labelledById);
-    return labelledElement ? labelledElement.textContent : null;
+  if (node.hasAttribute && node.hasAttribute('aria-label')) {
+    return node.getAttribute('aria-label');
   }
 
   if (node.tagName === 'INPUT' && node.type !== 'submit' && node.type !== 'reset') {
@@ -27,7 +27,7 @@ const getAccessibleName = (node) => {
     }
   }
 
-  const titleEl = node.querySelector('title');
+  const titleEl = node.querySelector ? node.querySelector('title') : null;
   if (titleEl && titleEl.textContent) {
     return titleEl.textContent;
   }
@@ -84,12 +84,12 @@ const fixTableStructure = (document) => {
 
     if (!table.querySelector('tbody')) {
       const tbodies = table.querySelectorAll('tbody');
-      table.querySelectorAll('tr').forEach((row) => {
-        const rows = Array.from(table.querySelectorAll('tr'));
+      tbodies.forEach((tbody) => {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
         if (rows.length > 0) {
           const newTbody = document.createElement('tbody');
           rows.forEach((row) => newTbody.appendChild(row));
-          table.appendChild(newTbody);
+          tbody.parentNode.replaceChild(newTbody, tbody);
         }
       });
     }
@@ -131,7 +131,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -144,31 +144,33 @@ const addSvgAccessibleNames = (document) => {
 };
 
 const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    const seenRoleIds = new Set();
-
+  const landmarkTypes = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+  
+  landmarkTypes.forEach((tagName) => {
+    const elements = document.querySelectorAll(tagName);
+    const usedIds = new Set();
+    
     elements.forEach((element, index) => {
-      const id = element.id;
-
-      if (id) {
-        if (seenRoleIds.has(id)) {
-          const newId = `${role}-${index + 1}`;
+      const existingId = element.id;
+      
+      if (existingId) {
+        if (usedIds.has(existingId)) {
+          let newId = `${tagName}-${index + 1}`;
+          let counter = 1;
+          while (usedIds.has(newId)) {
+            newId = `${tagName}-${index + 1}-${counter}`;
+            counter++;
+          }
           element.id = newId;
           usedIds.add(newId);
-          seenRoleIds.add(newId);
         } else {
-          seenRoleIds.add(id);
-          usedIds.add(id);
+          usedIds.add(existingId);
         }
       } else {
-        let newId = `${role}-${index + 1}`;
+        let newId = `${tagName}-${index + 1}`;
         let counter = 1;
         while (usedIds.has(newId)) {
-          newId = `${role}-${index + 1}-${counter}`;
+          newId = `${tagName}-${index + 1}-${counter}`;
           counter++;
         }
         element.id = newId;
@@ -176,7 +178,7 @@ const ensureUniqueLandmarks = (document) => {
       }
     });
   });
-
+  
   return document;
 };
 
@@ -223,7 +225,7 @@ const fetchAPI = async (url) => {
 const addCaptionToTable = (table) => {
   const tableHeader = table.querySelector('caption');
   if (tableHeader && tableHeader.length > 0) return;
-  const caption = document.createElement('caption');
+  const caption = table.ownerDocument.createElement('caption');
   caption.textContent = table.id || `Table ${table.dataset.testid}`;
   table.insertBefore(caption, table.firstChild);
 };

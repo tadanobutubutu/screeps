@@ -1,14 +1,14 @@
 const CONFIG = { debug: true };
 const helper = require('./helper');
 
-import { compute } from './math';
-import { transform } from './utils';
+const { compute } = require('./math');
+const { transform } = require('./utils');
 
-export function newFunction1() {
+function newFunction1() {
   // Example implementation for new functionality
   return compute(42);
 }
-export function newFunction2() {
+function newFunction2() {
   // Example implementation for additional functionality
   return transform('test');
 }

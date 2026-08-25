@@ -126,6 +126,65 @@ function fixMultipleMainLandmarks() {
   return fixedCount;
 }
 
+// REACT_025: Dynamically observe and fix multiple main landmarks (handles React re-renders)
+function observeAndFixMainLandmarks() {
+  const fix = () => {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length <= 1) return;
+
+    // Keep the first main, convert others to section with role="region"
+    for (let i = 1; i < mainElements.length; i++) {
+      const mainEl = mainElements[i];
+      const section = document.createElement('section');
+      section.setAttribute('role', 'region');
+      // Preserve original attributes except role
+      Array.from(mainEl.attributes).forEach(attr => {
+        if (attr.name !== 'role') {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Add aria-label if not present
+      if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
+        section.setAttribute('aria-label', `Content section ${i + 1}`);
+      }
+      // Move children
+      while (mainEl.firstChild) {
+        section.appendChild(mainEl.firstChild);
+      }
+      // Replace main with section
+      mainEl.parentNode.replaceChild(section, mainEl);
+    }
+  };
+
+  // Initial fix
+  fix();
+
+  // Observe dynamic changes (e.g., React updates)
+  const observer = new MutationObserver((mutations) => {
+    let hasNewMain = false;
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList') {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeName === 'MAIN') {
+            hasNewMain = true;
+            break;
+          }
+          if (node.querySelectorAll && node.querySelectorAll('main').length > 0) {
+            hasNewMain = true;
+            break;
+          }
+        }
+      }
+      if (hasNewMain) break;
+    }
+    if (hasNewMain) {
+      fix();
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 // REACT_025: Validate that only one main landmark exists
 function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
@@ -307,3 +366,123 @@ function fixFakeLinkIssue() {
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from
 // their respective modules for better maintainability and content separation.
+
+/**
+ * Render the dependency graph view using the imported dependencyGraphContent module.
+ * This function identifies the container element and populates it with the 
+ * dependency graph content from the appropriate module.
+ * 
+ * @param {string} containerId - The ID of the container element to render the graph in
+ * @param {Object} options - Optional configuration options for rendering
+ * @returns {HTMLElement} The rendered dependency graph container
+ */
+function renderDependencyGraph(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Dependency graph container with ID "${containerId}" not found`);
+    return null;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Get content from the dependencyGraphContent module
+  const graphContent = dependencyGraphContent(options);
+
+  // Append the content to the container
+  if (typeof graphContent === 'string') {
+    container.innerHTML = graphContent;
+  } else if (graphContent instanceof HTMLElement) {
+    container.appendChild(graphContent);
+  } else if (Array.isArray(graphContent)) {
+    graphContent.forEach(item => {
+      if (typeof item === 'string') {
+        container.innerHTML += item;
+      } else if (item instanceof HTMLElement) {
+        container.appendChild(item);
+      }
+    });
+  }
+
+  return container;
+}
+
+/**
+ * Render the index view using the imported indexContent module.
+ * This function identifies the container element and populates it with the
+ * index content from the appropriate module.
+ * 
+ * @param {string} containerId - The ID of the container element to render the index in
+ * @param {Object} options - Optional configuration options for rendering
+ * @returns {HTMLElement} The rendered index view container
+ */
+function renderIndexView(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Index view container with ID "${containerId}" not found`);
+    return null;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Get content from the indexContent module
+  const content = indexContent(options);
+
+  // Append the content to the container
+  if (typeof content === 'string') {
+    container.innerHTML = content;
+  } else if (content instanceof HTMLElement) {
+    container.appendChild(content);
+  } else if (Array.isArray(content)) {
+    content.forEach(item => {
+      if (typeof item === 'string') {
+        container.innerHTML += item;
+      } else if (item instanceof HTMLElement) {
+        container.appendChild(item);
+      }
+    });
+  }
+
+  return container;
+}
+
+// Main entry: Address all accessibility issues
+function addressAccessibilityIssues() {
+  addLangAttribute();
+  fixTableStructure();
+  addLandmarkRegions();
+  addSvgAccessibleNames();
+  fixFaviconAccessibility();
+  fixFakeLinkIssue();
+}
+
+// Example usage of the accessibility functions
+addressAccessibilityIssues();
+addLandmarkRegions();
+observeAndFixMainLandmarks();
+
+// REACT_017: Validate landmark elements for accessibility
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  const validLandmarkRoles = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article', 'search'];
+  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+  return validLandmarkRoles.includes(role);
+}
+
+// REACT_017: Validate overall landmark structure
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('header, footer, nav, main, aside, section[aria-label], article, [role="search"]');
+  let hasIssues = false;
+  let landmarkCount = 0;
+  landmarks.forEach(landmark => {
+    if (!validateLandmark(landmark)) {
+      hasIssues = true;
+    }
+    landmarkCount++;
+  });
+  return {
+    valid: !hasIssues,
+    landmarkCount
+  };
+}

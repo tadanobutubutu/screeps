@@ -12,8 +12,22 @@ function renderDependencyGraphContent(data) {
   document.querySelector('#dependencyGraph .dependencyGraph').innerHTML = data;
 }
 
-// Export renderDependencyGraphContent function
+// Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks goes here.
+  // This function is to be added as per the issue report.
+}
+
+// Fix fake link issue
+function fixFakeLinks() {
+  // Implementation for fixing fake link issues goes here.
+  // This function is to be added as per the issue report.
+}
+
+// Export renderDependencyGraphContent, ensureUniqueLandmarks, and fixFakeLinks functions
 module.exports = {
   renderDependencyGraphContent,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
   renderGraphContent // original export preserves for calling from another file
 };

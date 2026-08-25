@@ -122,7 +122,7 @@ const validateTableStructureAndScopeTh = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
+export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain, ensureUniqueMainLandmark };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
@@ -226,8 +226,39 @@ const wrapPrimaryContentInMain = () => {
   }
 };
 
+// ==== NEW CODE TO ADDRESS REACT_025 (Ensure Unique Main Landmark) ====
+// Ensure that only one <main> landmark exists on the page.
+// Convert any extra <main> elements to <section> to resolve duplicate landmarks.
+
+const ensureUniqueMainLandmark = () => {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Convert all extra <main> elements to <section>
+    for (let i = 1; i < mainElements.length; i++) {
+      const extraMain = mainElements[i];
+      const section = document.createElement('section');
+      
+      // Copy all attributes from the extra <main> to the new <section>
+      for (const attr of extraMain.attributes) {
+        section.setAttribute(attr.name, attr.value);
+      }
+      
+      // Move all children from the extra <main> to the new <section>
+      while (extraMain.firstChild) {
+        section.appendChild(extraMain.firstChild);
+      }
+      
+      // Replace the extra <main> element with the <section>
+      if (extraMain.parentNode) {
+        extraMain.parentNode.replaceChild(section, extraMain);
+      }
+    }
+  }
+};
+
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   fixFakeLink();
   wrapPrimaryContentInMain();
+  ensureUniqueMainLandmark();
 });

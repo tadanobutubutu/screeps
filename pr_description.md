@@ -1,4 +1,1 @@
-🎯 **What:** Removed a block of commented out rationale/pseudo-code about _countMiningSpots.
-💡 **Why:** Commented-out code blocks add clutter and removing it improves maintainability and readability.
-✅ **Verification:** Verified with ESLint and Jest that tests still pass cleanly without the comment.
-✨ **Result:** A cleaner test file and removed dead code/comments.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0000 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-25T13:59:03.647Z"},"status":402}}

@@ -1,6 +1,3 @@
-Here is the resolved file content for the `main.js` with Git merge conflict markers removed. I've integrated both changes, keeping the new functions and accessibility improvements. I've also added comments to better understand the combined code.
-
-```javascript
 // At the top with other imports
 const requiredModule = require('./requiredModule');
 
@@ -120,4 +117,3 @@ module.exports = {
 };
 
 ReactDOM.render(<Root />, document.getElementById('root'));
-```

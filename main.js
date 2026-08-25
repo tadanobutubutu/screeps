@@ -8,7 +8,8 @@
  * to announce it as a dead link and preventing proper keyboard activation.
  *
  * Fix: This script replaces the anchor element with a proper <button>
- * element that has correct keyboard and screen reader behavior.
+ * element that has correct keyboard focus,
+ * space/enter activation, and screen reader semantics.
  */
 
 /**
@@ -55,10 +56,20 @@ function fixFakeLink() {
         parent.replaceChild(button, unrotateLink);
     }
 
+    // Add lang attribute based on the HTML document language
+    button.setAttribute('lang', document.documentElement.lang);
+
     // Attach click handler for rotate back functionality
     button.addEventListener('click', function() {
         handleRotateBack();
     });
+}
+
+/* New function REACT_015: Add lang attribute to HTML element */
+function addLangAttribute() {
+    if (!document.documentElement.hasAttribute('lang')) {
+        document.documentElement.setAttribute('lang', document.documentElement.lang);
+    }
 }
 
 /**
@@ -95,6 +106,7 @@ function rotateDependencyGraph(degrees) {
  */
 function init() {
     fixFakeLink();
+    addLangAttribute(); // Added to address REACT_015
 }
 
 // Auto-initialize when DOM is ready

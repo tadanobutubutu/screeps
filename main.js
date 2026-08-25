@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Address accessibility issues from insight report
+
+module.exports = {
+  loop: function() {
+    // Main game loop
+    for (var name in Game.rooms) {
+      var room = Game.rooms[name];
+      console.log('Room "' + name + '" has ' + room.controller.level + ' level controller');
+    }
+  }
+};

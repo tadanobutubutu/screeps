@@ -1,3 +1,4 @@
+// TODO: Implement the new function as per the issue requirements
 // Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
@@ -85,13 +86,13 @@ function initAriaLabels() {
  * @param {Object} context - The React context containing window and document references
  * @returns {HTMLElement|null} - The created main element or null if no content found
  */
-function wrapPrimaryContentInMain(context) {
+function wrapMainElement(context) {
   if (!context || !context.document) return null;
   
   const { document } = context;
   
   // Check if a main element already exists
-  const existingMain = document.querySelector('main');
+  const existingMain = document.querySelector('[role="main"]');
   if (existingMain) {
     return existingMain;
   }
@@ -157,6 +158,7 @@ function fixTableStructure(context) {
     let caption = table.querySelector('caption');
     if (!caption) {
       caption = document.createElement('caption');
+      caption.textContent = 'Table';
       if (table.firstChild) {
         table.insertBefore(caption, table.firstChild);
       } else {
@@ -170,7 +172,7 @@ function fixTableStructure(context) {
     if (firstRow) {
       const cells = firstRow.querySelectorAll('td');
       cells.forEach((cell) => {
-        if (!cell.hasAttribute('headers') && !cell.hasAttribute('scope')) {
+        if (cell.tagName !== 'TH' && !cell.getAttribute('scope')) {
           const th = document.createElement('th');
           th.setAttribute('scope', 'col');
           th.textContent = cell.textContent;
@@ -203,7 +205,7 @@ function addMainLandmark(context) {
   const { document } = context;
   
   // Check if main landmark already exists
-  const existingMain = document.querySelector('main, [role="main"]');
+  const existingMain = document.querySelector('[role="main"]');
   if (existingMain) {
     return existingMain;
   }
@@ -229,7 +231,7 @@ function addMainLandmark(context) {
  * @param {Object} context - The React context containing window and document references
  * @returns {number} - The number of landmark issues fixed
  */
-function ensureUniqueLandmarks(context) {
+function ensureUniqueLandmarkNames(context) {
   if (!context || !context.document) return 0;
   
   const { document } = context;
@@ -293,38 +295,4 @@ function addSvgAccessibleNames(context, svgNames = {}) {
   svgs.forEach((svg) => {
     const svgId = svg.getAttribute('id');
     
-    // Check if SVG already has an accessible name
-    const hasTitle = svg.querySelector('title');
-    const hasAriaLabel = svg.getAttribute('aria-label');
-    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
-    
-    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
-      // Try to use provided name from map
-      const name = svgNames[svgId];
-      
-      if (name) {
-        svg.setAttribute('aria-label', name);
-        namesAdded++;
-      } else if (svgId) {
-        // Create a title element as fallback
-        const title = document.createElement('title');
-        title.textContent = svgId.replace(/-/g, ' ').replace(/([A-Z])/g, ' $1').trim();
-        title.setAttribute('id', `${svgId}-title`);
-        
-        if (svg.firstChild) {
-          svg.insertBefore(title, svg.firstChild);
-        } else {
-          svg.appendChild(title);
-        }
-        
-        svg.setAttribute('aria-labelledby', `${svgId}-title`);
-        namesAdded++;
-      }
-    }
-  });
-  
-  return namesAdded;
-}
-
-/**
- * Fixes
+    // Check if SVG already has

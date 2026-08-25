@@ -65,10 +65,11 @@ headerLandmark.id = 'header-landmark';
 headerLandmark.setAttribute('role', 'banner');
 document.body.insertBefore(headerLandmark, document.body.firstChild);
 
-const mainLandmark = document.createElement('main');
-mainLandmark.id = 'main-content';
-mainLandmark.setAttribute('role', 'main');
-headerLandmark.appendChild(mainLandmark);
+// Add main landmark to affected files
+const mainLandmarks = document.querySelectorAll('main');
+mainLandmarks.forEach(main => {
+  main.setAttribute('role', 'main');
+});
 
 const footerLandmark = document.createElement('footer');
 footerLandmark.id = 'footer-landmark';

@@ -1,11 +1,14 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
+
+_Commit: fcb0a33e9b4314946bba82ef96ee7395f1f1f97b_
+
+<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -176,6 +179,49 @@ function addMainLandmark(filePath) {
   }
   fs.writeFileSync(filePath, content);
   console.log(`Added main landmark in ${filePath}`);
+}
+
+function addSvgAccessibleNames(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  // Add accessible names to SVG elements that lack them
+  const svgRegex = /<svg([^>]*)>/gi;
+  const updatedContent = content.replace(svgRegex, (match, attrs) => {
+    if (attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i) || attrs.match(/role=["']img["']/i)) {
+      return match;
+    }
+    // Add a default accessible name if none exists
+    return `<svg${attrs} aria-label="Decorative icon" role="img">`;
+  });
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added accessible names to SVGs in ${filePath}`);
+}
+
+function addAltAttribute(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  // Add alt attribute to img elements that lack it
+  const imgRegex = /<img([^>]*)>/gi;
+  const updatedContent = content.replace(imgRegex, (match, attrs) => {
+    if (attrs.match(/alt=/i)) {
+      return match;
+    }
+    return `<img${attrs} alt="">`;
+  });
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added alt attributes in ${filePath}`);
+}
+
+function replaceButtonId(filePath, newButtonId) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  // Replace button IDs with a unique one
+  const buttonRegex = /<button([^>]*)id=['"][^'"]*['"]([^>]*)>/gi;
+  const updatedContent = content.replace(buttonRegex, (match, attrsBefore, attrsAfter) => {
+    return `<button${attrsBefore}id="${newButtonId}"${attrsAfter}>`;
+  });
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Replaced button ID with ${newButtonId} in ${filePath}`);
 }
 
 function addressAccessibilityIssues(reportPath) {

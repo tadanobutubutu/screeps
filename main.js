@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 const PrimaryContent = () => {
   // Your primary content here
   return (
-    <div className="primary-content">
+    <div ...
       {/* ... */}
     </div>
   );
@@ -16,7 +16,7 @@ const App = () => {
     <div>
       {/* ... Other components or navigation ... */}
 
-      {/* Wrap the primary content in a <main> element */}
+      {/* Primary content wrapped in a single <main> landmark */}
       <main>
         <PrimaryContent />
       </main>
@@ -26,4 +26,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...);

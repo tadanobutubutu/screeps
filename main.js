@@ -1,5 +1,7 @@
-// main.js - React component with accessibility fixes for REACT_027
+// main.js - Dashboard component with DataTable sub-component
 import React from 'react';
+import { useRef, useCallback } from 'react';
+import './Dashboard.scss';
 
 const DataTable = ({ columns, data }) => {
   return (
@@ -25,4 +27,29 @@ const DataTable = ({ columns, data }) => {
   );
 };
 
-export default DataTable;
+function Dashboard() {
+  //... other Dashboard function code
+
+  return (
+    <div className="Dashboard">
+      <h1>Dashboard</h1>
+      <main>
+        {/* Render current content inside a main for only one element */}
+        {renderErrorState()}
+        {renderSuccessState()}
+      </main>
+      {/* Keep the copyErrorFunc and fetchStats functions outside the main element */}
+      <button onClick={copyErrorFunc} aria-label={'Error copy button'}>
+        {/* ... */}
+      </button>
+      <button onClick={fetchStats} disabled={refreshing} aria-label={'Refresh button'}>
+        {/* ... */}
+      </button>
+    </div>
+  );
+}
+
+// [... other functions...]
+
+export { DataTable };
+export default Dashboard;

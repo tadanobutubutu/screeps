@@ -10,8 +10,11 @@
 //_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 
 <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = document.querySelector('[data-dependency-graph]');
 if (dependencyGraph) {
+  dependencyGraph.setAttribute('role', 'region');
+  dependencyGraph.setAttribute('aria-label', 'Dependency Tree');
+  dependencyGraph.innerHTML = dependencyGraph.innerHTML.replace(/\.\.\./g, '');
   dependencyGraph.setAttribute('role', 'tree');
   dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
 }
@@ -19,7 +22,7 @@ if (dependencyGraph) {
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('[data-dependency-graph]');
   if (container) {
     container.innerHTML = data;
   }
@@ -28,7 +31,7 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -43,11 +46,11 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
-  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
+  const fakeLinks = document.querySelectorAll('div[role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
       link.setAttribute('aria-label', 'Button');
     }
   });
@@ -56,17 +59,16 @@ function fixFakeLinks() {
 // Add a new function to fix table structure issues
 function fixTableStructureIssues() {
   // Ensure each table row has a TH or TD element
-  const tables = document.getElementsByTagName('table');
+  const tables = document.querySelectorAll('table');
   for (let i = 0; i < tables.length; i++) {
     const tableRow = tables[i].rows;
     for (let j = 1; j < tableRow.length; j++) {
       const cell = tableRow[j].cells[0];
-      if (!cell.hasAttribute('scope') && (cell.tagName.toLowerCase() !== 'th' && cell.tagName.toLowerCase() !== 'td')) {
+      if (cell && cell.tagName.toLowerCase() !== 'th' && cell.tagName.toLowerCase() !== 'td') {
         cell.innerHTML = '';
-        const newCell = document.createElement(cell.tagName.toLowerCase() === 'td' ? 'th' : 'td');
+        const newCell = document.createElement(cell.tagName === 'TH' ? 'td' : 'th');
         newCell.setAttribute('scope', 'row');
-        cell.parentNode.insertBefore(newCell, cell);
-        newCell.appendChild(cell.childNodes);
+        newCell.appendChild(cell);
       }
     }
   }
@@ -75,7 +77,7 @@ function fixTableStructureIssues() {
 // Add the new function to fix table header cell scope
 function fixTableHeaderCellScope() {
   // Ensure each table header cell has a scope attribute
-  const tableHeaders = document.getElementsByTagName('th');
+  const tableHeaders = document.querySelectorAll('th');
   for (let i = 0; i < tableHeaders.length; i++) {
     if (!tableHeaders[i].hasAttribute('scope')) {
       tableHeaders[i].setAttribute('scope', 'col');
@@ -94,4 +96,7 @@ module.exports = {
 };
 
 // Call renderGraphContent function from another file
-renderDependencyGraphContent(someData);
+const { renderGraphContent } = require('./graphRenderer');
+if (dependencyGraph) {
+  renderGraphContent(dependencyGraph);
+}

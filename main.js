@@ -105,8 +105,8 @@ function wrapPrimaryContentInMain() {
   const children = Array.from(body.children);
   const primaryChildren = children.filter((child) => {
     const tag = child.tagName ? child.tagName.toLowerCase() : '';
-    const role = child.getAttribute('role') || tagName;
-    return !landmarkTags.includes(role) && !landmarkRoles.includes(role);
+    const role = child.getAttribute('role') || tag;
+    return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
   });
 
   if (primaryChildren.length > 0) {
@@ -279,5 +279,8 @@ function establishLandmarkRegions() {
 addLangAttribute();
 fixTableStructure();
 addMainLandmark();
+wrapPrimaryContentInMain();
 ensureUniqueLandmarks();
+addSvgAccessibleNames();
 fixFakeLinks();
+establishLandmarkRegions();

@@ -1,6 +1,5 @@
 // ... existing imports and declarations ...
 
-// TODO: Add back any required exports that might have been?
 // Restoring previously removed exports below
 
 // FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT

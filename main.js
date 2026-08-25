@@ -42,17 +42,17 @@ const addProperLandmarkRegions = function(content) {
         let result = content;
 
         // Add banner landmark (header) if not present
-        if (!/<header/gi.test(result) && !/<banner/gi.test(result)) {
+        if (!/<header/gi.test(result)) {
             const bodyMatch = result.match(/<body[^>]*>/i);
             if (bodyMatch) {
                 result = result.replace(bodyMatch[0], bodyMatch[0] + '<header></header>');
             } else {
-                result = result + '<header></header>';
+                result = '<header></header>' + result;
             }
         }
 
         // Add contentinfo landmark (footer) if not present
-        if (!/<footer/gi.test(result) && !/<contentinfo/gi.test(result)) {
+        if (!/<footer/gi.test(result)) {
             result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 
@@ -81,9 +81,9 @@ const addMissingLandmarks = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/gi.test(result)) {
-            const bannerMatch = result.match(/<body[^>]*>/i);
-            if (bannerMatch) {
-                result = result.replace(bannerMatch[0], bannerMatch[0] + '<header></header>');
+            const bodyMatch = result.match(/<body[^>]*>/i);
+            if (bodyMatch) {
+                result = result.replace(bodyMatch[0], bodyMatch[0] + '<header></header>');
             }
         }
 

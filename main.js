@@ -3,6 +3,9 @@
 // TODO: Address accessibility issues from insight report:
 // - ... (You can add more functions as needed)
 
+// Import dependency graph and index content from appropriate modules
+const { dependencyGraphContent, indexContent } = require('./content');
+
 // Add lang attribute to HTML element (REACT_015)
 const addLangAttribute = function(html) {
     if (html && typeof html === 'string') {
@@ -68,18 +71,22 @@ const addProperLandmarkRegions = function(content) {
 
 // ADD A NEW FUNCTION: REACT_038: RENDER DEPENDENCY GRAPHS
 const renderDependencyGraph = function(layout) {
-    // Conditionally render a dependency graph using either the horizontal or vertical layout
+    // Use dependencyGraphContent from the appropriate module to render the graph
     // Based on the provided layout parameter
     if (layout === 'horizontal') {
-        return renderDependencyGraph1();
+        return dependencyGraphContent.horizontal;
     } else if (layout === 'vertical') {
-        return renderDependencyGraph2();
+        return dependencyGraphContent.vertical;
     }
+    // Return default if layout doesn't match
+    return dependencyGraphContent.default;
 };
 
 // Adjust export for the new functions
 module.exports = {
     ...module.exports,
     addProperLandmarkRegions, // Include the new function in the exports
-    renderDependencyGraph // Include the new function in the exports as well
+    renderDependencyGraph, // Include the new function in the exports as well
+    dependencyGraphContent, // Export the dependency graph content for use by other modules
+    indexContent // Export the index content for use by other modules
 };

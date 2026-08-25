@@ -33,3 +33,7 @@
 ## 2026-08-23 - Hoisting Method Validation in Builder Role Search Loops
 **Learning:** Evaluating object and method presence checks (e.g. `creep.pos && typeof creep.pos.getRangeTo === 'function'`) inside high-frequency `for` loops in builder energy retrieval routines (`_getEnergyFromDropped` and `_getEnergyFromContainer`) repeatedly evaluates property lookups on every loop iteration per creep per tick. Hoisting `const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function';` outside the loop eliminates redundant property access operations.
 **Action:** Hoist position and method existence flags before iterating through resource/structure candidate arrays in creep energy gathering functions.
+
+## 2026-08-25 - Single-Pass Loop for Attacker Counting in Spawn Target Evaluation
+**Learning:** Using `Array.prototype.filter` to count hostile attacker creeps in `spawnManager._getTargetCounts` creates unnecessary array allocations and callback function overhead on every tick. Replacing `enemies.filter(...).length` with a single-pass `for` loop directly counting matching hostiles eliminates intermediate array allocations and closure creation.
+**Action:** Use single-pass `for` loops when evaluating target creep count thresholds based on hostile presence.

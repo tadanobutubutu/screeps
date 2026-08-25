@@ -1,4 +1,5 @@
 // Address accessibility issues from insight report
+// TODO: This is the existing code that needs to be preserved
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -17,18 +18,18 @@ const getSvgAccessibleName = (svgElement) => {
   if (!svgElement) return '';
 
   // Check for aria-label
-  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) return ariaLabel;
 
   // Check for aria-labelledby
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
+    const labelElement = ...
     return labelElement ? labelElement.textContent : '';
   }
 
   // Check for title element inside SVG
-  const titleElement = svgElement.querySelector('title');
+  const titleElement = ...
   if (titleElement) return titleElement.textContent;
 
   return '';
@@ -55,13 +56,13 @@ const createInPageButton = (options = {}) => {
       return { errors };
     }
 
-    const tables = document.querySelectorAll('table');
+    const tables = ...
     if (tables.length > 0) {
       tables.forEach((table, tableIndex) => {
-        const rows = table.querySelectorAll('tr');
+        const rows = ...
         rows.forEach((row, rowIndex) => {
-          const cells = row.querySelectorAll('td, th');
-          const headerCells = row.querySelectorAll('th');
+          const cells = ... th');
+          const headerCells = ...
 
           // Check for empty cells
           cells.forEach((cell, cellIndex) => {
@@ -97,10 +98,10 @@ const createInPageButton = (options = {}) => {
       return { errors };
     }
 
-    const tables = document.querySelectorAll('table');
+    const tables = ...
     tables.forEach((table, index) => {
       // Check if table has proper headers
-      const headers = table.querySelectorAll('th');
+      const headers = ...
       const hasHeaders = headers.length > 0;
 
       if (!hasHeaders) {
@@ -113,7 +114,7 @@ const createInPageButton = (options = {}) => {
 
       // Check for scope attribute on headers
       headers.forEach((header) => {
-        const scope = header.getAttribute('scope');
+        const scope = ...
         if (!scope) {
           errors.push({
             message: `Table header missing scope attribute`,
@@ -124,8 +125,8 @@ const createInPageButton = (options = {}) => {
       });
 
       // Check for caption or summary
-      const caption = table.querySelector('caption');
-      const summary = table.getAttribute('summary');
+      const caption = ...
+      const summary = ...
       if (!caption && !summary) {
         errors.push({
           message: `Table ${index + 1} is missing a caption or summary`,
@@ -149,7 +150,7 @@ const createInPageButton = (options = {}) => {
     }
 
     // Check for main landmark (should have exactly one)
-    const mainElements = document.querySelectorAll('main, [role="main"]');
+    const mainElements = ... [role="main"]');
     if (mainElements.length === 0) {
       errors.push({
         message: 'Page is missing a main landmark',
@@ -165,8 +166,8 @@ const createInPageButton = (options = {}) => {
     }
 
     // Check for header/nav landmarks
-    const navElements = document.querySelectorAll('nav, [role="navigation"]');
-    const headerElements = document.querySelectorAll('header, [role="banner"]');
+    const navElements = ... ...
+    const headerElements = ... [role="banner"]');
 
     if (headerElements.length > 1) {
       errors.push({
@@ -177,7 +178,7 @@ const createInPageButton = (options = {}) => {
     }
 
     // Check for footer landmark
-    const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+    const footerElements = ... [role="contentinfo"]');
     if (footerElements.length > 1) {
       errors.push({
         message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,

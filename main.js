@@ -125,6 +125,65 @@ function fixMultipleMainLandmarks() {
   return fixedCount;
 }
 
+// REACT_025: Dynamically observe and fix multiple main landmarks (handles React re-renders)
+function observeAndFixMainLandmarks() {
+  const fix = () => {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length <= 1) return;
+
+    // Keep the first main, convert others to section with role="region"
+    for (let i = 1; i < mainElements.length; i++) {
+      const mainEl = mainElements[i];
+      const section = document.createElement('section');
+      section.setAttribute('role', 'region');
+      // Preserve original attributes except role
+      Array.from(mainEl.attributes).forEach(attr => {
+        if (attr.name !== 'role') {
+          section.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Add aria-label if not present
+      if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
+        section.setAttribute('aria-label', `Content section ${i + 1}`);
+      }
+      // Move children
+      while (mainEl.firstChild) {
+        section.appendChild(mainEl.firstChild);
+      }
+      // Replace main with section
+      mainEl.parentNode.replaceChild(section, mainEl);
+    }
+  };
+
+  // Initial fix
+  fix();
+
+  // Observe dynamic changes (e.g., React updates)
+  const observer = new MutationObserver((mutations) => {
+    let hasNewMain = false;
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList') {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeName === 'MAIN') {
+            hasNewMain = true;
+            break;
+          }
+          if (node.querySelectorAll && node.querySelectorAll('main').length > 0) {
+            hasNewMain = true;
+            break;
+          }
+        }
+      }
+      if (hasNewMain) break;
+    }
+    if (hasNewMain) {
+      fix();
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 // REACT_025: Validate that only one main landmark exists
 function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main');
@@ -400,6 +459,7 @@ function addressAccessibilityIssues() {
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
+observeAndFixMainLandmarks();
 
 // REACT_017: Validate landmark elements for accessibility
 function validateLandmark(landmark) {

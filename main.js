@@ -102,7 +102,7 @@ function ensureUniqueLandmarks() {
     if (elements.length > 1) {
       elements.forEach((el, index) => {
         if (index > 0) {
-          el.removeAttribute(landmark === 'header' ? 'role' : '');
+          el.removeAttribute('role');
           if (landmark === 'nav') {
             el.setAttribute('aria-label', `Secondary navigation ${index}`);
           } else if (landmark === 'footer') {
@@ -116,7 +116,19 @@ function ensureUniqueLandmarks() {
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
-        main.setAttribute('aria-label', `Alternative main content ${index}`);
+        const section = document.createElement('section');
+        const ariaLabel = main.getAttribute('aria-label') || `Alternative main content ${index}`;
+        section.setAttribute('aria-label', ariaLabel);
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        const attributes = Array.from(main.attributes);
+        attributes.forEach(attr => {
+          if (attr.name !== 'aria-label') {
+            section.setAttribute(attr.name, attr.value);
+          }
+        });
+        main.parentNode.replaceChild(section, main);
       }
     });
   }

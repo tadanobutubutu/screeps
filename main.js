@@ -14,11 +14,15 @@ function wrapPrimaryContentInMain(selector) {
     // Replace the original primary content with the main element
     primaryContent.parentNode.replaceChild(mainElement, primaryContent);
 
-    // TODO: Additional logic from the conflicting changes
-    /*
-    Analyze the current main element structure by reading its classes, IDs, and attributes.
-    Determine if the mainElement has any existing classes and add or modify classes to match the desired structure.
-    */
+    // Analyze the current main element structure by reading its classes, IDs, and attributes.
+    // Determine if the mainElement has any existing classes and add or modify classes to match the desired structure.
+    const existingClasses = mainElement.className;
+    const desiredClasses = 'primary-main';
+    if (existingClasses) {
+      mainElement.className = `${existingClasses} ${desiredClasses}`;
+    } else {
+      mainElement.className = desiredClasses;
+    }
   }
 }
 

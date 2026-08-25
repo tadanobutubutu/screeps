@@ -1,6 +1,6 @@
-// Assuming that main.js is dynamically rendering the HTML, here's how you would update the code to include the <main> element for both pages.
+import React from 'react';
+import { icons } from './icons';
 
-// For dependency-graph.html
 const contentDependencyGraph = `
 <main>
     <table id="table-rotated">
@@ -9,7 +9,6 @@ const contentDependencyGraph = `
 </main>
 `;
 
-// For index.html
 const contentIndex = `
 <main>
     <div class="container">
@@ -23,15 +22,26 @@ const contentIndex = `
 </main>
 `;
 
-// The above content would be included in the main.js where the HTML is dynamically rendered.
-// Example of how it might look in a React component:
-export default function HomePage() {
-    return (
-        <div>
-            {contentIndex}
-            {/* ... other components ... */}
-        </div>
-    );
+const Layout = () => {
+  return (
+    <div>
+      {/* Other content */}
+      <link rel="icon" href={icons.icon} aria-label="Screeps Dashboard" />
+      {/* Other content */}
+    </div>
+  );
+};
+
+export function HomePage() {
+  return (
+    <div>
+      <div dangerouslySetInnerHTML={{ __html: contentIndex }} />
+      {/* ... other components ... */}
+    </div>
+  );
 }
 
 // Make sure to include similar <main> elements for other pages as needed.
+
+export default Layout;
+```

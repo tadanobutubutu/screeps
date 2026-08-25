@@ -386,7 +386,7 @@ class EmotionSystem {
         if (emotions.achievements && emotions.achievements.length > 0) {
             if (emotions.achievements.length > 0) {
                 emotions.achievements.forEach((a) => {
-                    ');
+                    console.log('-', a.name, '(tick', a.tick, ')');
                 });
             }
         }

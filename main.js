@@ -60,7 +60,7 @@ const addressAccessibilityIssues = (insightReport) => {
   const addressedIssues = [];
   const unaddressedIssues = [];
   
-  insightReport.issues.forEach(issue => {
+  insightReport.issues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-aria-label':
         console.log(`Adding aria-label to element: ${issue.selector || 'unknown'}`);

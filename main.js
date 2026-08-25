@@ -18,12 +18,12 @@ function wrapPrimaryContentInMain(content, options = {}) {
   } = options;
   
   const classAttr = className ? ` class="${className}"` : '';
-  const mainStart = `<main id="${id}" role="${role}"${classAttr}>`;
+  const mainStart = `<main id="${id}" ...
   const mainEnd = '</main>';
   
   // Check if content is already wrapped in a main element
-  const hasMainTag = /<main[\s\S]*?>[\s\S]*?<\/main>/i.test(content) ||
-                     /<main[^>]*\/>/.test(content);
+  const hasMainTag = ... ||
+                     ...
   
   if (hasMainTag) {
     return content;
@@ -36,7 +36,7 @@ function wrapPrimaryContentInMain(content, options = {}) {
 function renderDependencyGraph(data) {
   if (!data) return '';
   const { nodes = [], edges = [] } = data;
-  let html = '<div class="dependency-graph"><ul>';
+  let html = '<div ...
   nodes.forEach(node => {
     const connectedEdges = edges.filter(e => e.from === node.id || e.to === node.id);
     html += `<li>${node.name || node.id} (${connectedEdges.length} connections)</li>`;
@@ -49,8 +49,8 @@ function renderDependencyGraph(data) {
 function renderIndexView(data) {
   if (!data) return '<div class="index-view">Index View</div>';
   const { title = 'Index View', items = [] } = data;
-  let itemsHtml = items.map(item => `<li>${item.name || item.id || 'Item'}</li>`).join('');
-  return `<div class="index-view"><h1>${title}</h1><ul>${itemsHtml}</ul></div>`;
+  let itemsHtml = items.map(item => `<li>${item.name || item.id || ...
+  return `<div ...
 }
 
 // Function to add proper landmark regions
@@ -62,9 +62,9 @@ function addProperLandmarkRegions(data) {
     const region = {
       role: landmark.role || 'region',
       label: landmark.label || landmark.role || 'content',
-      id: landmark.id || `${landmark.role || 'region'}-${landmarkRegions.length}`
+      id: landmark.id || `${landmark.role || ...
     };
-    landmarkRegions.push(region);
+    ...
   });
   
   return landmarkRegions;
@@ -83,13 +83,14 @@ function renderSkipLink() {
 // Original landmark navigation function
 function renderLandmarkNavigation() {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  return landmarks.map(landmark => `<div class="landmark-${landmark}"></div>`).join('');
+  return landmarks.map(landmark => `<div ...
 }
 
 // Original utility function
 function formatDate(date) {
   if (!date) return '';
-  return _.format(date, 'YYYY-MM-DD');
+  const d = new Date(date);
+  return d.toISOString().split('T')[0];
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -99,7 +100,7 @@ function addLangAttribute(html, lang = 'en') {
   if (langPattern.test(html)) {
     return html.replace(langPattern, `lang="${lang}"`);
   }
-  return html.replace(/<html([^>]*)>/i, `$1 lang="${lang}">`);
+  return ... `$1 lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -132,24 +133,24 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = /<main[^>]*role\s*=\s*["']main["'][^>]*>/i.test(html) ||
-                          /<main[^>]*>/i.test(html);
+  const hasMainLandmark = ... ||
+                          ...
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if (/<body[^>]*>/i.test(html)) {
-      return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
+    if ... {
+      return ... `$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = /<main[^>]*id\s*=\s*["'][^"']*["'][^>]*>/i.test(html);
+  const mainWithId = ...
   
   if (!mainWithId) {
-    html = html.replace(/<main([^>]*)>/i, `<main id="main-content"$1>`);
-    html = html.replace(/<main>/i, `<main id="main-content" role="main">`);
+    html = ... `<main ...
+    html = ... `<main id="main-content" role="main">`);
   }
   
   return html;
@@ -180,7 +181,7 @@ function ensureUniqueLandmarks(landmarks) {
     
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        landmark.id = `${landmark.id}-${index}`;
+        landmark.id = ...
       }
       seenIds.add(landmark.id);
     } else {
@@ -197,7 +198,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     if (landmark.label) {
-      landmark.id = landmark.id || `${landmark.label.replace(/\s+/g, '-').toLowerCase()}`;
+      landmark.id = landmark.id || ... ...
     }
     
     return landmark;
@@ -208,7 +209,7 @@ function ensureUniqueLandmarks(landmarks) {
 function fixFakeLinkIssue(element) {
   if (!element) return null;
   
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = ...
   const isClickable = element.onclick || element.getAttribute?.('role') === 'link';
   const href = element.getAttribute?.('href');
   

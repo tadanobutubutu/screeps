@@ -7,7 +7,7 @@ import Contact from './components/Contact';
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-React.component.defaultProps = {...React.component.defaultProps, 'lang': 'en'};
+... = ... 'lang': 'en'};
 
 // - REACT_017: Add/fix 4 landmark issues (Adding landmarks and identifying unique landmarks)
 const App = () => {
@@ -32,8 +32,8 @@ const App = () => {
 const Logo = () => (
   <svg role="img" aria-labelledby="logo-title logo-description">
     ...
-    <title id="logo-title">Company Logo</title>
-    <desc id="logo-description">This is the Company's logo</desc>
+    <title ... Logo</title>
+    <desc ... is the Company's logo</desc>
   </svg>
 );
 

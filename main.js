@@ -182,4 +182,4 @@ document.getElementById('unrotate').addEventListener('click', rotateBack);
 document.getElementById('toggle-rotate').addEventListener('click', toggleRotation);
 
 // Export the new function if needed, otherwise preserve existing exports
-export { rotate, rotateBack, toggleRotation, ensureUniqueLandmarks, addLandmarks, enhanceFocusVisibility, addressAccessibilityIssues, createHtmlElement };
+export { rotate, rotateBack, toggleRotation, ensureUniqueLandmarks, addLandmarks, enhanceFocusVisibility, addressAccessibilityIssues, createHtmlElement, dependencyGraphContent, indexContent };

@@ -1,76 +1,13 @@
-// Address accessibility issues from insight report
-// TODO-hash: 4960bda78b23b568ecb422d6e6eb9ceac6573ea
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../reducers';
+import { ThunkDispatch } from 'redux-thunk';
+import { AppDispatch } from '../store';
+import axios from 'axios';
 
-// TODO: Implement function for addressing accessibility issues from insight report
-function handleAccessibilityIssues(issues) {
-    issues.forEach(issue => {
-        switch (issue.type) {
-            case 'lang':
-                document.documentElement.lang = issue.value;
-                break;
-            case 'aria':
-                // Add ARIA attributes as required
-                if (issue.element) {
-                    Object.entries(issue.attributes || {}).forEach(([attr, value]) => {
-                        issue.element.setAttribute(attr, value);
-                    });
-                }
-                break;
-            case 'svg':
-                // Add accessible names to 2 SVGs
-                if (issue.element) {
-                    const title = document.createElement('title');
-                    title.textContent = issue.name || 'Accessible SVG';
-                    issue.element.insertBefore(title, issue.element.firstChild);
-                    issue.element.setAttribute('role', 'img');
-                }
-                break;
-            case 'landmark':
-                // Add/fix 4 landmark issues
-                if (issue.element) {
-                    if (issue.role) {
-                        issue.element.setAttribute('role', issue.role);
-                    }
-                    if (issue.label) {
-                        issue.element.setAttribute('aria-label', issue.label);
-                    }
-                }
-                break;
-            case 'unique-landmarks':
-                // Ensure unique landmarks (2 issues)
-                if (issue.element && issue.uniqueRole) {
-                    issue.element.setAttribute('role', issue.uniqueRole);
-                    if (issue.label) {
-                        issue.element.setAttribute('aria-label', issue.label);
-                    }
-                }
-                break;
-            case 'fake-link':
-                // Fix 1 fake link issue
-                if (issue.element) {
-                    const href = issue.element.getAttribute('href');
-                    if (href && !href.startsWith('#') && href !== '') {
-                        // Valid link, ensure proper semantics
-                        issue.element.setAttribute('role', 'link');
-                    }
-                }
-                break;
-            case 'scope':
-                // Add scope attribute to th elements
-                if (issue.element && issue.element.tagName === 'TH') {
-                    issue.element.setAttribute('scope', issue.scope || 'col');
-                }
-                break;
-            default:
-                // Handle other accessibility changes based on the issue type
-                if (issue.element && issue.attributes) {
-                    Object.entries(issue.attributes).forEach(([attr, value]) => {
-                        issue.element.setAttribute(attr, value);
-                    });
-                }
-        }
-    });
-}
+type ErrorMessage = {
+  reason: string;
+};
 
 // Implement table structure fix function
 function fixTableAccessibility(tables) {
@@ -105,43 +42,72 @@ function fixTableAccessibility(tables) {
     });
 }
 
-// Implement landmark handling function
-function ensureUniqueLandmarks(landmarkElements) {
-    const usedRoles = new Map();
-    
-    landmarkElements.forEach(element => {
-        const role = element.getAttribute('role') || element.tagName.toLowerCase();
-        const existingCount = usedRoles.get(role) || 0;
-        usedRoles.set(role, existingCount + 1);
-        
-        if (existingCount > 0) {
-            if (!element.getAttribute('aria-label')) {
-                const label = element.getAttribute('aria-labelledby') || `${role} ${existingCount + 1}`;
-                element.setAttribute('aria-label', label);
-            }
-            
-            if (!usedRoles.has(role + '-unique')) {
-                element.setAttribute('role', role);
-                usedRoles.set(role + '-unique', true);
-            }
-        } else {
-            if (['nav', 'main', 'header', 'footer', 'aside'].includes(role)) {
-                element.setAttribute('role', role === 'nav' ? 'navigation' : role);
-            }
-        }
-    });
-}
+const Dashboard = () => {
+  const isAuthenticated = useSelector((state: RootState) => state.auth.user.isAuthenticated);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, unknown>>();
 
-// Exporting functions as required (do not remove or rename any existing exports)
-export function someExistingFunction() {
-    // ... (existing function code)
-}
+  const authFetchStats = async () => {
+    // ...
+  };
 
-export function anotherExistingFunction() {
-    // ... (existing function code)
-}
+  const fetchStats = (refresh: boolean) => {
+    // ...
+  };
 
-// Export new accessibility functions
-export { handleAccessibilityIssues, fixTableAccessibility, ensureUniqueLandmarks };
+  const copyErr = () => {
+    // ...
+  };
 
-// ... (other existing exports)
+  useEffect(() => {
+    if (refreshing) {
+      fetchStats(true);
+    }
+  }, [refreshing]);
+
+  useEffect(() => {
+    if (!copied) {
+      navigator.clipboard.writeText(error);
+      setCopied(true);
+    }
+  }, [error, copied]);
+
+  if (isAuthenticated) {
+    // Replace with a single main element and other semantic elements as needed
+    return (
+      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>dash</h1>
+        <section>
+          <button onClick={() => authFetchStats()} disabled={refreshing}>
+            Refresh
+          </button>
+          <pre
+            aria-label="stats-box"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {/* stats */}
+          </pre>
+        </section>
+
+        {/* error and copy-error code here */}
+      </main>
+    );
+  }
+
+  return (
+    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <h1 style={{ color: '#b71c1c' }}>Please login to access the dashboard</h1>
+    </main>
+  );
+};
+
+export default Dashboard;

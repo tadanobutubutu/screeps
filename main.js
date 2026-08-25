@@ -47,7 +47,7 @@ function addAriaLabelledbyIfNeeded(elem) {
   } else if (elem.getAttribute && elem.getAttribute('data-type') === 'index') {
     content = indexContent({ context });
   } else {
-    content = <div id="generatedId">{/* Your React component here */}</div>;
+    content = React.createElement('div', { id: 'generatedId' }, null);
   }
   
   const contentString = ReactDOMServer.renderToString(content);
@@ -70,7 +70,7 @@ function initAriaLabels() {
 
     // New logic: Create a context, render a React component, and call addAriaLabelledbyIfNeeded
     const context = createReactContext();
-    const content = <div id="generatedId">{/* Your React component here */}</div>;
+    const content = React.createElement('div', { id: 'generatedId' }, null);
     addAriaLabelledbyIfNeeded(elem);
   });
 }

@@ -115,7 +115,7 @@ function createAccessibleLink(url, text, options = {}) {
   
   const relAttr = rel || (target === '_blank' ? 'noopener noreferrer' : '');
   
-  return `<a href="${url}" target="_${target}"${relAttr ? ` rel="${relAttr}"` : ''}${className ? ` class="${className}"` : ''}>${text}</a>`;
+  return `<a href="${url}" target="${target}"${relAttr ? ` rel="${relAttr}"` : ''}${className ? ` class="${className}"` : ''}>${text}</a>`;
 }
 
 // Create in-page button

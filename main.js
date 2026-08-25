@@ -1,7 +1,5 @@
 // ... existing imports and declarations ...
 
-// Restoring previously removed exports below
-
 // FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 function fixAccessibilityIssues() {
   // ... existing fixAccessibilityIssues function ...

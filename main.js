@@ -1,32 +1,90 @@
-const fs = require('fs');
-const path = require('path');
+const img = document.getElementById('target'); let rotation = 0;
 
-// Path to the HTML file that needs to be modified
-const htmlFilePath = path.join(__dirname, 'docs', 'dependency-graph.html');
-
-// Function to add scope attribute to <th> tags
-function addScopeToThTags(htmlContent) {
-  return htmlContent.replace(/<th\b[^>]*>/g, (match) => {
-    return match.replace(/<th\b[^>]*>/, '<th scope="col">');
-  });
+function rotate() {
+  rotation += 90;
+  img.style.transform = `rotate(${rotation}deg)`;
 }
 
-// Read the HTML file
-fs.readFile(htmlFilePath, 'utf8', (err, data) => {
-  if (err) {
-    console.error('Error reading the HTML file:', err);
-    return;
+function rotateBack() {
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
+}
+
+/**
+ * Adds two numbers together
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+function add(a, b) {
+  return a + b;
+}
+
+/**
+ * Subtracts b from a
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Difference of a and b
+ */
+function subtract(a, b) {
+  return a - b;
+}
+
+/**
+ * Multiplies two numbers together
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Product of a and b
+ */
+function multiply(a, b) {
+  return a * b;
+}
+
+/**
+ * Divides a by b
+ * @param {number} a - Dividend
+ * @param {number} b - Divisor
+ * @returns {number} Quotient of a and b
+ */
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
   }
+  return a / b;
+}
 
-  // Add scope attribute to <th> tags
-  const modifiedHtmlContent = addScopeToThTags(data);
+// Add functions for adding `aria-label` to buttons
+function addAriaLabel(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
 
-  // Write the modified HTML content back to the file
-  fs.writeFile(htmlFilePath, modifiedHtmlContent, 'utf8', (err) => {
-    if (err) {
-      console.error('Error writing the modified HTML content:', err);
-      return;
-    }
-    console.log('The HTML file has been updated successfully.');
-  });
-});
+// Add `aria-label` to the rotation and unrotate buttons
+addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
+addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+
+/**
+ * A new function for adding `aria-label` to arbitrary elements
+ * @param {HTMLElement} elem - The HTML element to add `aria-label` to
+ * @param {string} label - The text to use as the `aria-label`
+ */
+function setAriaLabelOn(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
+
+// An example usage of the new function with a custom button element
+const customBtn = document.getElementById('custom-btn');
+setAriaLabelOn(customBtn, 'Perform custom action');
+
+module.exports = {
+  loop: function() { /* Main game loop logic myNewFunction(); */ },
+  add,
+  subtract,
+  multiply,
+  divide,
+  addAriaLabel,
+  setAriaLabelOn
+};

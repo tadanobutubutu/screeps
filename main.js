@@ -31,6 +31,41 @@ function wrapPrimaryContentInMain(content, options = {}) {
   return mainStart + content + mainEnd;
 }
 
+// Before:
+// <table>
+//   <thead>
+//     <tr>
+//       <th><div>src/constants.js</div></th>
+//       ...
+//       ...
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// After:
+// <table>
+//   <thead>
+//     <tr>
+//       <th ...
+//       <th ...
+//       <th ...
+//       <!-- ... -->
+//     </tr>
+//   </thead>
+//   <tbody>
+//     <!-- ... -->
+//   </tbody>
+// </table>
+
+// You would render the updated HTML like this:
+// res.send(`
+//   ...
+// `);
+
 // Function to render dependency graph content
 function renderDependencyGraph(data) {
   if (!data) return '';

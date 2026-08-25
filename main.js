@@ -1,9 +1,17 @@
 const getLangAttribute = () => {
-  // logic to get the lang attribute
+  // Example implementation to get the language attribute
+  // You should replace this with your actual implementation
+  const lang = navigator.language || navigator.userLanguage;
+  return lang;
 };
 
 const getFullLangAttribute = () => {
-  // logic to get the full lang attribute
+  // Example implementation to get the full language attribute (including region)
+  // You should replace this with your actual implementation
+  const lang = getLangAttribute();
+  const split = lang.split('-');
+  const fullLang = split[0] !== split[1] ? `${split[0]}-${split[1]}-u-nu` : `${split[0]}-u-nu`;
+  return fullLang;
 };
 
 const validateTableAccessibility = () => {
@@ -42,9 +50,16 @@ const handleAccessibilityIssues = () => {
   // logic to handle accessibility issues
 };
 
-// TODO: add the new functions or changes requested in the issue
-// ...
-
 module.exports = {
-  // existing exports
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
 };

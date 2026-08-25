@@ -89,8 +89,6 @@ const createInPageButton = (options = {}) => {
     return { errors };
   };
 
-  // ... (The rest of the createInPageButton function remains the same)
-
   // Add the function to validate table accessibility
   const validateTableAccessibility = () => {
     const errors = [];
@@ -140,86 +138,77 @@ const createInPageButton = (options = {}) => {
     return { errors };
   };
 
-  // ... (The rest of the main.js function remains the same)
-};
+  // ... (The rest of the createInPageButton function remains the same)
 
-// React component for in-page button
-// ... (The InPageButton function remains the same)
+  // Add the function to validate landmarks
+  const validateLandmarkStructure = () => {
+    const errors = [];
 
-// Function to validate table structure
-// ... (The validateTableStructure function remains the same)
+    if (typeof document === 'undefined') {
+      return { valid: true, errors };
+    }
 
-// Function to validate table accessibility
-// ... (The validateTableAccessibility function remains the same)
+    // Check for main landmark (should have exactly one)
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    if (mainElements.length === 0) {
+      errors.push({
+        message: 'Page is missing a main landmark',
+        line: 0,
+        column: 0
+      });
+    } else if (mainElements.length > 1) {
+      errors.push({
+        message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
+        line: 0,
+        column: 0
+      });
+    }
 
-// Function to validate landmarks
-const validateLandmarkStructure = () => {
-  const errors = [];
+    // Check for header/nav landmarks
+    const navElements = document.querySelectorAll('nav, [role="navigation"]');
+    const headerElements = document.querySelectorAll('header, [role="banner"]');
 
-  if (typeof document === 'undefined') {
-    return { valid: true, errors };
-  }
+    if (headerElements.length > 1) {
+      errors.push({
+        message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
+        line: 0,
+        column: 0
+      });
+    }
 
-  // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    errors.push({
-      message: 'Page is missing a main landmark',
-      line: 0,
-      column: 0
-    });
-  } else if (mainElements.length > 1) {
-    errors.push({
-      message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
-      line: 0,
-      column: 0
-    });
-  }
+    // Check for footer landmark
+    const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+    if (footerElements.length > 1) {
+      errors.push({
+        message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
+        line: 0,
+        column: 0
+      });
+    }
 
-  // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+    return { valid: errors.length === 0, errors };
+  };
 
-  if (headerElements.length > 1) {
-    errors.push({
-      message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
-      line: 0,
-      column: 0
-    });
-  }
+  // Alias for backwards compatibility
+  const validateLandmark = validateLandmarkStructure;
 
-  // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    errors.push({
-      message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
-      line: 0,
-      column: 0
-    });
-  }
+  // React component for the Root component
+  const Root = () => {
+    // ... (The Root function remains the same)
+  };
 
-  return { valid: errors.length === 0, errors };
-};
-
-// Alias for backwards compatibility
-const validateLandmark = validateLandmarkStructure;
-
-// React component for the Root component
-const Root = () => {
-  // ... (The Root function remains the same)
-};
-
-// Export all functions and components
-export {
-  getLangAttribute,
-  getSvgAccessibleName,
-  createInPageButton,
-  InPageButton,
-  validateTableStructure,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  validateLandmark,
-  Root,
-  validateTableStructure, // NEW EXPORT
-  validateTableAccessibility  // NEW EXPORT
+  // Export all functions and components
+  export {
+    getLangAttribute,
+    getSvgAccessibleName,
+    createInPageButton,
+    InPageButton,
+    validateTableStructure,
+    validateTableAccessibility,
+    validateLandmarkStructure,
+    validateLandmark,
+    Root,
+    validateTableStructure, // NEW EXPORT
+    validateTableAccessibility  // NEW EXPORT
+  };
 };

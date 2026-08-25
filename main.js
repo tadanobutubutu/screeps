@@ -300,6 +300,57 @@ function fixFakeLinkIssue(element) {
   return element;
 }
 
+// REACT_036: Fix fake link issue in HTML - convert <a href="#"> to <button>
+export function fixFakeLinksInHtml(html, options = {}) {
+  if (!html) return html;
+  
+  const {
+    skipPatterns = [], // URLs to skip (e.g., '/actual-page', 'https://')
+    alwaysConvertHash = true
+  } = options;
+  
+  // Pattern to match <a> tags with href="#"
+  const hashLinkPattern = /<a(\s+[^>]*)?\s+href\s*=\s*["']#["'](\s+[^>]*)?>/gi;
+  
+  // Pattern to match <a> tags with onclick but no valid navigation href
+  const fakeLinkPattern = /<a(\s+[^>]*)?\s+onclick\s*=/gi;
+  
+  // Convert <a href="#"> to <button>
+  html = html.replace(hashLinkPattern, (match, before, after) => {
+    // Extract attributes from the original tag
+    const idMatch = match.match(/id\s*=\s*["']([^"']*)["']/i);
+    const classMatch = match.match(/class\s*=\s*["']([^"']*)["']/i);
+    const onclickMatch = match.match(/onclick\s*=\s*["']([^"']*)["']/i);
+    const textMatch = match.match(/>([^<]*)</i);
+    
+    const id = idMatch ? ` id="${idMatch[1]}"` : '';
+    const className = classMatch ? ` class="${classMatch[1]}"` : '';
+    const onclick = onclickMatch ? ` onclick="${onclickMatch[1]}"` : '';
+    const text = textMatch ? textMatch[1].trim() : '';
+    
+    // Build the button element
+    return `<button type="button"${id}${className}${onclick}>${text}</button>`;
+  });
+  
+  // Fix <a> tags with onclick that have hash href or no href at all
+  html = html.replace(/<a(\s+[^>]*)?\s+href\s*=\s*["']#?["'](\s+[^>]*)?\s+onclick\s*=/gi, (match, before, after) => {
+    // Convert to button
+    const idMatch = match.match(/id\s*=\s*["']([^"']*)["']/i);
+    const classMatch = match.match(/class\s*=\s*["']([^"']*)["']/i);
+    const onclickMatch = match.match(/onclick\s*=\s*["']([^"']*)["']/i);
+    const textMatch = match.match(/>([^<]*)</i);
+    
+    const id = idMatch ? ` id="${idMatch[1]}"` : '';
+    const className = classMatch ? ` class="${classMatch[1]}"` : '';
+    const onclick = onclickMatch ? ` onclick="${onclickMatch[1]}"` : '';
+    const text = textMatch ? textMatch[1].trim() : '';
+    
+    return `<button type="button"${id}${className}${onclick}>${text}</button>`;
+  });
+  
+  return html;
+}
+
 // REACT_042: Replace placeholder button ID with semantic ID
 function fixButtonAccessibility(buttons) {
   if (!buttons || !Array.isArray(buttons)) return [];

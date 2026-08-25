@@ -215,6 +215,10 @@ function implementAccessibilityFixesFromReport(reportPath) {
   }
 }
 
+function setDocumentLanguage(lang = 'en') {
+  document.documentElement.lang = lang;
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -225,5 +229,6 @@ module.exports = {
   addSvgAccessibleNames,
   addAltAttribute,
   addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport
+  implementAccessibilityFixesFromReport,
+  setDocumentLanguage
 };

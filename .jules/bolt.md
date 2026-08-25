@@ -37,3 +37,6 @@
 ## 2026-08-25 - Single-Pass Loop for Attacker Counting in Spawn Target Evaluation
 **Learning:** Using `Array.prototype.filter` to count hostile attacker creeps in `spawnManager._getTargetCounts` creates unnecessary array allocations and callback function overhead on every tick. Replacing `enemies.filter(...).length` with a single-pass `for` loop directly counting matching hostiles eliminates intermediate array allocations and closure creation.
 **Action:** Use single-pass `for` loops when evaluating target creep count thresholds based on hostile presence.
+## 2024-05-15 - Optimize find result caching and inner loop
+- Replaced Array.prototype.forEach with standard for loop to avoid closure allocations and method dispatch overhead per call.
+- Cached room.find() results immediately back to room._myStructures to prevent duplicate O(N) evaluations later in the same tick if _myStructures was initially undefined.

@@ -44,13 +44,17 @@ function fixFakeLinks() {
   });
 }
 
-// Add the new function within the module.exports for calling from another file
+// New function to implement accessibility fixes
+function implementNewFunction() {
+  // Apply accessibility fixes defined in this module
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+}
+
+// Export the module functions
 module.exports = {
   renderDependencyGraphContent,
-  ensureUniqueLandmarks, // Added here
+  ensureUniqueLandmarks,
   fixFakeLinks,
-  renderGraphContent // original export preserves for calling from another file
+  implementNewFunction
 };
-
-// Call renderGraphContent function from another file
-renderGraphContent(someData);

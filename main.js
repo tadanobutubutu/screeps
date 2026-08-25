@@ -67,7 +67,33 @@ const FakeLinkComponent = () => {
   );
 };
 
+// REACT_041: Add accessible names to 2 SVGs
+const Svg1 = () => (
+  <svg data-testid="svg1" aria-hidden="true" focusable="false">
+    {/* SVG Code */}
+    <title>My SVG 1</title>
+  </svg>
+);
+
+const Svg2 = () => (
+  <svg data-testid="svg2" aria-hidden="true" focusable="false">
+    {/* SVG Code */}
+    <title>My SVG 2</title>
+  </svg>
+);
+
 // ... rest of your main.js ...
+
+export {
+  MyComponent,
+  LandmarkComponent,
+  SvgComponent,
+  DuplicateLandmarkComponent,
+  FakeLinkComponent,
+  Svg1,
+  Svg2,
+  // ... other exports ...
+};
 
 export default {
   MyComponent,
@@ -75,5 +101,7 @@ export default {
   SvgComponent,
   DuplicateLandmarkComponent,
   FakeLinkComponent,
+  Svg1,
+  Svg2,
   // ... other exports ...
 };

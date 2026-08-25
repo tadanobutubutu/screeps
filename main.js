@@ -67,8 +67,8 @@ function fixFakeLinkIssue() {
 module.exports = {
   // ... (Preserve existing code, exports, and functions from current main.js)
   fixTableStructure: fixTableStructure,
-  fixFakeLinkIssue: fixFakeLinkIssue,
-  fixTableStructureIssues: fixTableStructureIssues,
+  fixFakeLinkIssue: fixFakeLinkIssue, // New export (renamed from original fixTableStructureIssues)
+  fixTableStructureIssues: fixTableStructureIssues, // Keep duplicate export for testing compatibility (but do not update or call it)
   addClassToElement: addClassToElement, // New export
   renderDependencyGraph: renderDependencyGraph, // Added back original export
   renderDependencyGraphForComponent: renderDependencyGraphForComponent, // Added back duplicate export with different name
@@ -76,6 +76,5 @@ module.exports = {
   addLandmarks: addLandmarks, // New export
   addAccessibleNamesForSVGS: addAccessibleNamesForSVGS, // New export
   addIdsToLandmarks: addIdsToLandmarks, // New export
-  fixFakeLinkIssue: fixFakeLinkIssue, // New export (renamed from original fixTableStructureIssues)
   // ... (Preserve existing exports)
 };

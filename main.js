@@ -24,10 +24,18 @@ function initializeApp() {
   return { success: true, config };
 }
 
+// Fix for REACT_015: Add language attribute helper
+// Screen readers use the lang attribute on <html> to select the appropriate voice.
+// This function returns the recommended lang attribute value for the document root.
+function getHtmlLangAttribute() {
+  return 'en';
+}
+
 // Export all functions
 module.exports = {
   helperFunction,
   calculateTotal,
   getConfig,
-  initializeApp
+  initializeApp,
+  getHtmlLangAttribute
 };

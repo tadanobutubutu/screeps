@@ -8,7 +8,7 @@ function fixAccessibilityIssues() {
 }
 
 // FUNCTION TO ADD A DECORATIVE SVG ALT TEXT
-function addSvgAltText(svgElement) {
+function addSvgAltText() {
   // ... existing addSvgAltText function ...
 }
 
@@ -28,43 +28,42 @@ function ensureUniqueLandmarkIds() {
 }
 
 // ADD THE FUNCTION TO ADD ACCESSIBLE NAMES TO SVGs
-function addSvgAccessibleNames(svgElement) {
+function addSvgAccessibleNames() {
   // ... existing addSvgAccessibleNames function ...
 }
 
 // ADD THE FUNCTION TO FIX FAKE LINK ISSUES
-function fixFakeLinkIssue(linkElement) {
+function fixFakeLinkIssue() {
   // ... existing fixFakeLinkIssue function ...
 }
 
 // ADD THE FUNCTION TO HANDLE UNIQUE LANDMARK NAMES (For REACT_025)
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="landmark"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
   const landmarkNames = new Set();
 
   landmarks.forEach((landmark) => {
-    const landmarkName = landmark.getAttribute('aria-label');
+    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
 
     if (landmarkName && !landmarkNames.has(landmarkName)) {
       landmarkNames.add(landmarkName);
     } else {
       // Generate a unique id and add to the landmark
       const id = Math.floor(Math.random() * 100000);
-      landmark.setAttribute('aria-label', `${landmarkName} - ${id}`);
+      landmark.setAttribute('id', `landmark-${id}`);
     }
   });
 }
 
 export {
   addLangAttribute,
-  fixTableStructure, // <-- If this is a function that exists and needs to be preserved, please add it back
+  fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
-  ensureUniqueLandmarkIds, // <-- If this is a function that exists and needs to be preserved, please add it back
-  addSvgAltText, // <-- If this is a function that exists and needs to be preserved, please add it back
-  ensureUniqueLandmarkNames // ADDING new function for REACT_025
+  ensureUniqueLandmarkIds,
+  ensureUniqueLandmarkNames
 };

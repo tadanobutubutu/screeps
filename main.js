@@ -117,17 +117,38 @@ function fixFakeLinkIssue() {
     // Implement the function as needed
 }
 
+// New function to replace fake links (<a href="#">) with accessible buttons
+function fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+        const button = document.createElement('button');
+        button.textContent = link.textContent;
+        button.type = 'button'; // Ensures the button acts as a button
+        if (link.id) {
+            button.id = link.id;
+        }
+        link.parentNode.replaceChild(button, link);
+    });
+}
+
 function addressAccessibilityIssues() {
     return addressIssuesFromInsightReport()
 }
 
-export { 
-    getHeadingLevels, 
-    fixDuplicateLandmarkRoles, 
-    addSvgAccessibleNames, 
-    ensureUniqueLandmarks, 
-    fixFakeLinkIssues, 
-    addThScope, 
+export {
+    setHtmlLangAttribute,
+    addAllSvgAccessibleNames,
+    addAllTableHeadersScope,
+    fixInputAccessibility,
+    fixTableStructureIssues,
+    addProperLandmarkRegions,
+    fixTableConstraints,
+    getHeadingLevels,
+    fixDuplicateLandmarkRoles,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssues,
+    addThScope,
     addressIssuesFromInsightReport,
     renderDependencyGraph,
     addLangAttr,

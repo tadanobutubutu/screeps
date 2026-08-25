@@ -17,15 +17,8 @@ function generateDependencyGraphData() {
   manageLandmarks();
 
   // Fix 1 fake link issue (REACT_036)
-  function validateLinks() {
-    // Check and validate all links in the current room
-    // ... existing link validation logic ...
-  }
-
-  // Call the link validation function
-  validateLinks();
-
-  // Preserve existing code, room processing logic, and graph building logic
+  // Assuming you are using a routine to check for and validate all links
+  //... existing link validation logic ...
 
   // Add/fix 4 landmark issues (REACT_017)
   // Assuming you are using a library for landmark management
@@ -35,10 +28,6 @@ function generateDependencyGraphData() {
 
   // Ensure unique landmarks (REACT_025)
   // Known unique landmarks are 'region' and 'article' in this example
-
-  // Fix 1 fake link issue (REACT_036)
-  // Assuming you are using a routine to check for and validate all links
-  //... existing link validation logic ...
 
   // ... existing room processing code ...
 

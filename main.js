@@ -17,6 +17,16 @@ function myNewFunction() {
   return fullName.trim();
 }
 
+// New function: addProperLandmarkRegions
+function addProperLandmarkRegions() {
+  // Implementation for adding proper landmark regions
+  // Placeholder logic to be expanded as needed
+  const landmarkRegions = [];
+  // Example: iterate over landmark data and add proper regions
+  // This is a stub implementation
+  return landmarkRegions;
+}
+
 // Export the new function, preserving the existing exports
-export { myNewFunction as default };
+export { myNewFunction as default, addProperLandmarkRegions };
 export * from './otherModule'; // Assuming you have another module

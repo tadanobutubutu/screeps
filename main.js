@@ -1,12 +1,12 @@
 // ... existing code ...
 
-// Helper function to get language attribute value
+// Function to get language attribute value
 function getLangAttribute(lang) {
   if (!lang) return 'en';
   return lang;
 }
 
-// Helper function to get full language attribute with region
+// Function to get full language attribute with region
 function getFullLangAttribute(lang, region) {
   if (!lang) return 'en';
   if (region) return `${lang}-${region}`;

@@ -24,7 +24,9 @@ function addLandmarkRegions(container, regions = []) {
     if (landmarkRoles[regionType]) {
       const element = document.createElement('div');
       element.setAttribute('role', landmarkRoles[regionType]);
+      element.setAttribute('aria-label', regionType.charAt(0).toUpperCase() + regionType.slice(1));
       element.className = `landmark-region landmark-${regionType}`;
+      container.appendChild(element);
       addedRegions[regionType] = element;
     }
   });

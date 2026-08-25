@@ -93,6 +93,54 @@ export const fixTableStructure = () => {
   });
 };
 
+// Function to add aria-label attributes to inaccessible form elements (Addressing accessibility insight report)
+export const addAriaLabelsToFormElements = () => {
+  // Add aria-label to all input elements that don't have one
+  const inputs = document.querySelectorAll('input');
+  const inputArray = Array.from(inputs);
+  inputArray.forEach((input, index) => {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      const placeholder = input.getAttribute('placeholder');
+      const name = input.getAttribute('name');
+      const type = input.getAttribute('type');
+      const labelText = placeholder || name || type || `Input ${index + 1}`;
+      input.setAttribute('aria-label', labelText);
+    }
+  });
+
+  // Add aria-label to all select elements that don't have one
+  const selects = document.querySelectorAll('select');
+  const selectArray = Array.from(selects);
+  selectArray.forEach((select, index) => {
+    if (!select.hasAttribute('aria-label') && !select.hasAttribute('aria-labelledby')) {
+      const name = select.getAttribute('name');
+      const labelText = name || `Select ${index + 1}`;
+      select.setAttribute('aria-label', labelText);
+    }
+  });
+
+  // Add aria-label to all textarea elements that don't have one
+  const textareas = document.querySelectorAll('textarea');
+  const textareaArray = Array.from(textareas);
+  textareaArray.forEach((textarea, index) => {
+    if (!textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
+      const placeholder = textarea.getAttribute('placeholder');
+      const name = textarea.getAttribute('name');
+      const labelText = placeholder || name || `Textarea ${index + 1}`;
+      textarea.setAttribute('aria-label', labelText);
+    }
+  });
+
+  // Add aria-label to all button elements that don't have one
+  const buttons = document.querySelectorAll('button');
+  const buttonArray = Array.from(buttons);
+  buttonArray.forEach((button, index) => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', `Button ${index + 1}`);
+    }
+  });
+};
+
 const MainContext = createContext(undefined);
 
 // Other existing code remains unchanged
@@ -106,6 +154,9 @@ export const MainComponent = () => {
 
     // Add the call to addRequiredLandmarks function here (REACT_017, REACT_025, and REACT_041 issues)
     addRequiredLandmarks();
+
+    // Add the call to addAriaLabelsToFormElements function here (Addressing accessibility insight report)
+    addAriaLabelsToFormElements();
 
     setLandmarks(filteredLandmarks);
   };

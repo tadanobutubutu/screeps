@@ -109,7 +109,7 @@ function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');
   if (!mainContent) return;
 
-  const existingDiv = mainContent.closest('div[class="main-wrapper"]') || mainContent.closest('div[id="content"]') || mainContent.parentElement;
+  const existingDiv = mainContent.closest('div[class="main_wrapper"]') || mainContent.closest('div[id="content"]') || mainContent.parentElement;
   if (!existingDiv) return;
 
   const newDiv = document.createElement('div');

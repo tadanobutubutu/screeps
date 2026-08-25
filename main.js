@@ -53,16 +53,17 @@ function divide(a, b) {
   return a / b;
 }
 
-// Add a new function for adding `aria-label` to buttons
+// Add a new function for adding `aria-label` to elements
 function addAriaLabel(elem, label) {
   if (elem) {
     elem.setAttribute('aria-label', label);
   }
 }
 
-// Modify the event listeners to include `aria-label`
+// Modify the event listeners to include `aria-label` attributes
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+addAriaLabel(document.getElementById('target'), 'Rotated image');
 
 // Add the new game loop function
 function myGameLoop() {

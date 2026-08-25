@@ -12,11 +12,11 @@ module.exports = {
   },
   // NEW FUNCTION: addressAccessibilityIssues
   addressAccessibilityIssues: function() {
-    // Implementation goes here
+    // Add your solution here to address accessibility issues
   },
   // Begin new functions or changes
 
-  // Example of a new function: calculate Area
+  // Example of a new function: calculateArea
   calculateArea: function(length, width) {
     return length * width;
   },

@@ -9,7 +9,26 @@
 
 // Adding the new function to address missing form labels:
 const addressMissingFormLabels = (formElements) => {
-  // ... Existing code for `addressMissingFormLabels` ...
+  const missingFormLabelsIssues = [];
+
+  Array.from(formElements).forEach((formElement) => {
+    if (!formElement.hasAttribute("aria-label") && !formElement.labelElement) {
+      missingFormLabelsIssues.push({
+        type: 'missing-form-label',
+        selector: formElement.id ? `#${formElement.id}` : `[name=${formElement.name}]`,
+        landmark: undefined,
+        elementType: formElement.type
+      });
+    }
+  });
+
+  if (missingFormLabelsIssues.length > 0) {
+    console.log("Adding missing form labels issues:", missingFormLabelsIssues);
+    return { totalFormLabelIssues: missingFormLabelsIssues.length, issues: missingFormLabelsIssues };
+  }
+
+  console.log("No missing form label issues found.");
+  return { totalFormLabelIssues: 0, issues: [] };
 };
 
 // Adding the new function to address table structure issues:

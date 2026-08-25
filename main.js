@@ -238,3 +238,4 @@ const addressAccessibilityIssues = (document) => {
 // No changes to exports are allowed
 
 module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, addressAccessibilityIssues };
+```

@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 const getLangAttribute = () => {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    return ...
+    return htmlElement.lang || ''; // Add lang attribute if it exists
   }
   return null;
 };
@@ -17,172 +17,38 @@ const getSvgAccessibleName = (svgElement) => {
   if (!svgElement || typeof document === 'undefined') {
     return null;
   }
-  
+
   // Check for aria-labelledby attribute
-  const ariaLabelledby = ...
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = ...
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) {
       return labelElement.textContent;
     }
   }
-  
+
   // Check for aria-label attribute
-  const ariaLabel = ...
+  const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for title element inside the SVG
-  const titleElement = ...
+  const titleElement = svgElement.getElementsByTagName('title')[0];
   if (titleElement && titleElement.textContent) {
     return titleElement.textContent;
   }
-  
+
   // Check for desc element inside the SVG
-  const descElement = ...
+  const descElement = svgElement.getElementsByTagName('desc')[0];
   if (descElement && descElement.textContent) {
     return descElement.textContent;
   }
-  
+
   return null;
 };
 
-// Function to validate landmark structure
-const validateLandmarkStructure = () => {
-  const results = {
-    valid: true,
-    errors: []
-  };
-
-  if (typeof document !== 'undefined') {
-    // Check for main landmark (should have exactly one)
-    const mainElements = ...
-    if (mainElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing main landmark - page should have exactly one main element');
-    } else if (mainElements.length > 1) {
-      results.valid = false;
-      results.errors.push(`Multiple main landmarks found - should have exactly one (found ...
-    }
-
-    // Check for header landmark
-    const headerElements = ...
-    if (headerElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing header landmark - page should have at least one header element');
-    }
-
-    // Check for footer landmark
-    const footerElements = ...
-    if (footerElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing footer landmark - page should have at least one footer element');
-    }
-
-    // Check for nav landmark
-    const navElements = ...
-    if (navElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing nav landmark - page should have at least one nav element');
-    }
-
-    // Check for aside (complementary landmark)
-    const asideElements = ...
-    if (asideElements.length > 1) {
-      results.valid = false;
-      results.errors.push('Multiple aside landmarks found - should have at most one');
-    }
-
-    // Check for form landmarks with labels
-    const formElements = ...
-    formElements.forEach((form, index) => {
-      const hasLabel = ...
-      const hasAriaLabel = ... || ...
-      if (!hasLabel && !hasAriaLabel) {
-        results.valid = false;
-        results.errors.push(`Form ${index + 1}: Missing label or aria-label`);
-      }
-    });
-
-    // Check for search landmark
-    const searchElements = ...
-    if (searchElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing search landmark - consider adding a search form');
-    }
-  }
-
-  return results;
-};
-
-// Function to validate landmark regions
-const validateLandmark = () => {
-  const results = {
-    valid: true,
-    errors: []
-  };
-
-  if (typeof document !== 'undefined') {
-    // Check for main landmark (should have exactly one)
-    const mainElements = ...
-    if (mainElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing main landmark - page should have exactly one main element');
-    } else if (mainElements.length > 1) {
-      results.valid = false;
-      results.errors.push(`Multiple main landmarks found - should have exactly one (found ...
-    }
-
-    // Check for header landmark
-    const headerElements = ...
-    if (headerElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing header landmark - page should have at least one header element');
-    }
-
-    // Check for footer landmark
-    const footerElements = ...
-    if (footerElements.length === 0) {
-      results.valid = false;
-      results.errors.push('Missing footer landmark - page should have at least one footer element');
-    }
-  }
-
-  return results;
-};
-
-// Function to validate table structure
-const validateTableStructure = () => {
-  const results = {
-    valid: true,
-    errors: []
-  };
-
-  if (typeof document !== 'undefined') {
-    const tables = ...
-
-    tables.forEach((table, index) => {
-      const ths = table.querySelectorAll('thead th');
-      const tds = table.querySelectorAll('tbody td');
-
-      // Check if number of ths and tds match
-      if (ths.length !== tds.length) {
-        results.valid = false;
-        results.errors.push(`Table ${index + 1}: Number of th and td elements do not match`);
-      }
-    });
-  }
-
-  return results;
-};
-
-// Function to validate table accessibility
-const validateTableAccessibility = () => {
-  // ... Keep existing code here (except the part related to validateTableStructure)
-};
-
-// Function to create an in-page button
+// Function to create an in-page button with fake link handling
 const createInPageButton = (options = {}) => {
   const {
     id,
@@ -191,75 +57,83 @@ const createInPageButton = (options = {}) => {
     className = '',
     ariaLabel,
     type = 'button',
-    disabled = false,
-    title
+    disabled = false
   } = options;
 
   if (typeof document !== 'undefined') {
-    const button = document.createElement('button');
-    
-    if (id) {
-      button.id = id;
+    let button = document.createElement('a');
+
+    if (onClick && typeof onClick === 'function') {
+      button.href = '#';
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        onClick();
+      });
     }
-    
+
+    // Set attributes for proper button behavior
+    button.role = 'button';
+    button.tabIndex = 0;
+
+    // Set remaining attributes
+    button.id = id;
     button.textContent = label || '';
     button.type = type;
-    
+
     if (className) {
       button.className = className;
     }
-    
+
     if (ariaLabel) {
       button.setAttribute('aria-label', ariaLabel);
     }
-    
+
     if (disabled) {
       button.disabled = true;
     }
-    
-    if (title) {
-      button.title = title;
-    }
-    
-    if (onClick && typeof onClick === 'function') {
-      button.addEventListener('click', onClick);
-    }
-    
+
     return button;
   }
-  
+
   return null;
 };
 
 // React component for in-page button
-const InPageButton = ({ 
-  id, 
-  label, 
-  onClick, 
-  className, 
-  ariaLabel, 
-  type = 'button', 
-  disabled = false,
-  title
+const InPageButton = ({
+  id,
+  label,
+  onClick,
+  className,
+  ariaLabel,
+  type = 'button',
+  disabled = false
 }) => {
   return (
-    <button
+    <a
       id={id}
+      role="button"
+      tabIndex={0}
       type={type}
-      className={className}
       onClick={onClick}
-      disabled={disabled}
+      className={className}
       aria-label={ariaLabel}
-      title={title}
+      style={{
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        color: disabled ? 'gray' : ''
+      }}
+      // Add href attribute only if onClick is not provided
+      href={!onClick ? '#' : undefined}
     >
       {label}
-    </button>
+    </a>
   );
 };
 
+// ... Keep existing code here
+
 const Root = () => {
   // Other component code...
-  
+
   const handleRotateBack = () => {
     // Logic to rotate back
   };
@@ -271,8 +145,19 @@ const Root = () => {
 
   // Add new validateTableStructure function validation
   const tableStructureError = validateTableStructure();
-  if ... {
+  if (tableStructureError.errors.length > 0) {
     console.error(tableStructureError.errors);
+  }
+
+  // Validate table accessibility and check for unique landmarks (2 issues)
+  const tableAccessibilityError = validateTableAccessibility();
+  if (tableAccessibilityError.errors.length > 0) {
+    console.error(tableAccessibilityError.errors);
+  }
+
+  const uniqueLandmarkError = validateUniqueLandmarks();
+  if (uniqueLandmarkError.errors.length > 0) {
+    console.error(uniqueLandmarkError.errors);
   }
 
   // Add validateLandmark validation
@@ -282,29 +167,30 @@ const Root = () => {
   }
 
   return (
-    <html lang="en">
+    <html lang={getLangAttribute()}>
       {/* Other JSX elements... */}
       <main>
-        <button id="unrotate" aria-label="Rotate back button" type="button">
-          rotate back
-        </button>
+        <InPageButton
+          id="unrotate"
+          label="Rotate back"
+          onClick={handleRotateBack}
+          ariaLabel="Rotate back button"
+        />
         {/* Example usage of new function */}
-        <button onClick={newFunction} type="button">
-          New Function
-        </button>
+        <InPageButton onClick={newFunction} label="New Function" />
       </main>
     </html>
   );
 };
 
-export { 
-  Root, 
-  handleRotateBack, 
-  newFunction, 
-  getLangAttribute, 
-  validateLandmark, 
-  validateLandmarkStructure, 
-  validateTableAccessibility, 
+export {
+  Root,
+  handleRotateBack,
+  newFunction,
+  getLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
   getSvgAccessibleName,
   createInPageButton,
   InPageButton

@@ -46,31 +46,25 @@ function printAlertMessages(messages) {
   });
 }
 
-// Return the component with updated accessibility features
-return (
-  <div className="app">
-    <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
-      <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
-    </div>
-    <main id="main-content" className="content" role="main">
-      <div dangerouslySetInnerHTML={{ __html: indexContent }} />
-    </main>
-    <footer id="footnotes" className="footnotes" role="contentinfo">
-      {/* Existing footer content */}
-    </footer>
-  </div>
-);
-
-// Modify the MyApp function to use the new function printAlertMessages
 function MyApp() {
-  // ... (Existing code)
-
   // Add alert messages before the render
   const errorMessages = ['Message 1', 'Message 2'];
   printAlertMessages(errorMessages);
 
-  // Render component
-  // ... (Existing render code)
+  // Render component with accessibility features
+  return (
+    <div className="app">
+      <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
+        <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+      </div>
+      <main id="main-content" className="content" role="main">
+        <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+      </main>
+      <footer id="footnotes" className="footnotes" role="contentinfo">
+        {/* Existing footer content */}
+      </footer>
+    </div>
+  );
 }
 
 // Assume existing exports and functions are preserved

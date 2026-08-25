@@ -1,16 +1,1 @@
-// Original code from main.js
-// ...
-
-// Add back any required exports that might have been?
-export function someFunction() {
-  // ...
-}
-
-// New changes as requested in the issue
-function newFunction() {
-  // ...
-}
-
-export { someFunction, newFunction };
-
-// ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -20,7 +20,7 @@ function addMainLandmark(element) {
   // ... existing addMainLandmark function ...
 }
 
-// ADD THE FUNCTION TO ENSURE UNIQUE LANDMARK IDs
+// ADD THE FUNCTION TO ENSURE UNIQUE LANDMARK IDS
 function ensureUniqueLandmarkIds() {
   // ... existing ensureUniqueLandmarkIds function ...
 }
@@ -35,7 +35,7 @@ function fixFakeLinkIssue() {
   // ... existing fixFakeLinkIssue function ...
 }
 
-// ADD THE FUNCTION TO HANDLE UNIQUE LANDMARK NAMES (For REACT_025)
+// NEW FUNCTIONS FROM ISSUE REPORT
 function ensureUniqueLandmarkNames() {
   const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
   const landmarkNames = new Set();
@@ -53,7 +53,7 @@ function ensureUniqueLandmarkNames() {
   });
 }
 
-// NEW FUNCTIONS WILL BE EXPORTED
+// EXPORTS
 export {
   addLangAttribute,
   fixTableStructure, // Assuming this is an existing function as there's no fixTableStructure defined in the snippet

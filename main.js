@@ -65,10 +65,14 @@ headerLandmark.id = 'header-landmark';
 headerLandmark.setAttribute('role', 'banner');
 document.body.insertBefore(headerLandmark, document.body.firstChild);
 
-const mainLandmark = document.createElement('main');
+// Ensure there is only a single <main> landmark — reuse the existing main
+// element instead of creating a duplicate one (REACT_025)
+const mainLandmark = document.querySelector('main') || document.createElement('main');
 mainLandmark.id = 'main-content';
 mainLandmark.setAttribute('role', 'main');
-headerLandmark.appendChild(mainLandmark);
+if (!headerLandmark.contains(mainLandmark)) {
+  headerLandmark.appendChild(mainLandmark);
+}
 
 const footerLandmark = document.createElement('footer');
 footerLandmark.id = 'footer-landmark';

@@ -48,9 +48,6 @@ describe('utils.emotions', () => {
         const cryptoSpy = jest.spyOn(crypto, 'randomInt').mockImplementation(() => {
             throw new Error('mock error');
         });
-        const cryptoBytesSpy = jest.spyOn(crypto, 'randomBytes').mockImplementation(() => {
-            throw new Error('mock error');
-        });
         const mathRandomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
 
         const trait = EmotionSystem.generatePersonality();
@@ -59,7 +56,6 @@ describe('utils.emotions', () => {
         expect(mathRandomSpy).toHaveBeenCalled();
 
         cryptoSpy.mockRestore();
-        cryptoBytesSpy.mockRestore();
         mathRandomSpy.mockRestore();
     });
 

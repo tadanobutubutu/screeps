@@ -80,7 +80,7 @@ function validateLandmarkStructure(landmark) {
   const headings = landmark.querySelectorAll('h1, h2, h3, h4, h5, h6');
   let previousLevel = 0;
   let hasValidHeadingStructure = true;
-  
+
   headings.forEach((heading) => {
     const tagName = heading.tagName.toLowerCase();
     const level = parseInt(tagName.replace('h', ''), 10);
@@ -95,46 +95,17 @@ function validateLandmarkStructure(landmark) {
   return isLandmark && hasValidHeadingStructure;
 }
 
-// Update validateLandmark to use the validateLandmarkStructure function
-function validateLandmark(landmark) {
-  const issues = [];
-
-  if (!landmark || landmark.tagName !== 'DIV') {
-    return { isValid: false, issues: ['Element is not a landmark'] };
-  }
-
-  if (!validateLandmarkStructure(landmark)) {
-    issues.push(`Landmark has invalid structure`);
-  }
-
-  // Check for accessible name
-  const role = landmark.getAttribute('role');
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-  
-  if (!ariaLabel && !ariaLabelledby && role !== 'banner' && role !== 'main') {
-    issues.push('Landmark is missing accessible name');
-  }
-
-  // ... (Rest of the existing validateLandmark function)
-
-  return {
-    isValid: issues.length === 0,
-    issues
-  };
-}
-
 // Add a new function for validating landmark structure on elements
 function validateLandmarks(landmarks) {
   const validLandmarks = [];
   const invalidLandmarks = [];
 
   landmarks.forEach((landmark) => {
-    const validationResult = validateLandmark(landmark);
-    if (validationResult.isValid) {
+    const validationResult = validateLandmarkStructure(landmark);
+    if (validationResult) {
       validLandmarks.push(landmark);
     } else {
-      invalidLandmarks.push({ landmark, issues: validationResult.issues });
+      invalidLandmarks.push(landmark);
     }
   });
 
@@ -146,26 +117,26 @@ function getSvgAccessibleName(svgElement) {
   if (!svgElement || svgElement.tagName !== 'svg') {
     return '';
   }
-  
+
   // Check for aria-label attribute
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check for aria-labelledby attribute
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labelElement = document.getElementById(ariaLabelledby);
     return labelElement ? labelElement.textContent : '';
   }
-  
+
   // Check for title element inside SVG
   const titleElement = svgElement.querySelector('title');
   if (titleElement) {
     return titleElement.textContent;
   }
-  
+
   return '';
 }
 

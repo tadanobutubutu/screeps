@@ -279,7 +279,7 @@ export function addLandmarkRegions() {
             type: 'header',
             props: {
                 role: 'banner',
-                id: header.id || `header_${index}`
+                id: header.id || `header_${index}`,
                 children: [header]
             }
         };
@@ -291,7 +291,7 @@ export function addLandmarkRegions() {
             type: 'nav',
             props: {
                 role: 'navigation',
-                id: nav.id || `nav_${index}`
+                id: nav.id || `nav_${index}`,
                 children: [nav]
             }
         };

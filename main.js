@@ -84,22 +84,24 @@ function handleAccessibilityIssues(issues) {
 // Implement table structure fix function
 function fixTableAccessibility(tables) {
     tables.forEach(table => {
-        const rows = table.querySelectorAll('tbody tr') || table.querySelectorAll('tr');
+        const rows = table.querySelectorAll('tbody tr') || [];
         rows.forEach(row => {
-            const headers = row.querySelectorAll('th');
-            const cells = row.querySelectorAll('td');
+            const headers = row.parentElement.tagName === 'THEAD' ? 
+                Array.from(row.querySelectorAll('th')) : 
+                Array.from(row.children).filter(cell => cell.tagName === 'TH');
+            const cells = Array.from(row.children).filter(cell => cell.tagName === 'TD');
             
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
                 th.setAttribute('scope', isRowHeader ? 'row' : 'col');
                 if (!th.id) {
-                    const tableId = table.id || table.getAttribute('aria-label') || `table-${Math.random().toString(36).substr(2, 9)}`;
-                    th.id = `th-${tableId}-${Math.random().toString(36).substr(2, 9)}`;
+                    const tableId = table.id || table.getAttribute('aria-label') || `table-${Date.now()}`;
+                    th.id = `${tableId}-header-${Math.random().toString(36).substr(2, 9)}`;
                 }
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th[data-row-header]');
+                const rowHeaders = headers.filter(h => h.getAttribute('data-row-header') !== null);
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }
@@ -148,7 +150,7 @@ function wrapPrimaryContentInMain() {
     const existingMain = document.querySelector('main');
     if (existingMain) {
         // Ensure the primary content (e.g., the container) is inside the existing main
-        const container = document.querySelector('[class*="container"], [id*="content"], [role="main"]');
+        const container = document.querySelector('[id*="content"], [role="main"]');
         if (container && !existingMain.contains(container)) {
             existingMain.appendChild(container);
         }
@@ -156,7 +158,7 @@ function wrapPrimaryContentInMain() {
     }
 
     // No main element found; create one and wrap the primary content
-    const container = document.querySelector('[class*="container"], [id*="content"], [id*="main-content"]');
+    const container = document.querySelector('[id*="content"], [role="main"], article, .content, #main');
     const mainEl = document.createElement('main');
     if (container) {
         mainEl.appendChild(container);
@@ -173,7 +175,7 @@ function wrapPrimaryContentInMain() {
     }
     // Insert the new <main> element at the top of the body
     if (!document.querySelector('main')) {
-        document.body.insertBefore(mainEl, document.body.firstChild);
+        body.insertBefore(mainEl, body.firstChild);
     }
 }
 
@@ -198,4 +200,5 @@ export {
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,
-    validateTableStructure,
+    validateTableStructure
+};

@@ -140,7 +140,7 @@ const fixFakeLink = () => {
 
   // If there was any click handling on the original <a>, re‑attach it.
   // Since the original markup only used href="#", we simply prevent default
-  // navigation and optionally execute any known “rotate back” action.
+  // navigation and optionally execute any known "rotate back" action.
   button.addEventListener('click', (e) => {
     e.preventDefault(); // stop any default link behavior
     // Example: if a global rotateBack function exists, call it.
@@ -183,22 +183,35 @@ const wrapPrimaryContentInMain = () => {
     }
   }
 
-  // If no specific primary content selector found, 
-  // wrap the first content section that appears after header/hero sections
+  // If no specific primary content selector found,
+  // look for specific patterns in the HTML structure
   if (!primaryContent) {
-    const bodyChildren = Array.from(document.body.children);
-    const headerElements = document.querySelectorAll('header, .hero, .banner');
+    // For docs/index.html: Look for container div with specific content
+    const indexContainer = document.querySelector('#main-content .container, .container:has(h2)');
+    if (indexContainer && !indexContainer.closest('main')) {
+      primaryContent = indexContainer;
+    }
     
-    // Find content that comes after typical header elements
-    for (const child of bodyChildren) {
-      const isHeader = Array.from(headerElements).some(header => 
-        header.contains(child) || header === child
-      );
+    // For docs/dependency-graph.html: Look for the main data table
+    if (!primaryContent) {
+      const tableRotated = document.getElementById('table-rotated');
+      if (tableRotated && !tableRotated.closest('main')) {
+        primaryContent = tableRotated;
+      }
+    }
+  }
+
+  // If still no primary content found, wrap first meaningful content after header/nav
+  if (!primaryContent) {
+    const mainContentAreas = document.querySelectorAll('main');
+    if (mainContentAreas.length === 0) {
+      // Find the first non-header, non-nav, non-aside, non-footer content section
+      const bodyChildren = Array.from(document.body.children);
+      const skipTags = ['HEADER', 'NAV', 'ASIDE', 'FOOTER'];
       
-      if (!isHeader && child.textContent.trim() && !child.closest('main')) {
-        // Skip navigation, aside, and footer elements
-        const tagName = child.tagName.toLowerCase();
-        if (!['NAV', 'ASIDE', 'FOOTER', 'HEADER'].includes(tagName)) {
+      for (const child of bodyChildren) {
+        if (skipTags.includes(child.tagName)) continue;
+        if (child.textContent.trim()) {
           primaryContent = child;
           break;
         }

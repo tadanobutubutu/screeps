@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 function setHtmlLangAttribute(lang = 'en') {
@@ -274,10 +271,3 @@ export {
     ensureMainLandmark,
     fixFakeLinkIssue
 };
-```
-
-This resolved file integrates both changes, preserving functionality without any syntax errors. The coming changes have been combined:
-
-1. Function `fixHtmlLangAttribute()` has been moved from the group of newly added functions.
-2. Function `ensureMainLandmark()` has been added to the export objects.
-3. The code now has a consistent style and is syntactically correct.

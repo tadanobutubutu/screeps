@@ -6,6 +6,7 @@ function generateDependencyGraphData() {
   function manageLandmarks() {
     // Add 'region' landmark to room.htmlElement
     room.htmlElement.setAttribute('role', 'region');
+    // TODO: This is the existing code that needs to be preserved
     // Add 'article' landmark to room.container
     room.container.setAttribute('role', 'article');
     // Ensure unique landmarks

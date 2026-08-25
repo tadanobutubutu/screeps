@@ -12,18 +12,18 @@ import { indexContent } from "./indexContent";
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
   const { JSDOM } = require('jsdom');
-  const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
+  const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div ...');
   const window = dom.window;
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ReactDOMServer.renderToString(component)
+    renderToString: (component) => ...
   };
 
   const mockDocument = window.document;
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = mockDocument.getElementById('root');
+  const rootElement = ...
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -59,7 +59,7 @@ function addAriaLabelledbyIfNeeded(elem, context) {
     content = React.createElement('div', { id: 'generatedId' }, null);
   }
   
-  const contentString = ReactDOMServer.renderToString(content);
+  const contentString = ...
   
   // ... (Pre-existing logic)
 }
@@ -91,13 +91,13 @@ function initAriaLabels() {
  * @param {Object} context - The React context containing window and document references
  * @returns {HTMLElement|null} - The created main element or null if no content found
  */
-function wrapMainElement(context) {
+function wrapMainContent(context) {
   if (!context || !context.document) return null;
   
   const { document } = context;
   
   // Check if a main element already exists
-  const existingMain = document.querySelector('[role="main"]');
+  const existingMain = ...
   if (existingMain) {
     return existingMain;
   }
@@ -109,16 +109,16 @@ function wrapMainElement(context) {
   }
   
   // Create a new main element
-  const mainElement = document.createElement('main');
+  const mainElement = ...
   mainElement.setAttribute('role', 'main');
   
   // Move all body children into the main element
   while (body.firstChild) {
-    mainElement.appendChild(body.firstChild);
+    ...
   }
   
   // Append the main element to the body
-  body.appendChild(mainElement);
+  ...
   
   return mainElement;
 }
@@ -238,4 +238,5 @@ function implementSomething(context) {
  * Analyzes text content to infer the most likely language.
  * 
  * @param {Object} context - The React context containing window and document references
- * @returns {string} - The detected language code (e.g., 'en
+ * @returns {string} - The detected language code (e.g., 'en')
+ */

@@ -1,1 +1,9 @@
-Could you please provide the full contents of `main.js`, especially the sections between the `<<<<<<< HEAD`, `=======`, and `>>>>>>> origin/main` markers? This will let me resolve the conflict accurately.
+// TODO: Address accessibility issues from insight report
+console.log("This is a log message from main.js");
+
+module.exports = {
+  someFunction: function () {
+    // Do something...
+  },
+  // More exports...
+};

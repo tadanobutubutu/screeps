@@ -29,9 +29,10 @@ function validateTableAccessibility() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      const scope = th.getAttribute('scope');
+      if (!scope) {
         hasIssues = true;
-      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(th.getAttribute('scope'))) {
+      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
         hasIssues = true;
       }
     });
@@ -65,7 +66,7 @@ function addMainLandmark() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
-    document.body.prepend(newMain);
+    document.body.insertBefore(newMain, document.body.firstChild);
     return newMain;
   }
   return main;
@@ -79,7 +80,7 @@ function ensureUniqueLandmarkIds() {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
       if (landmarkRoles.has(role)) {
-        landmark.id = role + '-' + landmarkRoles.get(role);
+        landmark.id = role + '-' + (landmarkRoles.get(role) + 1);
         landmarkRoles.set(role, landmarkRoles.get(role) + 1);
       } else {
         landmarkRoles.set(role, 1);
@@ -215,7 +216,7 @@ function ensureUniqueLandmarks() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+    if (!svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
@@ -225,7 +226,7 @@ function addSvgAccessibleNames() {
 
 // NEW: Fix favicon accessibility by marking as decorative
 function fixFaviconAccessibility() {
-  const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+  const faviconLinks = document.querySelectorAll('link[rel="shortcut icon"]');
   faviconLinks.forEach(link => {
     link.setAttribute('aria-hidden', 'true');
   });
@@ -255,7 +256,7 @@ function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
   let hasIssues = false;
   links.forEach(link => {
-    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+    if (!link.href || link.getAttribute('href') === '#') {
       hasIssues = true;
     }
   });
@@ -282,10 +283,10 @@ function fixTableStructure() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const rowIndex = Array.from(th.parentElement.children).indexOf(th);
+        const rowIndex = Array.from(th.parentElement ? th.parentElement.children : []).indexOf(th);
         const isFirstInCol = rowIndex === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
@@ -318,7 +319,7 @@ function addMainLandmark() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
-    document.body.prepend(newMain);
+    document.body.insertBefore(newMain, document.body.firstChild);
     return newMain;
   }
   return main;
@@ -330,11 +331,11 @@ function addLandmarkRegions() {
   addMainLandmark();
 
   // Validate and fix unique landmarks
-  ensureUniqueLandmarkIds();
+  ensureUniqueLandmarks();
   fixMultipleMainLandmarks();
 
   // Ensure other landmarks have proper labeling
-  const landmarks = document.querySelectorAll('header, nav, aside, footer');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside');
   landmarks.forEach((landmark, index) => {
     if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
       const tagName = landmark.tagName.toLowerCase();
@@ -363,8 +364,8 @@ function fixFakeLinkIssue() {
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
+// index views to import and use dependencyGraphContent/indexContent from
+// their respective modules for better maintainability and content separation.
 
 /**
  * Render the dependency graph view using the imported dependencyGraphContent module.

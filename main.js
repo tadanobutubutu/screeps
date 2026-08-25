@@ -10,12 +10,21 @@
 //_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 
 // TODO: Import required module(s) - for fixing table structure issues
-// ONLY ADD the new functions or changes requested in the issue
 import { autoFixTable } from 'table-auto-fix';
 
 // Add the new function to the existing functions in main.js
 function fixTableStructureIssues() {
   autoFixTable(document);
+}
+
+// TODO: Import required module(s) - for fixing table header cell scope
+import { addScopeToTH } from 'table-header-accessibility-fix';
+
+// Add a new function to fix table header cell scope
+function fixTableHeaderCellScope() {
+  // Ensure each table header cell has a scope attribute
+  const tableHeaders = document.querySelectorAll('th');
+  addScopeToTH(tableHeaders);
 }
 
 // Preserve the rest of the existing main.js code
@@ -65,19 +74,7 @@ function fixFakeLinks() {
   });
 }
 
-// Add a new function to fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Ensure each table header cell has a scope attribute
-  const tableHeaders = document.querySelectorAll('th');
-  for (let i = 0; i < tableHeaders.length; i++) {
-    if (!tableHeaders[i].hasAttribute('scope')) {
-      tableHeaders[i].setAttribute('scope', 'col');
-    }
-  }
-}
-
 // Fix for Issue: Add exports for new functions if needed in main.js
-// ONLY ADD the new functions or changes requested in the issue
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,

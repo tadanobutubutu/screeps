@@ -135,6 +135,72 @@ function renderDependencyGraph(dependencies, container) {
   container.appendChild(fragment);
 }
 
+/**
+ * Validates table accessibility attributes
+ * Checks for proper table structure, headers, captions, and scope attributes
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid boolean and issues array
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table || table.tagName !== 'TABLE') {
+    return { isValid: false, issues: ['Element is not a table'] };
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push('Table is missing a caption');
+  }
+
+  // Check for headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table has no header cells (th)');
+  } else {
+    // Check scope attributes on headers
+    headers.forEach((header, index) => {
+      const scope = header.getAttribute('scope');
+      if (!scope) {
+        issues.push(`Header cell ${index + 1} is missing scope attribute`);
+      } else if (!['col', 'row', 'colgroup', 'rowgroup'].includes(scope)) {
+        issues.push(`Header cell ${index + 1} has invalid scope value: ${scope}`);
+      }
+    });
+  }
+
+  // Check for proper table structure (thead, tbody, tfoot)
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  if (!thead && !tbody) {
+    issues.push('Table is missing thead and/or tbody sections');
+  }
+
+  // Check for summary attribute (deprecated but still used for accessibility)
+  const summary = table.getAttribute('summary');
+  if (!summary && !caption) {
+    issues.push('Table has neither summary attribute nor caption');
+  }
+
+  // Check for headers/id association in complex tables
+  const cells = table.querySelectorAll('td[headers]');
+  cells.forEach((cell, index) => {
+    const headersAttr = cell.getAttribute('headers');
+    const headerIds = headersAttr.split(/\s+/);
+    headerIds.forEach(id => {
+      if (!document.getElementById(id)) {
+        issues.push(`Cell ${index + 1} references non-existent header id: ${id}`);
+      }
+    });
+  });
+
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
 // Include the new function as an export
 module.exports = {
   loop: function() {
@@ -149,5 +215,6 @@ module.exports = {
   rotateBack,
   renderDependencyGraph,
   initAriaLabels, // Add the new function to the exports
-  getLangAttribute // Add the new function to the exports
+  getLangAttribute, // Add the new function to the exports
+  validateTableAccessibility // Add the new function to the exports
 };

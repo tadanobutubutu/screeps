@@ -6,25 +6,25 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to SVGs (DONE: addAccessibleSVGs)
 
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
+// - REACT_025: Additional accessibility improvements
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// New function to handle button click
+// Function to add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', lang);
+  }
+}
+
+// Function to handle button click with aria-expanded toggle
 function handleButtonClick(event) {
   const target = event.target;
   const isExpanded = target.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
   target.setAttribute('aria-expanded', isExpanded);
 }
 
-// New function to ensure HTML lang attribute is set
-function addLangAttribute() {
-  const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', 'en');
-  }
-}
-
-// New function to inject and fix fake links
+// Function to inject and fix fake links
 function fixFakeLinks() {
   const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
   fakeLinks.forEach(function(fakeLink) {
@@ -181,18 +181,45 @@ function processAccessibilityIssues(insightReport) {
       }
     });
   }
-
-  // Run all accessibility fixes regardless of report content as fallback
-  addLangAttribute();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  wrapPrimaryContentInMain();
-  addAccessibleSVGs();
-  addScopeToTableHeaders();
 }
 
-// Call all necessary functions
-processAccessibilityIssues();
+// REACT_025: Additional accessibility improvements
+function initializeAccessibility() {
+  // Set default language attribute
+  addLangAttribute();
+  
+  // Process any known accessibility issues
+  processAccessibilityIssues();
+
+  // Prevent tab trapping outside of modals by managing focus
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.dispatchEvent(new CustomEvent('escapePressed'));
+    }
+  });
+  
+  // Ensure skip link functionality if skip link exists
+  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      const target = document.querySelector('#main-content, main, [role="main"]');
+      if (target) {
+        e.preventDefault();
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
+}
+
+// Initialize accessibility features on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
+}
 
 // Export all functions for external use
 module.exports = {
@@ -203,5 +230,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addScopeToTableHeaders,
   addAccessibleSVGs,
-  processAccessibilityIssues
+  processAccessibilityIssues,
+  initializeAccessibility
 };

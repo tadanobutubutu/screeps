@@ -31,6 +31,6 @@ module.exports = {
 };
 
 // ADDING THE EXPORTS FOR THE NEW FUNCTIONS
-module.exports.fixTableStructure = fixTableStructure;
-module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
-module.exports.newFunctionForAccessibilityIssue = newFunctionForAccessibilityIssue;
+fixTableStructure = fixTableStructure;
+fixFakeLinkIssue = fixFakeLinkIssue;
+newFunctionForAccessibilityIssue = newFunctionForAccessibilityIssue;

@@ -22,11 +22,12 @@ function addLangAttribute() {
 function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
+    const existingThead = table.querySelector('thead');
+    if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headers = firstRow.querySelectorAll('th');
+        const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
           const th = document.createElement('th');
@@ -59,10 +60,9 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('.content') || document.body.firstElementChild;
+    const content = document.querySelector('.content') || document.body;
     if (content) {
-      main.appendChild(content);
-      document.body.insertBefore(main, content);
+      main.appendChild(content.cloneNode(true));
       content.remove();
     }
   } else {
@@ -90,6 +90,9 @@ function addSvgAccessibleNames() {
     svg.setAttribute('role', 'img');
     if (!title.id) {
       title.id = 'svg-title-' + index;
+    }
+    if (!svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-labelledby', title.id);
     }
   });
 }
@@ -122,8 +125,8 @@ function ensureUniqueLandmarks() {
         while (main.firstChild) {
           section.appendChild(main.firstChild);
         }
-        const attributes = Array.from(main.attributes);
-        attributes.forEach(attr => {
+        const attributes = main.attributes;
+        Array.from(attributes).forEach(attr => {
           if (attr.name !== 'aria-label') {
             section.setAttribute(attr.name, attr.value);
           }
@@ -136,7 +139,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('div.clickable');
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href][href="#"], a[href][href=""]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

@@ -235,6 +235,21 @@ function fixFakeLinkIssue() {
     });
 }
 
+// New function to ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks() {
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+    landmarkRoles.forEach(role => {
+        const landmarks = document.querySelectorAll(`[role="${role}"]`);
+        if (landmarks.length > 1) {
+            // Keep the first one, remove role from duplicates
+            for (let i = 1; i < landmarks.length; i++) {
+                landmarks[i].removeAttribute('role');
+                console.warn(`Duplicate landmark role "${role}" found. Removed from element:`, landmarks[i]);
+            }
+        }
+    });
+}
+
 export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,
@@ -254,5 +269,6 @@ export {
     createInPageButton,
     createAccessibleLink,
     wrapPrimaryContentInMain,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    ensureUniqueLandmarks
 };

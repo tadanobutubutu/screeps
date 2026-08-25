@@ -1,17 +1,17 @@
-// Import required module(s) for addressing the new issue
-import { getElementById } from './helpers.js';
-export { getElementById };
+// Main module for the application
 
-/**
- * REACT_015: Add lang attribute to HTML element
- */
-function addLangAttribute() {
-  if (typeof document === 'undefined') return;
-
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.lang = 'en';
+// TODO: Implement the new function as per the issue requirements
+function calculateTotal(items) {
+  if (!Array.isArray(items)) {
+    throw new TypeError('Items must be an array');
   }
+  
+  return items.reduce((sum, item) => {
+    if (typeof item !== 'object' || item === null) {
+      return sum;
+    }
+    return sum + (item.price || 0);
+  }, 0);
 }
 
 /**
@@ -291,3 +291,5 @@ ensureUniqueLandmarks();
 addSvgAccessibleNames();
 fixFakeLinks();
 establishLandmarkRegions();
+
+module.exports = { calculateTotal };

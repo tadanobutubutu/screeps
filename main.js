@@ -7,23 +7,22 @@ import JSDOM from "jsdom";
 
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
-  const { JSDOM: { window } } = JSDOM.virtualDOM;
+  const dom = new JSDOM('<!DOCTYPE html><html><body><div id="root"></div></body></html>', {
+    runScripts: "outside-only"
+  });
+  const { window } = dom;
 
   window.React = React;
   window.ReactDOM = {
     renderToString: (component) => ReactDOMServer.renderToString(component)
   };
-
-  const mockDocument = new window.Document();
-  const body = mockDocument.body;
-  body.innerHTML = "<div id='root'></div>";
-  const rootElement = body.querySelector('#root');
-  window.document = mockDocument;
+  
+  const rootElement = window.document.getElementById('root');
   window.navigator = { userAgent: "headless" };
   
   return {
     window,
-    document: mockDocument,
+    document: window.document,
     rootElement
   };
 }

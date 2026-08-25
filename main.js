@@ -86,6 +86,17 @@ function addSvgAccessibleNames() {
 function fixTableStructureIssues() {
   // Assuming that the tables need to be restructured for accessibility
   // Implementation details are not provided here
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const thead = table.querySelector('thead');
+    if (thead) {
+      thead.querySelectorAll('th').forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+    }
+  });
 }
 
 // Accessibility: Fix 1 fake link issue (DONE: fixFakeLinkIssue)

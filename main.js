@@ -11,7 +11,7 @@ function createReactContext() {
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ReactDOMServer.renderToString(component),
+    renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
   const mockDocument = new window.Document();
@@ -32,9 +32,8 @@ function addAriaLabelledbyIfNeeded(elem) {
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
   const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = ReactDOMServer.renderToString(content);
-  elem.insertAdjacentHTML("beforeend", contentString);
-
+  const contentString = context.ReactDOM.renderToString(content);
+  
   // ... (Pre-existing logic)
 }
 
@@ -42,7 +41,7 @@ function addAriaLabelledbyIfNeeded(elem) {
 // and use that context to render React components:
 
 function initAriaLabels() {
-  const elements = document.querySelectorAll('[data-aria-init]');
+  const elements = document.querySelectorAll('[data-aria-label]');
   elements.forEach((elem) => {
     const id = elem.id || 'aria-label-' + Math.random().toString(36).substr(2, 9);
     elem.id = id;
@@ -57,3 +56,6 @@ function initAriaLabels() {
     addAriaLabelledbyIfNeeded(elem);
   });
 }
+
+// Export the functions to make them accessible
+export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels };

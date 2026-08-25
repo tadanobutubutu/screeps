@@ -13,7 +13,7 @@ function prefersReducedMotion() {
  * Apply accessibility attributes to interactive elements
  */
 function applyAccessibilityAttributes() {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  const interactiveElements = document.querySelectorAll('a, input, select, textarea');
   
   interactiveElements.forEach(element => {
     if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
@@ -56,9 +56,68 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+/**
+ * Ensure a main landmark exists in the document for accessibility
+ * Wraps the primary content in a <main> element if one doesn't exist
+ * @returns {HTMLElement|null} The main element or null if already exists
+ */
+function ensureMainLandmark() {
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    
+    // Find the first table or significant content element to wrap
+    const contentElement = document.querySelector('table, .container, #table-rotated, article, section');
+    
+    if (contentElement && contentElement.parentNode) {
+      contentElement.parentNode.insertBefore(mainElement, contentElement);
+      mainElement.appendChild(contentElement);
+      console.info('Accessibility: Created <main> landmark and wrapped primary content');
+    } else if (document.body) {
+      // Fallback: wrap all direct body children except header, nav, footer
+      const elementsToWrap = Array.from(document.body.children).filter(el => {
+        const tagName = el.tagName.toLowerCase();
+        return !['header', 'nav', 'footer', 'aside'].includes(tagName) && 
+               !el.classList.contains('sr-only');
+      });
+      
+      elementsToWrap.forEach(el => mainElement.appendChild(el));
+      document.body.insertBefore(mainElement, document.body.firstChild);
+      console.info('Accessibility: Created <main> landmark and wrapped main content');
+    }
+  }
+  
+  return mainElement;
+}
+
+/**
+ * Validate that required landmarks exist on the page
+ * @returns {Object} Object containing validation results
+ */
+function validateLandmarks() {
+  const results = {
+    hasMain: !!document.querySelector('main'),
+    hasHeader: !!document.querySelector('header'),
+    hasNav: !!document.querySelector('nav'),
+    hasFooter: !!document.querySelector('footer'),
+    isValid: false
+  };
+  
+  results.isValid = results.hasMain;
+  
+  if (!results.hasMain) {
+    console.warn('Accessibility: Page is missing <main> landmark. Use ensureMainLandmark() to create one.');
+  }
+  
+  return results;
+}
+
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,
   handleKeyboardNavigation,
-  announceToScreenReader
+  announceToScreenReader,
+  ensureMainLandmark,
+  validateLandmarks
 };

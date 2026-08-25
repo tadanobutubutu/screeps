@@ -99,6 +99,11 @@ function addressAccessibilityIssues(reportPath) {
   console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
 }
 
+// New implementation for addressing new accessibility issues from the insight report
+function implementAccessibilityFixesFromReport(reportPath) {
+  addressAccessibilityIssues(reportPath);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -108,5 +113,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAltAttribute,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  implementAccessibilityFixesFromReport
 };

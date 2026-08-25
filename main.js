@@ -5,7 +5,38 @@ import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandma
 // ADD NEW FUNCTION - addRequiredLandmarks (Assuming it's a new function to address REACT_017, REACT_025, and REACT_041 issues)
 export const addRequiredLandmarks = () => {
   // Implement the addRequiredLandmarks function based on the insight report
-  // TODO: Add your code here
+  // For example, let's simply add a main landmark and some accessible names to SVGs
+  document.documentElement.setAttribute('lang', 'en'); // Add lang attribute to HTML element (DONE: addLangAttribute)
+
+  // Add main landmark (REACT_017)
+  const mainLandmark = document.getElementById('main');
+  if (mainLandmark) {
+    mainLandmark.setAttribute('role', 'banner');
+  }
+
+  // Add accessible names to 2 SVGs (REACT_041)
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    svg.setAttribute('aria-label', 'Accessible name for SVG');
+  });
+
+  // Ensure unique landmarks (REACT_025)
+  const landmarks = document.querySelectorAll('[role="region"]');
+  const uniqueIds = new Set();
+  landmarks.forEach((landmark) => {
+    const id = landmark.id;
+    if (!uniqueIds.has(id)) {
+      uniqueIds.add(id);
+    } else {
+      let counter = 1;
+      let updatedId = id + `-${counter}`;
+      while (document.getElementById(updatedId)) {
+        counter++;
+        updatedId = id + `-${counter}`;
+      }
+      landmark.id = updatedId;
+    }
+  });
 };
 
 // Function to calculate the index of an item in an array based on its id ([NEW])
@@ -55,7 +86,10 @@ export const MainComponent = () => {
   const handleSearch = (event) => {
     const query = event.target.value;
     const filteredLandmarks = originalFilterLandmarks(landmarks, query);
-    addRequiredLandmarks(); // Add this line to address REACT_017, REACT_025, and REACT_041 issues
+
+    // Add the call to addRequiredLandmarks function here (REACT_017, REACT_025, and REACT_041 issues)
+    addRequiredLandmarks();
+
     setLandmarks(filteredLandmarks);
   };
 

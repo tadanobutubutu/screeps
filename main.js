@@ -53,16 +53,31 @@ function divide(a, b) {
   return a / b;
 }
 
-// Add a new function for adding `aria-label` to buttons
+// Add functions for adding `aria-label` to buttons
 function addAriaLabel(elem, label) {
   if (elem) {
     elem.setAttribute('aria-label', label);
   }
 }
 
-// Modify the event listeners to include `aria-label`
+// Add `aria-label` to the rotation and unrotate buttons
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+
+/**
+ * A new function for adding `aria-label` to arbitrary elements
+ * @param {HTMLElement} elem - The HTML element to add `aria-label` to
+ * @param {string} label - The text to use as the `aria-label`
+ */
+function setAriaLabelOn(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
+
+// An example usage of the new function with a custom button element
+const customBtn = document.getElementById('custom-btn');
+setAriaLabelOn(customBtn, 'Perform custom action');
 
 module.exports = {
   loop: function() { /* Main game loop logic myNewFunction(); */ },
@@ -70,5 +85,6 @@ module.exports = {
   subtract,
   multiply,
   divide,
-  addAriaLabel
+  addAriaLabel,
+  setAriaLabelOn
 };

@@ -110,7 +110,6 @@ function fixFakeLinkIssue() {
   return isValid;
 }
 
-// New functions requested by the issue
 function addSidebarLandmark() {
   const sidebar = document.getElementById('sidebar');
   if (sidebar) {
@@ -135,7 +134,6 @@ function addNavLandmark() {
   }
 }
 
-// Helper function to add title to favicon for accessibility
 function addFaviconAccessibleName() {
   const faviconLink = document.querySelector('link[rel="icon"]');
   if (faviconLink) {
@@ -165,5 +163,16 @@ function validateLinkAccessibility() {
   return isValid;
 }
 
+// New function requested by the issue
+function addMainElementToDocuments() {
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach(main => {
+    main.innerHTML = '';
+    if (main.parentNode.firstChild) {
+      main.appendChild(main.parentNode.firstChild);
+    }
+  });
+}
+
 // Export all functions for testing and external use
-export { addLangAttribute, getLangAttribute, validateTableAccessibility, validateTableStructure, addSvgAccessibleNames, addMainLandmark, ensureUniqueLandmarks, fixFakeLinkIssue, addSidebarLandmark, addFooterLandmark, addNavLandmark, addFaviconAccessibleName, wrapPrimaryContentInMain, validateLinkAccessibility };
+export { addLangAttribute, getLangAttribute, validateTableAccessibility, validateTableStructure, addSvgAccessibleNames, addMainLandmark, ensureUniqueLandmarks, fixFakeLinkIssue, addSidebarLandmark, addFooterLandmark, addNavLandmark, addFaviconAccessibleName, wrapPrimaryContentInMain, validateLinkAccessibility, addMainElementToDocuments };

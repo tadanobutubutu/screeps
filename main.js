@@ -6,23 +6,25 @@
  */
 function generateAccessibleTable() {
   const table = `
-    <table>
-      <thead>
-        <tr>
-          <th scope="col"><div>src/constants.js</div></th>
-          <th scope="col"><div>src/managers/roomManager.js</div></th>
-          <th scope="col"><div>src/managers/spawnManager.js</div></th>
-          <th scope="col"><div>src/managers/towerManager.js</div></th>
-          <th scope="col"><div>src/roles/builder.js</div></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td scope="row"><div>Header Cell</div></td>
-          <td scope="row"><div>Data Cell</div></td>
-        </tr>
-      </tbody>
-    </table>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th ...
+            <th ...
+            <th ...
+            <th ...
+            <th ...
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td scope="row"><div>Header Cell</div></td>
+            <td ... Cell</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
   `;
   
   // Export the generated table

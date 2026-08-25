@@ -1,6 +1,3 @@
-Here is a combined version of both changes, which neither discards functionality nor introduces syntax errors. I also preserved comments and style as much as possible.
-
-```javascript
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import dependencyGraphHtml from './dependency-graph.html';
@@ -113,4 +110,3 @@ module.exports = {
   initUnrotateButton,
   fixSvgAccessibleName,
 };
-```

@@ -30,7 +30,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -73,8 +73,7 @@ function ensureUniqueLandmarks() {
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>
-  Object.keys(landmarks).forEach((landmarkType) => {
-    const elements = landmarks[landmarkType];
+  Object.entries(landmarks).forEach(([landmarkType, elements]) => {
     if (elements.length > 1) {
       elements.forEach((element, index) => {
         if (landmarkType === 'main' && index > 0) {
@@ -101,13 +100,26 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// NEW FUNCTION: Add accessible name to SVGs
+// UPDATED FUNCTION: Add accessible name to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
+    // Check if SVG already has accessible name via aria-label or aria-labelledby
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+    const titleElement = svg.querySelector('title');
+    
     // Add accessible name using aria-label if not present
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
+    if (!hasAriaLabel && !hasAriaLabelledby) {
+      if (titleElement) {
+        // If there's a title element, use aria-labelledby to reference it
+        const titleId = `svg-title-${index}`;
+        titleElement.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
+      } else {
+        // Otherwise add aria-label with generic description
+        svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
+      }
     }
     // Add role="img" for better screen reader support
     if (!svg.getAttribute('role')) {

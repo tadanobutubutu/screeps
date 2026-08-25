@@ -122,6 +122,17 @@ function fixFakeLinkIssue(document) {
   });
 }
 
+// Function for addressing new accessibility issues from the insight report
+function addressAccessibilityIssues(document) {
+  // Apply all accessibility fixes from the insight report
+  addLangAttribute(document);
+  fixTableStructureIssues(document);
+  addMainLandmark(document);
+  addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
+  fixFakeLinkIssue(document);
+}
+
 // New function using the imported graphMetrics module
 function calculateGraphMetrics(dependencies) {
   // Import getGraphMetrics function from graphMetrics module
@@ -166,6 +177,7 @@ module.exports = {
   handleConflict,
   handleConflictResolution,
   handleConflictWithAccessibility,
+  addressAccessibilityIssues,
   BUTTON_ID,
   addLangAttribute,
   fixTableStructureIssues,

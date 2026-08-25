@@ -1,1 +1,2 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Dependency Dashboard - Managed by Renovate
+// See issue for details on dependency updates

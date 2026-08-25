@@ -23,9 +23,11 @@ const fixTableStructureIssues = function(tables) {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
-                thead.appendChild(firstRow.cloneNode(true));
-                table.insertBefore(thead, table.firstChild);
-                firstRow.remove();
+                const parent = firstRow.parentNode;
+                if (parent.tagName !== 'THEAD') {
+                    thead.appendChild(firstRow);
+                    table.insertBefore(thead, table.firstChild);
+                }
             }
         }
         return table;
@@ -35,9 +37,9 @@ const fixTableStructureIssues = function(tables) {
 // Add main landmark (REACT_017)
 const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
-        const hasMainTag = /<main[\s>]/.test(content);
+        const hasMainTag = /<main[\s>]/i.test(content);
         if (!hasMainTag) {
-            return content.replace(/<body/, '<main').replace(/<\/body>/, '</main>');
+            return content.replace(/<body/i, '<main').replace(/<\/body>/i, '</main>');
         }
     }
     return content;

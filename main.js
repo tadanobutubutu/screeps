@@ -1,17 +1,6 @@
-// Import required module(s) for addressing the new issue
+// Import required module(s) for address the new issue
 import { getElementId } from './helpers.js';
 export { getElementId };
-
-// TODO: Implement the new function as per the issue requirements
-function newIssueFunction() {
-  if (typeof document === 'undefined') return;
-
-  const elements = document.querySelectorAll('p');
-  elements.forEach((element) => {
-    // Replace with your custom logic for the new issue
-    element.textContent = 'Replaced Text';
-  });
-}
 
 /**
  * REACT_015: Add lang attribute to HTML element
@@ -324,3 +313,41 @@ function establishLandmarkRegions() {
     }
   }
 }
+
+// TODO: Implement the new function as per the issue requirements
+function newIssueFunction() {
+  if (typeof document === 'undefined') return;
+
+  const elements = document.querySelectorAll('p');
+  elements.forEach((element) => {
+    // Replace with your custom logic for the new issue
+    element.textContent = 'Replaced Text';
+  });
+}
+
+// Initialize all accessibility fixes
+(function initializeAccessibilityFixes() {
+  if (typeof document !== 'undefined') {
+    addLangAttribute();
+    fixTableStructure();
+    addMainLandmark();
+    wrapPrimaryContentInMain();
+    ensureUniqueLandmarks();
+    addSvgAccessibleNames();
+    fixFakeLinks();
+    establishLandmarkRegions();
+  }
+})();
+
+// Export functions for testing or external use
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinks,
+  establishLandmarkRegions,
+  newIssueFunction
+};

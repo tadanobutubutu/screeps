@@ -72,3 +72,12 @@ module.exports = {
   divide,
   addAriaLabel
 };
+
+// Wrap the primary content in <main> for accessibility
+document.addEventListener('DOMContentLoaded', (event) => {
+  const mainContent = document.querySelector('#main-content');
+  if (mainContent) {
+    mainContent.closest('body').insertBefore(document.createElement('main'), mainContent);
+    mainContent.classList.add('main-content');
+  }
+});

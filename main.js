@@ -116,7 +116,7 @@ const validateTableStructure = () => {
     tables.forEach((table, tableIndex) => {
       const rows = table.querySelectorAll('tr');
       rows.forEach((row, rowIndex) => {
-        const cells = row.querySelectorAll('td');
+        const cells = row.querySelectorAll('td, th');
         const headerCells = row.querySelectorAll('th');
         
         // Check for empty cells

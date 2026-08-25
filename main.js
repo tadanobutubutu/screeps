@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Address accessibility issues from insight report
+// - Add lang attribute to HTML element
+
+// Existing code and exports remain unchanged
+
+const myElement = document.getElementById('myElement');
+myElement.setAttribute('lang', 'en'); // Add this line

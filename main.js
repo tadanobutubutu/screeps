@@ -1,5 +1,3 @@
-// Implement the new function as per the issue requirements
-// Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import JSDOM from "jsdom";

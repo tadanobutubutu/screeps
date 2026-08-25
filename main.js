@@ -1,39 +1,8 @@
-<?php
-// This is a placeholder for the actual content that needs to be wrapped
-// <div class="container">
-//     <h2>Quality & Metrics Reports</h2>
-//     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-//     <div class="links">
-//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-//     </div>
-// </div>
-<main>
-  <!-- Quality & Metrics Reports Section -->
-  <div class="container">
-    <h2>Quality & Metrics Reports</h2>
-    <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-    <div class="links">
-      <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-      <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-    </div>
-  </div>
-</main>
-
-<!-- Dependency Graph Content -->
-<main>
-  <!-- Dependency Graph Container -->
-  <div id="dependency-graph-container"></div>
-</main>
-
-<!-- Index View Content -->
-<main>
-  <!-- Index View Container -->
-  <div id="index-view-container"></div>
-</main>
+// TODO: Address accessibility issues from insight report:
+// Implementing `aria-label` for inaccessible form elements
 
 // Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from './content/dependencyGraphContent.js';
+import { dependencyGraphContent } from './dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
@@ -54,9 +23,10 @@ function validateTableAccessibility() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      const scope = th.getAttribute('scope');
+      if (!scope) {
         hasIssues = true;
-      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(th.getAttribute('scope'))) {
+      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
         hasIssues = true;
       }
     });
@@ -90,7 +60,12 @@ function addMainLandmark() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
-    document.body.prepend(newMain);
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(newMain, body.firstChild);
+    } else {
+      body.appendChild(newMain);
+    }
     return newMain;
   }
   return main;
@@ -104,7 +79,7 @@ function ensureUniqueLandmarkIds() {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
       if (landmarkRoles.has(role)) {
-        landmark.id = role + '-' + landmarkRoles.get(role);
+        landmark.id = role + '-' + (landmarkRoles.get(role) + 1);
         landmarkRoles.set(role, landmarkRoles.get(role) + 1);
       } else {
         landmarkRoles.set(role, 1);
@@ -181,7 +156,7 @@ function ensureUniqueLandmarks() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+    if (!svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
@@ -191,7 +166,7 @@ function addSvgAccessibleNames() {
 
 // NEW: Fix favicon accessibility by marking as decorative
 function fixFaviconAccessibility() {
-  const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+  const faviconLinks = document.querySelectorAll('link[rel="shortcut icon"], link[rel="icon"]');
   faviconLinks.forEach(link => {
     link.setAttribute('aria-hidden', 'true');
   });
@@ -221,7 +196,7 @@ function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
   let hasIssues = false;
   links.forEach(link => {
-    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+    if (!link.href || link.getAttribute('href') === '#') {
       hasIssues = true;
     }
   });
@@ -251,7 +226,7 @@ function fixTableStructure() {
       if (!th.hasAttribute('scope')) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const rowIndex = Array.from(th.parentElement.children).indexOf(th);
+        const rowIndex = Array.from(th.parentElement.parentElement.children).indexOf(th.parentElement);
         const isFirstInCol = rowIndex === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
@@ -271,23 +246,12 @@ function checkTableStructure() {
   for (const table of tables) {
     const headers = table.querySelectorAll('th');
     for (const th of headers) {
-      if (!hasValidTHScope(th)) {
+      if (!th.hasAttribute('scope')) {
         return false;
       }
     }
   }
   return true;
-}
-
-// Add main landmark if missing
-function addMainLandmark() {
-  const main = document.querySelector('main');
-  if (!main) {
-    const newMain = document.createElement('main');
-    document.body.prepend(newMain);
-    return newMain;
-  }
-  return main;
 }
 
 // Add landmark regions for accessibility
@@ -296,11 +260,11 @@ function addLandmarkRegions() {
   addMainLandmark();
 
   // Validate and fix unique landmarks
-  ensureUniqueLandmarkIds();
   fixMultipleMainLandmarks();
+  ensureUniqueLandmarkIds();
 
   // Ensure other landmarks have proper labeling
-  const landmarks = document.querySelectorAll('header, nav, aside, footer');
+  const landmarks = document.querySelectorAll('nav, aside, footer');
   landmarks.forEach((landmark, index) => {
     if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
       const tagName = landmark.tagName.toLowerCase();
@@ -311,7 +275,7 @@ function addLandmarkRegions() {
 
 // Fix fake link issue - convert anchor tags without href to buttons
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     const button = document.createElement('button');
     button.textContent = link.textContent;
@@ -397,37 +361,4 @@ function renderIndexView(containerId, options = {}) {
   // Append the content to the container
   if (typeof content === 'string') {
     container.innerHTML = content;
-  } else if (content instanceof HTMLElement) {
-    container.appendChild(content);
-  } else if (Array.isArray(content)) {
-    content.forEach(item => {
-      if (typeof item === 'string') {
-        container.innerHTML += item;
-      } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
-      }
-    });
-  }
-
-  return container;
-}
-
-// Main entry: Address all accessibility issues
-function addressAccessibilityIssues() {
-  addLangAttribute();
-  fixTableStructure();
-  addLandmarkRegions();
-  addSvgAccessibleNames();
-  fixFaviconAccessibility();
-  fixFakeLinkIssue();
-}
-
-// Example usage of the accessibility functions
-addressAccessibilityIssues();
-addLandmarkRegions();
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta
+  } else

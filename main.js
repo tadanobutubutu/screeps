@@ -1,15 +1,24 @@
-import { createContext } from 'react';
+import React, { createContext, useState } from 'react';
 import { getLandmarks } from './api';
 import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName } from './utils';
+
+// Export filterLandmarks (required export)
+export { filterLandmarks as filterLandmarks };
+
+// Export sortLandmarksByName (required export)
+export { sortLandmarksByName as sortLandmarksByName };
 
 // ADD NEW FUNCTION - addRequiredLandmarks (Assuming it's a new function to address REACT_017, REACT_025, and REACT_041 issues)
 export const addRequiredLandmarks = () => {
   // Implement the addRequiredLandmarks function based on the insight report
   // For example, let's simply add a main landmark and some accessible names to SVGs
-  document.documentElement.setAttribute('lang', 'en'); // Add lang attribute to HTML element (DONE: addLangAttribute)
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en'); // Add lang attribute to HTML element (DONE: addLangAttribute)
+  }
 
   // Add main landmark (REACT_017)
-  const mainLandmark = document.getElementById('main');
+  const mainLandmark = document.createElement('main');
   if (mainLandmark) {
     mainLandmark.setAttribute('role', 'banner');
   }
@@ -21,7 +30,7 @@ export const addRequiredLandmarks = () => {
   });
 
   // Ensure unique landmarks (REACT_025)
-  const landmarks = document.querySelectorAll('[role="region"]');
+  const landmarks = document.querySelectorAll('[role="landmark"]');
   const uniqueIds = new Set();
   landmarks.forEach((landmark) => {
     const id = landmark.id;
@@ -30,7 +39,7 @@ export const addRequiredLandmarks = () => {
     } else {
       let counter = 1;
       let updatedId = id + `-${counter}`;
-      while (document.getElementById(updatedId)) {
+      while (uniqueIds.has(updatedId)) {
         counter++;
         updatedId = id + `-${counter}`;
       }

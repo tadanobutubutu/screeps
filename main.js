@@ -1,13 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-// - (A NEW FUNCTION: REACT_037: ADD PROPER LANDMARK REGIONS)
 // - ... (You can add more functions as needed)
 
 // Add lang attribute to HTML element (REACT_015)
@@ -91,6 +84,8 @@ const ensureUniqueLandmarks = function(landmarks) {
             const role = landmark.getAttribute('role') || type;
 
             if (seenTypes[role]) {
+                // In this example, I've chosen a unique solution per role.
+                // Modify this logic according to your specific use case.
                 if (type === 'nav') {
                     const label = landmark.getAttribute('aria-label');
                     if (!label) {

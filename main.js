@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { generateRotateBackControl, setupRotateBack, createIconForTest } from './controls';
+import { App } from './App';
 
 // Placeholder icons object for exports
 const icons = {};
@@ -50,7 +52,7 @@ const addressAccessibilityIssues = (insightReport) => {
   // This function takes an insight report and performs necessary actions
   // to address the reported accessibility issues.
   
-  if (!insightReport || !insightReport.issues || !Array.isArray(insightReport.issues)) {
+  if (!insightReport || !insightReport.issues || ... {
     console.log('No valid accessibility issues found in report');
     return { totalIssues: 0, addressedIssues: [], unaddressedIssues: [] };
   }
@@ -58,7 +60,7 @@ const addressAccessibilityIssues = (insightReport) => {
   const addressedIssues = [];
   const unaddressedIssues = [];
   
-  insightReport.issues.forEach((issue) => {
+  ... => {
     switch (issue.type) {
       case 'missing-aria-label':
         console.log(`Adding aria-label to element: ${issue.selector || 'unknown'}`);

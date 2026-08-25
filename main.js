@@ -1,4 +1,5 @@
-// Restoring previously removed exports below
+// TODO: Add back any required exports that might have been?
+
 const { renderGraphContent } = require('./dependency-graph');
 
 // New function: Render dependency graph content
@@ -9,7 +10,8 @@ function renderDependencyGraphContent(data) {
 
 // Export renderDependencyGraphContent function
 module.exports = {
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  renderGraphContent // original export preserves for calling from another file
 };
 
 // Call renderGraphContent function from another file

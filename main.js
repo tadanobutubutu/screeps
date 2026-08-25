@@ -30,3 +30,13 @@ function newFunction() {
 }
 
 export { newFunction };
+
+// Update to include changes for REACT_027 issue
+document.addEventListener('DOMContentLoaded', () => {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+});

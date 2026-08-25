@@ -1,3 +1,4 @@
+// main.js
 // Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
@@ -32,37 +33,13 @@ function createReactContext() {
   };
 }
 
-// Find the appropriate spot inside the addAriaLabelledbyIfNeeded function
-// and integrate the required imports and new logic:
-
-function addAriaLabelledbyIfNeeded(elem) {
-  if (!elem) return;
-
-  // ... (Pre-existing logic)
-
-  // New logic: Render React components within the HTML element and extract them as strings
-  const context = createReactContext();
-  
-  // Determine which content to render based on elem type or attributes
-  let content;
-  if (elem.getAttribute && elem.getAttribute('data-type') === 'dependency-graph') {
-    content = dependencyGraphContent({ context });
-  } else if (elem.getAttribute && elem.getAttribute('data-type') === 'index') {
-    content = indexContent({ context });
-  } else {
-    content = <div id="generatedId">{/* Your React component here */}</div>;
-  }
-  
-  const contentString = ReactDOMServer.renderToString(content);
-  
-  // ... (Pre-existing logic)
-}
-
 // Modify the initAriaLabels function to have the context setup as a property,
 // and use that context to render React components:
 
 function initAriaLabels() {
-  const elements = [];
+  const context = createReactContext();
+  const elements = context.document.querySelectorAll('[data-type]');
+  
   elements.forEach((elem) => {
     const id = elem.id || 'aria-label-' + Math.floor(Math.random() * 9);
     elem.id = id;
@@ -71,10 +48,8 @@ function initAriaLabels() {
       elem.setAttribute('aria-label', label.textContent);
     });
 
-    // New logic: Create a context, render a React component, and call addAriaLabelledbyIfNeeded
-    const context = createReactContext();
-    const content = <div id="generatedId">{/* Your React component here */}</div>;
-    addAriaLabelledbyIfNeeded(elem);
+    // Update element content with appropriate React component
+    updateElementContent(elem, context);
   });
 }
 
@@ -166,7 +141,6 @@ function updateElementContent(elem, context) {
 // Export the functions to make them accessible
 export { 
   createReactContext, 
-  addAriaLabelledbyIfNeeded, 
   initAriaLabels, 
   wrapPrimaryContentInMain,
   renderDependencyGraph,

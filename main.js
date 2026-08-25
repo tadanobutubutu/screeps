@@ -170,6 +170,42 @@ function validateLinkAccessibility() {
   return isValid;
 }
 
+// Orchestrator function to address all accessibility issues from the insight report
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix 26 table structure issues
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+function addressAccessibilityIssues() {
+  // REACT_015: Add lang attribute to HTML element
+  addLangAttribute();
+
+  // REACT_027: Fix table structure issues
+  validateTableAccessibility();
+  validateTableStructure();
+
+  // REACT_017: Add/fix landmark issues
+  addMainLandmark();
+  addSidebarLandmark();
+  addFooterLandmark();
+  addNavLandmark();
+
+  // REACT_041: Add accessible names to SVGs
+  addSvgAccessibleNames();
+
+  // REACT_025: Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // REACT_036: Fix fake link issue
+  fixFakeLinkIssue();
+  validateLinkAccessibility();
+
+  // Additional accessibility improvements
+  addFaviconAccessibleName();
+  wrapPrimaryContentInMain();
+}
+
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 
@@ -188,5 +224,6 @@ export {
   addNavLandmark,
   addFaviconAccessibleName,
   wrapPrimaryContentInMain,
-  validateLinkAccessibility
+  validateLinkAccessibility,
+  addressAccessibilityIssues
 };

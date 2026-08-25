@@ -3,7 +3,7 @@ import indexContent from './indexContent';
 
 function getHeadingLevels(html) {
   const headingLevels = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-  const headings = ...
+  const headings = ...;
 
   headings?.forEach(heading => {
     const headingLevel = ...
@@ -17,16 +17,15 @@ function addressIssuesFromInsightReport() {
   let content = dependencyGraphContent + indexContent;
   const results = addressAccessibilityIssues();
 
-  const divElementsWithoutRole = ...
-  let divsWithoutRoleCount = 0;
-  ... => ...
+  const divElementsWithoutRole = content.match(/<div(?![^>]*\brole\s*=)/gi) || [];
+  let divsWithoutRoleCount = divElementsWithoutRole.length;
 
   if (divsWithoutRoleCount > 0) {
     throw new Error(`${divsWithoutRoleCount} <div> elements are missing ARIA roles.`);
   }
 
   // Update the summary values for consistency with original return shape
-  results.ummary += `, missing ARIA roles on <div> ...
+  results.ummary += `, missing ARIA roles on <div> ...`;
 
   return results;
 }

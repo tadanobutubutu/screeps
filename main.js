@@ -18,12 +18,11 @@ function wrapPrimaryContentInMain(content, options = {}) {
   } = options;
   
   const classAttr = className ? ` class="${className}"` : '';
-  const mainStart = `<main id="${id}" ...`;
+  const mainStart = `<main id="${id}" role="${role}"${classAttr}>`;
   const mainEnd = '</main>';
   
   // Check if content is already wrapped in a main element
-  const hasMainTag = ... ||
-                     ...;
+  const hasMainTag = /<main[\s\S]*>/i.test(content);
   
   if (hasMainTag) {
     return content;
@@ -36,7 +35,7 @@ function wrapPrimaryContentInMain(content, options = {}) {
 function renderDependencyGraph(data) {
   if (!data) return '';
   const { nodes = [], edges = [] } = data;
-  let html = '<div ...</div>';
+  let html = '<div class="dependency-graph"><ul>';
   nodes.forEach(node => {
     const connectedEdges = edges.filter(e => e.from === node.id || e.to === node.id);
     html += `<li>${node.name || node.id} (${connectedEdges.length} connections)</li>`;
@@ -49,8 +48,8 @@ function renderDependencyGraph(data) {
 function renderIndexView(data) {
   if (!data) return '<div class="index-view">Index View</div>';
   const { title = 'Index View', items = [] } = data;
-  let itemsHtml = items.map(item => `<li>${item.name || item.id || ...}</li>`).join('');
-  return `<div ...</div>`;
+  let itemsHtml = items.map(item => `<li>${item.name || item.id || item.text || 'Item'}</li>`).join('');
+  return `<div class="index-view"><h2>${title}</h2><ul>${itemsHtml}</ul></div>`;
 }
 
 // Function to add proper landmark regions
@@ -64,7 +63,7 @@ function addProperLandmarkRegions(data) {
       label: landmark.label || landmark.role || 'content',
       id: landmark.id || `${landmark.role || 'region'}-${index}`
     };
-    ...
+    landmarkRegions.push(region);
   });
   
   return landmarkRegions;
@@ -83,24 +82,25 @@ function renderSkipLink() {
 // Original landmark navigation function
 function renderLandmarkNavigation() {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  return landmarks.map(landmark => `<div ...</div>`).join('');
+  return landmarks.map(landmark => `<div class="landmark-${landmark}">${landmark}</div>`).join('');
 }
 
 // Original utility function
 function formatDate(date) {
   if (!date) return '';
   const d = new Date(date);
-  return ...;
+  if (isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 // REACT_015: Add lang attribute to HTML element
-function ... lang = 'en') {
+function addLangAttribute(html, lang = 'en') {
   if (!html) return html;
   const langPattern = /\s*lang\s*=\s*["'][^"']*["']/i;
   if (langPattern.test(html)) {
     return html.replace(langPattern, ` lang="${lang}"`);
   }
-  return ... `<html$1 lang="${lang}">`);
+  return html.replace(/<html([^>]*)>/i, `<html$1 lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -132,25 +132,24 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = ... ||
-                          ...;
+  const hasMainLandmark = /<main[\s\S]*>/i.test(html) || /<main[\s\S]*id\s*=\s*["'][^"']*["']/i.test(html);
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if ... {
-      return html.replace(...`$1\n    ${mainElement}`);
+    if (/<body[\s\S]*>/i.test(html)) {
+      return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = ...;
+  const mainWithId = /<main[\s\S]*id\s*=\s*["'][^"']*["']/i.test(html);
   
   if (!mainWithId) {
-    html = ... '<main$1 id="main-content">');
-    if ... {
-      html = ... '<main$1 id="main-content" role="main">');
+    html = html.replace(/<main([^>]*)>/i, '<main$1 id="main-content">');
+    if (!/role\s*=\s*["']main["']/i.test(html)) {
+      html = html.replace(/<main([^>]*)>/i, '<main$1 id="main-content" role="main">');
     }
   }
   
@@ -182,7 +181,7 @@ function ensureUniqueLandmarks(landmarks) {
     
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        landmark.id = ...;
+        landmark.id = `${landmark.id}-${index}`;
       }
       seenIds.add(landmark.id);
     } else {
@@ -243,7 +242,7 @@ function fixButtonAccessibility(buttons) {
       /^button$/i,
       /^button-\d+$/i,
       /^btn-\d+$/i,
-      ...
+      /^placeholder$/i
     ];
     
     const hasPlaceholderId = button.id && placeholderPatterns.some(pattern => pattern.test(button.id));
@@ -253,10 +252,10 @@ function fixButtonAccessibility(buttons) {
       let semanticId = '';
       
       if (button['aria-label']) {
-        semanticId = ... ... '');
+        semanticId = button['aria-label'].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       } else if (button.textContent || button.innerText) {
         const text = button.textContent || button.innerText || '';
-        semanticId = ... ... '').substring(0, 50);
+        semanticId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       } else if (button.type) {
         semanticId = `button-${button.type}`;
       } else {
@@ -267,7 +266,7 @@ function fixButtonAccessibility(buttons) {
       let finalId = semanticId;
       let counter = 1;
       while (seenIds.has(finalId)) {
-        finalId = ...
+        finalId = `${semanticId}-${counter}`;
         counter++;
       }
       
@@ -278,7 +277,7 @@ function fixButtonAccessibility(buttons) {
       let finalId = button.id;
       let counter = 1;
       while (seenIds.has(finalId)) {
-        finalId = ...
+        finalId = `${button.id}-${counter}`;
         counter++;
       }
       if (finalId !== button.id) {
@@ -288,7 +287,7 @@ function fixButtonAccessibility(buttons) {
     }
     
     // Ensure button has accessible name
-    if (!button['aria-label'] && ... && ... {
+    if (!button['aria-label'] && !button.id && !button.textContent) {
       if (button.textContent || button.innerText) {
         button['aria-label'] = (button.textContent || button.innerText || '').trim();
       }

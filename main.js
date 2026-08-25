@@ -29,7 +29,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('.fake-link, [role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -47,8 +47,8 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarkMap).forEach(([selector, role]) => {
-    const elements = document.querySelectorAll(selector);
+  Object.entries(landmarkMap).forEach(([tag, role]) => {
+    const elements = document.querySelectorAll(tag);
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -79,7 +79,7 @@ const fixTableStructure = () => {
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td, th');
+        const cells = firstRow.querySelectorAll('td');
         cells.forEach(cell => {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
@@ -145,7 +145,7 @@ const googleSignIn = () => {
       callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
-      document.getElementById('google-signin-button'),
+      document.getElementById('signInButton'),
       { theme: 'outline', size: 'large' }
     );
   }
@@ -173,7 +173,7 @@ export { class1, function1, Object1 };
 // Export the handleCredentialResponse function for external use
 export { handleCredentialResponse };
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 const implementAccessibilityFixesFromReport = () => {
   // Assuming the insight report provides an object with the issues to be addressed
   const insightReport = {
@@ -186,7 +186,8 @@ const implementAccessibilityFixesFromReport = () => {
     'REACT_037': googleSignIn,
     // Add any other issues
   };
-  Object.values(insightReport).forEach(fix => fix());
+
+  Object.values(insightReport).forEach((fix) => fix());
 };
 
 /**
@@ -201,8 +202,8 @@ function prefersReducedMotion() {
  * Apply accessibility attributes to interactive elements
  */
 function applyAccessibilityAttributes() {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-  
+  const interactiveElements = document.querySelectorAll('a, input, select, textarea, button');
+
   interactiveElements.forEach(element => {
     if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
       console.warn('Interactive element missing accessible label:', element);
@@ -219,7 +220,7 @@ function handleKeyboardNavigation() {
       document.body.classList.add('keyboard-nav');
     }
   });
-  
+
   document.addEventListener('mousedown', () => {
     document.body.classList.remove('keyboard-nav');
   });
@@ -236,19 +237,19 @@ function announceToScreenReader(message, priority = 'polite') {
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
   announcement.textContent = message;
-  
+
   document.body.appendChild(announcement);
-  
+
   setTimeout(() => {
     document.body.removeChild(announcement);
   }, 1000);
 }
 
 // Export all accessibility functions
-export { 
-  prefersReducedMotion, 
-  applyAccessibilityAttributes, 
-  handleKeyboardNavigation, 
+export {
+  prefersReducedMotion,
+  applyAccessibilityAttributes,
+  handleKeyboardNavigation,
   announceToScreenReader,
   implementAccessibilityFixesFromReport
 };

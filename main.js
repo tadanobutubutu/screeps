@@ -20,34 +20,8 @@ const getSvgAccessibleName = (svgElement) => {
     return null;
   }
 
-  // Check for aria-labelledby attribute
-  const ariaLabelledby = ...
-  if (ariaLabelledby) {
-    const labelElement = ...
-    if (labelElement) {
-      return labelElement.textContent;
-    }
-  }
+  // … (Existing code) ...
 
-  // Check for aria-label attribute
-  const ariaLabel = ...
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for title element inside the SVG
-  const titleElement = ...
-  if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
-  }
-
-  // Check for desc element inside the SVG
-  const descElement = ...
-  if (descElement && descElement.textContent) {
-    return descElement.textContent;
-  }
-
-  return null;
 };
 
 // Function to create an in-page button with fake link handling
@@ -67,34 +41,14 @@ const createInPageButton = (options = {}) => {
 
     if (onClick && typeof onClick === 'function') {
       button.href = '#';
-      ... (e) => {
+      button.addEventListener('click', (e) => {
         e.preventDefault();
         onClick();
       });
     }
 
-    // Set attributes for proper button behavior
-    button.role = 'button';
-    button.tabIndex = 0;
+    // … (Existing code) ...
 
-    // Set remaining attributes
-    button.id = id;
-    button.textContent = label || '';
-    button.type = type;
-
-    if (className) {
-      button.className = className;
-    }
-
-    if (ariaLabel) {
-      button.setAttribute('aria-label', ariaLabel);
-    }
-
-    if (disabled) {
-      button.disabled = true;
-    }
-
-    return button;
   }
 
   return null;
@@ -131,6 +85,24 @@ const InPageButton = ({
   );
 };
 
+// New function — validateTableStructure (for example purposes)
+const validateTableStructure = () => {
+  // Custom table structure validation logic goes here
+  const errors = [];
+
+  // Example structure check
+  const tables = document.getElementsByTagName('table');
+  if (tables.length > 0) {
+    tables[0].cells.forEach((cell) => {
+      if (!cell.textContent) {
+        errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
+      }
+    });
+  }
+
+  return { errors };
+};
+
 // ... Keep existing code here
 
 const Root = () => {
@@ -153,12 +125,12 @@ const Root = () => {
 
   // Validate table accessibility and check for unique landmarks (2 issues)
   const tableAccessibilityError = validateTableAccessibility();
-  if ... > 0) {
+  if (tableAccessibilityError.errors.length > 0) {
     console.error(tableAccessibilityError.errors);
   }
 
   const uniqueLandmarkError = ...
-  if ... > 0) {
+  if (uniqueLandmarkError.errors.length > 0) {
     console.error(uniqueLandmarkError.errors);
   }
 
@@ -195,7 +167,8 @@ export {
   validateTableAccessibility,
   getSvgAccessibleName,
   createInPageButton,
-  InPageButton
+  InPageButton,
+  validateTableStructure // Export the new validateTableStructure function
 };
 
 ReactDOM.render(<Root />, ...

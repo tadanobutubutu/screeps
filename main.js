@@ -1,4 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {

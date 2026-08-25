@@ -25,9 +25,9 @@
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
-    if (attrs.includes('lang=') || attrs.includes(' lang=')) {
+    if (attrs.includes('xml:lang=') || attrs.includes(' lang=')) {
       return match;
     }
     // Add lang attribute with 'en' as default
@@ -55,35 +55,35 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/(<table([^>]*)>)(?!.*(caption|summary))/gi, (match, openTag, attrs) => {
-    if (attrs.includes('summary=')) {
-      return openTag;
+  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('summary=') || attrs.includes('<caption')) {
+      return match;
     }
     // Add summary attribute for screen readers
     return `<table${attrs} summary="Data table">`;
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/<tr([^>]*)>(?!((?!<tr)[\s\S])*<\/tbody>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match) => {
     // Check if tbody already exists before this tr
     const beforeTr = result.substring(0, result.indexOf(match));
-    if (!beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (!beforeTr.includes('<tbody') && !beforeTr.includes('</tbody')) {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
-    const hasThead = table.includes('<thead');
-    const hasTbody = table.includes('<tbody');
-    const hasTfoot = table.includes('<tfoot');
+    const hasThead = /<thead/.test(table);
+    const hasTbody = /<tbody/.test(table);
+    const hasTfoot = /<tfoot/.test(table);
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.match(/<tbody>[\s\S]*<\/tbody>/)) {
-        result = result.replace(table, table.replace(/(<table[\s\S]*)(<tr)/, '$1<tbody>$2'));
+      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/.test(table)) {
+        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?<tr)/, '$1<tbody>$2'));
       }
     }
   });
@@ -100,16 +100,16 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main[^>]*>/i.test(html) || /<MAIN/i.test(html)) {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    const wrappedContent = bodyContent.replace(/(<div[^>]*>[\s\S]*?<\/div>)/i, '<main>$1</main>');
     return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
   }
   
@@ -127,7 +127,7 @@ export function addSvgAccessibleNames(html) {
   let svgCounter = 0;
   
   return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.includes('aria-label') || attrs.includes('aria-labelledby');
+    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/) || attrs.match(/aria-hidden=/);
     
     if (existingLabel) {
       return match;
@@ -138,9 +138,9 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id="([^"]*)"/);
+    const idMatch = attrs.match(/id=["']([^"']+)["']/);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="title-${idMatch[1]}">`;
+      return `<svg${attrs} role="img" aria-label="${label}">`;
     }
     
     // Add inline title for accessibility
@@ -162,7 +162,7 @@ export function ensureUniqueLandmarks(html) {
   
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
+    const regex = new RegExp(`<${lm}\\s`, 'gi');
     const matches = html.match(regex);
     if (matches) {
       counters[lm] = matches.length;
@@ -171,11 +171,11 @@ export function ensureUniqueLandmarks(html) {
   
   // Assign unique IDs to landmarks
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}[^>]*>`, 'gi');
+    const regex = new RegExp(`<${lm}([^>]*?)>`, 'gi');
     const idCounter = counters[lm];
-    html = html.replace(regex, (match) => {
-      const id = `${lm}-id-${idCounter}`;
-      return match.replace(/id="[^"]*"/i, '').replace(/<${lm}/, `<${lm} id="${id}"`);
+    html = html.replace(regex, (match, attrs) => {
+      const id = `${lm}-${idCounter}`;
+      return `<${lm} id="${id}"${attrs}>`;
     });
   });
   

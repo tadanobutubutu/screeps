@@ -19,9 +19,6 @@ function renderDependencyGraph() {
   console.log('Dependency graph rendered.');
 }
 
-// Existing code preserved below
-// ...
-
 // Call the new function to ensure accessibility issues are addressed
 addressAccessibilityIssues();
 

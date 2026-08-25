@@ -7,16 +7,12 @@ const someDependency = {};
 function fixTableStructure() {
   // Implement the function as needed
 }
-
 function fixFakeLinkIssue() {
   // Implement the function as needed
 }
 
 // New function for addressing the accessibility issues from the insight report
 function newFunctionForAccessibilityIssue(element) {
-  // Address accessibility issues from insight report:
-  // Implement the necessary code for the new function
-  
   if (!element) {
     return;
   }
@@ -66,7 +62,7 @@ function newFunctionForAccessibilityIssue(element) {
   return element;
 }
 
-// New function for adding proper landmark regions
+// Preserving previously renamed exports and adding new ones
 function addProperLandmarkRegions(element) {
   // Implement the logic to add proper landmark regions to the element
   // For example, add landmark roles to appropriate HTML elements within the root element
@@ -85,7 +81,7 @@ function addProperLandmarkRegions(element) {
   });
 }
 
-// Preserving previously renamed exports and adding new ones
+// ADDING THE EXPORTS FOR THE NEW FUNCTIONS
 module.exports = {
   renderDependencyGraph: renderDependencyGraph,
   addLangAttr: addLangAttr,
@@ -95,11 +91,5 @@ module.exports = {
   fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue,
   newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue,
-  addProperLandmarkRegions: addProperLandmarkRegions // Add the new export here
+  addProperLandmarkRegions: addProperLandmarkRegions,
 };
-
-// ADDING THE EXPORTS FOR THE NEW FUNCTIONS
-fixTableStructure = fixTableStructure;
-fixFakeLinkIssue = fixFakeLinkIssue;
-newFunctionForAccessibilityIssue = newFunctionForAccessibilityIssue;
-addProperLandmarkRegions = addProperLandmarkRegions; // Add the new export here

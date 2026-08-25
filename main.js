@@ -33,6 +33,16 @@ const mainIcons = {
 const updatedIcons = updateIcons(mainIcons);
 
 // Existing functions from origin (keep them as is)
+
+// TODO: This is the existing code that needs to be preserved
+
+// TODO: Address accessibility issues from insight report:
+// - ... (You can add more functions as needed)
+
+// Import dependency graph and index content from appropriate modules
+const { dependencyGraphContent, indexContent } = require('./content');
+
+// Add lang attribute to HTML element (REACT_015)
 const addLangAttribute = function(html) {
     if (html && typeof html === 'string') {
         return html.replace(/<html/, '<html lang="en"');
@@ -164,30 +174,17 @@ const addProperLandmarkRegions = function(content) {
 
 // ... (You can add more functions as needed)
 
-// If necessary, update the export for the new functions
-// Example assuming exporting as default
-const renderDependencyGraph1 = function() {
-    // Implementation for rendering dependency graph with horizontal layout
-    // This function creates a dependency graph visualization
-    // Returns a configured graph object or JSX representation
-    return {
-        type: 'dependency-graph',
-        layout: 'horizontal',
-        nodes: [],
-        edges: []
-    };
-};
-
-const renderDependencyGraph2 = function() {
-    // Implementation for rendering dependency graph with vertical layout
-    // This function creates an alternate visualization of the dependency graph
-    // Returns a configured graph object or JSX representation
-    return {
-        type: 'dependency-graph',
-        layout: 'vertical',
-        nodes: [],
-        edges: []
-    };
+// ADD A NEW FUNCTION: REACT_038: RENDER DEPENDENCY GRAPHS
+const renderDependencyGraph = function(layout) {
+    // Use dependencyGraphContent from the appropriate module to render the graph
+    // Based on the provided layout parameter
+    if (layout === 'horizontal') {
+        return dependencyGraphContent.horizontal;
+    } else if (layout === 'vertical') {
+        return dependencyGraphContent.vertical;
+    }
+    // Return default if layout doesn't match
+    return dependencyGraphContent.default;
 };
 
 // Export the updated functions
@@ -200,11 +197,12 @@ module.exports = {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     addProperLandmarkRegions,
-    renderDependencyGraph1,
-    renderDependencyGraph2,
+    renderDependencyGraph,
     // New exports
     addAccessibleNameToSVG,
     updateIcons,
-    updatedIcons
+    updatedIcons,
+    dependencyGraphContent,
+    indexContent,
     // ... Add any other exports that were found to be affected by the update ...
 };

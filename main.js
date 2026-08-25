@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // Placeholder for accessibility-related code changes
 
 /**
@@ -48,7 +48,6 @@ function announceToScreenReader(message, priority = 'polite') {
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
   announcement.textContent = message;
-  
   document.body.appendChild(announcement);
   
   setTimeout(() => {
@@ -56,6 +55,7 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+// Import required module(s) and export the new necessary function(s) here in main.js
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,

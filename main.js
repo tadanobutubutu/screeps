@@ -106,10 +106,19 @@ function validateLandmarks(landmarks) {
   return { validLandmarks, invalidLandmarks };
 }
 
+// Add a new function for getting the SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || !svgElement.querySelector('title')) {
+    return '';
+  }
+  return svgElement.querySelector('title').textContent;
+}
+
 // Include the new functions as an export
 module.exports = {
   // ... (Pre-existing exports)
 
   validateLandmarkStructure, // Add the new function to the exports
-  validateLandmarks     // Add the new function to the exports
+  validateLandmarks,         // Add the new function to the exports
+  getSvgAccessibleName      // Add the new function to the exports
 };

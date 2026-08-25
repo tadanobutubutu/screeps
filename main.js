@@ -1,5 +1,4 @@
-/*
- * main.js - Main module for Screeps bot
+/* main.js - Main module for Screeps bot
  * Resolved merge conflict integrating accessibility improvements
  */
 

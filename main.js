@@ -23,10 +23,13 @@ document.documentElement.setAttribute('lang', 'en');
 // For example, replace invisible links with visible text links:
 // <a href="https://example.com" aria-label="Go to example.com">Visit example.com</a>
 
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
-// Example of a new function that could be exported
+// Import required module(s) - For this example, we're assuming lodash is required
+import _ from 'lodash';
+
+// New function that utilizes the imported lodash module
 function newFunction() {
-  console.log('This is a new function exported from main.js');
+  console.log('This is a new function exported from main.js', _.join(['Hello', 'world'], ' '));
 }
 
+// Preserve the existing exports
 export { newFunction };

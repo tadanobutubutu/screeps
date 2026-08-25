@@ -19,7 +19,7 @@ const Root = () => {
     <html lang="en">
       {/* Other JSX elements... */}
       <main>
-        <button id="unrotate" aria-label="Rotate back button" onClick={handleRotateBack} type="button">
+        <button id="unrotate" aria-label="Rotate back button" ... type="button">
           rotate back
         </button>
         {/* Example usage of new function */}

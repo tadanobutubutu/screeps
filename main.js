@@ -56,12 +56,17 @@ const addProperLandmarkRegions = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/i.test(result) && !/<banner/i.test(result)) {
-            result = result.replace('</body>', '<header></header></body>');
+            const bodyMatch = result.match(/<body[^>]*>/i);
+            if (bodyMatch) {
+                result = result.replace(bodyMatch[0], bodyMatch[0] + '<header></header>');
+            } else {
+                result = result + '<header></header>';
+            }
         }
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/i.test(result) && !/<contentinfo/i.test(result)) {
-            result = result.replace('</body>', '<footer></footer></body>');
+            result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 
         return result;
@@ -74,9 +79,9 @@ const renderDependencyGraph = function(layout) {
     // Use dependencyGraphContent from the appropriate module to render the graph
     // Based on the provided layout parameter
     if (layout === 'horizontal') {
-        return dependencyGraphContent.horizontal;
+        return dependencyGraphContent.horizontal || '<div class="dependency-graph horizontal"></div>';
     } else if (layout === 'vertical') {
-        return dependencyGraphContent.vertical;
+        return dependencyGraphContent.vertical || '<div class="dependency-graph vertical"></div>';
     }
     // Return default if layout doesn't match
     return dependencyGraphContent.default;
@@ -89,15 +94,15 @@ const addMissingLandmarks = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/i.test(result)) {
-            const bannerMatch = content.match(/<body[^>]*>/i);
+            const bannerMatch = result.match(/<body[^>]*>/i);
             if (bannerMatch) {
-                result = content.replace(bannerMatch[0], '<header>' + bannerMatch[0]);
+                result = result.replace(bannerMatch[0], '<header></header>' + bannerMatch[0]);
             }
         }
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/i.test(result)) {
-            result += '<footer></footer>';
+            result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 
         return result;

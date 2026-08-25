@@ -26,7 +26,7 @@ function fixTableStructureIssues() {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('th, td');
+        const headers = firstRow.querySelectorAll('td');
         const tr = document.createElement('tr');
         headers.forEach(header => {
           const th = document.createElement('th');
@@ -41,9 +41,9 @@ function fixTableStructureIssues() {
     table.querySelectorAll('td').forEach(td => {
       if (td.textContent && !td.closest('thead')) {
         const row = td.closest('tr');
-        if (!row.querySelector('th[scope="row"]') && row.querySelector('th')) {
+        if (row && row.querySelector('th')) {
           const th = document.createElement('th');
-          th.textContent = row.querySelector('th').textContent;
+          th.textContent = td.textContent;
           th.scope = 'row';
           td.parentNode.insertBefore(th, td);
         }
@@ -58,9 +58,9 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.body.querySelector('.content');
+    const content = document.querySelector('#content') || document.querySelector('.content');
     if (content) {
-      document.body.insertBefore(main, content);
+      main.appendChild(content);
       while (content.firstChild) {
         main.appendChild(content.firstChild);
       }
@@ -71,7 +71,7 @@ function addMainLandmark() {
   }
   const banners = document.querySelectorAll('header');
   banners.forEach((banner, index) => {
-    if (!banner.querySelector('nav')) {
+    if (!banner.hasAttribute('role')) {
       banner.setAttribute('role', 'banner');
     }
   });
@@ -89,9 +89,8 @@ function addSvgAccessibleNames() {
       svg.insertBefore(title, svg.firstChild);
     }
     svg.setAttribute('role', 'img');
-    if (!svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-labelledby', `svg-title-${index}`);
-      title.id = `svg-title-${index}`;
+    if (!svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-labelledby', title.id = `svg-title-${index}`);
     }
   });
 }
@@ -114,7 +113,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main, [role="main"]');
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -126,7 +125,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"], span.clickable, div.clickable');
+  const fakeLinks = document.querySelectorAll('a[href="#"], span.clickable, div.clickable');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

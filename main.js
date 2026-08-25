@@ -7,6 +7,8 @@ const BUTTON_ID = 'graph-metrics-button';
 
 // ... existing code
 
+// ... existing exports
+
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
@@ -19,10 +21,10 @@ function calculateGraphMetrics(dependencies) {
   return JSON.stringify(metrics);
 }
 
-// ... existing exports
-
 // New function for handling conflict
 function handleConflict() {
+  handleConflictMarkers();
+
   // Placeholder for the logic to handle conflict markers
   // This function should be implemented to handle the conflict markers
   // as per the issue's requirements.
@@ -41,11 +43,6 @@ function handleConflictMarkers() {
 }
 
 // Modified the existing handleConflict function to call handleConflictMarkers
-function handleConflict() {
-  handleConflictMarkers();
-}
-
-// ... existing exports
 
 // Ensure that handleConflict is exported
 module.exports = {

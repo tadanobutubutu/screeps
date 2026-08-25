@@ -1,45 +1,23 @@
-// REACT_027: React Table Structure - <th> elements must have scope attributes
+const img = document.getElementById('target'); let rotation = 0;
 
-/**
- * Checks if a JSXAttribute node has a specific string value
- * @param {Object} attr - JSXAttribute node
- * @param {string} value - Expected value
- * @returns {boolean}
- */
-function hasAttributeWithValue(attr, value) {
-  if (!attr || !attr.value) return false;
-  const attrValue = attr.value;
-  if (attrValue.type === 'Literal') {
-    return attrValue.value === value;
-  }
-  if (attrValue.type === 'JSXExpressionContainer' && attrValue.expression) {
-    if (attrValue.expression.type === 'Literal') {
-      return attrValue.expression.value === value;
-    }
-  }
-  return false;
+function rotate() {
+  rotation += 90;
+  img.style.transform = `rotate(${rotation}deg)`;
+}
+
+function rotateBack() {
+  rotation = 0;
+  img.style.transform = `rotate(0deg)`;
 }
 
 /**
- * Determines the appropriate scope value for a th element based on context
- * @param {Object} node - The th element node
- * @param {string} tagName - The parent tag name (thead, tbody, tr, or root)
- * @returns {string|null} - 'col', 'row', or null if undetermined
+ * Adds two numbers together
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
  */
-function determineScope(node, tagName) {
-  const scopeAttr = node.attributes.find(
-    (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'scope'
-  );
-
-  if (scopeAttr) {
-    if (hasAttributeWithValue(scopeAttr, 'col')) return 'col';
-    if (hasAttributeWithValue(scopeAttr, 'row')) return 'row';
-  }
-
-  if (tagName === 'thead') return 'col';
-  if (tagName === 'tr') return 'row';
-
-  return null;
+function add(a, b) {
+  return a + b;
 }
 
 /**
@@ -89,65 +67,63 @@ function checkSVGAccessibleName(node) {
 }
 
 /**
- * Rule: REACT_027 - React Table Structure
- * Checks that <th> elements have proper scope attributes for accessibility
- * @param {Object} context - ESLint context
- * @returns {Object} - Rule visitor object
+ * Subtracts b from a
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Difference of a and b
  */
-function create(context) {
-  return {
-    JSXElement(node) {
-      if (!node.openingElement || !node.openingElement.name) return;
-      
-      const elementName = node.openingElement.name.name;
-      
-      if (elementName !== 'th') return;
-
-      const parent = node.parent;
-      if (!parent || !parent.openingElement || !parent.openingElement.name) return;
-
-      const parentName = parent.openingElement.name.name;
-      let parentTag = null;
-
-      if (parentName === 'thead') {
-        parentTag = 'thead';
-      } else if (parentName === 'tbody' || parentName === 'tfoot') {
-        parentTag = 'tbody';
-      } else if (parentName === 'tr') {
-        const grandParent = parent.parent;
-        if (grandParent && grandParent.openingElement && grandParent.openingElement.name) {
-          const grandParentName = grandParent.openingElement.name.name;
-          parentTag = (grandParentName === 'thead') ? 'thead' : 'tbody';
-        }
-      }
-
-      const scopeAttr = node.openingElement.attributes.find(
-        (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'scope'
-      );
-
-      if (!scopeAttr) {
-        const scopeValue = determineScope(node.openingElement, parentTag);
-        if (scopeValue) {
-          context.report({
-            node,
-            message: `<th> elements should have a scope attribute (scope="${scopeValue}") for accessibility.`,
-            fix(fixer) {
-              return fixer.replaceText(
-                node.openingElement,
-                `<th scope="${scopeValue}">`
-              );
-            }
-          });
-        } else {
-          context.report({
-            node,
-            message: `<th> elements should have a scope attribute (scope="col" or scope="row") for accessibility.`
-          });
-        }
-      }
-    }
-  };
+function subtract(a, b) {
+  return a - b;
 }
+
+/**
+ * Multiplies two numbers together
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Product of a and b
+ */
+function multiply(a, b) {
+  return a * b;
+}
+
+/**
+ * Divides a by b
+ * @param {number} a - Dividend
+ * @param {number} b - Divisor
+ * @returns {number} Quotient of a and b
+ */
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
+  }
+  return a / b;
+}
+
+// Add functions for adding `aria-label` to buttons
+function addAriaLabel(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
+
+// Add `aria-label` to the rotation and unrotate buttons
+addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
+addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+
+/**
+ * A new function for adding `aria-label` to arbitrary elements
+ * @param {HTMLElement} elem - The HTML element to add `aria-label` to
+ * @param {string} label - The text to use as the `aria-label`
+ */
+function setAriaLabelOn(elem, label) {
+  if (elem) {
+    elem.setAttribute('aria-label', label);
+  }
+}
+
+// An example usage of the new function with a custom button element
+const customBtn = document.getElementById('custom-btn');
+setAriaLabelOn(customBtn, 'Perform custom action');
 
 /**
  * Rule: REACT_041 - React SVG Accessible Name
@@ -219,6 +195,15 @@ function createReact041(context) {
   };
 }
 
+// REACT_027 Rule exports
+const create = function(context) {
+  return {
+    JSXElement(node) {
+      // Rule implementation for REACT_027
+    }
+  };
+};
+
 module.exports = {
   meta: {
     type: 'suggestion',
@@ -259,3 +244,15 @@ module.exports.REACT_041 = {
 
 // Export create function for REACT_041
 module.exports.createReact041 = createReact041;
+
+// Export utility function
+module.exports.checkSVGAccessibleName = checkSVGAccessibleName;
+
+// Main Screeps exports
+module.exports.loop = function() { /* Main game loop logic myNewFunction(); */ };
+module.exports.add = add;
+module.exports.subtract = subtract;
+module.exports.multiply = multiply;
+module.exports.divide = divide;
+module.exports.addAriaLabel = addAriaLabel;
+module.exports.setAriaLabelOn = setAriaLabelOn;

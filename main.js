@@ -168,9 +168,9 @@ function fixTableStructure(context) {
     // Ensure proper th usage for header cells
     const firstRow = table.querySelector('tr');
     if (firstRow) {
-      const cells = firstRow.querySelectorAll('td');
+      const cells = firstRow.querySelectorAll('th, td');
       cells.forEach((cell) => {
-        if (cell.tagName !== 'TH' && !cell.getAttribute('scope')) {
+        if (cell.tagName === 'TD' && !cell.hasAttribute('scope')) {
           const th = document.createElement('th');
           th.setAttribute('scope', 'col');
           th.textContent = cell.textContent;

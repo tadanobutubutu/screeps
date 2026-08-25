@@ -56,9 +56,19 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+/**
+ * New function to toggle a feature based on user preference
+ * @returns {boolean}
+ */
+function toggleFeatureBasedOnPreference() {
+  // Example implementation, replace with actual logic
+  return prefersReducedMotion();
+}
+
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,
   handleKeyboardNavigation,
-  announceToScreenReader
+  announceToScreenReader,
+  toggleFeatureBasedOnPreference
 };

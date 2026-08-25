@@ -108,4 +108,17 @@ const addUniqueIdToTable = (table) => {
   table.id = table.id || `table-${table.dataset.testid}`;
 };
 
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable, newFunction };
+// Accessibility fix for rotate button - ensures semantic HTML
+const initUnrotateButton = () => {
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    unrotateElement.addEventListener('click', function() {
+      const image = document.getElementById('target-image');
+      if (image) {
+        image.style.transform = 'rotate(0deg)';
+      }
+    });
+  }
+};
+
+export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable, newFunction, initUnrotateButton };

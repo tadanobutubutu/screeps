@@ -19,7 +19,7 @@ const getSvgAccessibleName = (svgElement) => {
   if (!svgElement || typeof document === 'undefined') {
     return null;
   }
-
+  
   // Check for aria-labelledby attribute
   const ariaLabelledby = ...
   if (ariaLabelledby) {
@@ -28,25 +28,25 @@ const getSvgAccessibleName = (svgElement) => {
       return labelElement.textContent;
     }
   }
-
+  
   // Check for aria-label attribute
   const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel;
   }
-
+  
   // Check for title element inside the SVG
   const titleElement = ...
   if (titleElement && titleElement.textContent) {
     return titleElement.textContent;
   }
-
+  
   // Check for desc element inside the SVG
   const descElement = ...
   if (descElement && descElement.textContent) {
     return descElement.textContent;
   }
-
+  
   return null;
 };
 
@@ -59,75 +59,69 @@ const createInPageButton = (options = {}) => {
     className = '',
     ariaLabel,
     type = 'button',
-    disabled = false
+    disabled = false,
+    title
   } = options;
 
   if (typeof document !== 'undefined') {
-    let button = document.createElement('a');
-
-    if (onClick && typeof onClick === 'function') {
-      button.href = '#';
-      ... (e) => {
-        e.preventDefault();
-        onClick();
-      });
+    const button = document.createElement('button');
+    
+    if (id) {
+      button.id = id;
     }
-
-    // Set attributes for proper button behavior
-    button.role = 'button';
-    button.tabIndex = 0;
-
-    // Set remaining attributes
-    button.id = id;
+    
     button.textContent = label || '';
     button.type = type;
-
+    
     if (className) {
       button.className = className;
     }
-
+    
     if (ariaLabel) {
       button.setAttribute('aria-label', ariaLabel);
     }
-
+    
     if (disabled) {
       button.disabled = true;
     }
-
+    
+    if (title) {
+      button.title = title;
+    }
+    
+    if (onClick && typeof onClick === 'function') {
+      button.addEventListener('click', onClick);
+    }
+    
     return button;
   }
-
+  
   return null;
 };
 
 // React component for in-page button
-const InPageButton = ({
-  id,
-  label,
-  onClick,
-  className,
-  ariaLabel,
-  type = 'button',
-  disabled = false
+const InPageButton = ({ 
+  id, 
+  label, 
+  onClick, 
+  className, 
+  ariaLabel, 
+  type = 'button', 
+  disabled = false,
+  title
 }) => {
   return (
-    <a
+    <button
       id={id}
-      role="button"
-      tabIndex={0}
       type={type}
-      onClick={onClick}
       className={className}
+      onClick={onClick}
+      disabled={disabled}
       aria-label={ariaLabel}
-      style={{
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        color: disabled ? 'gray' : ''
-      }}
-      // Add href attribute only if onClick is not provided
-      href={!onClick ? '#' : undefined}
+      title={title}
     >
       {label}
-    </a>
+    </button>
   );
 };
 
@@ -135,7 +129,7 @@ const InPageButton = ({
 
 const Root = () => {
   // Other component code...
-
+  
   const handleRotateBack = () => {
     // Logic to rotate back
   };
@@ -153,12 +147,12 @@ const Root = () => {
 
   // Validate table accessibility and check for unique landmarks (2 issues)
   const tableAccessibilityError = validateTableAccessibility();
-  if ... > 0) {
+  if (tableAccessibilityError.errors.length > 0) {
     console.error(tableAccessibilityError.errors);
   }
 
   const uniqueLandmarkError = ...
-  if ... > 0) {
+  if (... > 0) {
     console.error(uniqueLandmarkError.errors);
   }
 
@@ -169,7 +163,7 @@ const Root = () => {
   }
 
   return (
-    <html ...
+    <html lang="en">
       {/* Other JSX elements... */}
       <main>
         <InPageButton
@@ -185,14 +179,14 @@ const Root = () => {
   );
 };
 
-export {
-  Root,
-  handleRotateBack,
-  newFunction,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
+export { 
+  Root, 
+  handleRotateBack, 
+  newFunction, 
+  getLangAttribute, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  validateTableAccessibility, 
   getSvgAccessibleName,
   createInPageButton,
   InPageButton

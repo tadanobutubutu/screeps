@@ -1,36 +1,6 @@
 const img = document.getElementById('target');
 let rotation = 0;
 
-function rotate() {
-  rotation += 90;
-  img.style.transform = `rotate(${rotation}deg)`;
-}
-
-function rotateBack() {
-  rotation = 0;
-  img.style.transform = `rotate(0deg)`;
-}
-
-/**
- * Adds two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
- */
-function add(a, b) {
-  return a + b;
-}
-
-/**
- * Subtracts b from a
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Difference of a and b
- */
-function subtract(a, b) {
-  return a - b;
-}
-
 /**
  * Multiplies two numbers together
  * @param {number} a - First number
@@ -146,7 +116,7 @@ function validateTableAccessibility(table) {
 }
 
 /**
- * Validates landmarks accessibility attributes
+ * Validates landmark accessibility attributes
  * Checks for proper landmark role, aria-label, and possibility of grouping
  * @param {HTMLDivElement} landmark - The landmark element to validate
  * @returns {Object} Validation result with isValid boolean and issues array

@@ -1,4 +1,3 @@
-// Placeholder implementations for existing functions (to be replaced with actual preserved code if available)
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
@@ -152,7 +151,6 @@ function addAltAttribute(filePath) {
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));

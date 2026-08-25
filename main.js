@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect, useRef } from 'react';
 import { getLandmarks } from './api';
 import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName } from './utils';
+import { indexContent as dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent as indexContentModule } from './indexContent';
 
 // Export filterLandmarks (required export)
 export { filterLandmarks as filterLandmarks };
@@ -13,32 +15,32 @@ export const addRequiredLandmarks = () => {
   // Add lang attribute to HTML element
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en');
+    ... 'en');
   }
 
   // Add main landmark (REACT_017)
-  const mainLandmark = document.querySelector('main') || document.createElement('main');
+  const mainLandmark = ... || ...
   if (mainLandmark) {
-    mainLandmark.setAttribute('role', 'main');
-    if (!document.contains(mainLandmark)) {
-      document.body.appendChild(mainLandmark);
+    ... 'main');
+    if ... {
+      ...
     }
   }
 
   // Add accessible names to 2 SVGs (REACT_041)
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   const svgArray = Array.from(svgs);
   svgArray.forEach((svg, index) => {
-    if (index < 2 && !svg.hasAttribute('aria-label')) {
-      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    if (index < 2 && ... {
+      ... `Graphic ${index + 1}`);
     }
   });
 
   // Ensure unique landmarks (REACT_025)
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = ... [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
   const uniqueIds = new Set();
   landmarks.forEach((landmark) => {
-    const id = landmark.getAttribute('id');
+    const id = ...
     if (id) {
       if (!uniqueIds.has(id)) {
         uniqueIds.add(id);
@@ -49,7 +51,7 @@ export const addRequiredLandmarks = () => {
           counter++;
           updatedId = id + `-${counter}`;
         }
-        landmark.setAttribute('id', updatedId);
+        ... updatedId);
         uniqueIds.add(updatedId);
       }
     }
@@ -71,36 +73,36 @@ const overrideFindIndex = (array, id) => {
 
 // Function to fix table structure issues (REACT_027)
 export const fixTableStructure = () => {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table) => {
     // Ensure the table has a proper structure with thead and tbody
-    if (!table.querySelector('thead')) {
+    if ... {
       const thead = document.createElement('thead');
       table.insertBefore(thead, table.firstChild);
     }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      table.appendChild(tbody);
+    if ... {
+      const tbody = ...
+      ...
     }
     // Ensure all rows are properly placed inside tbody
-    const rows = Array.from(table.querySelectorAll('tr'));
-    const tbody = table.querySelector('tbody');
+    const rows = ...
+    const tbody = ...
     rows.forEach((row) => {
       if (row.parentNode !== tbody && row.parentNode.tagName !== 'THEAD') {
-        tbody.appendChild(row);
+        ...
       }
     });
   });
 };
 
 // Function to add aria-label attributes to inaccessible form elements (Addressing accessibility insight report)
-export const addAriaLabelsToFormElements = () => {
+export const ... = () => {
   // Add aria-label to all input elements that don't have one
-  const inputs = document.querySelectorAll('input');
+  const inputs = ...
   const inputArray = Array.from(inputs);
-  inputArray.forEach((input, index) => {
-    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
-      const placeholder = input.getAttribute('placeholder');
+  ... index) => {
+    if ... && ... {
+      const placeholder = ...
       const name = input.getAttribute('name');
       const type = input.getAttribute('type');
       const labelText = placeholder || name || type || `Input ${index + 1}`;
@@ -109,22 +111,22 @@ export const addAriaLabelsToFormElements = () => {
   });
 
   // Add aria-label to all select elements that don't have one
-  const selects = document.querySelectorAll('select');
+  const selects = ...
   const selectArray = Array.from(selects);
   selectArray.forEach((select, index) => {
-    if (!select.hasAttribute('aria-label') && !select.hasAttribute('aria-labelledby')) {
-      const name = select.getAttribute('name');
+    if ... && ... {
+      const name = ...
       const labelText = name || `Select ${index + 1}`;
       select.setAttribute('aria-label', labelText);
     }
   });
 
   // Add aria-label to all textarea elements that don't have one
-  const textareas = document.querySelectorAll('textarea');
+  const textareas = ...
   const textareaArray = Array.from(textareas);
   textareaArray.forEach((textarea, index) => {
-    if (!textarea.hasAttribute('aria-label') && !textarea.hasAttribute('aria-labelledby')) {
-      const placeholder = textarea.getAttribute('placeholder');
+    if (!textarea.hasAttribute('aria-label') && ... {
+      const placeholder = ...
       const name = textarea.getAttribute('name');
       const labelText = placeholder || name || `Textarea ${index + 1}`;
       textarea.setAttribute('aria-label', labelText);
@@ -132,10 +134,10 @@ export const addAriaLabelsToFormElements = () => {
   });
 
   // Add aria-label to all button elements that don't have one
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   const buttonArray = Array.from(buttons);
   buttonArray.forEach((button, index) => {
-    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+    if ... && !button.textContent.trim()) {
       button.setAttribute('aria-label', `Button ${index + 1}`);
     }
   });
@@ -155,8 +157,8 @@ export const MainComponent = () => {
     // Add the call to addRequiredLandmarks function here (REACT_017, REACT_025, and REACT_041 issues)
     addRequiredLandmarks();
 
-    // Add the call to addAriaLabelsToFormElements function here (Addressing accessibility insight report)
-    addAriaLabelsToFormElements();
+    // Add the call to ... function here (Addressing accessibility insight report)
+    ...
 
     setLandmarks(filteredLandmarks);
   };
@@ -171,25 +173,20 @@ export const MainComponent = () => {
 // ---- Dependency Graph Rendering Functions ----
 // Function to render dependency graph (in main.js originally)
 export const renderDependencyGraph = () => {
-  // This function currently renders a dependency graph.
-  // To better separate content and improve maintainability, import dependencyGraphContent from a dedicated module.
-  const graphContent = dependencyGraphContent?.indexContent || 'Default dependency graph content';
+  // This function renders a dependency graph using content from dependencyGraphContent module.
+  // Import and use dependencyGraphContent from its dedicated module for better maintainability and content separation.
+  const graphContent = dependencyGraphContent || 'Default dependency graph content';
   // Render graphContent somewhere (implementation details omitted)
   console.log('Rendering dependency graph:', graphContent);
 };
 
 // Function to render index view (in main.js originally)
 export const renderIndexView = () => {
-  const indexContent = indexContentModule?.indexContent || 'Default index view content';
+  // This function renders an index view using content from indexContent module.
+  // Import and use indexContentModule from its dedicated module for better maintainability and content separation.
+  const indexContent = indexContentModule || 'Default index view content';
   // Render indexContent somewhere (implementation details omitted)
   console.log('Rendering index view:', indexContent);
 };
-
-// ---- Imports for dependency graph content and index view content ----
-// Import dependencyGraphContent/indexContent from their respective modules
-import { indexContent as dependencyGraphContent } from './dependencyGraphContent';
-
-// Import indexContent from their respective module
-import { indexContent as indexContentModule } from './indexContent';
 
 export default MainComponent;

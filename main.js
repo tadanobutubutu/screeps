@@ -7,95 +7,17 @@ import ReactDOM from 'react-dom';
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
-  if (typeof document !== 'undefined') {
-    const htmlElement = document.documentElement;
-    return htmlElement.lang || ''; // Add lang attribute if it exists
-  }
-  return null;
+  // ... existing function code ...
 };
 
 // Function to get SVG accessible name
 const getSvgAccessibleName = (svgElement) => {
-  if (!svgElement || typeof document === 'undefined') {
-    return null;
-  }
-
-  // Check for aria-label or aria-labelledby
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for aria-labelledby reference
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const referencedElement = document.getElementById(ariaLabelledby);
-    return referencedElement ? referencedElement.textContent : null;
-  }
-
-  // Check for title element within SVG
-  const titleElement = svgElement.querySelector('title');
-  if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
-  }
-
-  // Check for descendant with role="img" and aria-label
-  const imgWithLabel = svgElement.querySelector('[role="img"][aria-label]');
-  if (imgWithLabel) {
-    return imgWithLabel.getAttribute('aria-label');
-  }
-
-  return null;
+  // ... existing function code ...
 };
 
 // Function to create an in-page button with fake link handling
 const createInPageButton = (options = {}) => {
-  const {
-    id,
-    label,
-    onClick,
-    className = '',
-    ariaLabel,
-    type = 'button',
-    disabled = false
-  } = options;
-
-  if (typeof document !== 'undefined') {
-    // Use semantic <button> element instead of <a> for better accessibility
-    let button = document.createElement('button');
-
-    if (id) {
-      button.id = id;
-    }
-
-    button.textContent = label || '';
-    button.type = type;
-    button.disabled = disabled;
-
-    if (className) {
-      button.className = className;
-    }
-
-    if (ariaLabel) {
-      button.setAttribute('aria-label', ariaLabel);
-    }
-
-    if (!disabled && onClick && typeof onClick === 'function') {
-      button.addEventListener('click', (e) => {
-        e.preventDefault();
-        onClick();
-      });
-    }
-
-    // Add keyboard support - buttons are naturally keyboard accessible
-    if (!disabled) {
-      button.setAttribute('tabindex', '0');
-    }
-
-    return button;
-  }
-
-  return null;
+  // ... existing function code ...
 };
 
 // React component for in-page button
@@ -108,24 +30,7 @@ const InPageButton = ({
   type = 'button',
   disabled = false
 }) => {
-  // Use semantic <button> element for better accessibility
-  // Instead of <a role="button"> which is an anti-pattern
-  return (
-    <button
-      id={id}
-      type={type}
-      onClick={onClick}
-      className={className}
-      aria-label={ariaLabel}
-      disabled={disabled}
-      style={{
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        color: disabled ? 'gray' : ''
-      }}
-    >
-      {label}
-    </button>
-  );
+  // ... existing function code ...
 };
 
 // New function — validateTableStructure (for example purposes)
@@ -165,7 +70,7 @@ const validateTableAccessibility = () => {
     // Check if table has proper headers
     const headers = table.querySelectorAll('th');
     const hasHeaders = headers.length > 0;
-    
+
     if (!hasHeaders) {
       errors.push({
         message: `Table ${index + 1} is missing header cells (th elements)`,
@@ -203,7 +108,7 @@ const validateTableAccessibility = () => {
 // Function to validate landmarks
 const validateLandmarkStructure = () => {
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { valid: true, errors };
   }
@@ -227,7 +132,7 @@ const validateLandmarkStructure = () => {
   // Check for header/nav landmarks
   const navElements = document.querySelectorAll('nav, [role="navigation"]');
   const headerElements = document.querySelectorAll('header, [role="banner"]');
-  
+
   if (headerElements.length > 1) {
     errors.push({
       message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,

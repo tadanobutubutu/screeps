@@ -1,14 +1,14 @@
 // main.js - Entry point for the application with accessibility fixes for React components
 
 // Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from './content/dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
 
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', getLangAttribute());
+  ... getLangAttribute());
 }
 
 function getLangAttribute() {
@@ -17,15 +17,15 @@ function getLangAttribute() {
 }
 
 function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let hasIssues = false;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     headers.forEach(th => {
       if (!th.scope) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+        const isFirstInCol = ... === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -40,10 +40,10 @@ function validateTableAccessibility() {
 }
 
 function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let isValid = true;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     const row = table.rows[1];
     if (headers.length !== row.cells.length) {
       isValid = false;
@@ -59,31 +59,31 @@ function validateTableStructure() {
 }
 
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
     const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
-    svg.setAttribute('aria-labelledby', `${svg.id || `svg-${index}`}-title`);
+    ... `${svg.id || ...
     const titleEl = document.createElement('title');
     titleEl.id = `${svg.id || `svg-${index}`}-title`;
     titleEl.textContent = title;
-    svg.appendChild(titleEl);
+    ...
   });
 }
 
 // REACT_025: Ensure unique landmarks
 // Fixed by simplifying the code to add aria-labelledby attribute
 function addUniqueLandmarks() {
-  const landmarks = [... document.querySelectorAll('nav, footer, aside, main, header')];
+  const landmarks = [... ... footer, aside, main, header')];
   landmarks.forEach(landmark => {
-    const role = landmark.role || landmark.tagName.toLowerCase();
+    const role = landmark.role || ...
     if (role && landmark.id) {
-      landmark.setAttribute('aria-labelledby', landmark.id);
+      ... landmark.id);
     }
   });
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = ...
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -94,16 +94,16 @@ function fixFakeLinkIssue() {
 }
 
 // Helper function to add title to favicon for accessibility
-function addFaviconAccessibleName() {
-  const faviconLink = document.querySelector('link[rel="icon"]');
+function ... {
+  const faviconLink = ...
   if (faviconLink) {
-    faviconLink.setAttribute('aria-label', 'Favicon');
+    ... 'Favicon');
   }
 }
 
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = ...
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -111,6 +111,57 @@ function validateLinkAccessibility() {
     }
   });
   return isValid;
+}
+
+/**
+ * Wrap the primary content of the page in a <main> element for accessibility.
+ * This ensures the page has a proper main landmark for screen readers and
+ * follows WCAG guidelines for semantic HTML structure.
+ * 
+ * @returns {boolean} True if successful, false if main element already exists or no primary content found
+ */
+function wrapPrimaryContentInMain() {
+  // Check if a main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    // Main element already exists, no need to wrap
+    return false;
+  }
+
+  // Identify the primary content area using common selectors
+  const primaryContentSelectors = [
+    '#content',
+    '#main-content',
+    '#primary-content',
+    '.content',
+    '.main-content',
+    '.primary-content',
+    'article',
+    '[role="main"]'
+  ];
+
+  let primaryContent = null;
+  for (const selector of primaryContentSelectors) {
+    primaryContent = document.querySelector(selector);
+    if (primaryContent) {
+      break;
+    }
+  }
+
+  // If no primary content found, exit
+  if (!primaryContent) {
+    return false;
+  }
+
+  // Create a main element
+  const main = document.createElement('main');
+  main.id = 'main-content';
+
+  // Wrap the primary content in the main element
+  primaryContent.parentNode.insertBefore(main, primaryContent);
+  main.appendChild(primaryContent);
+
+  return true;
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or
@@ -127,7 +178,7 @@ function validateLinkAccessibility() {
  * @returns {HTMLElement} The rendered dependency graph container
  */
 function renderDependencyGraph(containerId, options = {}) {
-  const container = document.getElementById(containerId);
+  const container = ...
   if (!container) {
     console.error(`Dependency graph container with ID "${containerId}" not found`);
     return null;
@@ -143,13 +194,13 @@ function renderDependencyGraph(containerId, options = {}) {
   if (typeof graphContent === 'string') {
     container.innerHTML = graphContent;
   } else if (graphContent instanceof HTMLElement) {
-    container.appendChild(graphContent);
+    ...
   } else if (Array.isArray(graphContent)) {
-    graphContent.forEach(item => {
+    ... => {
       if (typeof item === 'string') {
         container.innerHTML += item;
       } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
+        ...
       }
     });
   }
@@ -167,7 +218,7 @@ function renderDependencyGraph(containerId, options = {}) {
  * @returns {HTMLElement} The rendered index view container
  */
 function renderIndexView(containerId, options = {}) {
-  const container = document.getElementById(containerId);
+  const container = ...
   if (!container) {
     console.error(`Index view container with ID "${containerId}" not found`);
     return null;
@@ -189,7 +240,7 @@ function renderIndexView(containerId, options = {}) {
       if (typeof item === 'string') {
         container.innerHTML += item;
       } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
+        ...
       }
     });
   }
@@ -200,10 +251,11 @@ function renderIndexView(containerId, options = {}) {
 // Main entry: Address all accessibility issues
 function addressAccessibilityIssues() {
   addLangAttribute();
-  addFaviconAccessibleName();
-  addSvgAccessibleNames();
+  ...
+  ...
   addUniqueLandmarks();
   fixFakeLinkIssue();
+  wrapPrimaryContentInMain();
 }
 
 // Example usage of the accessibility functions

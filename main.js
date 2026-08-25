@@ -17,7 +17,7 @@ const Root = () => {
       {/* Other JSX elements... */}
       <main>
         {/* Primary content that needs to be wrapped */}
-        <button id="unrotate" onClick={handleRotateBack} type="button">
+        <button id="unrotate" aria-label="Rotate back button" onClick={handleRotateBack} type="button">
           rotate back
         </button>
       </main>

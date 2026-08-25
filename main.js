@@ -8,6 +8,7 @@
 // New function that needs to be exported with the requested name "myNewFunction"
 function myNewFunction() {
   // Implementation of the new function
+  return "Function implemented successfully";
 }
 
 // Export the new function

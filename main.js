@@ -59,12 +59,10 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('.content') || document.querySelector('#content');
+    const content = document.querySelector('.content') || document.body.firstElementChild;
     if (content) {
       main.appendChild(content);
-      while (content.firstChild) {
-        main.appendChild(content.firstChild);
-      }
+      document.body.insertBefore(main, content);
       content.remove();
     }
   } else {
@@ -72,7 +70,7 @@ function addMainLandmark() {
   }
   const banners = document.querySelectorAll('header');
   banners.forEach((banner, index) => {
-    if (!banner.hasAttribute('role')) {
+    if (index > 0) {
       banner.setAttribute('role', 'banner');
     }
   });
@@ -126,7 +124,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('span.clickable, div.clickable');
+  const fakeLinks = document.querySelectorAll('div.clickable');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

@@ -2,6 +2,15 @@ import { createContext } from 'react';
 import { getLandmarks } from './api';
 import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, someFunctionREACT_027 as originalSomeFunctionREACT_027 } from './utils'; // Importing the existing functions without renaming
 
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateUniqueLandmarks(), and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), and createAccessibleLink())
+
 // Function to calculate the index of an item in an array based on its id ([NEW])
 export const findIndex = (array, id) => {
   return array.findIndex((item) => item.id === id);

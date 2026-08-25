@@ -33,5 +33,6 @@ module.exports = {
   addLandmarkRegions: addLandmarkRegions,
   addMainLandmark: addMainLandmark,
   correctFakeLinks: correctFakeLinks,
+  addressAccessibilityIssues: addressAccessibilityIssues, // Export the new addressAccessibilityIssues function
   init: init, // Export the new init function
 };

@@ -52,8 +52,6 @@ return (
 );
 
 // Assume existing exports and functions are preserved
-export default MyApp;
-
-function MyApp() {
+export default function MyApp() {
   // ... (Existing code)
 }

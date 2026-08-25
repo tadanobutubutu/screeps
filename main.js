@@ -3,6 +3,15 @@ import ReactDOM from 'react-dom';
 
 // Other imports...
 
+// Function to get language attribute from the document
+const getLangAttribute = () => {
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.documentElement;
+    return htmlElement.getAttribute('lang');
+  }
+  return null;
+};
+
 const Root = () => {
   // Other component code...
   
@@ -31,6 +40,6 @@ const Root = () => {
   );
 };
 
-export { Root, handleRotateBack, newFunction };
+export { Root, handleRotateBack, newFunction, getLangAttribute };
 
 ReactDOM.render(<Root />, ...);

@@ -1,35 +1,20 @@
-import dependencyGraphContent from './dependencyGraphContent';
-import indexContent from './indexContent';
-
-// Function to use indexContent as per requirement (Let's assume it needs to be used here)
-function useIndexContent() {
-  // Using indexContent as required (Add your code here)
-  // ...
-}
+// ... (existing code omitted)
 
 // New function to address accessibility issues
 function addressAccessibilityIssues() {
-  // Implementation for addressing accessibility issues from the insight report (Add your code here to solve REACT_0XX issues as necessary)
-  // Example:
-  // Adding lang attribute to HTML element
-  console.log("en");
+  const doc = document;
+  const iconsEl = doc.querySelectorAll('[data-reactroot]:not([aria-hidden]) > svg');
+
+  iconsEl.forEach((iconEl) => {
+    const iconTextEl = iconEl.querySelector('text');
+
+    if (iconTextEl) {
+      iconEl.setAttribute('aria-hidden', 'true');
+      iconTextEl.remove();
+      iconTextEl.setAttribute('aria-label', iconEl.textContent);
+      iconEl.appendChild(iconTextEl);
+    }
+  });
 }
 
-// Add a new function for initializing the functions
-function init() {
-  // Call the previously existing functions
-  // Call the functions that were requested to be added
-  useIndexContent();
-  addressAccessibilityIssues();
-}
-
-// Preserve existing exports
-module.exports = {
-  requiredFunction: requiredFunction,
-  addLandmarkRegions: addLandmarkRegions,
-  addMainLandmark: addMainLandmark,
-  correctFakeLinks: correctFakeLinks,
-  useIndexContent: useIndexContent, // Add the new function for using indexContent, if needed
-  addressAccessibilityIssues: addressAccessibilityIssues, // Export the new accessibility function
-  init: init, // Export the updated init function with added function calls
-};
+// ... (existing code omitted)

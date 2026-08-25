@@ -15,9 +15,9 @@ const addLangAttribute = () => {
 
 // Accessibility fix for REACT_041: Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (!title) {
       const titleElement = document.createElement('title');
       titleElement.textContent = 'Accessible title for SVG';
@@ -29,7 +29,7 @@ const addAccessibleNamesToSVGs = () => {
 
 // Accessibility fix for REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssues = () => {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = ...
   fakeLinks.forEach(link => {
     link.setAttribute('aria-label', 'This link goes to a section within the page');
   });
@@ -47,8 +47,8 @@ const fixLandmarkIssues = () => {
     'article': 'article'
   };
 
-  Object.entries(landmarkMap).forEach(([selector, role]) => {
-    const elements = document.querySelectorAll(selector);
+  ... role]) => {
+    const elements = ...
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -60,7 +60,7 @@ const fixLandmarkIssues = () => {
 const addLandmarkRegions = () => {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
+    const elements = ...
     elements.forEach(element => {
       if (!element.getAttribute('role')) {
         element.setAttribute('role', 'landmark');
@@ -71,39 +71,39 @@ const addLandmarkRegions = () => {
 
 // Accessibility fix for REACT_027: React Table Structure (26 occurrences)
 const fixTableStructure = () => {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
+    const existingThead = ...
     if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
         const newRow = document.createElement('tr');
-        const cells = firstRow.querySelectorAll('td, th');
+        const cells = ... th');
         cells.forEach(cell => {
-          const th = document.createElement('th');
+          const th = ...
           th.textContent = cell.textContent;
           if (cell.getAttribute('scope')) {
-            th.setAttribute('scope', cell.getAttribute('scope'));
+            th.setAttribute('scope', ...
           } else {
             th.setAttribute('scope', 'col');
           }
-          newRow.appendChild(th);
+          ...
         });
-        thead.appendChild(newRow);
+        ...
         table.insertBefore(thead, table.firstChild);
       }
     }
 
-    const existingTbody = table.querySelector('tbody');
+    const existingTbody = ...
     if (!existingTbody) {
-      const rows = table.querySelectorAll('tr');
+      const rows = ...
       if (rows.length > 1) {
-        const tbody = document.createElement('tbody');
+        const tbody = ...
         for (let i = 1; i < rows.length; i++) {
-          tbody.appendChild(rows[i]);
+          ...
         }
-        table.appendChild(tbody);
+        ...
       }
     }
   });
@@ -111,7 +111,7 @@ const fixTableStructure = () => {
 
 // Address accessibility issues from insight report for image alt texts
 const fixImageAltTexts = () => {
-  const images = document.querySelectorAll('img');
+  const images = ...
   images.forEach((img) => {
     if (!img.getAttribute('alt')) {
       img.setAttribute('alt', 'Image description');
@@ -123,7 +123,7 @@ const fixImageAltTexts = () => {
 const uniqueLandmarks = () => {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = ...
     if (elements.length > 1) {
       let index = 1;
       elements.forEach((el) => {
@@ -145,7 +145,7 @@ const googleSignIn = () => {
       callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
-      document.getElementById('google-signin-button'),
+      ...
       { theme: 'outline', size: 'large' }
     );
   }
@@ -153,7 +153,7 @@ const googleSignIn = () => {
 
 function handleCredentialResponse(response) {
   // Decode the JWT token
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const payload = ...
   console.log('User signed in:', payload);
   // Handle the sign-in logic here
 }
@@ -174,9 +174,9 @@ export { class1, function1, Object1 };
 export { handleCredentialResponse };
 
 // TODO: Implement function for addressing accessibility issues from insight report
-const implementAccessibilityFixesFromReport = () => {
+const implementAccessibilityFixesFromReport = (insightReport) => {
   // Assuming the insight report provides an object with the issues to be addressed
-  const insightReport = {
+  const defaultInsightReport = {
     'REACT_015': addLangAttribute,
     'REACT_041': addAccessibleNamesToSVGs,
     'REACT_036': fixFakeLinkIssues,
@@ -186,7 +186,17 @@ const implementAccessibilityFixesFromReport = () => {
     'REACT_037': googleSignIn,
     // Add any other issues
   };
-  Object.values(insightReport).forEach(fix => fix());
+
+  // Use provided insightReport or fall back to default
+  const report = insightReport || defaultInsightReport;
+
+  // Bind each issue to its corresponding function from the insight report object
+  Object.keys(report).forEach((issueKey) => {
+    const fixFunction = report[issueKey];
+    if (typeof fixFunction === 'function') {
+      fixFunction();
+    }
+  });
 };
 
 /**
@@ -194,14 +204,14 @@ const implementAccessibilityFixesFromReport = () => {
  * @returns {boolean}
  */
 function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return ... reduce)').matches;
 }
 
 /**
  * Apply accessibility attributes to interactive elements
  */
 function applyAccessibilityAttributes() {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  const interactiveElements = ... a, input, select, textarea');
   
   interactiveElements.forEach(element => {
     if (!element.getAttribute('aria-label') && !element.textContent.trim()) {
@@ -213,15 +223,15 @@ function applyAccessibilityAttributes() {
 /**
  * Handle keyboard navigation focus management
  */
-function handleKeyboardNavigation() {
-  document.addEventListener('keydown', (event) => {
+function ... {
+  ... (event) => {
     if (event.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
+      ...
     }
   });
   
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-nav');
+  ... () => {
+    ...
   });
 }
 
@@ -231,16 +241,16 @@ function handleKeyboardNavigation() {
  * @param {string} priority - 'polite' or 'assertive'
  */
 function announceToScreenReader(message, priority = 'polite') {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', priority);
-  announcement.setAttribute('aria-atomic', 'true');
+  const announcement = ...
+  ... priority);
+  ... 'true');
   announcement.className = 'sr-only';
   announcement.textContent = message;
   
-  document.body.appendChild(announcement);
+  ...
   
   setTimeout(() => {
-    document.body.removeChild(announcement);
+    ...
   }, 1000);
 }
 
@@ -248,7 +258,7 @@ function announceToScreenReader(message, priority = 'polite') {
 export { 
   prefersReducedMotion, 
   applyAccessibilityAttributes, 
-  handleKeyboardNavigation, 
+  ... 
   announceToScreenReader,
   implementAccessibilityFixesFromReport
 };

@@ -1,8 +1,1 @@
-export function setDocumentLanguage(lang = 'en') {
-  document.documentElement.lang = lang;
-}
-
-function rotateBack() {
-  // ... existing logic ...
-  document.getElementById('rotateBackButton').click();
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

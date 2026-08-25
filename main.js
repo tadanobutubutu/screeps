@@ -28,26 +28,25 @@ function fixTableStructure(root = document) {
 
   tables.forEach((table, tableIndex) => {
     const rows = table.querySelectorAll('tr');
-    const hasThead = table.querySelector('thead');
-    const hasTbody = table.querySelector('tbody');
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
 
     // Fix: Ensure tables have a tbody element
     if (!hasTbody && rows.length > 0) {
       const firstRow = rows[0];
-      const isHeaderRow = firstRow.querySelector('th');
+      const isHeaderRow = firstRow.querySelector('th') !== null;
 
       if (!hasThead && isHeaderRow) {
         // Move first row to thead
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
-        firstRow.remove();
         summary.fixed++;
         summary.issues.push(`Table ${tableIndex + 1}: Added thead for header row`);
       } else {
         // Wrap all rows in tbody
         const tbody = document.createElement('tbody');
-        rows.forEach(row => tbody.appendChild(row.cloneNode(true)));
+        rows.forEach(row => tbody.appendChild(row));
         rows.forEach(row => row.remove());
         table.appendChild(tbody);
         summary.fixed++;
@@ -62,6 +61,7 @@ function fixTableStructure(root = document) {
       if (cells.length > 0 && !hasThead) {
         cells.forEach(cell => {
           const th = document.createElement('th');
+          th.scope = 'col';
           th.innerHTML = cell.innerHTML;
           cell.parentNode.replaceChild(th, cell);
         });
@@ -96,14 +96,14 @@ function addMainLandmark(doc = document) {
       // Create a main landmark wrapping existing content
       const children = Array.from(body.children);
       const contentStart = children.findIndex(child => 
-        !['script', 'style', 'link', 'meta', 'nav', 'header'].includes(child.tagName.toLowerCase())
+        !['script', 'style', 'link', 'meta', 'nav', 'footer', 'header'].includes(child.tagName.toLowerCase())
       );
       
       if (contentStart !== -1 && children.length > 0) {
-        main.append(...children.slice(contentStart));
+        children.slice(contentStart).forEach(child => main.appendChild(child));
       }
       
-      if (main.childNodes.length === 0) {
+      if (main.children.length === 0) {
         main.textContent = 'Main content';
       }
       
@@ -125,12 +125,12 @@ function addSvgAccessibleNames(root = document) {
   const summary = { fixed: 0, svgs: [] };
 
   svgs.forEach((svg, index) => {
-    const hasTitle = svg.querySelector('title');
+    const hasTitle = svg.querySelector('title') !== null;
     const ariaLabel = svg.getAttribute('aria-label');
     const ariaLabelledby = svg.getAttribute('aria-labelledby');
     
     if (!hasTitle && !ariaLabel && !ariaLabelledby) {
-      const id = svg.id || `svg-title-${index}`;
+      const id = svg.id || `svg-${index + 1}`;
       const title = document.createElement('title');
       title.id = `${id}-title`;
       title.textContent = svg.getAttribute('aria-hidden') === 'true' 
@@ -162,7 +162,7 @@ function addSvgAccessibleNames(root = document) {
  * @returns {Object} - Summary of landmarks fixed
  */
 function ensureUniqueLandmarks(doc = document) {
-  const landmarks = doc.querySelectorAll('header, nav, main, aside, footer, section, article');
+  const landmarks = doc.querySelectorAll('nav, main, aside, footer, section, article');
   const summary = { fixed: 0, duplicates: [] };
   const seenIds = new Set();
   const seenLabels = new Map();
@@ -174,7 +174,7 @@ function ensureUniqueLandmarks(doc = document) {
     // Track and fix duplicate IDs
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        const newId = `${landmark.id}-${index}`;
+        const newId = `${role}-${index}`;
         landmark.id = newId;
         summary.fixed++;
         summary.duplicates.push({
@@ -192,7 +192,7 @@ function ensureUniqueLandmarks(doc = document) {
 
     // Ensure nav landmarks have accessible names
     if (tagName === 'nav' || role === 'navigation') {
-      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      if (!landmark.getAttribute('aria-label') && !landmark.id) {
         const navCount = doc.querySelectorAll('nav').length;
         landmark.setAttribute('aria-label', navCount > 1 ? `Navigation ${navCount}` : 'Main navigation');
         summary.fixed++;
@@ -201,9 +201,9 @@ function ensureUniqueLandmarks(doc = document) {
 
     // Track section/article landmarks
     if (tagName === 'section' || tagName === 'article') {
-      if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      if (!landmark.getAttribute('aria-label') && !landmark.id) {
         const count = seenLabels.get(role) || 0;
-        landmark.setAttribute('aria-label', `${role} ${count + 1}`);
+        landmark.id = `${role}-${count + 1}`;
         seenLabels.set(role, count + 1);
         summary.fixed++;
       }
@@ -273,7 +273,7 @@ const http = require('http');
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URL
+  process.env.GOOGLE_REDIRECT_URI
 );
 
 function generateAuthUrl() {

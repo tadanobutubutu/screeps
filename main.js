@@ -17,7 +17,7 @@ function addAriaAttribute(filePath) {
 
 function addLangAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<html>/, '<html lang="en">');
+  const updatedContent = content.replace(/<html>/g, '<html lang="en">');
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added lang attribute to HTML element in ${filePath}`);
 }
@@ -34,15 +34,15 @@ function fixTableStructure(filePath) {
 
 function addMainLandmark(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<body>/, '<body>\n<main>');
-  updatedContent = updatedContent.replace(/<\/body>/, '</main>\n</body>');
+  let updatedContent = content.replace(/<body>/g, '<body>\n<main>');
+  updatedContent = updatedContent.replace(/<\/body>/g, '</main>\n</body>');
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added main landmark for better accessibility in ${filePath}`);
 }
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="main-navigation">');
+  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
   let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
   if (navCount > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
@@ -57,15 +57,15 @@ function ensureUniqueLandmarks(filePath) {
 
 function addSvgAccessibleNames(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<svg([^>]*)>/g, (match, attrs) => {
-    if (!attrs.includes('aria-label') && !attrs.includes('role="img"')) {
+  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
+    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
       return `<svg${attrs} role="img" aria-label="SVG icon">`;
     }
     return match;
   });
-  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/g, (match, attrs) => {
-    if (!attrs.includes('aria-label')) {
-      return `<svg${attrs}><title>Icon</title><`;
+  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/gi, (match, before, after) => {
+    if (!before.includes('aria-label') && !before.includes('aria-labelledby')) {
+      return `<svg${before}role="img"${after} aria-label="SVG icon">`;
     }
     return match;
   });

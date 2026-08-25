@@ -1,10 +1,8 @@
 // main.js
 
 // Existing code and conflict markers preserved
-// <<<<<<< HEAD
 const existingCode = '...'; // Preserved existing code
-// =======
-// >>>>>>> branch-name
+
 // New code to fix the React SVG Accessible Name issue
 
 // Adding aria-label to the SVGs in app/layout.tsx and dashboard/app/layout.tsx

@@ -1,7 +1,20 @@
 // Address accessibility issues from insight report
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 import React from 'react';
-import { landmarkList } from './landmarks'; // Assuming you have a landmarks file
+import { landmarkList } from './landmarks';
+
+// Function to add lang attribute to HTML element for accessibility (REACT_015)
+export const addLangAttribute = (Component, lang = 'en') => {
+  return function WrappedComponent(props) {
+    React.useEffect(() => {
+      document.documentElement.lang = lang;
+    }, [lang]);
+
+    return <Component {...props} />;
+  };
+};
 
 // Example component that renders the primary content
 const PrimaryContent = () => {
@@ -15,7 +28,7 @@ const PrimaryContent = () => {
   React.useEffect(() => {
     if (isFirstFocus) {
       setTimeout(() => {
-        document.getElementById('main-title').focus();
+        ...
         setIsFirstFocus(false);
       }, 0);
     }
@@ -42,12 +55,11 @@ const wrapPrimaryContentInMain = (Component) => {
   };
 };
 
-// Import landmarks and export the PrimaryContent component so it can be imported independently
-import { landmarkList } from './landmarks';
+// Export the PrimaryContent component so it can be imported independently
 export const PrimaryContent = PrimaryContent;
 
 // Export the wrapPrimaryContentInMain function for usage elsewhere
 export const wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 
 // Wrap the PrimaryContent component by default when exported
-export default wrapPrimaryContentInMain(PrimaryContent);
+export default addLangAttribute(wrapPrimaryContentInMain(PrimaryContent));

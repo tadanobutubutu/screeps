@@ -27,7 +27,7 @@ function fixTableStructureIssues(document) {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headerCells = firstRow.querySelectorAll('th, td');
+        const headerCells = firstRow.querySelectorAll('td');
         const headerRow = document.createElement('tr');
         headerCells.forEach(cell => {
           const th = document.createElement('th');
@@ -39,7 +39,7 @@ function fixTableStructureIssues(document) {
       }
     }
     if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr')).filter(row => !row.parentElement.isSameNode(table.querySelector('thead')));
+      const rows = Array.from(table.querySelectorAll('tr'));
       const tbody = document.createElement('tbody');
       rows.forEach(row => tbody.appendChild(row));
       table.appendChild(tbody);
@@ -62,15 +62,15 @@ function addMainLandmark(document) {
 }
 
 // Function to add accessible names to SVGs
-function addSvgAccessibleNames(document) {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+function addSvgAccessibleNames(document, isDecorative = 'false') {
+  const svgs = document.querySelectorAll('svg');
   let svgCount = 0;
   svgs.forEach((svg, index) => {
     if (svgCount < 2) {
-      const id = `svg-title-${index}`;
+      const id = `svg-title-${index + 1}`;
       const title = document.createElement('title');
       title.id = id;
-      title.textContent = svg.getAttribute('aria-hidden') === 'true' ? 'Decorative graphic' : `SVG graphic ${index + 1}`;
+      title.textContent = isDecorative === 'true' ? 'Decorative graphic' : `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('aria-labelledby', id);
       svgCount++;
@@ -169,10 +169,11 @@ function addressAccessibilityIssues(document) {
   addLangAttribute(document);
   fixTableStructureIssues(document);
   addMainLandmark(document);
-  addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
   addProperLandmarkRegions(document);
+  addSvgAccessibleNames(document);
+  addressAccessibilityIssues(document);
 }
 
 // New function using the imported graphMetrics module
@@ -193,12 +194,11 @@ function handleConflict() {
 // New function as requested in the issue
 function handleConflictResolution(document) {
   // Apply accessibility fixes
-  addLangAttribute(document);
   fixTableStructureIssues(document);
+  addLangAttribute(document);
   addMainLandmark(document);
-  addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
-  fixFakeLinkIssue(document);
+  addSvgAccessibleNames(document);
   addProperLandmarkRegions(document);
 
   // Example usage of the button ID for accessibility
@@ -209,7 +209,7 @@ function handleConflictResolution(document) {
 }
 
 // Modified the existing handleConflict function to call handleConflictResolution
-function handleConflictWithAccessibility(document) {
+function resolveConflict(document) {
   handleConflict();
   handleConflictResolution(document);
 }
@@ -219,7 +219,7 @@ module.exports = {
   calculateGraphMetrics,
   handleConflict,
   handleConflictResolution,
-  handleConflictWithAccessibility,
+  resolveConflict,
   addressAccessibilityIssues,
   BUTTON_ID,
   addLangAttribute,

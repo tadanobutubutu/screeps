@@ -7,6 +7,9 @@ import { dependencyGraphContent } from './dependencyGraphContent.js';
 // Import indexContent content from its respective module
 import { indexContent } from './indexContent.js';
 
+// Import the new landmarks management function
+import { getLandmarks, ensureUniqueLandmarkNames } from './landmarksManager';
+
 // Implement the new function as per the issue requirements
 function getLandmarks() {
   // Add your logic to get landmark data here
@@ -39,3 +42,6 @@ function ensureUniqueLandmarkNames() {
 // Rest of your main.js code remains the same
 
 // ... existing functions, imports, and exports ...
+
+// Export the new functions
+export { getLandmarks, ensureUniqueLandmarkNames };

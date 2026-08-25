@@ -25,4 +25,6 @@ const Root = () => {
   );
 };
 
+export { Root, handleRotateBack };
+
 ReactDOM.render(<Root />, ...);

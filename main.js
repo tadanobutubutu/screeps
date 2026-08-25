@@ -73,11 +73,13 @@ function myGameLoop() {
 // Include the new function as an export
 module.exports = {
   loop: function() {
-    myGameLoop(); /* Main game loop logic myNewFunction(); */
+    myGameLoop(); /* Main game loop logic myNewFunction(); */ 
   },
   add,
   subtract,
   multiply,
   divide,
-  addAriaLabel
+  addAriaLabel,
+  rotate,
+  rotateBack
 };

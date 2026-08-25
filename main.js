@@ -20,15 +20,8 @@ function validateTableAccessibility() {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
       if (!th.scope) {
-        const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
-        if (isFirstInRow && isFirstInCol) {
-          th.setAttribute('scope', 'col');
-        } else if (isFirstInRow) {
-          th.setAttribute('scope', 'row');
-        } else {
-          th.setAttribute('scope', 'col');
-        }
+        th.setAttribute('scope', 'col');
+        hasIssues = true;
       }
     });
   });

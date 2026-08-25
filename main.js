@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: This is the existing code that needs to be preserved
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
@@ -42,12 +42,12 @@ function addMainLandmark(filePath) {
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
+  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="main-navigation">');
   let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
   if (navCount > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
     let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
+    updatedContent = updatedContent.replace(/<nav aria-label="main-avigation">/g, () => {
       return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
     });
   }
@@ -57,15 +57,15 @@ function ensureUniqueLandmarks(filePath) {
 
 function addSvgAccessibleNames(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
-    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
+  let updatedContent = content.replace(/(<svg[^>]*)(>)/gi, (match, attrs) => {
+    if (!attrs.includes('aria-label') && !attrs.includes('role="img"')) {
       return `<svg${attrs} role="img" aria-label="SVG icon">`;
     }
     return match;
   });
-  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/gi, (match, before, after) => {
-    if (!before.includes('aria-label') && !before.includes('aria-labelledby')) {
-      return `<svg${before}role="img"${after} aria-label="SVG icon">`;
+  updatedContent = updatedContent.replace(/(<svg[^>]*)(>)/gi, (match, before, after) => {
+    if (!before.includes('aria-label') && !before.includes('role="img"')) {
+      return `${before} role="img" aria-label="SVG icon">`;
     }
     return match;
   });

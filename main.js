@@ -24,7 +24,7 @@ const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
         const hasMainTag = /<main/i.test(content);
         if (!hasMainTag) {
-            const mainMatch = content.match(/<body[^>]*>/i);
+            const mainMatch = content.match(/(<body[^>]*>)/i);
             if (mainMatch) {
                 return content.replace(mainMatch[0], mainMatch[0] + '<main>') + '</main></body>';
             }
@@ -56,7 +56,7 @@ const addProperLandmarkRegions = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/i.test(result) && !/<banner/i.test(result)) {
-            const bodyMatch = result.match(/<body[^>]*>/i);
+            const bodyMatch = result.match(/(<body[^>]*>)/i);
             if (bodyMatch) {
                 result = result.replace(bodyMatch[0], bodyMatch[0] + '<header></header>');
             } else {
@@ -79,7 +79,7 @@ const renderDependencyGraph = function(layout) {
     // Use dependencyGraphContent from the appropriate module to render the graph
     // Based on the provided layout parameter
     if (layout === 'horizontal') {
-        return dependencyGraphContent.horizontal || '<div class="dependency-graph horizontal"></div>';
+        return dependencyGraphContent.horizontal || '<div class="dependency-graph"></div>';
     } else if (layout === 'vertical') {
         return dependencyGraphContent.vertical || '<div class="dependency-graph vertical"></div>';
     }
@@ -94,9 +94,9 @@ const addMissingLandmarks = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/i.test(result)) {
-            const bannerMatch = result.match(/<body[^>]*>/i);
+            const bannerMatch = result.match(/(<body[^>]*>)/i);
             if (bannerMatch) {
-                result = result.replace(bannerMatch[0], '<header></header>' + bannerMatch[0]);
+                result = result.replace(bannerMatch[0], bannerMatch[0] + '<header></header>');
             }
         }
 

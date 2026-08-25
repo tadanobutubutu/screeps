@@ -29,7 +29,22 @@ const MainComponent = () => {
   );
 };
 
+// Function to wrap the primary content in <main>
+const wrapPrimaryContentInMain = (Component) => {
+  return () => {
+    return (
+      <MainComponent>
+        <Component />
+      </MainComponent>
+    );
+  };
+};
+
 // Export the PrimaryContent component so it can be imported independently
 export const PrimaryContent = PrimaryContent;
 
-export default MainComponent;
+// Export the wrapPrimaryContentInMain function for usage elsewhere
+export const wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+
+// Wrap the PrimaryContent component by default when exported
+export default wrapPrimaryContentInMain(PrimaryContent);

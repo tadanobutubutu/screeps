@@ -223,4 +223,19 @@ describe('visual.effects', () => {
         // Memoryからは削除されているはず
         expect(mockCreep.memory.trailPositions).toBeUndefined();
     });
+
+    test('secureRandomFloat falls back to Math.random on crypto error', () => {
+        visualEffects.reset();
+        const crypto = require('crypto');
+        const randomBytesSpy = jest.spyOn(crypto, 'randomBytes').mockImplementation(() => {
+            throw new Error('Test crypto error');
+        });
+        const mathRandomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.42);
+
+        expect(() => visualEffects.particles({ x: 25, y: 25, roomName: 'W0N0' }, '#FFD700', 1)).not.toThrow();
+        expect(mathRandomSpy).toHaveBeenCalled();
+
+        randomBytesSpy.mockRestore();
+        mathRandomSpy.mockRestore();
+    });
 });

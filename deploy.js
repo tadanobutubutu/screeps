@@ -226,18 +226,20 @@ async function runDeploy(...params) {
 
     try {
         const modules = {};
-        for (const m of files) {
-            try {
-                const filePath = validateFilePath(m.file);
-                let content = await fs.promises.readFile(filePath, 'utf8');
-                content = injectEnvVars(content);
-                modules[m.name] = content;
-            } catch (e) {
-                const safeMessage = sanitizeLog(e.message);
-                console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                throw new Error(`Failed to read file because ${safeMessage}`);
-            }
-        }
+        await Promise.all(
+            files.map(async (m) => {
+                try {
+                    const filePath = validateFilePath(m.file);
+                    let content = await fs.promises.readFile(filePath, 'utf8');
+                    content = injectEnvVars(content);
+                    modules[m.name] = content;
+                } catch (e) {
+                    const safeMessage = sanitizeLog(e.message);
+                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                    throw new Error(`Failed to read file because ${safeMessage}`);
+                }
+            })
+        );
 
         await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
         await deployTo('PROD', '/api/user/code', prodToken, modules);

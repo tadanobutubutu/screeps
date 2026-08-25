@@ -1,6 +1,3 @@
-Here is the resolved version of the main.js file:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 
 // Import necessary modules
@@ -40,7 +37,6 @@ function addLandmarks(rootElement) {
 }
 
 // Addressing REACT_041: Add accessible names to 2 SVGs
-<<<<<<< HEAD
 function addAccessibleSvgNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg) => {
@@ -93,4 +89,3 @@ module.exports = {
   addClassToElement,
   // ... (Preserve existing exports)
 };
-```

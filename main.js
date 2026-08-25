@@ -181,10 +181,11 @@ const validateTableStructure = () => {
   return { errors };
 };
 
-// ... Keep existing code here
-
+// React component for the Root component
 const Root = () => {
   // Other component code...
+
+  // ... Keep existing code here
 
   const handleRotateBack = () => {
     // Logic to rotate back

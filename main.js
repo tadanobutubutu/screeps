@@ -105,6 +105,7 @@ exports.hasUniqueLandmarks = hasUniqueLandmarks;
 // New function exporting makeElementAccessible
 exports.makeElementAccessible = makeElementAccessible;
 
+// NEW: Function to wrap primary content in <main>
 function wrapPrimaryContentInMain() {
   const mainContent = document.querySelector('main');
   if (!mainContent) return;
@@ -120,11 +121,16 @@ function wrapPrimaryContentInMain() {
   newDiv.appendChild(mainContent);
 }
 
+// Call the new function to wrap the primary content in a <main>
+wrapPrimaryContentInMain();
+
+// New function exporting wrapPrimaryContentInMain
+exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+
 module.exports = {
   initialize,
   getFilePath,
   makeElementAccessible,
-  newPreservedFunction,
   fixTableStructureIssues,
   addProperLandmarkRegions,
   fixFakeLinkIssues, // Renamed it to avoid naming conflicts

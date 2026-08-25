@@ -76,9 +76,19 @@ function correctFakeLinks(container) {
   }
 }
 
+// Function to add accessible names to SVG elements
+function addSvgAccessibleName(svgElement, accessibleName) {
+  if (svgElement && accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
+  } else if (svgElement) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,
   addMainLandmark: addMainLandmark,
-  correctFakeLinks: correctFakeLinks
+  correctFakeLinks: correctFakeLinks,
+  addSvgAccessibleName: addSvgAccessibleName
 };

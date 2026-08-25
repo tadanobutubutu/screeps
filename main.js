@@ -81,11 +81,12 @@ function fixFakeLinkIssue() {
 module.exports = {
   fixTableStructureIssues: fixTableStructureIssues,
   addClassToElement: addClassToElement,
-  renderDependencyGraph: renderDependencyGraph,
+  renderDependencyGraph:renderDependencyGraph,
   renderDependencyGraphForComponent: renderDependencyGraphForComponent,
   addLandmarks: addLandmarks,
   addAccessibleSvgNames: addAccessibleSvgNames,
   addIdsToLandmarks: addIdsToLandmarks,
   fixTableStructure: fixTableStructure,
-  fixFakeLinkIssue: fixFakeLinkIssue
+  fixFakeLinkIssue: fixFakeLinkIssue,
+  addLangAttr: addLangAttr
 };

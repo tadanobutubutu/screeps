@@ -9,7 +9,7 @@
 /**
  * REACT_036 Fix: React Fake Link
  *
- * Issue: The "rotate back" link in docs/dependency-graph.html used
+ * Issue: The "rotate back" link in ... used
  * <a href="#"> which doesn't navigate anywhere, causing screen readers
  * to announce it as a dead link and preventing proper keyboard activation.
  *
@@ -26,6 +26,9 @@ const config = {
     animationDuration: 300
 };
 
+// Track current rotation state
+let currentRotation = 0;
+
 /**
  * Replaces the fake anchor link with a proper button element
  * for accessibility compliance (REACT_036).
@@ -35,19 +38,42 @@ const config = {
  * space/enter activation, and screen reader semantics.
  */
 function fixFakeLink() {
+    const unrotateLink = document.getElementById('unrotate');
+    if (!unrotateLink) return;
+
     const unrotateButton = document.createElement('button');
     unrotateButton.id = 'unrotate';
     unrotateButton.textContent = 'Rotate back';
     unrotateButton.role = 'button';
     unrotateButton.ariaLabel = 'Rotate the dependency graph back to the original position.';
+    unrotateButton.className = unrotateLink.className || '';
+    
+    // Copy any inline styles
+    if (unrotateLink.style.cssText) {
+        unrotateButton.style.cssText = unrotateLink.style.cssText;
+    }
+
+    // Replace the link with the button
+    unrotateLink.parentNode.replaceChild(unrotateButton, unrotateLink);
+
+    // Add click event listener
     unrotateButton.addEventListener('click', handleRotateBack);
-    document.querySelector('#unrotate').replaceWith(unrotateButton);
+
+    // Add keyboard support for space key
+    unrotateButton.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+            e.preventDefault();
+            handleRotateBack();
+        }
+    });
 }
 
 /* New function REACT_015: Add lang attribute to HTML element */
 function addLangAttribute() {
-    if (!document.documentElement.hasAttribute('lang')) {
-        document.documentElement.setAttribute('lang', document.documentElement.lang);
+    const html = document.documentElement;
+    if (html && !html.lang) {
+        // Default to 'en' for English; could be enhanced to detect language
+        html.lang = 'en';
     }
 }
 
@@ -62,40 +88,58 @@ function addLangAttribute() {
  * landmark elements with appropriate roles.
  */
 function fixLandmarks() {
+    const body = document.body;
+    if (!body) return;
+
     // Ensure a <main> landmark exists
-    if (!document.querySelector('main')) {
-        const main = document.createElement('main');
+    let main = document.querySelector('main');
+    if (!main) {
+        main = document.createElement('main');
         main.setAttribute('role', 'main');
         // Move body children (except header/footer/nav) into main
-        const bodyChildren = Array.from(document.body.children);
+        const bodyChildren = Array.from(body.childNodes);
         bodyChildren.forEach((child) => {
-            if (!['HEADER', 'FOOTER', 'NAV'].includes(child.tagName)) {
+            if (child.nodeType === Node.ELEMENT_NODE) {
+                const tagName = child.tagName.toUpperCase();
+                if (!['HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE'].includes(tagName)) {
+                    main.appendChild(child);
+                }
+            } else if (child.nodeType === Node.TEXT_NODE) {
                 main.appendChild(child);
             }
         });
-        document.body.appendChild(main);
+        body.insertBefore(main, body.firstChild);
     }
 
     // Ensure a <header> landmark exists
-    if (!document.querySelector('header')) {
-        const header = document.createElement('header');
+    let header = document.querySelector('header');
+    if (!header) {
+        header = document.createElement('header');
         header.setAttribute('role', 'banner');
-        document.body.insertBefore(header, document.body.firstChild);
+        if (body.firstChild) {
+            body.insertBefore(header, body.firstChild);
+        } else {
+            body.appendChild(header);
+        }
     }
 
     // Ensure a <nav> landmark exists
-    if (!document.querySelector('nav')) {
-        const nav = document.createElement('nav');
+    let nav = document.querySelector('nav');
+    if (!nav) {
+        nav = document.createElement('nav');
         nav.setAttribute('role', 'navigation');
         nav.setAttribute('aria-label', 'Main navigation');
-        document.body.insertBefore(nav, document.body.children[1] || null);
+        const existingNavs = document.querySelectorAll('nav');
+        nav.setAttribute('aria-label', existingNavs.length > 0 ? 'Additional navigation' : 'Main navigation');
+        body.appendChild(nav);
     }
 
     // Ensure a <footer> landmark exists
-    if (!document.querySelector('footer')) {
-        const footer = document.createElement('footer');
+    let footer = document.querySelector('footer');
+    if (!footer) {
+        footer = document.createElement('footer');
         footer.setAttribute('role', 'contentinfo');
-        document.body.appendChild(footer);
+        body.appendChild(footer);
     }
 }
 
@@ -113,9 +157,12 @@ function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     let count = 0;
     svgs.forEach((svg, index) => {
-        if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+        const hasLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || svg.querySelector('title');
+        if (!hasLabel) {
             svg.setAttribute('role', 'img');
-            svg.setAttribute('aria-label', svg.getAttribute('aria-label') || `Decorative graphic ${index + 1}`);
+            const title = document.createElement('title');
+            title.textContent = `Decorative graphic ${index + 1}`;
+            svg.insertBefore(title, svg.firstChild);
             count++;
         }
     });
@@ -138,7 +185,8 @@ function ensureUniqueLandmarks() {
         const landmarks = document.querySelectorAll(selector);
         if (landmarks.length > 1) {
             landmarks.forEach((landmark, index) => {
-                if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+                const hasLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+                if (!hasLabel) {
                     const tagName = landmark.tagName.toLowerCase();
                     landmark.setAttribute('aria-label', `${tagName} ${index + 1}`);
                 }
@@ -156,12 +204,23 @@ function handleRotateBack() {
 
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('rotateback', { detail: { degrees: 0 } });
+        const event = new CustomEvent('graphRotationComplete', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }
 
-// (Existing code for rotateDependencyGraph and init functions)
+/**
+ * Rotates the dependency graph by the specified degrees.
+ * @param {number} degrees - The target rotation in degrees
+ */
+function rotateDependencyGraph(degrees) {
+    const graphContainer = document.getElementById('dependency-graph');
+    if (graphContainer) {
+        currentRotation = degrees;
+        graphContainer.style.transform = `rotate(${degrees}deg)`;
+        graphContainer.style.transition = `transform ${config.animationDuration}ms ease-in-out`;
+    }
+}
 
 /**
  * Initializes the dependency graph controller.

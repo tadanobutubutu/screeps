@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import { getLandmarks } from './api';
-import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, someFunctionREACT_027 as originalSomeFunctionREACT_027 } from './utils'; // Importing the existing functions without renaming
+import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName } from './utils';
 
 // ADD NEW FUNCTION - addRequiredLandmarks (Assuming it's a new function to address REACT_017, REACT_025, and REACT_041 issues)
 export const addRequiredLandmarks = () => {
@@ -13,30 +13,26 @@ export const findIndex = (array, id) => {
 };
 
 // Function to override the existing findIndex function (only for test purpose)
-const overrideFindIndex = jest.fn().mockImplementation((array, id) => {
+const overrideFindIndex = (array, id) => {
   // Add test-specific implementation here if needed
   // For example:
   // return array.findIndex((item) => item.someProperty === 'testValue');
   return originalFindIndex(array, id); // Call the original function when not overriding
-});
-jest.mock('./utils', () => ({
-  // Override the existing findIndex function with the mock when running tests
-  ...jest.requireActual('./utils'),
-  findIndex: overrideFindIndex,
-}));
+};
+
+const MainContext = createContext(undefined);
 
 // ... (Existing code below this line remains unchanged)
 
 // ... (some code has been reformatted for readability)
 
 export const MainComponent = () => {
-  // ... existing code
-
+  const [landmarks, setLandmarks] = useState([]);
+  
   const handleSearch = (event) => {
     const query = event.target.value;
-    const filteredLandmarks = filterLandmarks(query);
+    const filteredLandmarks = originalFilterLandmarks(landmarks, query);
     addRequiredLandmarks(); // Add this line to address REACT_017, REACT_025, and REACT_041 issues
-    sortLandmarksByName();
     setLandmarks(filteredLandmarks);
   };
 

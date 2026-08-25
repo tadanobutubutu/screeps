@@ -1,69 +1,65 @@
-function getLangAttribute() {
+const getLangAttribute = () => {
   // Example implementation to get the language attribute
   // You should replace this with your actual implementation
   const lang = navigator.language || navigator.userLanguage;
   return lang;
-}
+};
 
-function getFullLangAttribute() {
+const getFullLangAttribute = () => {
   // Example implementation to get the full language attribute (including region)
   // You should replace this with your actual implementation
   const lang = getLangAttribute();
   const split = lang.split('-');
   const fullLang = split[0] !== split[1] ? `${split[0]}-${split[1]}-u-nu` : `${split[0]}-u-nu`;
   return fullLang;
-}
+};
 
-function validateTableAccessibility() {
-  // Example implementation to validate table accessibility
-  // You should replace this with your actual implementation
-  // ...
-}
+const validateTableAccessibility = () => {
+  // logic to validate table accessibility
+};
 
-function validateTableStructure() {
-  // Example implementation to validate table structure
-  // You should replace this with your actual implementation
-  // ...
-}
+const validateTableStructure = () => {
+  // logic to validate table structure
+};
 
-function validateLandmark() {
-  // Example implementation to validate landmark
-  // You should replace this with your actual implementation
-  // ...
-}
+const validateLandmark = () => {
+  // logic to validate landmark
+};
 
-function validateLandmarkStructure() {
-  // Example implementation to validate landmark structure
-  // You should replace this with your actual implementation
-  // ...
-}
+const validateLandmarkStructure = () => {
+  // logic to validate landmark structure
+};
 
-function ensureUniqueLandmarks() {
-  // Example implementation to ensure unique landmarks
-  // You should replace this with your actual implementation
-  // ...
-}
+const ensureUniqueLandmarks = () => {
+  // logic to ensure unique landmarks
+};
 
-function getSvgAccessibleName() {
-  // Example implementation to get accessible name for SVG
-  // You should replace this with your actual implementation
-  // ...
-}
+const getSvgAccessibleName = () => {
+  // logic to get SVG accessible name
+};
 
-function createInPageButton() {
-  // Example implementation to create an in-page button
-  // You should replace this with your actual implementation
-  // ...
-}
+const createInPageButton = () => {
+  // logic to create in-page button
+};
 
-function createAccessibleLink() {
-  // Example implementation to create an accessible link
-  // You should replace this with your actual implementation
-  // ...
-}
+const createAccessibleLink = () => {
+  // logic to create accessible link
+};
 
-function handleAccessibilityIssues() {
-  // Example implementation to handle accessibility issues
-  // You should replace this with your actual implementation
-  // ...
-}
+const handleAccessibilityIssues = () => {
+  // logic to handle accessibility issues
+};
+
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+};

@@ -8,7 +8,7 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
 
 // Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from './content/dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
@@ -29,9 +29,10 @@ function validateTableAccessibility() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      const scope = th.getAttribute('scope');
+      if (!scope) {
         hasIssues = true;
-      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(th.getAttribute('scope'))) {
+      } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
         hasIssues = true;
       }
     });
@@ -65,7 +66,7 @@ function addMainLandmark() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
-    document.body.prepend(newMain);
+    document.body.insertBefore(newMain, document.body.firstChild);
     return newMain;
   }
   return main;
@@ -79,7 +80,7 @@ function ensureUniqueLandmarkIds() {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
       if (landmarkRoles.has(role)) {
-        landmark.id = role + '-' + landmarkRoles.get(role);
+        landmark.id = role + '-' + (landmarkRoles.get(role) + 1);
         landmarkRoles.set(role, landmarkRoles.get(role) + 1);
       } else {
         landmarkRoles.set(role, 1);
@@ -156,7 +157,7 @@ function ensureUniqueLandmarks() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+    if (!svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
@@ -166,7 +167,7 @@ function addSvgAccessibleNames() {
 
 // NEW: Fix favicon accessibility by marking as decorative
 function fixFaviconAccessibility() {
-  const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+  const faviconLinks = document.querySelectorAll('link[rel="shortcut icon"]');
   faviconLinks.forEach(link => {
     link.setAttribute('aria-hidden', 'true');
   });
@@ -196,7 +197,7 @@ function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
   let hasIssues = false;
   links.forEach(link => {
-    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+    if (!link.href || link.getAttribute('href') === '#') {
       hasIssues = true;
     }
   });
@@ -223,10 +224,10 @@ function fixTableStructure() {
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const rowIndex = Array.from(th.parentElement.children).indexOf(th);
+        const rowIndex = Array.from(th.parentElement ? th.parentElement.children : []).indexOf(th);
         const isFirstInCol = rowIndex === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
@@ -259,7 +260,7 @@ function addMainLandmark() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
-    document.body.prepend(newMain);
+    document.body.insertBefore(newMain, document.body.firstChild);
     return newMain;
   }
   return main;
@@ -271,11 +272,11 @@ function addLandmarkRegions() {
   addMainLandmark();
 
   // Validate and fix unique landmarks
-  ensureUniqueLandmarkIds();
+  ensureUniqueLandmarks();
   fixMultipleMainLandmarks();
 
   // Ensure other landmarks have proper labeling
-  const landmarks = document.querySelectorAll('header, nav, aside, footer');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside');
   landmarks.forEach((landmark, index) => {
     if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
       const tagName = landmark.tagName.toLowerCase();
@@ -304,124 +305,4 @@ function fixFakeLinkIssue() {
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-
-/**
- * Render the dependency graph view using the imported dependencyGraphContent module.
- * This function identifies the container element and populates it with the 
- * dependency graph content from the appropriate module.
- * 
- * @param {string} containerId - The ID of the container element to render the graph in
- * @param {Object} options - Optional configuration options for rendering
- * @returns {HTMLElement} The rendered dependency graph container
- */
-function renderDependencyGraph(containerId, options = {}) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Dependency graph container with ID "${containerId}" not found`);
-    return null;
-  }
-
-  // Clear existing content
-  container.innerHTML = '';
-
-  // Get content from the dependencyGraphContent module
-  const graphContent = dependencyGraphContent(options);
-
-  // Append the content to the container
-  if (typeof graphContent === 'string') {
-    container.innerHTML = graphContent;
-  } else if (graphContent instanceof HTMLElement) {
-    container.appendChild(graphContent);
-  } else if (Array.isArray(graphContent)) {
-    graphContent.forEach(item => {
-      if (typeof item === 'string') {
-        container.innerHTML += item;
-      } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
-      }
-    });
-  }
-
-  return container;
-}
-
-/**
- * Render the index view using the imported indexContent module.
- * This function identifies the container element and populates it with the
- * index content from the appropriate module.
- * 
- * @param {string} containerId - The ID of the container element to render the index in
- * @param {Object} options - Optional configuration options for rendering
- * @returns {HTMLElement} The rendered index view container
- */
-function renderIndexView(containerId, options = {}) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Index view container with ID "${containerId}" not found`);
-    return null;
-  }
-
-  // Clear existing content
-  container.innerHTML = '';
-
-  // Get content from the indexContent module
-  const content = indexContent(options);
-
-  // Append the content to the container
-  if (typeof content === 'string') {
-    container.innerHTML = content;
-  } else if (content instanceof HTMLElement) {
-    container.appendChild(content);
-  } else if (Array.isArray(content)) {
-    content.forEach(item => {
-      if (typeof item === 'string') {
-        container.innerHTML += item;
-      } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
-      }
-    });
-  }
-
-  return container;
-}
-
-// Main entry: Address all accessibility issues
-function addressAccessibilityIssues() {
-  addLangAttribute();
-  fixTableStructure();
-  addLandmarkRegions();
-  addSvgAccessibleNames();
-  fixFaviconAccessibility();
-  fixFakeLinkIssue();
-}
-
-// Example usage of the accessibility functions
-addressAccessibilityIssues();
-addLandmarkRegions();
-
-// REACT_017: Validate landmark elements for accessibility
-function validateLandmark(landmark) {
-  if (!landmark) return false;
-  const validLandmarkRoles = ['main', 'header', 'footer', 'nav', 'aside', 'section', 'article', 'search'];
-  const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
-  return validLandmarkRoles.includes(role);
-}
-
-// REACT_017: Validate overall landmark structure
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('header, footer, nav, main, aside, section[aria-label], article, [role="search"]');
-  let hasIssues = false;
-  let landmarkCount = 0;
-  landmarks.forEach(landmark => {
-    if (!validateLandmark(landmark)) {
-      hasIssues = true;
-    }
-    landmarkCount++;
-  });
-  return {
-    valid: !hasIssues,
-    landmarkCount
-  };
-}
+// index views to import and use dependencyGraphContent/indexContent from

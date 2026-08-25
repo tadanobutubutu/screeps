@@ -1,20 +1,25 @@
+Here is the resolved file content:
+
+```javascript
 // Main module for Screeps documentation generation
 // Handles table structure validation and rendering
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Generates an accessible React table with proper scope attributes,
  * language attribute on the wrapper, and a clear grid role for accessibility.
+ * Also accommodates table enhancements, such as table headers having a 'headers' prop and uniquely identified row IDs.
  */
-function generateAccessibleTable({ data }) {
+function generateAccessibleTable({ data, headers }) {
   return (
     <div lang="en">
       <header>
         {/* Header content */}
       </header>
       <main>
-        <Table data={data} />
+        <Table data={data} headers={headers} />
       </main>
       <footer>
         {/* Footer content */}
@@ -27,44 +32,42 @@ function generateAccessibleTable({ data }) {
  * Table component with proper role, headers, and accessibility properties.
  * Ensures table headers have associated scope attributes.
  */
-function Table({ data }) {
+function Table({ data, headers }) {
   return (
     <table role="grid" aria-label="Accessible Table">
       <thead>
         <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Role</th>
+          {headers.map((header, index) => (
+            <th key={index} id={`table-header-${index}`} scope="col">
+              {header}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td scope="row"><div>Header Cell</div></td>
-          <td><div>Cell</div></td>
-          <td><div>Cell</div></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Alice</td>
-          <td>Admin</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Bob</td>
-          <td>User</td>
-        </tr>
+        {data.map((row, index) => (
+          <tr key={index}>
+            <td id={`table-row-${index}`} scope="row">
+              <div>{row.id}</div>
+            </td>
+            <td>{row.name}</td>
+            <td>{row.role}</td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
 }
 
-// Prop types for the generateAccessibleTable and Table components
+// UpdatedPropTypes for the generateAccessibleTable and Table components
 generateAccessibleTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string.isRequired, name: PropTypes.string.isRequired, role: PropTypes.string.isRequired })).isRequired,
+  headers: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 Table.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})),
+  data: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string, name: PropTypes.string, role: PropTypes.string })),
+  headers: PropTypes.arrayOf(PropTypes.string),
 };
 
 // Export for use in other modules
@@ -72,5 +75,14 @@ export { generateAccessibleTable, Table };
 export default generateAccessibleTable;
 
 // Example usage
-const accessibleTable = generateAccessibleTable({ data: [] });
+const accessibleTable = generateAccessibleTable({
+  data: [
+    { id: '1', name: 'Alice', role: 'Admin' },
+    { id: '2', name: 'Bob', role: 'User' },
+  ],
+  headers: ['ID', 'Name', 'Role'],
+});
 console.log(accessibleTable);
+```
+
+This resolved version combines both changes by introducing a new `headers` prop for the `generateAccessibleTable` and `Table` components. Additionally, it added uniquely identified row IDs in both the table header and data section. Lastly, I updated the PropTypes for both components to accommodate the new `headers` prop.

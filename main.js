@@ -9,7 +9,7 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
-// TODO: Address accessibility issues from insight report:
+ // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
@@ -68,7 +68,7 @@ export function fixTableStructureIssues(html) {
     // Check if tbody already exists before this tr
     const beforeTr = result.substring(0, result.indexOf(match));
     if (!beforeTr.includes('<tbody') && !beforeTr.includes('</tbody')) {
-      return `<tbody>${match}`;
+      return `<tbody>${match}</tbody>`;
     }
     return match;
   });

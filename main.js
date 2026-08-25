@@ -3,21 +3,25 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import JSDOM from "jsdom";
 
+// Import content modules for dependency graphs and index views
+import { dependencyGraphContent } from "./dependencyGraphContent";
+import { indexContent } from "./indexContent";
+
 // ... (Pre-existing code)
 
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
-  const { JSDOM: { window } } = JSDOM.virtualDOM;
+  const { JSDOM: { window } } = JSDOM;
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ...
+    renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
   const mockDocument = new window.Document();
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = ...
+  const rootElement = body.querySelector('#root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -38,8 +42,18 @@ function addAriaLabelledbyIfNeeded(elem) {
 
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
-  const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = ...
+  
+  // Determine which content to render based on elem type or attributes
+  let content;
+  if (elem.getAttribute && elem.getAttribute('data-view') === 'dependency-graph') {
+    content = dependencyGraphContent({ context });
+  } else if (elem.getAttribute && elem.getAttribute('data-view') === 'index') {
+    content = indexContent({ context });
+  } else {
+    content = <div id="generatedId">{/* Your React component here */}</div>;
+  }
+  
+  const contentString = ReactDOMServer.renderToString(content);
   
   // ... (Pre-existing logic)
 }
@@ -103,4 +117,4 @@ function wrapPrimaryContentInMain(context) {
 }
 
 // Export the functions to make them accessible
-export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels, wrapPrimaryContentInMain };
+export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels, wrapPrimaryContentInMain, dependencyGraphContent, indexContent };

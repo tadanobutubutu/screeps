@@ -11,12 +11,14 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-... ...
+
+// Append skip link to body (assuming not already present)
+document.body.appendChild(skipLink);
 
 // Handle skip link click
-... (e) => {
+skipLink.addEventListener('click', e => {
   e.preventDefault();
-  const mainContent = ...
+  const mainContent = document.getElementById('main-content');
   if (mainContent) {
     mainContent.tabIndex = -1;
     mainContent.focus();
@@ -24,7 +26,7 @@ skipLink.textContent = 'Skip to main content';
 });
 
 // Mark the main content area as a primary region
-const mainElement = ...
+const mainElement = document.getElementById('main-content');
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
@@ -34,79 +36,70 @@ if (mainElement) {
 document.documentElement.lang = 'en';
 
 // Ensure tables have proper structure and unique captions
-... => {
-  // ... (existing code)
-
+document.querySelectorAll('table').forEach(table => {
   // Add unique 'id' to each table
   table.id = table.id || `table-${table.dataset.testid}`;
 
   // Add proper ARIA attributes for table, table header, and table body
-  const tableHeader = ...
-  const tableBody = ...
+  const tableHeader = table.querySelector('thead');
+  const tableBody = table.querySelector('tbody');
 
   if (tableHeader && tableBody) {
     table.setAttribute('role', 'table');
     tableHeader.setAttribute('role', 'columnheader');
-    ... 'rowgroup');
+    tableBody.setAttribute('role', 'rowgroup');
   }
 });
 
 // Improve SVG accessibility: add title and accessible name
-... => {
-  // ... (existing code)
-
+document.querySelectorAll('svg').forEach(svg => {
   // Add an appropriate ARIA label for each SVG
-  ... ...
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Accessible SVG');
 });
 
 // Add landmarks with unique ids and appropriate roles
 const headerLandmark = document.createElement('header');
 headerLandmark.id = 'header-landmark';
-... 'banner');
-... ...
+headerLandmark.setAttribute('role', 'banner');
+document.body.appendChild(headerLandmark);
 
-const mainLandmark = ...
+const mainLandmark = document.createElement('main');
 mainLandmark.id = 'main-content';
-... 'main');
+mainLandmark.setAttribute('role', 'main');
 headerLandmark.appendChild(mainLandmark);
 
 const footerLandmark = document.createElement('footer');
 footerLandmark.id = 'footer-landmark';
-... 'contentinfo');
-...
+footerLandmark.setAttribute('role', 'contentinfo');
+document.body.appendChild(footerLandmark);
 
 // Ensure unique landmark roles (for 2 issues)
-const landmarks = ...
+const landmarks = document.querySelectorAll('[role]');
 landmarks.forEach((landmark, idx) => {
   if (idx > 0) {
-    ... `Landmark ${idx + 1}`);
+    landmark.id = `landmark-${idx + 1}`;
   }
 });
 
 // Fix fake links: convert hash-only href links to buttons
 const fixFakeLinks = () => {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach((link) => {
-    // Create a button with the same content as the link
+  fakeLinks.forEach(link => {
     const button = document.createElement('button');
     button.textContent = link.textContent;
     button.id = link.id;
     button.className = link.className;
-    
-    // Copy inline styles to button
+
     const inlineStyles = link.getAttribute('style');
-    if (inlineStyles) {
-      button.setAttribute('style', inlineStyles);
-    }
-    
-    // Copy any data attributes
-    Array.from(link.attributes).forEach((attr) => {
+    if (inlineStyles) button.setAttribute('style', inlineStyles);
+
+    Array.from(link.attributes).forEach(attr => {
       if (attr.name.startsWith('data-')) {
         button.setAttribute(attr.name, attr.value);
       }
     });
-    
-    // Replace the link with the button in the DOM
+
     if (link.parentNode) {
       link.parentNode.replaceChild(button, link);
     }
@@ -117,33 +110,23 @@ const fixFakeLinks = () => {
 const handleUnrotateLink = () => {
   const unrotateLink = document.getElementById('unrotate');
   if (unrotateLink && unrotateLink.tagName === 'A') {
-    // Create a proper button element
     const button = document.createElement('button');
     button.id = 'unrotate';
     button.textContent = 'rotate back';
-    
-    // Copy class names
     button.className = unrotateLink.className;
-    
-    // Copy inline styles if any
+
     const inlineStyles = unrotateLink.getAttribute('style');
-    if (inlineStyles) {
-      button.setAttribute('style', inlineStyles);
-    }
-    
-    // Add click handler that focuses on the element or scrolls to top
+    if (inlineStyles) button.setAttribute('style', inlineStyles);
+
     button.addEventListener('click', () => {
-      // Scroll to top or focus on relevant content
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Focus on main content if available
       const mainContent = document.getElementById('main-content');
-      if (mainContent) {
-        mainContent.focus();
-      }
+      if (mainContent) mainContent.focus();
     });
-    
-    // Replace the link with the button
-    unrotateLink.parentNode.replaceChild(button, unrotateLink);
+
+    if (unrotateLink.parentNode) {
+      unrotateLink.parentNode.replaceChild(button, unrotateLink);
+    }
   }
 };
 
@@ -158,4 +141,3 @@ async function fetchAPI(url) {
 
 // Export the module with the new fetchAPI function added
 export { fetchAPI };
-export {};

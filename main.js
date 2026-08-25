@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 const PrimaryContent = () => {
   // Your primary content here
   return (
-    <div ...
+    <div ...>
       {/* ... */}
     </div>
   );

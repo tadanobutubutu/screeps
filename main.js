@@ -8,7 +8,10 @@ import { indexContent } from './content/indexContent.js';
 
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', getLangAttribute());
+  const lang = getLangAttribute();
+  if (!html.getAttribute('lang')) {
+    html.setAttribute('lang', lang);
+  }
 }
 
 function getLangAttribute() {
@@ -25,7 +28,7 @@ function validateTableAccessibility() {
       if (!th.scope) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+        const isFirstInCol = th.cellIndex === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -62,20 +65,23 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
-    svg.setAttribute('aria-labelledby', `${svg.id || `svg-${index}`}-title`);
+    const svgId = svg.id || `svg-${index}`;
     const titleEl = document.createElement('title');
-    titleEl.id = `${svg.id || `svg-${index}`}-title`;
+    titleEl.id = `${svgId}-title`;
     titleEl.textContent = title;
-    svg.appendChild(titleEl);
+    svg.insertBefore(titleEl, svg.firstChild);
+    if (!svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-labelledby', `${svgId}-title`);
+    }
   });
 }
 
 // REACT_025: Ensure unique landmarks
 // Fixed by simplifying the code to add aria-labelledby attribute
 function addUniqueLandmarks() {
-  const landmarks = [... document.querySelectorAll('nav, footer, aside, main, header')];
+  const landmarks = document.querySelectorAll('section, nav, footer, aside, main, header');
   landmarks.forEach(landmark => {
-    const role = landmark.role || landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
       landmark.setAttribute('aria-labelledby', landmark.id);
     }
@@ -83,7 +89,7 @@ function addUniqueLandmarks() {
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""]');
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -94,16 +100,16 @@ function fixFakeLinkIssue() {
 }
 
 // Helper function to add title to favicon for accessibility
-function addFaviconAccessibleName() {
-  const faviconLink = document.querySelector('link[rel="icon"]');
+function addFaviconTitle() {
+  const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
   if (faviconLink) {
-    faviconLink.setAttribute('aria-label', 'Favicon');
+    faviconLink.setAttribute('title', 'Favicon');
   }
 }
 
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""]');
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -200,7 +206,8 @@ function renderIndexView(containerId, options = {}) {
 // Main entry: Address all accessibility issues
 function addressAccessibilityIssues() {
   addLangAttribute();
-  addFaviconAccessibleName();
+  validateTableAccessibility();
+  validateTableStructure();
   addSvgAccessibleNames();
   addUniqueLandmarks();
   fixFakeLinkIssue();

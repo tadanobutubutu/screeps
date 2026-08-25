@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Address accessibility issues from insight report
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -20,8 +20,32 @@ const getSvgAccessibleName = (svgElement) => {
     return null;
   }
 
-  // … (Existing code) ...
+  // Check for aria-label or aria-labelledby
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
 
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    return referencedElement ? referencedElement.textContent : null;
+  }
+
+  // Check for title element within SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+
+  // Check for descendant with role="img" and aria-label
+  const imgWithLabel = svgElement.querySelector('[role="img"][aria-label]');
+  if (imgWithLabel) {
+    return imgWithLabel.getAttribute('aria-label');
+  }
+
+  return null;
 };
 
 // Function to create an in-page button with fake link handling
@@ -37,18 +61,38 @@ const createInPageButton = (options = {}) => {
   } = options;
 
   if (typeof document !== 'undefined') {
-    let button = document.createElement('a');
+    // Use semantic <button> element instead of <a> for better accessibility
+    let button = document.createElement('button');
 
-    if (onClick && typeof onClick === 'function') {
-      button.href = '#';
+    if (id) {
+      button.id = id;
+    }
+
+    button.textContent = label || '';
+    button.type = type;
+    button.disabled = disabled;
+
+    if (className) {
+      button.className = className;
+    }
+
+    if (ariaLabel) {
+      button.setAttribute('aria-label', ariaLabel);
+    }
+
+    if (!disabled && onClick && typeof onClick === 'function') {
       button.addEventListener('click', (e) => {
         e.preventDefault();
         onClick();
       });
     }
 
-    // … (Existing code) ...
+    // Add keyboard support - buttons are naturally keyboard accessible
+    if (!disabled) {
+      button.setAttribute('tabindex', '0');
+    }
 
+    return button;
   }
 
   return null;
@@ -64,24 +108,23 @@ const InPageButton = ({
   type = 'button',
   disabled = false
 }) => {
+  // Use semantic <button> element for better accessibility
+  // Instead of <a role="button"> which is an anti-pattern
   return (
-    <a
+    <button
       id={id}
-      role="button"
-      tabIndex={0}
       type={type}
       onClick={onClick}
       className={className}
       aria-label={ariaLabel}
+      disabled={disabled}
       style={{
         cursor: disabled ? 'not-allowed' : 'pointer',
         color: disabled ? 'gray' : ''
       }}
-      // Add href attribute only if onClick is not provided
-      href={!onClick ? '#' : undefined}
     >
       {label}
-    </a>
+    </button>
   );
 };
 
@@ -91,17 +134,123 @@ const validateTableStructure = () => {
   const errors = [];
 
   // Example structure check
-  const tables = document.getElementsByTagName('table');
+  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
   if (tables.length > 0) {
-    tables[0].cells.forEach((cell) => {
-      if (!cell.textContent) {
-        errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
-      }
+    tables.forEach((table) => {
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll('td, th');
+        cells.forEach((cell) => {
+          if (!cell.textContent || cell.textContent.trim() === '') {
+            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
+          }
+        });
+      });
     });
   }
 
   return { errors };
 };
+
+// Function to validate table accessibility
+const validateTableAccessibility = () => {
+  const errors = [];
+  
+  if (typeof document === 'undefined') {
+    return { errors };
+  }
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    // Check if table has proper headers
+    const headers = table.querySelectorAll('th');
+    const hasHeaders = headers.length > 0;
+    
+    if (!hasHeaders) {
+      errors.push({
+        message: `Table ${index + 1} is missing header cells (th elements)`,
+        line: 0,
+        column: 0
+      });
+    }
+
+    // Check for scope attribute on headers
+    headers.forEach((header) => {
+      if (!header.getAttribute('scope')) {
+        errors.push({
+          message: `Table header missing scope attribute`,
+          line: 0,
+          column: 0
+        });
+      }
+    });
+
+    // Check for caption or summary
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
+    if (!caption && !summary) {
+      errors.push({
+        message: `Table ${index + 1} is missing a caption or summary`,
+        line: 0,
+        column: 0
+      });
+    }
+  });
+
+  return { errors };
+};
+
+// Function to validate landmarks
+const validateLandmarkStructure = () => {
+  const errors = [];
+  
+  if (typeof document === 'undefined') {
+    return { valid: true, errors };
+  }
+
+  // Check for main landmark (should have exactly one)
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    errors.push({
+      message: 'Page is missing a main landmark',
+      line: 0,
+      column: 0
+    });
+  } else if (mainElements.length > 1) {
+    errors.push({
+      message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for header/nav landmarks
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  
+  if (headerElements.length > 1) {
+    errors.push({
+      message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for footer landmark
+  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    errors.push({
+      message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+};
+
+// Alias for backwards compatibility
+const validateLandmark = validateLandmarkStructure;
 
 // ... Keep existing code here
 
@@ -117,6 +266,9 @@ const Root = () => {
     // Logic for the new function
   };
 
+  // Get the language attribute for the html element
+  const lang = getLangAttribute();
+
   // Add new validateTableStructure function validation
   const tableStructureError = validateTableStructure();
   if (tableStructureError.errors.length > 0) {
@@ -129,7 +281,7 @@ const Root = () => {
     console.error(tableAccessibilityError.errors);
   }
 
-  const uniqueLandmarkError = ...
+  const uniqueLandmarkError = validateLandmarkStructure();
   if (uniqueLandmarkError.errors.length > 0) {
     console.error(uniqueLandmarkError.errors);
   }
@@ -141,17 +293,17 @@ const Root = () => {
   }
 
   return (
-    <html ...
+    <html lang={lang || 'en'}>
       {/* Other JSX elements... */}
       <main>
         <InPageButton
           id="unrotate"
           label="Rotate back"
-          ...
+          onClick={handleRotateBack}
           ariaLabel="Rotate back button"
         />
         {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
+        <InPageButton onClick={newFunction} label="New Function" ariaLabel="Trigger new function" />
       </main>
     </html>
   );
@@ -171,4 +323,4 @@ export {
   validateTableStructure // Export the new validateTableStructure function
 };
 
-ReactDOM.render(<Root />, ...);
+ReactDOM.render(<Root />, document.getElementById('root'));

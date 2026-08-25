@@ -76,9 +76,58 @@ function correctFakeLinks(container) {
   }
 }
 
+// Function to add <main> landmark to the document body if missing
+function ensureMainLandmark() {
+  if (typeof document === 'undefined') return;
+  const existingMain = document.getElementsByTagName('main')[0];
+  if (existingMain) return existingMain;
+
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.className = 'landmark-main';
+
+  const body = document.body;
+  if (!body) return null;
+
+  // Move all body children (except <script>, <style>, <link>, <meta>) into <main>
+  const skipTags = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'NOSCRIPT']);
+  const nodesToMove = [];
+  for (let i = 0; i < body.childNodes.length; i++) {
+    const node = body.childNodes[i];
+    if (node.nodeType === 1 && skipTags.has(node.tagName)) continue;
+    nodesToMove.push(node);
+  }
+  nodesToMove.forEach(node => main.appendChild(node));
+  body.appendChild(main);
+  return main;
+}
+
+// Function to wrap primary content of the document in a <main> landmark
+function wrapContentInMain(selector) {
+  if (typeof document === 'undefined') return null;
+  const existingMain = document.getElementsByTagName('main')[0];
+  if (existingMain) return existingMain;
+
+  const target = selector ? document.querySelector(selector) : document.body;
+  if (!target) return null;
+
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.className = 'landmark-main';
+
+  // Move target's children into the new <main>
+  while (target.firstChild) {
+    main.appendChild(target.firstChild);
+  }
+  target.appendChild(main);
+  return main;
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,
   addMainLandmark: addMainLandmark,
-  correctFakeLinks: correctFakeLinks
+  correctFakeLinks: correctFakeLinks,
+  ensureMainLandmark: ensureMainLandmark,
+  wrapContentInMain: wrapContentInMain
 };

@@ -1,15 +1,34 @@
 // ... (Preserve existing code, exports, and functions from current main.js)
 
-// Fix the function that renders dependency graphs
-function renderDependencyGraph(data) {
-  // Implementation of the dependency graph rendering goes here.
-  // This is just a placeholder. You'll need to implement the logic that already exists but was removed.
-  console.log('Rendering dependency graph data:', data);
-}
+// Importing the required module
+const { graphlib } = require('graphlib');
 
-// This function is a duplicate of the one above, but with a different name and receiver. Rename it to match the original function name
-function renderDependencyGraphForComponent(componentData) {
-  renderDependencyGraph(componentData);
+// Creating a new function that uses the imported module for rendering dependency graphs
+function renderDependencyGraph(data) {
+  const g = new graphlib.Graph();
+
+  // Populate the graph with the data
+  data.forEach((nodeData) => {
+    const node = g.node(nodeData.id);
+
+    node.package = nodeData.package;
+    node.version = nodeData.version;
+
+    data.edges.forEach((edgeData) => {
+      if (edgeData.to === nodeData.id) {
+        g.link(edgeData.from, nodeData.id);
+      }
+    });
+  });
+
+  // Rendering the graph using 'dot' string
+  const dot = g.dot();
+
+  const renderer = new (require('graphviz')).Renderer({ algorithm: 'dot', format: 'jpeg' });
+  renderer.renderSync({
+    data: dot,
+    file: './dependency-graph.jpeg',
+  });
 }
 
 // ... (Preserve existing code, exports, and functions from current main.js)

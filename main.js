@@ -1,29 +1,32 @@
 // Import external package for internationalization
-import React from "react";
-import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { FormattedMessage } from 'react-intl';
 
 // Main functional component
 const Main = ({ data }) => {
   // Address critical issue: React Language Attribute
   // Wrap all child nodes in a top-level Lang tag
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <title>My App</title>
-      </head>
-      <body>
-        <div>
-          {/* Wrap the existing table in a more accessible Table structure */}
-          <Table data={data}>
-            {/* Address warning issue: React Fake Link */}
-            {/* Use Link component from next/link or react-router-dom instead of regular a tags for navigation */}
-            {/* ... existing table structure (adjust as needed) ... */}
-          </Table>
-        </div>
-      </body>
-    </html>
+    <div lang="en">
+      <header>
+        {/* Header content */}
+      </header>
+      <main>
+        {/* Primary content */}
+      </main>
+      <footer>
+        {/* Footer content */}
+      </footer>
+      <div>
+        {/* Wrap the existing table in a more accessible Table structure */}
+        <Table data={data}>
+          {/* Address warning issue: React Fake Link */}
+          {/* Use Link component from next/link or react-router-dom instead of regular a tags for navigation */}
+          {/* ... existing table structure (adjust as needed) ... */}
+        </Table>
+      </div>
+    </div>
   );
 };
 

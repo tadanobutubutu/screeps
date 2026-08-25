@@ -18,26 +18,28 @@ function handleButtonClick() {
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', 'en');
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
 }
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
+  const fakeLinks = document.querySelectorAll('div[role="link"], span[role="link"]');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href') || '#';
+      a.href = fakeLink.getAttribute('href') || '#';
       a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
+      fakeLink.parentNode.replaceChild(a, fakeLink);
     }
   });
 }
 
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header');
-  const existingFooters = document.querySelectorAll('footer');
+  const existingHeaders = Array.from(document.querySelectorAll('header[role="banner"]'));
+  const existingFooters = Array.from(document.querySelectorAll('footer[role="contentinfo"]'));
 
   if (existingHeaders.length > 1) {
     existingHeaders.forEach((header, index) => index > 0 && header.remove());
@@ -49,7 +51,7 @@ function ensureUniqueLandmarks() {
 
 // New function to inject primary content into main landmark
 function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
+  const existingMains = Array.from(document.querySelectorAll('main, [role="main"]'));
 
   // Remove duplicate main elements if any
   existingMains.forEach((main, index) => {
@@ -63,10 +65,10 @@ function wrapPrimaryContentInMain() {
   mainElement.setAttribute('role', 'main');
 
   // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
+  const contentContainer = document.getElementById('content') || document.querySelector('.content') || document.body;
 
   // Move existing content into main if not already inside one
-  if (!contentContainer.querySelector('main')) {
+  if (!contentContainer.closest('main, [role="main"]')) {
     while (contentContainer.firstChild) {
       mainElement.appendChild(contentContainer.firstChild);
     }
@@ -85,7 +87,7 @@ function addScopeToTableHeaders() {
 }
 
 // New function to process accessibility issues from insight report
-function processAccessibilityIssuesFromInsightReport(insightReport) {
+function processAccessibilityIssues(insightReport) {
   // Process each issue from the insight report and address accordingly
   if (insightReport && insightReport.issues) {
     insightReport.issues.forEach(issue => {
@@ -136,12 +138,15 @@ function addAccessibleSVGs() {
   svgs.forEach(svg => {
     const title = document.createElement('title');
     title.textContent = 'Descriptive title for SVG';
-    svg.appendChild(title);
+    title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+    svg.insertBefore(title, svg.firstChild);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-labelledby', title.id);
   });
 }
 
 // Call all necessary functions
-processAccessibilityIssuesFromInsightReport();
+addLangAttribute();
 fixFakeLinks();
 ensureUniqueLandmarks();
 wrapPrimaryContentInMain();
@@ -154,7 +159,7 @@ module.exports = {
   addLangAttribute,
   fixFakeLinks,
   ensureUniqueLandmarks,
-  processAccessibilityIssuesFromInsightReport,
+  processAccessibilityIssues,
   addAccessibleSVGs,
   addScopeToTableHeaders,
 };

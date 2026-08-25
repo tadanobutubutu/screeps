@@ -53,7 +53,14 @@ function fixLandmarkIssues() {
 
 // Function to fix 1 fake link issue
 function fixFakeLinkIssue() {
-  // Implementation to fix fake link issue
+  // Fix the React Fake Link issue (REACT_036) by replacing <a href="#"> with <button>
+  const fakeLink = document.querySelector('a#unrotate[href="#"]');
+  if (fakeLink) {
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = fakeLink.textContent;
+    fakeLink.parentNode.replaceChild(button, fakeLink);
+  }
 }
 
 // Ensure that the unique landmarks function is called

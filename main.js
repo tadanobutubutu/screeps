@@ -76,9 +76,22 @@ function correctFakeLinks(container) {
   }
 }
 
+// New function to check and correct for duplicate <main> elements
+function checkAndCorrectDuplicateMainElements(container) {
+  const mainElements = container.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Duplicate <main> elements found. Correcting...');
+    // Remove all but the first <main> element
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].parentNode.removeChild(mainElements[i]);
+    }
+  }
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,
   addMainLandmark: addMainLandmark,
-  correctFakeLinks: correctFakeLinks
+  correctFakeLinks: correctFakeLinks,
+  checkAndCorrectDuplicateMainElements: checkAndCorrectDuplicateMainElements
 };

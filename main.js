@@ -1,39 +1,49 @@
 // Add lang attribute to HTML element
-// Assuming the <html> element is at the root of your document, you would add this to the top of main.js:
 document.documentElement.setAttribute('lang', 'en');
 
 // Add landmark roles and fix landmark issues
-// You would typically add ARIA landmark roles to the root of your React component tree.
-// This would look something like this in your root component:
+// Add roles to the root component
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 const App = () => (
-  // Your application JSX here
+  <div role="document">
+    {/* Your application JSX here */}
+  </div>
 );
 
 ReactDOM.render(<App />, document.getElementById('root'));
-// You would then add roles like this to elements:
+
+// Add roles to elements
+// Example of a navigation landmark
 <div role="navigation" aria-label="Main navigation">
   {/* Your navigation elements */}
 </div>
 
 // React Table Structure - 26 issues remaining
-// Without the specific details of the table structure issues, it's difficult to provide a concrete example.
-// However, a typical approach to fix this might be:
+// Without specific details, this example will provide you a general approach
 import React from 'react';
 import { Table } from 'react-table';
 
 const MyTableComponent = () => (
-  <Table>
-    {/* table structure with the proper use of headers and ids */}
-  </Table>
+  <div role="grid">
+    <table role="gridtable" aria-label=" table-label">
+      <thead role="rowgroup">
+        {/* table structure with the proper use of headers and ids */}
+      </thead>
+      <tbody role="rowgroup">
+        {/* table body */}
+      </tbody>
+    </table>
+  </div>
 );
+
+const tableLabel = 'My Table';
+MyTableComponent.title = tableLabel;
 
 export default MyTableComponent;
 
 // Add accessible names to 2 SVGs
-// For SVGs with accessible names, you can use the title tag:
 const MyAccessibleSVG = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -41,32 +51,16 @@ const MyAccessibleSVG = () => (
     role="img"
     aria-labelledby="title"
   >
-    <title id="title">Description of SVG content</title>
+    <title id="title">{tableLabel}</title>
     {/* SVG content */}
   </svg>
 );
 
 export default MyAccessibleSVG;
 
-// Ensure unique landmarks (2 issues) - already addressed
-// This would mean making sure that landmarks in your application are not duplicated and that each has a unique ID and name.
-// Example of unique landmarks:
-<div role="navigation" id="unique-nav-1" aria-labelledby="unique-nav-label">
-  <h2 id="unique-nav-label">Main Navigation</h2>
-  {/* Navigation links */}
-</div>
-
 // Fix 1 fake link issue
-// If you have a fake link (like a div with a button's appearance), ensure that it has an accessible name and roles as needed.
-// Example of fixing a fake link:
 const MyFakeLink = () => (
-  <div
-    role="button"
-    aria-pressed="false"
-    onClick={() => {
-      // Functionality when link is clicked
-    }}
-  >
+  <div role="button" tabIndex={0}>
     Click me
   </div>
 );

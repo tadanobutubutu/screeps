@@ -102,6 +102,14 @@ function generateDependencyGraphData() {
   // For the purpose of this example, it's bound to the prototype object but do consider refactoring if necessary.
   const fixFakeLink = exportedFixFakeLink;
 
+  // Update relevant functions to use dependencyGraphContent/indexContent where needed
+  // Assuming 'dependencyGraphContent' is a module that provides 'indexContent'
+  const { indexContent } = require('dependencyGraphContent');
+
+  // Replace usage of 'indexContent' with the new import
+  // Example: Instead of 'const data = indexContent', use 'const data = indexContent()'
+  // Make sure to update all instances where 'indexContent' is used
+
   return { /* ... existing reduced object ... */ };
 }
 

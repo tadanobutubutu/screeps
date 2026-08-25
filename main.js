@@ -1,5 +1,3 @@
-// ... existing code ...
-
 // Function to get language attribute value
 function getLangAttribute(lang) {
   if (!lang) return 'en';

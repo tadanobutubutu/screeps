@@ -11,13 +11,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.getAttribute('aria-label')) {
+  if (node.hasAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
-  if (node.getAttribute('aria-labelledby')) {
+  if (node.hasAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = node.ownerDocument.getElementById(labelledById);
+    const labelledElement = document.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
@@ -77,21 +77,19 @@ const fixTableStructure = (document) => {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
 
     if (!table.querySelector('tbody')) {
-      const tbodies = table.querySelectorAll('tbody');
-      tbodies.forEach((tbody) => {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        if (rows.length > 0) {
-          const newTbody = document.createElement('tbody');
-          rows.forEach((row) => newTbody.appendChild(row));
-          tbody.parentNode.replaceChild(newTbody, tbody);
-        }
-      });
+      const existingRows = Array.from(table.querySelectorAll('tr'));
+      const bodyRows = existingRows.slice(table.querySelector('thead') ? 1 : 0);
+      if (bodyRows.length > 0) {
+        const newTbody = document.createElement('tbody');
+        bodyRows.forEach((row) => newTbody.appendChild(row));
+        table.appendChild(newTbody);
+      }
     }
 
     // Add scope attributes to header cells
@@ -111,12 +109,18 @@ const fixTableStructure = (document) => {
 const addMainLandmark = (document) => {
   const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
+    // Find the main content area to wrap with <main>
+    const body = document.body;
+    const container = body.querySelector('.container') || body.querySelector('#content') || body.querySelector('[role="main"]') || body;
+    
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
+    
+    // Move all children of container to main
+    while (container.firstChild) {
+      main.appendChild(container.firstChild);
     }
-    document.body.insertBefore(main, document.body.firstChild);
+    container.appendChild(main);
   } else {
     mains.forEach((main, index) => {
       if (!main.id) {
@@ -131,7 +135,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -147,8 +151,8 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -187,8 +191,9 @@ const fixFakeLinkIssue = (document) => {
     if (href && !link.textContent.trim()) {
       const accessibleName = getAccessibleName(link);
       if (!accessibleName) {
-        if (link.getAttribute('aria-label')) {
-          link.setAttribute('aria-label', link.getAttribute('aria-label'));
+        if (link.querySelector('img')) {
+          const img = link.querySelector('img');
+          link.setAttribute('aria-label', img.alt || 'Image link');
         } else if (link.title) {
           link.setAttribute('aria-label', link.title);
         } else {
@@ -204,8 +209,8 @@ const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
-  ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
   return document;
 };

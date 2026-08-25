@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report
+// Address accessibility issues from insight report
 
 import React from 'react';
 import ReactDOM from 'react-dom';

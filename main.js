@@ -31,7 +31,7 @@ const renderLandmarkStructure = () => (
   </div>
 );
 
-// Add the new function to create and render landmark regions
+// Function to create and render landmark regions for accessibility
 const renderLandmarkRegions = () => (
   <aside aria-label="Landmarks">
     <article aria-labelledby="group-region-label" role="region" id="group-region">

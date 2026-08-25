@@ -1,1 +1,14 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code...
+
+// New Function Request: ai-autocoder.js function
+import { execSync } from 'child_process';
+
+const aiAutocoder = () => {
+  console.log('Running AI AutoCoder...');
+  execSync('npx ai-autocoder');
+};
+
+// Add the function to the exports object
+exports.aiAutocoder = aiAutocoder;
+
+// Existing code...

@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address missing export that might have been removed — ADD CODE HERE
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
@@ -43,11 +43,11 @@ function addMainLandmark(filePath) {
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
-  let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
+  let navCount = (updatedContent.match(/<nav aria-label="navigation">/g) || []).length;
   if (navCount > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
     let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
+    updatedContent = updatedContent.replace(/<nav aria-label="navigation">/g, () => {
       return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
     });
   }
@@ -73,6 +73,14 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
+// NEW EXPORT
+function addAltAttribute(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -80,5 +88,6 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addAltAttribute
 };

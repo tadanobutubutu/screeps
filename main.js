@@ -3,7 +3,8 @@
 
 function addLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.setAttribute('lang', document.documentElement.getAttribute('lang') || 'en');
+    const lang = document.documentElement.getAttribute('lang');
+    document.documentElement.setAttribute('lang', lang || 'en');
   }
 }
 
@@ -11,18 +12,20 @@ function fixTableStructureIssues() {
   if (typeof document === 'undefined') return;
   const tables = document.querySelectorAll('table');
   tables.forEach((table, i) => {
-    if (!table.querySelector('thead') && table.rows.length > 0) {
+    if (!table.getAttribute('role') && table.rows.length > 0) {
       // Address table structure issues
+      table.setAttribute('role', 'table');
     }
   });
 }
 
 function addMainLandmark() {
   if (typeof document !== 'undefined') {
-    if (!document.querySelector('main')) {
+    const existingMain = document.querySelector('main, [role="main"]');
+    if (!existingMain) {
       const mainEl = document.createElement('main');
       mainEl.id = 'main-content';
-      document.body.appendChild(mainEl);
+      document.body.insertBefore(mainEl, document.body.firstChild);
     }
   }
 }
@@ -31,7 +34,7 @@ function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, i) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `Accessible SVG ${i + 1}`);
     }
   });
@@ -39,7 +42,7 @@ function addSvgAccessibleNames() {
 
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="region"], [role="contentinfo"], [role="banner"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="region"], [role="contentinfo"], [role="banner"]');
   const seen = new Set();
   landmarks.forEach(el => {
     const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.id || '';
@@ -52,7 +55,7 @@ function ensureUniqueLandmarks() {
 
 function fixFakeLinkIssue() {
   if (typeof document === 'undefined') return;
-  const fakes = document.querySelectorAll('a[href=""], a[href="#"], [role="link"][tabindex="0"]');
+  const fakes = document.querySelectorAll('a:not([href])');
   fakes.forEach(el => {
     if (el.getAttribute('href') === '#') {
       el.setAttribute('href', 'javascript:void(0);');
@@ -63,7 +66,22 @@ function fixFakeLinkIssue() {
 // Added from origin/main
 function createLiveRegion(politeness = 'polite') {
   // Function implementation preserved
-  // ... (original implementation)
+  if (typeof document === 'undefined') return null;
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('role', 'status');
+  liveRegion.setAttribute('aria-live', politeness);
+  liveRegion.setAttribute('aria-atomic', 'true');
+  liveRegion.style.position = 'absolute';
+  liveRegion.style.width = '1px';
+  liveRegion.style.height = '1px';
+  liveRegion.style.padding = '0';
+  liveRegion.style.margin = '-1px';
+  liveRegion.style.overflow = 'hidden';
+  liveRegion.style.clip = 'rect(0, 0, 0, 0)';
+  liveRegion.style.whiteSpace = 'nowrap';
+  liveRegion.style.border = '0';
+  document.body.appendChild(liveRegion);
+  return liveRegion;
 }
 
 // Apply fixes

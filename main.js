@@ -62,6 +62,13 @@ const setAccessibleName = (node, accessibleName) => {
   }
 };
 
+// Adding a new function
+const newFunction = function () {
+  // Function body of the new function goes here
+  // For example:
+  console.log('This is the new function!');
+};
+
 const addLangAttribute = (document) => {
   const html = document.documentElement;
   if (html && !html.hasAttribute('lang')) {
@@ -258,4 +265,4 @@ const addUniqueIdToTable = (table) => {
   table.id = table.id || `table-${table.dataset.testid}`;
 };
 
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable };
+export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable, newFunction };

@@ -67,3 +67,21 @@ const AppWithAccessibility = () => {
 
 // Export default AppWithAccessibility component
 export default AppWithAccessibility;
+
+// Accessibility fixes for SVGs without accessible names
+const FixSvgAccessibility = () => {
+  const svgData = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>';
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      aria-label="Screeps Dashboard"
+    >
+      <title>Screeps Dashboard</title>
+      <text y="0.9em" font-size="90">🐛</text>
+    </svg>
+  );
+};
+
+// Export FixSvgAccessibility component
+export { FixSvgAccessibility };

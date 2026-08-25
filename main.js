@@ -80,25 +80,25 @@ function renderDependencyGraph(dependencies, container) {
   if (!container || !dependencies) {
     return;
   }
-  
+
   container.innerHTML = '';
-  
+
   const fragment = document.createDocumentFragment();
   const title = document.createElement('h3');
   title.textContent = 'Dependency Graph';
   title.setAttribute('aria-label', 'Dependency graph title');
   fragment.appendChild(title);
-  
+
   const list = document.createElement('ul');
   list.setAttribute('aria-label', 'List of dependencies');
-  
+
   for (const [key, value] of Object.entries(dependencies)) {
     const item = document.createElement('li');
     item.textContent = `${key}: ${value}`;
     item.setAttribute('aria-label', `Dependency ${key} depends on ${value}`);
     list.appendChild(item);
   }
-  
+
   fragment.appendChild(list);
   container.appendChild(fragment);
 }
@@ -106,7 +106,7 @@ function renderDependencyGraph(dependencies, container) {
 // Include the new function as an export
 module.exports = {
   loop: function() {
-    myGameLoop(); /* Main game loop logic myNewFunction(); */ 
+    myGameLoop(); /* Main game loop logic myNewFunction(); */
   },
   add,
   subtract,

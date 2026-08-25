@@ -15,7 +15,7 @@ const App = () => {
           <table>
             {/* Table content */}
           </table>
-          <svg>
+          <svg aria-hidden="true">
             {/* SVG content */}
           </svg>
         </div>
@@ -43,9 +43,9 @@ const generateRotateBackControl = () => {
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = document.getElementById('unrotate');
+  const unrotateBtn = ...
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', () => {
+    ... () => {
       // rotation logic here
     });
   }
@@ -53,9 +53,9 @@ const setupRotateBack = () => {
 
 // Initialize the application on the client side
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  ... () => {
     setupRotateBack(); // Ensure button wiring after DOM is ready
-    ReactDOM.render(<App />, document.getElementById('root'));
+    ReactDOM.render(<App />, ...
   });
 }
 

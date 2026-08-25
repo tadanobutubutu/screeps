@@ -24,7 +24,7 @@ skipLink.addEventListener('click', (e) => {
 });
 
 // Mark the main content area as a primary region
-const mainElement = document.querySelector('main') || document.getElementById('content') || document.querySelector('[role="main"]');
+const mainElement = document.querySelector('main') || document.getElementById('content') || document.body;
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
@@ -32,7 +32,7 @@ if (mainElement) {
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  const insightReportUrl = 'https://api.example.com/accessibility-report';
+  const insightReportUrl = 'https://api.example.com/insights/accessibility';
 
   const response = await fetchAPI(insightReportUrl);
   const accessibilityIssues = response.data || response;
@@ -40,10 +40,16 @@ async function addressAccessibilityIssues() {
   accessibilityIssues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-caption':
-        addCaptionToTable(issue.element);
+        const table = document.querySelector(`#${issue.elementId}`);
+        if (table) {
+          addCaptionToTable(table);
+        }
         break;
       case 'table-no-unique-id':
-        addUniqueIdToTable(issue.element);
+        const tableElement = document.querySelector(`#${issue.elementId}`);
+        if (tableElement) {
+          addUniqueIdToTable(tableElement);
+        }
         break;
       default:
         console.warn(`Unhandled accessibility issue type: ${issue.type}`);
@@ -80,4 +86,4 @@ async function fetchAPI(url) {
 }
 
 // Export the module with the new fetchAPI function added
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues };
+export { fetchAPI as default, addressAccessibilityIssues };

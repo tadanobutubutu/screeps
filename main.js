@@ -15,6 +15,10 @@ const indexModule = require('./indexModule');
 function dependencyGraphFunction() {
   const { dependencyGraphContent } = dependencyGraphModule;
   // ... existing code for rendering the dependency graph
+  // Accessibility updates could be applied here, for example:
+  // - Ensure proper ARIA roles and properties are set
+  // - Use semantic HTML elements where appropriate
+  // - Add keyboard navigation support
   return dependencyGraphContent;
 }
 
@@ -22,6 +26,10 @@ function dependencyGraphFunction() {
 function indexFunction() {
   const { indexContent } = indexModule;
   // ... existing code for rendering the index view
+  // Accessibility updates could be applied here, for example:
+  // - Ensure proper ARIA roles and properties are set
+  // - Use semantic HTML elements where appropriate
+  // - Add keyboard navigation support
   return indexContent;
 }
 
@@ -31,3 +39,5 @@ module.exports = {
   dependencyGraphFunction,
   indexFunction,
 };
+
+// ----- END OF FILE -----

@@ -37,4 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Call the function to wrap the primary content
   wrapPrimaryContentWithMain();
+
+  // Add scope attribute to <th> elements for accessibility
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
 });

@@ -12,13 +12,15 @@ skipLink.textContent = 'Skip to main content';
 document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
-skipLink.addEventListener('click', (e) => {
-  e.preventDefault();
-  const mainContent = document.getElementById('main-content');
-  if (mainContent) {
-    mainContent.tabIndex = -1;
-    mainContent.focus();
-    mainContent.scrollIntoView();
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'skip-link' || e.target.closest('#skip-link')) {
+    e.preventDefault();
+    const mainContent = document.querySelector('#main-content') || document.querySelector('main');
+    if (mainContent) {
+      mainContent.tabIndex = -1;
+      mainContent.focus();
+      mainContent.removeAttribute('tabindex');
+    }
   }
 });
 
@@ -33,27 +35,31 @@ if (mainElement) {
 // Additional changes to address accessibility issues:
 
 // React Language Attribute - Ensure that the language attribute is set on the HTML element
-document.documentElement.setAttribute('lang', 'en');
+const htmlElement = document.querySelector('html');
+if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  htmlElement.setAttribute('lang', 'en');
+}
 
 // React Table Structure - Ensure that tables have appropriate headers and roles
 document.querySelectorAll('table').forEach(table => {
-  if (!table.querySelector('th')) {
+  const headers = table.querySelectorAll('thead th');
+  const tbody = table.querySelector('tbody') || table.appendChild(document.createElement('tbody'));
+  if (headers.length === 0) {
     table.setAttribute('role', 'presentation'); // Tables without headers are presentational
   } else {
     table.setAttribute('role', 'table');
-    table.querySelector('thead').setAttribute('role', 'rowgroup');
-    table.querySelectorAll('th').forEach((th, index) => {
+    const thead = table.querySelector('thead') || table.insertBefore(document.createElement('thead'), table.firstChild);
+    thead.setAttribute('role', 'rowgroup');
+    headers.forEach((th, index) => {
       th.setAttribute('role', 'columnheader');
-      th.setAttribute('scope', index === 0 ? 'colgroup' : 'row');
+      th.setAttribute('scope', index === 0 ? 'colgroup' : 'col');
     });
-    table.querySelectorAll('tbody').forEach((tbody, index) => {
+    table.querySelectorAll('tbody tr').forEach((tr, rowIndex) => {
       tbody.setAttribute('role', 'rowgroup');
-      tbody.querySelectorAll('tr').forEach((tr, rowIndex) => {
-        tr.setAttribute('role', 'row');
-        tr.querySelectorAll('td').forEach((td, cellIndex) => {
-          td.setAttribute('role', 'cell');
-          td.setAttribute('scope', cellIndex === 0 ? 'rowgroup' : 'row');
-        });
+      tr.setAttribute('role', 'row');
+      tr.querySelectorAll('td').forEach((td, cellIndex) => {
+        td.setAttribute('role', 'cell');
+        td.setAttribute('scope', cellIndex === 0 ? 'rowheader' : 'col');
       });
     });
   }
@@ -61,19 +67,38 @@ document.querySelectorAll('table').forEach(table => {
 
 // React SVG Accessible Name - Ensure that SVGs have an accessible name
 document.querySelectorAll('svg').forEach(svg => {
-  if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+  if (!svg.querySelector('title') && svg.getAttribute('aria-label')) {
     const title = document.createElement('title');
-    title.textContent = 'SVG content description';
-    svg.appendChild(title);
+    title.textContent = svg.getAttribute('aria-label') || 'SVG content description';
+    svg.insertBefore(title, svg.firstChild);
+    svg.setAttribute('role', 'img');
   }
 });
 
 // React Unique Landmarks - Ensure that landmarks are unique within the document
-const landmarkElements = ['main', 'nav', 'aside', 'header', 'footer', 'article', 'section'];
+// Handle main elements specially - only ONE main landmark should exist
+const mainElements = document.querySelectorAll('main');
+mainElements.forEach((element, index) => {
+  if (!element.id) {
+    element.id = `main-${index}`;
+  }
+  // Only the first main should have role="main" - others should not be landmarks
+  if (index > 0) {
+    // Remove role="main" from duplicate main elements to fix REACT_025
+    if (element.getAttribute('role') === 'main') {
+      element.removeAttribute('role');
+    }
+  }
+});
+
+// Add IDs to other landmark elements
+const landmarkElements = ['nav', 'aside', 'header', 'footer', 'article', 'section'];
 landmarkElements.forEach(landmark => {
   const elements = document.querySelectorAll(landmark);
   elements.forEach((element, index) => {
-    element.setAttribute('id', `${landmark}-${index}`);
+    if (!element.id) {
+      element.id = `${landmark}-${index}`;
+    }
   });
 });
 
@@ -85,7 +110,7 @@ document.querySelectorAll('nav').forEach(nav => {
   nav.setAttribute('role', 'navigation');
 });
 document.querySelectorAll('aside').forEach(aside => {
-  nav.setAttribute('role', 'complementary');
+  aside.setAttribute('role', 'complementary');
 });
 document.querySelectorAll('header').forEach(header => {
   header.setAttribute('role', 'banner');

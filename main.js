@@ -118,17 +118,67 @@ function getAccessibleLabel(label) {
   return typeof label === 'string' ? label.trim() : '';
 }
 
-// NEW: Fix fake link issue
-function createInPageButton() {
-  // Example: Adds aria-current prop for in-page links
+// NEW: Fix fake link issue - Create in-page button for accessibility
+function createInPageButton(onClick, label, id) {
+  // Create a button element for in-page actions
+  // Buttons are more appropriate for actions that don't navigate to a new page
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label || '';
+  if (id) {
+    button.id = id;
+  }
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  // Add accessibility attributes
+  button.setAttribute('aria-label', label || 'In-page action');
+  return button;
 }
 
 function fixFakeLinkIssue() {
-  // Already present: replaces href="#" with real URL
+  // Replace href="#" links with proper buttons for accessibility
+  // <a href="#"> is problematic because:
+  // - It doesn't actually navigate anywhere
+  // - Screen readers announce it as a dead link
+  // - Keyboard users expect buttons for in-page actions
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    const text = link.textContent;
+    const id = link.id;
+    const parent = link.parentNode;
+    const classes = link.className;
+    const existingOnClick = link.onclick;
+    
+    // Create a proper button to replace the fake link
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = text;
+    if (id) {
+      button.id = id;
+    }
+    if (classes) {
+      button.className = classes;
+    }
+    if (existingOnClick) {
+      button.onclick = existingOnClick;
+    }
+    
+    // Copy any additional attributes that should be preserved
+    const ariaLabel = link.getAttribute('aria-label');
+    if (ariaLabel) {
+      button.setAttribute('aria-label', ariaLabel);
+    }
+    
+    // Replace the fake link with the button
+    parent.replaceChild(button, link);
+  });
+  
+  return fakeLinks.length > 0;
 }
 
 // NEW: Check landmark validity
-function checkLandmarkValidity() {
+function validateLandmarkStructure() {
   // Ensure all landmarks have appropriate roles
   const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'region'];
   const landmarksWithRoles = document.querySelectorAll('[role]');
@@ -142,10 +192,6 @@ function checkLandmarkValidity() {
   });
   
   return allValid;
-}
-
-function validateLandmarkStructure() {
-  // Ensure landmarks have valid heading structure
 }
 
 function validateTableAccessibility() {

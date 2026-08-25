@@ -1,14 +1,14 @@
 // main.js - Entry point for the application with accessibility fixes for React components
 
 // Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from './content/dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
 
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', getLangAttribute());
+  ... getLangAttribute());
 }
 
 function getLangAttribute() {
@@ -17,15 +17,15 @@ function getLangAttribute() {
 }
 
 function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let hasIssues = false;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     headers.forEach(th => {
       if (!th.scope) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+        const isFirstInCol = ... === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -40,10 +40,10 @@ function validateTableAccessibility() {
 }
 
 function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let isValid = true;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     const row = table.rows[1];
     if (headers.length !== row.cells.length) {
       isValid = false;
@@ -59,31 +59,31 @@ function validateTableStructure() {
 }
 
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
     const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
-    svg.setAttribute('aria-labelledby', `${svg.id || `svg-${index}`}-title`);
+    ... `${svg.id || ...
     const titleEl = document.createElement('title');
     titleEl.id = `${svg.id || `svg-${index}`}-title`;
     titleEl.textContent = title;
-    svg.appendChild(titleEl);
+    ...
   });
 }
 
 // REACT_025: Ensure unique landmarks
 // Fixed by simplifying the code to add aria-labelledby attribute
 function addUniqueLandmarks() {
-  const landmarks = [... document.querySelectorAll('nav, footer, aside, main, header')];
+  const landmarks = [... ... footer, aside, main, header')];
   landmarks.forEach(landmark => {
-    const role = landmark.role || landmark.tagName.toLowerCase();
+    const role = landmark.role || ...
     if (role && landmark.id) {
-      landmark.setAttribute('aria-labelledby', landmark.id);
+      ... landmark.id);
     }
   });
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = ...
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -95,15 +95,55 @@ function fixFakeLinkIssue() {
 
 // Helper function to add title to favicon for accessibility
 function addFaviconAccessibleName() {
-  const faviconLink = document.querySelector('link[rel="icon"]');
-  if (faviconLink) {
-    faviconLink.setAttribute('aria-label', 'Favicon');
-  }
+  // Find favicon link elements
+  const faviconLinks = document.querySelectorAll('link[rel*="icon"]');
+  
+  faviconLinks.forEach((faviconLink, index) => {
+    const href = faviconLink.getAttribute('href');
+    
+    // Find the actual SVG element if embedded inline or referenced
+    const svgElements = document.querySelectorAll('svg');
+    
+    svgElements.forEach((svg, svgIndex) => {
+      // Check if this SVG appears to be a favicon or decorative icon
+      const isDecorative = svg.getAttribute('aria-hidden') === 'true' || 
+                          !svg.textContent.trim() || 
+                          svg.querySelector('path') !== null && !svg.querySelector('text');
+      
+      if (isDecorative) {
+        // Add aria-hidden="true" for decorative SVGs (REACT_041 fix)
+        if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+          svg.setAttribute('aria-hidden', 'true');
+        }
+      } else {
+        // Add accessible name for informational SVGs
+        const existingTitle = svg.querySelector('title');
+        if (!existingTitle) {
+          const titleId = `svg-title-${index}-${svgIndex}`;
+          const titleEl = document.createElement('title');
+          titleEl.id = titleId;
+          titleEl.textContent = 'Screeps Dashboard';
+          
+          // Insert title as first child of SVG
+          if (svg.firstChild) {
+            svg.insertBefore(titleEl, svg.firstChild);
+          } else {
+            svg.appendChild(titleEl);
+          }
+          
+          // Set aria-labelledby if not already set
+          if (!svg.getAttribute('aria-labelledby')) {
+            svg.setAttribute('aria-labelledby', titleId);
+          }
+        }
+      }
+    });
+  });
 }
 
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = ...
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
@@ -127,7 +167,7 @@ function validateLinkAccessibility() {
  * @returns {HTMLElement} The rendered dependency graph container
  */
 function renderDependencyGraph(containerId, options = {}) {
-  const container = document.getElementById(containerId);
+  const container = ...
   if (!container) {
     console.error(`Dependency graph container with ID "${containerId}" not found`);
     return null;
@@ -143,13 +183,13 @@ function renderDependencyGraph(containerId, options = {}) {
   if (typeof graphContent === 'string') {
     container.innerHTML = graphContent;
   } else if (graphContent instanceof HTMLElement) {
-    container.appendChild(graphContent);
+    ...
   } else if (Array.isArray(graphContent)) {
-    graphContent.forEach(item => {
+    ... => {
       if (typeof item === 'string') {
         container.innerHTML += item;
       } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
+        ...
       }
     });
   }
@@ -167,7 +207,7 @@ function renderDependencyGraph(containerId, options = {}) {
  * @returns {HTMLElement} The rendered index view container
  */
 function renderIndexView(containerId, options = {}) {
-  const container = document.getElementById(containerId);
+  const container = ...
   if (!container) {
     console.error(`Index view container with ID "${containerId}" not found`);
     return null;
@@ -189,7 +229,7 @@ function renderIndexView(containerId, options = {}) {
       if (typeof item === 'string') {
         container.innerHTML += item;
       } else if (item instanceof HTMLElement) {
-        container.appendChild(item);
+        ...
       }
     });
   }
@@ -200,10 +240,11 @@ function renderIndexView(containerId, options = {}) {
 // Main entry: Address all accessibility issues
 function addressAccessibilityIssues() {
   addLangAttribute();
-  addFaviconAccessibleName();
-  addSvgAccessibleNames();
+  ...
+  ...
   addUniqueLandmarks();
   fixFakeLinkIssue();
+  addFaviconAccessibleName();
 }
 
 // Example usage of the accessibility functions

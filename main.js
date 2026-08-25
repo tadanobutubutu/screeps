@@ -21,7 +21,7 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
     if (!htmlElement.lang) {
-      htmlElement.lang = htmlElement.lang || 'en';
+      htmlElement.lang = 'en';
     }
   }
 
@@ -50,11 +50,11 @@ function addressAccessibilityIssues() {
   if (typeof document !== 'undefined') {
     // Fix landmark regions with proper labels
     const landmarks = {
-      header: document.querySelectorAll('header:not([role])'),
+      header: document.querySelectorAll('header'),
       nav: document.querySelectorAll('nav'),
       main: document.querySelectorAll('main'),
-      footer: document.querySelectorAll('footer:not([role])'),
-      aside: document.querySelectorAll('aside:not([aria-label])')
+      footer: document.querySelectorAll('footer'),
+      aside: document.querySelectorAll('aside')
     };
 
     // Add aria-labels to nav elements that need them
@@ -86,23 +86,24 @@ function addressAccessibilityIssues() {
     // Fix SVGs to have accessible names
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        const titleId = `svg-title-${index}`;
-        let title = svg.querySelector('title');
-        if (!title) {
-          title = document.createElement('title');
-          title.id = titleId;
-          title.textContent = `SVG graphic ${index + 1}`;
-          svg.insertBefore(title, svg.firstChild);
-        } else if (!title.id) {
-          title.id = titleId;
+      const title = svg.querySelector('title');
+      if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+        const titleId = `svg-title-${index + 1}`;
+        let titleElement = svg.querySelector('title');
+        if (!titleElement) {
+          titleElement = document.createElement('title');
+          titleElement.id = titleId;
+          titleElement.textContent = `SVG graphic ${index + 1}`;
+          svg.insertBefore(titleElement, svg.firstChild);
+        } else if (!titleElement.id) {
+          titleElement.id = titleId;
         }
-        svg.setAttribute('aria-labelledby', title.id);
+        svg.setAttribute('aria-labelledby', titleElement.id);
       }
     });
 
     // Fix fake links (links that don't navigate)
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+    const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
     fakeLinks.forEach((link) => {
       if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
         // Check if it's actually a link or a button

@@ -36,9 +36,48 @@ function fixFakeLinkIssues() {
   // ... (You'll need to update this function based on your specific HTML structure)
 }
 
-function addThScope() {
-  // Add scope attribute to <th> elements
-  // ... (You'll need to update this function based on your specific <th> elements)
+function addThScope(html) {
+  if (!html || typeof html !== 'string') {
+    return html;
+  }
+
+  // Track whether we are inside a <thead> or <tbody> region so we can
+  // assign the appropriate scope ("col" for column headers, "row" for
+  // row headers).
+  let inThead = false;
+  let inTbody = false;
+
+  // Process the HTML line by line so we can determine the surrounding
+  // context for each <th> element.
+  const lines = html.split('\n');
+  const updatedLines = lines.map(line => {
+    const trimmed = line.trim();
+
+    if (/<thead[\s>]/i.test(trimmed)) {
+      inThead = true;
+      inTbody = false;
+    }
+    if (/<\/thead>/i.test(trimmed)) {
+      inThead = false;
+    }
+    if (/<tbody[\s>]/i.test(trimmed)) {
+      inTbody = true;
+      inThead = false;
+    }
+    if (/<\/tbody>/i.test(trimmed)) {
+      inTbody = false;
+    }
+
+    // Add scope="col" or scope="row" to <th> elements that lack a scope
+    // attribute.  Column headers (inside <thead>) get scope="col" and row
+    // headers (inside <tbody>) get scope="row".
+    return line.replace(/<th(?![^>]*\bscope=)([^>]*)>/gi, (match, attrs) => {
+      const scope = inTbody ? 'row' : 'col';
+      return `<th scope="${scope}"${attrs}>`;
+    });
+  });
+
+  return updatedLines.join('\n');
 }
 
 // New Function for handling unique landmarks
@@ -89,7 +128,7 @@ function addressIssuesFromInsightReport() {
   fixFakeLinkIssues();
 
   // Add scope attribute to <th> elements
-  addThScope();
+  content = addThScope(content);
 
   return results;
 }

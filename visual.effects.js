@@ -44,22 +44,6 @@ function isVfxEnabled() {
     return _isVfxEnabledValue;
 }
 
-/**
- * Gets a RoomVisual object for the specified room, using a per-tick cache
- * to avoid redundant object allocations.
- */
-function getVisual(roomName) {
-    if (typeof Game !== 'undefined' && Game.time !== _visualsTick) {
-        _visualsTick = Game.time;
-        _visualsCache = {};
-    }
-
-    if (!_visualsCache[roomName]) {
-        _visualsCache[roomName] = new RoomVisual(roomName);
-    }
-
-    return _visualsCache[roomName];
-}
 
 // ⚡ PERFORMANCE: Hoisted constants to avoid per-call allocation
 const SUCCESS_COLORS = ['#FFD700', '#FFA500', '#FF69B4', '#00FF00', '#00FFFF'];
@@ -105,11 +89,26 @@ const STYLE_SCORE_TEXT = { color: '#FFD700', font: 1, stroke: '#000000', strokeW
 const STYLE_SCORE_LABEL = { color: '#FFFFFF', font: 0.6 };
 const STYLE_RANK_TEXT = { font: 0.7, stroke: '#000000', strokeWidth: 0.05 };
 
+/**
+ * Gets a RoomVisual object for the specified room, using a per-tick cache
+ * to avoid redundant object allocations.
+ */
+function getVisual(roomName) {
+    if (typeof Game !== 'undefined' && Game.time !== _visualsTick) {
+        _visualsTick = Game.time;
+        _visualsCache = {};
+    }
+
+    if (!_visualsCache[roomName]) {
+        _visualsCache[roomName] = new RoomVisual(roomName);
+    }
+
+    return _visualsCache[roomName];
+}
+
 
 function _cleanupTrailCache() {
-    // ⚡ PERFORMANCE: Periodic cleanup of the volatile trail cache (every 1500 ticks)
-    // This prevents memory leaks from creeps that have died.
-    if (Game.time % 1500 === 0 && _trailCache.size > 0) {
+    if (typeof Game !== 'undefined' && Game.time % 1500 === 0 && _trailCache.size > 0) {
         _trailCache.clear();
     }
 }
@@ -121,8 +120,7 @@ function _handleVfxDisabled(creep) {
     _trailCache.delete(creep.id);
 }
 
-function _getTrailPositions(creep) {
-    // ⚡ PERFORMANCE: Migrate from Memory to volatile cache if existing data is found.
+function _getOrCreateTrailPositions(creep) {
     if (creep.memory.trailPositions) {
         _trailCache.set(creep.id, creep.memory.trailPositions);
         delete creep.memory.trailPositions;
@@ -136,9 +134,7 @@ function _getTrailPositions(creep) {
     return positions;
 }
 
-function _updateTrail(positions, creep) {
-    // ⚡ PERFORMANCE: Only update the trail if the creep has actually moved or if we need to drain the trail.
-    // This avoids redundant pushes and allows the trail to catch up to stationary creeps.
+function _updateTrailPositions(positions, creep) {
     const lastPos = positions.length > 0 ? positions[positions.length - 1] : null;
     const hasMoved = !lastPos || lastPos.x !== creep.pos.x || lastPos.y !== creep.pos.y;
 
@@ -148,13 +144,11 @@ function _updateTrail(positions, creep) {
             positions.shift();
         }
     } else if (positions.length > 0) {
-        // Stationary: Drain the trail to avoid static visuals and reduce redundant loop iterations.
         positions.shift();
     }
 }
 
 function _drawTrail(positions, roomName) {
-    // ⚡ PERFORMANCE: Skip drawing loop entirely if no positions remain.
     if (positions.length === 0) {
         return;
     }
@@ -168,6 +162,48 @@ function _drawTrail(positions, roomName) {
             ...STYLE_TRAIL_CIRCLE,
         });
     }
+}
+
+
+function _drawProgressBarBackgrounds(visual, pos, width, height) {
+    visual.rect(pos.x - width / 2 - 0.1, pos.y - 1.0, width + 0.2, 1.4, STYLE_PROGRESS_BG_OUTER);
+    visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, STYLE_PROGRESS_BG_INNER);
+}
+
+
+function _getComboColor(count) {
+    if (count >= 10) return '#FF0000';
+    if (count >= 5) return '#FF69B4';
+    return '#FFD700';
+}
+
+
+function _drawExplosionRings(visual, pos) {
+    for (let ring = 1; ring <= 3; ring++) {
+        visual.circle(pos.x, pos.y, {
+            radius: ring * 0.5,
+            stroke: SUCCESS_COLORS[ring % SUCCESS_COLORS.length],
+            opacity: 1 - ring * 0.2,
+            ...STYLE_SUCCESS_RING,
+        });
+    }
+}
+
+function _drawExplosionStarburst(visual, pos) {
+    for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 2 * i) / 12;
+        visual.line(pos.x, pos.y, pos.x + Math.cos(angle) * 1.5, pos.y + Math.sin(angle) * 1.5, {
+            color: SUCCESS_COLORS[i % SUCCESS_COLORS.length],
+            ...STYLE_SUCCESS_LINE,
+        });
+    }
+}
+
+function _getProgressColor(progress) {
+    if (progress >= 1.0) return '#FFD700'; // Gold (Completed)
+    if (progress >= 0.8) return '#00FF00'; // Green (Near Completion)
+    if (progress >= 0.5) return '#FFFF00'; // Yellow (Midway)
+    return '#FF0000'; // Red (Just Started)
 }
 
 const visualEffects = {
@@ -199,29 +235,8 @@ const visualEffects = {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
 
-        // 外側の輪
-        for (let ring = 1; ring <= 3; ring++) {
-            visual.circle(pos.x, pos.y, {
-                radius: ring * 0.5,
-                stroke: SUCCESS_COLORS[ring % SUCCESS_COLORS.length],
-                opacity: 1 - ring * 0.2,
-                ...STYLE_SUCCESS_RING,
-            });
-        }
-
-        // スターバースト
-        for (let i = 0; i < 12; i++) {
-            const angle = (Math.PI * 2 * i) / 12;
-            const endX = pos.x + Math.cos(angle) * 1.5;
-            const endY = pos.y + Math.sin(angle) * 1.5;
-
-            visual.line(pos.x, pos.y, endX, endY, {
-                color: SUCCESS_COLORS[i % SUCCESS_COLORS.length],
-                ...STYLE_SUCCESS_LINE,
-            });
-        }
-
-        // 中心の星
+        _drawExplosionRings(visual, pos);
+        _drawExplosionStarburst(visual, pos);
         visual.text('⭐', pos.x, pos.y, STYLE_SUCCESS_STAR);
     },
 
@@ -254,22 +269,12 @@ const visualEffects = {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
 
-        let color;
-        if (count >= 10) {
-            color = '#FF0000';
-        } else if (count >= 5) {
-            color = '#FF69B4';
-        } else {
-            color = '#FFD700';
-        }
-
         visual.text(`${count}x COMBO!`, pos.x, pos.y, {
-            color,
+            color: _getComboColor(count),
             font: 1 + count * 0.05,
             ...STYLE_COMBO_TEXT,
         });
 
-        // 炎エフェクト
         if (count >= 5) {
             visual.text('🔥', pos.x - 2, pos.y, { font: 1 });
             visual.text('🔥', pos.x + 2, pos.y, { font: 1 });
@@ -304,45 +309,23 @@ const visualEffects = {
         const width = 3;
         const height = 0.3;
         const progress = max > 0 ? Math.min(current / max, 1) : 0;
-        const percent = Math.floor(progress * 100);
 
-        // 全体の背景（視認性向上）
-        visual.rect(
-            pos.x - width / 2 - 0.1,
-            pos.y - 1.0,
-            width + 0.2,
-            1.4,
-            STYLE_PROGRESS_BG_OUTER
-        );
-
-        // 背景
-        visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, STYLE_PROGRESS_BG_INNER);
-
-        // プログレス
-        let color;
-        if (progress >= 1.0) {
-            color = '#FFD700'; // Gold (Completed)
-        } else if (progress >= 0.8) {
-            color = '#00FF00'; // Green (Near Completion)
-        } else if (progress >= 0.5) {
-            color = '#FFFF00'; // Yellow (Midway)
-        } else {
-            color = '#FF0000'; // Red (Just Started)
-        }
+        _drawProgressBarBackgrounds(visual, pos, width, height);
 
         visual.rect(pos.x - width / 2, pos.y - height / 2, width * progress, height, {
-            fill: color,
+            fill: _getProgressColor(progress),
             ...STYLE_PROGRESS_BAR_OPACITY,
         });
 
-        // テキスト
-        visual.text(`${label} ${percent}%`, pos.x, pos.y - 0.65, STYLE_PROGRESS_TEXT);
+        visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.65, STYLE_PROGRESS_TEXT);
     },
 
     /**
      * レインボートレイル
      */
     rainbowTrail: function (creep) {
+        // ⚡ PERFORMANCE: Periodic cleanup of the volatile trail cache (every 1500 ticks)
+        // This prevents memory leaks from creeps that have died.
         _cleanupTrailCache();
 
         if (!isVfxEnabled()) {
@@ -350,8 +333,8 @@ const visualEffects = {
             return;
         }
 
-        let positions = _getTrailPositions(creep);
-        _updateTrail(positions, creep);
+        const positions = _getOrCreateTrailPositions(creep);
+        _updateTrailPositions(positions, creep);
         _drawTrail(positions, creep.room.name);
     },
 

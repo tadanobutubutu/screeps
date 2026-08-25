@@ -1,27 +1,19 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
-button.setAttribute('aria-label', 'My Button');
-button.setAttribute('role', 'button');
-button.setAttribute('aria-expanded', 'false');
-
-// New function to handle button click
-function handleButtonClick() {
-  const button = document.getElementById('myButton');
-  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
-  button.setAttribute('aria-expanded', isExpanded);
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssues() {
+  addLangAttribute();
+  addScopeToTableHeaders();
+  ensureUniqueLandmarks();
+  fixFakeLinks();
+  addAccessibleSVGs();
+  ensureProperLandmarkStructure();
 }
-
-// Import dependencyGraphContent if it is used in the code
-const { dependencyGraphContent } = require('./dependencyGraph');
 
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', 'en');
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
 }
 
 // Function to add 'scope="col"' attribute to table header cells
@@ -30,6 +22,57 @@ function addScopeToTableHeaders() {
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
       header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+function ensureUniqueLandmarks() {
+  const existingHeaders = document.querySelectorAll('header');
+  const existingFooters = document.querySelectorAll('footer');
+
+  if (existingHeaders.length > 1) {
+    existingHeaders.forEach((header, index) => index > 0 && header.remove());
+  }
+  if (existingFooters.length > 1) {
+    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
+  }
+}
+
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('div[role="link"], span[role="link"]');
+  fakeLinks.forEach(fakeLink => {
+    if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
+      const a = document.createElement('a');
+      a.href = fakeLink.getAttribute('data-href') || '#';
+      a.textContent = fakeLink.textContent;
+      a.setAttribute('role', 'link');
+      fakeLink.replaceWith(a);
+    }
+  });
+}
+
+function addAccessibleSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    const ariaLabel = svg.getAttribute('aria-label');
+    const hasAccessibleName = title !== null || ariaLabel !== null;
+
+    const computedStyle = window.getComputedStyle(svg);
+    const isBackground = computedStyle.position === 'absolute' &&
+                         computedStyle.top === '0' &&
+                         computedStyle.left === '0' &&
+                         computedStyle.width === '100%' &&
+                         computedStyle.height === '100%';
+
+    if (hasAccessibleName || isBackground) {
+      if (!ariaLabel && !title) {
+        svg.setAttribute('aria-label', 'Description of SVG content');
+      }
+    } else {
+      const titleElement = document.createElement('title');
+      titleElement.textContent = 'Description of SVG content';
+      svg.prepend(titleElement);
     }
   });
 }
@@ -54,7 +97,7 @@ function ensureProperLandmarkStructure() {
   headerElement.setAttribute('role', 'banner');
   body.prepend(headerElement);
 
-  const siteTitle = document.createElement('div');
+  const siteTitle = document.createElement('h1');
   siteTitle.textContent = 'Application Name';
   headerElement.appendChild(siteTitle);
 
@@ -93,53 +136,23 @@ function ensureProperLandmarkStructure() {
   footerElement.appendChild(copyright);
 }
 
-function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
-  const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
+// Assuming you have a button with ID 'myButton'
+const button = document.getElementById('myButton');
+button.setAttribute('aria-label', 'My Button');
+button.setAttribute('role', 'button');
 
-  if (existingHeaders.length > 1) {
-    existingHeaders.forEach((header, index) => index > 0 && header.remove());
-  }
-  if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
-  }
+// New function to handle button click
+function handleButtonClick() {
+  const btn = document.getElementById('myButton');
+  const isExpanded = btn.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+  btn.setAttribute('aria-expanded', isExpanded);
 }
 
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link]');
-  fakeLinks.forEach(fakeLink => {
-    if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
-      const a = document.createElement('a');
-      a.href = fakeLink.getAttribute('data-href') || '#';
-      a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
-    }
-  });
-}
-
-function addAccessibleSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
-    const isBackground = svg.css && svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
-
-    if (shouldUseTitle || isBackground) {
-      svg.setAttribute('aria-label', 'Description of SVG content');
-    } else {
-      const title = document.createElement('title');
-      title.textContent = 'Description of SVG content';
-      svg.prepend(title);
-    }
-  });
-}
+// Import dependencyGraphContent if it is used in the code
+// const { dependencyGraphContent } = ...
 
 // Call all necessary functions
-addLangAttribute();
-addScopeToTableHeaders();
-ensureProperLandmarkStructure();
-ensureUniqueLandmarks();
-fixFakeLinks();
-addAccessibleSVGs();
+addressAccessibilityIssues();
 
 // React root mount integration (from origin/main)
 import React from 'react';
@@ -147,15 +160,35 @@ import ReactDOM from 'react-dom';
 import App from './App';
 
 if (typeof document !== 'undefined') {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
+  const container = document.getElementById('root');
+  if (container) {
+    ReactDOM.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+      container
+    );
+  }
+}
+
+function wrapPrimaryContentInMain() {
+  const main = document.querySelector('main') || document.createElement('main');
+  main.setAttribute('role', 'main');
+  
+  const content = document.querySelector('#primary-content') || document.querySelector('.primary-content');
+  if (content && content.parentNode !== main) {
+    main.appendChild(content);
+  }
+  
+  if (!document.querySelector('main')) {
+    document.body.appendChild(main);
+  }
+  
+  return main;
 }
 
 module.exports = {
+  addressAccessibilityIssues,
   wrapPrimaryContentInMain,
   handleButtonClick,
   addLangAttribute,
@@ -164,5 +197,4 @@ module.exports = {
   ensureProperLandmarkStructure,
   addAccessibleSVGs,
   addScopeToTableHeaders,
-  ensureProperLandmarkStructure, // Added from 'origin/main'
 };

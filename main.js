@@ -2,9 +2,15 @@ module.exports = {
   getGreeting: function() {
     return 'Hello, World!';
   },
-  // Add a new function to set the lang attribute on the HTML element
   setLangAttribute: function(lang) {
     document.documentElement.lang = lang;
   },
-  // ... any other new functions or changes requested in the issue
+  rotateBack: function() {
+    // existing code for rotateBack function
+    // Add an event listener for the button click if needed
+  }
 };
+
+// Replace the <a> tag with a <button> in the HTML file
+// Example:
+// <button id="unrotate" onclick="rotateBack()">rotate back</button>

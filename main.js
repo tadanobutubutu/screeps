@@ -6,12 +6,16 @@ if (dependencyGraph) {
   dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
 }
 
-// Render dependency graph content
+// Restoring previously removed imports below
+const { renderGraphContent } = require('./dependency-graph');
+
+// New function: Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   const container = document.getElementById('dependencyGraph');
   if (container) {
-    container.innerHTML = data;
+    const graphContainer = container.querySelector('.dependencyGraph') || container;
+    graphContainer.innerHTML = data;
   }
 }
 
@@ -50,7 +54,7 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  renderGraphContent // original export preserves for calling from another file
+  renderGraphContent
 };
 
 // Call renderGraphContent function from another file

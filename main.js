@@ -1,82 +1,40 @@
-// TODO: Add back any required exports that might have been removed
+// TODO: Add any required exports that might have been removed
 
-// Address accessibility issues from insight report
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-import React from 'react';
-import { landmarkList } from './landmarks';
-
-// Function to add lang attribute to HTML element for accessibility (REACT_015)
-export const addLangAttribute = (Component, lang = 'en') => {
-  return function WrappedComponent(props) {
-    React.useEffect(() => {
-      document.documentElement.lang = lang;
-    }, [lang]);
-
-    return <Component {...props} />;
-  };
+// Function to calculate the index of an item in an array based on its id ([NEW])
+export const findIndex = (array, id) => {
+  return array.findIndex((item) => item.id === id);
 };
 
-// Function to improve focus management for primary content ([NEW])
-const focusWithin = (element) => {
-  if (element && element.current) {
-    element.current.focus({ preventScroll: true });
-  }
+// Function to filter landmarks based on the specified query ([NEW])
+export const filterLandmarks = (query) => {
+  return landmarkList.filter((landmark) =>
+    landmark.name.toLowerCase().includes(query.toLowerCase())
+  );
 };
 
-// Improved PrimaryContent component with focus management for accessibility ([NEW])
-const ImprovedPrimaryContent = (props) => {
-  const { id } = props;
-  const [, updateScroll] = React.useState({ scrollY: window.scrollY });
+// Function to sort landmarks alphabetically by name ([NEW])
+export const sortLandmarksByName = () => {
+  return landmarkList.sort((a, b) => a.name.localeCompare(b.name));
+};
 
-  React.useEffect(() => {
-    ...
-  }, [id]);
-
-  React.useEffect(() => {
-    const callback = () => {
-      updateScroll({ scrollY: window.scrollY });
-    };
-
-    ... callback);
-
-    return () => {
-      window.removeEventListener('resize', callback);
-    };
-  }, []);
-
+// Your updated main.js file
+const MainComponent = () => {
   // ... existing code
 
+  // ... (some code has been reformatted for readability)
+
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    const filteredLandmarks = filterLandmarks(query);
+    sortLandmarksByName();
+    setLandmarks(filteredLandmarks);
+  };
+
   return (
+    // ... existing code
+    <Searchbar placeholder="Search landmarks" onChange={handleSearch} />
     // ... existing code
   );
 };
 
-// Your main component that will render the primary content wrapped in <main> ([NEW])
-export const MainComponent = () => {
-  return (
-    <div ...
-      {/* Render the improved PrimaryContent component */}
-      <ImprovedPrimaryContent id="primary-content" />
-    </div>
-  );
-};
-
-// Function to wrap the primary content in <main>
-const wrapPrimaryContentInMain = (Component) => {
-  return () => {
-    return (
-      // ... existing code
-    );
-  };
-};
-
-// Export the PrimaryContent component so it can be imported independently ([NEW])
-export const ImprovedPrimaryContent = ImprovedPrimaryContent;
-
-// Export the wrapPrimaryContentInMain function for usage elsewhere
-export const wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-
-// Wrap the PrimaryContent component by default when exported ([NEW])
-export default ...
+export default MainComponent;

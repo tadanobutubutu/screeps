@@ -15,7 +15,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
+    if (!main.getAttribute('aria-label')) {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {
@@ -38,7 +38,7 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
         const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
@@ -69,7 +69,7 @@ function ensureUniqueLandmarks() {
     header: document.querySelectorAll('header'),
     footer: document.querySelectorAll('footer'),
     aside: document.querySelectorAll('aside'),
-    section: document.querySelectorAll('section')
+    section: document.querySelectorAll('section'),
   };
 
   // Add unique labels to duplicate landmarks and keep a single <main>
@@ -135,6 +135,10 @@ function App() {
     addAriaLabelToMyDiv();
   }, []);
 
+  // Example state for conditional rendering (error/success states)
+  const hasError = false;
+  const errorMessage = null;
+
   return (
     <html lang="en">
       <head>
@@ -143,32 +147,41 @@ function App() {
         <title>Accessible Application</title>
       </head>
       <body>
-        <main role="main" aria-labelledby="main-heading">
-          <h1 id="main-heading">Accessible Application</h1>
-          <div className="app-content">
-            {/* Existing App content */}
+        {hasError ? (
+          // Error state: Use <section> instead of <main> to avoid duplicate landmarks
+          <section role="main" aria-labelledby="error-heading" aria-describedby="error-description">
+            <h1 id="error-heading">Error</h1>
+            <p id="error-description">{errorMessage}</p>
+          </section>
+        ) : (
+          // Success state: Use <main> as the primary landmark
+          <main role="main" aria-labelledby="main-heading">
+            <h1 id="main-heading">Accessible Application</h1>
+            <div className="app-content">
+              {/* Existing App content */}
 
-            {/* Replace this anchor tag with a button for the "rotate back" functionality */}
-            <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
+              {/* Replace this anchor tag with a button for the "rotate back" functionality */}
+              <button id="unrotate" type="button" onClick={handleRotateBack}>Rotate back</button>
 
-            {/* Example of adding scope attribute to a <th> element */}
-            <table>
-              <caption>Data table with accessible headers</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Header 1</th>
-                  <th scope="col">Header 2</th>
-                  <th scope="col">Header 3</th>
-                  <th scope="col">Header 4</th>
-                  {/* ... other headers ... */}
-                </tr>
-              </thead>
-              <tbody>
-                {/* ... table rows ... */}
-              </tbody>
-            </table>
-          </div>
-        </main>
+              {/* Example of adding scope attribute to a <th> element */}
+              <table>
+                <caption>Data table with accessible headers</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Header 1</th>
+                    <th scope="col">Header 2</th>
+                    <th scope="col">Header 3</th>
+                    <th scope="col">Header 4</th>
+                    {/* ... other headers ... */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* ... table rows ... */}
+                </tbody>
+              </table>
+            </div>
+          </main>
+        )}
       </body>
     </html>
   );

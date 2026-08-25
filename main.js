@@ -5,9 +5,6 @@
 // Import axios for making API calls
 import axios from 'axios';
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-
 // Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';

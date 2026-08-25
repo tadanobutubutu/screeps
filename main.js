@@ -9,6 +9,9 @@ const Root = () => {
   return (
     <html lang="en">
       {/* Other JSX elements... */}
+      <main>
+        {/* Primary content that needs to be wrapped */}
+      </main>
     </html>
   );
 };

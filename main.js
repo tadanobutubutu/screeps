@@ -43,6 +43,52 @@ function determineScope(node, tagName) {
 }
 
 /**
+ * Checks if an SVG element has an accessible name
+ * @param {Object} node - The JSXElement node for svg
+ * @returns {Object} - { hasAccessibleName: boolean, ariaHidden: boolean, suggestion: string }
+ */
+function checkSVGAccessibleName(node) {
+  const attributes = node.openingElement.attributes;
+  
+  // Check for aria-hidden="true"
+  const ariaHiddenAttr = attributes.find(
+    (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'aria-hidden'
+  );
+  if (ariaHiddenAttr && hasAttributeWithValue(ariaHiddenAttr, 'true')) {
+    return { hasAccessibleName: true, ariaHidden: true, suggestion: 'aria-hidden="true"' };
+  }
+
+  // Check for aria-label attribute
+  const ariaLabelAttr = attributes.find(
+    (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'aria-label'
+  );
+  if (ariaLabelAttr && ariaLabelAttr.value) {
+    return { hasAccessibleName: true, ariaHidden: false, suggestion: 'aria-label' };
+  }
+
+  // Check for <title> child element
+  const hasTitleChild = node.children && node.children.some(
+    (child) => child.type === 'JSXElement' && 
+              child.openingElement && 
+              child.openingElement.name && 
+              child.openingElement.name.name === 'title'
+  );
+  if (hasTitleChild) {
+    return { hasAccessibleName: true, ariaHidden: false, suggestion: '<title> child element' };
+  }
+
+  // Check for role attribute that provides semantic meaning
+  const roleAttr = attributes.find(
+    (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'role'
+  );
+  if (roleAttr && roleAttr.value) {
+    return { hasAccessibleName: true, ariaHidden: false, suggestion: 'role attribute with aria-label' };
+  }
+
+  return { hasAccessibleName: false, ariaHidden: false, suggestion: null };
+}
+
+/**
  * Rule: REACT_027 - React Table Structure
  * Checks that <th> elements have proper scope attributes for accessibility
  * @param {Object} context - ESLint context
@@ -103,6 +149,76 @@ function create(context) {
   };
 }
 
+/**
+ * Rule: REACT_041 - React SVG Accessible Name
+ * Checks that <svg> elements have accessible names for screen readers
+ * @param {Object} context - ESLint context
+ * @returns {Object} - Rule visitor object
+ */
+function createReact041(context) {
+  return {
+    JSXElement(node) {
+      if (!node.openingElement || !node.openingElement.name) return;
+      
+      const elementName = node.openingElement.name.name;
+      
+      // Only check <svg> elements
+      if (elementName !== 'svg') return;
+
+      // Check if SVG is hidden from accessibility tree
+      const attributes = node.openingElement.attributes;
+      const hiddenAttr = attributes.find(
+        (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'hidden'
+      );
+      const ariaHiddenAttr = attributes.find(
+        (attr) => attr.type === 'JSXAttribute' && attr.name && attr.name.name === 'aria-hidden'
+      );
+      
+      // Skip if the SVG itself is hidden from screen readers
+      if (hiddenAttr && hasAttributeWithValue(hiddenAttr, true)) return;
+      if (ariaHiddenAttr && hasAttributeWithValue(ariaHiddenAttr, 'true')) return;
+
+      // Check for accessible name
+      const result = checkSVGAccessibleName(node);
+
+      if (!result.hasAccessibleName) {
+        context.report({
+          node,
+          message: `<svg> has no accessible name and is not hidden. Add aria-label, a <title> child, or aria-hidden="true" if decorative.`,
+          fix(fixer) {
+            // Find the closing > of the opening tag to insert aria-hidden
+            const openingElement = node.openingElement;
+            const sourceCode = context.getSourceCode();
+            const openingElementText = sourceCode.getText(openingElement);
+            
+            // Check if the SVG already has children and try to add title
+            const hasTitleChild = node.children && node.children.some(
+              (child) => child.type === 'JSXElement' && 
+                        child.openingElement && 
+                        child.openingElement.name && 
+                        child.openingElement.name.name === 'title'
+            );
+
+            if (!hasTitleChild) {
+              // Insert aria-hidden="true" before the closing >
+              const closingBracket = openingElementText.lastIndexOf('>');
+              if (closingBracket !== -1) {
+                const beforeClosing = openingElementText.substring(0, closingBracket);
+                const afterClosing = openingElementText.substring(closingBracket);
+                return fixer.replaceText(
+                  openingElement,
+                  beforeClosing + ' aria-hidden="true"' + afterClosing
+                );
+              }
+            }
+            return null;
+          }
+        });
+      }
+    }
+  };
+}
+
 module.exports = {
   meta: {
     type: 'suggestion',
@@ -123,3 +239,23 @@ module.exports = {
 module.exports.default = create;
 module.exports.ruleName = 'REACT_027';
 module.exports.create = create;
+
+// New rule exports
+module.exports.REACT_041 = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: 'Enforce accessible names on SVG elements',
+      category: 'Accessibility',
+      recommended: true,
+    },
+    fixable: 'html',
+    schema: [],
+  },
+  create: createReact041,
+  ruleName: 'REACT_041',
+  ruleDescription: 'React SVG Accessible Name - <svg> must have accessible name'
+};
+
+// Export create function for REACT_041
+module.exports.createReact041 = createReact041;

@@ -1,3 +1,5 @@
+`
+
 // Import lodash library
 import _ from 'lodash';
 
@@ -233,3 +235,4 @@ export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, rend
 export * from './otherModule';
 export { myOtherFunction };
 export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, renderSkipLink, renderLandmarkNavigation, formatDate };
+```

@@ -1,6 +1,8 @@
-// Address accessibility issues from insight report:
+// Restore previously removed exports and address accessibility issues from insight report
 // Ensure the dependencyGraph container has a proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+const { renderGraphContent } = require('./dependency-graph');
+
+const dependencyGraph = document.querySelector('#dependencyGraph .dependencyGraph');
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'tree');
   dependencyGraph.setAttribute('aria-label', 'Dependency Graph');

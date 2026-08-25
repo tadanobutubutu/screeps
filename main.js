@@ -41,12 +41,12 @@ export default function MainPage() {
               </li>
             </ul>
           </nav>
-          <table aria-describedby="table-caption">
-            <caption id="table-caption">Example Data</caption>
+          <table>
+            <caption>Data</caption>
             <thead>
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Value</th>
+                <th>Column 1</th>
+                <th>Column 2</th>
               </tr>
             </thead>
             <tbody>
@@ -70,6 +70,10 @@ export default function MainPage() {
           </svg>
           <button type="button" onClick={() => console.log("action")}>
             Action
+          </button>
+          {/* Fix for REACT_036: Use button instead of anchor with href="#" */}
+          <button type="button" id="unrotate" onClick={() => console.log("rotate back")}>
+            rotate back
           </button>
         </main>
       </body>

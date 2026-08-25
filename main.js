@@ -1,32 +1,13 @@
-// Import dependency graph and index content from appropriate modules
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
-const { newLine, dashLine } = require('./util'); // Assuming 'util.js' exists with those exports
+// Import required module(s)
+const graphMetrics = require('./graph-metrics');
 
-// Render dependency graph with visual separation for accessibility
-function renderDependencyGraph(dependencies) {
-  return newLine + dashLine + 'Dependency Graph' + newLine + dependencyGraphContent.render(dependencies);
-}
+// ... existing code
 
-// Render index view with visual separation for accessibility
-function renderIndexView(entries) {
-  return newLine + dashLine + 'Index View' + newLine + indexContent.render(entries);
-}
-
-// New function as per the issue requirements
+// New function using the imported graphMetrics module
 function calculateGraphMetrics(dependencies) {
-  // Placeholder implementation for the new function
-  // This should be replaced with the actual logic as per the issue requirements
-  const metrics = {
-    totalNodes: dependencies.length,
-    averageEdgeCount: dependencies.reduce((sum, dependency) => sum + dependency.edges.length, 0) / dependencies.length
-  };
+  // Import getGraphMetrics function from graphMetrics module
+  const metrics = graphMetrics.getGraphMetrics(dependencies);
   return JSON.stringify(metrics);
 }
 
-// Export all functions
-module.exports = {
-  renderDependencyGraph,
-  renderIndexView,
-  calculateGraphMetrics
-};
+// ... existing exports

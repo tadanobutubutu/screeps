@@ -19,7 +19,17 @@ export function updateHtmlFile(html) {
   );
 }
 
-// ... any additional code that was present ...
+// New function to check and correct for duplicate <main> elements
+export function checkAndCorrectDuplicateMainElements(container) {
+  const mainElements = container.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Duplicate <main> elements found. Correcting...');
+    // Remove all but the first <main> element
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].parentNode.removeChild(mainElements[i]);
+    }
+  }
+}
 
 // Add new functions or changes requested in the issue
 export function addAccessibleNameToSVG(svgContent) {
@@ -30,4 +40,10 @@ export function addAccessibleNameToSVG(svgContent) {
   );
 }
 
-// ... any additional code that was present ...
+// Export all functions for module usage
+// Note: requiredFunction, addLandmarkRegions, addMainLandmark, correctFakeLinks
+// are assumed to be defined elsewhere in the original file
+export {
+  checkAndCorrectDuplicateMainElements,
+  addAccessibleNameToSVG
+};

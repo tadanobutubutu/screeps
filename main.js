@@ -59,29 +59,25 @@ function fixTableStructureIssues() {
     // Additional fixes can be added here based on the specific issues identified
 }
 
-// Function to add proper landmark regions to the page
-function addProperLandmarkRegions() {
-    // Add role="banner" to header elements
+// New function to implement additional accessibility improvements
+function improveAccessibility() {
+    // Add role attributes to different HTML elements for better accessibility
     const headers = document.querySelectorAll('header');
     headers.forEach(header => {
         header.setAttribute('role', 'banner');
     });
-    // Add role="navigation" to nav elements
     const navs = document.querySelectorAll('nav');
     navs.forEach(nav => {
         nav.setAttribute('role', 'navigation');
     });
-    // Add role="main" to main elements
     const mains = document.querySelectorAll('main');
     mains.forEach(main => {
         main.setAttribute('role', 'main');
     });
-    // Add role="complementary" to aside elements
     const asides = document.querySelectorAll('aside');
     asides.forEach(aside => {
         aside.setAttribute('role', 'complementary');
     });
-    // Add role="contentinfo" to footer elements
     const footers = document.querySelectorAll('footer');
     footers.forEach(footer => {
         footer.setAttribute('role', 'contentinfo');
@@ -89,4 +85,4 @@ function addProperLandmarkRegions() {
 }
 
 // Export the new functions
-export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues, addProperLandmarkRegions };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues, addProperLandmarkRegions, improveAccessibility };

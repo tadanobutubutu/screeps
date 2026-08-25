@@ -71,11 +71,14 @@ function addLandmarkRole(filePath) {
 
   for (const [landmark, elementTypes] of Object.entries(landmarkMap)) {
     const elementRegex = new RegExp(`<(${elementTypes.join('|')})([^>]*)>`, 'gi');
-    let match;
-
-    while ((match = elementRegex.exec(content)) !== null) {
-      content = content.replace(match[0], `<${match[1].trim()} role="${landmark}"${match[0].substring(match[0].indexOf('>'))}}`);
-    }
+    content = content.replace(elementRegex, (match, tagName, attrs) => {
+      let newTag = `<${tagName}`;
+      if (attrs) {
+        newTag += ` ${attrs}`;
+      }
+      newTag += ` role="${landmark}">`;
+      return newTag;
+    });
   }
 
   fs.writeFileSync(filePath, content);

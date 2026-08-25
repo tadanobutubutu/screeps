@@ -1,4 +1,3 @@
-// Example of a React component rendering a table with proper <th> scope attributes
 import React from 'react';
 
 const MyTableComponent = ({ headers, rows }) => {

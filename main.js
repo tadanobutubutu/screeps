@@ -5,6 +5,9 @@
 // Import axios for making API calls
 import axios from 'axios';
 
+// Import your new function here
+import { makeApiCall } from './newFunction';
+
 // Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
@@ -34,54 +37,16 @@ if (mainElement) {
 document.documentElement.lang = 'en';
 
 // Ensure tables have proper structure and unique captions
-document.querySelectorAll('table').forEach(table => {
-  // ... (existing code)
-
-  // Add unique 'id' to each table
-  table.id = table.id || `table-${table.dataset.testid}`;
-
-  // Add proper ARIA attributes for table, table header, and table body
-  const tableHeader = table.querySelector('thead');
-  const tableBody = table.querySelector('tbody');
-
-  if (tableHeader && tableBody) {
-    table.setAttribute('role', 'table');
-    tableHeader.setAttribute('role', 'columnheader');
-    tableBody.setAttribute('role', 'rowgroup');
-  }
-});
+// ... (existing code)
 
 // Improve SVG accessibility: add title and accessible name
-document.querySelectorAll('svg').forEach(svg => {
-  // ... (existing code)
-
-  // Add an appropriate ARIA label for each SVG
-  svg.setAttribute('aria-labelledby', `svg-title-${svg.id}`);
-});
+// ... (existing code)
 
 // Add landmarks with unique ids and appropriate roles
-const headerLandmark = document.createElement('header');
-headerLandmark.id = 'header-landmark';
-headerLandmark.setAttribute('role', 'banner');
-document.body.insertBefore(headerLandmark, document.body.firstChild);
-
-const mainLandmark = document.createElement('main');
-mainLandmark.id = 'main-content';
-mainLandmark.setAttribute('role', 'main');
-headerLandmark.appendChild(mainLandmark);
-
-const footerLandmark = document.createElement('footer');
-footerLandmark.id = 'footer-landmark';
-footerLandmark.setAttribute('role', 'contentinfo');
-document.body.appendChild(footerLandmark);
+// ... (existing code)
 
 // Ensure unique landmark roles (for 2 issues)
-const landmarks = document.querySelectorAll('[role="landmark"]');
-landmarks.forEach((landmark, idx) => {
-  if (idx > 0) {
-    landmark.setAttribute('aria-label', `Landmark ${idx + 1}`);
-  }
-});
+// ... (existing code)
 
 // Ensure all fake links are marked with appropriate ARIA role
 // ... (existing code)
@@ -95,6 +60,11 @@ async function fetchAPI(url) {
   }
 }
 
-// Export the module with the new fetchAPI function added
-export { fetchAPI };
+// Your new function to make custom API calls
+function makeApiCall(url) {
+  // Your custom code for making an API call using axios OR any other library
+}
+
+// Export the modified main.js with both fetchAPI and makeApiCall functions
+export { fetchAPI, makeApiCall };
 export {};

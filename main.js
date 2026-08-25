@@ -37,11 +37,11 @@ const renderLandmarkStructure = () => (
 const renderLandmarkRegions = () => (
   <aside aria-label="Landmarks">
     <article aria-labelledby="group-region-label" role="region" id="group-region">
-      <h3 ... Region</h3>
+      <h3>... Region</h3>
       {/* Render specific landmark groups and regions here */}
     </article>
     <article aria-labelledby="contact-region-label" role="region" id="contact-region">
-      <h3 ... Region</h3>
+      <h3>... Region</h3>
       {/* Render specific landmark contact details here */}
     </article>
   </aside>
@@ -52,7 +52,7 @@ const addressAccessibilityIssues = (insightReport) => {
   // This function takes an insight report and performs necessary actions
   // to address the reported accessibility issues.
   
-  if (!insightReport || !insightReport.issues || ... {
+  if (!insightReport || !insightReport.issues) {
     console.log('No valid accessibility issues found in report');
     return { totalIssues: 0, addressedIssues: [], unaddressedIssues: [] };
   }
@@ -60,7 +60,7 @@ const addressAccessibilityIssues = (insightReport) => {
   const addressedIssues = [];
   const unaddressedIssues = [];
   
-  ... => {
+  insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'missing-aria-label':
         console.log(`Adding aria-label to element: ${issue.selector || 'unknown'}`);

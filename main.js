@@ -1,4 +1,6 @@
-import accessibilityModule from 'accessibility-module';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createIcon } from './iconCreator';
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
@@ -8,45 +10,103 @@ function addLangAttribute() {
   }
 }
 
-// Fix 26 table structure issues
-function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
+// Placeholder icons object for exports
+const icons = {};
 
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
+// Helper functions to render accessible SVG and landmark structure
+const renderAccessibleSVG = (id, title, children) => (
+  <svg aria-labelledby={id} role="img" width="100" height="100">
+    <title id={id}>{title}</title>
+    {children}
+  </svg>
+);
 
-    rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th');
+// Function to create and render landmark regions for accessibility
+const renderLandmarkRegions = () => (
+  <aside aria-label="Landmarks">
+    <article aria-labelledby="group-region-label" role="region" id="group-region">
+      <h3 id="group-region-label">Group Region</h3>
+      {/* Render specific landmark groups and regions here */}
+    </article>
+    <article aria-labelledby="contact-region-label" role="region" id="contact-region">
+      <h3 id="contact-region-label">Contact Region</h3>
+      {/* Render specific landmark contact details here */}
+    </article>
+  </aside>
+);
 
-      cells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH') {
-          if (cellIndex === 0) {
-            cell.setAttribute('scope', 'row');
-          } else {
-            cell.setAttribute('scope', 'col');
-          }
+// ... (existing exports)
+
+// Add the new export for the renderLandmarkRegions function
+export {
+  icons,
+  renderAccessibleSVG,
+  renderLandmarkStructure,
+  generateRotateBackControl,
+  setupRotateBack,
+  createIconForTest,
+  createIcon,
+  App,
+  renderLandmarkRegions,
+};
+
+// Helper functions to address accessibility issues (merged from both versions)
+const fixTableStructure = () => {
+  const table = document.querySelector('table');
+  if (table) {
+    normalizeTableHeaderCellScope(table);
+  }
+};
+
+const normalizeTableHeaderCellScope = (table) => {
+  const rows = table.querySelectorAll('tr');
+
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+
+    cells.forEach((cell, cellIndex) => {
+      if (cell.tagName === 'TH') {
+        if (cellIndex === 0) {
+          cell.setAttribute('scope', 'row');
+        } else {
+          cell.setAttribute('scope', 'col');
         }
-      });
+      }
     });
   });
-}
+};
 
-// Add/fix 4 landmark issues
-function addMainLandmark() {
+// Function to add landmark roles to the page (merged from both versions)
+const addMainLandmark = () => {
   const main = document.querySelector('main');
   if (main) {
     main.setAttribute('role', 'main');
   }
-}
+};
 
-function validateLandmark() {
+// Validation functions for landmarks and links
+const validateLandmark = () => {
   const main = document.querySelector('main, [role="main"]');
   if (!main) {
     console.warn('Warning: No main landmark found on the page');
   }
-}
+};
 
-function ensureUniqueLandmarks() {
+const validateLinkAccessibility = () => {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.hasAttribute('aria-label');
+    const hasTitle = link.hasAttribute('title');
+
+    if (!hasText && !hasAriaLabel && !hasTitle) {
+      console.warn('Warning: Link missing accessible text content');
+    }
+  });
+};
+
+// Functions to ensure unique landmark roles (merged from both versions)
+const ensureUniqueLandmarks = () => {
   const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
   const seenTypes = {};
 
@@ -58,10 +118,9 @@ function ensureUniqueLandmarks() {
       seenTypes[role] = true;
     }
   });
-}
+};
 
-// Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarkRoles() {
+const ensureUniqueLandmarkRoles = () => {
   const allLandmarks = document.querySelectorAll('[role]');
   const roleCount = {};
 
@@ -75,10 +134,10 @@ function ensureUniqueLandmarkRoles() {
       console.warn(`Warning: Multiple landmarks with role="${role}" found`);
     }
   }
-}
+};
 
-// Fix 1 fake link issue
-function fixFakeLinkIssue() {
+// Function to fix fake link issues (merged from both versions)
+const fixFakeLinkIssue = () => {
   const links = document.querySelectorAll('a');
   links.forEach(link => {
     const href = link.getAttribute('href');
@@ -86,49 +145,15 @@ function fixFakeLinkIssue() {
       link.setAttribute('role', 'button');
     }
   });
-}
+};
 
-function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const hasText = link.textContent.trim().length > 0;
-    const hasAriaLabel = link.hasAttribute('aria-label');
-    const hasTitle = link.hasAttribute('title');
+// Example usage of the accessibility functions
+document.addEventListener('DOMContentLoaded', () => {
+  accessibilityModule.init();
+  renderLandmarkRegions(); // Add this new call to renderLandmarkRegions function
+});
 
-    if (!hasText && !hasAriaLabel && !hasTitle) {
-      console.warn('Warning: Link missing accessible text content');
-    }
-  });
-}
-
-function createInPageButton() {
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.className = 'skip-link';
-  skipLink.style.position = 'absolute';
-  skipLink.style.top = '-40px';
-  document.body.insertBefore(skipLink, document.body.firstChild);
-
-  const main = document.getElementById('main-content') || document.querySelector('main');
-  if (main) {
-    main.tabIndex = -1;
-  }
-}
-
-function createAccessibleLink() {
-  const buttons = document.querySelectorAll('button, [role="button"]');
-  buttons.forEach(btn => {
-    const link = document.createElement('a');
-    link.href = '#';
-    link.textContent = btn.textContent;
-    link.setAttribute('role', 'button');
-    
-    btn.parentNode.replaceChild(link, btn);
-  });
-}
-
-// Address accessibility issues from the insight report
+// Add the new function at the end
 function addressAccessibilityIssues() {
   addLangAttribute();
   fixTableStructure();
@@ -142,10 +167,5 @@ function addressAccessibilityIssues() {
   createAccessibleLink();
 }
 
-// Example usage of the accessibility functions
-document.addEventListener('DOMContentLoaded', () => {
-  accessibilityModule.init();
-});
-
-// Add the new function at the end
+// Address accessibility issues from the insight report
 addressAccessibilityIssues();

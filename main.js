@@ -202,6 +202,18 @@ function createAccessibleLink() {
     return link;
 }
 
+function ensureMainLandmark() {
+    let main = document.querySelector('main');
+    if (!main) {
+        main = document.createElement('main');
+        const body = document.body;
+        if (body) {
+            body.appendChild(main);
+        }
+    }
+    return main;
+}
+
 function wrapPrimaryContentInMain() {
     const main = document.querySelector('main');
     if (main) {
@@ -254,5 +266,6 @@ export {
     createInPageButton,
     createAccessibleLink,
     wrapPrimaryContentInMain,
+    ensureMainLandmark,
     fixFakeLinkIssue
 };

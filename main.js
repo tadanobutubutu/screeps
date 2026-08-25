@@ -1,6 +1,3 @@
-Here's the resolved version of `main.js` with both changes successfully integrated:
-
-```javascript
 const fs = require('fs');
 
 // TODO: Address missing export that might have been removed — ADD CODE HERE
@@ -29,9 +26,9 @@ function fixFakeLinkIssue(filePath) {
 
 function addAriaAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
+  let updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
   // Add ARIA attribute to existing 'button' without id (if present)
-  updatedContent = updatedContent.replace(/<button>([^a-zA-Z0-9]|$)/g, '<button $& aria-label="rotate back">');
+  updatedContent = updatedContent.replace(/<button(?![^>]*aria-label)([^>]*)>/gi, '<button$1 aria-label="rotate back">');
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Changed anchor tag to button for better accessibility and added ARIA attribute in ${filePath}`);
 }
@@ -63,14 +60,18 @@ function addMainLandmark(filePath) {
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
-  let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
-  if (navCount > 1) {
+  const matches = content.match(/<nav aria-label="main-navigation">/g) || [];
+  let updatedContent;
+  if (matches.length > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
     let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
-      return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
+    updatedContent = content.replace(/<nav aria-label="main-navigation">/g, () => {
+      const label = navLabels[index] || 'navigation-' + index;
+      index++;
+      return `<nav aria-label="${label}">`;
     });
+  } else {
+    updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
   }
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Ensured unique landmarks for better accessibility in ${filePath}`);
@@ -78,7 +79,7 @@ function ensureUniqueLandmarks(filePath) {
 
 function addSvgAccessibleNames(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
+  let updatedContent = content.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
       return `<svg${attrs} role="img" aria-label="SVG icon">`;
     }
@@ -97,8 +98,9 @@ function addSvgAccessibleNames(filePath) {
 // New method for adding ARIA attribute to buttons without id
 function addAriaToButtonsWithoutId(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<button[^>]*>)/g, (match, attrs) => {
-    return `<button${attrs} aria-label="default button">${match}</button>`;
+  let updatedContent = content.replace(/<button([^>]*)>/gi, (match, attrs) => {
+    if (match.includes('aria-label')) return match;
+    return `<button${attrs} aria-label="default button">`;
   });
   fs.writeFileSync(filePath, updatedContent);
 }
@@ -107,6 +109,3 @@ module.exports = {
   ...exports,
   addAriaToButtonsWithoutId
 };
-```
-
-This file now presents a merged version of both changes, integrating the export struct and the new method for adding an ARIA attribute to buttons without an id. It also replaced the existing regular expression in the `addAriaAttribute` function to be more robust.

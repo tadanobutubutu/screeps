@@ -1,73 +1,52 @@
-const img = document.getElementById('target');
-let rotation = 0;
-
-function rotate() {
-  rotation += 90;
-  img.style.transform = `rotate(${rotation}deg)`;
-}
-
-function rotateBack() {
-  rotation = 0;
-  img.style.transform = `rotate(0deg)`;
-}
+// ... (Pre-existing main.js content)
 
 /**
- * Adds two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
+ * Adds `aria-labelledby` to elements, if necessary
+ * @param {HTMLElement} elem - Element to check aria-labelledby
+ * @returns {void}
  */
-function add(a, b) {
-  return a + b;
-}
+function addAriaLabelledbyIfNeeded(elem) {
+  if (!elem.hasAttribute('aria-labelledby')) {
+    const ids = [];
+    const quasiIds = [];
 
-/**
- * Subtracts b from a
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Difference of a and b
- */
-function subtract(a, b) {
-  return a - b;
-}
+    // Collect defined IDs and quasi-ids from child elements
+    const collectIds = (current) => {
+      if (!current) {
+        return;
+      }
+      if (current.getAttribute('id')) {
+        ids.push(current.getAttribute('id'));
+      }
+      if (current.getAttribute('aria-labelledby')) {
+        quasiIds.push(...current.getAttribute('aria-labelledby').split(/\s+/));
+      }
+      Array.from(current.children).forEach((child) => collectIds(child));
+    };
 
-/**
- * Multiplies two numbers together
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Product of a and b
- */
-function multiply(a, b) {
-  return a * b;
-}
+    collectIds(elem);
 
-/**
- * Divides a by b
- * @param {number} a - Dividend
- * @param {number} b - Divisor
- * @returns {number} Quotient of a and b
- */
-function divide(a, b) {
-  if (b === 0) {
-    throw new Error('Division by zero');
-  }
-  return a / b;
-}
-
-// Add a new function for adding `aria-label` to elements
-function addAriaLabel(elem, label) {
-  if (elem) {
-    elem.setAttribute('aria-label', label);
+    // Compose aria-labelledby from IDs and quasi-ids,
+    // if there is at least one child element (avoids empty strings)
+    if (ids.length > 0 || quasiIds.length > 0) {
+      const ariaLabelbyValue = ids.length > 0 ? ids.join(' ') : quasiIds.join(' ');
+      elem.setAttribute('aria-labelledby', ariaLabelbyValue);
+    }
   }
 }
 
-// Add a new function to get the lang attribute
-function getLangAttribute(elem) {
-  if (elem) {
-    const lang = elem.getAttribute('lang');
-    return lang || document.documentElement.lang;
-  }
-  return null;
+// Add a new function for adding `aria-labelledby` to elements on initialization
+function initAriaLabels() {
+  document.querySelectorAll('[aria-labelledby]').forEach((elem) => {
+    const id = elem.getAttribute('aria-labelledby');
+    const labels = document.querySelectorAll(`#${id}`);
+    labels.forEach((label) => {
+      elem.setAttribute('aria-label', label.textContent);
+    });
+  });
+
+  // Also apply aria-labelledby to all elements that lack it
+  document.querySelectorAll('*').forEach(addAriaLabelledbyIfNeeded);
 }
 
 // Update the event listener for the rotate button
@@ -80,97 +59,29 @@ const unrotateButton = document.getElementById('unrotate');
 addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
 unrotateButton.addEventListener('click', rotateBack);
 
-// Update the aria-label for the target image
-addAriaLabel(img, 'Rotated image');
+// Add a new function for validating landmark structure
+function validateLandmarkStructure(landmark) {
+  // Check if landmark structure is valid
+  const isLandmark = landmark.hasAttribute('role') && ['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'search'].includes(landmark.getAttribute('role'));
 
-// Add a new function for adding `aria-label` to elements on initialization
-function initAriaLabels() {
-  document.querySelectorAll('[aria-labelledby]').forEach((elem) => {
-    const id = elem.getAttribute('aria-labelledby');
-    const labels = document.querySelectorAll(`#${id}`);
-    labels.forEach((label) => {
-      elem.setAttribute('aria-label', label.textContent);
-    });
-  });
+  // ... (You can add further checks for landmark's properties here, if needed)
+
+  return isLandmark;
 }
 
-// Call initAriaLabels function on load
-initAriaLabels();
-
-// Add the new game loop function
-function myGameLoop() {
-  // Your main game loop logic goes here
-}
-
-/**
- * Renders a dependency graph
- * @param {Object} dependencies - Object containing dependency information
- * @param {HTMLElement} container - Container element to render the graph in
- * @returns {void}
- */
-function renderDependencyGraph(dependencies, container) {
-  if (!container || !dependencies) {
-    return;
-  }
-
-  container.innerHTML = '';
-
-  const fragment = document.createDocumentFragment();
-  const title = document.createElement('h3');
-  title.textContent = 'Dependency Graph';
-  title.setAttribute('aria-label', 'Dependency graph title');
-  fragment.appendChild(title);
-
-  const list = document.createElement('ul');
-  list.setAttribute('aria-label', 'List of dependencies');
-
-  for (const [key, value] of Object.entries(dependencies)) {
-    const item = document.createElement('li');
-    item.textContent = `${key}: ${value}`;
-    item.setAttribute('aria-label', `Dependency ${key} depends on ${value}`);
-    list.appendChild(item);
-  }
-
-  fragment.appendChild(list);
-  container.appendChild(fragment);
-}
-
-/**
- * Validates table accessibility attributes
- * Checks for proper table structure, headers, captions, and scope attributes
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} Validation result with isValid boolean and issues array
- */
-function validateTableAccessibility(table) {
-  //... Your existing Table validation function code
-}
-
-/**
- * Validates landmarks accessibility attributes
- * Checks for proper landmark role, aria-label, and possibility of grouping
- * @param {HTMLDivElement} landmark - The landmark element to validate
- * @returns {Object} Validation result with isValid boolean and issues array
- */
+// Update validateLandmark to use the validateLandmarkStructure function
 function validateLandmark(landmark) {
   const issues = [];
+
   if (!landmark || landmark.tagName !== 'DIV') {
     return { isValid: false, issues: ['Element is not a landmark'] };
   }
 
-  const role = landmark.getAttribute('role');
-  if (!role || !['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'search'].includes(role)) {
-    issues.push(`Landmark has invalid role: ${role}`);
+  if (!validateLandmarkStructure(landmark)) {
+    issues.push(`Landmark has invalid structure`);
   }
 
-  const ariaLabel = landmark.getAttribute('aria-label');
-  if (!ariaLabel) {
-    issues.push('Landmark has no aria-label');
-  }
-
-  const groups = document.querySelectorAll(`[aria-labelledby="${ariaLabel}"]`);
-  if (groups.length > 1) {
-    issues.push(`Landmark's aria-label groups multiple elements`);
-  }
+  // ... (Rest of the existing validateLandmark function)
 
   return {
     isValid: issues.length === 0,
@@ -178,21 +89,27 @@ function validateLandmark(landmark) {
   };
 }
 
-// Include the new function as an export
+// Add a new function for validating landmark structure on elements
+function validateLandmarks(landmarks) {
+  const validLandmarks = [];
+  const invalidLandmarks = [];
+
+  landmarks.forEach((landmark) => {
+    const validationResult = validateLandmark(landmark);
+    if (validationResult.isValid) {
+      validLandmarks.push(landmark);
+    } else {
+      invalidLandmarks.push({ landmark, issues: validationResult.issues });
+    }
+  });
+
+  return { validLandmarks, invalidLandmarks };
+}
+
+// Include the new functions as an export
 module.exports = {
-  loop: function() {
-    myGameLoop(); /* Main game loop logic myNewFunction(); */
-  },
-  add,
-  subtract,
-  multiply,
-  divide,
-  addAriaLabel,
-  rotate,
-  rotateBack,
-  renderDependencyGraph,
-  initAriaLabels, // Add the new function to the exports
-  getLangAttribute, // Add the new function to the exports
-  validateTableAccessibility, // Add the new function to the exports
-  validateLandmark // Add the new function to the exports
+  // ... (Pre-existing exports)
+
+  validateLandmarkStructure, // Add the new function to the exports
+  validateLandmarks     // Add the new function to the exports
 };

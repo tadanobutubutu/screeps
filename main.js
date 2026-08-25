@@ -1,4 +1,5 @@
-// Import required module(s) for addressing the new issue
+// main.js
+
 import { getElementById } from './helpers.js';
 export { getElementById };
 
@@ -210,7 +211,7 @@ function addSvgAccessibleNames() {
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
-      textContent = 'SVG graphic ' + (index + 1);
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     } else {
       if (!title.id) {

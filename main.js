@@ -142,58 +142,35 @@ function renderDependencyGraph(dependencies, container) {
  * @returns {Object} Validation result with isValid boolean and issues array
  */
 function validateTableAccessibility(table) {
+  //... Your existing Table validation function code
+}
+
+/**
+ * Validates landmarks accessibility attributes
+ * Checks for proper landmark role, aria-label, and possibility of grouping
+ * @param {HTMLDivElement} landmark - The landmark element to validate
+ * @returns {Object} Validation result with isValid boolean and issues array
+ */
+function validateLandmark(landmark) {
   const issues = [];
-  
-  if (!table || table.tagName !== 'TABLE') {
-    return { isValid: false, issues: ['Element is not a table'] };
+  if (!landmark || landmark.tagName !== 'DIV') {
+    return { isValid: false, issues: ['Element is not a landmark'] };
   }
 
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table is missing a caption');
+  const role = landmark.getAttribute('role');
+  if (!role || !['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'search'].includes(role)) {
+    issues.push(`Landmark has invalid role: ${role}`);
   }
 
-  // Check for headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table has no header cells (th)');
-  } else {
-    // Check scope attributes on headers
-    headers.forEach((header, index) => {
-      const scope = header.getAttribute('scope');
-      if (!scope) {
-        issues.push(`Header cell ${index + 1} is missing scope attribute`);
-      } else if (!['col', 'row', 'colgroup', 'rowgroup'].includes(scope)) {
-        issues.push(`Header cell ${index + 1} has invalid scope value: ${scope}`);
-      }
-    });
+  const ariaLabel = landmark.getAttribute('aria-label');
+  if (!ariaLabel) {
+    issues.push('Landmark has no aria-label');
   }
 
-  // Check for proper table structure (thead, tbody, tfoot)
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  if (!thead && !tbody) {
-    issues.push('Table is missing thead and/or tbody sections');
+  const groups = document.querySelectorAll(`[aria-labelledby="${ariaLabel}"]`);
+  if (groups.length > 1) {
+    issues.push(`Landmark's aria-label groups multiple elements`);
   }
-
-  // Check for summary attribute (deprecated but still used for accessibility)
-  const summary = table.getAttribute('summary');
-  if (!summary && !caption) {
-    issues.push('Table has neither summary attribute nor caption');
-  }
-
-  // Check for headers/id association in complex tables
-  const cells = table.querySelectorAll('td[headers]');
-  cells.forEach((cell, index) => {
-    const headersAttr = cell.getAttribute('headers');
-    const headerIds = headersAttr.split(/\s+/);
-    headerIds.forEach(id => {
-      if (!document.getElementById(id)) {
-        issues.push(`Cell ${index + 1} references non-existent header id: ${id}`);
-      }
-    });
-  });
 
   return {
     isValid: issues.length === 0,
@@ -216,5 +193,6 @@ module.exports = {
   renderDependencyGraph,
   initAriaLabels, // Add the new function to the exports
   getLangAttribute, // Add the new function to the exports
-  validateTableAccessibility // Add the new function to the exports
+  validateTableAccessibility, // Add the new function to the exports
+  validateLandmark // Add the new function to the exports
 };

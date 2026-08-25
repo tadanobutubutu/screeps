@@ -11,7 +11,7 @@ function addLandmarkRegions(container, regions = []) {
     contentinfo: 'contentinfo'
   };
   const regionConfig = regions.length > 0 ? regions : defaultRegions;
-  
+
   if (typeof container === 'string') {
     container = document.querySelector(container);
   }
@@ -23,12 +23,14 @@ function addLandmarkRegions(container, regions = []) {
   regionConfig.forEach(regionType => {
     if (landmarkRoles[regionType]) {
       const element = document.createElement('div');
-      element.setAttribute('role', landmarkRoles[regionType]);
+      element.setAttribute('role', 'region');
+      element.setAttribute('aria-label', regionType);
       element.className = `landmark-region landmark-${regionType}`;
+      element.id = `landmark-${regionType}`;
       addedRegions[regionType] = element;
     }
   });
-  
+
   return addedRegions;
 }
 

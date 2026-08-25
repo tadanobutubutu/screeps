@@ -25,6 +25,13 @@ function fixTableStructure() {
 
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
+    // Add caption if missing but aria-label exists
+    if (!table.querySelector('caption') && table.getAttribute('aria-label')) {
+      const caption = document.createElement('caption');
+      caption.textContent = table.getAttribute('aria-label');
+      table.insertBefore(caption, table.firstChild);
+    }
+
     const firstRow = table.querySelector('tr');
     const headers = firstRow ? table.querySelectorAll('th') : [];
     headers.forEach((th) => {
@@ -39,6 +46,18 @@ function fixTableStructure() {
         }
       }
     });
+
+    // Convert first row td to th if appropriate
+    const firstRowCells = table.querySelector('tbody tr, thead tr')?.querySelectorAll('td');
+    if (firstRowCells) {
+      firstRowCells.forEach((cell) => {
+        if (!cell.querySelector('th') && cell.textContent.trim()) {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.replaceWith(th);
+        }
+      });
+    }
   });
 }
 
@@ -187,7 +206,6 @@ function addressButtonAccessibility() {
  * This function calls the sub-functions to address issues
  */
 function addressAccessibilityIssues() {
-
   if (typeof document === 'undefined') return;
 
   // REACT_015: Add lang attribute to HTML element
@@ -229,6 +247,38 @@ function addressAccessibilityIssues() {
   console.log('Accessibility issues addressed.');
 }
 
+/**
+ * Fixes fake link issues by making elements with onclick but no href proper links
+ */
+function fixFakeLink() {
+  if (typeof document === 'undefined') return;
+
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach((element) => {
+    if (element.tagName === 'A' && !element.getAttribute('href')) {
+      element.setAttribute('role', 'link');
+      if (!element.hasAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+    }
+  });
+}
+
+/**
+ * Initialize accessibility fixes
+ */
+function initAccessibility() {
+  if (typeof document === 'undefined') return;
+
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableStructure();
+  ensureUniqueLandmarks();
+  fixFakeLink();
+}
+
+// Export functions for testing
 export {
   addLangAttribute,
   fixTableStructure,
@@ -237,6 +287,21 @@ export {
   addSvgAccessibleNames,
   addressAccessibilityIssues,
   addressButtonAccessibility, // Added export
-  dependencyGraphContent,
-  indexContent
+  fixFakeLink,
+  initAccessibility,
+  handleAccessibilityInsights: () => {},
+  uniqueLandmarksHandler: ensureUniqueLandmarks,
+  restructureTable: fixTableStructure
 };
+
+// Auto-initialize if in browser environment
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initAccessibility();
+    });
+  } else {
+    initAccessibility();
+  }
+}
+```

@@ -168,4 +168,28 @@ export const MainComponent = () => {
   );
 };
 
+// ---- Dependency Graph Rendering Functions ----
+// Function to render dependency graph (in main.js originally)
+export const renderDependencyGraph = () => {
+  // This function currently renders a dependency graph.
+  // To better separate content and improve maintainability, import dependencyGraphContent from a dedicated module.
+  const graphContent = dependencyGraphContent?.indexContent || 'Default dependency graph content';
+  // Render graphContent somewhere (implementation details omitted)
+  console.log('Rendering dependency graph:', graphContent);
+};
+
+// Function to render index view (in main.js originally)
+export const renderIndexView = () => {
+  const indexContent = indexContentModule?.indexContent || 'Default index view content';
+  // Render indexContent somewhere (implementation details omitted)
+  console.log('Rendering index view:', indexContent);
+};
+
+// ---- Imports for dependency graph content and index view content ----
+// Import dependencyGraphContent/indexContent from their respective modules
+import { indexContent as dependencyGraphContent } from './dependencyGraphContent';
+
+// Import indexContent from their respective module
+import { indexContent as indexContentModule } from './indexContent';
+
 export default MainComponent;

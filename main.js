@@ -1,40 +1,26 @@
-import React from 'react';
+// Assuming the rotateBack function is defined elsewhere in your codebase
+function rotateBack() {
+  // Your existing rotateBack logic here
+}
 
-const MyTable = () => {
-  const headers = [
-    { key: 'name', label: 'Name' },
-    { key: 'age', label: 'Age' },
-    { key: 'location', label: 'Location' },
-  ];
+document.addEventListener('DOMContentLoaded', () => {
+  // Your existing JavaScript code that runs after the DOM is fully loaded
+  // ...
 
-  const rows = [
-    { name: 'Alice', age: 24, location: 'New York' },
-    { name: 'Bob', age: 30, location: 'California' },
-    // ... more rows
-  ];
+  // Check if the unrotate link or rotateBack button exists
+  const unrotateLink = document.getElementById('unrotate');
+  const rotateBackButton = document.getElementById('rotateBackButton');
 
-  return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map(header => (
-            <th scope="col" key={header.key}>
-              {header.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(row => (
-          <tr key={row.name}>
-            <td>{row.name}</td>
-            <td>{row.age}</td>
-            <td>{row.location}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+  // If unrotate link exists, replace it with a button
+  if (unrotateLink) {
+    unrotateLink.outerHTML = '<button id="unrotate" onclick="rotateBack()">rotate back</button>';
+  }
 
-export default MyTable;
+  // If rotateBack button exists, use it instead
+  if (rotateBackButton) {
+    rotateBackButton.click();
+  }
+
+  // Continue with the rest of your JavaScript code
+  // ...
+});

@@ -82,6 +82,29 @@ const renderDependencyGraph = function(layout) {
     return dependencyGraphContent.default;
 };
 
+// ADD THE REQUESTED CHANGE: REACT_039: ADD BANNER and CONTENTINFO LANDMARKS IF MISSING IN THE CONTENT
+const addMissingLandmarks = function(content) {
+    if (content && typeof content === 'string') {
+        let result = content;
+
+        // Add banner landmark (header) if not present
+        if (!/<header/i.test(result)) {
+            const bannerMatch = content.match(/<body[^>]*>/i);
+            if (bannerMatch) {
+                result = content.replace(bannerMatch[0], '<header>' + bannerMatch[0]);
+            }
+        }
+
+        // Add contentinfo landmark (footer) if not present
+        if (!/<footer/i.test(result)) {
+            result += '<footer></footer>';
+        }
+
+        return result;
+    }
+    return content;
+};
+
 // Adjust export for the new functions
 module.exports = {
     addLangAttribute,
@@ -92,6 +115,7 @@ module.exports = {
     fixFakeLinkIssue,
     addProperLandmarkRegions,
     renderDependencyGraph,
+    addMissingLandmarks,
     dependencyGraphContent,
     indexContent
 };

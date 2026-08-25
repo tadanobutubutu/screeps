@@ -13,7 +13,7 @@ function renderContent(contentType) {
       // Render dependency graph content using the imported dependencyGraphContent
       function renderDependencyGraphContent() {
         // Replace the existing content within the dependencyGraph div using the dependencyGraphContent.
-        const container = document.getElementById('dependencyGraph');
+        const container = ...
         if (container) {
           container.innerHTML = dependencyGraphContent;
         }
@@ -25,7 +25,7 @@ function renderContent(contentType) {
       // Render index content
       function renderIndexContent() {
         // Get the container for index content
-        const container = document.getElementById('index');
+        const container = ...
         // Update the container with the indexContent from index.js
         if (container) {
           container.innerHTML = indexContent;
@@ -45,51 +45,53 @@ if (dependencyGraph) {
   renderContent('dependency-graph'); // or call with data that generates the dependency graph
 }
 
-// TODO: Implement addProperLandmarkRegions();
+// TODO: Implement ...
 function addProperLandmarkRegions() {
   // Ensure the document has proper landmark regions for accessibility.
   // This includes <header>, <nav>, <main>, and <footer> elements
   // wrapping the corresponding sections of the page.
 
   // Ensure a <header> landmark exists at the top of the body
-  let header = document.querySelector('header');
+  let header = ...
   if (!header) {
     header = document.createElement('header');
-    document.body.prepend(header);
+    ...
   }
 
   // Ensure a <nav> landmark exists for navigation
-  let nav = document.querySelector('nav');
+  let nav = ...
   if (!nav) {
-    nav = document.createElement('nav');
+    nav = ...
     header.appendChild(nav);
   }
 
   // Ensure a <main> landmark exists for primary content
-  let main = document.querySelector('main');
+  let main = ...
   if (!main) {
-    main = document.createElement('main');
+    main = ...
     // Move existing body children (except header/footer) into <main>
-    const children = Array.from(document.body.children);
+    const children = ...
     children.forEach((child) => {
       if (child !== header && child.tagName !== 'FOOTER') {
         main.appendChild(child);
       }
     });
-    document.body.appendChild(main);
+    ...
   }
 
   // Ensure a <footer> landmark exists at the bottom of the body
-  let footer = document.querySelector('footer');
+  let footer = ...
   if (!footer) {
     footer = document.createElement('footer');
-    document.body.appendChild(footer);
+    ...
   }
 }
 
 // Export renderContent function for better maintainability
 module.exports = {
   ... // Existing exports
+  indexContent,
+  dependencyGraphContent,
   renderContent, // Add renderContent to the list of exports
   addProperLandmarkRegions // Add addProperLandmarkRegions to the list of exports
 };

@@ -6,7 +6,7 @@ export { getElementById };
 function newIssueFunction() {
   if (typeof document === 'undefined') return;
 
-  const elements = document.querySelectorAll('span, p');
+  const elements = ... p');
   elements.forEach((element) => {
     // Replace with your custom logic for the new issue
     element.textContent = 'Replaced Text';
@@ -32,12 +32,12 @@ function addLangAttribute() {
 function fixTableStructure() {
   if (typeof document === 'undefined') return;
 
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = firstRow ? firstRow.querySelectorAll('th') : [];
+    const headers = firstRow ? ... : [];
     headers.forEach((th) => {
-      if (!th.hasAttribute('scope')) {
+      if ... {
         const row = th.closest('tr');
         const isInThead = !!th.closest('thead');
         const isFirstRow = firstRow && row === firstRow;
@@ -57,24 +57,24 @@ function fixTableStructure() {
 function addMainLandmark() {
   if (typeof document === 'undefined') return;
 
-  const mains = document.querySelectorAll('main');
+  const mains = ...
   if (mains.length === 0) {
-    const fallbackMain = document.querySelector('#content') || document.querySelector('.main-content') || document.querySelector('[role="main"]') || document.querySelector('article');
+    const fallbackMain = ... || ... || ... || ...
     if (fallbackMain) {
-      const newMain = document.createElement('main');
+      const newMain = ...
       newMain.innerHTML = fallbackMain.innerHTML;
-      while (fallbackMain.firstChild) {
-        fallbackMain.removeChild(fallbackMain.firstChild);
+      while ... {
+        ...
       }
-      fallbackMain.appendChild(newMain);
+      ...
       if (fallbackMain.tagName !== 'MAIN') {
         try {
-          const newMain = document.createElement('main');
+          const newMain = ...
           newMain.innerHTML = fallbackMain.innerHTML;
-          while (fallbackMain.firstChild) {
-            fallbackMain.removeChild(fallbackMain.firstChild);
+          while ... {
+            ...
           }
-          fallbackMain.parentNode.replaceChild(newMain, fallbackMain);
+          ... fallbackMain);
         } catch (e) {
           // Preserve existing structure if tag change fails
         }
@@ -82,7 +82,7 @@ function addMainLandmark() {
     }
   }
 
-  const headers = document.querySelectorAll('header');
+  const headers = ...
   if (headers.length === 1) {
     const header = headers[0];
     if (!header.getAttribute('role')) {
@@ -90,7 +90,7 @@ function addMainLandmark() {
     }
   }
 
-  const footers = document.querySelectorAll('footer');
+  const footers = ...
   if (footers.length === 1) {
     const footer = footers[0];
     if (!footer.getAttribute('role')) {
@@ -105,17 +105,17 @@ function addMainLandmark() {
 function wrapPrimaryContentInMain() {
   if (typeof document === 'undefined') return;
 
-  const existingMains = document.querySelectorAll('main');
+  const existingMains = ...
   if (existingMains.length > 0) {
     return;
   }
 
-  const primaryContent = getElementById('content') || document.querySelector('.main-content') || document.querySelector('[role="main"]') || document.querySelector('article') || document.querySelector('.content');
+  const primaryContent = getElementById('content') || ... || ... || ... || ...
   if (primaryContent) {
-    const main = document.createElement('main');
+    const main = ...
     if (primaryContent.parentNode) {
-      primaryContent.parentNode.insertBefore(main, primaryContent);
-      main.appendChild(primaryContent);
+      ... primaryContent);
+      ...
     }
     return;
   }
@@ -125,17 +125,17 @@ function wrapPrimaryContentInMain() {
 
   const landmarkTags = ['header', 'footer', 'nav', 'aside'];
   const landmarkRoles = ['banner', 'contentinfo', 'navigation', 'complementary'];
-  const children = Array.from(body.children);
+  const children = ...
   const primaryChildren = children.filter((child) => {
-    const tag = child.tagName ? child.tagName.toLowerCase() : '';
-    const role = child.getAttribute('role') || tag;
-    return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
+    const tag = child.tagName ? ... : '';
+    const role = ... || tag;
+    return ... && ...
   });
 
   if (primaryChildren.length > 0) {
-    const main = document.createElement('main');
-    body.insertBefore(main, body.firstChild);
-    primaryChildren.forEach((child) => {
+    const main = ...
+    ... body.firstChild);
+    ... => {
       if (child.parentNode === body) {
         main.appendChild(child);
       }
@@ -150,17 +150,17 @@ function wrapPrimaryContentInMain() {
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
-  const landmarks = document.querySelectorAll('header, footer, main, nav, aside, section');
+  const landmarks = ... footer, main, nav, aside, section');
   const landmarkLabels = new Map();
 
   landmarks.forEach((landmark) => {
-    let label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || null;
+    let label = ... || ... || null;
 
-    const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
-    const role = landmark.getAttribute('role') || tagName;
+    const tagName = landmark.tagName ? ... : '';
+    const role = ... || tagName;
 
     if (!label) {
-      const count = landmarkLabels.get(role) || 0;
+      const count = ... || 0;
 
       const defaultLabels = {
         'nav': ['Main Navigation', 'Secondary Navigation', 'Footer Navigation', 'Sidebar Navigation'],
@@ -172,29 +172,76 @@ function ensureUniqueLandmarks() {
       };
 
       const roleLabels = defaultLabels[role] || ['Section'];
-      label = roleLabels[count] || role.charAt(0).toUpperCase() + role.slice(1) + ' ' + (count + 1);
+      label = roleLabels[count] || ... + role.slice(1) + ' ' + (count + 1);
 
-      landmark.setAttribute('aria-label', label);
+      ... label);
     } else {
       const count = landmarkLabels.get(label) || 0;
 
       if (landmarkLabels.get(label) > 1) {
         const newLabel = `${label} (${count + 1})`;
-        landmark.setAttribute('aria-label', newLabel);
+        ... newLabel);
       }
     }
 
-    landmarkLabels.set(role, (landmarkLabels.get(role) || 0) + 1);
+    landmarkLabels.set(role, ... || 0) + 1);
     landmarkLabels.set(label, (landmarkLabels.get(label) || 0) + 1);
   });
 
-  const navs = document.querySelectorAll('nav');
+  const navs = ...
   navs.forEach((nav, index) => {
-    if (!nav.getAttribute('aria-label')) {
+    if ... {
       const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation', 'Sidebar Navigation'];
       nav.setAttribute('aria-label', navLabels[index] || 'Navigation ' + (index + 1));
     }
   });
+}
+
+/**
+ * REACT_025: Fix multiple main landmarks
+ * Ensures only one <main> landmark exists, converting additional ones to <section> elements
+ */
+function fixMultipleMainLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  const mains = document.querySelectorAll('main');
+  
+  if (mains.length <= 1) {
+    return;
+  }
+
+  // Keep the first main element, convert the rest to sections
+  for (let i = 1; i < mains.length; i++) {
+    const mainElement = mains[i];
+    const parent = mainElement.parentNode;
+    
+    if (!parent) {
+      continue;
+    }
+
+    // Create a section element to replace the main element
+    const section = document.createElement('section');
+    
+    // Copy attributes from main to section (except tag-specific ones)
+    Array.from(mainElement.attributes).forEach((attr) => {
+      if (attr.name !== 'id' || !document.getElementById(attr.value)) {
+        section.setAttribute(attr.name, attr.value);
+      }
+    });
+
+    // Add appropriate aria-label if none exists
+    if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
+      section.setAttribute('aria-label', 'Alternative Content Section');
+    }
+
+    // Move all child nodes from main to section
+    while (mainElement.firstChild) {
+      section.appendChild(mainElement.firstChild);
+    }
+
+    // Replace main element with section
+    parent.replaceChild(section, mainElement);
+  }
 }
 
 /**
@@ -203,10 +250,10 @@ function ensureUniqueLandmarks() {
 function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
 
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
     const titleId = 'svg-title-' + (index + 1);
-    let title = svg.querySelector('title');
+    let title = ...
     if (!title) {
       title = document.createElement('title');
       title.id = titleId;
@@ -219,7 +266,7 @@ function addSvgAccessibleNames() {
     }
     if (svg.getAttribute('role') === 'img' && title) {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 }
@@ -230,16 +277,16 @@ function addSvgAccessibleNames() {
 function fixFakeLinks() {
   if (typeof document === 'undefined') return;
 
-  const links = document.querySelectorAll('a[href^="#"]');
+  const links = ...
   links.forEach((link) => {
     if (!link.href) {
       link.setAttribute('role', 'button');
     }
-    link.addEventListener('click', (e) => {
+    ... (e) => {
       e.preventDefault();
       const srcElement = e.srcElement || e.target;
       const target = srcElement.hash;
-      const dest = document.querySelector(target);
+      const dest = ...
 
       if (dest) {
         // Set focus on the target element
@@ -255,7 +302,7 @@ function fixFakeLinks() {
  * REACT_018: Properly establish landmark regions for accessibility
  * Ensures all necessary landmark elements are present and correctly configured
  */
-function establishLandmarkRegions() {
+function ... {
   if (typeof document === 'undefined') return;
 
   const body = document.body;
@@ -265,44 +312,44 @@ function establishLandmarkRegions() {
   const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
 
  // Check if there is already a navigation landmark
-  const existingNav = document.querySelector('nav, [role="navigation"]');
+  const existingNav = ... ...
   if (!existingNav) {
     // Try to find a nav element or create one around navigation links
     const navLinks = document.querySelectorAll('ul li a, .nav a, .menu a, .navigation a');
     if (navLinks.length > 0) {
-      const nav = document.createElement('nav');
+      const nav = ...
       nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', 'Main Navigation');
-      const parent = navLinks[0].closest('ul, .nav, .menu, .navigation');
+      const parent = ... .nav, .menu, .navigation');
       const container = parent || body;
-      container.appendChild(nav);
-      while (nav.nextSibling && nav.nextSibling.tagName && !landmarkTags.includes(nav.nextSibling.tagName.toLowerCase())) {
-        nav.appendChild(nav.nextSibling);
+      ...
+      while (nav.nextSibling && nav.nextSibling.tagName && ... {
+        ...
       }
-      navLinks.forEach((link, index) => {
-        const listItem = document.createElement('li');
-        listItem.appendChild(link.cloneNode(true));
-        nav.appendChild(listItem);
+      ... index) => {
+        const listItem = ...
+        ...
+        ...
       });
     }
   }
 
  // Check if there is already a complementary landmark
-  const existingAside = document.querySelector('aside, [role="complementary"]');
+  const existingAside = ... ...
   if (!existingAside) {
-    const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');
+    const asideElements = ... .aside, .complementary');
     if (asideElements.length > 0) {
-      const aside = document.createElement('aside');
+      const aside = ...
       aside.setAttribute('role', 'complementary');
       const parent = asideElements[0].parentElement;
       const container = parent || body;
-      container.appendChild(aside);
-      while (aside.nextSibling && aside.nextSibling.tagName && !landmarkTags.includes(aside.nextSibling.tagName.toLowerCase())) {
-        aside.appendChild(aside.nextSibling);
+      ...
+      while (aside.nextSibling && aside.nextSibling.tagName && ... {
+        ...
       }
-      asideElements.forEach((element, index) => {
-        const asideItem = document.createElement('div');
-        asideItem.appendChild(element.cloneNode(true));
+      ... index) => {
+        const asideItem = ...
+        ...
         aside.appendChild(asideItem);
       });
     }
@@ -317,7 +364,8 @@ export {
   addMainLandmark,
   wrapPrimaryContentInMain,
   ensureUniqueLandmarks,
+  fixMultipleMainLandmarks,
   addSvgAccessibleNames,
   fixFakeLinks,
-  establishLandmarkRegions
+  ...
 };

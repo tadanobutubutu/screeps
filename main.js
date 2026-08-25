@@ -1,24 +1,63 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// Placeholder icons object for exports
+const icons = {};
+
+// Helper function to render an accessible SVG with a title
+const renderAccessibleSVG = (id, title, children) => (
+  <svg aria-labelledby={id} role="img" width="100" height="100">
+    <title id={id}>{title}</title>
+    {children}
+  </svg>
+);
+
+// Helper function to render proper landmark structure
+const renderLandmarkStructure = () => (
+  <div>
+    <nav aria-label="Main navigation">
+      <a href="/home">Home</a>
+    </nav>
+    <main>
+      {/* Main content area */}
+    </main>
+  </div>
+);
+
 const App = () => {
   // Existing code and logic
   return (
-    // JSX code that might be causing accessibility issues
     <html lang="en">
       <head>
         {/* Existing head content */}
       </head>
       <body>
-        <div>
+        <nav aria-label="Main navigation">
           <a href="/home">Home</a>
-          <table>
-            {/* Table content */}
-          </table>
-          <svg>
-            {/* SVG content */}
-          </svg>
-        </div>
+        </nav>
+        <main>
+          <div>
+            <button id="unrotate">rotate back</button>
+            <table>
+              <caption>Data Table</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Header 1</th>
+                  <th scope="col">Header 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cell 1</td>
+                  <td>Cell 2</td>
+                </tr>
+              </tbody>
+            </table>
+            {renderAccessibleSVG('svg-title-1', 'Accessible SVG 1', (
+              <circle cx="50" cy="50" r="40" />
+            ))}
+          </div>
+        </main>
       </body>
     </html>
   );
@@ -55,7 +94,10 @@ const setupRotateBack = () => {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     setupRotateBack(); // Ensure button wiring after DOM is ready
-    ReactDOM.render(<App />, document.getElementById('root'));
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      ReactDOM.render(<App />, rootElement);
+    }
   });
 }
 

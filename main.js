@@ -1,6 +1,3 @@
-Looking at the code, there are many syntax errors due to incomplete code snippets (using `...` placeholders). I need to fix all syntax issues while preserving the existing structure and adding the `addLangAttribute` function.
-
-```javascript
 // Import required module(s) for addressing the new issue
 import { getElementId } from './helpers.js';
 export { getElementId };
@@ -113,7 +110,7 @@ function wrapPrimaryContentInMain() {
     return;
   }
 
-  const primaryContent = getElementById('content') || document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.body;
+  const primaryContent = getElementId('content') || document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.body;
   if (primaryContent) {
     const main = document.createElement('main');
     if (primaryContent.parentNode) {
@@ -264,4 +261,29 @@ function establishLandmarkRegions() {
   const body = document.body;
   if (!body) return;
 
-  const landmarkTags = ['header', 'footer', 'main', 'nav', '
+  const landmarkConfig = [
+    { tag: 'header', role: 'banner' },
+    { tag: 'footer', role: 'contentinfo' },
+    { tag: 'main', role: 'main' },
+    { tag: 'nav', role: 'navigation' },
+    { tag: 'aside', role: 'complementary' }
+  ];
+
+  landmarkConfig.forEach(({ tag, role }) => {
+    let elements = document.querySelectorAll(tag);
+    if (elements.length === 0) {
+      // Create element and append to body
+      const el = document.createElement(tag);
+      el.setAttribute('role', role);
+      body.appendChild(el);
+    } else {
+      // Ensure first element has the role (if not set)
+      elements.forEach((el, index) => {
+        if (index === 0 && !el.getAttribute('role')) {
+          el.setAttribute('role', role);
+        }
+        // Optionally, remove role from duplicates? Not required.
+      });
+    }
+  );
+}

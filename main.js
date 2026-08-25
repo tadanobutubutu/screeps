@@ -22,7 +22,7 @@ function wrapPrimaryContentInMain(content, options = {}) {
   const mainEnd = '</main>';
   
   // Check if content is already wrapped in a main element
-  const hasMainTag = /<main[\s\S]*>/i.test(content);
+  const hasMainTag = /<main[\s\S]*?>/i.test(content);
   
   if (hasMainTag) {
     return content;
@@ -48,7 +48,7 @@ function renderDependencyGraph(data) {
 function renderIndexView(data) {
   if (!data) return '<div class="index-view">Index View</div>';
   const { title = 'Index View', items = [] } = data;
-  let itemsHtml = items.map(item => `<li>${item.name || item.id || item.text || 'Item'}</li>`).join('');
+  let itemsHtml = items.map(item => `<li>${item.name || item.id || item.text || ''}</li>`).join('');
   return `<div class="index-view"><h2>${title}</h2><ul>${itemsHtml}</ul></div>`;
 }
 
@@ -82,7 +82,7 @@ function renderSkipLink() {
 // Original landmark navigation function
 function renderLandmarkNavigation() {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  return landmarks.map(landmark => `<div class="landmark-${landmark}">${landmark}</div>`).join('');
+  return landmarks.map(landmark => `<div role="${landmark}" class="landmark-${landmark}">${landmark}</div>`).join('');
 }
 
 // Original utility function
@@ -90,7 +90,10 @@ function formatDate(date) {
   if (!date) return '';
   const d = new Date(date);
   if (isNaN(d.getTime())) return '';
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -101,6 +104,74 @@ function addLangAttribute(html, lang = 'en') {
     return html.replace(langPattern, ` lang="${lang}"`);
   }
   return html.replace(/<html([^>]*)>/i, `<html$1 lang="${lang}">`);
+}
+
+// REACT_025: Ensure unique landmarks - fix multiple <main> elements
+function ensureUniqueLandmarks(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+  
+  const seenIds = new Set();
+  const seenRoles = new Map();
+  
+  return landmarks.map((landmark, index) => {
+    const role = landmark.role || 'region';
+    
+    if (landmark.id) {
+      if (seenIds.has(landmark.id)) {
+        landmark.id = `${landmark.id}-${index}`;
+      }
+      seenIds.add(landmark.id);
+    } else {
+      landmark.id = `${role}-${index}`;
+      seenIds.add(landmark.id);
+    }
+    
+    if (seenRoles.has(role)) {
+      const count = seenRoles.get(role);
+      seenRoles.set(role, count + 1);
+      landmark.uniqueLabel = `${role}-${count + 1}`;
+    } else {
+      seenRoles.set(role, 1);
+    }
+    
+    if (landmark.label) {
+      landmark.id = landmark.id || `${role}-${index}`;
+    }
+    
+    return landmark;
+  });
+}
+
+// REACT_025: Convert additional <main> landmarks to <section> for accessibility
+function fixMultipleMainLandmarks(html) {
+  if (!html) return html;
+  
+  const mainMatches = html.match(/<main[\s\S]*?<\/main>/gi) || [];
+  const mainCount = mainMatches.length;
+  
+  if (mainCount <= 1) {
+    return html;
+  }
+  
+  // Keep the first <main> as-is, convert subsequent ones to <section>
+  let mainIndex = 0;
+  return html.replace(/<main[\s\S]*?<\/main>/gi, (match) => {
+    mainIndex++;
+    if (mainIndex === 1) {
+      // First main, keep as main
+      return match;
+    }
+    // Replace <main> with <section> and </main> with </section>
+    let sectionHtml = match.replace(/<main/i, '<section');
+    sectionHtml = sectionHtml.replace(/<\/main>/i, '</section>');
+    
+    // Add aria-label if it helps describe the section
+    if (!/aria-label/i.test(sectionHtml)) {
+      sectionHtml = sectionHtml.replace(/<section/i, '<section aria-label="Section content"');
+    }
+    
+    return sectionHtml;
+  });
 }
 
 // REACT_027: Fix table structure issues
@@ -132,19 +203,19 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = /<main[\s\S]*>/i.test(html) || /<main[\s\S]*id\s*=\s*["'][^"']*["']/i.test(html);
+  const hasMainLandmark = /<main[\s\S]*?>/i.test(html) || /<main\s/i.test(html);
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if (/<body[\s\S]*>/i.test(html)) {
+    if (/<body/i.test(html)) {
       return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = /<main[\s\S]*id\s*=\s*["'][^"']*["']/i.test(html);
+  const mainWithId = /<main[^>]*id\s*=\s*["'][^"']*["'][^>]*>/i.test(html);
   
   if (!mainWithId) {
     html = html.replace(/<main([^>]*)>/i, '<main$1 id="main-content">');
@@ -180,7 +251,7 @@ function createAccessibleSvgDataUrl(options = {}) {
   } = options;
   
   const encodedTitle = encodeURIComponent(title);
-  const ariaAttr = ariaHidden ? ' aria-hidden="true"' : ` aria-label="${encodedTitle}"`;
+  const ariaAttr = ariaHidden ? ' aria-hidden="true"' : ` role="${role}" aria-label="${encodedTitle}"`;
   const roleAttr = ` role="${role}"`;
   
   // Build the SVG with title as first child for accessibility
@@ -188,46 +259,10 @@ function createAccessibleSvgDataUrl(options = {}) {
   
   // Encode the entire SVG for use as data URL
   const encodedSvg = encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${roleAttr}${ariaAttr}>${svgContent}</svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${ariaAttr}>${svgContent}</svg>`
   );
   
   return `data:image/svg+xml,${encodedSvg}`;
-}
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(landmarks) {
-  if (!landmarks || !Array.isArray(landmarks)) return [];
-  
-  const seenIds = new Set();
-  const seenRoles = new Map();
-  
-  return landmarks.map((landmark, index) => {
-    const role = landmark.role || 'region';
-    
-    if (landmark.id) {
-      if (seenIds.has(landmark.id)) {
-        landmark.id = `${landmark.id}-${index}`;
-      }
-      seenIds.add(landmark.id);
-    } else {
-      landmark.id = `${role}-${index}`;
-      seenIds.add(landmark.id);
-    }
-    
-    if (seenRoles.has(role)) {
-      const count = seenRoles.get(role);
-      seenRoles.set(role, count + 1);
-      landmark.uniqueLabel = `${role}-${count + 1}`;
-    } else {
-      seenRoles.set(role, 1);
-    }
-    
-    if (landmark.label) {
-      landmark.id = landmark.id || `${role}-${index}`;
-    }
-    
-    return landmark;
-  });
 }
 
 // REACT_036: Fix fake link issue
@@ -277,53 +312,5 @@ function fixButtonAccessibility(buttons) {
       let semanticId = '';
       
       if (button['aria-label']) {
-        semanticId = button['aria-label'].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      } else if (button.textContent || button.innerText) {
-        const text = button.textContent || button.innerText || '';
-        semanticId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      } else if (button.type) {
-        semanticId = `button-${button.type}`;
-      } else {
-        semanticId = `button-${index + 1}`;
-      }
-      
-      // Ensure uniqueness
-      let finalId = semanticId;
-      let counter = 1;
-      while (seenIds.has(finalId)) {
-        finalId = `${semanticId}-${counter}`;
-        counter++;
-      }
-      
-      button.id = finalId;
-      seenIds.add(finalId);
-    } else {
-      // Ensure existing ID is unique
-      let finalId = button.id;
-      let counter = 1;
-      while (seenIds.has(finalId)) {
-        finalId = `${button.id}-${counter}`;
-        counter++;
-      }
-      if (finalId !== button.id) {
-        button.id = finalId;
-      }
-      seenIds.add(button.id);
-    }
-    
-    // Ensure button has accessible name
-    if (!button['aria-label'] && !button.id && !button.textContent) {
-      if (button.textContent || button.innerText) {
-        button['aria-label'] = (button.textContent || button.innerText || '').trim();
-      }
-    }
-    
-    return button;
-  });
-}
-
-// Export all functions from main module
-export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain, renderSkipLink, renderLandmarkNavigation, formatDate };
-export * from './otherModule';
-export { myOtherFunction };
-export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility, createAccessibleSvgDataUrl };
+        semanticId = button['aria-label'].toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      } else if (button.textContent || button.innerText)

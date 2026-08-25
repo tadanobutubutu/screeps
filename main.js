@@ -25,15 +25,15 @@ function applyAccessibilityAttributes() {
 /**
  * Handle keyboard navigation focus management
  */
-function handleKeyboardNavigation() {
-  document.addEventListener('keydown', (event) => {
+function setupKeyboardNavigation(container) {
+  container.addEventListener('keydown', (event) => {
     if (event.key === 'Tab') {
-      document.body.classList.add('keyboard-nav');
+      container.classList.add('keyboard-nav');
     }
   });
   
-  document.addEventListener('mousedown', () => {
-    document.body.classList.remove('keyboard-nav');
+  container.addEventListener('mousedown', () => {
+    container.classList.remove('keyboard-nav');
   });
 }
 
@@ -56,9 +56,48 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+/**
+ * Validate unique landmarks to ensure only one main landmark exists
+ * Addresses REACT_025 - React Unique Landmarks accessibility warning
+ * @returns {Object} Validation result with isValid flag and details
+ */
+function validateUniqueLandmarks() {
+  const mainElements = document.querySelectorAll('main');
+  const result = {
+    isValid: true,
+    mainCount: mainElements.length,
+    issues: []
+  };
+  
+  if (mainElements.length > 1) {
+    result.isValid = false;
+    result.issues.push(`Found ${mainElements.length} <main> landmarks. Only one should exist per page for accessibility.`);
+    console.warn('REACT_025: Multiple <main> landmarks detected. Use <section> or <article> for additional content regions.');
+  }
+  
+  return result;
+}
+
+/**
+ * Get all landmark elements for accessibility auditing
+ * @returns {Object} Object containing all landmark counts
+ */
+function getLandmarkCounts() {
+  const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'article', 'section'];
+  const counts = {};
+  
+  landmarks.forEach(landmark => {
+    counts[landmark] = document.querySelectorAll(landmark).length;
+  });
+  
+  return counts;
+}
+
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,
-  handleKeyboardNavigation,
-  announceToScreenReader
+  setupKeyboardNavigation,
+  announceToScreenReader,
+  validateUniqueLandmarks,
+  getLandmarkCounts
 };

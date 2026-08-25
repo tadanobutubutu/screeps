@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file where conflicts are merged and both changes are integrated:
-
-```javascript
 import dependencyGraphContent from './dependencyGraphContent'
 import { addLandmarkRoles, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssues, addThScope, getHeadingLevels } from './indexContent'
 import someDependency from './someDependency'
@@ -160,6 +157,3 @@ export {
     fixFakeLinks,
     addressAccessibilityIssues
 }
-```
-
-In this resolution, the changes made in both branches are integrated. The import section, `fixDuplicateLandmarkRoles` function, and the exported functions `fixTableStructureIssues`, `addProperLandmarkRegions`, `fixTableConstraints`, and `addressAccessibilityIssues` from the second branch are kept. The function `fixAccessibilityIssues` is created to merge both approaches by combining all related functions. If there's any inconsistency or error in the merged code, please let me know, and I will adjust it accordingly.

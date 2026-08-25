@@ -1,27 +1,79 @@
-// Assuming main.js is the entry point for your Screeps bot application
+tsx
+// components/Dashboard.tsx
 
-// Import the icons from the respective files
-const icons = require('./app/layout.tsx').icons; // For app/layout.tsx
-const dashboardIcons = require('./dashboard/app/layout.tsx').icons; // For dashboard/app/layout.tsx
+import React, { useState } from 'react';
 
-// Create a function to add aria-label to the SVG data string
-function addAriaLabelToSvg(svgData, label) {
-  return svgData.replace(/<svg /, `<svg aria-label="${label} "`);
-}
+const Dashboard: React.FC = () => {
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-// Update the SVG data with an accessible name for both icons
-const updatedIcons = {
-  ...icons,
-  icon: addAriaLabelToSvg(icons.icon, 'Screeps Dashboard Icon'),
+  const copyErr = () => {
+    // Implementation for copying error
+  };
+
+  const fetchStats = (shouldFetch) => {
+    // Implementation for fetching stats
+  };
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      {/* Assuming the error component is defined somewhere else */}
+      {error && (
+        <main>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          <button
+            onClick={copyErr}
+            onMouseEnter={() => setErrCopyHover(true)}
+            onMouseLeave={() => setErrCopyHover(false)}
+            onFocus={() => setErrCopyHover(true)}
+            onBlur={() => setErrCopyHover(false)}
+            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+            title={copied ? 'コピー済み' : 'エラーをコピー'}
+            style={{
+              backgroundColor: copied ? '#155d27' : '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errCopyHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          </button>
+        </main>
+      )}
+      {/* Other content */}
+      <button
+        onClick={() => fetchStats(true)}
+        disabled={refreshing}
+        onMouseEnter={() => setErrRetryHover(true)}
+        onMouseLeave={() => setErrRetryHover(false)}
+      >
+        {/* Button content */}
+      </button>
+      {/* Additional components */}
+    </div>
+  );
 };
 
-const updatedDashboardIcons = {
-  ...dashboardIcons,
-  icon: addAriaLabelToSvg(dashboardIcons.icon, 'Screeps Dashboard Icon'),
-};
-
-// Merge the updated icons
-const allIcons = { ...updatedIcons, ...updatedDashboardIcons };
-
-// Export the merged icons
-module.exports = allIcons;
+export default Dashboard;

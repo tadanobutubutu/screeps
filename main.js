@@ -31,5 +31,23 @@ module.exports = {
       return this.renderIndexView(req.data);
     }
     return null;
+  },
+
+  // Function to add accessible names to SVG elements
+  addSvgAccessibleName: function(svgElement, accessibleName) {
+    if (svgElement && accessibleName) {
+      svgElement.setAttribute('aria-label', accessibleName);
+    } else if (svgElement) {
+      svgElement.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  // Add new function to add accessible name to SVG content
+  addAccessibleNameToSVG: function(svgContent) {
+    // Add an accessible name to the SVG content by wrapping the text within a <title> tag
+    return svgContent.replace(
+      /<text[^>]*>(.*?)<\/text>/g,
+      '<title>$1</title><text$&>'
+    );
   }
 };

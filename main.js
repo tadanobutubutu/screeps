@@ -51,13 +51,13 @@ function addSvgAccessibleNames(filePath) {
 function addAltAttribute(filePath) {
   const fs = require('fs');
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
+  const updatedContent = content.replace(/<img(?![^>]*alt)[^>]*>/gi, '<img alt="Description of image"');
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
-// Implement function for addressing accessibility issues from insight report
-function addressAccessibilityIssuesFromReport(reportPath) {
+// TODO: Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   
@@ -108,5 +108,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAltAttribute,
-  addressAccessibilityIssuesFromReport
+  addressAccessibilityIssues
 };

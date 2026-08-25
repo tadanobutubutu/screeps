@@ -39,15 +39,21 @@ function addAriaLabelledbyIfNeeded(elem) {
   // Pre-existing logic
 
   // New logic: Render React components within the HTML element and extract them as strings
-  const context = createReactContext();
-
-  // Determine which content to render based on elem type or attributes
   let content;
-  if (elem.getAttribute && elem.getAttribute('data-type') === 'dependency-graph') {
-    content = dependencyGraphContent({ context });
-  } else if (elem.getAttribute && elem.getAttribute('data-type') === 'index') {
-    content = indexContent({ context });
+  if (elem.getAttribute && elem.getAttribute('data-type')) {
+    content = (() => {
+      switch (elem.getAttribute('data-type')) {
+        case 'dependency-graph':
+          return dependencyGraphContent({ context: createReactContext() });
+        case 'index':
+          return indexContent({ context: createReactContext() });
+        default:
+          break;
+      }
+    })();
   } else if (elem.getAttribute && elem.getAttribute('data-attribute')) {
+    content = <div id="generatedId">{/* Your custom React component here */}</div>;
+  } else if (elem.getAttribute && elem.getAttribute('data-component')) {
     content = <div id="generatedId">{/* Your custom React component here */}</div>;
   } else {
     content = <div id="generatedId">{/* Your default React component here */}</div>;
@@ -93,4 +99,4 @@ export {
 };
 ```
 
-In this resolved version, I combined the old and new logic in `addAriaLabelledbyIfNeeded` and `initAriaLabels` functions. I added a new way to determine which content to render based on the `data-attribute` or `data-component` attributes on the `elem`. The new logic will render custom or default React components if such attributes are present on the element. Otherwise, it will behave as it did before. The rest of the functions, such as `wrapPrimaryContentInMain`, `renderDependencyGraph`, and `renderIndexView`, have remained unchanged.
+In this resolved version, I combined the old and new logic in the `addAriaLabelledbyIfNeeded` and `initAriaLabels` functions. I added a new way to determine which content to render based on the `data-attribute` and `data-component` attributes on the `elem`. The new logic will render custom or default React components if such attributes are present on the element. Otherwise, it will behave as it did before. The rest of the functions, such as `wrapPrimaryContentInMain`, `renderDependencyGraph`, and `renderIndexView`, have remained unchanged.

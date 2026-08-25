@@ -24,7 +24,7 @@ skipLink.addEventListener('click', (e) => {
 });
 
 // Mark the main content area as a primary region
-const mainElement = document.querySelector('main');
+const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.body;
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
@@ -34,7 +34,7 @@ if (mainElement) {
 document.documentElement.lang = 'en';
 
 // Ensure tables have proper structure and unique captions
-document.querySelectorAll('table').forEach(table => {
+document.querySelectorAll('table').forEach((table) => {
   // ... (existing code)
 
   // Add unique 'id' to each table
@@ -52,23 +52,29 @@ document.querySelectorAll('table').forEach(table => {
 });
 
 // Improve SVG accessibility: add title and accessible name
-document.querySelectorAll('svg').forEach(svg => {
+document.querySelectorAll('svg').forEach((svg, index) => {
   // ... (existing code)
 
   // Add an appropriate ARIA label for each SVG
-  svg.setAttribute('aria-labelledby', `svg-title-${svg.id}`);
+  const title = document.createElement('title');
+  title.textContent = `SVG Icon ${index + 1}`;
+  title.id = `svg-title-${index + 1}`;
+  svg.insertBefore(title, svg.firstChild);
+  
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-labelledby', title.id);
 });
 
 // Add landmarks with unique ids and appropriate roles
 const headerLandmark = document.createElement('header');
 headerLandmark.id = 'header-landmark';
 headerLandmark.setAttribute('role', 'banner');
-document.body.insertBefore(headerLandmark, document.body.firstChild);
+document.body.appendChild(headerLandmark);
 
 const mainLandmark = document.createElement('main');
 mainLandmark.id = 'main-content';
 mainLandmark.setAttribute('role', 'main');
-headerLandmark.appendChild(mainLandmark);
+document.body.appendChild(mainLandmark);
 
 const footerLandmark = document.createElement('footer');
 footerLandmark.id = 'footer-landmark';
@@ -76,7 +82,7 @@ footerLandmark.setAttribute('role', 'contentinfo');
 document.body.appendChild(footerLandmark);
 
 // Ensure unique landmark roles (for 2 issues)
-const landmarks = document.querySelectorAll('[role="landmark"]');
+const landmarks = document.querySelectorAll('[role="banner"], [role="main"], [role="contentinfo"]');
 landmarks.forEach((landmark, idx) => {
   if (idx > 0) {
     landmark.setAttribute('aria-label', `Landmark ${idx + 1}`);
@@ -85,6 +91,11 @@ landmarks.forEach((landmark, idx) => {
 
 // Ensure all fake links are marked with appropriate ARIA role
 // ... (existing code)
+document.querySelectorAll('a[href="#"], a:not([href])').forEach(link => {
+  if (!link.hasAttribute('role')) {
+    link.setAttribute('role', 'button');
+  }
+});
 
 // New function to make API calls using axios
 async function fetchAPI(url) {

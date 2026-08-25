@@ -23,6 +23,19 @@ document.documentElement.setAttribute('lang', 'en');
 // For example, replace invisible links with visible text links:
 // <a href="https://example.com" aria-label="Go to example.com">Visit example.com</a>
 
+// Wrap the primary content in <main> to provide a landmark for keyboard and screen reader users
+function addMainLandmark() {
+  const mainContent = document.querySelector('body > .container');
+  if (mainContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(mainContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+}
+
+// Call the function to add the <main> landmark
+addMainLandmark();
+
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js
 // Example of a new function that could be exported
 function newFunction() {

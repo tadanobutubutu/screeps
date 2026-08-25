@@ -1,5 +1,5 @@
 // Restoring previously removed exports below
-const { renderGraphContent } = require('./ dependency-graph');
+const { renderGraphContent } = require('./dependency-graph');
 
 // New function: Render dependency graph content
 function renderDependencyGraphContent(data) {

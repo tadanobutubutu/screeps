@@ -57,7 +57,7 @@ function addAltAttribute(filePath) {
 }
 
 // Implement function for addressing accessibility issues from insight report
-function fixAccessibilityIssuesFromInsightReport(reportPath) {
+function addressAccessibilityIssuesFromReport(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   
@@ -108,16 +108,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAltAttribute,
-  fixAccessibilityIssuesFromInsightReport,
-  default: {
-    fixFakeLinkIssue,
-    addAriaAttribute,
-    addLangAttribute,
-    fixTableStructure,
-    addMainLandmark,
-    ensureUniqueLandmarks,
-    addSvgAccessibleNames,
-    addAltAttribute,
-    fixAccessibilityIssuesFromInsightReport
-  }
+  addressAccessibilityIssuesFromReport
 };

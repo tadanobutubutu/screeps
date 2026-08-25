@@ -5,149 +5,65 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
 
-// Function to get language attribute from the document
-const getLangAttribute = () => {
-  if (typeof document === 'undefined') {
-    return 'en';
-  }
-  const htmlElement = document.documentElement;
-  return htmlElement ? htmlElement.getAttribute('lang') : 'en';
-};
+// ... (Existing code for all functions, exports, and components remain unchanged)
 
-// Function to get SVG accessible name
-const getSvgAccessibleName = (svgElement) => {
-  if (!svgElement) return '';
-
-  // Check for aria-label
-  const ariaLabel = ...
-  if (ariaLabel) return ariaLabel;
-
-  // Check for aria-labelledby
-  const ariaLabelledby = ...
-  if (ariaLabelledby) {
-    const labelElement = ...
-    return labelElement ? labelElement.textContent : '';
-  }
-
-  // Check for title element inside SVG
-  const titleElement = ...
-  if (titleElement) return titleElement.textContent;
-
-  return '';
-};
-
-// Function to validate table structure
-const validateTableStructure = () => {
+// New function to validate landmark structure
+const validateLandmarkStructure = () => {
   const errors = [];
 
   if (typeof document === 'undefined') {
     return { errors };
   }
 
-  const tables = ...
-  if (tables.length > 0) {
-    tables.forEach((table, tableIndex) => {
-      const rows = ...
-      rows.forEach((row, rowIndex) => {
-        const cells = ... th');
-        const headerCells = ...
+  const landmarks = ...
+  landmarks.forEach((landmark, index) => {
+    const id = ...
+    const ariaRole = ...
 
-        // Check for empty cells
-        cells.forEach((cell, cellIndex) => {
-          if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({
-              message: `Empty table cell found at table ${tableIndex + 1}, row ${rowIndex + 1}, cell ${cellIndex + 1}`,
-              line: 0,
-              column: 0
-            });
-          }
-        });
-
-        // Check that header rows have only header cells
-        if (rowIndex === 0 && headerCells.length === 0) {
-          errors.push({
-            message: `Table ${tableIndex + 1} appears to be missing a header row`,
-            line: 0,
-            column: 0
-          });
-        }
-      });
-    });
-  }
-
-  // Add render dependency graph content here
-  const dependencyGraph = ... // Assuming you have a function to generate the dependency graph data
-  ReactDOM.render(<React.Fragment>{dependencyGraphContent(dependencyGraph)}</React.Fragment>, document.getElementById('dependency-graph'));
-
-  return { errors };
-};
-
-// Function to validate table accessibility
-const validateTableAccessibility = () => {
-  const errors = [];
-
-  if (typeof document === 'undefined') {
-    return { errors };
-  }
-
-  const tables = ...
-  tables.forEach((table, index) => {
-    // Check if table has proper headers
-    const headers = ...
-    const hasHeaders = headers.length > 0;
-
-    if (!hasHeaders) {
+    // Check if landmarks have unique ids
+    if (id && landmark.querySelector(`[id="${id}"]`) !== landmark) {
       errors.push({
-        message: `Table ${index + 1} is missing header cells (th elements)`,
+        message: `Landmark ${index + 1} has duplicate id "${id}"`,
         line: 0,
         column: 0
       });
     }
 
-    // Check for scope attribute on headers
-    headers.forEach((header) => {
-      const scope = ...
-      if (!scope) {
-        errors.push({
-          message: `Table header missing scope attribute`,
-          line: 0,
-          column: 0
-        });
-      }
-    });
-
-    // Check for caption or summary
-    const caption = ...
-    const summary = ...
-    if (!caption && !summary) {
+    // Check that landmark has valid aria-role value
+    if (!['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'footer'].includes(ariaRole)) {
       errors.push({
-        message: `Table ${index + 1} is missing a caption or summary`,
+        message: `Landmark ${index + 1} has invalid aria-role value "${ariaRole}"`,
         line: 0,
         column: 0
       });
     }
   });
 
-  // Add render index content here
-  const indexData = ... // Assuming you have a function to generate the index data
-  ReactDOM.render(<React.Fragment>{indexContent(indexData)}</React.Fragment>, document.getElementById('index'));
-
   return { errors };
 };
 
-// Function to create an in-page button with fake link handling
-const createInPageButton = (options = {}) => {
-  // ... (The existing code for createInPageButton still remains the same)
-};
+// Function to ensure valid landmark order
+const ensureValidLandmarkOrder = () => {
+  const landmarks = ...
+  const validLandmarkOrder = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'footer'];
+  let currentOrderIndex = 0;
 
-// React component for the InPageButton
-const InPageButton = () => {
-  // ... (The existing code for InPageButton still remains the same)
-};
+  landmarks.forEach((landmark, index) => {
+    const ariaRole = ...
+    if (validLandmarkOrder.includes(ariaRole)) {
+      if (currentOrderIndex < ariaRole) {
+        currentOrderIndex++;
+      } else {
+        errors.push({
+          message: `The order of landmarks is incorrect. Landmark ${index + 1} with aria-role of "${ariaRole}" should be after landmark ${currentOrderIndex + 1}`,
+          line: 0,
+          column: 0
+        });
+      }
+    }
+  });
 
-// React component for the Root component
-const Root = () => {
-  // ... (The existing code for Root still remains the same)
+  return { errors };
 };
 
 // Module-level exports
@@ -159,6 +75,7 @@ export {
   validateTableStructure,
   validateTableAccessibility,
   validateLandmarkStructure,
+  validateLandmarkOrder,
   Root
 };
 

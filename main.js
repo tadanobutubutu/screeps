@@ -8,7 +8,7 @@ const getLangAttribute = () => {
   if (typeof document === 'undefined') {
     return 'en';
   }
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : 'en';
 };
 
@@ -203,7 +203,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -219,8 +219,8 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('[role="banner"]');
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const headerElements = document.querySelectorAll('header, [role="banner"]');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -231,7 +231,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('[role="contentinfo"]');
+  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -270,12 +270,12 @@ const Root = () => {
 
   // Validate table accessibility and check for unique landmarks
   const tableAccessibilityError = validateTableAccessibility();
-  if (tableAccessibilityError.errors.length > 0) {
+  if (tableAccessibilityError.errors && tableAccessibilityError.errors.length > 0) {
     console.error('Table accessibility errors:', tableAccessibilityError.errors);
   }
 
   const uniqueLandmarkError = validateLandmark();
-  if (uniqueLandmarkError.errors.length > 0) {
+  if (uniqueLandmarkError.errors && uniqueLandmarkError.errors.length > 0) {
     console.error('Landmark errors:', uniqueLandmarkError.errors);
   }
 
@@ -301,4 +301,32 @@ const Root = () => {
             id: 'unrotate',
             label: 'Rotate back',
             onClick: handleRotateBack,
-            ariaLabel
+            ariaLabel: 'Rotate back to previous view'
+          }),
+          React.createElement('div', { className: 'controls' },
+            React.createElement('button', {
+              id: 'rotate-forward',
+              'aria-label': 'Rotate forward'
+            }, 'Rotate forward')
+          )
+        ),
+        React.createElement('footer', { role: 'contentinfo' },
+          'Footer content'
+        )
+      )
+    )
+  );
+};
+
+// Export all functions and components
+export {
+  getLangAttribute,
+  getSvgAccessibleName,
+  createInPageButton,
+  InPageButton,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  validateLandmark,
+  Root
+};

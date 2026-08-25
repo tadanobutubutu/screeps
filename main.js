@@ -215,8 +215,6 @@ const Root = () => {
 
 export {
   Root,
-  handleRotateBack,
-  newFunction,
   getLangAttribute,
   validateLandmark,
   validateLandmarkStructure,

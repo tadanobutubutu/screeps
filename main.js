@@ -13,7 +13,7 @@ function renderContent(contentType) {
       // Render dependency graph content using the imported dependencyGraphContent
       function renderDependencyGraphContent() {
         // Replace the existing content within the dependencyGraph div using the dependencyGraphContent.
-        const container = ...
+        const container = document.getElementById('dependencyGraph');
         if (container) {
           container.innerHTML = dependencyGraphContent;
         }
@@ -25,7 +25,7 @@ function renderContent(contentType) {
       // Render index content
       function renderIndexContent() {
         // Get the container for index content
-        const container = ...
+        const container = document.getElementById('indexContent');
         // Update the container with the indexContent from index.js
         if (container) {
           container.innerHTML = indexContent;
@@ -51,39 +51,45 @@ function addProperLandmarkRegions() {
   // This includes <header>, <nav>, <main>, and <footer> elements
   // wrapping the corresponding sections of the page.
 
+  // REACT_015: Ensure the html element has a lang attribute for accessibility
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+
   // Ensure a <header> landmark exists at the top of the body
-  let header = ...
+  let header = document.querySelector('header');
   if (!header) {
     header = document.createElement('header');
-    ...
+    document.body.prepend(header);
   }
 
   // Ensure a <nav> landmark exists for navigation
-  let nav = ...
+  let nav = document.querySelector('nav');
   if (!nav) {
-    nav = ...
+    nav = document.createElement('nav');
     header.appendChild(nav);
   }
 
   // Ensure a <main> landmark exists for primary content
-  let main = ...
+  let main = document.querySelector('main');
   if (!main) {
-    main = ...
+    main = document.createElement('main');
     // Move existing body children (except header/footer) into <main>
-    const children = ...
+    const children = Array.from(document.body.children);
     children.forEach((child) => {
-      if (child !== header && child.tagName !== 'FOOTER') {
+      if (child !== header && child.tagName !== 'FOOTER' && child.tagName !== 'NAV') {
         main.appendChild(child);
       }
     });
-    ...
+    document.body.appendChild(main);
   }
 
   // Ensure a <footer> landmark exists at the bottom of the body
-  let footer = ...
+  let footer = document.querySelector('footer');
   if (!footer) {
     footer = document.createElement('footer');
-    ...
+    document.body.appendChild(footer);
   }
 }
 

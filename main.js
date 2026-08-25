@@ -228,7 +228,7 @@ function addressAccessibilityIssuesFromReport(reportPath) {
   console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
 }
 
-// Export DOM-based functions
+// Export DOM-based functions (for browser environments)
 exports.initialize = initialize;
 exports.getFilePath = getFilePath;
 exports.makeElementAccessible = makeElementAccessible;

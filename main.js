@@ -1,1 +1,1 @@
-Once you provide the actual file content, I'll add the scope attributes to all 26 `<th>` elements while preserving all existing code and ensuring the syntax remains valid.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

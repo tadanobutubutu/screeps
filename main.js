@@ -64,3 +64,61 @@ fixLandmarkIssues();
 
 // Ensure that fake link issue is fixed
 fixFakeLinkIssue();
+
+// REACT_017: Fix React Landmarks - Add <main> landmark to pages
+function fixReactLandmarks() {
+  const mainElements = document.querySelectorAll('main');
+  
+  // Check if <main> landmark already exists
+  if (mainElements.length === 0) {
+    // Get the first child of body to wrap with main
+    const body = document.body;
+    if (body && body.firstChild) {
+      const main = document.createElement('main');
+      let currentChild = body.firstChild;
+      
+      // Move content until we hit another landmark (header, nav, footer)
+      while (currentChild) {
+        const tagName = currentChild.tagName ? currentChild.tagName.toLowerCase() : '';
+        if (['header', 'nav', 'main', 'footer', 'aside'].includes(tagName)) {
+          break;
+        }
+        const nextSibling = currentChild.nextSibling;
+        main.appendChild(currentChild);
+        currentChild = nextSibling;
+      }
+      
+      // Insert main element at the beginning of body
+      if (main.firstChild) {
+        body.insertBefore(main, body.firstChild);
+      }
+    }
+  }
+  
+  // Ensure only one <main> landmark per page (for REACT_017)
+  const allMains = document.querySelectorAll('main');
+  if (allMains.length > 1) {
+    // Keep the first main and merge content of additional mains into it
+    const primaryMain = allMains[0];
+    for (let i = 1; i < allMains.length; i++) {
+      while (allMains[i].firstChild) {
+        primaryMain.appendChild(allMains[i].firstChild);
+      }
+      allMains[i].parentNode.removeChild(allMains[i]);
+    }
+  }
+  
+  return document.querySelectorAll('main').length > 0;
+}
+
+// Export the function for external use
+module.exports.fixReactLandmarks = fixReactLandmarks;
+
+// Run the fix on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fixReactLandmarks);
+  } else {
+    fixReactLandmarks();
+  }
+}

@@ -184,7 +184,8 @@ function validateLandmark() {
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
-    if (link.href === '#' || !link.href) {
+    const hrefAttr = link.getAttribute('href');
+    if (hrefAttr === '#' || !hrefAttr) {
       // Replace the link with a button for in-page actions
       const button = document.createElement('button');
       button.textContent = link.textContent;

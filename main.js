@@ -95,7 +95,7 @@ module.exports = {
   fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue,
   newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue,
-  addProperLandmarkRegions: addProperLandmarkRegions // Add the new export here
+  addProperLandmarkRegions: addProperLandmarkRegions
 };
 
 // ADDING THE EXPORTS FOR THE NEW FUNCTIONS

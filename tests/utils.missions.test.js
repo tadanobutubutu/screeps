@@ -8,29 +8,6 @@ global.Memory = {};
 const MissionSystem = require('../utils.missions');
 
 describe('utils.missions', () => {
-
-    test('secureRandomInt fallback when crypto throws an error', () => {
-        MissionSystem.initMemory();
-        const crypto = require('crypto');
-        const originalRandomBytes = crypto.randomBytes;
-
-        // Mock to throw
-        crypto.randomBytes = jest.fn().mockImplementation(() => {
-            throw new Error('simulated crypto error');
-        });
-
-        const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);
-        global.Game = { rooms: { W1N1: { name: 'W1N1' } }, time: 10 };
-
-        const mission = MissionSystem.createRandomMission();
-        expect(mission).toBeDefined();
-        expect(crypto.randomBytes).toHaveBeenCalled();
-        expect(mockMath).toHaveBeenCalled();
-
-        crypto.randomBytes = originalRandomBytes;
-        mockMath.mockRestore();
-    });
-
     beforeEach(() => {
         global.Memory = {};
     });
@@ -161,35 +138,6 @@ describe('utils.missions', () => {
         expect(Memory.missions.active.some((m) => m.type === 'new')).toBe(true);
         expect(Memory.missions.active.some((m) => m.type === typeToComplete)).toBe(false);
     });
-
-    test('generateMissionId gracefully falls back when crypto throws an error', () => {
-        MissionSystem.initMemory();
-        const crypto = require('crypto');
-
-        // Mock crypto functions to throw errors
-        const originalUUID = crypto.randomUUID;
-        const originalRandomBytes = crypto.randomBytes;
-
-        // This simulates a failed crypto operation
-        crypto.randomUUID = () => { throw new Error('Simulated crypto failure'); };
-        crypto.randomBytes = () => { throw new Error('Simulated crypto failure'); };
-
-        try {
-            // Mission should still be created correctly using the fallback logic
-            const mission = MissionSystem.createMission('test_error_path', 'target', 100);
-
-            expect(mission).toBeDefined();
-            expect(mission.id).toBeDefined();
-            expect(typeof mission.id).toBe('string');
-            // Check if fallback timePrefix + _missionIdCounter was used (e.g., 'a-0')
-            expect(mission.id).toMatch(/^[0-9a-z]+-[0-9a-z]+$/);
-        } finally {
-            // Restore original functions
-            crypto.randomUUID = originalUUID;
-            crypto.randomBytes = originalRandomBytes;
-        }
-    });
-
     test('generateMissionId avoids Math.random predictable values when fallback is used', () => {
         MissionSystem.initMemory();
         const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);

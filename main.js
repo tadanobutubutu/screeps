@@ -1,94 +1,47 @@
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// Import the indexContent from src/index.js
+import { indexContent } from './src/index';
 
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// ... (Existing imports and functions)
 
-// TODO: Import required module( - for fixing table structure issues
-import { autoFixTable } from 'table-auto-fix';
-
-// Add the new function to the existing functions in main.js
-function fixTableStructureIssues() {
-  // Fix table structure issues using the autoFixTable function
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    autoFixTable(table);
-  });
-}
-
-// TODO: Import required module( - for fixing table header cell scope
-import { addScopeToTH } from 'table-auto-fix';
-
-// Add a new function to fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Ensure each table header cell has a scope attribute
-  const tableHeaders = document.querySelectorAll('th');
-  addScopeToTH(tableHeaders);
-}
-
-// Preserve the rest of the existing main.js code
-const dependencyGraph = document.getElementById('dependency-graph');
-if (dependencyGraph) {
-  dependencyGraph.setAttribute('role', 'region');
-  dependencyGraph.setAttribute('aria-label', 'Dependency Tree');
-  dependencyGraph.innerHTML = '';
-  dependencyGraph.className = 'dependency-tree';
-  dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-}
-
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.getElementById('dependency-graph');
-  if (container) {
-    container.innerHTML = data;
+// Add a new function to render dependency graph content or index view, as needed
+function renderContent(contentType) {
+  switch (contentType) {
+    case 'dependency-graph':
+      // Render dependency graph content
+      function renderDependencyGraphContent(data) {
+        // Replace the existing content within the dependencyGraph div using the provided data.
+        const container = document.getElementById('dependency-graph');
+        if (container) {
+          container.innerHTML = data;
+        }
+      }
+      // Call the updated renderDependencyGraphContent function
+      renderDependencyGraphContent(/* data or function that generates data */);
+      break;
+    case 'index':
+      // Render index content
+      function renderIndexContent() {
+        // Get the container for index content
+        const container = document.getElementById('index-container');
+        // Update the container with the indexContent from index.js
+        container.innerHTML = indexContent;
+      }
+      // Call the renderIndexContent function
+      renderIndexContent();
+      break;
+    // Add more cases as needed for other types of content
+    default:
+      throw new Error(`Unsupported content type: ${contentType}`);
   }
 }
 
-// Ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks goes here.
-  const landmarks = document.querySelectorAll('[role="banner"], [role="contentinfo"]');
-  const seen = new Set();
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (seen.has(role)) {
-      landmark.removeAttribute('role');
-    } else {
-      seen.add(role);
-    }
-  });
-}
-
-// Fix fake link issue
-function fixFakeLinks() {
-  // Implementation for fixing fake link issues goes here.
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-    if (link.getAttribute('href') === '#' && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Button');
-    }
-  });
-}
-
-// Fix for Issue: Add exports for new functions if needed in main.js
-module.exports = {
-  renderDependencyGraphContent,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope
-};
-
-// Call renderGraphContent function from another file
-const { renderGraphContent } = require('./graphRenderer');
+// Update the existing `renderGraphContent` function to call `renderContent` function instead
 if (dependencyGraph) {
-  renderGraphContent(dependencyGraph);
+  renderContent('dependency-graph'); // or call with data that generates the dependency graph
 }
+
+// Export renderContent function for better maintainability
+module.exports = {
+  ... // Existing exports
+  renderContent // Add renderContent to the list of exports
+};

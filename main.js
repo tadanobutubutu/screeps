@@ -22,12 +22,11 @@ function addLangAttribute() {
 function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    if (!existingThead) {
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headers = firstRow.querySelectorAll('th');
-        const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
           const th = document.createElement('th');
@@ -60,9 +59,10 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('.content') || document.body;
+    const content = document.querySelector('.content') || document.body.firstElementChild;
     if (content) {
-      main.appendChild(content.cloneNode(true));
+      main.appendChild(content);
+      document.body.insertBefore(main, content);
       content.remove();
     }
   } else {
@@ -125,8 +125,8 @@ function ensureUniqueLandmarks() {
         while (main.firstChild) {
           section.appendChild(main.firstChild);
         }
-        const attributes = main.attributes;
-        Array.from(attributes).forEach(attr => {
+        const attributes = Array.from(main.attributes);
+        attributes.forEach(attr => {
           if (attr.name !== 'aria-label') {
             section.setAttribute(attr.name, attr.value);
           }
@@ -139,7 +139,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], a[href][href="#"], a[href][href=""]');
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href][href="#"], a[href][href=""], div.clickable');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

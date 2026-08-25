@@ -14,7 +14,6 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
@@ -27,7 +26,7 @@ skipLink.addEventListener('click', (e) => {
 });
 
 // Mark the main content area as a primary region
-const mainElement = document.querySelector('main') || document.getElementById('content') || document.querySelector('[role="main"]');
+const mainElement = document.getElementById('main') || document.getElementById('content') || document.querySelector('main');
 if (mainElement) {
   mainElement.id = 'main-content';
   mainElement.setAttribute('role', 'main');
@@ -35,23 +34,37 @@ if (mainElement) {
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  const insightReportUrl = 'https://api.example.com/accessibility-report';
+  const insightReportUrl = './insight-report.json';
 
-  const response = await fetchAPI(insightReportUrl);
-  const accessibilityIssues = response.data || response;
+  try {
+    const response = await fetchAPI(insightReportUrl);
+    const accessibilityIssues = response.data || response;
 
-  accessibilityIssues.forEach((issue) => {
-    switch (issue.type) {
-      case 'missing-caption':
-        addCaptionToTable(issue.element);
-        break;
-      case 'table-no-unique-id':
-        addUniqueIdToTable(issue.element);
-        break;
-      default:
-        console.warn(`Unhandled accessibility issue type: ${issue.type}`);
-    }
-  });
+    accessibilityIssues.forEach((issue) => {
+      switch (issue.type) {
+        case 'missing-caption':
+          if (issue.selector) {
+            const table = document.querySelector(issue.selector);
+            if (table) {
+              addCaptionToTable(table);
+            }
+          }
+          break;
+        case 'table-no-unique-id':
+          if (issue.selector) {
+            const table = document.querySelector(issue.selector);
+            if (table) {
+              addUniqueIdToTable(table);
+            }
+          }
+          break;
+        default:
+          console.warn(`Unhandled accessibility issue type: ${issue.type}`);
+      }
+    });
+  } catch (err) {
+    console.error('Error addressing accessibility issues:', err);
+  }
 }
 
 // New function to add a caption to a missing table

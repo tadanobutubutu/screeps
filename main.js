@@ -5,6 +5,9 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_038: Render dependency graphs (DONE: renderDependencyGraph)
+// - REACT_039: Add banner and contentinfo landmarks if missing in the content (DONE: addMissingLandmarks)
 //
 const { dependencyGraphContent, indexContent } = require('./content');
 

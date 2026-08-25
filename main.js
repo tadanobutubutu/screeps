@@ -14,8 +14,8 @@ const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
 //   <thead>
 //     <tr>
 //       <th><div>src/constants.js</div></th>
-//       <th><div>src/managers/roomManager.js</div></th>
-//       <th><div>src/managers/spawnManager.js</div></th>
+//       ...
+//       ...
 //       <!-- ... -->
 //     </tr>
 //   </thead>
@@ -28,9 +28,9 @@ const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
 // <table>
 //   <thead>
 //     <tr>
-//       <th scope="col"><div>src/constants.js</div></th>
-//       <th scope="col"><div>src/managers/roomManager.js</div></th>
-//       <th scope="col"><div>src/managers/spawnManager.js</div></th>
+//       <th ...
+//       <th ...
+//       <th ...
 //       <!-- ... -->
 //     </tr>
 //   </thead>
@@ -41,7 +41,7 @@ const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
 
 // You would render the updated HTML like this:
 // res.send(`
-//   ${dependencyGraphHtml}
+//   ...
 // `);
 
 // ... (other code)

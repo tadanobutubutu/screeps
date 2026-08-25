@@ -15,14 +15,14 @@ const indexModule = require('./indexModule');
 function dependencyGraphFunction() {
   const { dependencyGraphContent } = dependencyGraphModule;
   // ... existing code for rendering the dependency graph
-  return dependencyGraphContent;
+  return `<main>${dependencyGraphContent}</main>`;
 }
 
 // Update indexFunction to import and use indexContent directly
 function indexFunction() {
   const { indexContent } = indexModule;
   // ... existing code for rendering the index view
-  return indexContent;
+  return `<main>${indexContent}</main>`;
 }
 
 // ... other functions and exports

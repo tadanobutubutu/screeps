@@ -6,7 +6,7 @@
  * @returns {void}
  */
 function addAriaLabelledbyIfNeeded(elem) {
-  if (!elem.hasAttribute('aria-labelledby')) {
+  if (elem) {
     const ids = [];
     const quasiIds = [];
 
@@ -18,10 +18,16 @@ function addAriaLabelledbyIfNeeded(elem) {
       if (current.getAttribute('id')) {
         ids.push(current.getAttribute('id'));
       }
-      if (current.getAttribute('aria-labelledby')) {
-        quasiIds.push(...current.getAttribute('aria-labelledby').split(/\s+/));
+      if (current.hasAttribute('data-quasi-id')) {
+        quasiIds.push(current.getAttribute('data-quasi-id'));
       }
-      Array.from(current.children).forEach((child) => collectIds(child));
+      const children = current.children;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE') {
+          collectIds(child);
+        }
+      }
     };
 
     collectIds(elem);
@@ -37,36 +43,56 @@ function addAriaLabelledbyIfNeeded(elem) {
 
 // Add a new function for adding `aria-labelledby` to elements on initialization
 function initAriaLabels() {
-  document.querySelectorAll('[aria-labelledby]').forEach((elem) => {
-    const id = elem.getAttribute('aria-labelledby');
-    const labels = document.querySelectorAll(`#${id}`);
+  const elements = document.querySelectorAll('[data-init-aria-labels]');
+  elements.forEach((elem) => {
+    const id = elem.id || 'aria-label-' + Math.random().toString(36).substr(2, 9);
+    elem.id = id;
+    const labels = elem.querySelectorAll('label');
     labels.forEach((label) => {
       elem.setAttribute('aria-label', label.textContent);
     });
+    addAriaLabelledbyIfNeeded(elem);
   });
-
-  // Also apply aria-labelledby to all elements that lack it
-  document.querySelectorAll('*').forEach(addAriaLabelledbyIfNeeded);
 }
 
 // Update the event listener for the rotate button
-const myButton = document.getElementById('rotate');
-addAriaLabel(myButton, 'Rotate image clockwise');
-myButton.addEventListener('click', rotate);
+const myButton = document.getElementById('rotate-btn');
+if (myButton) {
+  addAriaLabel(myButton, 'Rotate image clockwise');
+  myButton.addEventListener('click', rotate);
+}
 
 // Update the event listener for the unrotate button
-const unrotateButton = document.getElementById('unrotate');
-addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
-unrotateButton.addEventListener('click', rotateBack);
+const unrotateButton = document.getElementById('unrotate-btn');
+if (unrotateButton) {
+  addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
+  unrotateButton.addEventListener('click', rotateBack);
+}
 
 // Add a new function for validating landmark structure
 function validateLandmarkStructure(landmark) {
   // Check if landmark structure is valid
-  const isLandmark = landmark.hasAttribute('role') && ['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'search'].includes(landmark.getAttribute('role'));
+  const validRoles = ['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'main', 'search', 'region'];
+  const role = landmark.getAttribute('role');
+  const isLandmark = role && validRoles.includes(role.toLowerCase());
+
+  // Check for proper heading hierarchy within the landmark
+  const headings = landmark.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  let hasValidHeadingStructure = true;
+  
+  headings.forEach((heading) => {
+    const tagName = heading.tagName.toLowerCase();
+    const level = parseInt(tagName.replace('h', ''), 10);
+    if (previousLevel > 0 && level > previousLevel + 1) {
+      hasValidHeadingStructure = false;
+    }
+    previousLevel = level;
+  });
 
   // ... (You can add further checks for landmark's properties here, if needed)
 
-  return isLandmark;
+  return isLandmark && hasValidHeadingStructure;
 }
 
 // Update validateLandmark to use the validateLandmarkStructure function
@@ -79,6 +105,15 @@ function validateLandmark(landmark) {
 
   if (!validateLandmarkStructure(landmark)) {
     issues.push(`Landmark has invalid structure`);
+  }
+
+  // Check for accessible name
+  const role = landmark.getAttribute('role');
+  const ariaLabel = landmark.getAttribute('aria-label');
+  const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+  
+  if (!ariaLabel && !ariaLabelledby && role !== 'banner' && role !== 'main') {
+    issues.push('Landmark is missing accessible name');
   }
 
   // ... (Rest of the existing validateLandmark function)
@@ -108,10 +143,30 @@ function validateLandmarks(landmarks) {
 
 // Add a new function for getting the SVG accessible name
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement || !svgElement.querySelector('title')) {
+  if (!svgElement || svgElement.tagName !== 'svg') {
     return '';
   }
-  return svgElement.querySelector('title').textContent;
+  
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
+  }
+  
+  // Check for title element inside SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement) {
+    return titleElement.textContent;
+  }
+  
+  return '';
 }
 
 // Implement createInPageButton functionality

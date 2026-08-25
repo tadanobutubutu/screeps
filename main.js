@@ -84,14 +84,20 @@ function fixTableStructureIssues() {
   document.querySelectorAll('table').forEach(table => {
     // Ensure thead exists; move the first row (assumed header) into it
     if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.rows[0];
-      thead.appendChild(firstRow);
-      const tbody = table.querySelector('tbody');
-      if (tbody) {
-        table.insertBefore(thead, tbody);
-      } else {
+      if (table.rows.length === 0) {
+        // Create empty thead for tables with no rows
+        const thead = document.createElement('thead');
         table.appendChild(thead);
+      } else {
+        const thead = document.createElement('thead');
+        const firstRow = table.rows[0];
+        thead.appendChild(firstRow);
+        const tbody = table.querySelector('tbody');
+        if (tbody) {
+          table.insertBefore(thead, tbody);
+        } else {
+          table.appendChild(thead);
+        }
       }
     }
     // Set scope='col' and role='colheader' on all th elements

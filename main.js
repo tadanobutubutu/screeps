@@ -125,6 +125,16 @@ const renderPage = function(content) {
     return result;
 };
 
+// New function 1
+const newFunction1 = function() {
+    // Implementation for newFunction1
+};
+
+// New function 2
+const newFunction2 = function() {
+    // Implementation for newFunction2
+};
+
 // Export all functions
 module.exports = {
     addLangAttribute,
@@ -136,5 +146,7 @@ module.exports = {
     addProperLandmarkRegions,
     renderDependencyGraph,
     addMissingLandmarks,
-    renderPage
+    renderPage,
+    newFunction1,
+    newFunction2
 };

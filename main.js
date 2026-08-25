@@ -21,7 +21,13 @@ function formatDate(date) {
 }
 
 function validateInput(input) {
-  return helpers.validate(input);
+  if (input === null || input === undefined) {
+    return false;
+  }
+  if (typeof input === 'string' && input.trim() === '') {
+    return false;
+  }
+  return true;
 }
 
 // TODO: Implement remaining exports
@@ -33,7 +39,7 @@ function calculateTotal(items) {
 }
 
 function generateId() {
-  return Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 }
 
 function mergeObjects(target, source) {
@@ -42,7 +48,7 @@ function mergeObjects(target, source) {
 
 function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);

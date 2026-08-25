@@ -32,6 +32,19 @@ if (mainElement) {
 
 // Additional changes to address accessibility issues:
 
+// ** NEW CODE **
+// Add alt text for images without
+function addAltText(image) {
+  if (!image.alt && image.src) {
+    image.alt = "Image Description";
+  }
+}
+
+// Find all images and apply alt text
+document.querySelectorAll('img').forEach(addAltText);
+
+// ** END NEW CODE **
+
 // React Language Attribute - Ensure that the language attribute is set on the HTML element
 document.documentElement.setAttribute('lang', 'en');
 

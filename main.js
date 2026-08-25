@@ -18,7 +18,7 @@ function existingFunction() {
 }
 
 function wrapInMainLandmark(content) {
-    return `<main>\n${content}\n</main>`;
+    return `<main lang="en" data-testid="main-landmark">\n${content}\n</main>`;
 }
 
 function wrapContentInMain() {
@@ -45,9 +45,9 @@ function wrapTableInMain() {
     return wrapInMainLandmark(tableContent);
 }
 
-module.exports = { 
-    existingFunction, 
-    newFunction1, 
+module.exports = {
+    existingFunction,
+    newFunction1,
     newFunction2,
     wrapInMainLandmark,
     wrapContentInMain,

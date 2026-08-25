@@ -3,21 +3,69 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Other imports...
-
 // Function to get language attribute from the document
 const getLangAttribute = () => {
-  // ... existing function code ...
+  if (typeof document === 'undefined') {
+    return 'en';
+  }
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') : 'en';
 };
 
 // Function to get SVG accessible name
 const getSvgAccessibleName = (svgElement) => {
-  // ... existing function code ...
+  if (!svgElement) return '';
+  
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
+  }
+  
+  // Check for title element inside SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement) return titleElement.textContent;
+  
+  return '';
 };
 
 // Function to create an in-page button with fake link handling
 const createInPageButton = (options = {}) => {
-  // ... existing function code ...
+  const {
+    id,
+    label,
+    onClick,
+    className,
+    ariaLabel,
+    type = 'button',
+    disabled = false,
+    href = '#'
+  } = options;
+
+  const button = document.createElement('button');
+  button.id = id;
+  button.textContent = label;
+  button.className = className || '';
+  button.type = type;
+  button.disabled = disabled;
+  button.setAttribute('aria-label', ariaLabel || label);
+
+  button.addEventListener('click', (e) => {
+    if (href && href !== '#') {
+      e.preventDefault();
+      window.location.href = href;
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  });
+
+  return button;
 };
 
 // React component for in-page button
@@ -28,28 +76,68 @@ const InPageButton = ({
   className,
   ariaLabel,
   type = 'button',
-  disabled = false
+  disabled = false,
+  href
 }) => {
-  // ... existing function code ...
+  const handleClick = (e) => {
+    if (href && href !== '#' && !disabled) {
+      e.preventDefault();
+      window.location.href = href;
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
+  return (
+    <button
+      id={id}
+      type={type}
+      className={className}
+      disabled={disabled}
+      aria-label={ariaLabel || label}
+      onClick={handleClick}
+    >
+      {label}
+    </button>
+  );
 };
 
-// New function — validateTableStructure (for example purposes)
+// Function to validate table structure
 const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
   const errors = [];
 
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
+  if (typeof document === 'undefined') {
+    return { errors };
+  }
+
+  const tables = document.querySelectorAll('table');
   if (tables.length > 0) {
-    tables.forEach((table) => {
+    tables.forEach((table, tableIndex) => {
       const rows = table.querySelectorAll('tr');
-      rows.forEach((row) => {
+      rows.forEach((row, rowIndex) => {
         const cells = row.querySelectorAll('td, th');
-        cells.forEach((cell) => {
+        const headerCells = row.querySelectorAll('th');
+        
+        // Check for empty cells
+        cells.forEach((cell, cellIndex) => {
           if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
+            errors.push({ 
+              message: `Empty table cell found at table ${tableIndex + 1}, row ${rowIndex + 1}, cell ${cellIndex + 1}`, 
+              line: 0, 
+              column: 0 
+            });
           }
         });
+
+        // Check that header rows have only header cells
+        if (rowIndex === 0 && headerCells.length === 0) {
+          errors.push({
+            message: `Table ${tableIndex + 1} appears to be missing a header row`,
+            line: 0,
+            column: 0
+          });
+        }
       });
     });
   }
@@ -81,7 +169,8 @@ const validateTableAccessibility = () => {
 
     // Check for scope attribute on headers
     headers.forEach((header) => {
-      if (!header.getAttribute('scope')) {
+      const scope = header.getAttribute('scope');
+      if (!scope) {
         errors.push({
           message: `Table header missing scope attribute`,
           line: 0,
@@ -157,43 +246,17 @@ const validateLandmarkStructure = () => {
 // Alias for backwards compatibility
 const validateLandmark = validateLandmarkStructure;
 
-// New function — validateTableStructure (for example purposes)
-const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
-  const errors = [];
-
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
-  if (tables.length > 0) {
-    tables.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
-      rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
-        cells.forEach((cell) => {
-          if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
-          }
-        });
-      });
-    });
-  }
-
-  return { errors };
-};
-
 // React component for the Root component
 const Root = () => {
-  // Other component code...
-
-  // ... Keep existing code here
-
   const handleRotateBack = () => {
     // Logic to rotate back
+    console.log('Rotate back clicked');
   };
 
   // New function for example purposes
   const newFunction = () => {
     // Logic for the new function
+    console.log('New function clicked');
   };
 
   // Get the language attribute for the html element
@@ -202,38 +265,56 @@ const Root = () => {
   // Add new validateTableStructure function validation
   const tableStructureError = validateTableStructure();
   if (tableStructureError.errors.length > 0) {
-    console.error(tableStructureError.errors);
+    console.error('Table structure errors:', tableStructureError.errors);
   }
 
-  // Validate table accessibility and check for unique landmarks (2 issues)
+  // Validate table accessibility and check for unique landmarks
   const tableAccessibilityError = validateTableAccessibility();
   if (tableAccessibilityError.errors.length > 0) {
-    console.error(tableAccessibilityError.errors);
+    console.error('Table accessibility errors:', tableAccessibilityError.errors);
   }
 
-  const uniqueLandmarkError = validateLandmarkStructure();
+  const uniqueLandmarkError = validateLandmark();
   if (uniqueLandmarkError.errors.length > 0) {
-    console.error(uniqueLandmarkError.errors);
+    console.error('Landmark errors:', uniqueLandmarkError.errors);
   }
 
   // Add validateLandmark validation
   const landmarkError = validateLandmark();
   if (!landmarkError.valid) {
-    console.error(landmarkError.errors);
+    console.error('Landmark validation errors:', landmarkError.errors);
   }
 
   return (
     <html lang={lang || 'en'}>
-      {/* Other JSX elements... */}
-      <main>
-        <InPageButton
-          id="unrotate"
-          label="Rotate back"
-          onClick={handleRotateBack}
-        />
-        {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
-      </main>
+      <head>
+        <title>Accessibility Report</title>
+      </head>
+      <body>
+        <header role="banner">
+          <nav role="navigation">
+            {/* Navigation content */}
+          </nav>
+        </header>
+        <main role="main">
+          <InPageButton
+            id="unrotate"
+            label="Rotate back"
+            onClick={handleRotateBack}
+            ariaLabel="Rotate back to original view"
+          />
+          {/* Example usage of new function */}
+          <InPageButton 
+            id="new-function"
+            onClick={newFunction} 
+            label="New Function"
+            ariaLabel="Execute new function"
+          />
+        </main>
+        <footer role="contentinfo">
+          {/* Footer content */}
+        </footer>
+      </body>
     </html>
   );
 };
@@ -247,7 +328,7 @@ export {
   getSvgAccessibleName,
   createInPageButton,
   InPageButton,
-  validateTableStructure // Export the new validateTableStructure function
+  validateTableStructure
 };
 
 ReactDOM.render(<Root />, document.getElementById('root'));

@@ -55,7 +55,7 @@ const App = () => {
                 </tr>
               </tbody>
             </table>
-            ... 'Accessible SVG 1', (
+            {createIcon('Accessible SVG 1', (
               <circle cx="50" cy="50" r="40" />
             ))}
           </div>
@@ -88,9 +88,9 @@ const createIconForTest = () => createIcon({
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = ...
+  const unrotateBtn = document.getElementById('unrotate');
   if (unrotateBtn) {
-    ... () => {
+    unrotateBtn.addEventListener('click', () => {
       // rotation logic here
     });
   }
@@ -98,9 +98,9 @@ const setupRotateBack = () => {
 
 // Initialize the application on the client side
 if (typeof document !== 'undefined') {
-  ... () => {
+  document.addEventListener('DOMContentLoaded', () => {
     setupRotateBack(); // Ensure button wiring after DOM is ready
-    const rootElement = ...
+    const rootElement = document.getElementById('root');
     if (rootElement) {
       ReactDOM.render(<App />, rootElement);
     }

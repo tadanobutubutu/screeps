@@ -1,7 +1,9 @@
 // main.js
 
+// TODO: Add back any required exports that might have been?
+
 // Existing code preserved
-const img = document.getElementById('target');
+const img = document.getElementById('main-img') || { style: {} };
 let rotation = 0;
 
 // Import dependency graph and index content modules
@@ -44,16 +46,16 @@ export function ensureUniqueLandmarks(container = document) {
   const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
   const seenIds = new Set();
 
-  landmarks.forEach((landmarkName) => {
-    const elements = container.querySelectorAll(landmarkName);
+  landmarks.forEach((tagName) => {
+    const elements = container.getElementsByTagName(tagName);
     elements.forEach((element) => {
       let id = element.id;
       if (!id) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+        id = 'landmark-' + tagName + '-' + Math.random().toString(36).substring(2, 9);
         element.id = id;
       }
       if (seenIds.has(id)) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
+        id = 'landmark-' + tagName + '-' + Math.random().toString(36).substring(2, 9);
         element.id = id;
       }
       seenIds.add(id);
@@ -85,10 +87,10 @@ export function addLandmarks(content) {
       };
     }
 
-    const navs = [...content.querySelectorAll('nav')];
+    const navs = content.querySelectorAll('nav');
     navs.forEach((nav, index) => {
-      if (!landmarkComponents[1]) {
-        navId = nav.id || nav.getAttribute('id') || nav.getAttribute('data-testid') || navId;
+      if (nav) {
+        navId = nav.id || nav.getAttribute('id') || nav.getAttribute('data-testid') || (navId + '-' + index);
         landmarkComponents[1] = {
           type: 'nav',
           props: {
@@ -104,7 +106,7 @@ export function addLandmarks(content) {
       }
     });
 
-    const main = content.querySelector('main');
+    const main = content.querySelector('main') || content.querySelector('[role="main"]');
     if (main) {
       mainId = main.id || main.getAttribute('id') || main.getAttribute('data-testid') || mainId;
       landmarkComponents[2] = {
@@ -157,6 +159,13 @@ const enhanceFocusVisibility = function() {
   document.head.appendChild(style);
 };
 
+function setLanguageAttribute(lang) {
+  const html = document.documentElement;
+  if (html) {
+    html.setAttribute('lang', lang);
+  }
+}
+
 const addressAccessibilityIssues = function() {
   // Function to address accessibility issues:
   // - REACT_015: Add lang attribute (already handled)
@@ -176,10 +185,10 @@ const addressAccessibilityIssues = function() {
 // ... (The remaining code from original main.js)
 
 // Attach event listeners
-document.getElementById('rotate').addEventListener('click', rotate);
-document.getElementById('unrotate').addEventListener('click', rotateBack);
+document.getElementById('rotate-btn').addEventListener('click', rotate);
+document.getElementById('rotate-back-btn').addEventListener('click', rotateBack);
 // New event listener for the toggle rotation functionality
-document.getElementById('toggle-rotate').addEventListener('click', toggleRotation);
+document.getElementById('toggle-rotation-btn').addEventListener('click', toggleRotation);
 
 // Export the new function if needed, otherwise preserve existing exports
 export { rotate, rotateBack, toggleRotation, ensureUniqueLandmarks, addLandmarks, enhanceFocusVisibility, addressAccessibilityIssues, createHtmlElement };

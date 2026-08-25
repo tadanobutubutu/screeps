@@ -23,7 +23,32 @@ function addLandmarkRoles() {
 
 function addSvgAccessibleNames() {
   // Add accessible names to SVGs
-  // ... (You'll need to update this function based on your specific SVG elements)
+  const contentWithAccessibleNames = content.replace(/<svg[^>]*>/g, (svg) => {
+    const ariaHiddenMatch = svg.match(/aria-hidden="[^"]*"/i);
+    const hasAriaHidden = ariaHiddenMatch ? ariaHiddenMatch[0] : '';
+    const svgWithAccessibleName = svg.replace(/<svg/g, `<svg ${hasAriaHidden}>`);
+
+    if (!hasAriaHidden) {
+      const ariaLabelMatch = svg.match(/aria-label="[^"]*"/i);
+      const hasAriaLabel = ariaLabelMatch ? ariaLabelMatch[0] : '';
+      const titleMatch = svg.match(/<title>(.*?)<\/title>/i);
+      const hasTitle = titleMatch ? titleMatch[0] : '';
+
+      if (!hasAriaLabel && !hasTitle) {
+        // Add aria-label or title if not present
+        if (titleMatch) {
+          return svgWithAccessibleName.replace(titleMatch[0], `<title>Svg Description</title>${titleMatch[0]}`);
+        } else {
+          return svgWithAccessibleName.replace(/<svg/g, `<svg aria-label="Svg Description">`);
+        }
+      }
+    }
+
+    return svgWithAccessibleName;
+  });
+
+  // Replace the original content with the updated one
+  content = contentWithAccessibleNames;
 }
 
 function ensureUniqueLandmarks() {

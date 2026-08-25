@@ -1,8 +1,14 @@
 // main.js - Screeps Game Logic
 
+/*
+ * Add ARIA role and labels for roles to improve screen reader accessibility
+ */
 var roleHarvester = {
     /** @param {Creep} creep **/
     run: function(creep) {
+        // ARIA role for roleHarvester
+        creep.A11yRole = 'SCREEPS_HARVESTER';
+
         if(creep.store.getFreeCapacity() > 0) {
             var sources = creep.room.find(FIND_SOURCES);
             if(creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -25,9 +31,15 @@ var roleHarvester = {
     }
 };
 
+/*
+ * Add ARIA role for roleUpgrader
+ */
 var roleUpgrader = {
     /** @param {Creep} creep **/
     run: function(creep) {
+        // ARIA role for roleUpgrader
+        creep.A11yRole = 'SCREEPS_UPGRADER';
+
         if(creep.store.getFreeCapacity() === 0) {
             if(creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#00ff00'}});

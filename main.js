@@ -1,13 +1,18 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 const { getHTML } = require('./utils');
-const { processDOM } = require('./dom-manipulation');
+const { processDOM } = require('./dom-utils');
 
 // Existing functions
 function addLangAttribute() {
-  processDOM(getHTML('setLangAttribute'), { lang: 'en' });
+  const htmlElement = document.documentElement;
+  htmlElement.setAttribute('lang', 'en');
 }
 
-function handleButtonClick(buttonId) {
-  const button = document.getElementById(buttonId);
+function handleButtonClick(event) {
+  const button = event.target.closest('[data-toggle]');
   if (button) {
     const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
     button.setAttribute('aria-expanded', isExpanded);
@@ -15,11 +20,11 @@ function handleButtonClick(buttonId) {
 }
 
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.dataset.href || fakeLink.getAttribute('href') || '#';
+      a.href = fakeLink.dataset.href || fakeLink.getAttribute('data-href') || '#';
       a.textContent = fakeLink.textContent;
       a.setAttribute('role', 'button');
       Array.from(fakeLink.attributes).forEach(attr => {
@@ -47,13 +52,13 @@ function addProperLandmarkRegions() {
    */
   const existingMains = document.querySelectorAll('main, [role="main"]');
   const existingBanners = document.querySelectorAll('header[role="banner"]');
-  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
+  const existingFooters = document.querySelectorAll('footer');
 
   if (existingMains.length === 0) {
     addLandmarkRegions();
   }
 
-  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
 
   if (!contentContainer.closest('main, [role="main"], header[role="banner"]')) {
     if (contentContainer === document.body) {
@@ -61,15 +66,17 @@ function addProperLandmarkRegions() {
     } else {
       const mainElementOrBanner = document.createElement('main');
       mainElementOrBanner.setAttribute('role', 'main');
-      contentContainer.appendChild(mainElementOrBanner);
+      contentContainer.parentNode.insertBefore(mainElementOrBanner, contentContainer);
     }
   }
 
   if (!existingMains.length && !existingBanners.length) {
     while (contentContainer.firstChild) {
-      contentContainer.firstChild.closest('main, [role="main"], header[role="banner"]').appendChild(contentContainer.firstChild);
+      document.body.appendChild(contentContainer.firstChild);
     }
-    contentContainer.appendChild(contentContainer.closest('main, [role="main"], header[role="banner"]'));
+    document.body.prepend(document.createElement('main'));
+    document.body.prepend(document.createElement('header'));
+    document.body.querySelector('header').setAttribute('role', 'banner');
   }
 }
 
@@ -80,5 +87,5 @@ module.exports = {
   fixFakeLinks,
   ensureUniqueLandmarks,
   addLandmarkRegions,
-  addProperLandmarkRegions, // NEW EXPORT
+  addProperLandmarkRegions,
 };

@@ -12,6 +12,44 @@ const getLangAttribute = () => {
   return null;
 };
 
+// Function to validate table accessibility
+const validateTableAccessibility = () => {
+  const results = {
+    valid: true,
+    errors: []
+  };
+
+  if (typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach((table, index) => {
+      const caption = table.querySelector('caption');
+      const ariaLabel = table.getAttribute('aria-label');
+      const ariaDescribedBy = table.getAttribute('aria-describedby');
+
+      // Check if table has a caption, aria-label, or aria-describedby
+      if (!caption && !ariaLabel && !ariaDescribedBy) {
+        results.valid = false;
+        results.errors.push(`Table ${index + 1}: Missing caption, aria-label, or aria-describedby`);
+      }
+
+      // Check if header cells have proper scope or are marked with role="columnheader"/"rowheader"
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header, hIndex) => {
+        const scope = header.getAttribute('scope');
+        const role = header.getAttribute('role');
+
+        if (!scope && !role) {
+          results.valid = false;
+          results.errors.push(`Table ${index + 1}, Header ${hIndex + 1}: Missing scope or role attribute`);
+        }
+      });
+    });
+  }
+
+  return results;
+};
+
 const Root = () => {
   // Other component code...
   
@@ -40,6 +78,6 @@ const Root = () => {
   );
 };
 
-export { Root, handleRotateBack, newFunction, getLangAttribute };
+export { Root, handleRotateBack, newFunction, getLangAttribute, validateTableAccessibility };
 
 ReactDOM.render(<Root />, ...);

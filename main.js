@@ -1,14 +1,11 @@
-// Existing code...
+// TODO: Address accessibility issues from insight report
 
-// New Function Request: ai-autocoder.js function
-import { execSync } from 'child_process';
-
-const aiAutocoder = () => {
-  console.log('Running AI AutoCoder...');
-  execSync('npx ai-autocoder');
+module.exports = {
+  loop: function() {
+    // Main game loop
+    for (var name in Game.rooms) {
+      var room = Game.rooms[name];
+      console.log('Room "' + name + '" has ' + room.controller.level + ' level controller');
+    }
+  }
 };
-
-// Add the function to the exports object
-exports.aiAutocoder = aiAutocoder;
-
-// Existing code...

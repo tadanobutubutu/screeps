@@ -48,21 +48,14 @@ function addMainLandmark() {
 
   const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
-    const fallbackMain = document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.querySelector('#content');
+    const fallbackMain = document.getElementById('main') || document.querySelector('[role="main"]') || document.querySelector('.main') || document.querySelector('#content');
     if (fallbackMain) {
-      fallbackMain.setAttribute('role', 'main');
-      if (fallbackMain.tagName !== 'MAIN') {
-        try {
-          const newMain = document.createElement('main');
-          newMain.innerHTML = fallbackMain.innerHTML;
-          while (fallbackMain.firstChild) {
-            newMain.appendChild(fallbackMain.firstChild);
-          }
-          fallbackMain.parentNode.replaceChild(newMain, fallbackMain);
-        } catch (e) {
-          // Preserve existing structure if tag change fails
-        }
+      const newMain = document.createElement('main');
+      newMain.innerHTML = fallbackMain.innerHTML;
+      while (fallbackMain.firstChild) {
+        newMain.appendChild(fallbackMain.firstChild);
       }
+      fallbackMain.parentNode.replaceChild(newMain, fallbackMain);
     }
   }
 
@@ -94,7 +87,7 @@ function wrapPrimaryContentInMain() {
     return;
   }
 
-  const primaryContent = getElementById('content') || document.getElementById('main') || document.querySelector('[role="main"]') || document.querySelector('#primary') || document.querySelector('.content') || document.querySelector('.main');
+  const primaryContent = getElementById('content') || document.getElementById('main') || document.querySelector('[role="main"]') || document.querySelector('.main') || document.querySelector('.content');
   if (primaryContent) {
     const main = document.createElement('main');
     if (primaryContent.parentNode) {
@@ -113,7 +106,7 @@ function wrapPrimaryContentInMain() {
   const primaryChildren = children.filter((child) => {
     const tag = child.tagName ? child.tagName.toLowerCase() : '';
     const role = child.getAttribute('role') || tagName;
-    return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
+    return !landmarkTags.includes(role) && !landmarkRoles.includes(role);
   });
 
   if (primaryChildren.length > 0) {
@@ -134,7 +127,7 @@ function wrapPrimaryContentInMain() {
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
-  const landmarks = document.querySelectorAll('main, header, footer, aside, section');
+  const landmarks = document.querySelectorAll('header, footer, aside, section');
   const landmarkLabels = new Map();
 
   landmarks.forEach((landmark) => {
@@ -223,7 +216,7 @@ function fixFakeLinks() {
       e.preventDefault();
       const srcElement = e.srcElement || e.target;
       const target = srcElement.hash;
-      const dest = document.querySelector(target);
+      const dest = target ? document.querySelector(target) : null;
 
       if (dest) {
         // Set focus on the target element
@@ -249,10 +242,10 @@ function establishLandmarkRegions() {
   const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
 
  // Check if there is already a navigation landmark
-  const existingNav = document.querySelector('nav:not([role]), [role="navigation"]');
+  const existingNav = document.querySelector('nav, [role="navigation"]');
   if (!existingNav) {
     // Try to find a nav element or create one around navigation links
-    const navLinks = document.querySelectorAll('nav ul li a, .nav a, .menu a, .navigation a');
+    const navLinks = document.querySelectorAll('a[href*="/"]');
     if (navLinks.length > 0) {
       const nav = document.createElement('nav');
       nav.setAttribute('role', 'navigation');
@@ -260,14 +253,14 @@ function establishLandmarkRegions() {
       const parent = navLinks[0].parentNode;
       const container = parent || body;
       container.parentNode.insertBefore(nav, container);
-      while (nav.nextSibling && !landmarkTags.includes(nav.nextSibling.tagName ? nav.nextSibling.tagName.toLowerCase() : '')) {
+      while (nav.nextSibling && nav.nextSibling.textContent ? nav.nextSibling.textContent.trim() : '') {
         nav.appendChild(nav.nextSibling);
       }
     }
   }
 
  // Check if there is already a complementary landmark
-  const existingAside = document.querySelector('aside:not([role]), [role="complementary"]');
+  const existingAside = document.querySelector('aside, [role="complementary"]');
   if (!existingAside) {
     const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');
     if (asideElements.length > 0) {
@@ -276,7 +269,7 @@ function establishLandmarkRegions() {
       const parent = asideElements[0].parentNode;
       const container = parent || body;
       container.parentNode.insertBefore(aside, container);
-      while (aside.nextSibling && !landmarkTags.includes(aside.nextSibling.tagName ? aside.nextSibling.tagName.toLowerCase() : '')) {
+      while (aside.nextSibling && aside.nextSibling.textContent ? aside.nextSibling.textContent.trim() : '') {
         aside.appendChild(aside.nextSibling);
       }
     }
@@ -286,8 +279,5 @@ function establishLandmarkRegions() {
 addLangAttribute();
 fixTableStructure();
 addMainLandmark();
-wrapPrimaryContentInMain();
 ensureUniqueLandmarks();
-addSvgAccessibleNames();
 fixFakeLinks();
-establishLandmarkRegions();

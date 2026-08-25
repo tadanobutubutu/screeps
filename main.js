@@ -37,4 +37,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Call the function to wrap the primary content
   wrapPrimaryContentWithMain();
+
+  // Add scope="col" to <th> elements that lack a scope attribute (REACT_027)
+  // This ensures assistive technologies can programmatically associate
+  // column headers with their corresponding data cells.
+  function addScopeToTableHeaders() {
+    const headerCells = document.querySelectorAll('table th');
+    headerCells.forEach(function(th) {
+      if (!th.hasAttribute('scope')) {
+        // Determine if it's a row header (first cell in a row) or column header
+        const parentRow = th.parentElement;
+        const isFirstCell = parentRow && parentRow.firstElementChild === th;
+        th.setAttribute('scope', isFirstCell ? 'row' : 'col');
+      }
+    });
+  }
+
+  // Apply scope attributes to all table headers
+  addScopeToTableHeaders();
 });

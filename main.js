@@ -90,16 +90,16 @@ const InPageButton = ({
   };
 
   return (
-    <button
-      id={id}
-      type={type}
-      className={className}
-      disabled={disabled}
-      aria-label={ariaLabel || label}
-      onClick={handleClick}
-    >
-      {label}
-    </button>
+    React.createElement('button', {
+      id: id,
+      type: type,
+      className: className,
+      disabled: disabled,
+      'aria-label': ariaLabel || label,
+      onClick: handleClick
+    },
+    label
+    )
   );
 };
 
@@ -286,36 +286,35 @@ const Root = () => {
   }
 
   return (
-    <html lang={lang || 'en'}>
-      <head>
-        <title>Accessibility Report</title>
-      </head>
-      <body>
-        <header role="banner">
-          <nav role="navigation">
-            {/* Navigation content */}
-          </nav>
-        </header>
-        <main role="main">
-          <InPageButton
-            id="unrotate"
-            label="Rotate back"
-            onClick={handleRotateBack}
-            ariaLabel="Rotate back to original view"
-          />
-          {/* Example usage of new function */}
-          <InPageButton 
-            id="new-function"
-            onClick={newFunction} 
-            label="New Function"
-            ariaLabel="Execute new function"
-          />
-        </main>
-        <footer role="contentinfo">
-          {/* Footer content */}
-        </footer>
-      </body>
-    </html>
+    React.createElement('html', { lang: lang || 'en' },
+      React.createElement('head', null,
+        React.createElement('title', null, 'Accessibility Report')
+      ),
+      React.createElement('body', null,
+        React.createElement('header', { role: 'banner' },
+          React.createElement('nav', { role: 'navigation' },
+            'Navigation content'
+          )
+        ),
+        React.createElement('main', { role: 'main' },
+          React.createElement(InPageButton, {
+            id: 'unrotate',
+            label: 'Rotate back',
+            onClick: handleRotateBack,
+            ariaLabel: 'Rotate back to original view'
+          }),
+          React.createElement(InPageButton, {
+            id: 'new-function',
+            onClick: newFunction,
+            label: 'New Function',
+            ariaLabel: 'Execute new function'
+          })
+        ),
+        React.createElement('footer', { role: 'contentinfo' },
+          'Footer content'
+        )
+      )
+    )
   );
 };
 
@@ -331,4 +330,5 @@ export {
   validateTableStructure
 };
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+const rootElement = document.getElementById('root');
+ReactDOM.render(React.createElement(Root, null), rootElement);

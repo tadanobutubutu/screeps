@@ -84,9 +84,14 @@ const renderDependencyGraph = function(layout) {
 
 // Adjust export for the new functions
 module.exports = {
-    ...module.exports,
-    addProperLandmarkRegions, // Include the new function in the exports
-    renderDependencyGraph, // Include the new function in the exports as well
-    dependencyGraphContent, // Export the dependency graph content for use by other modules
-    indexContent // Export the index content for use by other modules
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    addProperLandmarkRegions,
+    renderDependencyGraph,
+    dependencyGraphContent,
+    indexContent
 };

@@ -5,6 +5,11 @@ import indexContent from './indexContent';
 function useIndexContent() {
   // Using indexContent as required (Add your code here)
   // ...
+
+  // Render dependency graph or index views using indexContent
+  if (/* condition to render dependency graph or index views */) {
+    return <div dangerouslySetInnerHTML={{ __html: indexContent }} />;
+  }
 }
 
 // New function to address accessibility issues

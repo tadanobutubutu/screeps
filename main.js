@@ -44,7 +44,6 @@ function generateDependencyGraphData() {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('role', 'main');
     mainElement.setAttribute('aria-label', 'Main content');
-    room.container.appendChild(mainElement);
 
     // Ensure unique landmarks (REACT_025)
     // Known unique landmarks are 'region', 'article', 'navigation', and 'main' in this example
@@ -56,10 +55,12 @@ function generateDependencyGraphData() {
 
     // Call the new function
     newFunction();
+
+    return fixFakeLink;
   }
 
   // Call the landmark managing function
-  manageLandmarks();
+  const exportedFixFakeLink = manageLandmarks();
 
   // Fix 1 fake link issue (REACT_036)
   // Assuming you are using a routine to check for and validate all links
@@ -87,8 +88,8 @@ function generateDependencyGraphData() {
     iconSvg.setAttribute('role', 'img');
     iconSvg.setAttribute('focusable', 'false');
     
-    graphDiv.innerHTML = JSON.stringify(graphData, null, 2);
-    svgElement.appendChild(graphDiv);
+    graphDiv.innerHTML = '';
+    graphDiv.appendChild(svgElement);
     
     return svgElement;
   }
@@ -99,7 +100,7 @@ function generateDependencyGraphData() {
   // Preserve the 'fixFakeLink' function since it belongs to manageLandmarks
   // It is not recommended to bind the function to an object prototype as it could lead to unexpected behavior.
   // For the purpose of this example, it's bound to the prototype object but do consider refactoring if necessary.
-  generateDependencyGraphData.fixFakeLink = fixFakeLink;
+  const fixFakeLink = exportedFixFakeLink;
 
   return { /* ... existing reduced object ... */ };
 }

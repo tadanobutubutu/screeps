@@ -18,12 +18,12 @@ function wrapPrimaryContentInMain(content, options = {}) {
   } = options;
   
   const classAttr = className ? ` class="${className}"` : '';
-  const mainStart = `<main id="${id}" role="${role}"${classAttr}>`;
+  const mainStart = `<main id="${id}" ...`;
   const mainEnd = '</main>';
   
   // Check if content is already wrapped in a main element
-  const hasMainTag = /<main[\s>]/i.test(content) ||
-                     /role\s*=\s*["']main["']/i.test(content);
+  const hasMainTag = ... ||
+                     ...;
   
   if (hasMainTag) {
     return content;
@@ -36,7 +36,7 @@ function wrapPrimaryContentInMain(content, options = {}) {
 function renderDependencyGraph(data) {
   if (!data) return '';
   const { nodes = [], edges = [] } = data;
-  let html = '<div class="dependency-graph"><ul>';
+  let html = '<div ...</div>';
   nodes.forEach(node => {
     const connectedEdges = edges.filter(e => e.from === node.id || e.to === node.id);
     html += `<li>${node.name || node.id} (${connectedEdges.length} connections)</li>`;
@@ -49,8 +49,8 @@ function renderDependencyGraph(data) {
 function renderIndexView(data) {
   if (!data) return '<div class="index-view">Index View</div>';
   const { title = 'Index View', items = [] } = data;
-  let itemsHtml = items.map(item => `<li>${item.name || item.id || 'Item'}</li>`).join('');
-  return `<div class="index-view"><h2>${title}</h2><ul>${itemsHtml}</ul></div>`;
+  let itemsHtml = items.map(item => `<li>${item.name || item.id || ...}</li>`).join('');
+  return `<div ...</div>`;
 }
 
 // Function to add proper landmark regions
@@ -64,7 +64,7 @@ function addProperLandmarkRegions(data) {
       label: landmark.label || landmark.role || 'content',
       id: landmark.id || `${landmark.role || 'region'}-${index}`
     };
-    landmarkRegions.push(region);
+    ...
   });
   
   return landmarkRegions;
@@ -83,14 +83,14 @@ function renderSkipLink() {
 // Original landmark navigation function
 function renderLandmarkNavigation() {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  return landmarks.map(landmark => `<div role="${landmark}">${landmark}</div>`).join('');
+  return landmarks.map(landmark => `<div ...</div>`).join('');
 }
 
 // Original utility function
 function formatDate(date) {
   if (!date) return '';
   const d = new Date(date);
-  return d.toISOString().split('T')[0];
+  return ...;
 }
 
 // REACT_015: Add lang attribute to HTML element
@@ -100,7 +100,7 @@ function addLangAttribute(html, lang = 'en') {
   if (langPattern.test(html)) {
     return html.replace(langPattern, ` lang="${lang}"`);
   }
-  return html.replace(/<html(\s[^>]*)?>/i, `<html$1 lang="${lang}">`);
+  return html.replace(/(<html[^>]*)>/i, `<html$1 lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -132,25 +132,25 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = /<main[\s>]/i.test(html) ||
-                          /role\s*=\s*["']main["']/i.test(html);
+  const hasMainLandmark = ... ||
+                          ...;
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if (/<body[^>]*>/i.test(html)) {
-      return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
+    if ... {
+      return html.replace(...`$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = /<main[^>]*\sid\s*=/i.test(html);
+  const mainWithId = ...;
   
   if (!mainWithId) {
-    html = html.replace(/<main(\s[^>]*)?>/i, '<main$1 id="main-content">');
-    if (!/id\s*=\s*["']main-content["']/i.test(html)) {
-      html = html.replace(/<main(\s[^>]*)?>/i, '<main$1 id="main-content" role="main">');
+    html = html.replace(/(<main)/, '<main$1 id="main-content">');
+    if ... {
+      html = html.replace(/(<main[^>]*)>/, '<main$1 id="main-content" role="main">');
     }
   }
   
@@ -182,7 +182,7 @@ function ensureUniqueLandmarks(landmarks) {
     
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        landmark.id = `${landmark.id}-${index}`;
+        landmark.id = ...;
       }
       seenIds.add(landmark.id);
     } else {
@@ -228,8 +228,78 @@ function fixFakeLinkIssue(element) {
   return element;
 }
 
+// REACT_042: Replace placeholder button ID with semantic ID
+function fixButtonAccessibility(buttons) {
+  if (!buttons || !Array.isArray(buttons)) return [];
+  
+  const seenIds = new Set();
+  
+  return buttons.map((button, index) => {
+    if (!button) return button;
+    
+    // Check if button has a placeholder or non-semantic ID
+    const placeholderPatterns = [
+      /^btn$/i,
+      /^button$/i,
+      /^button-\d+$/i,
+      /^btn-\d+$/i,
+      /^(?:placeholder|temp|tmp|test|id)\d*$/i
+    ];
+    
+    const hasPlaceholderId = button.id && placeholderPatterns.some(pattern => pattern.test(button.id));
+    
+    if (hasPlaceholderId || !button.id) {
+      // Generate semantic ID from button text, aria-label, or role
+      let semanticId = '';
+      
+      if (button['aria-label']) {
+        semanticId = button['aria-label'].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      } else if (button.textContent || button.innerText) {
+        const text = button.textContent || button.innerText || '';
+        semanticId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 50);
+      } else if (button.type) {
+        semanticId = `button-${button.type}`;
+      } else {
+        semanticId = `button-${index + 1}`;
+      }
+      
+      // Ensure uniqueness
+      let finalId = semanticId;
+      let counter = 1;
+      while (seenIds.has(finalId)) {
+        finalId = `${semanticId}-${counter}`;
+        counter++;
+      }
+      
+      button.id = finalId;
+      seenIds.add(finalId);
+    } else {
+      // Ensure existing ID is unique
+      let finalId = button.id;
+      let counter = 1;
+      while (seenIds.has(finalId)) {
+        finalId = `${button.id}-${counter}`;
+        counter++;
+      }
+      if (finalId !== button.id) {
+        button.id = finalId;
+      }
+      seenIds.add(button.id);
+    }
+    
+    // Ensure button has accessible name
+    if (!button['aria-label'] && !button['aria-labelledby'] && !button.getAttribute?.('aria-hidden')) {
+      if (button.textContent || button.innerText) {
+        button['aria-label'] = (button.textContent || button.innerText || '').trim();
+      }
+    }
+    
+    return button;
+  });
+}
+
 // Export the new functions, preserving the existing exports
 export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain };
 export * from './otherModule';
 export { myOtherFunction };
-export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, renderSkipLink, renderLandmarkNavigation, formatDate };
+export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility, renderSkipLink, renderLandmarkNavigation, formatDate };

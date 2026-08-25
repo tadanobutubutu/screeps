@@ -38,6 +38,23 @@ function addProperLandmarkRegions() {
 // Existing code from main.js, after the conflict markers
 // ... (Preserve this section)
 
+// Function to refactor duplicate <main> elements to use <section> or <article> instead
+function refactorMainElements() {
+    const duplicateMains = document.querySelectorAll('main:not(:first-of-type)');
+    duplicateMains.forEach(main => {
+        const parentSection = main.parentElement;
+        const section = document.createElement('section');
+        section.appendChild(main);
+        parentSection.appendChild(section);
+        // Optionally, add an ARIA role and properties to the new section if needed
+        section.setAttribute('role', 'region');
+        section.setAttribute('aria-labelledby', main.querySelector('h1').id);
+    });
+}
+
+// Call the function to refactor duplicate <main> elements
+refactorMainElements();
+
 // Exporting functions as required (do not remove or rename any existing exports)
 export function someExistingFunction() {
     // ... (existing function code)

@@ -43,7 +43,7 @@ function addAriaLabelledbyIfNeeded(elem) {
 
 // Add a new function for adding `aria-labelledby` to elements on initialization
 function initAriaLabels() {
-  const elements = document.querySelectorAll('[data-init-aria-labels]');
+  const elements = document.querySelectorAll('[data-aria-init]');
   elements.forEach((elem) => {
     const id = elem.id || 'aria-label-' + Math.random().toString(36).substr(2, 9);
     elem.id = id;
@@ -74,7 +74,7 @@ function validateLandmarkStructure(landmark) {
   // Check if landmark structure is valid
   const validRoles = ['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'main', 'search', 'region'];
   const role = landmark.getAttribute('role');
-  const isLandmark = role && validRoles.includes(role.toLowerCase());
+  const isLandmark = role && validRoles.includes(role);
 
   // Check for proper heading hierarchy within the landmark
   const headings = landmark.querySelectorAll('h1, h2, h3, h4, h5, h6');

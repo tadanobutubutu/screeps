@@ -8,9 +8,9 @@ module.exports = {
   calculateSquare: function(number) {
     return number * number;
   },
-  // BEGIN NEW FUNCTIONS OR CHANGES
   addressAccessibilityIssues: function() {
     // Implementation goes here
   },
+  // BEGIN NEW FUNCTIONS OR CHANGES
   // END NEW FUNCTIONS OR CHANGES
 };

@@ -519,8 +519,16 @@ export default function Dashboard() {
                             onMouseLeave={() => setRefreshHover(false)}
                             onFocus={() => setRefreshHover(true)}
                             onBlur={() => setRefreshHover(false)}
-                            aria-label={refreshing ? '更新中...' : '更新 (Alt + R)'}
-                            title={refreshing ? '更新中...' : 'データを更新 (Alt + R)'}
+                            aria-label={
+                                refreshing
+                                    ? 'データを更新中...'
+                                    : 'データを最新の状態に更新 (Alt + R)'
+                            }
+                            title={
+                                refreshing
+                                    ? 'データを更新中...'
+                                    : 'クリックまたは Alt + R キーで最新データを手動取得'
+                            }
                             style={{
                                 padding: '0.5rem',
                                 borderRadius: '50%',

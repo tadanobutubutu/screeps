@@ -208,6 +208,67 @@ function fixTableStructure(context) {
 
 // ----- END ORIGINAL CODE -----
 
+// *** NEW FUNCTION ADDED AS REQUESTED IN ISSUE ***
+/**
+ * Determines the active language of the page content.
+ * Analyzes text content to infer the most likely language.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {string} - The detected language code (e.g., 'en', 'es', 'fr')
+ */
+function determineActiveLanguage(context) {
+  if (!context || !context.document) return 'en';
+  
+  const { document } = context;
+  const htmlElement = document.documentElement;
+  
+  // Check if lang attribute is already set on html element
+  const existingLang = htmlElement ? htmlElement.getAttribute('lang') : null;
+  if (existingLang) {
+    return existingLang;
+  }
+  
+  // Analyze text content to determine language
+  const textContent = document.body ? document.body.textContent || '' : '';
+  
+  // Define language classifiers based on common words/phrases
+  const languagePatterns = {
+    en: ['the', 'and', 'is', 'in', 'to', 'of', 'for', 'with', 'on', 'at'],
+    es: ['el', 'la', 'de', 'que', 'y', 'en', 'se', 'que', 'por', 'con'],
+    fr: ['le', 'la', 'les', 'de', 'et', 'en', 'se', 'dans', 'pour', 'du']
+  };
+  
+  const textLower = textContent.toLowerCase();
+  let detectedLanguage = 'en';
+  let maxScore = 0;
+  
+  Object.entries(languagePatterns).forEach(([lang, patterns]) => {
+    const score = patterns.filter(word => 
+      textLower.includes(word)
+    ).length;
+    
+    if (score > maxScore) {
+      maxScore = score;
+      detectedLanguage = lang;
+    }
+  });
+  
+  return detectedLanguage;
+}
+
+/**
+ * Applies accessibility improvements to all tables in the document.
+ * Iterates through all tables and applies structural fixes for better accessibility.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {number} - The total number of table structure issues fixed
+ */
+function applyTableAccessibility(context) {
+  if (!context || !context.document) return 0;
+  
+  return fixTableStructure(context);
+}
+
 // Export all functions for external use
 export {
   createReactContext,
@@ -215,5 +276,7 @@ export {
   initAriaLabels,
   wrapMainElement,
   addLangAttribute,
-  fixTableStructure
+  fixTableStructure,
+  determineActiveLanguage,
+  applyTableAccessibility
 };

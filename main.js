@@ -203,7 +203,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('[role="main"]');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -219,8 +219,8 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('[role="banner"]');
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const headerElements = document.querySelectorAll('header, [role="banner"]');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -231,7 +231,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('[role="contentinfo"]');
+  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -248,6 +248,32 @@ const validateLandmark = validateLandmarkStructure;
 
 // React component for the Root component
 const Root = () => {
+  // Get the language attribute for the html element
+  const lang = getLangAttribute();
+
+  // Add new validateTableStructure function validation
+  const tableStructureError = validateTableStructure();
+  if (tableStructureError.errors.length > 0) {
+    console.error('Table structure errors:', tableStructureError.errors);
+  }
+
+  // Validate table accessibility and check for unique landmarks (2 issues)
+  const tableAccessibilityError = validateTableAccessibility();
+  if (tableAccessibilityError.errors.length > 0) {
+    console.error('Table accessibility errors:', tableAccessibilityError.errors);
+  }
+
+  const uniqueLandmarkError = validateLandmarkStructure();
+  if (uniqueLandmarkError.errors.length > 0) {
+    console.error('Landmark errors:', uniqueLandmarkError.errors);
+  }
+
+  // Add validateLandmark validation
+  const landmarkError = validateLandmark();
+  if (!landmarkError.valid) {
+    console.error('Landmark validation errors:', landmarkError.errors);
+  }
+
   const handleRotateBack = () => {
     // Logic to rotate back
     console.log('Rotate back clicked');
@@ -258,32 +284,6 @@ const Root = () => {
     // Logic for the new function
     console.log('New function clicked');
   };
-
-  // Get the language attribute for the html element
-  const lang = getLangAttribute();
-
-  // Add new validateTableStructure function validation
-  const tableStructureError = validateTableStructure();
-  if (tableStructureError.errors.length > 0) {
-    console.error('Table structure errors:', tableStructureError.errors);
-  }
-
-  // Validate table accessibility and check for unique landmarks
-  const tableAccessibilityError = validateTableAccessibility();
-  if (tableAccessibilityError.errors.length > 0) {
-    console.error('Table accessibility errors:', tableAccessibilityError.errors);
-  }
-
-  const uniqueLandmarkError = validateLandmark();
-  if (uniqueLandmarkError.errors.length > 0) {
-    console.error('Landmark errors:', uniqueLandmarkError.errors);
-  }
-
-  // Add validateLandmark validation
-  const landmarkError = validateLandmark();
-  if (!landmarkError.valid) {
-    console.error('Landmark validation errors:', landmarkError.errors);
-  }
 
   return (
     React.createElement('html', { lang: lang || 'en' },
@@ -300,5 +300,28 @@ const Root = () => {
           React.createElement(InPageButton, {
             id: 'unrotate',
             label: 'Rotate back',
-            onClick: handleRotateBack,
-            ariaLabel
+            onClick: handleRotateBack
+          }),
+          React.createElement(InPageButton, {
+            label: 'New Function',
+            onClick: newFunction
+          })
+        )
+      )
+    )
+  );
+};
+
+export {
+  Root,
+  getLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  getSvgAccessibleName,
+  createInPageButton,
+  InPageButton,
+  validateTableStructure
+};
+
+ReactDOM.render(React.createElement(Root), document.getElementById('root'));

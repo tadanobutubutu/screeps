@@ -18,7 +18,6 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
-  // This function is to be added as per the issue report.
   const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
@@ -45,10 +44,10 @@ function fixFakeLinks() {
   });
 }
 
-// Export renderDependencyGraphContent, ensureUniqueLandmarks, and fixFakeLinks functions
+// Add the new function within the module.exports for calling from another file
 module.exports = {
   renderDependencyGraphContent,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks, // Added here
   fixFakeLinks,
   renderGraphContent // original export preserves for calling from another file
 };

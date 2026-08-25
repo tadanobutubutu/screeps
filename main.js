@@ -25,6 +25,14 @@ const addressAccessibilityIssues = (element) => {
 // Adding the new function to add proper landmark regions:
 const addProperLandmarkRegions = (landmarkElement) => {
   // Logic for adding proper landmark regions goes here...
+
+  // Add 'landmark' role to the landmarkElement
+  landmarkElement.setAttribute('role', 'landmark');
+
+  // Address the unique landmark issue - Ensure unique landmarks
+  if (!landmarkElement.id) {
+    landmarkElement.id = `landmark-${Math.floor(Math.random() * 10000)}`;
+  }
 };
 
 // Add the new exports for the addressMissingFormLabels, fixTableStructureIssues, addressAccessibilityIssues, and addProperLandmarkRegions functions

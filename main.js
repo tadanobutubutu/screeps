@@ -5,6 +5,12 @@ import indexContent from './indexContent';
 function useIndexContent() {
   // Using indexContent as required (Add your code here)
   // ...
+
+  // Assuming you want to render the index content in a specific element
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    mainContent.innerHTML = indexContent;
+  }
 }
 
 // New function to address accessibility issues
@@ -12,7 +18,10 @@ function addressAccessibilityIssues() {
   // Implementation for addressing accessibility issues from the insight report (Add your code here to solve REACT_0XX issues as necessary)
   // Example:
   // Adding lang attribute to HTML element
-  console.log("en");
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 // Add a new function for initializing the functions

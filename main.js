@@ -19,4 +19,4 @@ function myNewFunction() {
 
 // Export the new function, preserving the existing exports
 export { myNewFunction as default };
-export * from ./otherModule; // Assuming you have another module
+export * from './otherModule'; // Assuming you have another module

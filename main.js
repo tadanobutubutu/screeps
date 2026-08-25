@@ -88,66 +88,6 @@ function addSvgAccessibleNames() {
     }
   });
 }
-
-// Accessibility: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-function fixTableStructureIssues() {
-  // Assuming that the tables need to be restructured for accessibility
-  // Implementation details are not provided here
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    // Ensure proper table structure with thead and tbody
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-      }
-    }
-    
-    if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      if (rows.length > 0) {
-        const tbody = document.createElement('tbody');
-        rows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-      }
-    }
-    
-    // Add scope attributes to header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.hasAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
-
-// Accessibility: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-function fixFakeLinkIssue() {
-  // Assuming there is a fake link that needs to be fixed
-  // Implementation details are not provided here
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
-  
-  fakeLinks.forEach(el => {
-    // Convert fake link to proper anchor or handle appropriately
-    const href = el.getAttribute('data-href');
-    if (href) {
-      el.setAttribute('tabindex', '0');
-      el.addEventListener('click', (e) => {
-        window.location.href = href;
-      });
-      el.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          window.location.href = href;
-        }
-      });
-    }
-  });
-}
-
 // ----- END ORIGINAL CODE -----
 // Added the required exports
 module.exports = {
@@ -157,8 +97,6 @@ module.exports = {
   addMainLandmark,
   addLangAttribute,
   addSvgAccessibleNames,
-  fixTableStructureIssues,
-  fixFakeLinkIssue,
   // New exports for the functions that address the open checks
   ensureUniqueLandmarks,
   // Placeholder functions for handling unique landmarks, restructuring tables, and fixing fake links
@@ -167,20 +105,17 @@ module.exports = {
   restructureTable,
   fixFakeLink,
   // ...
+
+  // New function to handle the accessibility insights
+  handleAccessibilityInsights: function() {
+    // Call the function to address unique landmarks
+    this.uniqueLandmarksHandler();
+    // Call the function to restructure tables
+    this.restructureTable();
+    // Call the function to fix fake links
+    this.fixFakeLink();
+  }
 };
-
-// TODO: Implement function for addressing accessibility issues from insight report
-// New function implementation addressing accessibility issues from insight report
-function handleAccessibilityInsights() {
-  // Address unique landmarks
-  uniqueLandmarksHandler();
-
-  // Address table structure issues
-  restructureTable();
-
-  // Address fake link issues
-  fixFakeLink();
-}
 
 // Implementation of uniqueLandmarksHandler
 function uniqueLandmarksHandler() {
@@ -207,14 +142,11 @@ function uniqueLandmarksHandler() {
 // Implementation of restructureTable
 function restructureTable() {
   // Delegate to existing fixTableStructureIssues function
-  fixTableStructureIssues();
+  this.fixTableStructureIssues();
 }
 
 // Implementation of fixFakeLink
 function fixFakeLink() {
   // Delegate to existing fixFakeLinkIssue function
-  fixFakeLinkIssue();
+  this.fixFakeLinkIssue();
 }
-
-// Export the new function
-module.exports.handleAccessibilityInsights = handleAccessibilityInsights;

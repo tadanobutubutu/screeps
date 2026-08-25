@@ -42,8 +42,8 @@ const addProperLandmarkRegions = function(content) {
         let result = content;
 
         // Add banner landmark (header) if not present
-        if (!/<header/i.test(result) && !/<banner/i.test(result)) {
-            const bodyMatch = result.match(/(<body[^>]*>)/i);
+        if (!/<header/gi.test(result) && !/<banner/gi.test(result)) {
+            const bodyMatch = result.match(/<body[^>]*>/i);
             if (bodyMatch) {
                 result = result.replace(bodyMatch[0], bodyMatch[0] + '<header></header>');
             } else {
@@ -52,7 +52,7 @@ const addProperLandmarkRegions = function(content) {
         }
 
         // Add contentinfo landmark (footer) if not present
-        if (!/<footer/i.test(result) && !/<contentinfo/i.test(result)) {
+        if (!/<footer/gi.test(result) && !/<contentinfo/gi.test(result)) {
             result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 
@@ -66,7 +66,7 @@ const renderDependencyGraph = function(layout) {
     // Use dependencyGraphContent from the appropriate module to render the graph
     // Based on the provided layout parameter
     if (layout === 'horizontal') {
-        return dependencyGraphContent.horizontal || '<div class="dependency-graph"></div>';
+        return dependencyGraphContent.horizontal || '<div class="dependency-graph horizontal"></div>';
     } else if (layout === 'vertical') {
         return dependencyGraphContent.vertical || '<div class="dependency-graph vertical"></div>';
     }
@@ -80,15 +80,15 @@ const addMissingLandmarks = function(content) {
         let result = content;
 
         // Add banner landmark (header) if not present
-        if (!/<header/i.test(result)) {
-            const bannerMatch = result.match(/(<body[^>]*>)/i);
+        if (!/<header/gi.test(result)) {
+            const bannerMatch = result.match(/<body[^>]*>/i);
             if (bannerMatch) {
                 result = result.replace(bannerMatch[0], bannerMatch[0] + '<header></header>');
             }
         }
 
         // Add contentinfo landmark (footer) if not present
-        if (!/<footer/i.test(result)) {
+        if (!/<footer/gi.test(result)) {
             result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 
@@ -114,20 +114,28 @@ const renderPage = function(content) {
 
     // Add landmarks to the rendered content if needed
     const landmarks = renderLandmarks(content);
-    result = addMissingLandmarks(result);
-    result = addProperLandmarkRegions(result);
+    result = content;
+    result = result;
     if (landmarks) {
         result = Array.isArray(landmarks) ? landmarks.join('') : landmarks;
         result = result.replace(/<!-- TODO: Add rendering of landmarks here -->/, result);
     }
 
     // Render content using the imported render function
-    result = renderContent(addLangAttribute(result));
+    result = renderContent ? renderContent(result) : result;
     return result;
 };
 
-// Add the new function to the exports
+// Export all functions
 module.exports = {
-    ...module.exports,
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    addProperLandmarkRegions,
+    renderDependencyGraph,
+    addMissingLandmarks,
     renderPage
 };

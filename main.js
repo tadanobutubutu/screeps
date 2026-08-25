@@ -149,7 +149,6 @@ module.exports = {
   ensureUniqueLandmarks,
   // Placeholder functions for handling unique landmarks, restructuring tables, and fixing fake links
   // (You will need to implement these functions based on the issue's requirements)
-  ensureUniqueLandmarks,
   uniqueLandmarksHandler,
   restructureTable,
   fixFakeLink,

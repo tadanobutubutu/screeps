@@ -165,5 +165,6 @@ export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
   validateMainLandmark, validateLandmarkRoles, validateLandmarkStructure, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
+  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel,
+  addMainLandmark, fixFakeLinkIssue, checkLandmarkValidity
 };

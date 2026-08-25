@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add/fix 4 landmark issues
@@ -200,11 +201,11 @@ function ensureUniqueLandmarks() {
  * Resets the dependency graph to its original rotation (0 degrees).
  */
 function handleRotateBack() {
-    rotateDependencyGraph(0);
+    currentRotation = 0;
 
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('graphRotate', { detail: { degrees: 0 } });
+        const event = new CustomEvent('graphRotated', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }
@@ -214,7 +215,7 @@ function handleRotateBack() {
  * @param {number} degrees - The target rotation in degrees
  */
 function rotateDependencyGraph(degrees) {
-    const graphContainer = document.getElementById('dependency-graph');
+    const graphContainer = document.querySelector('.dependency-graph-container');
     if (graphContainer) {
         currentRotation = degrees;
         graphContainer.style.transform = `rotate(${degrees}deg)`;

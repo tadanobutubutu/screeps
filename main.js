@@ -7,10 +7,12 @@ const getAccessibleName = (node) => {
 
   if (svg && svg.tagName === 'svg') {
     // Try aria-label first, then fallback to title or text
-    if (svg.getAttribute('aria-label')) {
+    if (svg.getAttribute && svg.getAttribute('aria-label')) {
       accessibleName = svg.getAttribute('aria-label');
-    } else {
-      accessibleName = title || text;
+    } else if (title) {
+      accessibleName = title;
+    } else if (text) {
+      accessibleName = text;
     }
   }
 
@@ -23,7 +25,10 @@ const setAccessibleName = (node, accessibleName) => {
   // You may need to use appropriate methods or attributes to set the accessible name based on the DOM library or framework being used.
 
   // Assuming your library or framework has a method `setAttribute` to set attributes
-  node.setAttribute('aria-label', accessibleName);
+  if (node && node.tagName === 'svg' && accessibleName) {
+    // Set aria-label attribute to provide accessible name
+    node.setAttribute('aria-label', accessibleName);
+  }
 };
 
 // Existing exports and functions continue to be preserved

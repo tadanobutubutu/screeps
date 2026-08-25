@@ -62,17 +62,26 @@ function fixTableStructureIssues() {
   }
 }
 
+// Add the new function to fix table header cell scope
+function fixTableHeaderCellScope() {
+  // Ensure each table header cell has a scope attribute
+  const tableHeaders = document.getElementsByTagName('th');
+  for (let i = 0; i < tableHeaders.length; i++) {
+    if (!tableHeaders[i].hasAttribute('scope')) {
+      tableHeaders[i].setAttribute('scope', 'col');
+    }
+  }
+}
+
 // Fix for Issue: Add exports for new functions if needed in main.js
 // ONLY ADD the new functions or changes requested in the issue
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  fixTableStructureIssues, // Added here
-  renderGraphContent: function renderGraphContent(someData) {
-    // Your existing renderGraphContent logic here...
-  }
+  fixTableStructureIssues,
+  fixTableHeaderCellScope // Added here
 };
 
 // Call renderGraphContent function from another file
-renderGraphContent(someData);
+renderDependencyGraphContent(someData);

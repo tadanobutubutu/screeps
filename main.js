@@ -85,7 +85,7 @@ module.exports = {
 };
 
 // Add the function to be completed (TODO comment)
-// function addAnyRequiredExports() {
-//   // TODO: Add any required exports that might have been removed
-//   // Example of how to export a required function from another file
-// }
+function addAnyRequiredExports() {
+  // TODO: Add any required exports that might have been removed
+  // Example of how to export a required function from another file
+}

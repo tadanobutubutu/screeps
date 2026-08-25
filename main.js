@@ -42,4 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Call the function to wrap the primary content
   wrapPrimaryContentWithMain();
+
+  // Fix REACT_015: Add lang attribute to <html> element for screen reader accessibility
+  // This ensures screen readers pick the correct language voice
+  function setHtmlLangAttribute() {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.getAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
+    }
+  }
+
+  // Call the function to set the lang attribute
+  setHtmlLangAttribute();
 });

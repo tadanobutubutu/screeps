@@ -15,7 +15,9 @@ function createReactContext() {
   };
 
   const mockDocument = new window.Document();
-  mockDocument.body.innerHTML = "<div id='root'></div>";
+  const body = mockDocument.createElement('body');
+  body.innerHTML = "<div id='root'></div>";
+  mockDocument.appendChild(body);
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   return window;
@@ -32,7 +34,7 @@ function addAriaLabelledbyIfNeeded(elem) {
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
   const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = context.ReactDOM.renderToString(content);
+  const contentString = ReactDOMServer.renderToString(content);
   
   // ... (Pre-existing logic)
 }
@@ -41,9 +43,9 @@ function addAriaLabelledbyIfNeeded(elem) {
 // and use that context to render React components:
 
 function initAriaLabels() {
-  const elements = document.querySelectorAll('[data-aria-label]');
+  const elements = document.querySelectorAll('[aria-label-required]');
   elements.forEach((elem) => {
-    const id = elem.id || 'aria-label-' + Math.random().toString(36).substr(2, 9);
+    const id = elem.id || 'aria-label-' + Math.floor(Math.random() * 9);
     elem.id = id;
     const labels = elem.querySelectorAll('label');
     labels.forEach((label) => {

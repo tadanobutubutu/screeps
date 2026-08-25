@@ -5,6 +5,11 @@
 // Import axios for making API calls
 import axios from 'axios';
 
+// Add lang attribute to HTML element
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
+}
+
 // Skip navigation link for keyboard users
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';

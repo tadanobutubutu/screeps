@@ -1,12 +1,5 @@
 import React from 'react';
 
-// Accessibility fixes applied for insight-code scan:
-// REACT_015: Added lang="en" to root <html>.
-// REACT_017 / REACT_025: Added unique landmarks (<nav>, <main>, <aside>, <footer>).
-// REACT_027: Added <thead>, <tbody>, <caption>, and scope attributes to tables.
-// REACT_036: Replaced fake link (<a> without href) with a proper <button>.
-// REACT_041: Added aria-label, role="img", and <title> to all SVGs.
-
 export default function Main() {
   return (
     <html lang="en">

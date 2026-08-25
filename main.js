@@ -12,6 +12,30 @@ export const findIndex = (array, id) => {
   return array.findIndex((item) => item.id === id);
 };
 
+// Function to fix table structure issues (REACT_027)
+export const fixTableStructure = () => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    // Ensure the table has a proper structure with thead and tbody
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      table.insertBefore(thead, table.firstChild);
+    }
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      table.appendChild(tbody);
+    }
+    // Ensure all rows are properly placed inside tbody
+    const rows = table.querySelectorAll('tr');
+    const tbody = table.querySelector('tbody');
+    rows.forEach((row) => {
+      if (row.parentNode !== tbody && row.parentNode.tagName !== 'THEAD') {
+        tbody.appendChild(row);
+      }
+    });
+  });
+};
+
 // Function to override the existing findIndex function (only for test purpose)
 const overrideFindIndex = (array, id) => {
   // Add test-specific implementation here if needed

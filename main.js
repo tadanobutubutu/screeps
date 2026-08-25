@@ -13,13 +13,15 @@ module.exports.anotherFunction = function () {
 // Adding a new function
 module.exports.newFunction = function () {
   // Function body of the new function goes here
+  // For example:
+  console.log('This is the new function!');
 };
 
-// Adding the lang attribute to the root HTML element
-module.exports.setRootLangAttribute = function () {
+// Modifying the setRootLangAttribute function
+module.exports.setRootLangAttribute = function (newLang) {
   // This function would be responsible for setting the lang attribute on the root HTML element.
   // Since we cannot modify the actual HTML file, we would typically use a library or a server-side
   // solution to achieve this. However, since we are only updating the main.js file, we will
-  // simulate this by logging a message to the console.
-  console.log('Setting lang attribute on the root HTML element to "en".');
+  // simulate this by updating the function with the new language passed as a parameter.
+  document.documentElement.lang = newLang;
 };

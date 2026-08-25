@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-22 - [Polite Live Regions for Dynamic Timestamps & Empty States]
+
+**Learning:** Timestamps indicating background data refreshes and fallback "empty state" tags (such as when no active rooms are available) should be wrapped in polite live regions (`role="status"` and `aria-live="polite"`). Pairing dynamic timestamps with accurate screen-reader descriptors (`aria-label="最後にデータが更新された時間: HH:MM:SS"`) ensures non-sighted users are informed as stats update without interrupting active speech or requiring manual focus shifts (WCAG 4.1.3 Status Messages).
+**Action:** Always equip dynamically updating timestamp badges and fallback empty-state tags with `role="status"`, `aria-live="polite"`, and dynamic `aria-label` tags.
+
 ## 2026-08-14 - [Live Region & Dynamic Disabled States for Search Filters]
 
 **Learning:** Adding `role="status"` and `aria-live="polite"` to filter result counters enables screen reader users to receive real-time auditory updates as search results change. Furthermore, dynamically setting `disabled` states alongside clear descriptive `aria-label` / `title` messages (e.g., "コピー対象の部屋がありません") on dependent bulk triggers when no matching items exist prevents confusing empty actions and reinforces clear UI boundary constraints.

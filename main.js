@@ -1,4 +1,5 @@
-// TODO: Replace this placeholder with the actual main.js content...
+// TODO: Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
 
 /**
  * REACT_036 Fix: React Fake Link
@@ -29,7 +30,13 @@ const config = {
  * space/enter activation, and screen reader semantics.
  */
 function fixFakeLink() {
-    // ... (Existing code)
+    const unrotateButton = document.createElement('button');
+    unrotateButton.id = 'unrotate';
+    unrotateButton.textContent = 'Rotate back';
+    unrotateButton.role = 'button';
+    unrotateButton.ariaLabel = 'Rotate the dependency graph back to the original position.';
+    unrotateButton.addEventListener('click', handleRotateBack);
+    document.querySelector('#unrotate').replaceWith(unrotateButton);
 }
 
 /* New function REACT_015: Add lang attribute to HTML element */
@@ -53,14 +60,7 @@ function handleRotateBack() {
     }
 }
 
-/**
- * Rotates the dependency graph by a specified number of degrees.
- *
- * @param {number} degrees - The rotation angle in degrees.
- */
-function rotateDependencyGraph(degrees) {
-    // ... (Existing code)
-}
+// (Existing code for rotateDependencyGraph and init functions)
 
 /**
  * Initializes the dependency graph controller.

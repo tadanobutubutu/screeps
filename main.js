@@ -35,6 +35,97 @@ const getSvgAccessibleName = (svgElement) => {
   return '';
 };
 
+// Function to validate table structure
+const validateTableStructure = () => {
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { errors };
+  }
+
+  const tables = ...
+  if (tables.length > 0) {
+    tables.forEach((table, tableIndex) => {
+      const rows = ...
+      rows.forEach((row, rowIndex) => {
+        const cells = ... th');
+        const headerCells = ...
+
+        // Check for empty cells
+        cells.forEach((cell, cellIndex) => {
+          if (!cell.textContent || cell.textContent.trim() === '') {
+            errors.push({
+              message: `Empty table cell found at table ${tableIndex + 1}, row ${rowIndex + 1}, cell ${cellIndex + 1}`,
+              line: 0,
+              column: 0
+            });
+          }
+        });
+
+        // Check that header rows have only header cells
+        if (rowIndex === 0 && headerCells.length === 0) {
+          errors.push({
+            message: `Table ${tableIndex + 1} appears to be missing a header row`,
+            line: 0,
+            column: 0
+          });
+        }
+      });
+    });
+  }
+
+  return { errors };
+};
+
+// Function to validate table accessibility
+const validateTableAccessibility = () => {
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { errors };
+  }
+
+  const tables = ...
+  tables.forEach((table, index) => {
+    // Check if table has proper headers
+    const headers = ...
+    const hasHeaders = headers.length > 0;
+
+    if (!hasHeaders) {
+      errors.push({
+        message: `Table ${index + 1} is missing header cells (th elements)`,
+        line: 0,
+        column: 0
+      });
+    }
+
+    // Check for scope attribute on headers
+    headers.forEach((header) => {
+      const scope = ...
+      if (!scope) {
+        errors.push({
+          message: `Table header missing scope attribute`,
+          line: 0,
+          column: 0
+        });
+      }
+    });
+
+    // Check for caption or summary
+    const caption = ...
+    const summary = ...
+    if (!caption && !summary) {
+      errors.push({
+        message: `Table ${index + 1} is missing a caption or summary`,
+        line: 0,
+        column: 0
+      });
+    }
+  });
+
+  return { errors };
+};
+
 // Function to create an in-page button with fake link handling
 const createInPageButton = (options = {}) => {
   const {
@@ -48,100 +139,7 @@ const createInPageButton = (options = {}) => {
     href = '#'
   } = options;
 
-  // Add the new function to validate table structure
-  const validateTableStructure = () => {
-    const errors = [];
-
-    if (typeof document === 'undefined') {
-      return { errors };
-    }
-
-    const tables = ...
-    if (tables.length > 0) {
-      tables.forEach((table, tableIndex) => {
-        const rows = ...
-        rows.forEach((row, rowIndex) => {
-          const cells = ... th');
-          const headerCells = ...
-
-          // Check for empty cells
-          cells.forEach((cell, cellIndex) => {
-            if (!cell.textContent || cell.textContent.trim() === '') {
-              errors.push({
-                message: `Empty table cell found at table ${tableIndex + 1}, row ${rowIndex + 1}, cell ${cellIndex + 1}`,
-                line: 0,
-                column: 0
-              });
-            }
-          });
-
-          // Check that header rows have only header cells
-          if (rowIndex === 0 && headerCells.length === 0) {
-            errors.push({
-              message: `Table ${tableIndex + 1} appears to be missing a header row`,
-              line: 0,
-              column: 0
-            });
-          }
-        });
-      });
-    }
-
-    return { errors };
-  };
-
-  // Add the function to validate table accessibility
-  const validateTableAccessibility = () => {
-    const errors = [];
-
-    if (typeof document === 'undefined') {
-      return { errors };
-    }
-
-    const tables = ...
-    tables.forEach((table, index) => {
-      // Check if table has proper headers
-      const headers = ...
-      const hasHeaders = headers.length > 0;
-
-      if (!hasHeaders) {
-        errors.push({
-          message: `Table ${index + 1} is missing header cells (th elements)`,
-          line: 0,
-          column: 0
-        });
-      }
-
-      // Check for scope attribute on headers
-      headers.forEach((header) => {
-        const scope = ...
-        if (!scope) {
-          errors.push({
-            message: `Table header missing scope attribute`,
-            line: 0,
-            column: 0
-          });
-        }
-      });
-
-      // Check for caption or summary
-      const caption = ...
-      const summary = ...
-      if (!caption && !summary) {
-        errors.push({
-          message: `Table ${index + 1} is missing a caption or summary`,
-          line: 0,
-          column: 0
-        });
-      }
-    });
-
-    return { errors };
-  };
-
-  // ... (The rest of the createInPageButton function remains the same)
-
-  // Add the function to validate landmarks
+  // Function to validate landmarks
   const validateLandmarkStructure = () => {
     const errors = [];
 
@@ -199,17 +197,34 @@ const createInPageButton = (options = {}) => {
   };
 
   // Export all functions and components
-  export {
-    getLangAttribute,
-    getSvgAccessibleName,
-    createInPageButton,
-    InPageButton,
-    validateTableStructure,
-    validateTableAccessibility,
+  return {
     validateLandmarkStructure,
     validateLandmark,
-    Root,
-    validateTableStructure, // NEW EXPORT
-    validateTableAccessibility  // NEW EXPORT
+    Root
   };
 };
+
+// React component for the InPageButton
+const InPageButton = () => {
+  // ... (The InPageButton component remains the same)
+};
+
+// React component for the Root component
+const Root = () => {
+  // ... (The Root function remains the same)
+};
+
+// Module-level exports
+export {
+  getLangAttribute,
+  getSvgAccessibleName,
+  createInPageButton,
+  InPageButton,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateLandmarkStructure,
+  Root
+};
+
+// Note: validateLandmark is an alias for validateLandmarkStructure (exported via createInPageButton for backwards compatibility)
+export { validateLandmarkStructure as validateLandmark };

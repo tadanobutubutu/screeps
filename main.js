@@ -139,9 +139,20 @@ function addSvgAccessibleNames() {
 
 // NEW: Fix favicon accessibility by marking as decorative
 function fixFaviconAccessibility() {
+  // Handle link elements with rel="icon" or rel="apple-touch-icon"
   const faviconLinks = document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]');
   faviconLinks.forEach(link => {
     link.setAttribute('aria-hidden', 'true');
+  });
+  
+  // Also handle SVG data URIs in link elements
+  const iconLinks = document.querySelectorAll('link[rel*="icon"]');
+  iconLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href.startsWith('data:image/svg+xml')) {
+      // Mark as decorative since it's a favicon
+      link.setAttribute('aria-hidden', 'true');
+    }
   });
 }
 

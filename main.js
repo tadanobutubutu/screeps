@@ -171,4 +171,4 @@ export {
   validateTableStructure // Export the new validateTableStructure function
 };
 
-ReactDOM.render(<Root />, ...
+ReactDOM.render(<Root />, ...);

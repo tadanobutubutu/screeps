@@ -98,10 +98,10 @@ function fixLandmarks() {
         main.setAttribute('role', 'main');
         // Move body children (except header/footer/nav) into main
         const bodyChildren = Array.from(body.childNodes);
-        bodyChildren.forEach((child) => {
+        bodyChildren.forEach(child => {
             if (child.nodeType === Node.ELEMENT_NODE) {
                 const tagName = child.tagName.toUpperCase();
-                if (!['HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE'].includes(tagName)) {
+                if (!['HEADER', 'FOOTER', 'NAV', 'MAIN'].includes(tagName)) {
                     main.appendChild(child);
                 }
             } else if (child.nodeType === Node.TEXT_NODE) {
@@ -131,7 +131,7 @@ function fixLandmarks() {
         nav.setAttribute('aria-label', 'Main navigation');
         const existingNavs = document.querySelectorAll('nav');
         nav.setAttribute('aria-label', existingNavs.length > 0 ? 'Additional navigation' : 'Main navigation');
-        body.appendChild(nav);
+        body.insertBefore(nav, body.firstChild);
     }
 
     // Ensure a <footer> landmark exists
@@ -146,7 +146,7 @@ function fixLandmarks() {
 /**
  * New function REACT_041: Add accessible names to SVGs
  *
- * Issue: SVG elements without accessible names are not announced
+ * Issue: SVG elements without accessible name are not announced
  * properly by screen readers, making them inaccessible to users
  * who rely on assistive technology.
  *
@@ -181,7 +181,7 @@ function addAccessibleNamesToSVGs() {
  */
 function ensureUniqueLandmarks() {
     const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section[role]'];
-    landmarkSelectors.forEach((selector) => {
+    landmarkSelectors.forEach(selector => {
         const landmarks = document.querySelectorAll(selector);
         if (landmarks.length > 1) {
             landmarks.forEach((landmark, index) => {
@@ -204,7 +204,7 @@ function handleRotateBack() {
 
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('graphRotationComplete', { detail: { degrees: 0 } });
+        const event = new CustomEvent('graphRotate', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }

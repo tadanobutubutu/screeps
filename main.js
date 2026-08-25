@@ -343,4 +343,9 @@ export function addressAccessibilityIssues() {
     setSvgAccessibleName(document.querySelectorAll('svg'), 'Icon');
     fixFakeLinks();
     addLandmarkRegions();
+    setDocumentLanguage(getFullLangAttribute(getLangAttribute()));
+}
+
+export function setDocumentLanguage(lang = 'en') {
+    document.documentElement.lang = lang;
 }

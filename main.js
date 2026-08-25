@@ -38,20 +38,20 @@ function generateDependencyGraphData() {
 
     // Call the new function
     newFunction();
-  }
 
-  // New Function ( React_036 )
-  function fixFakeLink() {
+    // Fix 1 fake link issue (REACT_036)
     // Assuming you are using a routine to check for and validate all links
     //... existing link validation logic ...
+    function fixFakeLink() {
+      // Assuming you are using a routine to check for and validate all links
+      //... existing link validation logic ...
+    }
+
+    return fixFakeLink;
   }
 
   // Call the landmark managing function
-  manageLandmarks();
-
-  // Fix 1 fake link issue (REACT_036)
-  // Assuming you are using a routine to check for and validate all links
-  //... existing link validation logic ...
+  const fixFakeLink = manageLandmarks();
 
   // ... existing room processing code ...
 
@@ -71,7 +71,7 @@ function generateDependencyGraphData() {
   // Preserve the 'fixFakeLink' function since it belongs to manageLandmarks
   // It is not recommended to bind the function to an object prototype as it could lead to unexpected behavior.
   // For the purpose of this example, it's bound to the prototype object but do consider refactoring if necessary.
-  manageLandmarks.prototype.fixFakeLink = fixFakeLink;
+  generateDependencyGraphData.prototype.fixFakeLink = fixFakeLink;
 
   return { /* ... existing reduced object ... */ };
 }

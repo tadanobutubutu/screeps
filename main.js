@@ -56,6 +56,32 @@ function getSvgAccessibleName() {
   return '';
 }
 
+function wrapPrimaryContentInMain() {
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  const body = document.body;
+  const main = document.createElement('main');
+  const nodes = [];
+  for (let i = 0; i < body.childNodes.length; i++) {
+    const node = body.childNodes[i];
+    if (node.nodeType === 1) {
+      const tag = node.tagName.toLowerCase();
+      if (!['header', 'footer', 'nav', 'aside', 'script', 'style', 'link'].includes(tag)) {
+        nodes.push(node);
+      }
+    }
+  }
+  nodes.forEach(node => main.appendChild(node));
+  if (nodes.length > 0) {
+    body.insertBefore(main, body.firstChild);
+  } else {
+    body.appendChild(main);
+  }
+  return main;
+}
+
 // Wrap primary content in main element for accessibility
 function addMainLandmark() {
   return wrapPrimaryContentInMain();

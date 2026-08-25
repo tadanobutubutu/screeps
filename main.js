@@ -1,22 +1,25 @@
-// Address accessibility issues from insight report
-// TODO: This is the existing code that needs to be preserved
+// main.js
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
-
-// Function to get language attribute from the document
-const getLangAttribute = () => {
-  if (typeof document === 'undefined') {
-    return 'en';
+// Function to wrap primary content in a main element
+function wrapPrimaryContentInMain(selector) {
+  // Select the primary content
+  const primaryContent = document.querySelector(selector);
+  
+  // Check if the primary content exists
+  if (primaryContent) {
+    // Create a new main element
+    const mainElement = document.createElement('main');
+    
+    // Append the primary content to the main element
+    mainElement.appendChild(primaryContent);
+    
+    // Replace the original primary content with the main element
+    primaryContent.parentNode.replaceChild(mainElement, primaryContent);
   }
-  const htmlElement = document.documentElement;
-  return htmlElement ? htmlElement.getAttribute('lang') : 'en';
-};
+}
 
-// Function to get SVG accessible name
-const getSvgAccessibleName = (svgElement) => {
-  if (!svgElement) return '';
+// TODO: Implement wrapPrimaryContentInMain function
+wrapPrimaryContentInMain('#primary-content');
 
   // Check for aria-label
   const ariaLabel = svgElement.getAttribute('aria-label');

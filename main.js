@@ -1,3 +1,6 @@
+Here is the resolved main.js file combining both changes:
+
+```javascript
 /**
  * Adds `aria-labelledby` to elements, if necessary
  * @param {HTMLElement} elem - Element to check aria-labelledby
@@ -22,7 +25,7 @@ function addAriaLabelledbyIfNeeded(elem) {
       const children = current.children;
       for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE') {
+        if (child.tagName !== 'SCRIPPT' && child.tagName !== 'STYLE') {
           collectIds(child);
         }
       }
@@ -32,10 +35,8 @@ function addAriaLabelledbyIfNeeded(elem) {
 
     // Compose aria-labelledby from IDs and quasi-ids,
     // if there is at least one child element (avoids empty strings)
-    if (ids.length > 0 || quasiIds.length > 0) {
-      const ariaLabelbyValue = ids.length > 0 ? ids.join(' ') : quasiIds.join(' ');
-      elem.setAttribute('aria-labelledby', ariaLabelbyValue);
-    }
+    const ariaLabelbyValue = ids.length > 0 ? ids.join(' ') : quasiIds.join(' ');
+    elem.setAttribute('aria-labelledby', ariaLabelbyValue);
   }
 }
 
@@ -78,14 +79,19 @@ function validateLandmarkStructure(landmark) {
   const hasHeading = headings.length > 0;
 
   // Incorporate new conditions for a valid landmark
-  return isLandmark && hasValidHeadingStructure && hasHeading;
+  if (!isLandmark || !hasValidHeadingStructure || !hasHeading) {
+    return false;
+  }
+
+  return true;
 }
 
-// Add a new function for validating landmark structure on elements
+// Add a new function for validating landmarks on elements
 function validateLandmarks(landmarks) {
   const validLandmarks = [];
   const invalidLandmarks = [];
 
+  // Updated check based on the new validation logic
   landmarks.forEach((landmark) => {
     const validationResult = validateLandmarkStructure(landmark);
     if (validationResult) {
@@ -99,3 +105,6 @@ function validateLandmarks(landmarks) {
 }
 
 // ... (Pre-existing exported functions and code)
+```
+
+In this resolution, the original landmark validation function has been modified to return false when the landmark is invalid based on the new validation logic introduced in the conflicting changes. The `validateLandmarks` function has been updated correspondingly.

@@ -4,30 +4,32 @@ export const handleRotateBack = () => {
   document.body.style.transition = 'transform 0.3s ease';
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Preserve existing code from main.js
+const unrotatedButton = () => {
   const unrotateElement = document.getElementById('unrotate');
-  
   if (unrotateElement && unrotateElement.tagName === 'A') {
-    // Create a button to replace the fake link for better accessibility
     const button = document.createElement('button');
     button.id = 'unrotate';
     button.textContent = unrotateElement.textContent;
-    
-    // Preserve classes and inline styles
+
     button.className = unrotateElement.className;
     if (unrotateElement.style.cssText) {
       button.style.cssText = unrotateElement.style.cssText;
     }
-    
-    // Add click handler for rotate back functionality
+
     button.addEventListener('click', function() {
-      // Rotate back to original position
       handleRotateBack();
     });
-    
-    // Replace the anchor with the button
-    unrotateElement.parentNode.replaceChild(button, unrotateElement);
+
+    return button;
+  }
+  return null;
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  const newUnrotateElement = unrotatedButton();
+
+  if (newUnrotateElement) {
+    unrotateElement.parentNode.replaceChild(newUnrotateElement, unrotateElement);
   }
 
   // Wrap the primary content in a <main> element for accessibility

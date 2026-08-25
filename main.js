@@ -151,6 +151,6 @@ module.exports = {
     fixFakeLinkIssue,
     addProperLandmarkRegions, // Include the new function in the exports
     renderDependencyGraph1,
-    renderDependencyGraph2,
+    renderDependencyGraph2
     // ... Add any other exports that were found to be affected by the update ...
 };

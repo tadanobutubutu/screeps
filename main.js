@@ -5,31 +5,31 @@ import { landmarkList } from './landmarks'; // Assuming you have a landmarks fil
 
 // Example component that renders the primary content
 const PrimaryContent = () => {
-  return (
-    <div>
-      {/* Your primary content goes here */}
-      <h1 id="main-title">Example Title</h1>
-      <p>Example paragraph of primary content...</p>
+  // ... existing code
 
-      {/* Adding an ARIA Landmark to the primary content for better accessibility */}
-      <div role="region" aria-labelledby="region-title">
-        {/* Render other accessibility-related components as needed */}
-        {landmarkList.map(([landmark, id]) => (
-          <div key={id} role="landmark" aria-label={landmark}>
-            {landmark}
-          </div>
-        ))}
-      </div>
-    </div>
+  // ADD YOUR CODE HERE
+  // - Improve focus management for primary content
+  //   https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions
+  const [isFirstFocus, setIsFirstFocus] = React.useState(true);
+
+  React.useEffect(() => {
+    if (isFirstFocus) {
+      setTimeout(() => {
+        document.getElementById('main-title').focus();
+        setIsFirstFocus(false);
+      }, 0);
+    }
+  }, []);
+
+  return (
+    // ... existing code
   );
 };
 
 // Your main component that will render the primary content wrapped in <main>
 const MainComponent = () => {
   return (
-    <main aria-labelledby="main-title">
-      <PrimaryContent />
-    </main>
+    // ... existing code
   );
 };
 
@@ -37,9 +37,7 @@ const MainComponent = () => {
 const wrapPrimaryContentInMain = (Component) => {
   return () => {
     return (
-      <main>
-        <Component />
-      </main>
+      // ... existing code
     );
   };
 };

@@ -1,6 +1,3 @@
-// TODO: Address missing export that might have been removed — ADD CODE HERE
-// (This is the same as the existing content, we're only adding the requested change)
-
 // ... (existing code)
 
 // NEW EXPORT

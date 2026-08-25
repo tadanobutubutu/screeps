@@ -129,5 +129,28 @@ function fixTableConstraints() {
     });
 }
 
+// New function to replace fake links (<a href="#">) with accessible buttons
+function fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    fakeLinks.forEach(link => {
+        const button = document.createElement('button');
+        button.textContent = link.textContent;
+        button.type = 'button'; // Ensures the button acts as a button
+        if (link.id) {
+            button.id = link.id;
+        }
+        link.parentNode.replaceChild(button, link);
+    });
+}
+
 // Export the new functions
-export { setHtmlLangAttribute, addAllSvgAccessibleNames, addAllTableHeadersScope, fixInputAccessibility, fixTableStructureIssues, addProperLandmarkRegions, fixTableConstraints };
+export {
+    setHtmlLangAttribute,
+    addAllSvgAccessibleNames,
+    addAllTableHeadersScope,
+    fixInputAccessibility,
+    fixTableStructureIssues,
+    addProperLandmarkRegions,
+    fixTableConstraints,
+    fixFakeLinks,
+};

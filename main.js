@@ -12,18 +12,18 @@ import { indexContent } from "./indexContent";
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
   const { JSDOM } = require('jsdom');
-  const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div ...
+  const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
   const window = dom.window;
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ...
+    renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
   const mockDocument = window.document;
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = ...
+  const rootElement = mockDocument.getElementById('root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -59,7 +59,7 @@ function addAriaLabelledbyIfNeeded(elem, context) {
     content = React.createElement('div', { id: 'generatedId' }, null);
   }
   
-  const contentString = ...
+  const contentString = ReactDOMServer.renderToString(content);
   
   // ... (Pre-existing logic)
 }
@@ -68,7 +68,7 @@ function addAriaLabelledbyIfNeeded(elem, context) {
 // and use that context to render React components:
 
 function initAriaLabels() {
-  const elements = ...
+  const elements = [];
   elements.forEach((elem) => {
     const id = elem.id || 'aria-label-' + Math.floor(Math.random() * 9);
     elem.id = id;
@@ -91,13 +91,13 @@ function initAriaLabels() {
  * @param {Object} context - The React context containing window and document references
  * @returns {HTMLElement|null} - The created main element or null if no content found
  */
-function ... {
+function wrapMainElement(context) {
   if (!context || !context.document) return null;
   
   const { document } = context;
   
   // Check if a main element already exists
-  const existingMain = ... [role="main"]');
+  const existingMain = document.querySelector('[role="main"]');
   if (existingMain) {
     return existingMain;
   }
@@ -109,16 +109,16 @@ function ... {
   }
   
   // Create a new main element
-  const mainElement = ...
+  const mainElement = document.createElement('main');
   mainElement.setAttribute('role', 'main');
   
   // Move all body children into the main element
   while (body.firstChild) {
-    ...
+    mainElement.appendChild(body.firstChild);
   }
   
   // Append the main element to the body
-  ...
+  body.appendChild(mainElement);
   
   return mainElement;
 }
@@ -137,7 +137,7 @@ function addLangAttribute(context, lang = 'en') {
   const htmlElement = document.documentElement;
   
   if (htmlElement) {
-    ... lang);
+    htmlElement.setAttribute('lang', lang);
     return htmlElement;
   }
   
@@ -151,52 +151,51 @@ function addLangAttribute(context, lang = 'en') {
  * @param {Object} context - The React context containing window and document references
  * @returns {number} - The number of table structure issues fixed
  */
-function ... {
+function fixTableStructure(context) {
   if (!context || !context.document) return 0;
   
   const { document } = context;
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   let issuesFixed = 0;
   
   tables.forEach((table) => {
     // Check if table has a caption
-    let caption = ...
+    let caption = table.querySelector('caption');
     if (!caption) {
-      caption = ...
+      caption = document.createElement('caption');
       caption.textContent = 'Table';
-      ... table.firstChild);
+      table.insertBefore(caption, table.firstChild);
       issuesFixed++;
     }
     
     // Check if table has a thead
-    const thead = ...
+    const thead = table.querySelector('thead');
     if (!thead && table.rows.length > 0) {
       const newThead = document.createElement('thead');
-      ...
-      ... table.firstChild);
+      table.insertBefore(newThead, table.firstChild);
       issuesFixed++;
     }
     
     // Check if table has a tbody
-    const tbody = ...
+    const tbody = table.querySelector('tbody');
     if (!tbody) {
-      const allRows = ...
+      const allRows = Array.from(table.rows);
       if (allRows.length > 0) {
-        const newTbody = ...
+        const newTbody = document.createElement('tbody');
         allRows.forEach((row) => {
           if (row.parentNode === table) {
-            ...
+            newTbody.appendChild(row);
           }
         });
-        ...
+        table.appendChild(newTbody);
         issuesFixed++;
       }
     }
     
     // Check if header cells have proper scope attributes
-    const headerCells = ...
+    const headerCells = table.querySelectorAll('th');
     headerCells.forEach((th) => {
-      if ... {
+      if (!th.hasAttribute('scope')) {
         th.setAttribute('scope', 'col');
         issuesFixed++;
       }
@@ -239,70 +238,4 @@ function implementSomething(context) {
  * Analyzes text content to infer the most likely language.
  * 
  * @param {Object} context - The React context containing window and document references
- * @returns {string} - The detected language code (e.g., 'en', 'es', 'fr')
- */
-function determineActiveLanguage(context) {
-  if (!context || !context.document) return 'en';
-  
-  const { document } = context;
-  const htmlElement = document.documentElement;
-  
-  // Check if lang attribute is already set on html element
-  const existingLang = htmlElement ? htmlElement.getAttribute('lang') : null;
-  if (existingLang) {
-    return existingLang;
-  }
-  
-  // Analyze text content to determine language
-  const textContent = document.body ? document.body.textContent || '' : '';
-  
-  // Define language classifiers based on common words/phrases
-  const languagePatterns = {
-    en: ['the', 'and', 'is', 'in', 'to', 'of', 'for', 'with', 'on', 'at'],
-    es: ['el', 'la', 'de', 'que', 'y', 'en', 'se', 'que', 'por', 'con'],
-    fr: ['le', 'la', 'les', 'de', 'et', 'en', 'se', 'dans', 'pour', 'du']
-  };
-  
-  const textLower = textContent.toLowerCase();
-  let detectedLanguage = 'en';
-  let maxScore = 0;
-  
-  ... patterns]) => {
-    const score = patterns.filter(word => 
-      ...
-    ).length;
-    
-    if (score > maxScore) {
-      maxScore = score;
-      detectedLanguage = lang;
-    }
-  });
-  
-  return detectedLanguage;
-}
-
-/**
- * Applies accessibility improvements to all tables in the document.
- * Iterates through all tables and applies structural fixes for better accessibility.
- * 
- * @param {Object} context - The React context containing window and document references
- * @returns {number} - The total number of table structure issues fixed
- */
-function ... {
-  if (!context || !context.document) return 0;
-  
-  return ...
-}
-
-// Export all functions for external use
-export {
-  createReactContext,
-  addAriaLabelledbyIfNeeded,
-  initAriaLabels,
-  wrapMainElement,
-  addLangAttribute,
-  fixTableStructure,
-  determineActiveLanguage,
-  applyTableAccessibility,
-  implementSomething
-};
+ * @returns {string} - The detected language code (e.g., 'en

@@ -1,18 +1,17 @@
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// TODO: Address accessibility issues from insight report: in main.js (Replace `my-button` with the actual button id)
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  const updatedContent = content.replace(/<a([^>]*)>/g, (match, attrs) => {
+  const updatedContent = content.replace(/<a([^>]*)(?<!href)>/gi, (match, attrs) => {
     if (attrs.includes('href')) {
       return match;
     }
     return `<button${attrs}>`;
   });
   // Also fix closing tags
-  const finalContent = updatedContent.replace(/<\/a>/g, '</button>');
+  const finalContent = updatedContent.replace(/<\/a>/gi, '</button>');
   fs.writeFileSync(filePath, finalContent);
   console.log(`Fixed fake link issues in ${filePath}`);
 }
@@ -50,11 +49,11 @@ function fixTableStructure(filePath) {
     // Add thead if not present
     if (!fixedContent.includes('<thead')) {
       // Find first row and wrap in thead
-      fixedContent = fixedContent.replace(/<tr([^>]*)>/, '<thead><tr$1>');
+      fixedContent = fixedContent.replace(/<tr([^>]*)>([\s\S]*?)<\/tr>/, '<thead><tr$1>$2</tr></thead>');
     }
     // Add closing thead tag before tbody if needed
-    if (fixedContent.includes('<thead') && !fixedContent.includes('</thead>') && fixedContent.includes('<tbody')) {
-      fixedContent = fixedContent.replace(/<\/tr><tbody/, '</tr></thead><tbody');
+    if (fixedContent.includes('</tr>') && fixedContent.includes('<tbody') && !fixedContent.includes('</thead><tbody')) {
+      fixedContent = fixedContent.replace('</thead>', '</tr></thead><tbody');
     }
     // Add tbody if not present
     if (!fixedContent.includes('<tbody')) {
@@ -64,7 +63,7 @@ function fixTableStructure(filePath) {
       }
     }
     // Fix th elements to have scope attribute
-    fixedContent = fixedContent.replace(/<th([^>]*)>/g, (thMatch, attrs) => {
+    fixedContent = fixedContent.replace(/<th([^>]*)>/gi, (thMatch, attrs) => {
       if (attrs.includes('scope=')) {
         return thMatch;
       }
@@ -86,7 +85,7 @@ function addMainLandmark(filePath) {
     if (bodyMatch) {
       const bodyContent = bodyMatch[1];
       const wrappedContent = `<main>${bodyContent}</main>`;
-      content = content.replace(bodyMatch[0], wrappedContent);
+      content = content.replace(bodyContent, wrappedContent);
     }
   }
   fs.writeFileSync(filePath, content);
@@ -147,7 +146,7 @@ function addSvgAccessibleNames(filePath) {
 function addAltAttribute(filePath) {
   const fs = require('fs');
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img([^>]*)>/g, (match, attrs) => {
+  const updatedContent = content.replace(/<img([^>]*)>/gi, (match, attrs) => {
     if (attrs.includes('alt=')) {
       return match;
     }
@@ -157,9 +156,42 @@ function addAltAttribute(filePath) {
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
+function replaceButtonId(filePath, newButtonId) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  
+  // Replace my-button with the actual button id
+  const buttonIdRegex = /id=["']my-button["']/gi;
+  let match;
+  let replacementCount = 0;
+  
+  // Replace id attributes
+  const updatedContent = content.replace(buttonIdRegex, (match) => {
+    replacementCount++;
+    return `id="${newButtonId}"`;
+  });
+  
+  // Also replace any references in aria-controls, aria-labelledby, etc.
+  const ariaRefRegex = /(aria-(?:controls|labelledby|describedby))=["']my-button["']/gi;
+  const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
+    return `${attr}="${newButtonId}"`;
+  });
+  
+  // Replace data attributes if any
+  const dataRefRegex = /data-(?:for|target)=["']my-button["']/gi;
+  const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
+    return `${attr}="${newButtonId}"`;
+  });
+  
+  fs.writeFileSync(filePath, finalFinalContent);
+  console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${replacementCount} replacement(s) made)`);
+  
+  return replacementCount;
+}
+
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
-  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  const report = fs.readFileSync(reportPath, 'utf8');
 
   if (report && Array.isArray(report.issues)) {
     report.issues.forEach(issue => {
@@ -189,6 +221,9 @@ function addressAccessibilityIssues(reportPath) {
           case 'alt_attribute':
             addAltAttribute(issue.file);
             break;
+          case 'button_id':
+            replaceButtonId(issue.file, issue.newButtonId || 'action-button');
+            break;
           // ... (these cases were here previously)
           case 'new_issue_type':
             // Implementation for the new issue type goes here
@@ -204,8 +239,14 @@ function addressAccessibilityIssues(reportPath) {
 }
 
 // Create a new function called implementAccessibilityFixesFromReport to wrap the addressAccessibilityIssues function
-function implementAccessibilityFixesFromReport(reportPath) {
+function implementAccessibilityFixesFromReport(reportPath, buttonIdMap) {
   try {
+    // If buttonIdMap is provided, apply button id replacements
+    if (buttonIdMap && typeof buttonIdMap === 'object') {
+      for (const [filePath, newButtonId] of Object.entries(buttonIdMap)) {
+        replaceButtonId(filePath, newButtonId);
+      }
+    }
     addressAccessibilityIssues(reportPath);
     console.log('All accessibility fixes have been successfully implemented.');
     return true;
@@ -224,6 +265,7 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAltAttribute,
+  replaceButtonId,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport
 };

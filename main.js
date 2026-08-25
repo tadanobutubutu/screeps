@@ -37,9 +37,9 @@ const Dashboard: React.FC = () => {
       <button
         onClick={copyErr}
         onMouseEnter={() => setErrCopyHover(true)}
-        onMouseLeave={() => setErrCopyHover(false)}
+        onMouseLeave={() => ...
         onFocus={() => setErrCopyHover(true)}
-        onBlur={() => setErrCopyHover(false)}
+        onBlur={() => ...
         aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
         title={copied ? 'コピー済み' : 'エラーをコピー'}
         style={{

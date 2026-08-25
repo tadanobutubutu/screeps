@@ -27,7 +27,13 @@ function indexFunction() {
 
 // ... other functions and exports
 
+// New function requested in the issue (example function)
+function newFunction() {
+  // ... new code for the new function
+}
+
 module.exports = {
   dependencyGraphFunction,
   indexFunction,
+  newFunction, // Exporting the new function
 };

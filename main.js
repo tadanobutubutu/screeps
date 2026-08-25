@@ -13,7 +13,7 @@ function fixTableStructure() {
     const rows = table.querySelectorAll('tr');
 
     rows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('th, td');
+      const cells = row.querySelectorAll('td, th');
 
       cells.forEach((cell, cellIndex) => {
         if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
@@ -43,7 +43,7 @@ function ensureUniqueLandmarks() {
 }
 
 // Ensure unique landmarks (2 issues)
-function fixUniqueLandmarks() {
+function ensureUniqueLandmarks() {
   // Implementation code
 }
 
@@ -68,15 +68,15 @@ function createAccessibleLink() {
 function addressAccessibilityIssues() {
   fixTableStructure();
   addMainLandmark();
-  fixUniqueLandmarks();
   fixFakeLinkIssue();
 }
 
 // Example usage of the accessibility functions
-...
-...
-...
-...
-...
+addLangAttribute();
+validateLandmark();
+validateLinkAccessibility();
+createInPageButton();
+createAccessibleLink();
+ensureUniqueLandmarks();
 // Add the new function at the end
 addressAccessibilityIssues();

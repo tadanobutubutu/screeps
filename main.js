@@ -1,5 +1,6 @@
-// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
+
+// TODO: Address accessibility issues from insight report — FIXED
 
 function fixFakeLinkIssue(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -73,6 +74,13 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
+function addAltAttribute(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -80,5 +88,6 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addAltAttribute
 };

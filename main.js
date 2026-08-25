@@ -1,5 +1,23 @@
 // ... existing imports and declarations ...
 
+// TODO: Implement the new function as per the issue requirements
+function ensureUniqueLandmarkNames() {
+  const landmarks = document.querySelectorAll('[role="contentinfo"]');
+  const landmarkNames = new Set();
+
+  landmarks.forEach((landmark) => {
+    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+
+    if (landmarkName && !landmarkNames.has(landmarkName)) {
+      landmarkNames.add(landmarkName);
+    } else {
+      // Generate a unique id and add to the landmark
+      const id = `landmark-${Math.floor(Math.random() * 100000)}`;
+      landmark.setAttribute('id', id);
+    }
+  });
+}
+
 // FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 function fixAccessibilityIssues() {
   // ... existing fixAccessibilityIssues function ...
@@ -33,24 +51,6 @@ function addSvgAccessibleNames() {
 // ADD THE FUNCTION TO FIX FAKE LINK ISSUES
 function fixFakeLinkIssue() {
   // ... existing fixFakeLinkIssue function ...
-}
-
-// NEW FUNCTIONS FROM ISSUE REPORT
-function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"]');
-  const landmarkNames = new Set();
-
-  landmarks.forEach((landmark) => {
-    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
-
-    if (landmarkName && !landmarkNames.has(landmarkName)) {
-      landmarkNames.add(landmarkName);
-    } else {
-      // Generate a unique id and add to the landmark
-      const id = `landmark-${Math.floor(Math.random() * 100000)}`;
-      landmark.setAttribute('id', id);
-    }
-  });
 }
 
 // EXPORTS

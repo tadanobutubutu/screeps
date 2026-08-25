@@ -146,7 +146,7 @@ function renderDependencyGraph() {
   // ... rendering logic using indexContent
   
   // Use imported dependencyGraphContent and indexContent to render the graph
-  const graphContainer = document.getElementById('dependency-graph');
+  const graphContainer = ...
   if (graphContainer) {
     graphContainer.innerHTML = dependencyGraphContent || indexContent || '<p>No dependency graph available.</p>';
   }

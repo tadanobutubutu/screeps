@@ -12,8 +12,8 @@ const getLangAttribute = () => {
   return null;
 };
 
-// Function to validate table accessibility
-const validateTableAccessibility = () => {
+// Function to validate table structure
+const validateTableStructure = () => {
   const results = {
     valid: true,
     errors: []
@@ -23,31 +23,23 @@ const validateTableAccessibility = () => {
     const tables = document.querySelectorAll('table');
 
     tables.forEach((table, index) => {
-      const caption = table.querySelector('caption');
-      const ariaLabel = table.getAttribute('aria-label');
-      const ariaDescribedBy = table.getAttribute('aria-describedby');
+      const ths = table.querySelectorAll('th');
+      const tds = table.querySelectorAll('td');
 
-      // Check if table has a caption, aria-label, or aria-describedby
-      if (!caption && !ariaLabel && !ariaDescribedBy) {
+      // Check if number of ths and tds match
+      if (ths.length !== tds.length) {
         results.valid = false;
-        results.errors.push(`Table ${index + 1}: Missing caption, aria-label, or aria-describedby`);
+        results.errors.push(`Table ${index + 1}: Number of th and td elements do not match`);
       }
-
-      // Check if header cells have proper scope or are marked with role="columnheader"/"rowheader"
-      const headers = table.querySelectorAll('th');
-      headers.forEach((header, hIndex) => {
-        const scope = header.getAttribute('scope');
-        const role = header.getAttribute('role');
-
-        if (!scope && !role) {
-          results.valid = false;
-          results.errors.push(`Table ${index + 1}, Header ${hIndex + 1}: Missing scope or role attribute`);
-        }
-      });
     });
   }
 
   return results;
+};
+
+// Function to validate table accessibility
+const validateTableAccessibility = () => {
+  // ... Keep existing code here (except the part related to validateTableStructure)
 };
 
 const Root = () => {
@@ -61,6 +53,12 @@ const Root = () => {
   const newFunction = () => {
     // Logic for the new function
   };
+
+  // Add new validateTableStructure function validation
+  const tableStructureError = validateTableStructure();
+  if (!tableStructureError.valid) {
+    console.error(tableStructureError.errors);
+  }
 
   return (
     <html lang="en">

@@ -1,3 +1,6 @@
+Here is the resolved `main.js` file:
+
+```javascript
 // Assuming the `main.js` file contains the logic for setting up the application, including the components that are using the SVGs in question.
 
 // Import necessary dependencies and modules
@@ -14,8 +17,8 @@ function addAccessibleName(svgString) {
 
 // Modify the SVGs in the icons object
 const icons = {
-  icon: addAccessibleName('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'),
-  apple: addAccessibleName('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🐛</text></svg>'),
+  icon: addAccessibleName('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'),
+  apple: addAccessibleName('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" font-size="90">🐛</text></svg>'),
 };
 
 // Render the application
@@ -25,3 +28,6 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
+```
+
+This file includes the changes from both branches, which add accessible names to the SVGs and update the icons object to accommodate those changes. The rendered App component receives the icons object as a prop, as before.

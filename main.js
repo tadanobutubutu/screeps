@@ -17,7 +17,26 @@ function dependencyGraphFunction() {
 
   // New function for ensuring unique landmarks (added)
   function ensureUniqueLandmarks() {
-    // Implementation details not provided here
+    const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+    const usedLabels = new Set();
+
+    landmarks.forEach(landmark => {
+      const existingLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('id');
+      if (existingLabel && usedLabels.has(existingLabel)) {
+        // Generate unique label
+        const baseLabel = existingLabel || 'landmark';
+        let counter = 1;
+        let newLabel = `${baseLabel}-${counter}`;
+        while (usedLabels.has(newLabel)) {
+          counter++;
+          newLabel = `${baseLabel}-${counter}`;
+        }
+        landmark.setAttribute('aria-label', newLabel);
+        usedLabels.add(newLabel);
+      } else if (existingLabel) {
+        usedLabels.add(existingLabel);
+      }
+    });
   }
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the dependency graph (new)
@@ -37,7 +56,26 @@ function indexFunction() {
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
   function ensureUniqueLandmarks() {
-    // Implementation details not provided here
+    const landmarks = document.querySelectorAll('header, nav, main, aside, footer');
+    const usedLabels = new Set();
+
+    landmarks.forEach(landmark => {
+      const existingLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('id');
+      if (existingLabel && usedLabels.has(existingLabel)) {
+        // Generate unique label
+        const baseLabel = existingLabel || 'landmark';
+        let counter = 1;
+        let newLabel = `${baseLabel}-${counter}`;
+        while (usedLabels.has(newLabel)) {
+          counter++;
+          newLabel = `${baseLabel}-${counter}`;
+        }
+        landmark.setAttribute('aria-label', newLabel);
+        usedLabels.add(newLabel);
+      } else if (existingLabel) {
+        usedLabels.add(existingLabel);
+      }
+    });
   }
 
   // Accessibility: Call ensureUniqueLandmarks after rendering the index view (new)
@@ -49,13 +87,15 @@ function indexFunction() {
 
 // Accessibility: Ensure that lang attribute is added to the document's HTML element
 function ensureLangAttribute() {
-  // Code to ensure the lang attribute is set correctly
-  // (Implementation details are not provided here)
+  const htmlElement = document.documentElement;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 // Accessibility: Add <main> landmark to the main content area of each HTML page (unchanged)
 function addMainLandmark() {
-  const mainContentSelector = 'div.container'; // This selector should be updated to match the actual main content container
+  const mainContentSelector = 'div.container';
   const mainContent = document.querySelector(mainContentSelector);
   if (mainContent) {
     const mainElement = document.createElement('main');
@@ -72,7 +112,9 @@ addMainLandmark();
 // Accessibility: Add lang attribute to HTML element (DONE: addLangAttribute)
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 // Accessibility: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
@@ -107,7 +149,7 @@ function fixTableStructureIssues() {
     }
     
     if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
+      const rows = Array.from(table.querySelectorAll('tr:not(:first-child)'));
       if (rows.length > 0) {
         const tbody = document.createElement('tbody');
         rows.forEach(row => tbody.appendChild(row));
@@ -129,12 +171,12 @@ function fixTableStructureIssues() {
 function fixFakeLinkIssue() {
   // Assuming there is a fake link that needs to be fixed
   // Implementation details are not provided here
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  const fakeLinks = document.querySelectorAll('[role="link"], .fake-link, a[href="#"], span[onclick]');
   
   fakeLinks.forEach(el => {
     // Convert fake link to proper anchor or handle appropriately
-    const href = el.getAttribute('data-href');
-    if (href) {
+    const href = el.getAttribute('data-href') || el.getAttribute('href');
+    if (href && href !== '#') {
       el.setAttribute('tabindex', '0');
       el.addEventListener('click', (e) => {
         window.location.href = href;
@@ -166,40 +208,47 @@ module.exports = {
   uniqueLandmarksHandler,
   restructureTable,
   fixFakeLink,
+  handleAccessibilityInsights,
   // ...
 };
 
 // TODO: Implement function for addressing accessibility issues from insight report
 // New function implementation addressing accessibility issues from insight report
 function handleAccessibilityInsights() {
-  // Address unique landmarks
-  uniqueLandmarksHandler();
-
-  // Address table structure issues
+  // Ensure lang attribute is set
+  ensureLangAttribute();
+  
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
+  
+  // Fix table structure issues
   restructureTable();
 
-  // Address fake link issues
+  // Fix fake link issues
   fixFakeLink();
+  
+  // Ensure unique landmarks across the page
+  uniqueLandmarksHandler();
 }
 
 // Implementation of uniqueLandmarksHandler
 function uniqueLandmarksHandler() {
   // Ensure all landmark elements (like <main>, <nav>, <aside>, etc.) have unique aria-label or id attributes
-  const landmarks = document.querySelectorAll('main, nav, aside, header, footer');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section');
   const usedLabels = new Set();
 
   landmarks.forEach(landmark => {
     const existingLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('id');
-    if (existingLabel && !usedLabels.has(existingLabel)) {
-      usedLabels.add(existingLabel);
-    } else {
+    if (existingLabel && usedLabels.has(existingLabel)) {
       // Assign a unique label or id if not already unique
-      let label = existingLabel || `landmark-${Math.random().toString(36).substr(2, 9)}`;
+      let label = existingLabel + '-' + Math.random().toString(36).substr(2, 9);
       while (usedLabels.has(label)) {
-        label = `landmark-${Math.random().toString(36).substr(2, 9)}`;
+        label = existingLabel + '-' + Math.random().toString(36).substr(2, 9);
       }
       landmark.setAttribute('aria-label', label);
       usedLabels.add(label);
+    } else if (existingLabel) {
+      usedLabels.add(existingLabel);
     }
   });
 }
@@ -207,14 +256,15 @@ function uniqueLandmarksHandler() {
 // Implementation of restructureTable
 function restructureTable() {
   // Delegate to existing fixTableStructureIssues function
-  fixTableStructureIssues();
+  if (typeof fixTableStructureIssues === 'function') {
+    fixTableStructureIssues();
+  }
 }
 
 // Implementation of fixFakeLink
 function fixFakeLink() {
   // Delegate to existing fixFakeLinkIssue function
-  fixFakeLinkIssue();
+  if (typeof fixFakeLinkIssue === 'function') {
+    fixFakeLinkIssue();
+  }
 }
-
-// Export the new function
-module.exports.handleAccessibilityInsights = handleAccessibilityInsights;

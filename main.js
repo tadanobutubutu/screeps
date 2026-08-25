@@ -6,7 +6,15 @@ module.exports.newFunction = newFunction;
 
 // New function to fix table structure issues
 function fixTableStructureIssues() {
-  // Implementation to fix table structure issues
+  const filesAffected = [
+    'docs/dependency-graph.html'
+  ];
+  
+  filesAffected.forEach(file => {
+    const content = fs.readFileSync(file, 'utf-8');
+    const updatedContent = content.replace(/<th\b[^>]*>/g, '<th scope="col">');
+    fs.writeFileSync(file, updatedContent, 'utf-8');
+  });
 }
 
 // New function to ensure unique landmarks
@@ -64,3 +72,6 @@ fixLandmarkIssues();
 
 // Ensure that fake link issue is fixed
 fixFakeLinkIssue();
+
+// New function to fix table structure issues
+module.exports.fixTableStructure = fixTableStructureIssues;

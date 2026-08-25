@@ -1,6 +1,8 @@
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
+const { renderGraphContent } = require('./dependency-graph');
+
 document.querySelector('#dependencyGraph .dependencyGraph').setAttribute('role', 'tree');
 document.querySelector('#dependencyGraph .dependencyGraph').setAttribute('aria-label', 'Dependency Graph');
 
@@ -29,6 +31,3 @@ module.exports = {
   fixFakeLinks,
   renderGraphContent // original export preserves for calling from another file
 };
-
-// Call renderGraphContent function from another file
-renderGraphContent(someData);

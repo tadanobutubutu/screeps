@@ -36,31 +36,6 @@ function toggleRotation() {
     img.style.transform = `rotate(${rotation}deg)`;
 }
 
-// Fix REACT_025 & REACT_017: Use semantic landmark elements with unique labels
-// (as the issue asks for the fix for React, I'm assuming there's some other place to apply these changes)
-
-// Ensure unique landmarks across the application
-export function ensureUniqueLandmarks(container = document) {
-  const landmarks = ['header', 'footer', 'aside', 'section', 'nav', 'main'];
-  const seenIds = new Set();
-
-  landmarks.forEach((landmarkName) => {
-    const elements = container.querySelectorAll(landmarkName);
-    elements.forEach((element) => {
-      let id = element.id;
-      if (!id) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-        element.id = id;
-      }
-      if (seenIds.has(id)) {
-        id = 'landmark-' + Math.random().toString(36).substr(2, 9);
-        element.id = id;
-      }
-      seenIds.add(id);
-    });
-  });
-}
-
 // Function for adding proper landmark regions
 export function addLandmarks(content) {
   let headerId = 'landmark-header';

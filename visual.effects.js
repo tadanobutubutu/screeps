@@ -105,6 +105,71 @@ const STYLE_SCORE_TEXT = { color: '#FFD700', font: 1, stroke: '#000000', strokeW
 const STYLE_SCORE_LABEL = { color: '#FFFFFF', font: 0.6 };
 const STYLE_RANK_TEXT = { font: 0.7, stroke: '#000000', strokeWidth: 0.05 };
 
+
+function _cleanupTrailCache() {
+    // ⚡ PERFORMANCE: Periodic cleanup of the volatile trail cache (every 1500 ticks)
+    // This prevents memory leaks from creeps that have died.
+    if (Game.time % 1500 === 0 && _trailCache.size > 0) {
+        _trailCache.clear();
+    }
+}
+
+function _handleVfxDisabled(creep) {
+    if (creep.memory.trailPositions) {
+        delete creep.memory.trailPositions;
+    }
+    _trailCache.delete(creep.id);
+}
+
+function _getTrailPositions(creep) {
+    // ⚡ PERFORMANCE: Migrate from Memory to volatile cache if existing data is found.
+    if (creep.memory.trailPositions) {
+        _trailCache.set(creep.id, creep.memory.trailPositions);
+        delete creep.memory.trailPositions;
+    }
+
+    let positions = _trailCache.get(creep.id);
+    if (positions === undefined || positions === null) {
+        positions = [];
+        _trailCache.set(creep.id, positions);
+    }
+    return positions;
+}
+
+function _updateTrail(positions, creep) {
+    // ⚡ PERFORMANCE: Only update the trail if the creep has actually moved or if we need to drain the trail.
+    // This avoids redundant pushes and allows the trail to catch up to stationary creeps.
+    const lastPos = positions.length > 0 ? positions[positions.length - 1] : null;
+    const hasMoved = !lastPos || lastPos.x !== creep.pos.x || lastPos.y !== creep.pos.y;
+
+    if (hasMoved) {
+        positions.push({ x: creep.pos.x, y: creep.pos.y });
+        if (positions.length > 10) {
+            positions.shift();
+        }
+    } else if (positions.length > 0) {
+        // Stationary: Drain the trail to avoid static visuals and reduce redundant loop iterations.
+        positions.shift();
+    }
+}
+
+function _drawTrail(positions, roomName) {
+    // ⚡ PERFORMANCE: Skip drawing loop entirely if no positions remain.
+    if (positions.length === 0) {
+        return;
+    }
+
+    const visual = getVisual(roomName);
+    for (let i = 0; i < positions.length; i++) {
+        const trailPos = positions[i];
+        visual.circle(trailPos.x, trailPos.y, {
+            fill: RAINBOW_COLORS[i % RAINBOW_COLORS.length],
+            opacity: 0.3 + i * 0.07,
+            ...STYLE_TRAIL_CIRCLE,
+        });
+    }
+}
+
 const visualEffects = {
     /**
      * 派手なパーティクルエフェクト
@@ -278,61 +343,16 @@ const visualEffects = {
      * レインボートレイル
      */
     rainbowTrail: function (creep) {
-        // ⚡ PERFORMANCE: Periodic cleanup of the volatile trail cache (every 1500 ticks)
-        // This prevents memory leaks from creeps that have died.
-        if (Game.time % 1500 === 0 && _trailCache.size > 0) {
-            _trailCache.clear();
-        }
+        _cleanupTrailCache();
 
         if (!isVfxEnabled()) {
-            if (creep.memory.trailPositions) {
-                delete creep.memory.trailPositions;
-            }
-            _trailCache.delete(creep.id);
+            _handleVfxDisabled(creep);
             return;
         }
 
-        // ⚡ PERFORMANCE: Migrate from Memory to volatile cache if existing data is found.
-        if (creep.memory.trailPositions) {
-            _trailCache.set(creep.id, creep.memory.trailPositions);
-            delete creep.memory.trailPositions;
-        }
-
-        let positions = _trailCache.get(creep.id);
-        if (positions === undefined || positions === null) {
-            positions = [];
-            _trailCache.set(creep.id, positions);
-        }
-
-        // ⚡ PERFORMANCE: Only update the trail if the creep has actually moved or if we need to drain the trail.
-        // This avoids redundant pushes and allows the trail to catch up to stationary creeps.
-        const lastPos = positions.length > 0 ? positions[positions.length - 1] : null;
-        const hasMoved = !lastPos || lastPos.x !== creep.pos.x || lastPos.y !== creep.pos.y;
-
-        if (hasMoved) {
-            positions.push({ x: creep.pos.x, y: creep.pos.y });
-            if (positions.length > 10) {
-                positions.shift();
-            }
-        } else if (positions.length > 0) {
-            // Stationary: Drain the trail to avoid static visuals and reduce redundant loop iterations.
-            positions.shift();
-        }
-
-        // ⚡ PERFORMANCE: Skip drawing loop entirely if no positions remain.
-        if (positions.length === 0) {
-            return;
-        }
-
-        const visual = getVisual(creep.room.name);
-        for (let i = 0; i < positions.length; i++) {
-            const trailPos = positions[i];
-            visual.circle(trailPos.x, trailPos.y, {
-                fill: RAINBOW_COLORS[i % RAINBOW_COLORS.length],
-                opacity: 0.3 + i * 0.07,
-                ...STYLE_TRAIL_CIRCLE,
-            });
-        }
+        let positions = _getTrailPositions(creep);
+        _updateTrail(positions, creep);
+        _drawTrail(positions, creep.room.name);
     },
 
     /**

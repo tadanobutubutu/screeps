@@ -166,11 +166,8 @@ const renderDependencyGraph2 = function() {
     };
 };
 
-// ... Existing code including exports for previous functions that are not affected ...
-
 // Export the updated functions
 module.exports = {
-    // ... Existing exports ...
     addLangAttribute,
     fixTableStructureIssues,
     addMainLandmark,
@@ -180,5 +177,4 @@ module.exports = {
     addProperLandmarkRegions, // Include the new function in the exports
     renderDependencyGraph1,
     renderDependencyGraph2
-    // ... Add any other exports that were found to be affected by the update ...
 };

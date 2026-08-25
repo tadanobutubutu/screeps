@@ -1,13 +1,15 @@
-// Original main.js content
-export function rotateBack() {
-  // existing code for rotateBack function
-}
-
-// Changes requested to resolve the issue
-export function rotateBack() {
-  // existing code for rotateBack function
-  // Add an event listener for the button click if needed
-}
+module.exports = {
+  getGreeting: function() {
+    return 'Hello, World!';
+  },
+  setLangAttribute: function(lang) {
+    document.documentElement.lang = lang;
+  },
+  rotateBack: function() {
+    // existing code for rotateBack function
+    // Add an event listener for the button click if needed
+  }
+};
 
 // Replace the <a> tag with a <button> in the HTML file
 // Example:

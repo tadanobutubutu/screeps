@@ -14,7 +14,33 @@ const addressMissingFormLabels = (formElements) => {
 
 // Adding the new function to address table structure issues:
 const fixTableStructureIssues = (tableElement) => {
-  // Logic for fixing table structure issues goes here...
+  // Initialize variables
+  const tableHead = tableElement.querySelector('thead');
+  const tableBody = tableElement.querySelector('tbody');
+
+  // Ensure a table head exists
+  if (!tableHead) {
+    console.error(`Table <thead> missing in ${tableElement.id}`);
+    return;
+  }
+
+  // Ensure a table body exists
+  if (!tableBody) {
+    console.error(`Table <tbody> missing in ${tableElement.id}`);
+    return;
+  }
+
+  // Ensure table cells have scope attributes
+  const tableHeaders = tableHead.querySelectorAll('th');
+  tableHeaders.forEach((header, index) => {
+    header.setAttribute('scope', index === 0 ? 'col' : 'row');
+  });
+
+  // Ensure table cells have 'aria-label' for accessibility
+  const tableRows = tableBody.querySelectorAll('td');
+  tableRows.forEach((row, index) => {
+    row.setAttribute('aria-label', `${row.textContent} (${index + 1})`);
+  });
 };
 
 // Adding the new function to address accessibility issues:

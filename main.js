@@ -1,5 +1,9 @@
 // ... (Preserve existing code, exports, and functions from current main.js)
 
+// Importing the required modules
+const { graphlib } = require('graphlib');
+const htmlParser = require('html-react-parser');
+
 // Creating a new function that uses the imported module for rendering dependency graphs
 function renderDependencyGraph(data) {
   // ... (Preserve existing code for populating and rendering the graph)

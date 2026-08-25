@@ -4,31 +4,29 @@
 // TODO: Implement function for addressing accessibility issues from insight report
 // Placeholder for the new function
 function addressAccessibilityIssues(insightReport) {
-    // Your implementation here
-    // This function should process the insight report and apply accessibility changes
-    // For example, you might update DOM elements, add ARIA attributes, etc.
-    // The actual implementation will depend on the specifics of the insight report format
-    // and the accessibility requirements
-    // Example:
-    // insightReport.forEach(issue => {
-    //     if (issue.type === 'lang') {
-    //         document.documentElement.lang = issue.value;
-    //     }
-    //     // Other accessibility changes based on the issue type
-    // });
+    insightReport.forEach(issue => {
+        switch (issue.type) {
+            case 'lang':
+                document.documentElement.lang = issue.value;
+                break;
+            case 'altText':
+                const img = document.querySelector(`img[alt=""][src="${issue.src}"]`);
+                img.alt = issue.value;
+                break;
+            // Add more cases based on the specific insight report formats and requirements
+        }
+    });
 }
 
-// Implement fixTableStructureIssues(); function as requested
+// Implement fixTableStructureIssues() function as requested
 function fixTableStructureIssues() {
-    // Implementation for fixing table structure issues
-    // This could involve iterating over tables, adding or removing classes, ensuring proper headers, etc.
-    // Example:
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
-        // Add or remove classes, or perform other DOM manipulations to fix the table structure
-        // Example:
         if (!table.querySelector('th')) {
             table.querySelector('tr').insertAdjacentHTML('afterbegin', '<th scope="col">Header</th>');
+        }
+        if (!table.querySelector('caption')) {
+            table.insertAdjacentHTML('beforebegin', '<caption>' + table.id.replace(/\d+/, '') + '</caption>');
         }
         // Other table structure fixes
     });
@@ -36,14 +34,17 @@ function fixTableStructureIssues() {
 
 // Implement addProperLandmarkRegions(); function as requested
 function addProperLandmarkRegions() {
-    // Implementation for adding proper landmark regions to the document
-    // This could involve adding roles, states, and properties for landmark elements
-    // Example:
     const landmarkElements = document.querySelectorAll('.landmark');
     landmarkElements.forEach(element => {
-        // Add roles, states, and properties to landmark elements
-        // Example:
-        element.setAttribute('role', 'navigation');
+        element.setAttribute('role', element.id.replace(/\d+/, ''));
+        element.setAttribute('aria-labelledby', element.id + '-label');
+        const label = document.getElementById(element.id + '-label');
+        if (!label) {
+            label = document.createElement('span');
+            label.id = element.id + '-label';
+            element.appendChild(label);
+        }
+        label.textContent = element.textContent;
         // Other landmark additions
     });
 }

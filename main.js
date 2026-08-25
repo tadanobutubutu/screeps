@@ -116,7 +116,7 @@ const validateTableStructure = () => {
     tables.forEach((table, tableIndex) => {
       const rows = table.querySelectorAll('tr');
       rows.forEach((row, rowIndex) => {
-        const cells = row.querySelectorAll('td, th');
+        const cells = row.querySelectorAll('td');
         const headerCells = row.querySelectorAll('th');
         
         // Check for empty cells
@@ -203,7 +203,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = document.querySelectorAll('[role="main"]');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -219,8 +219,8 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  const navElements = document.querySelectorAll('nav');
+  const headerElements = document.querySelectorAll('[role="banner"]');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -231,7 +231,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  const footerElements = document.querySelectorAll('[role="contentinfo"]');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -301,34 +301,4 @@ const Root = () => {
             id: 'unrotate',
             label: 'Rotate back',
             onClick: handleRotateBack,
-            ariaLabel: 'Rotate back to original view'
-          }),
-          React.createElement(InPageButton, {
-            id: 'new-function',
-            onClick: newFunction,
-            label: 'New Function',
-            ariaLabel: 'Execute new function'
-          })
-        ),
-        React.createElement('footer', { role: 'contentinfo' },
-          'Footer content'
-        )
-      )
-    )
-  );
-};
-
-export {
-  Root,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  getSvgAccessibleName,
-  createInPageButton,
-  InPageButton,
-  validateTableStructure
-};
-
-const rootElement = document.getElementById('root');
-ReactDOM.render(React.createElement(Root, null), rootElement);
+            ariaLabel

@@ -26,9 +26,9 @@ function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = firstRow ? table.querySelectorAll('th') : [];
+    const headers = firstRow ? firstRow.querySelectorAll('th') : [];
     headers.forEach((th) => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         const row = th.closest('tr');
         const isInThead = !!th.closest('thead');
         const isFirstRow = firstRow && row === firstRow;
@@ -50,17 +50,18 @@ function addMainLandmark() {
 
   const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
-    const fallbackMain = document.querySelector('[role="main"]') || document.querySelector('section') || document.querySelector('#main') || document.querySelector('.main');
+    const fallbackMain = document.querySelector('div#main') || document.querySelector('div.main') || document.querySelector('[role="main"]') || document.querySelector('div.content');
     if (fallbackMain) {
       fallbackMain.setAttribute('role', 'main');
       if (fallbackMain.tagName !== 'MAIN') {
         try {
           const newMain = document.createElement('main');
-          fallbackMain.parentNode.insertBefore(newMain, fallbackMain);
-          while (fallbackMain.firstChild) {
-            newMain.appendChild(fallbackMain.firstChild);
+          newMain.innerHTML = fallbackMain.innerHTML;
+          fallbackMain.parentNode.replaceChild(newMain, fallbackMain);
+          while (newMain.firstChild) {
+            newMain.removeChild(newMain.firstChild);
           }
-          fallbackMain.parentNode.removeChild(fallbackMain);
+          newMain.innerHTML = fallbackMain.innerHTML;
         } catch (e) {
           // Preserve existing structure if tag change fails
         }
@@ -114,7 +115,7 @@ function ensureUniqueLandmarks() {
       };
 
       const roleLabels = defaultLabels[role] || ['Section'];
-      label = roleLabels[count] || (role.charAt(0).toUpperCase() + role.slice(1) + ' ' + (count + 1));
+      label = roleLabels[count] || role.charAt(0).toUpperCase() + role.slice(1) + ' ' + (count + 1);
 
       landmark.setAttribute('aria-label', label);
     } else {
@@ -156,8 +157,7 @@ function addSvgAccessibleNames() {
         title.id = titleId;
       }
     }
-    if (!svg.getAttribute('aria-labelledby') && title) {
-      svg.setAttribute('role', 'img');
+    if (svg.getAttribute('role') && title) {
       svg.setAttribute('aria-labelledby', titleId);
     }
   });
@@ -169,10 +169,10 @@ function addSvgAccessibleNames() {
 function fixFakeLinks() {
   if (typeof document === 'undefined') return;
 
-  const links = document.querySelectorAll('a[href^="#"]');
+  const links = document.querySelectorAll('a[href="#"]');
   links.forEach((link) => {
-    if (link.hasAttribute('tabindex')) {
-      link.removeAttribute('tabindex');
+    if (link.getAttribute('href') === '#') {
+      link.setAttribute('role', 'button');
     }
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -205,14 +205,14 @@ function addressButtonAccessibility() {
   if (typeof document === 'undefined') return;
 
   // Use the actual button id as specified in the accessibility report
-  const button = getElementById('search'); // Replace 'my-button' with actual button id
+  const button = getElementById('my-button'); // Replace 'my-button' with actual button id
   if (!button) return;
 
   // Add a proper accessible name to the button
   button.setAttribute('aria-label', 'Your accessible name');
 
   // Ensure button has a proper role
-  if (!button.hasAttribute('role')) {
+  if (!button.getAttribute('role')) {
     button.setAttribute('role', 'button');
   }
 }

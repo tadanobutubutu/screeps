@@ -15,13 +15,13 @@ function createReactContext() {
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ReactDOMServer.renderToString(component)
+    renderToString: (component) => ...
   };
 
   const mockDocument = new window.Document();
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = body.querySelector('#root');
+  const rootElement = ...
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -53,7 +53,7 @@ function addAriaLabelledbyIfNeeded(elem) {
     content = <div id="generatedId">{/* Your React component here */}</div>;
   }
   
-  const contentString = ReactDOMServer.renderToString(content);
+  const contentString = ...
   
   // ... (Pre-existing logic)
 }
@@ -85,13 +85,13 @@ function initAriaLabels() {
  * @param {Object} context - The React context containing window and document references
  * @returns {HTMLElement|null} - The created main element or null if no content found
  */
-function wrapPrimaryContentInMain(context) {
+function ... {
   if (!context || !context.document) return null;
   
   const { document } = context;
   
   // Check if a main element already exists
-  const existingMain = document.querySelector('main');
+  const existingMain = ...
   if (existingMain) {
     return existingMain;
   }
@@ -103,15 +103,15 @@ function wrapPrimaryContentInMain(context) {
   }
   
   // Create a new main element
-  const mainElement = document.createElement('main');
+  const mainElement = ...
   
   // Move all body children into the main element
   while (body.firstChild) {
-    mainElement.appendChild(body.firstChild);
+    ...
   }
   
   // Append the main element to the body
-  body.appendChild(mainElement);
+  ...
   
   return mainElement;
 }
@@ -125,7 +125,7 @@ function wrapPrimaryContentInMain(context) {
  */
 function renderDependencyGraph(context, options = {}) {
   const graphContent = dependencyGraphContent({ context, ...options });
-  return ReactDOMServer.renderToString(graphContent);
+  return ...
 }
 
 /**
@@ -137,7 +137,7 @@ function renderDependencyGraph(context, options = {}) {
  */
 function renderIndexView(context, options = {}) {
   const index = indexContent({ context, ...options });
-  return ReactDOMServer.renderToString(index);
+  return ...
 }
 
 /**

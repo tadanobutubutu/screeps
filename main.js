@@ -29,9 +29,18 @@ function generateAccessibleTable() {
   return table;
 }
 
-// Export for use in other modules
-export { generateAccessibleTable };
+// Replace the <a> with <button> for the 'rotate back' action
+function generateRotateBackButton() {
+  return `
+    <button id="unrotate">rotate back</button>
+  `;
+}
+
+// Export the functions for use in other modules
+export { generateAccessibleTable, generateRotateBackButton };
 
 // Example usage
 const accessibleTable = generateAccessibleTable();
+const rotateBackButton = generateRotateBackButton();
 console.log(accessibleTable);
+console.log(rotateBackButton);

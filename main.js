@@ -36,7 +36,7 @@ function normalizeItem(item) {
     if (typeof item === 'object' && item !== null) {
         const normalized = {};
         for (const key in item) {
-            if (item.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
                 normalized[key] = normalizeItem(item[key]);
             }
         }
@@ -174,11 +174,11 @@ export function getSvgAccessibleName(svg) {
     if (!svg) return '';
     return svg.getAttribute('aria-label') ||
            svg.getAttribute('aria-labelledby') ||
-           svg.querySelector('title')?.textContent ||
+           (svg.querySelector('title') ? svg.querySelector('title').textContent : '') ||
            'Icon';
 }
 
-export function createSvgWithAccessibleName(svgs, accessibilityName) {
+export function setSvgAccessibleName(svgs, accessibilityName) {
     return svgs.map(svg => {
         const accessibleNameEl = svg.querySelector('title');
         if (!accessibleNameEl) {
@@ -194,15 +194,15 @@ export function createSvgWithAccessibleName(svgs, accessibilityName) {
 export function ensureUniqueLandmarks() {
     const landmarkIds = new Set();
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-    landmarks.forEach(landmarkType => {
-        const elements = document.querySelectorAll(landmarkType);
-        Array.from(elements).forEach(element => {
+    landmarks.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        elements.forEach((element, index) => {
             let id = element.id;
             if (!id) {
-                id = `landmark-${landmarkType}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+                id = `${landmark}_${Math.random() * 1e6}`;
             }
             if (landmarkIds.has(id)) {
-                id = `${landmarkType}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+                id = `${landmark}_${Math.random() * 1e6}`;
             }
             landmarkIds.add(id);
             element.id = id;
@@ -211,7 +211,7 @@ export function ensureUniqueLandmarks() {
 }
 
 // Fix REACT_036: Fix fake link issue
-export function createInPageButton(link) {
+export function getAccessibleLinkInfo(link) {
     if (!link) return null;
     return {
         href: link.href || '#',
@@ -237,7 +237,7 @@ export function createAccessibleLink(url, text, isFakeLink = false) {
 }
 
 export function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]');
+    const fakeLinks = document.querySelectorAll('a[role="button"]');
     fakeLinks.forEach(link => {
         const button = document.createElement('button');
         button.type = 'button';
@@ -265,7 +265,7 @@ export function addLandmarkRegions() {
         'nav',
         'main',
         'footer',
-        'aside, section:not([role="complementary"]):not([role="contentinfo"])'
+        'aside'
     ];
     selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
@@ -274,29 +274,29 @@ export function addLandmarkRegions() {
             landmarksByType[type].push(element);
         });
     });
-    landmarksByType['header'].forEach((header, index) => {
+    landmarksByType.header.forEach((header, index) => {
         const landmark = {
             type: 'header',
             props: {
                 role: 'banner',
-                id: header.id || `landmark-header-${index}`,
+                id: header.id || `header_${index}`
                 children: [header]
             }
         };
         // You may want to apply more specific styling or add additional properties based on the situation.
-        document.body.insertBefore(landmark.props.children[0], header);
+        landmarksByType.header[index] = landmark;
     });
-    landmarksByType['nav'].forEach((nav, index) => {
+    landmarksByType.nav.forEach((nav, index) => {
         const landmark = {
             type: 'nav',
             props: {
                 role: 'navigation',
-                id: nav.id || `landmark-nav-${index}`,
+                id: nav.id || `nav_${index}`
                 children: [nav]
             }
         };
         // You may want to apply more specific styling or add additional properties based on the situation.
-        document.body.insertBefore(landmark.props.children[0], nav);
+        landmarksByType.nav[index] = landmark;
     });
 }
 
@@ -340,7 +340,7 @@ export function validateLandmarkStructure() {
 
 export function addressAccessibilityIssues() {
     ensureUniqueLandmarks();
-    createSvgWithAccessibleName(Array.from(document.querySelectorAll('svg')), 'Icon');
+    setSvgAccessibleName(document.querySelectorAll('svg'), 'Icon');
     fixFakeLinks();
     addLandmarkRegions();
 }

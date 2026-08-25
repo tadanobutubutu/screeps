@@ -9,8 +9,10 @@ const getAccessibleName = (node) => {
     // Try aria-label first, then fallback to title or text
     if (svg.getAttribute && svg.getAttribute('aria-label')) {
       accessibleName = svg.getAttribute('aria-label');
-    } else if (svg.getAttribute && svg.getAttribute('aria-labelledby')) {
-      accessibleName = svg.getAttribute('aria-labelledby');
+    } else if (svg.getAttribute && title) {
+      accessibleName = title;
+    } else if (svg.getAttribute && text) {
+      accessibleName = text;
     } else {
       accessibleName = title || text;
     }

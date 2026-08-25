@@ -1,116 +1,177 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// - REACT_027: React Table Structure - Add scope to table headers (DONE: addScopeToTableHeaders)
+// - REACT_036: Fix fake links (DONE: fixFakeLinks)
+// - REACT_017: Ensure proper landmark structure (DONE: wrapPrimaryContentInMain)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to SVGs (DONE: addAccessibleSVGs)
 
 // Assuming you have a button with ID 'myButton'
 const button = document.getElementById('myButton');
-button.setAttribute('aria-label', 'My Button');
-button.setAttribute('role', 'button');
-button.setAttribute('aria-expanded', 'false');
 
 // New function to handle button click
-function handleButtonClick() {
-  const button = document.getElementById('myButton');
-  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
-  button.setAttribute('aria-expanded', isExpanded);
+function handleButtonClick(event) {
+  const target = event.target;
+  const isExpanded = target.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+  target.setAttribute('aria-expanded', isExpanded);
 }
 
 // New function to ensure HTML lang attribute is set
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', 'en');
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
 }
 
 // New function to inject and fix fake links
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(fakeLink => {
+  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
+  fakeLinks.forEach(function(fakeLink) {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
       a.href = fakeLink.getAttribute('data-href') || '#';
       a.textContent = fakeLink.textContent;
-      fakeLink.replaceWith(a);
+      a.setAttribute('role', 'button');
+      a.setAttribute('tabindex', '0');
+      // Copy attributes from fake link
+      const attrs = fakeLink.attributes;
+      for (let i = 0; i < attrs.length; i++) {
+        if (attrs[i].name !== 'href' && attrs[i].name !== 'class') {
+          a.setAttribute(attrs[i].name, attrs[i].value);
+        }
+      }
+      // Replace fake link with real anchor
+      fakeLink.parentNode.replaceChild(a, fakeLink);
     }
   });
 }
 
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header');
-  const existingFooters = document.querySelectorAll('footer');
+  const existingHeaders = document.querySelectorAll('header[role="banner"]');
+  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
 
-  if (existingHeaders.length > 1) {
-    existingHeaders.forEach((header, index) => index > 0 && header.remove());
-  }
-  if (existingFooters.length > 1) {
-    existingFooters.forEach((footer, index) => index > 0 && footer.remove());
-  }
+  // Remove duplicate banner headers
+  existingHeaders.forEach(function(header, index) {
+    if (index > 0) {
+      header.remove();
+    }
+  });
+
+  // Remove duplicate contentinfo footers
+  existingFooters.forEach(function(footer, index) {
+    if (index > 0) {
+      footer.remove();
+    }
+  });
+
+  // Ensure only one main landmark exists
+  const existingMains = document.querySelectorAll('main, [role="main"]');
+  existingMains.forEach(function(main, index) {
+    if (index > 0) {
+      main.remove();
+    }
+  });
 }
 
 // New function to inject primary content into main landmark
 function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main');
+  const existingMains = document.querySelectorAll('main, [role="main"]');
 
-  // Remove duplicate main elements if any
-  existingMains.forEach((main, index) => {
+  // If multiple main elements exist, remove duplicates (keep first)
+  existingMains.forEach(function(main, index) {
     if (index > 0) {
       main.remove();
     }
   });
 
+  // Get or create main element
+  let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+
   // If no main element exists, create and wrap primary content
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('role', 'main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
 
-  // Find primary content container (adjust selector based on your content structure)
-  const contentContainer = document.querySelector('.main-content') || document.querySelector('.content') || document.body;
+    // Find primary content container (adjust selector based on your content structure)
+    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.body;
 
-  // Move existing content into main if not already inside one
-  if (!contentContainer.querySelector('main')) {
-    while (contentContainer.firstChild) {
-      mainElement.appendChild(contentContainer.firstChild);
+    // Move existing content into main if not already inside one
+    if (contentContainer && contentContainer.firstChild) {
+      while (contentContainer.firstChild) {
+        mainElement.appendChild(contentContainer.firstChild);
+      }
+      contentContainer.appendChild(mainElement);
     }
-    contentContainer.appendChild(mainElement);
   }
 }
 
 // Add function to add 'scope="col"' attribute to table header cells
 function addScopeToTableHeaders() {
-  const headers = document.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      header.setAttribute('scope', 'col');
+  const tables = document.querySelectorAll('table');
+  tables.forEach(function(table) {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(function(header) {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+// New function to add accessible names to SVGs
+function addAccessibleSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(function(svg) {
+    // Check if SVG already has a title
+    const existingTitle = svg.querySelector('title');
+    if (!existingTitle) {
+      const title = document.createElement('title');
+      title.textContent = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || 'SVG graphic';
+      title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      svg.insertBefore(title, svg.firstChild);
+      
+      // Ensure SVG has aria-labelledby pointing to the title
+      if (!svg.hasAttribute('aria-labelledby')) {
+        svg.setAttribute('aria-labelledby', title.id);
+      }
     }
   });
 }
 
 // New function to process accessibility issues from insight report
-function processAccessibilityIssuesFromInsightReport(insightReport) {
+function processAccessibilityIssues(insightReport) {
   // Process each issue from the insight report and address accordingly
   if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
+    insightReport.issues.forEach(function(issue) {
       switch (issue.code) {
         case 'REACT_015':
           // Add lang attribute to HTML element
           addLangAttribute();
           break;
         case 'FAKE_LINKS':
+        case 'REACT_036':
           // Fix fake links
           fixFakeLinks();
           break;
         case 'UNIQUE_LANDMARKS':
+        case 'REACT_025':
           // Ensure unique landmarks
           ensureUniqueLandmarks();
           break;
         case 'LANDMARK_STRUCTURE':
+        case 'REACT_017':
           // Ensure proper landmark structure
           wrapPrimaryContentInMain();
           break;
         case 'ACCESSIBLE_SVGS':
+        case 'REACT_041':
           // Add accessible SVGs
           addAccessibleSVGs();
           break;
         case 'TABLE_HEADERS':
+        case 'REACT_027':
           // Add scope to table headers
           addScopeToTableHeaders();
           break;
@@ -130,31 +191,17 @@ function processAccessibilityIssuesFromInsightReport(insightReport) {
   addScopeToTableHeaders();
 }
 
-// New function to add accessible names to SVGs
-function addAccessibleSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = document.createElement('title');
-    title.textContent = 'Descriptive title for SVG';
-    svg.appendChild(title);
-  });
-}
-
 // Call all necessary functions
-processAccessibilityIssuesFromInsightReport();
-fixFakeLinks();
-ensureUniqueLandmarks();
-wrapPrimaryContentInMain();
-addAccessibleSVGs();
-addScopeToTableHeaders();
+processAccessibilityIssues();
 
+// Export all functions for external use
 module.exports = {
   wrapPrimaryContentInMain,
   handleButtonClick,
   addLangAttribute,
   fixFakeLinks,
   ensureUniqueLandmarks,
-  processAccessibilityIssuesFromInsightReport,
-  addAccessibleSVGs,
   addScopeToTableHeaders,
+  addAccessibleSVGs,
+  processAccessibilityIssues
 };

@@ -89,4 +89,4 @@ async function fetchAPI(url) {
 }
 
 // Export the module with the new fetchAPI function added
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues };
+export { fetchAPI as default, addressAccessibilityIssues };

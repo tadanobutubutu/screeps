@@ -43,7 +43,7 @@ function fixFakeLinks() {
   });
 }
 
-// Fix table structure issues
+// Add a new function to fix table structure issues
 function fixTableStructureIssues() {
   // Ensure each table row has a TH or TD element
   const tables = document.getElementsByTagName('table');
@@ -62,12 +62,13 @@ function fixTableStructureIssues() {
   }
 }
 
-// Add the new function within the module.exports for calling from another file
+// Fix for Issue: Add exports for new functions if needed in main.js
+// ONLY ADD the new functions or changes requested in the issue
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  implementNewFunction: fixTableStructureIssues, // Added here
+  fixTableStructureIssues, // Added here
   renderGraphContent: function renderGraphContent(someData) {
     // Your existing renderGraphContent logic here...
   }

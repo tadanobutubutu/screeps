@@ -1,3 +1,1 @@
-// TODO: Address accessibility issues from insight report
-// Fix REACT_041: Add aria-hidden="true" to decorative SVG icons
-// in app/layout.tsx and dashboard/app/layout.tsx
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

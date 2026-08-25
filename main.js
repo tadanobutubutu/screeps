@@ -197,11 +197,15 @@ function applyAccessibilityFixes(sourceCode, fixes) {
     };
 }
 
+// Import myFunction from myModule (CommonJS compatible)
+const { myFunction } = require('myModule');
+
 // Export functions for use in other modules
 module.exports = {
     parseInsightReport,
     isAddressable,
     generateFix,
     addressAccessibilityIssuesFromInsightReport,
-    applyAccessibilityFixes
+    applyAccessibilityFixes,
+    myFunction
 };

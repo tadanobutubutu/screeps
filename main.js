@@ -1,9 +1,8 @@
-Here is the resolved `main.js` file:
-
-```javascript
 // Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+// Restore previously removed exports and address accessibility issues from insight report
+const { renderGraphContent } = require('./dependency-graph');
+
+const dependencyGraph = document.querySelector('#dependencyGraph .dependencyGraph');
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'tree');
   dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -94,6 +93,3 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
-```
-
-This resolved version of the file combines the changes made on `HEAD` and `origin/main` branches, keeping both functionalities and addressing the merge conflict. It ensures unique landmarks, fixes fake links, preserves the original function `renderGraphContent`, and provides a new function for future implementation if required.

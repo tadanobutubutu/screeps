@@ -26,13 +26,26 @@ function ensureLangAttribute() {
 // ... (The rest of the new functions added according to the issue details)
 
 // To implement the addProperLandmarkRegions function, you can create a logic that identifies landmark regions in the DOM structure and add the proper ARIA roles to them.
-// As an example, here's a simple implementation that adds the ARIA role="banner" to the first div element if it exists:
+// As an example, here's an improved implementation that adds appropriate ARIA roles to common HTML5 semantic elements:
+
+function addProperLandmarkRoles() {
+  // Identify and role-ify common landmark elements using HTML5 semantic tags
+  const headers = document.querySelectorAll('header:not([role])');
+  headers.forEach(header => header.setAttribute('role', 'banner'));
+
+  const navs = document.querySelectorAll('nav:not([role])');
+  navs.forEach(nav => nav.setAttribute('role', 'navigation'));
+
+  const mains = document.querySelectorAll('main:not([role])');
+  mains.forEach(main => main.setAttribute('role', 'main'));
+
+  const asides = document.querySelectorAll('aside:not([role])');
+  asides.forEach(aside => aside.setAttribute('role', 'complementary'));
+
+  const footers = document.querySelectorAll('footer:not([role])');
+  footers.forEach(footer => footer.setAttribute('role', 'contentinfo'));
+}
 
 function addProperLandmarkRegions() {
-  const firstDiv = document.querySelector('div');
-
-  if (firstDiv) {
-    firstDiv.setAttribute('role', 'banner'); // Corrected attribute name to 'role' instead of 'aria-role'
-  }
+  addProperLandmarkRoles();
 }
-// ----- END ORIGINAL CODE -----

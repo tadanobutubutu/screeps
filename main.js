@@ -1,8 +1,1 @@
-module.exports = {
-  // ... existing exports ...
-
-  // New function if needed, for example:
-  // getDependencyGraph() {
-  //   // Implementation here
-  // }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

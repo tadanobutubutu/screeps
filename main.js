@@ -195,6 +195,7 @@ export function fixFakeLinkIssue(html) {
     if (attrs.includes('href=')) {
       return match;
     }
-    return match.replace(/<a/, '<a href="#"');
+    // Replace with a button for proper in-page action
+    return match.replace(/<a/, '<button').replace(/<\/a>/, '</button>');
   });
 }

@@ -37,11 +37,11 @@ function fixFakeLinkIssue() {
 
 // NEW FUNCTIONS FROM ISSUE REPORT
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
   const landmarkNames = new Set();
 
   landmarks.forEach((landmark) => {
-    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
 
     if (landmarkName && !landmarkNames.has(landmarkName)) {
       landmarkNames.add(landmarkName);

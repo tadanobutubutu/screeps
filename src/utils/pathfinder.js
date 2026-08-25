@@ -87,9 +87,12 @@ function _applyCreepCosts(costs, room) {
         room._allCreepsTick = Game.time;
     }
 
-    for (let i = 0; i < room._allCreeps.length; i++) {
-        const creep = room._allCreeps[i];
-        costs.set(creep.pos.x, creep.pos.y, 255);
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist array reference and length to avoid repeated property lookups
+    const creeps = room._allCreeps;
+    const len = creeps.length;
+    for (let i = 0; i < len; i++) {
+        const pos = creeps[i].pos;
+        costs.set(pos.x, pos.y, 255);
     }
 }
 

@@ -16,33 +16,48 @@ export const addLangAttribute = (Component, lang = 'en') => {
   };
 };
 
-// Example component that renders the primary content
-const PrimaryContent = () => {
-  // ... existing code
+// Function to improve focus management for primary content ([NEW])
+const focusWithin = React.useCallback((element) => {
+  if (element && element.current) {
+    element.current.focus({ preventScroll: true });
+  }
+}, []);
 
-  // ADD YOUR CODE HERE
-  // - Improve focus management for primary content
-  //   https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions
-  const [isFirstFocus, setIsFirstFocus] = React.useState(true);
+// Improved PrimaryContent component with focus management for accessibility ([NEW])
+const ImprovedPrimaryContent = (props) => {
+  const { id } = props;
+  const [, updateScroll] = React.useState({ scrollY: window.scrollY });
 
   React.useEffect(() => {
-    if (isFirstFocus) {
-      setTimeout(() => {
-        ...
-        setIsFirstFocus(false);
-      }, 0);
-    }
+    focusWithin(document.getElementById(id));
+  }, [id]);
+
+  React.useEffect(() => {
+    const callback = () => {
+      updateScroll({ scrollY: window.scrollY });
+    };
+
+    window.addEventListener('resize', callback);
+
+    return () => {
+      window.removeEventListener('resize', callback);
+    };
   }, []);
+
+  // ... existing code
 
   return (
     // ... existing code
   );
 };
 
-// Your main component that will render the primary content wrapped in <main>
+// Your main component that will render the primary content wrapped in <main> ([NEW])
 const MainComponent = () => {
   return (
-    // ... existing code
+    <div id="primary-content">
+      {/* Render the improved PrimaryContent component */}
+      <ImprovedPrimaryContent id="primary-content" />
+    </div>
   );
 };
 
@@ -55,11 +70,11 @@ const wrapPrimaryContentInMain = (Component) => {
   };
 };
 
-// Export the PrimaryContent component so it can be imported independently
-export const PrimaryContent = PrimaryContent;
+// Export the PrimaryContent component so it can be imported independently ([NEW])
+export const ImprovedPrimaryContent = ImprovedPrimaryContent;
 
 // Export the wrapPrimaryContentInMain function for usage elsewhere
 export const wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 
-// Wrap the PrimaryContent component by default when exported
-export default addLangAttribute(wrapPrimaryContentInMain(PrimaryContent));
+// Wrap the PrimaryContent component by default when exported ([NEW])
+export default addLangAttribute(wrapPrimaryContentInMain(ImprovedPrimaryContent));

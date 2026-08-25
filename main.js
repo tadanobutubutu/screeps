@@ -1,8 +1,7 @@
 // Address accessibility issues from insight report
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
 
 import React from 'react';
+import { landmarkList } from './landmarks'; // Assuming you have a landmarks file
 
 // Example component that renders the primary content
 const PrimaryContent = () => {
@@ -15,6 +14,11 @@ const PrimaryContent = () => {
       {/* Adding an ARIA Landmark to the primary content for better accessibility */}
       <div role="region" aria-labelledby="region-title">
         {/* Render other accessibility-related components as needed */}
+        {landmarkList.map(([landmark, id]) => (
+          <div key={id} role="landmark" aria-label={landmark}>
+            {landmark}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -40,7 +44,8 @@ const wrapPrimaryContentInMain = (Component) => {
   };
 };
 
-// Export the PrimaryContent component so it can be imported independently
+// Import landmarks and export the PrimaryContent component so it can be imported independently
+import { landmarkList } from './landmarks';
 export const PrimaryContent = PrimaryContent;
 
 // Export the wrapPrimaryContentInMain function for usage elsewhere

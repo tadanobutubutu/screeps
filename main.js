@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import { generateRotateBackControl, setupRotateBack, createIconForTest } from './controls';
 import { App } from './App';
 
+// TODO: Add back any required exports that might have been removed
+
 // Placeholder icons object for exports
 const icons = {};
 
@@ -101,6 +103,8 @@ const addressAccessibilityIssues = (insightReport) => {
 
 // Add the new export for the renderLandmarkRegions function
 export {
+  React,
+  ReactDOM,
   icons,
   renderAccessibleSVG,
   renderLandmarkStructure,

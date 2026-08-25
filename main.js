@@ -12,11 +12,18 @@ export default function MyApp() {
   // Add the imported modules to the rendering functions as needed...
 
   // For example:
+  return (
+    <div className="app">
+      <div className="dependencyGraph" dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+      <div className="content" dangerouslySetInnerHTML={{ __html: indexContent }} />
+    </div>
+  );
+
   // ...
-  // <div className="dependencyGraph" ... dangerouslySetInnerHTML={{ __html: dependencyGraphContent }}>
+  // <div className="dependencyGraph" ... ... __html: dependencyGraphContent }}>
   // ...
 
   // ...
-  // <div className="content" dangerouslySetInnerHTML={{ __html: indexContent }} />
+  // <div className="content" ... __html: indexContent }} />
   // ...
 }

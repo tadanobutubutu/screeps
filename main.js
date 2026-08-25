@@ -1,4 +1,5 @@
-const img = document.getElementById('target'); let rotation = 0;
+const img = document.getElementById('target');
+let rotation = 0;
 
 function rotate() {
   rotation += 90;
@@ -60,10 +61,32 @@ function addAriaLabel(elem, label) {
   }
 }
 
-// Modify the event listeners to include `aria-label` attributes
-addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
-addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
-addAriaLabel(document.getElementById('target'), 'Rotated image');
+// Update the event listener for the rotate button
+const myButton = document.getElementById('rotate');
+addAriaLabel(myButton, 'Rotate image clockwise');
+myButton.addEventListener('click', rotate);
+
+// Update the event listener for the unrotate button
+const unrotateButton = document.getElementById('unrotate');
+addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
+unrotateButton.addEventListener('click', rotateBack);
+
+// Update the aria-label for the target image
+addAriaLabel(img, 'Rotated image');
+
+// Add a new function for adding `aria-label` to elements on initialization
+function initAriaLabels() {
+  document.querySelectorAll('[aria-labelledby]').forEach((elem) => {
+    const id = elem.getAttribute('aria-labelledby');
+    const labels = document.querySelectorAll(`#${id}`);
+    labels.forEach((label) => {
+      elem.setAttribute('aria-label', label.textContent);
+    });
+  });
+}
+
+// Call initAriaLabels function on load
+initAriaLabels();
 
 // Add the new game loop function
 function myGameLoop() {
@@ -115,5 +138,6 @@ module.exports = {
   addAriaLabel,
   rotate,
   rotateBack,
-  renderDependencyGraph
+  renderDependencyGraph,
+  initAriaLabels // Add the new function to the exports
 };

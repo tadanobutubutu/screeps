@@ -33,9 +33,9 @@ const MainComponent = () => {
 const wrapPrimaryContentInMain = (Component) => {
   return () => {
     return (
-      <MainComponent>
+      <main>
         <Component />
-      </MainComponent>
+      </main>
     );
   };
 };

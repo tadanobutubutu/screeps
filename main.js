@@ -11,13 +11,13 @@ function createReactContext() {
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ReactDOMServer.renderToString(component)
+    renderToString: (component) => ...
   };
 
   const mockDocument = new window.Document();
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = body.querySelector('#root');
+  const rootElement = ...
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -39,7 +39,7 @@ function addAriaLabelledbyIfNeeded(elem) {
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
   const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = ReactDOMServer.renderToString(content);
+  const contentString = ...
   
   // ... (Pre-existing logic)
 }
@@ -64,5 +64,43 @@ function initAriaLabels() {
   });
 }
 
+/**
+ * Wraps the primary content in a <main> element for semantic HTML structure.
+ * This function finds the main content area and wraps it appropriately.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {HTMLElement|null} - The created main element or null if no content found
+ */
+function wrapPrimaryContentInMain(context) {
+  if (!context || !context.document) return null;
+  
+  const { document } = context;
+  
+  // Check if a main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  // Find the primary content area (body or main content container)
+  const body = document.body;
+  if (!body || body.children.length === 0) {
+    return null;
+  }
+  
+  // Create a new main element
+  const mainElement = document.createElement('main');
+  
+  // Move all body children into the main element
+  while (body.firstChild) {
+    mainElement.appendChild(body.firstChild);
+  }
+  
+  // Append the main element to the body
+  body.appendChild(mainElement);
+  
+  return mainElement;
+}
+
 // Export the functions to make them accessible
-export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels };
+export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels, wrapPrimaryContentInMain };

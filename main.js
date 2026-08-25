@@ -11,20 +11,20 @@ import { renderDependencyGraph, indexContent } from './dependencyGraphContent';
 export function addLangAttribute() {
     const html = document.documentElement;
     if (html) {
-        ... 'en');
+        html.setAttribute('lang', 'en');
     }
 }
 
 // - REACT_041: Add accessible names to 2 SVGs
 export function addSvgAccessibleNames() {
     // Find SVG elements in app/layout.tsx and dashboard/app/layout.tsx
-    const svgElements = ...
-    ... index) => {
+    const svgElements = document.querySelectorAll('link[rel="icon"] svg, link[rel="apple-touch-icon"] svg');
+    svgElements.forEach((svg, index) => {
         if (index === 0) {
-            ... 'Application logo');
+            svg.setAttribute('aria-label', 'Application logo');
             svg.setAttribute('role', 'img');
         } else if (index === 1) {
-            ... 'Navigation icon');
+            svg.setAttribute('aria-label', 'Navigation icon');
             svg.setAttribute('role', 'img');
         }
     });
@@ -32,9 +32,9 @@ export function addSvgAccessibleNames() {
 
 // - REACT_036: Fix 1 fake link issue
 export function fixFakeLink() {
-    const links = ...
+    const links = document.querySelectorAll('a');
     links.forEach(link => {
-        const href = ...
+        const href = link.getAttribute('href');
         if (href === '#' || href === '' || href === null || href === 'javascript:;') {
             link.setAttribute('href', '#main-content');
             if (!link.textContent.trim() || link.textContent === '') {
@@ -46,23 +46,26 @@ export function fixFakeLink() {
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = ... button, a');
+    const accessibleElements = document.querySelectorAll('button, a');
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = ... 9)}`;
+        const currentId = `accessible-${Math.random().toString(36).substr(2, 9)}`;
         element.setAttribute('id', currentId);
     });
 }
 
 // TODO: Implement wrapPrimaryContentInMain function
 export function wrapPrimaryContentInMain() {
-    const mainContent = ... #main-content, .main-content');
+    const mainContent = document.querySelector('#main-content, .main-content');
     if (mainContent && mainContent.parentElement && mainContent.parentElement.tagName !== 'MAIN') {
-        const mainTag = ...
-        ... 'main');
-        ...
-        ... ...
+        const mainTag = document.createElement('main');
+        mainTag.setAttribute('role', 'main');
+        const parent = mainContent.parentElement;
+        while (mainContent.firstChild) {
+            mainTag.appendChild(mainContent.firstChild);
+        }
+        parent.replaceChild(mainTag, mainContent);
     }
 }
 
@@ -71,15 +74,15 @@ export { renderDependencyGraph, indexContent };
 
 export function addMainLandmark() {
     // Implementation for adding main landmark
-    const mainElements = ... [role="main"]');
+    const mainElements = document.querySelectorAll('[role="main"]');
     if (mainElements.length === 0) {
-        const main = ...
+        const main = document.createElement('main');
         main.setAttribute('role', 'main');
         const body = document.body;
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(main, body.firstChild);
         } else {
-            ...
+            body.appendChild(main);
         }
         main.setAttribute('aria-label', 'Main content area');
     }
@@ -88,16 +91,16 @@ export function addMainLandmark() {
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
-        const elements = ...
+        const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {
-                    const div = ...
+                    const div = document.createElement('div');
                     div.setAttribute('role', role);
                     while (el.firstChild) {
-                        ...
+                        div.appendChild(el.firstChild);
                     }
-                    ... el);
+                    el.parentNode.replaceChild(div, el);
                 }
             });
         }
@@ -106,22 +109,22 @@ export function ensureUniqueLandmarks() {
 
 // - REACT_027: Fix table structure issues
 export function fixTableStructure() {
-    const tables = ...
+    const tables = document.querySelectorAll('table');
     tables.forEach((table) => {
         // Check if table has headers
-        const headers = ...
+        const headers = table.querySelectorAll('th');
         const hasHeaders = headers.length > 0;
         
         if (!hasHeaders) {
             // Check first row for header cells
             const firstRow = table.querySelector('tr');
             if (firstRow) {
-                const cells = ...
+                const cells = firstRow.querySelectorAll('td');
                 cells.forEach((cell) => {
-                    const th = ...
+                    const th = document.createElement('th');
                     th.setAttribute('scope', 'col');
                     while (cell.firstChild) {
-                        ...
+                        th.appendChild(cell.firstChild);
                     }
                     cell.parentNode.replaceChild(th, cell);
                 });
@@ -129,11 +132,11 @@ export function fixTableStructure() {
         } else {
             // Add scope attributes to existing headers
             headers.forEach((header) => {
-                if ... {
+                if (!header.hasAttribute('scope')) {
                     const parent = header.parentElement;
                     if (parent && parent.tagName === 'TR') {
-                        const siblings = ...
-                        const headerIndex = ...
+                        const siblings = Array.from(parent.querySelectorAll('th, td'));
+                        const headerIndex = siblings.indexOf(header);
                         const firstRow = table.querySelector('tr');
                         if (firstRow && firstRow === parent) {
                             header.setAttribute('scope', 'col');
@@ -146,10 +149,10 @@ export function fixTableStructure() {
         }
 
         // Ensure proper table structure
-        if ... {
-            const caption = ...
+        if (!table.querySelector('caption')) {
+            const caption = document.createElement('caption');
             caption.textContent = 'Data table';
-            ... table.firstChild);
+            table.insertBefore(caption, table.firstChild);
         }
     });
 }
@@ -159,27 +162,27 @@ export function addLandmarkRegions() {
     const body = document.body;
 
     // Check for header landmark
-    const header = ... [role="banner"]');
+    const header = document.querySelector('header, [role="banner"]');
     if (!header) {
         const headerEl = document.createElement('header');
         headerEl.setAttribute('role', 'banner');
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(headerEl, body.firstChild);
         } else {
-            ...
+            body.appendChild(headerEl);
         }
     }
 
     // Check for nav landmark
-    const nav = ... ...
+    const nav = document.querySelector('nav, [role="navigation"]');
     if (!nav) {
-        const navEl = ...
-        ... 'navigation');
-        ... 'Main navigation');
+        const navEl = document.createElement('nav');
+        navEl.setAttribute('role', 'navigation');
+        navEl.setAttribute('aria-label', 'Main navigation');
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(navEl, body.firstChild);
         } else {
-            ...
+            body.appendChild(navEl);
         }
     }
 
@@ -191,7 +194,7 @@ export function addLandmarkRegions() {
         if (body.lastChild) {
             body.insertBefore(footerEl, body.lastChild);
         } else {
-            ...
+            body.appendChild(footerEl);
         }
     }
 }
@@ -203,7 +206,7 @@ export function addressAccessibilityIssues() {
     addLangAttribute();
 
     // - Add accessible names to SVGs
-    ...
+    addSvgAccessibleNames();
 
     // - Fix fake link issues
     fixFakeLink();
@@ -212,7 +215,7 @@ export function addressAccessibilityIssues() {
     addAccessibleIds();
 
     // - Wrap primary content in a main element
-    ...
+    wrapPrimaryContentInMain();
 
     // - Add main landmark
     addMainLandmark();
@@ -224,7 +227,7 @@ export function addressAccessibilityIssues() {
     addLandmarkRegions();
 
     // - Fix table structure issues
-    ...
+    fixTableStructure();
 
     // - Add proper landmark regions
     // TODO: Implement ...

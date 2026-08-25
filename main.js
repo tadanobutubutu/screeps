@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -90,16 +87,3 @@ module.exports = {
   addSvgAccessibleNames,
   renderDependencyGraph
 };
-```
-
-New functions added for REACT_017 and REACT_025:
-
-```javascript
-function addLandmarkRole(filePath) {
-  // Implementation details omitted for brevity
-}
-
-function ensureUniqueLandmarks(filePath) {
-  // Implementation details omitted for brevity
-}
-```

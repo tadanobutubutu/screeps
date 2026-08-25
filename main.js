@@ -1,5 +1,3 @@
-// ... (Pre-existing main.js content)
-
 /**
  * Adds `aria-labelledby` to elements, if necessary
  * @param {HTMLElement} elem - Element to check aria-labelledby

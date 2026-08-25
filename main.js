@@ -1,19 +1,36 @@
 const fs = require('fs');
 
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+const exports = {
+  fixFakeLinkIssue,
+  addAriaAttribute,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAltAttribute
+};
+
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+exports.addAltAttribute = function addAltAttribute(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
+};
 
 function fixFakeLinkIssue(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Changed anchor tag to button for better accessibility in ${filePath}`);
+  // ... (existing code)
 }
 
 function addAriaAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
+  const updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
+  // Add ARIA attribute to existing 'button' without id (if present)
+  updatedContent = updatedContent.replace(/<button>rotate back<\/button>/g, '<button aria-label="rotate back">rotate back</button>');
   fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added ARIA attribute to button for better accessibility in ${filePath}`);
+  console.log(`Changed anchor tag to button for better accessibility and added ARIA attribute in ${filePath}`);
 }
 
 function addLangAttribute(filePath) {
@@ -74,20 +91,4 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
-function addAltAttribute(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
-}
-
-module.exports = {
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAltAttribute
-};
+module.exports = exports;

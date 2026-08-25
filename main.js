@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 module.exports = {
   // Add your exports here
   // Example of adding a function export (if applicable):
@@ -84,6 +81,3 @@ module.exports = {
     };
   }
 };
-```
-
-This resolves the Git merge conflict by keeping both sets of exports and integrating them into the same module.

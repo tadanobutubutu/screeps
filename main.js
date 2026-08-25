@@ -1,37 +1,3 @@
-<?php
-// This is a placeholder for the actual content that needs to be wrapped
-// <div class="container">
-//     <h2>Quality & Metrics Reports</h2>
-//     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-//     <div class="links">
-//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-//     </div>
-// </div>
-<main>
-  <!-- Quality & Metrics Reports Section -->
-  <div class="container">
-    <h2>Quality & Metrics Reports</h2>
-    <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-    <div class="links">
-      <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-      <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-    </div>
-  </div>
-</main>
-
-<!-- Dependency Graph Content -->
-<main>
-  <!-- Dependency Graph Container -->
-  <div id="dependency-graph-container"></div>
-</main>
-
-<!-- Index View Content -->
-<main>
-  <!-- Index View Container -->
-  <div id="index-view-container"></div>
-</main>
-
 // Import content modules for dependency graphs and index views
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
@@ -425,9 +391,3 @@ function addressAccessibilityIssues() {
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
 addLandmarkRegions();
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta

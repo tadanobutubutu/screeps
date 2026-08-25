@@ -3,7 +3,26 @@
 
 // ... (other code)
 
-// Example of how you might render the dependency graph in your server-side code
+/**
+ * Adds scope="col" attribute to all <th> elements in the dependency graph HTML
+ * to fix accessibility issue REACT_027
+ * @param {string} html - The dependency graph HTML
+ * @returns {string} - The updated HTML with scope attributes added
+ */
+function addScopeToHeaders(html) {
+  // Add scope="col" to all th elements that don't already have a scope attribute
+  return html.replace(/<th>(?!.*scope=)/gi, '<th scope="col">');
+}
+
+// Update getDependencyGraph to ensure all table headers have scope attributes
+const originalGetDependencyGraph = getDependencyGraph;
+
+function getDependencyGraph(data) {
+  const html = originalGetDependencyGraph(data);
+  return addScopeToHeaders(html);
+}
+
+// Example of how you might render thedependency graph in your server-side code
 const dependencyGraphHtml = getDependencyGraph(getDependencyGraphData());
 
 // Output the HTML to the response or send it to the client

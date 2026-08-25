@@ -124,6 +124,23 @@ function addAriaLabelToMyDiv() {
   }
 }
 
+// NEW FUNCTION: Set lang attribute with parameter
+function setLangAttribute(lang) {
+  document.documentElement.lang = lang;
+}
+
+// Utility function for Screeps bot
+function getGreeting() {
+  return 'Hello, World!';
+}
+
+// Rotate back function for button click
+function rotateBack() {
+  // existing code for rotateBack function
+  // Add an event listener for the button click if needed
+  console.log('Rotating back');
+}
+
 function App() {
   // Apply accessibility fixes when component mounts
   useEffect(() => {
@@ -171,3 +188,5 @@ function App() {
         </main>
       </body>
     </html>
+  );
+}

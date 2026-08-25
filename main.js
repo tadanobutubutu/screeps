@@ -89,13 +89,13 @@ function formatDate(date) {
 }
 
 // REACT_015: Add lang attribute to HTML element
-function ... lang = 'en') {
+function addLangAttribute(html, lang = 'en') {
   if (!html) return html;
   const langPattern = /\s*lang\s*=\s*["'][^"']*["']/i;
   if (langPattern.test(html)) {
     return html.replace(langPattern, `lang="${lang}"`);
   }
-  return ... `$1 lang="${lang}"`);
+  return html.replace(/<\/html>/i, ` lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -145,8 +145,8 @@ function addMainLandmark(html) {
                      ...
   
   if (!mainWithId) {
-    html = ... `<$1 id="main-content">`);
-    html = ... `<$1 id="main-content">`);
+    html = ... `<$1 id="main-content">`;
+    html = ... `<$1 id="main-content">`;
   }
   
   return html;
@@ -227,6 +227,4 @@ function fixFakeLinkIssue(element) {
 export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain };
 export * from './otherModule';
 export { myOtherFunction };
-
-// Additional exports for accessibility functions
 export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };

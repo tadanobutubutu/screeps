@@ -15,13 +15,13 @@ function createReactContext() {
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ...
+    renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
   const mockDocument = new window.Document();
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = ...
+  const rootElement = mockDocument.getElementById('root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
   
@@ -53,7 +53,7 @@ function addAriaLabelledbyIfNeeded(elem) {
     content = <div id="generatedId">{/* Your React component here */}</div>;
   }
   
-  const contentString = ...
+  const contentString = ReactDOMServer.renderToString(content);
   
   // ... (Pre-existing logic)
 }
@@ -85,13 +85,13 @@ function initAriaLabels() {
  * @param {Object} context - The React context containing window and document references
  * @returns {HTMLElement|null} - The created main element or null if no content found
  */
-function ... {
+function wrapPrimaryContentInMain(context) {
   if (!context || !context.document) return null;
   
   const { document } = context;
   
   // Check if a main element already exists
-  const existingMain = ...
+  const existingMain = document.querySelector('main');
   if (existingMain) {
     return existingMain;
   }
@@ -103,75 +103,228 @@ function ... {
   }
   
   // Create a new main element
-  const mainElement = ...
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
   
   // Move all body children into the main element
   while (body.firstChild) {
-    ...
+    mainElement.appendChild(body.firstChild);
   }
   
   // Append the main element to the body
-  ...
+  body.appendChild(mainElement);
   
   return mainElement;
 }
 
 /**
- * Renders a dependency graph view using the dependencyGraphContent module.
+ * Adds the lang attribute to the HTML element for accessibility (REACT_015).
  * 
  * @param {Object} context - The React context containing window and document references
- * @param {Object} options - Optional configuration for the dependency graph
- * @returns {string} - The rendered HTML string of the dependency graph
+ * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr')
+ * @returns {HTMLElement|null} - The HTML element with lang attribute or null
  */
-function renderDependencyGraph(context, options = {}) {
-  const graphContent = dependencyGraphContent({ context, ...options });
-  return ...
+function addLangAttribute(context, lang = 'en') {
+  if (!context || !context.document) return null;
+  
+  const { document } = context;
+  const htmlElement = document.documentElement;
+  
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+    return htmlElement;
+  }
+  
+  return null;
 }
 
 /**
- * Renders an index view using the indexContent module.
+ * Fixes table structure issues for accessibility (REACT_027).
+ * Ensures tables have proper headers, captions, and semantic structure.
  * 
  * @param {Object} context - The React context containing window and document references
- * @param {Object} options - Optional configuration for the index view
- * @returns {string} - The rendered HTML string of the index view
+ * @returns {number} - The number of table structure issues fixed
  */
-function renderIndexView(context, options = {}) {
-  const index = indexContent({ context, ...options });
-  return ...
+function fixTableStructure(context) {
+  if (!context || !context.document) return 0;
+  
+  const { document } = context;
+  const tables = document.querySelectorAll('table');
+  let issuesFixed = 0;
+  
+  tables.forEach((table) => {
+    // Check if table has a caption
+    let caption = table.querySelector('caption');
+    if (!caption) {
+      caption = document.createElement('caption');
+      if (table.firstChild) {
+        table.insertBefore(caption, table.firstChild);
+      } else {
+        table.appendChild(caption);
+      }
+      issuesFixed++;
+    }
+    
+    // Ensure proper th usage for header cells
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const cells = firstRow.querySelectorAll('td');
+      cells.forEach((cell) => {
+        if (!cell.hasAttribute('headers') && !cell.hasAttribute('scope')) {
+          const th = document.createElement('th');
+          th.setAttribute('scope', 'col');
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+          issuesFixed++;
+        }
+      });
+    }
+    
+    // Ensure tables used for layout are marked appropriately
+    const role = table.getAttribute('role');
+    if (!role && !table.querySelector('th')) {
+      table.setAttribute('role', 'presentation');
+      issuesFixed++;
+    }
+  });
+  
+  return issuesFixed;
 }
 
 /**
- * Updates the DOM element with the appropriate content based on its data-type attribute.
+ * Adds a main landmark to the page for accessibility (REACT_017).
  * 
- * @param {HTMLElement} elem - The DOM element to update
  * @param {Object} context - The React context containing window and document references
+ * @returns {HTMLElement|null} - The main element or null if creation failed
  */
-function updateElementContent(elem, context) {
-  if (!elem || !context) return;
+function addMainLandmark(context) {
+  if (!context || !context.document) return null;
   
-  const dataType = elem.getAttribute ? elem.getAttribute('data-type') : null;
+  const { document } = context;
   
-  let renderedContent;
-  if (dataType === 'dependency-graph') {
-    renderedContent = renderDependencyGraph(context);
-  } else if (dataType === 'index') {
-    renderedContent = renderIndexView(context);
+  // Check if main landmark already exists
+  const existingMain = document.querySelector('main, [role="main"]');
+  if (existingMain) {
+    return existingMain;
   }
   
-  if (renderedContent) {
-    elem.innerHTML = renderedContent;
+  // Create new main landmark
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  
+  // Find the body or primary content container
+  const body = document.body;
+  if (body && body.firstChild) {
+    body.insertBefore(mainElement, body.firstChild);
+  } else if (body) {
+    body.appendChild(mainElement);
   }
+  
+  return mainElement;
 }
 
-// Export the functions to make them accessible
-export { 
-  createReactContext, 
-  addAriaLabelledbyIfNeeded, 
-  initAriaLabels, 
-  wrapPrimaryContentInMain,
-  renderDependencyGraph,
-  renderIndexView,
-  updateElementContent,
-  dependencyGraphContent, 
-  indexContent 
-};
+/**
+ * Ensures all landmarks have unique accessible names (REACT_025).
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {number} - The number of landmark issues fixed
+ */
+function ensureUniqueLandmarks(context) {
+  if (!context || !context.document) return 0;
+  
+  const { document } = context;
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, main, [role="banner"], [role="contentinfo"], [role="navigation"], [role="complementary"], [role="main"]');
+  
+  const landmarkCounts = {};
+  let issuesFixed = 0;
+  
+  landmarks.forEach((landmark) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || '';
+    const key = role || tagName;
+    
+    if (!landmarkCounts[key]) {
+      landmarkCounts[key] = 0;
+    }
+    landmarkCounts[key]++;
+    
+    // Add aria-label or aria-labelledby if the landmark needs a name
+    const hasLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    
+    if (!hasLabel) {
+      if (landmarkCounts[key] > 1) {
+        // Multiple landmarks of same type need unique labels
+        const defaultLabels = {
+          'header': 'Site header',
+          'footer': 'Site footer',
+          'nav': 'Navigation',
+          'aside': 'Complementary content',
+          'main': 'Main content',
+          'banner': 'Site banner',
+          'contentinfo': 'Site information',
+          'navigation': 'Navigation region',
+          'complementary': 'Complementary content',
+        };
+        
+        const baseLabel = defaultLabels[key] || key;
+        landmark.setAttribute('aria-label', `${baseLabel} ${landmarkCounts[key]}`);
+        issuesFixed++;
+      }
+    }
+  });
+  
+  return issuesFixed;
+}
+
+/**
+ * Adds accessible names to SVG elements (REACT_041).
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @param {Object} svgNames - Map of SVG IDs to their accessible names
+ * @returns {number} - The number of SVG accessible names added
+ */
+function addSvgAccessibleNames(context, svgNames = {}) {
+  if (!context || !context.document) return 0;
+  
+  const { document } = context;
+  const svgs = document.querySelectorAll('svg');
+  let namesAdded = 0;
+  
+  svgs.forEach((svg) => {
+    const svgId = svg.getAttribute('id');
+    
+    // Check if SVG already has an accessible name
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
+      // Try to use provided name from map
+      const name = svgNames[svgId];
+      
+      if (name) {
+        svg.setAttribute('aria-label', name);
+        namesAdded++;
+      } else if (svgId) {
+        // Create a title element as fallback
+        const title = document.createElement('title');
+        title.textContent = svgId.replace(/-/g, ' ').replace(/([A-Z])/g, ' $1').trim();
+        title.setAttribute('id', `${svgId}-title`);
+        
+        if (svg.firstChild) {
+          svg.insertBefore(title, svg.firstChild);
+        } else {
+          svg.appendChild(title);
+        }
+        
+        svg.setAttribute('aria-labelledby', `${svgId}-title`);
+        namesAdded++;
+      }
+    }
+  });
+  
+  return namesAdded;
+}
+
+/**
+ * Fixes

@@ -5,4 +5,6 @@
 
 module.exports = {
   // Add your exports here
+  // Example of adding a function export (if applicable):
+  // someFunction: someFunction,
 };

@@ -1,6 +1,14 @@
+// Add lang attribute to HTML element based on your content
+function addLangToHtml(lang = 'en') {
+    const html = document.querySelector('html');
+    if (html) {
+        html.setAttribute('lang', lang);
+    }
+}
+
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
-document.documentElement.setAttribute('lang', 'en');
+addLangToHtml('en');
 
 // Function to add accessible names to SVGs
 // You can refactor and improve it based on the SVG structure in your project
@@ -11,21 +19,19 @@ function addSvgAccessibleNames(svg) {
         console.error('Missing required SVG tags: title or desc');
         return;
     }
-    svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `${svgTitle.textContent} ${svgDesc.textContent}`);
 }
 
 // Function to find all SVG elements on the page and add accessible names
 function addAllSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach(addSvgAccessibleNames);
+    svgs.forEach(svg => addSvgAccessibleNames(svg));
 }
 
 // Function to add scope attribute to th elements for accessibility
-function addScopeToTableHeaders() {
-    const tableHeaders = document.querySelectorAll('th');
-    tableHeaders.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
+function addScopeToTableHeaders(th) {
+    th.setAttribute('scope', 'col');
 }
 
 // Function to find all th elements on the page and add the scope attribute
@@ -37,10 +43,10 @@ function addAllTableHeadersScope() {
 }
 
 // Function to implement addressing accessibility issues from insight report
-function addressAccessibilityIssuesFromInsightReport() {
+function fixInputLabels() {
     // The implementation will depend on the insight report details
     // As an example, let's assume the report suggests adding labels to inputs
-    const inputs = document.querySelectorAll('input');
+    const inputs = document.querySelectorAll('input:not([type="hidden"])');
     inputs.forEach(input => {
         const label = document.createElement('label');
         label.htmlFor = input.id;
@@ -62,33 +68,33 @@ function fixTableStructureIssues() {
 // Function to add proper landmark regions to the page
 function addProperLandmarkRegions() {
     // Add role="banner" to header elements
-    const headers = document.querySelectorAll('header');
+    const headers = document.querySelectorAll('header:not([role])');
     headers.forEach(header => {
         header.setAttribute('role', 'banner');
     });
     // Add role="navigation" to nav elements
-    const navs = document.querySelectorAll('nav');
+    const navs = document.querySelectorAll('nav:not([role])');
     navs.forEach(nav => {
         nav.setAttribute('role', 'navigation');
     });
     // Add role="main" to main elements
-    const mains = document.querySelectorAll('main');
+    const mains = document.querySelectorAll('main:not([role])');
     mains.forEach(main => {
         main.setAttribute('role', 'main');
     });
     // Add role="complementary" to aside elements
-    const asides = document.querySelectorAll('aside');
+    const asides = document.querySelectorAll('aside:not([role])');
     asides.forEach(aside => {
         aside.setAttribute('role', 'complementary');
     });
     // Add role="contentinfo" to footer elements
-    const footers = document.querySelectorAll('footer');
+    const footers = document.querySelectorAll('footer:not([role])');
     footers.forEach(footer => {
         footer.setAttribute('role', 'contentinfo');
     });
 }
 
-// New function to fix table structure issues
+// New function to fix table constraints
 function fixTableConstraints() {
     // Example implementation: Enforce at least one THEAD or `${headerRowCount}` rows in TABLEs
     const tables = document.querySelectorAll('table');
@@ -110,4 +116,4 @@ function fixTableConstraints() {
 }
 
 // Export the new functions
-export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues, addProperLandmarkRegions, fixTableConstraints };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope, addLangToHtml, fixTableStructureIssues, addProperLandmarkRegions, fixTableConstraints, addSvgAccessibleNames, addScopeToTableHeaders, fixInputLabels };

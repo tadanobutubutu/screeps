@@ -108,5 +108,16 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAltAttribute,
-  fixAccessibilityIssuesFromInsightReport
+  fixAccessibilityIssuesFromInsightReport,
+  default: {
+    fixFakeLinkIssue,
+    addAriaAttribute,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    addSvgAccessibleNames,
+    addAltAttribute,
+    fixAccessibilityIssuesFromInsightReport
+  }
 };

@@ -41,12 +41,54 @@ function addAllTableHeadersScope() {
   });
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
+// Function to add aria-label to elements that are missing accessible names
+function addAriaLabelsToButtons() {
+  const buttons = document.querySelectorAll('button');
+
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', button.getAttribute('data-tooltip') || 'button');
+    }
+  });
+}
+
+// Function to ensure form inputs have associated labels
+function ensureFormInputsHaveLabels() {
+  const inputs = document.querySelectorAll('input, textarea, select');
+
+  inputs.forEach(input => {
+    const id = input.getAttribute('id');
+    const hasLabel = id && document.querySelector(`label[for="${id}"]`) || input.closest('label');
+
+    if (!hasLabel) {
+      const labelText = input.getAttribute('placeholder') || 'Input field';
+      const label = document.createElement('label');
+      const uniqueId = id || `auto-label-${Math.random().toString(36).substr(2, 9)}`;
+
+      label.setAttribute('for', uniqueId);
+      label.textContent = labelText;
+      input.setAttribute('id', uniqueId);
+      input.parentNode.insertBefore(label, input);
+    }
+  });
+}
+
+// Function to add alt text to images that are missing it
+function addAltTextToImages() {
+  const images = document.querySelectorAll('img');
+
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', img.getAttribute('data-alt') || '');
+    }
+  });
+}
+
+// Function to address accessibility issues from insight report
 function addressAccessibilityIssuesFromInsightReport() {
-  // Placeholder implementation
-  // This function should be implemented based on the insight report
-  console.log('Addressing accessibility issues from insight report');
+  addAriaLabelsToButtons();
+  ensureFormInputsHaveLabels();
+  addAltTextToImages();
 }
 
 // Export the new functions

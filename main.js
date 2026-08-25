@@ -114,6 +114,55 @@ function fixFakeLinkIssue(document) {
   });
 }
 
+// Function to add proper landmark regions
+function addProperLandmarkRegions(document) {
+  // Ensure a <header> landmark exists
+  if (!document.querySelector('header') && !document.querySelector('[role="banner"]')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    const body = document.body;
+    if (body.firstChild) {
+      body.insertBefore(header, body.firstChild);
+    } else {
+      body.appendChild(header);
+    }
+  }
+
+  // Ensure a <nav> landmark exists
+  if (!document.querySelector('nav') && !document.querySelector('[role="navigation"]')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main navigation');
+    const body = document.body;
+    body.appendChild(nav);
+  }
+
+  // Ensure a <main> landmark exists
+  if (!document.querySelector('main') && !document.querySelector('[role="main"]')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    const body = document.body;
+    body.appendChild(main);
+  }
+
+  // Ensure a <footer> landmark exists
+  if (!document.querySelector('footer') && !document.querySelector('[role="contentinfo"]')) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    const body = document.body;
+    body.appendChild(footer);
+  }
+
+  // Ensure complementary (aside) landmark exists if there are related sections
+  if (!document.querySelector('aside') && !document.querySelector('[role="complementary"]')) {
+    const aside = document.createElement('aside');
+    aside.setAttribute('role', 'complementary');
+    aside.setAttribute('aria-label', 'Supplementary content');
+    const body = document.body;
+    body.appendChild(aside);
+  }
+}
+
 // Function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues(document) {
   // Apply all accessibility fixes from the insight report
@@ -123,6 +172,7 @@ function addressAccessibilityIssues(document) {
   addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
+  addProperLandmarkRegions(document);
 }
 
 // New function using the imported graphMetrics module
@@ -149,6 +199,7 @@ function handleConflictResolution(document) {
   addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
+  addProperLandmarkRegions(document);
 
   // Example usage of the button ID for accessibility
   const buttonElement = document.getElementById(BUTTON_ID);
@@ -177,5 +228,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  addProperLandmarkRegions,
   // ... existing exports
 };

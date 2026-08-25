@@ -10,7 +10,7 @@ export function updateMainContent() {
   if (!mainTag) {
     // Create a new <main> element
     const mainElement = document.createElement('main');
-    
+
     // ... (Add the necessary content inside the <main> element)
     // For example, if the content is already in a div with class 'container':
     const container = document.querySelector('.container');

@@ -60,6 +60,24 @@ function addAriaLabel(elem, label) {
   }
 }
 
+/**
+ * Adds scope="col" to all <th> elements in a table for accessibility
+ * Fixes REACT_027: React Table Structure - th has no scope
+ * @param {HTMLElement|string} table - Table element or selector
+ * @param {string} [scope='col'] - Scope value ('col' or 'row')
+ */
+function addTableHeaderScope(table, scope = 'col') {
+  const tableEl = typeof table === 'string' ? document.querySelector(table) : table;
+  if (!tableEl) return;
+
+  const headers = tableEl.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', scope);
+    }
+  });
+}
+
 // Modify the event listeners to include `aria-label`
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
@@ -70,5 +88,6 @@ module.exports = {
   subtract,
   multiply,
   divide,
-  addAriaLabel
+  addAriaLabel,
+  addTableHeaderScope
 };

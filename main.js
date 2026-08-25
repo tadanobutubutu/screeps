@@ -1,38 +1,6 @@
-<?php
-// This is a placeholder for the actual content that needs to be wrapped
-// <div class="container">
-//     <h2>Quality & Metrics Reports</h2>
-//     <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-//     <div class="links">
-//         <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-//         <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-//     </div>
-// </div>
-<main>
-  <!-- Quality & Metrics Reports Section -->
-  <div class="container">
-    <h2>Quality & Metrics Reports</h2>
-    <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
-    <div class="links">
-      <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-      <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-    </div>
-  </div>
-</main>
+<!-- This line and the PHP comments are removed -->
 
-<!-- Dependency Graph Content -->
-<main>
-  <!-- Dependency Graph Container -->
-  <div id="dependency-graph-container"></div>
-</main>
-
-<!-- Index View Content -->
-<main>
-  <!-- Index View Container -->
-  <div id="index-view-container"></div>
-</main>
-
-// Import content modules for dependency graphs and index views
+<!-- Import content modules for dependency graphs and index views -->
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
 
@@ -265,20 +233,6 @@ function fixTableStructure() {
   });
 }
 
-// Check table structure validity
-function checkTableStructure() {
-  const tables = document.querySelectorAll('table');
-  for (const table of tables) {
-    const headers = table.querySelectorAll('th');
-    for (const th of headers) {
-      if (!hasValidTHScope(th)) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 // Add main landmark if missing
 function addMainLandmark() {
   const main = document.querySelector('main');
@@ -334,9 +288,9 @@ function fixFakeLinkIssue() {
 
 /**
  * Render the dependency graph view using the imported dependencyGraphContent module.
- * This function identifies the container element and populates it with the 
+ * This function identifies the container element and populates it with the
  * dependency graph content from the appropriate module.
- * 
+ *
  * @param {string} containerId - The ID of the container element to render the graph in
  * @param {Object} options - Optional configuration options for rendering
  * @returns {HTMLElement} The rendered dependency graph container
@@ -376,7 +330,7 @@ function renderDependencyGraph(containerId, options = {}) {
  * Render the index view using the imported indexContent module.
  * This function identifies the container element and populates it with the
  * index content from the appropriate module.
- * 
+ *
  * @param {string} containerId - The ID of the container element to render the index in
  * @param {Object} options - Optional configuration options for rendering
  * @returns {HTMLElement} The rendered index view container
@@ -421,13 +375,3 @@ function addressAccessibilityIssues() {
   fixFaviconAccessibility();
   fixFakeLinkIssue();
 }
-
-// Example usage of the accessibility functions
-addressAccessibilityIssues();
-addLandmarkRegions();
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta

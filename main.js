@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-
 const getAccessibleName = (node) => {
   const { svg, title, text } = node;
 
@@ -34,6 +32,13 @@ const setAccessibleName = (node, accessibleName) => {
     if (titleEl) {
       titleEl.textContent = accessibleName;
     }
+  }
+
+  // Added function to find and update role="img" and Alt attribute
+  if (node && node.querySelectorAll && node.querySelectorAll('[role="img"]').length) {
+    node.querySelectorAll('[role="img"]').forEach(img => {
+      img.setAttribute('alt', accessibleName);
+    });
   }
 };
 

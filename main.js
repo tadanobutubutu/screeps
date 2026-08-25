@@ -1,11 +1,9 @@
-// Assuming main.js is a JavaScript file that generates HTML content for the pages
-
 // Function to wrap the primary content in a <main> element
 function wrapContentInMain(content) {
   return `<main>${content}</main>`;
 }
 
-// Example of generating HTML content for 'index.html'
+// Function to generate HTML content for 'index.html'
 function generateIndexHtml() {
   const primaryContent = `
     <div class="container">
@@ -39,7 +37,7 @@ function generateIndexHtml() {
   `;
 }
 
-// Example of generating HTML content for 'dependency-graph.html'
+// Function to generate HTML content for 'dependency-graph.html'
 function generateDependencyGraphHtml() {
   const primaryContent = `
     <table id="table-rotated">

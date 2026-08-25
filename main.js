@@ -227,6 +227,11 @@ function addMainLandmark(html) {
   return html;
 }
 
+// REACT_017: Add main landmark to HTML pages (exported for use in build process)
+export function addMainLandmarkToHtml(html) {
+  return addMainLandmark(html);
+}
+
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames(svgs) {
   if (!svgs || !Array.isArray(svgs)) return [];
@@ -313,4 +318,32 @@ function fixButtonAccessibility(buttons) {
       
       if (button['aria-label']) {
         semanticId = button['aria-label'].toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      } else if (button.textContent || button.innerText)
+      } else if (button.textContent || button.innerText) {
+        semanticId = (button.textContent || button.innerText).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      } else if (button.role) {
+        semanticId = button.role.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      }
+      
+      if (!semanticId) {
+        semanticId = `action-${index + 1}`;
+      }
+      
+      // Ensure unique ID
+      let finalId = semanticId;
+      let suffix = 1;
+      while (seenIds.has(finalId)) {
+        finalId = `${semanticId}-${suffix}`;
+        suffix++;
+      }
+      seenIds.add(finalId);
+      
+      button.id = finalId;
+    } else {
+      seenIds.add(button.id);
+    }
+    
+    return button;
+  });
+}
+
+export default myNewFunction;

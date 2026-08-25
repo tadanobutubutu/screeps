@@ -304,5 +304,7 @@ export {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarkNames,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addAriaLabelledbyIfNeeded,
+  initAriaLabels
 };

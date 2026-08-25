@@ -1,5 +1,4 @@
 // Address accessibility issues from insight report
->>>>>>> origin/main
 // Ensure the dependencyGraph container has a proper ARIA role
 const { renderGraphContent } = require('./dependency-graph');
 
@@ -58,6 +57,3 @@ module.exports = {
   implementNewFunction,
   renderGraphContent // original export preserves for calling from another file
 };
-```
-
-This resolved file integrates both changes, adding the `ensureUniqueLandmarks` function to the module export (from the HEAD branch) and introducing the `implementNewFunction` to apply accessibility fixes (from the origin/main branch). The code for addressing the ARIA role of the `dependencyGraph` container is preserved, and the implementations for fixing unique landmarks and fake links are added to their respective functions. The original export of `renderGraphContent` is preserved for calling from another file.

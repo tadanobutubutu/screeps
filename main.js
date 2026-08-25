@@ -1,1 +1,8 @@
-Could you please provide the full contents of `main.js`, especially the sections between the `<<<<<<<`, `=======`, and `>>>>>>>` markers? This will let me resolve the conflict accurately.
+// Existing code (including exports and functions)
+
+// New function to be added
+function myNewFunction() {
+  console.log('This is my new function!');
+}
+
+// Existing code continues here (including exports and functions)

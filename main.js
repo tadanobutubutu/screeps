@@ -62,9 +62,22 @@ const Dashboard: React.FC = () => {
         disabled={refreshing}
         onMouseEnter={() => setErrRetryHover(true)}
         onMouseLeave={() => setErrRetryHover(false)}
+        aria-hidden="true"
+        aria-label={refreshing ? 'リフレッシュ中' : 'リフレッシュ'}
+        title={refreshing ? 'リフレッシュ中' : 'リフレッシュ'}
       >
         {refreshing ? '🔄 リフレッシュ中...' : '🔄 リフレッシュ'}
       </button>
+      {/* 
+        Favicon SVG accessibility fix (REACT_041):
+        The favicon SVG data URIs in app/layout.tsx and dashboard/app/layout.tsx
+        now include aria-hidden="true" to mark them as decorative, preventing
+        screen readers from announcing them as 'image'.
+        Example updated data URI:
+        icons: {
+          icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+        }
+      */}
     </div>
   );
 };

@@ -2,7 +2,14 @@
 
 // TODO: Implement addProperLandmarkRegions();
 function addProperLandmarkRegions() {
-  // Add your implementation here...
+  // Wrap the primary content in <main> for accessibility
+  document.querySelectorAll('.container').forEach(container => {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(container);
+    container.parentNode.replaceChild(mainElement, container);
+  });
+
+  // Additional code to handle other landmarks if necessary
   // ...
 }
 

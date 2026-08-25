@@ -1,22 +1,6 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// Import required module(s)
 const graphMetrics = require('./graphMetrics');
 
-// Button ID constant for accessibility
 const BUTTON_ID = 'resolve-conflict-button';
-
-// ... existing code
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
@@ -129,7 +113,7 @@ function calculateGraphMetrics(dependencies) {
   return metrics;
 }
 
-// New function for handling conflict
+// Function to handle conflict
 function handleConflict() {
   // Placeholder for the logic to handle conflict markers
   // This function should be implemented to handle the conflict markers
@@ -137,7 +121,7 @@ function handleConflict() {
   console.log('Handling conflict resolution...');
 }
 
-// New function as requested in the issue
+// New function for handling conflict resolution
 function handleConflictResolution(document) {
   // Placeholder for the logic to handle the conflict markers in a test environment
   // Since we're only syntax-checking locally, this function is not implementing its purpose
@@ -149,12 +133,6 @@ function handleConflictResolution(document) {
   addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
-
-  // Example usage of the button ID for accessibility
-  const buttonElement = document.getElementById(BUTTON_ID);
-  if (buttonElement) {
-    buttonElement.textContent = 'Handle conflict resolution';
-  }
 }
 
 // Modified the existing handleConflict function to call handleConflictResolution
@@ -167,7 +145,6 @@ function handleConflictWithAccessibility(document) {
 module.exports = {
   calculateGraphMetrics,
   handleConflict,
-  handleConflictResolution,
   handleConflictWithAccessibility,
   BUTTON_ID,
   addLangAttribute,
@@ -176,5 +153,4 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  // ... existing exports
 };

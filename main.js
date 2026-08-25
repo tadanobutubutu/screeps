@@ -11,7 +11,6 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
@@ -40,10 +39,19 @@ async function addressAccessibilityIssues() {
   accessibilityIssues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-caption':
-        addCaptionToTable(issue.element);
+        const tableWithMissingCaption = document.querySelector(issue.selector);
+        if (tableWithMissingCaption) {
+          addCaptionToTable(tableWithMissingCaption);
+        }
         break;
       case 'table-no-unique-id':
-        addUniqueIdToTable(issue.element);
+        const tableWithoutId = document.querySelector(issue.selector);
+        if (tableWithoutId) {
+          addUniqueIdToTable(tableWithoutId);
+        }
+        break;
+      case 'missing-lang-attribute':
+        addLangToHTML(issue.language || 'en');
         break;
       default:
         console.warn(`Unhandled accessibility issue type: ${issue.type}`);
@@ -66,6 +74,11 @@ function addCaptionToTable(table) {
 // New function to assign a unique id to table
 function addUniqueIdToTable(table) {
   table.id = table.id || `table-${table.dataset.testid}`;
+}
+
+// New function to add lang attribute to HTML element
+function addLangToHTML(language) {
+  document.documentElement.lang = language;
 }
 
 // New function for API calls

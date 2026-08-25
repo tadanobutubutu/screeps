@@ -21,36 +21,40 @@ async function fetchData() {
 
 async function render(data) {
   const result = await fetchData();
-  
+
+  // Add role="main" and aria-label for the main element
+  let mainContent = `
+    <div id="root" role="document">
+      <header>
+        <h1>App</h1>
+      </header>
+  `;
+
   if (result.success) {
-    // Success state - use <main>
-    return `
-      <div id="root">
-        <header>
-          <h1>App</h1>
-        </header>
-        <main>
+    mainContent += `
+        <main role="main" aria-label="Main content">
           <h2>Data</h2>
           <ul>
             ${result.data.map(item => `<li key=${item.id}>${item.title}</li>`).join('')}
           </ul>
         </main>
-      </div>
     `;
   } else {
     // Error state - use <section> instead of <main> to avoid duplicate landmarks
-    return `
-      <div id="root">
-        <header>
-          <h1>App</h1>
-        </header>
+    mainContent += `
         <section>
           <h2>Error</h2>
           <p>${result.error}</p>
         </section>
-      </div>
     `;
   }
+
+  // Close the mainContent string
+  mainContent += `
+    </div>
+  `;
+
+  return mainContent;
 }
 
 module.exports = { render, fetchData };

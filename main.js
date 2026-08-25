@@ -3,6 +3,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
@@ -74,6 +75,10 @@ const validateTableStructure = () => {
     });
   }
 
+  // Add render dependency graph content here
+  const dependencyGraph = ... // Assuming you have a function to generate the dependency graph data
+  ReactDOM.render(<React.Fragment>{dependencyGraphContent(dependencyGraph)}</React.Fragment>, document.getElementById('dependency-graph'));
+
   return { errors };
 };
 
@@ -122,6 +127,10 @@ const validateTableAccessibility = () => {
       });
     }
   });
+
+  // Add render index content here
+  const indexData = ... // Assuming you have a function to generate the index data
+  ReactDOM.render(<React.Fragment>{indexContent(indexData)}</React.Fragment>, document.getElementById('index'));
 
   return { errors };
 };

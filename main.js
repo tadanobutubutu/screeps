@@ -108,3 +108,4 @@ document.querySelectorAll('th').forEach(th => {
 // Export the module with the new fetchAPI function added
 export { fetchAPI };
 export {};
+```

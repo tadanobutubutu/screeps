@@ -77,8 +77,8 @@ function fixTableAccessibility(tables) {
     tables.forEach(table => {
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
-            const headers = row.querySelectorAll('th');
-            const cells = row.querySelectorAll('td');
+            const headers = Array.from(row.querySelectorAll('th'));
+            const cells = Array.from(row.querySelectorAll('td'));
             
             headers.forEach((th) => {
                 const isRowHeader = th.getAttribute('data-row-header') !== null;
@@ -89,7 +89,7 @@ function fixTableAccessibility(tables) {
             });
             
             cells.forEach((td, index) => {
-                const rowHeaders = row.querySelectorAll('th[data-row-header]');
+                const rowHeaders = headers.filter(h => h.getAttribute('data-row-header') !== null);
                 if (rowHeaders.length > index) {
                     td.setAttribute('headers', rowHeaders[index].id);
                 }

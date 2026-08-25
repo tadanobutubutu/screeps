@@ -1,132 +1,106 @@
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-function setHtmlLangAttribute(lang = 'en') {
-    const html = document.querySelector('html');
-    if (html && !html.getAttribute('lang')) {
-        html.setAttribute('lang', lang);
+import dependencyGraphContent from './dependencyGraphContent'
+import { addLandmarkRoles, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssues, addThScope, getHeadingLevels } from './indexContent'
+import someDependency from './someDependency'
+
+function addressIssuesFromInsightReport() {
+    let content = dependencyGraphContent
+    
+    const container = document.createElement('div')
+    container.innerHTML = content
+
+    addLandmarkRoles(container)
+    addSvgAccessibleNames(container)
+    ensureUniqueLandmarks(container)
+    fixFakeLinkIssues(container)
+    addThScope(container)
+
+    const htmlElement = document.createElement('html')
+    htmlElement.setAttribute('lang', 'en')
+    htmlElement.innerHTML = container.innerHTML
+
+    return {
+        content: htmlElement.outerHTML,
+        headingLevels: getHeadingLevels(container),
+        uniqueLandmarkCount: container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]').length
     }
 }
 
-// Function to add accessible names to SVGs
-// You can refactor and improve it based on the SVG structure in your project
-function addSvgAccessibleNames(svg) {
-    const svgTitle = svg.querySelector('title');
-    const svgDesc = svg.querySelector('desc');
-    if (!svgTitle || !svgDesc) {
-        console.error('Missing required SVG tags: title or desc');
-        return;
-    }
-    if (!svgTitle.id) {
-        svgTitle.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-    }
-    if (!svgDesc.id) {
-        svgDesc.id = `svg-desc-${Math.random().toString(36).substr(2, 9)}`;
-    }
-    svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
-}
-
-// Function to find all SVG elements on the page and add accessible names
-function addAllSvgAccessibleNames() {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => addSvgAccessibleNames(svg));
-}
-
-// Function to implement addressing accessibility issues from insight report
-function fixInputAccessibility() {
-    const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
-    inputs.forEach(input => {
-        if (!input.id) {
-            input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
+function fixDuplicateLandmarkRoles(container) {
+    const landmarks = container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]')
+    const uniqueLandmarkRoles = [...new Set(Array.from(landmarks).map(landmark => landmark.getAttribute('role')))]
+    
+    landmarks.forEach((landmark, index) => {
+        if (index >= uniqueLandmarkRoles.length) {
+            landmark.removeAttribute('role')
+        } else {
+            landmark.setAttribute('role', uniqueLandmarkRoles[index])
         }
-        const label = document.createElement('label');
-        label.htmlFor = input.id;
-        label.textContent = 'Input description';
-        input.parentNode.insertBefore(label, input);
-    });
+    })
 }
 
-// Function to add proper landmark regions to the page
-function addProperLandmarkRegions() {
-    // Add role="banner" to header elements
-    const headers = document.querySelectorAll('header:not([role])');
-    headers.forEach(header => {
-        header.setAttribute('role', 'banner');
-    });
-    // Add role="navigation" to nav elements
-    const navs = document.querySelectorAll('nav:not([role])');
-    navs.forEach(nav => {
-        nav.setAttribute('role', 'navigation');
-    });
-    // Add role="main" to main elements
-    const mains = document.querySelectorAll('main:not([role])');
-    mains.forEach(main => {
-        main.setAttribute('role', 'main');
-    });
-    // Add role="complementary" to aside elements
-    const asides = document.querySelectorAll('aside:not([role])');
-    asides.forEach(aside => {
-        aside.setAttribute('role', 'complementary');
-    });
-    // Add role="contentinfo" to footer elements
-    const footers = document.querySelectorAll('footer:not([role])');
-    footers.forEach(footer => {
-        footer.setAttribute('role', 'contentinfo');
-    });
+function renderDependencyGraph(data) {
+    const graphContainer = document.getElementById('graph-container')
+    if (!graphContainer) return
+
+    graphContainer.innerHTML = ''
+    someDependency.render(data, graphContainer)
 }
 
-// Function to find all th elements on the page and add the scope attribute
-function addAllTableHeadersScope() {
-    const thElements = document.querySelectorAll('th:not([scope])');
-    thElements.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
+function addLangAttr(html) {
+    return html.replace(/<html([^>]*)>/gi, '<html lang="en"$1>')
 }
 
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
+function addLandmarks(rootElement) {
+    const landmarks = {
+        banner: rootElement.querySelector('header'),
+        navigation: rootElement.querySelector('nav'),
+        main: rootElement.querySelector('main'),
+        footer: rootElement.querySelector('footer')
+    }
 
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
+    Object.keys(landmarks).forEach((key) => {
+        if (landmarks[key]) {
+            landmarks[key].setAttribute('role', key)
         }
-
-        const tableHeaders = table.querySelectorAll('th');
-        tableHeaders.forEach(th => {
-            th.setAttribute('scope', 'col');
-        });
-    });
+    })
+    return landmarks
 }
 
-// Function to fix table constraints
-function fixTableConstraints() {
-    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
+function addAccessibleSvgNames() {
+    const svgs = document.querySelectorAll('svg')
+    svgs.forEach((svg) => {
+        if (!svg.id) return
+        const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc')
+        desc.id = 'desc_' + svg.id
+        svg.setAttribute('role', 'img')
+        svg.insertBefore(desc, svg.firstChild)
+    })
 
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
+    svgs.forEach((svg) => {
+        if (!svg.id) return
+        const id = 'desc_' + svg.id
+        const description = document.createTextNode('Accessible description for ' + svg.id)
+        const descElement = svg.querySelector('#' + id)
+        if (descElement) {
+            descElement.appendChild(description)
         }
-    });
+    })
+}
+
+function addIdsToLandmarks(landmarks) {
+    Object.keys(landmarks).forEach((key) => {
+        if (landmarks[key]) {
+            landmarks[key].id = key
+        }
+    })
+}
+
+function fixTableStructure() {
+    // Implement the function as needed
+}
+
+function fixFakeLinkIssue() {
+    // Implement the function as needed
 }
 
 // New function to replace fake links (<a href="#">) with accessible buttons
@@ -143,7 +117,10 @@ function fixFakeLinks() {
     });
 }
 
-// Export the new functions
+function addressAccessibilityIssues() {
+    return addressIssuesFromInsightReport()
+}
+
 export {
     setHtmlLangAttribute,
     addAllSvgAccessibleNames,
@@ -152,5 +129,20 @@ export {
     fixTableStructureIssues,
     addProperLandmarkRegions,
     fixTableConstraints,
+    getHeadingLevels,
+    fixDuplicateLandmarkRoles,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssues,
+    addThScope,
+    addressIssuesFromInsightReport,
+    renderDependencyGraph,
+    addLangAttr,
+    addLandmarks,
+    addAccessibleSvgNames,
+    addIdsToLandmarks,
+    fixTableStructure,
+    fixFakeLinkIssue,
     fixFakeLinks,
-};
+    addressAccessibilityIssues
+}

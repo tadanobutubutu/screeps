@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// <<<<<<< HEAD
+function calculateSum(a, b) {
+    return a + b;
+}
+
+// =======
+function add(a, b) {
+    return a + b;
+}
+
+// >>>>>>> origin/branch-name

@@ -26,7 +26,7 @@ function fixTableStructureIssues() {
       const thead = document.createElement('thead');
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('td');
+        const headers = firstRow.querySelectorAll('th');
         const tr = document.createElement('tr');
         headers.forEach(header => {
           const th = document.createElement('th');
@@ -38,7 +38,8 @@ function fixTableStructureIssues() {
         table.insertBefore(thead, table.firstChild);
       }
     }
-    table.querySelectorAll('td').forEach(td => {
+    const cells = table.querySelectorAll('td');
+    cells.forEach(td => {
       if (td.textContent && !td.closest('thead')) {
         const row = td.closest('tr');
         if (row && row.querySelector('th')) {
@@ -58,7 +59,7 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('#content') || document.querySelector('.content');
+    const content = document.querySelector('.content') || document.querySelector('#content');
     if (content) {
       main.appendChild(content);
       while (content.firstChild) {
@@ -81,7 +82,7 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title') || document.createElement('title');
+    let title = svg.querySelector('title') || document.createElement('title');
     if (!svg.querySelector('title')) {
       const ariaLabel = svg.getAttribute('aria-label') || 
                         (index === 0 ? 'Logo' : 'Icon') + ' ' + (index + 1);
@@ -89,8 +90,8 @@ function addSvgAccessibleNames() {
       svg.insertBefore(title, svg.firstChild);
     }
     svg.setAttribute('role', 'img');
-    if (!svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-labelledby', title.id = `svg-title-${index}`);
+    if (!title.id) {
+      title.id = 'svg-title-' + index;
     }
   });
 }
@@ -113,7 +114,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  const mainLandmarks = document.querySelectorAll('main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -125,7 +126,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], span.clickable, div.clickable');
+  const fakeLinks = document.querySelectorAll('span.clickable, div.clickable');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

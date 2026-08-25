@@ -1,11 +1,11 @@
 // main.js - Entry point for the application with accessibility fixes for React components
-import { dependencyGraphContent } from './content/dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './content/indexContent.js';
 
 // Existing functions
 function addLangAttribute() {
   const html = document.documentElement;
-  html.setAttribute('lang', getLangAttribute());
+  ... getLangAttribute());
 }
 
 function getLangAttribute() {
@@ -14,14 +14,14 @@ function getLangAttribute() {
 }
 
 function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let hasIssues = false;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     headers.forEach(th => {
       if (!th.scope) {
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+        const isFirstInCol = ... === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -36,10 +36,10 @@ function validateTableAccessibility() {
 }
 
 function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   let isValid = true;
   tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     const row = table.rows[1];
     if (headers.length !== row.cells.length) {
       isValid = false;
@@ -55,19 +55,19 @@ function validateTableStructure() {
 }
 
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   svgs.forEach((svg, index) => {
     const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
-    svg.setAttribute('aria-labelledby', `${svg.id || `svg-${index}`}-title`);
+    ... `${svg.id || ...
     const titleEl = document.createElement('title');
     titleEl.id = `${svg.id || 'svg-' + index}-title`;
     titleEl.textContent = title;
-    svg.appendChild(titleEl);
+    ...
   });
 }
 
 function addMainLandmark() {
-  const main = document.getElementById('main') || document.body;
+  const main = ... || document.body;
   if (main) {
     main.setAttribute('role', 'main');
     main.setAttribute('aria-label', 'Main content of the application');
@@ -75,15 +75,15 @@ function addMainLandmark() {
 }
 
 function ensureUniqueLandmarks() {
-  const landmarks = [...document.querySelectorAll('nav, footer, aside, main, header')];
+  const landmarks = ... footer, aside, main, header')];
   const idMap = new Map();
   landmarks.forEach(landmark => {
     let currentId = landmark.id;
     if (!currentId) {
-      currentId = `${landmark.tagName.toLowerCase()}-${Date.now()}`;
+      currentId = ...
       landmark.id = currentId;
     }
-    if (idMap.has(currentId)) {
+    if ... {
       let counter = 1;
       const newId = `${currentId}-${counter}`;
       while (idMap.has(newId)) {
@@ -93,18 +93,18 @@ function ensureUniqueLandmarks() {
       landmark.id = newId;
       currentId = newId;
     }
-    idMap.set(currentId, true);
-    landmark.setAttribute('aria-labelledby', currentId);
+    ... true);
+    ... currentId);
   });
 }
 
 function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a[href="#]');
+  const links = ...
   const isValid = !links.length;
   links.forEach(link => {
     if (link.textContent) {
-      link.setAttribute('href', 'javascript:void(0)');
-      link.setAttribute('tabindex', '-1');
+      link.setAttribute('href', ...
+      ... '-1');
     }
   });
   return isValid;
@@ -112,7 +112,7 @@ function fixFakeLinkIssue() {
 
 // New functions requested by the issue
 function addSidebarLandmark() {
-  const sidebar = document.getElementById('sidebar');
+  const sidebar = ...
   if (sidebar) {
     sidebar.setAttribute('role', 'navigation');
     sidebar.setAttribute('aria-label', 'Sidebar navigation');
@@ -120,7 +120,7 @@ function addSidebarLandmark() {
 }
 
 function addFooterLandmark() {
-  const footer = document.getElementById('footer');
+  const footer = ...
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
     footer.setAttribute('aria-label', 'Footer information');
@@ -128,7 +128,7 @@ function addFooterLandmark() {
 }
 
 function addNavLandmark() {
-  const nav = document.getElementById('nav');
+  const nav = ...
   if (nav) {
     nav.setAttribute('role', 'navigation');
     nav.setAttribute('aria-label', 'Navigation');
@@ -139,26 +139,44 @@ function addNavLandmark() {
 function addFaviconAccessibleName() {
   const faviconLink = document.querySelector('link[rel="icon"]');
   if (faviconLink) {
-    faviconLink.setAttribute('aria-label', 'Favicon');
+    const href = faviconLink.getAttribute('href');
+    if (href && href.endsWith('.svg')) {
+      fetch(href)
+        .then(response => response.text())
+        .then(svgText => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgElement = svgDoc.querySelector('svg');
+          if (svgElement && !svgElement.querySelector('title')) {
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = 'Favicon';
+            svgElement.insertBefore(title, svgElement.firstChild);
+            const serializer = new XMLSerializer();
+            const serializedSvg = serializer.serializeToString(svgElement);
+            faviconLink.setAttribute('href', 'data:image/svg+xml,' + encodeURIComponent(serializedSvg));
+          }
+        })
+        .catch(err => console.error('Failed to add accessible name to favicon:', err));
+    }
   }
 }
 
 function wrapPrimaryContentInMain() {
-  const mainElement = document.getElementById('main');
+  const mainElement = ...
   if (mainElement) {
     mainElement.innerHTML = '';
-    if (document.body.firstChild) {
-      mainElement.appendChild(document.body.firstChild);
+    if ... {
+      ...
     }
   }
 }
 
 function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href="#"], a[href$="javascript:void(0)"]');
+  const links = ... ...
   let isValid = true;
   links.forEach(link => {
-    if (link.href.endsWith('#') && link.textContent.trim()) {
-      link.setAttribute('href', 'javascript:void(0)');
+    if ... && link.textContent.trim()) {
+      link.setAttribute('href', ...
       isValid = false;
     }
   });

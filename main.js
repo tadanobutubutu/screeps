@@ -269,3 +269,30 @@ export function fixTableStructureIssues() {
     console.warn('Multiple <main> elements detected. Only one <main> element is allowed.');
   }
 }
+
+// Fix SVG accessible name (REACT_041)
+// Adds aria-hidden="true" to decorative SVGs that lack an accessible name,
+// or returns props augmented with an accessible name when one is provided.
+export function fixSvgAccessibleName(svgElement, accessibleName) {
+  if (!svgElement || !svgElement.props) {
+    return svgElement;
+  }
+
+  const existingName = getSvgAccessibleName(svgElement);
+  const newProps = { ...svgElement.props };
+
+  if (existingName) {
+    // SVG already has an accessible name, no change needed
+    return svgElement;
+  }
+
+  if (accessibleName) {
+    // Provide an accessible name via aria-label
+    newProps['aria-label'] = accessibleName;
+  } else {
+    // No accessible name provided: mark as decorative/hidden from AT
+    newProps['aria-hidden'] = 'true';
+  }
+
+  return React.cloneElement(svgElement, newProps);
+}

@@ -112,7 +112,7 @@ function wrapPrimaryContentInMain() {
   const children = Array.from(body.children);
   const primaryChildren = children.filter((child) => {
     const tag = child.tagName ? child.tagName.toLowerCase() : '';
-    const role = child.getAttribute('role') || tagName;
+    const role = child.getAttribute('role') || tag;
     return !landmarkTags.includes(tag) && !landmarkRoles.includes(role);
   });
 
@@ -248,7 +248,7 @@ function establishLandmarkRegions() {
   const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside'];
   const landmarkRoles = ['banner', 'contentinfo', 'main', 'navigation', 'complementary'];
 
- // Check if there is already a navigation landmark
+  // Check if there is already a navigation landmark
   const existingNav = document.querySelector('nav:not([role]), [role="navigation"]');
   if (!existingNav) {
     // Try to find a nav element or create one around navigation links
@@ -266,7 +266,7 @@ function establishLandmarkRegions() {
     }
   }
 
- // Check if there is already a complementary landmark
+  // Check if there is already a complementary landmark
   const existingAside = document.querySelector('aside:not([role]), [role="complementary"]');
   if (!existingAside) {
     const asideElements = document.querySelectorAll('.sidebar, .aside, .complementary');

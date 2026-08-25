@@ -19,7 +19,7 @@ export const addRequiredLandmarks = () => {
   }
 
   // Add main landmark (REACT_017)
-  const mainLandmark = document.querySelector('main') || document.querySelector('[role="main"]');
+  const mainLandmark = document.querySelector('main') || document.createElement('main');
   if (mainLandmark) {
     mainLandmark.setAttribute('role', 'main');
     if (!mainLandmark.id) {
@@ -31,13 +31,13 @@ export const addRequiredLandmarks = () => {
   const svgs = document.querySelectorAll('svg');
   const svgArray = Array.from(svgs);
   svgArray.forEach((svg, index) => {
-    if (index < 2 && !svg.getAttribute('aria-label')) {
+    if (index < 2 && !svg.hasAttribute('aria-label')) {
       svg.setAttribute('aria-label', `Graphic ${index + 1}`);
     }
   });
 
   // Ensure unique landmarks (REACT_025)
-  const landmarks = document.querySelectorAll('[role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="complementary"], [role="contentinfo"]');
   const uniqueIds = new Set();
   landmarks.forEach((landmark) => {
     const id = landmark.id;

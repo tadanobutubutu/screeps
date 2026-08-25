@@ -11,16 +11,16 @@ function createReactContext() {
 
   window.React = React;
   window.ReactDOM = {
-    renderToString: (component) => ...
+    renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
   const mockDocument = new window.Document();
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
-  const rootElement = ...
+  const rootElement = mockDocument.getElementById('root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
-  
+
   return {
     window,
     document: mockDocument,
@@ -39,8 +39,8 @@ function addAriaLabelledbyIfNeeded(elem) {
   // New logic: Render React components within the HTML element and extract them as strings
   const context = createReactContext();
   const content = <div id="generatedId">{/* Your React component here */}</div>;
-  const contentString = ...
-  
+  const contentString = ReactDOMServer.renderToString(content);
+
   // ... (Pre-existing logic)
 }
 

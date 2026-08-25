@@ -35,6 +35,7 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
+  // This function is to be added as per the issue report.
   const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
@@ -45,19 +46,17 @@ function fixFakeLinks() {
   });
 }
 
-// TO DO: IMPLEMENT THE NEW FUNCTION AS PER THE ISSUE REQUIREMENTS
+// New function to implement accessibility fixes
 function implementNewFunction() {
-  // YOUR IMPLEMENTATION GOES HERE
+  // Apply accessibility fixes defined in this module
+  fixFakeLinks();
+  ensureUniqueLandmarks();
 }
 
-// Add the new function within the module.exports for calling from another file
+// Export the module functions
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  implementNewFunction, // Added here
-  renderGraphContent // original export preserves for calling from another file
+  implementNewFunction
 };
-
-// Call renderGraphContent function from another file
-renderGraphContent(someData);

@@ -1,1 +1,5 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// If they're in template literals or strings:
+const tableHeader = `<th scope="col">Header</th>`;
+
+// Or if you have HTML strings in variables:
+const headers = ['<th scope="col">Name</th>', '<th scope="col">Value</th>'];

@@ -1,11 +1,11 @@
 // main.js - Entry point for the application with accessibility fixes for React components
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and fixFakeLinkIssue())
 
 // New functions requested by the issue
 
@@ -21,18 +21,18 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
-  let hasIssues = false;
+  let hasIssue = false;
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
       if (!th.hasAttribute('scope')) {
-        hasIssues = true;
+        hasIssue = true;
       } else if (!hasValidTHScope(th)) {
-        hasIssues = true;
+        hasIssue = true;
       }
     });
   });
-  return !hasIssues;
+  return !hasIssue;
 }
 
 function validateTableStructure() {
@@ -57,6 +57,24 @@ function getSvgAccessibleName() {
 }
 
 // Wrap primary content in main element for accessibility
+function wrapPrimaryContentInMain() {
+  if (document.querySelector('main')) {
+    return document.querySelectorAll('main').length;
+  }
+  const body = document.body;
+  if (!body) {
+    return 0;
+  }
+  const main = document.createElement('main');
+  // Move all body children into main
+  while (body.firstChild) {
+    main.appendChild(body.firstChild);
+  }
+  body.appendChild(main);
+  return 1;
+}
+
+// Add main landmark if missing
 function addMainLandmark() {
   return wrapPrimaryContentInMain();
 }
@@ -64,7 +82,7 @@ function addMainLandmark() {
 // REACT_025: Ensure unique landmarks
 function validateUniqueLandmarks() {
   const landmarks = document.querySelectorAll('header, footer, aside, main, header');
-  const landmarkRoles = new Map();
+  const landmarkRoles = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
@@ -187,13 +205,13 @@ function createAccessibleLink(href, label) {
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
-  let hasIssues = false;
+  let hasIssue = false;
   links.forEach(link => {
     if (!link.getAttribute('href') || link.getAttribute('href') === '#') {
-      hasIssues = true;
+      hasIssue = true;
     }
   });
-  return !hasIssues;
+  return !hasIssue;
 }
 
 // Check valid TH scope attribute
@@ -244,11 +262,6 @@ function checkTableStructure() {
     }
   }
   return true;
-}
-
-// Add main landmark if missing
-function addMainLandmark() {
-  return wrapPrimaryContentInMain();
 }
 
 // Add landmark regions for accessibility

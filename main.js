@@ -5,6 +5,10 @@ import ReactDOM from 'react-dom';
 
 const Root = () => {
   // Other component code...
+  
+  const handleRotateBack = () => {
+    // Logic to rotate back
+  };
 
   return (
     // Assuming main.js has a <html> tag, add the lang attribute based on your content
@@ -13,6 +17,9 @@ const Root = () => {
       {/* Other JSX elements... */}
       <main>
         {/* Primary content that needs to be wrapped */}
+        <button id="unrotate" onClick={handleRotateBack} type="button">
+          rotate back
+        </button>
       </main>
     </html>
   );

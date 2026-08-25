@@ -205,7 +205,7 @@ function handleRotateBack() {
 
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('graphRotated', { detail: { degrees: 0 } });
+        const event = new CustomEvent('graphRotate', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }
@@ -215,7 +215,7 @@ function handleRotateBack() {
  * @param {number} degrees - The target rotation in degrees
  */
 function rotateDependencyGraph(degrees) {
-    const graphContainer = document.querySelector('.dependency-graph-container');
+    const graphContainer = document.querySelector('.dependency-graph');
     if (graphContainer) {
         currentRotation = degrees;
         graphContainer.style.transform = `rotate(${degrees}deg)`;

@@ -56,9 +56,34 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+// Updated function to replace the non-accessible anchor with a button
+function updateNonAccessibleLink() {
+  const nonAccessibleLink = document.getElementById('unrotate');
+  if (nonAccessibleLink) {
+    // Remove the anchor element
+    nonAccessibleLink.parentNode.removeChild(nonAccessibleLink);
+
+    // Create a new button element
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = 'rotate back';
+    button.onclick = function() {
+      // Add the logic to rotate back if necessary
+      // For example, you might want to call a function here
+    };
+
+    // Append the button to the parent element
+    nonAccessibleLink.parentNode.appendChild(button);
+  }
+}
+
+// Call the function to update the non-accessible link
+updateNonAccessibleLink();
+
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,
   handleKeyboardNavigation,
-  announceToScreenReader
+  announceToScreenReader,
+  updateNonAccessibleLink // Export the new function
 };

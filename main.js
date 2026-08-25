@@ -15,32 +15,32 @@ export const addRequiredLandmarks = () => {
   // Add lang attribute to HTML element
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    ... 'en');
+    htmlElement.setAttribute('lang', 'en');
   }
 
   // Add main landmark (REACT_017)
-  const mainLandmark = ... || ...
+  const mainLandmark = document.querySelector('[role="main"]') || document.createElement('main');
   if (mainLandmark) {
-    ... 'main');
-    if ... {
-      ...
+    mainLandmark.setAttribute('role', 'main');
+    if (!mainLandmark.id) {
+      mainLandmark.id = 'main-content';
     }
   }
 
   // Add accessible names to 2 SVGs (REACT_041)
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   const svgArray = Array.from(svgs);
   svgArray.forEach((svg, index) => {
-    if (index < 2 && ... {
-      ... `Graphic ${index + 1}`);
+    if (index < 2 && !svg.hasAttribute('aria-label')) {
+      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
     }
   });
 
   // Ensure unique landmarks (REACT_025)
-  const landmarks = ... [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
   const uniqueIds = new Set();
   landmarks.forEach((landmark) => {
-    const id = ...
+    const id = landmark.getAttribute('id');
     if (id) {
       if (!uniqueIds.has(id)) {
         uniqueIds.add(id);
@@ -51,7 +51,7 @@ export const addRequiredLandmarks = () => {
           counter++;
           updatedId = id + `-${counter}`;
         }
-        ... updatedId);
+        landmark.setAttribute('id', updatedId);
         uniqueIds.add(updatedId);
       }
     }
@@ -73,36 +73,36 @@ const overrideFindIndex = (array, id) => {
 
 // Function to fix table structure issues (REACT_027)
 export const fixTableStructure = () => {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     // Ensure the table has a proper structure with thead and tbody
-    if ... {
+    if (!table.querySelector('thead')) {
       const thead = document.createElement('thead');
       table.insertBefore(thead, table.firstChild);
     }
-    if ... {
-      const tbody = ...
-      ...
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      table.appendChild(tbody);
     }
     // Ensure all rows are properly placed inside tbody
-    const rows = ...
-    const tbody = ...
+    const rows = table.querySelectorAll('tr');
+    const tbody = table.querySelector('tbody');
     rows.forEach((row) => {
       if (row.parentNode !== tbody && row.parentNode.tagName !== 'THEAD') {
-        ...
+        tbody.appendChild(row);
       }
     });
   });
 };
 
 // Function to add aria-label attributes to inaccessible form elements (Addressing accessibility insight report)
-export const ... = () => {
+export const addAriaLabelsToFormElements = () => {
   // Add aria-label to all input elements that don't have one
-  const inputs = ...
+  const inputs = document.querySelectorAll('input');
   const inputArray = Array.from(inputs);
-  ... index) => {
-    if ... && ... {
-      const placeholder = ...
+  inputArray.forEach((input, index) => {
+    if (!input.hasAttribute('aria-label') && input.type !== 'hidden') {
+      const placeholder = input.getAttribute('placeholder');
       const name = input.getAttribute('name');
       const type = input.getAttribute('type');
       const labelText = placeholder || name || type || `Input ${index + 1}`;
@@ -111,22 +111,22 @@ export const ... = () => {
   });
 
   // Add aria-label to all select elements that don't have one
-  const selects = ...
+  const selects = document.querySelectorAll('select');
   const selectArray = Array.from(selects);
   selectArray.forEach((select, index) => {
-    if ... && ... {
-      const name = ...
+    if (!select.hasAttribute('aria-label') && select.hasAttribute('name')) {
+      const name = select.getAttribute('name');
       const labelText = name || `Select ${index + 1}`;
       select.setAttribute('aria-label', labelText);
     }
   });
 
   // Add aria-label to all textarea elements that don't have one
-  const textareas = ...
+  const textareas = document.querySelectorAll('textarea');
   const textareaArray = Array.from(textareas);
   textareaArray.forEach((textarea, index) => {
-    if (!textarea.hasAttribute('aria-label') && ... {
-      const placeholder = ...
+    if (!textarea.hasAttribute('aria-label') && !textarea.hasAttribute('name')) {
+      const placeholder = textarea.getAttribute('placeholder');
       const name = textarea.getAttribute('name');
       const labelText = placeholder || name || `Textarea ${index + 1}`;
       textarea.setAttribute('aria-label', labelText);
@@ -134,10 +134,10 @@ export const ... = () => {
   });
 
   // Add aria-label to all button elements that don't have one
-  const buttons = ...
+  const buttons = document.querySelectorAll('button');
   const buttonArray = Array.from(buttons);
   buttonArray.forEach((button, index) => {
-    if ... && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', `Button ${index + 1}`);
     }
   });
@@ -157,8 +157,8 @@ export const MainComponent = () => {
     // Add the call to addRequiredLandmarks function here (REACT_017, REACT_025, and REACT_041 issues)
     addRequiredLandmarks();
 
-    // Add the call to ... function here (Addressing accessibility insight report)
-    ...
+    // Add the call to addAriaLabelsToFormElements function here (Addressing accessibility insight report)
+    addAriaLabelsToFormElements();
 
     setLandmarks(filteredLandmarks);
   };

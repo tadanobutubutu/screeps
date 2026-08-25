@@ -1,17 +1,18 @@
-// TODO: Address accessibility issues from insight report: in main.js (Replace `my-button` with the actual button id)
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  const updatedContent = content.replace(/<a([^>]*)(?<!href)>/gi, (match, attrs) => {
+  const updatedContent = content.replace(/<a([^>]*)>/g, (match, attrs) => {
     if (attrs.includes('href')) {
       return match;
     }
     return `<button${attrs}>`;
   });
   // Also fix closing tags
-  const finalContent = updatedContent.replace(/<\/a>/gi, '</button>');
+  const finalContent = updatedContent.replace(/<\/a>/g, '</button>');
   fs.writeFileSync(filePath, finalContent);
   console.log(`Fixed fake link issues in ${filePath}`);
 }
@@ -49,17 +50,17 @@ function fixTableStructure(filePath) {
     // Add thead if not present
     if (!fixedContent.includes('<thead')) {
       // Find first row and wrap in thead
-      fixedContent = fixedContent.replace(/<tr([^>]*)>([\s\S]*?)<\/tr>/, '<thead><tr$1>$2</tr></thead>');
+      fixedContent = fixedContent.replace(/(<tr)([\s\S]*?)(<\/tr>)/, '<thead><tr$1$2</tr></thead><tbody><tr$1$2</tr>');
     }
     // Add closing thead tag before tbody if needed
-    if (fixedContent.includes('</tr>') && fixedContent.includes('<tbody') && !fixedContent.includes('</thead><tbody')) {
-      fixedContent = fixedContent.replace('</thead>', '</tr></thead><tbody');
+    if (fixedContent.includes('</tr></thead><tbody') && !fixedContent.includes('</thead><tbody')) {
+      fixedContent = fixedContent.replace('</tr></thead><tbody', '</tr></thead><tbody');
     }
     // Add tbody if not present
     if (!fixedContent.includes('<tbody')) {
-      const lastCloseTag = fixedContent.lastIndexOf('</table>');
+      const lastCloseTag = fixedContent.lastIndexOf('</tr>');
       if (lastCloseTag !== -1) {
-        fixedContent = fixedContent.substring(0, lastCloseTag) + '</tbody>' + fixedContent.substring(lastCloseTag);
+        fixedContent = fixedContent.substring(0, lastCloseTag + 5) + '</tbody>' + fixedContent.substring(lastCloseTag + 5);
       }
     }
     // Fix th elements to have scope attribute
@@ -172,15 +173,15 @@ function replaceButtonId(filePath, newButtonId) {
   });
   
   // Also replace any references in aria-controls, aria-labelledby, etc.
-  const ariaRefRegex = /(aria-(?:controls|labelledby|describedby))=["']my-button["']/gi;
+  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
     return `${attr}="${newButtonId}"`;
   });
   
   // Replace data attributes if any
-  const dataRefRegex = /data-(?:for|target)=["']my-button["']/gi;
+  const dataRefRegex = /data-target=["']my-button["']/gi;
   const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
-    return `${attr}="${newButtonId}"`;
+    return `data-target="${newButtonId}"`;
   });
   
   fs.writeFileSync(filePath, finalFinalContent);
@@ -191,7 +192,7 @@ function replaceButtonId(filePath, newButtonId) {
 
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
-  const report = fs.readFileSync(reportPath, 'utf8');
+  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 
   if (report && Array.isArray(report.issues)) {
     report.issues.forEach(issue => {

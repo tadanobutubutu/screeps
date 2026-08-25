@@ -2,8 +2,6 @@
 // Handles table structure validation and rendering
 
 import React from 'react';
-import PropTypes from 'prop-types';
-import { FormattedMessage } from 'react-intl';
 
 /**
  * Generates an accessible React table with proper scope attributes,
@@ -34,9 +32,9 @@ function Table({ data }) {
     <table role="grid" aria-label="Accessible Table">
       <thead>
         <tr>
-          <th scope="col"><div>src/constants.js</div></th>
-          <th scope="col"><div>src/managers/roomManager.js</div></th>
-          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <th scope="col">ID</th>
+          <th scope="col">Name</th>
+          <th scope="col">Role</th>
         </tr>
       </thead>
       <tbody>
@@ -44,6 +42,16 @@ function Table({ data }) {
           <td scope="row"><div>Header Cell</div></td>
           <td><div>Cell</div></td>
           <td><div>Cell</div></td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Alice</td>
+          <td>Admin</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Bob</td>
+          <td>User</td>
         </tr>
       </tbody>
     </table>

@@ -12,7 +12,7 @@
  */
 function addLangAttribute(lang = 'en') {
   const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
 }
@@ -36,7 +36,7 @@ function fixTableStructureIssues() {
     if (firstRow) {
       const cells = firstRow.querySelectorAll('td');
       cells.forEach((cell) => {
-        if (!cell.querySelector('th') && !cell.hasAttribute('headers')) {
+        if (!cell.querySelector('th') && !cell.closest('thead')) {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
           cell.replaceWith(th);
@@ -72,7 +72,7 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('role') && svg.getAttribute('aria-label')) {
       const title = document.createElement('title');
       title.textContent = `SVG icon ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -104,7 +104,7 @@ function ensureUniqueLandmarks() {
   }
   
   // Ensure only one banner/header landmark
-  const headers = document.querySelectorAll('header');
+  const headers = document.querySelectorAll('header, [role="banner"]');
   if (headers.length > 1) {
     headers.forEach((header, index) => {
       if (index > 0) {
@@ -119,7 +119,7 @@ function ensureUniqueLandmarks() {
  * Fixes fake link issues by making elements with onclick but no href proper links
  */
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[onclick], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach((element) => {
     if (element.tagName === 'A' && !element.getAttribute('href')) {
       element.setAttribute('role', 'link');

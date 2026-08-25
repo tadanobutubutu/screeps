@@ -85,6 +85,36 @@ export function addMainLandmark() {
     }
 }
 
+// - REACT_017: Wrap primary content in <main> landmark for accessibility
+export function addMainElement() {
+    // Check if a <main> element already exists
+    const existingMain = document.querySelector('main, [role="main"]');
+    
+    if (!existingMain) {
+        // Create a new <main> element
+        const mainElement = document.createElement('main');
+        mainElement.setAttribute('id', 'main-content');
+        
+        // Move all body children into the main element (except scripts)
+        const body = document.body;
+        const children = Array.from(body.childNodes);
+        
+        children.forEach(child => {
+            if (child.nodeName !== 'SCRIPT' && child.nodeName !== 'NOSCRIPT') {
+                mainElement.appendChild(child);
+            }
+        });
+        
+        // Insert main element at the beginning of body
+        if (body.firstChild) {
+            body.insertBefore(mainElement, body.firstChild);
+        } else {
+            body.appendChild(mainElement);
+        }
+    }
+}
+
+// Ensure unique landmarks across the page
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
@@ -212,7 +242,7 @@ export function addressAccessibilityIssues() {
     addAccessibleIds();
 
     // - Wrap primary content in a main element
-    ...
+    addMainElement();
 
     // - Add main landmark
     addMainLandmark();

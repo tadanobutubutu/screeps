@@ -1,10 +1,7 @@
-🎯 **What:**
-Created a missing test file for `fix_globals.js`. This script adds fallback global definitions for `lodash` and `Memory` to `main.js`. It was previously untestable because the logic ran immediately upon import. The script was refactored to export a `fixGlobals(filePath)` function while preserving CLI functionality.
+🎯 **What:** The `MissionSystem.createMission` function in `utils.missions.js` was too long and complex, violating the "Long Function" code health metric. This PR extracts input sanitization, memory eviction, and reward hardening logic into three smaller helper functions (`sanitizeInput`, `evictOldMissions`, `hardenReward`).
 
-📊 **Coverage:**
+💡 **Why:** By extracting these cohesive blocks of logic into standalone helper functions, `MissionSystem.createMission` becomes much shorter, easier to read, and simpler to maintain. The intent of each security operation is now clearly encapsulated in its own function.
 
-- Covered the happy path where the target global comment is successfully prepended to the file content.
-- Ensured `fs.readFileSync` and `fs.writeFileSync` are called correctly using Jest mocks.
+✅ **Verification:** I ran the isolated test suite (`tests/utils.missions.test.js`) and the full test suite to confirm that no existing functionality or security checks were broken by this refactoring. The code reviewer also verified the safety of the extraction.
 
-✨ **Result:**
-Test coverage for the codebase has been improved, and `fix_globals.js` file manipulation logic is now completely covered by tests.
+✨ **Result:** The `utils.missions.js` codebase is now cleaner, easier to parse visually, and the `createMission` function is significantly shorter while retaining identical behavior.

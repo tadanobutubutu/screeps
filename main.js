@@ -210,7 +210,35 @@ function fixTableConstraints() {
         };
     });
 }
+
 // NEW CODE FOR TABLE ISSUES END
+
+//------------ NEW AXES HELPERS FOR ACCESSIBILITY CHECKS ------------
+
+// Function to get the lang attribute from the html element
+function getLangAttribute() {
+    const html = document.querySelector('html');
+    if (html) {
+        return html.getAttribute('lang');
+    }
+    return null;
+}
+
+// Function to get full lang attribute value (with fallback logic)
+function getFullLangAttribute() {
+    const lang = getLangAttribute();
+    if (lang && lang.trim() !== '') {
+        return lang;
+    }
+    // Fallback logic: could query meta tags or other sources if needed
+    const meta = document.querySelector('meta[name="language"]');
+    if (meta && meta.content) {
+        return meta.content;
+    }
+    return 'en';
+}
+
+//------------ END OF NEW AXES HELPERS ------------
 
 //------------- EXPORTS --------------
 

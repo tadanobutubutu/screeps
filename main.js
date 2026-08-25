@@ -40,25 +40,14 @@ function dependencyGraphFunction() {
     content.render = function(...args) {
       const rendered = originalRender(...args);
       
-      // Replace any duplicate <main> elements with <section> to maintain unique landmark structure
-      // This ensures screen readers encounter only one <main> landmark
-      if (rendered && rendered.props && rendered.props.children) {
-        const children = Array.isArray(rendered.props.children) 
-          ? rendered.props.children 
-          : [rendered.props.children];
-        
-        const processedChildren = children.map((child, index) => {
-          // Skip the first <main> element (index 0), replace subsequent ones with <section>
-          if (index > 0 && child && child.type === 'main') {
-            return React.createElement('section', { 
-              key: child.key || index,
-              ...child.props
-            }, child.props.children);
-          }
-          return child;
-        });
-        
-        return React.createElement('div', { role: 'main' }, processedChildren);
+      // Wrap content in a <main> element for accessibility
+      // This ensures screen readers encounter the primary content landmark
+      if (rendered) {
+        // Check if already wrapped in <main>
+        const isMainElement = rendered.type === 'main';
+        if (!isMainElement) {
+          return React.createElement('main', {}, rendered);
+        }
       }
       
       return rendered;
@@ -75,7 +64,7 @@ function dependencyGraphFunction() {
   // ... existing code for rendering the dependency graph ...
 
   // Accessibility: Add back any required exports that might have been removed (if any external modules are present)
-  if ... > 0) {
+  if (... > 0) {
     // Assuming that the package.json file lists all the required external modules
     // Adjust the path to your package.json file as needed
     const packageJsonPath = './package.json';
@@ -84,7 +73,7 @@ function dependencyGraphFunction() {
     // Filter the required external modules from package.json and include them in exports
     const externalModuleExports = packageJson.dependencies;
     ... => {
-      if ... {
+      if (...) {
         console.warn(`The dependency graph indicates an external module (${moduleName}) that has no corresponding entry in package.json. Please double-check.`);
       } else {
         const requiredModule = require(moduleName);
@@ -119,9 +108,38 @@ function indexFunction() {
 
   // ... existing code for rendering the index view ...
 
+  // Function for ensuring unique landmarks (defined locally for indexFunction)
+  function ensureUniqueLandmarks(content) {
+    // Ensure the returned content has proper landmark structure
+    // Keep a single <main> landmark; use <section> for other regions
+    if (!content || !content.render) {
+      return content;
+    }
+
+    // Create a wrapper that ensures unique landmarks in the rendered output
+    const originalRender = content.render.bind(content);
+    content.render = function(...args) {
+      const rendered = originalRender(...args);
+      
+      // Wrap content in a <main> element for accessibility
+      // This ensures screen readers encounter the primary content landmark
+      if (rendered) {
+        // Check if already wrapped in <main>
+        const isMainElement = rendered.type === 'main';
+        if (!isMainElement) {
+          return React.createElement('main', {}, rendered);
+        }
+      }
+      
+      return rendered;
+    };
+
+    return content;
+  }
+
   // Apply ensureUniqueLandmarks to index content as well
   // This ensures the index view also follows the single <main> landmark pattern
-  const fixedContent = ensureUniqueLandmarks ? ensureUniqueLandmarks(indexContent) : indexContent;
+  const fixedContent = ensureUniqueLandmarks(indexContent);
 
   // Accessibility: Add back any required exports that might have been removed (if any)
   // This step is optional since the index view doesn't directly import any external modules
@@ -135,8 +153,8 @@ function indexFunction() {
 function ensureLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
     const htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
+    if (!htmlElement.lang) {
+      htmlElement.lang = 'en';
     }
   }
 }

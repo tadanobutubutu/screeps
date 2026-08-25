@@ -37,7 +37,7 @@ function fixFakeLinkIssue() {
 
 // NEW FUNCTIONS FROM ISSUE REPORT
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="main"], [role="contentinfo"]');
   const landmarkNames = new Set();
 
   landmarks.forEach((landmark) => {
@@ -47,8 +47,8 @@ function ensureUniqueLandmarkNames() {
       landmarkNames.add(landmarkName);
     } else {
       // Generate a unique id and add to the landmark
-      const id = Math.floor(Math.random() * 100000);
-      landmark.setAttribute('id', `landmark-${id}`);
+      const id = `landmark-${Math.floor(Math.random() * 100000)}`;
+      landmark.setAttribute('id', id);
     }
   });
 }

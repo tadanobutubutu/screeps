@@ -1,23 +1,5 @@
 // Hypothetical main.js file content with resolved conflicts
-/*
-*
-// Original code with conflict markers
-<th scope="col"><div>src/constants.js</div></th>
-<th scope="col"><div>src/managers/roomManager.js</div></th>
-<th scope="col"><div>src/managers/spawnManager.js</div></th>
-<th scope="col"><div>src/managers/towerManager.js</div></th>
-<th scope="col"><div>src/roles/builder.js</div></th>
-...
-*/
 
-/*
-// Original code that needs to be preserved
-export function originalFunction() {
-  // ...
-}
-
-// ...
-*/
 export function originalFunction() {
   // ... original implementation
 }
@@ -34,6 +16,17 @@ export function updateHtmlFile(html) {
   return html.replace(
     /<a id="unrotate" href="#">rotate back<\/a>/g,
     '<button id="unrotate" onclick="rotateBack()">rotate back</button>'
+  );
+}
+
+// ... any additional code that was present ...
+
+// Add new functions or changes requested in the issue
+export function addAccessibleNameToSVG(svgContent) {
+  // Add an accessible name to the SVG content by wrapping the text within a <title> tag
+  return svgContent.replace(
+    /<text[^>]*>(.*?)<\/text>/g,
+    '<title>$1</title><text$&>'
   );
 }
 

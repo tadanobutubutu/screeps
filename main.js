@@ -117,9 +117,52 @@ function fixTableAccessibility(tables) {
 
 // Implement landmark handling function
 function ensureUniqueLandmarks(landmarkElements) {
+    if (!Array.isArray(landmarkElements)) {
+        return;
+    }
+    
+    // Count how many main elements we have
+    const mainElements = landmarkElements.filter(el => 
+        el && (el.tagName === 'MAIN' || el.getAttribute('role') === 'main')
+    );
+    
+    // If there's more than one main element, convert duplicates to sections
+    if (mainElements.length > 1) {
+        let mainCount = 0;
+        landmarkElements.forEach(element => {
+            if (element && (element.tagName === 'MAIN' || element.getAttribute('role') === 'main')) {
+                mainCount++;
+                if (mainCount > 1) {
+                    // Convert duplicate main to section
+                    const section = document.createElement('section');
+                    while (element.firstChild) {
+                        section.appendChild(element.firstChild);
+                    }
+                    element.parentNode.replaceChild(section, element);
+                }
+            }
+        });
+    }
+    
+    // Track used roles for remaining landmarks
     const usedRoles = new Map();
     
     landmarkElements.forEach(element => {
+        if (!element) return;
+        
+        // Skip elements that were converted from main to section
+        if (element.tagName === 'SECTION' && !element.getAttribute('role')) {
+            const role = 'section';
+            const existingCount = usedRoles.get(role) || 0;
+            usedRoles.set(role, existingCount + 1);
+            
+            if (!element.getAttribute('aria-label')) {
+                const label = element.getAttribute('aria-labelledby') || `${role} ${existingCount + 1}`;
+                element.setAttribute('aria-label', label);
+            }
+            return;
+        }
+        
         const role = element.getAttribute('role') || element.tagName.toLowerCase();
         const existingCount = usedRoles.get(role) || 0;
         usedRoles.set(role, existingCount + 1);
@@ -128,11 +171,6 @@ function ensureUniqueLandmarks(landmarkElements) {
             if (!element.getAttribute('aria-label')) {
                 const label = element.getAttribute('aria-labelledby') || `${role} ${existingCount + 1}`;
                 element.setAttribute('aria-label', label);
-            }
-            
-            if (!usedRoles.has(role + '-unique')) {
-                element.setAttribute('role', role);
-                usedRoles.set(role + '-unique', true);
             }
         } else {
             if (['nav', 'main', 'header', 'footer', 'aside'].includes(role)) {

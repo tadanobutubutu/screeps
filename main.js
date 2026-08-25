@@ -4,6 +4,30 @@ import _ from 'lodash';
 // Import myOtherFunction from another module
 import myOtherFunction from './otherModule';
 
+// TODO: Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(content, options = {}) {
+  if (!content) return '';
+  
+  const {
+    id = 'main-content',
+    role = 'main',
+    className = ''
+  } = options;
+  
+  const classAttr = className ? ` class="${className}"` : '';
+  const mainStart = `<main id="${id}" role="${role}"${classAttr}>`;
+  const mainEnd = '</main>';
+  
+  // Check if content is already wrapped in a main element
+  const hasMainTag = /<main[\s>]/i.test(content);
+  
+  if (hasMainTag) {
+    return content;
+  }
+  
+  return mainStart + content + mainEnd;
+}
+
 // Function to render dependency graph content
 function renderDependencyGraph(data) {
   if (!data) return '';
@@ -200,7 +224,7 @@ function fixFakeLinkIssue(element) {
 }
 
 // Export the new functions, preserving the existing exports
-export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView };
+export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain };
 export * from './otherModule';
 export { myOtherFunction };
 

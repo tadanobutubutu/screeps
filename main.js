@@ -54,14 +54,14 @@ function initAriaLabels() {
 }
 
 // Update the event listener for the rotate button
-const myButton = document.getElementById('rotate-btn');
+const myButton = document.getElementById('rotate');
 if (myButton) {
   addAriaLabel(myButton, 'Rotate image clockwise');
   myButton.addEventListener('click', rotate);
 }
 
 // Update the event listener for the unrotate button
-const unrotateButton = document.getElementById('unrotate-btn');
+const unrotateButton = document.getElementById('unrotate');
 if (unrotateButton) {
   addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
   unrotateButton.addEventListener('click', rotateBack);

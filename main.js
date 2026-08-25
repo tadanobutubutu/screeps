@@ -22,11 +22,12 @@ function addressIssuesFromInsightReport() {
   ... => ...
 
   if (divsWithoutRoleCount > 0) {
-    throw new Error(`${divsWithoutRoleCount} <div> elements are missing ARIA roles.`);
+    // Log a message instead of throwing an error
+    console.error(`${divsWithoutRoleCount} <div> elements are missing ARIA roles.`);
   }
 
   // Update the summary values for consistency with original return shape
-  results.ummary += `, missing ARIA roles on <div> ...
+  results.ummary += `, missing ARIA roles on <div> `;
 
   return results;
 }

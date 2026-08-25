@@ -11,7 +11,7 @@ import { renderDependencyGraph, indexContent } from './dependencyGraphContent';
 export function addLangAttribute() {
     const html = document.documentElement;
     if (html) {
-        ... 'en');
+        html.setAttribute('lang', 'en');
     }
 }
 

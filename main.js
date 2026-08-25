@@ -149,7 +149,7 @@ const renderDependencyGraph1 = function() {
 };
 
 const renderDependencyGraph2 = function() {
-    // Implementation for rendering dependency graph with vertical layout
+    //Implementation for rendering dependency graph with vertical layout
     // This function creates an alternate visualization of the dependency graph
     // Returns a configured graph object or JSX representation
     return {
@@ -160,15 +160,8 @@ const renderDependencyGraph2 = function() {
     };
 };
 
-// Export the updated functions
+// Add the new export for the landmark functions
 module.exports = {
-    addLangAttribute,
-    fixTableStructureIssues,
-    addMainLandmark,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinkIssue,
-    addProperLandmarkRegions, // Include the new function in the exports
-    renderDependencyGraph1,
-    renderDependencyGraph2
+    ...module.exports,
+    addProperLandmarkRegions // Include the new function in the exports
 };

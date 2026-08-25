@@ -2,7 +2,7 @@
 
 // ... Existing code ...
 
-const myButton = document.getElementById('my-button');
+const myButton = document.getElementById('action-button');
 myButton.setAttribute('aria-label', 'My Button');
 myButton.setAttribute('role', 'button');
 

@@ -1,8 +1,11 @@
-// TODO: Add back any required exports that might have been removed
-// Here’s an example of how to export a required function from another file:
-// Import functions from other modules if needed
-// const { someFunction } = require('./utils');
+// Existing code and exports remain unchanged
 
+// Adding a new function or changes as requested in the issue
 module.exports = {
-  // Add your exports here
+  // Existing exports...
+  addAccessibleNameToSVG: function(svgData) {
+    return svgData.replace(/<svg[^>]*>/g, (match) => {
+      return match.replace('</svg>', ' aria-label="Accessible name for SVG" />');
+    });
+  }
 };

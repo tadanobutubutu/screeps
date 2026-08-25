@@ -11,20 +11,20 @@ import { renderDependencyGraph, indexContent } from './dependencyGraphContent';
 export function addLangAttribute() {
     const html = document.documentElement;
     if (html) {
-        ... 'en');
+        html.setAttribute('lang', 'en');
     }
 }
 
 // - REACT_041: Add accessible names to 2 SVGs
 export function addSvgAccessibleNames() {
     // Find SVG elements in app/layout.tsx and dashboard/app/layout.tsx
-    const svgElements = ...
-    ... index) => {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg, index) => {
         if (index === 0) {
-            ... 'Application logo');
+            svg.setAttribute('aria-label', 'Application logo');
             svg.setAttribute('role', 'img');
         } else if (index === 1) {
-            ... 'Navigation icon');
+            svg.setAttribute('aria-label', 'Navigation icon');
             svg.setAttribute('role', 'img');
         }
     });
@@ -32,9 +32,9 @@ export function addSvgAccessibleNames() {
 
 // - REACT_036: Fix 1 fake link issue
 export function fixFakeLink() {
-    const links = ...
+    const links = document.querySelectorAll('a');
     links.forEach(link => {
-        const href = ...
+        const href = link.getAttribute('href');
         if (href === '#' || href === '' || href === null || href === 'javascript:;') {
             link.setAttribute('href', '#main-content');
             if (!link.textContent.trim() || link.textContent === '') {
@@ -46,23 +46,23 @@ export function fixFakeLink() {
 
 // Newly added function...
 export function addAccessibleIds() {
-    const accessibleElements = ... button, a');
+    const accessibleElements = document.querySelectorAll('button, a');
     accessibleElements.forEach((element) => {
         if (element.getAttribute('id')) return; // Skip elements with an id attribute
 
-        const currentId = ... 9)}`;
+        const currentId = `${element.tagName.toLowerCase()}-${Math.random().toString(36).substr(2, 9)}`;
         element.setAttribute('id', currentId);
     });
 }
 
 // TODO: Implement wrapPrimaryContentInMain function
 export function wrapPrimaryContentInMain() {
-    const mainContent = ... #main-content, .main-content');
+    const mainContent = document.querySelector('#main-content, .main-content');
     if (mainContent && mainContent.parentElement && mainContent.parentElement.tagName !== 'MAIN') {
-        const mainTag = ...
-        ... 'main');
-        ...
-        ... ...
+        const mainTag = document.createElement('main');
+        mainTag.setAttribute('role', 'main');
+        mainContent.parentNode.insertBefore(mainTag, mainContent);
+        mainTag.appendChild(mainContent);
     }
 }
 
@@ -71,15 +71,15 @@ export { renderDependencyGraph, indexContent };
 
 export function addMainLandmark() {
     // Implementation for adding main landmark
-    const mainElements = ... [role="main"]');
+    const mainElements = document.querySelectorAll('main, [role="main"]');
     if (mainElements.length === 0) {
-        const main = ...
+        const main = document.createElement('main');
         main.setAttribute('role', 'main');
         const body = document.body;
         if (body.firstChild) {
-            ... body.firstChild);
+            body.insertBefore(main, body.firstChild);
         } else {
-            ...
+            body.appendChild(main);
         }
         main.setAttribute('aria-label', 'Main content area');
     }
@@ -88,16 +88,16 @@ export function addMainLandmark() {
 export function ensureUniqueLandmarks() {
     const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
     landmarks.forEach(role => {
-        const elements = ...
+        const elements = document.querySelectorAll(`${role}, [role="${role}"]`);
         if (elements.length > 1) {
             elements.forEach((el, index) => {
                 if (index > 0) {
-                    const div = ...
+                    const div = document.createElement('div');
                     div.setAttribute('role', role);
                     while (el.firstChild) {
-                        ...
+                        div.appendChild(el.firstChild);
                     }
-                    ... el);
+                    el.parentNode.replaceChild(div, el);
                 }
             });
         }
@@ -106,22 +106,22 @@ export function ensureUniqueLandmarks() {
 
 // - REACT_027: Fix table structure issues
 export function fixTableStructure() {
-    const tables = ...
+    const tables = document.querySelectorAll('table');
     tables.forEach((table) => {
         // Check if table has headers
-        const headers = ...
+        const headers = table.querySelectorAll('th');
         const hasHeaders = headers.length > 0;
         
         if (!hasHeaders) {
             // Check first row for header cells
             const firstRow = table.querySelector('tr');
             if (firstRow) {
-                const cells = ...
+                const cells = firstRow.querySelectorAll('td, th');
                 cells.forEach((cell) => {
-                    const th = ...
+                    const th = document.createElement('th');
                     th.setAttribute('scope', 'col');
                     while (cell.firstChild) {
-                        ...
+                        th.appendChild(cell.firstChild);
                     }
                     cell.parentNode.replaceChild(th, cell);
                 });
@@ -129,103 +129,17 @@ export function fixTableStructure() {
         } else {
             // Add scope attributes to existing headers
             headers.forEach((header) => {
-                if ... {
+                if (!header.hasAttribute('scope')) {
                     const parent = header.parentElement;
                     if (parent && parent.tagName === 'TR') {
-                        const siblings = ...
-                        const headerIndex = ...
-                        const firstRow = table.querySelector('tr');
-                        if (firstRow && firstRow === parent) {
-                            header.setAttribute('scope', 'col');
-                        } else {
-                            header.setAttribute('scope', 'row');
+                        const siblings = Array.from(parent.children);
+                        let headerIndex = 0;
+                        for (let i = 0; i < siblings.length; i++) {
+                            const sibling = siblings[i];
+                            if (sibling.tagName === 'TH' || sibling.tagName === 'TD') {
+                                headerIndex = i;
+                                break;
+                            }
                         }
-                    }
-                }
-            });
-        }
-
-        // Ensure proper table structure
-        if ... {
-            const caption = ...
-            caption.textContent = 'Data table';
-            ... table.firstChild);
-        }
-    });
-}
-
-// TODO: Implement function for adding proper landmark regions
-export function addLandmarkRegions() {
-    const body = document.body;
-
-    // Check for header landmark
-    const header = ... [role="banner"]');
-    if (!header) {
-        const headerEl = document.createElement('header');
-        headerEl.setAttribute('role', 'banner');
-        if (body.firstChild) {
-            ... body.firstChild);
-        } else {
-            ...
-        }
-    }
-
-    // Check for nav landmark
-    const nav = ... ...
-    if (!nav) {
-        const navEl = ...
-        ... 'navigation');
-        ... 'Main navigation');
-        if (body.firstChild) {
-            ... body.firstChild);
-        } else {
-            ...
-        }
-    }
-
-    // Check for footer landmark
-    const footer = document.querySelector('footer, [role="contentinfo"]');
-    if (!footer) {
-        const footerEl = document.createElement('footer');
-        footerEl.setAttribute('role', 'contentinfo');
-        if (body.lastChild) {
-            body.insertBefore(footerEl, body.lastChild);
-        } else {
-            ...
-        }
-    }
-}
-
-// TODO: Implement function for addressing accessibility issues from insight report
-export function addressAccessibilityIssues() {
-    // Example of addressing accessibility issues:
-    // - Add `lang` attribute to HTML element
-    addLangAttribute();
-
-    // - Add accessible names to SVGs
-    ...
-
-    // - Fix fake link issues
-    fixFakeLink();
-
-    // - Add accessible IDs to elements
-    addAccessibleIds();
-
-    // - Wrap primary content in a main element
-    ...
-
-    // - Add main landmark
-    addMainLandmark();
-
-    // - Ensure unique landmarks
-    ensureUniqueLandmarks();
-
-    // - Add landmark regions
-    addLandmarkRegions();
-
-    // - Fix table structure issues
-    ...
-
-    // - Add proper landmark regions
-    // TODO: Implement ...
-}
+                        const firstRow = table.querySelector('tr');
+                        if (firstRow && firstRow

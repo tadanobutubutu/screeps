@@ -1,84 +1,26 @@
-tsx
-import React, { useState } from 'react';
+const { getAllCreeps } = require('./creeps');
+const { getAllRooms } = require('./rooms');
+const { analyzePerformance } = require('./performance');
 
-const Dashboard: React.FC = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
-  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
+function generateTable(creeps) {
+  let html = '<table>';
+  html += '<thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Room</th><th scope="col">Hits</th><th scope="col">Energy</th></tr></thead>';
+  html += '<tbody>';
 
-  const copyErr = () => {
-    // Implementation for copying error
-  };
+  for (const creep of creeps) {
+    html += '<tr>';
+    html += `<td>${creep.name}</td>`;
+    html += `<td>${creep.role}</td>`;
+    html += `<td>${creep.room}</td>`;
+    html += `<td>${creep.hits}</td>`;
+    html += `<td>${creep.energy}</td>`;
+    html += '</tr>';
+  }
 
-  const fetchStats = (force?: boolean) => {
-    setRefreshing(true);
-    // Implementation for fetching stats
-    setRefreshing(false);
-  };
+  html += '</tbody></table>';
+  return html;
+}
 
-  return (
-    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      <main>
-        {error && (
-          <section>
-            <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-            <pre
-              tabIndex={0}
-              aria-label="エラーメッセージ詳細"
-              style={{
-                color: '#c53030',
-                backgroundColor: '#fff5f5',
-                padding: '1rem',
-                borderRadius: '4px',
-                overflow: 'auto',
-              }}
-            >
-              {error}
-            </pre>
-            <button
-              onClick={copyErr}
-              onMouseEnter={() => setErrCopyHover(true)}
-              onMouseLeave={() => setErrCopyHover(false)}
-              onFocus={() => setErrCopyHover(true)}
-              onBlur={() => setErrCopyHover(false)}
-              aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-              title={copied ? 'コピー済み' : 'エラーをコピー'}
-              style={{
-                backgroundColor: copied ? '#155d27' : '#004b73',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease-in-out',
-                transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-                boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-                filter: errCopyHover ? 'brightness(1.1)' : 'none',
-              }}
-            >
-              {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
-            </button>
-          </section>
-        )}
-        {success && (
-          <article>
-            {/* Content for success state */}
-          </article>
-        )}
-      </main>
-      <button
-        onClick={() => fetchStats(true)}
-        disabled={refreshing}
-        onMouseEnter={() => setErrRetryHover(true)}
-        onMouseLeave={() => setErrRetryHover(false)}
-      >
-        {/* Button content */}
-      </button>
-    </div>
-  );
+module.exports = {
+  generateTable
 };
-
-export default Dashboard;

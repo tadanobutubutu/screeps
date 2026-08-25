@@ -49,6 +49,12 @@ const enhanceAccessibility = () => {
       link.textContent = 'Link text';
     }
   });
+
+  // Accessibility fix for table headers lacking scope attribute
+  const headersWithoutScope = document.querySelectorAll('th:not([scope])');
+  headersWithoutScope.forEach(th => {
+    th.setAttribute('scope', 'col');
+  });
 };
 
 // Accessibility fix for rotate button - ensures semantic HTML

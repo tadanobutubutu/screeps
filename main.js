@@ -5,10 +5,10 @@
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
-// New function that needs to be exported
-function newFunction() {
+// New function that needs to be exported with the requested name "myNewFunction"
+function myNewFunction() {
   // Implementation of the new function
 }
 
 // Export the new function
-export { newFunction };
+export { myNewFunction as default };

@@ -10,10 +10,12 @@ const config = {
   version: '1.0.0'
 };
 
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
+// Add a new function that was requested
+function generateAccessibilityReport() {
+  // Placeholder logic to simulate accessibility report generation
+  console.log('Generating accessibility report...');
+  return 'Accessibility report generated.';
+}
 
 // Existing utility functions
 function getConfig() {
@@ -29,5 +31,6 @@ module.exports = {
   helperFunction,
   calculateTotal,
   getConfig,
-  initializeApp
+  initializeApp,
+  generateAccessibilityReport // Exporting the new function
 };

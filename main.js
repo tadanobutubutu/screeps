@@ -192,17 +192,20 @@ const fixFakeLinkIssue = (document) => {
   const links = document.querySelectorAll('a');
   links.forEach((link) => {
     const href = link.getAttribute('href');
-    if (href && !link.textContent.trim()) {
+    const hasText = link.textContent.trim();
+    if (href && !hasText) {
+      // Determine accessible name for the link
       const accessibleName = getAccessibleName(link);
-      if (!accessibleName) {
-        if (link.querySelector('img')) {
-          link.setAttribute('aria-label', 'Image link');
-        } else if (link.title) {
-          link.setAttribute('aria-label', link.title);
-        } else {
-          link.setAttribute('aria-label', 'Link');
-        }
+      // Create a button element to replace the fake link
+      const btn = document.createElement('button');
+      btn.type = 'button'; // ensure it does not submit forms
+      if (accessibleName) {
+        btn.textContent = accessibleName;
+      } else {
+        btn.textContent = 'Link';
       }
+      // Replace the <a> with the <button>
+      link.parentNode.replaceChild(btn, link);
     }
   });
   return document;

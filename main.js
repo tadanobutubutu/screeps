@@ -17,5 +17,6 @@ function myNewFunction() {
   return fullName.trim();
 }
 
-// Export the new function
+// Export the new function, preserving the existing exports
 export { myNewFunction as default };
+export * from ./otherModule; // Assuming you have another module

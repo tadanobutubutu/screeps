@@ -3,6 +3,11 @@ const graphMetrics = require('./graph-metrics');
 
 // ... existing code
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+
 // New function using the imported graphMetrics module
 function calculateGraphMetrics(dependencies) {
   // Import getGraphMetrics function from graphMetrics module

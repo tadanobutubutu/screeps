@@ -2,11 +2,8 @@
 const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-
-// Example updated functions using the imported content:
+// TODO: Add these imported modules to the relevant rendering functions
+// ... (Fill in here with the appropriate function calls)
 
 function renderDependencyGraph(dependencies) {
   return dependencyGraphContent.render(dependencies);

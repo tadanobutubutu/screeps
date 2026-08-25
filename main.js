@@ -25,6 +25,7 @@ const fixTableStructureIssues = function(tables) {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
+                thead.appendChild(firstRow);
                 const parent = thead.parentNode;
                 if (parent && parent.tagName !== 'THEAD') {
                     if (table.firstChild) {
@@ -44,9 +45,9 @@ const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
         const hasMainTag = /<main/i.test(content);
         if (!hasMainTag) {
-            const mainMatch = content.match(/<body[^>]*>/i);
+            const mainMatch = content.match(/<\/body>/i);
             if (mainMatch) {
-                return content.replace(mainMatch[0], mainMatch[0] + '<main>') + '</main></body>';
+                return content.replace(/<\/body>/i, '<main></main></body>');
             }
             return content + '<main></main></body>';
         }
@@ -68,7 +69,7 @@ const addSvgAccessibleNames = function(svgs) {
                     svg.appendChild(title);
                 }
             }
-            if (!svg.getAttribute('role') && !svg.getAttribute('aria-label')) {
+            if (!svg.getAttribute('role')) {
                 svg.setAttribute('role', 'img');
             }
             const titleElement = svg.querySelector('title');
@@ -126,18 +127,20 @@ const addProperLandmarkRegions = function(content) {
 
         // Add banner landmark (header) if not present
         if (!/<header/i.test(result) && !/<banner/i.test(result)) {
-            result = result.replace('</body>', '<header></header></body>');
+            result = result.replace(/<body/i, '<header role="banner"></header><body');
         }
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/i.test(result) && !/<contentinfo/i.test(result)) {
-            result = result.replace('</body>', '<footer></footer></body>');
+            result = result.replace(/<\/body>/i, '<footer role="contentinfo"></footer></body>');
         }
 
         return result;
     }
     return content;
 };
+
+// ... (You can add more functions as needed)
 
 // If necessary, update the export for the new functions
 // Example assuming exporting as default
@@ -165,8 +168,11 @@ const renderDependencyGraph2 = function() {
     };
 };
 
+// ... Existing code including exports for previous functions that are not affected ...
+
 // Export the updated functions
 module.exports = {
+    // ... Existing exports ...
     addLangAttribute,
     fixTableStructureIssues,
     addMainLandmark,
@@ -176,4 +182,5 @@ module.exports = {
     addProperLandmarkRegions, // Include the new function in the exports
     renderDependencyGraph1,
     renderDependencyGraph2
+    // ... Add any other exports that were found to be affected by the update ...
 };

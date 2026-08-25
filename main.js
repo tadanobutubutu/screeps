@@ -7,13 +7,10 @@ import Contact from './components/Contact';
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-React.component.defaultProps = {...React.component.defaultProps, 'lang': 'en'};
-
-// - REACT_017: Add/fix 4 landmark issues (Adding landmarks and identifying unique landmarks)
 const App = () => {
   return (
     <Router>
-      <div>
+      <div lang="en">
         <header role="banner">...</header>
         <main role="main">
           <Switch>
@@ -28,12 +25,14 @@ const App = () => {
   );
 };
 
+// - REACT_017: Add/fix 4 landmark issues (Adding landmarks and identifying unique landmarks)
+
 // - REACT_041: Add accessible names to 2 SVGs (Example using SVG images "logo" and "icon")
 const Logo = () => (
   <svg role="img" aria-labelledby="logo-title logo-description">
     ...
-    <title id="logo-title">Company Logo</title>
-    <desc id="logo-description">This is the Company's logo</desc>
+    <title ... Logo</title>
+    <desc ... is the Company's logo</desc>
   </svg>
 );
 

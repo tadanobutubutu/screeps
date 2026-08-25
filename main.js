@@ -1,3 +1,16 @@
+(function() {
+  // Hamilton.js parser
+  require('html-parser2');
+
+  // Add the <html> tag with lang attribute
+  const html = `
+    <html lang="en">
+    ${document.documentElement.outerHTML}
+  `;
+
+  // Your code goes here
+
+})();
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_

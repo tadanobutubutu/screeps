@@ -94,7 +94,6 @@ const fixTableStructure = (document) => {
       });
     }
 
-    // Add scope attributes to header cells
     const thead = table.querySelector('thead');
     if (thead) {
       thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));

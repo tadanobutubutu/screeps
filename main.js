@@ -55,7 +55,7 @@ const App = () => {
                 </tr>
               </tbody>
             </table>
-            {renderAccessibleSVG('svg-title-1', 'Accessible SVG 1', (
+            ... 'Accessible SVG 1', (
               <circle cx="50" cy="50" r="40" />
             ))}
           </div>
@@ -88,9 +88,9 @@ const createIconForTest = () => createIcon({
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = document.getElementById('unrotate');
+  const unrotateBtn = ...
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', () => {
+    ... () => {
       // rotation logic here
     });
   }
@@ -98,9 +98,9 @@ const setupRotateBack = () => {
 
 // Initialize the application on the client side
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  ... () => {
     setupRotateBack(); // Ensure button wiring after DOM is ready
-    const rootElement = document.getElementById('root');
+    const rootElement = ...
     if (rootElement) {
       ReactDOM.render(<App />, rootElement);
     }
@@ -115,6 +115,8 @@ export {
   generateRotateBackControl,
   setupRotateBack,
   createIconForTest, // Add this new export for the createIconForTest function
+  createIcon, // Export the imported createIcon function
+  App, // Export the main App component
 };
 
 // Add the lang attribute to the root HTML element

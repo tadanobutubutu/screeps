@@ -94,15 +94,39 @@ const fixTableStructure = (document) => {
       });
     }
 
-    // Add scope attributes to header cells
+    // Add scope attributes to header cells in thead
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      thead.querySelectorAll('th').forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
     }
 
+    // Add scope attributes to header cells in tbody (row headers)
     const tbodies = table.querySelectorAll('tbody');
     tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+      tbody.querySelectorAll('th').forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', 'row');
+        }
+      });
+    });
+
+    // Handle any th elements not inside thead or tbody (e.g. direct table rows)
+    table.querySelectorAll('th').forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const parent = th.parentElement;
+        if (parent && parent.tagName === 'TR') {
+          const parentContainer = parent.parentElement;
+          if (parentContainer && parentContainer.tagName === 'THEAD') {
+            th.setAttribute('scope', 'col');
+          } else {
+            th.setAttribute('scope', 'row');
+          }
+        }
+      }
     });
   });
   return document;

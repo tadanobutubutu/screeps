@@ -1,10 +1,10 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-//
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -18,50 +18,94 @@
 function addressAccessibilityIssues() {
   // REACT_015: Add lang attribute to HTML element
   // Ensure the document.documentElement has lang attribute set
+  addLangAttribute();
+
+  // REACT_027: Fix table structure issues
+  fixTableStructure();
+
+  // REACT_017: Add/fix landmark issues
+  addMainLandmark();
+
+  // REACT_025: Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // REACT_041: Add accessible names to SVGs
+  addSvgAccessibleNames();
+
+  // REACT_036: Fix fake link issue
+  fixFakeLinkIssue();
+
+  console.log('Accessibility issues addressed.');
+}
+
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
     if (!htmlElement.lang) {
       htmlElement.lang = htmlElement.lang || 'en';
     }
   }
+}
 
-  // REACT_017: Add/fix 4 landmark issues
-  // Ensure proper landmark elements are used
-  // - Use <header> for site header (not multiple)
-  // - Use <nav> for navigation regions with aria-label
-  // - Use <main> for main content (only one per page)
-  // - Use <footer> for footer content
-
-  // REACT_041: Add accessible names to 2 SVGs
-  // Ensure SVGs have title elements and aria-labelledby attributes
-  // Example: <svg><title>Description</title>...</svg> with aria-labelledby="titleId"
-
-  // REACT_025: Ensure unique landmarks (2 issues)
-  // Each landmark region should have unique accessible names via aria-label or aria-labelledby
-  // - Avoid multiple <nav> elements without distinguishing labels
-  // - Use unique aria-labels for repeated landmark types
-
-  // REACT_036: Fix 1 fake link issue
-  // Replace <a href="#"> or <a onclick> that don't navigate with:
-  // - Proper <button> elements for actions
-  // - Or actual navigation links with proper href values
-
-  // Apply accessibility fixes to the DOM
+// REACT_027: Fix table structure issues
+function fixTableStructure() {
   if (typeof document !== 'undefined') {
-    // Fix landmark regions with proper labels
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+      // Ensure tables have proper structure
+      if (!table.querySelector('thead')) {
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          const thead = document.createElement('thead');
+          thead.appendChild(firstRow.cloneNode(true));
+          table.insertBefore(thead, table.firstChild);
+          firstRow.remove();
+        }
+      }
+      // Ensure tables have tbody
+      if (!table.querySelector('tbody')) {
+        const rows = table.querySelectorAll('tr');
+        if (rows.length > 0) {
+          const tbody = document.createElement('tbody');
+          rows.forEach((row) => tbody.appendChild(row));
+          table.appendChild(tbody);
+        }
+      }
+    });
+  }
+}
+
+// REACT_017: Add/fix landmark issues
+function addMainLandmark() {
+  if (typeof document !== 'undefined') {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length === 0) {
+      // Find content that should be main
+      const content = document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main');
+      if (content) {
+        content.tagName = 'MAIN';
+      }
+    }
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document !== 'undefined') {
     const landmarks = {
-      header: document.querySelectorAll('header:not([role])'),
-      nav: document.querySelectorAll('nav'),
-      main: document.querySelectorAll('main'),
-      footer: document.querySelectorAll('footer:not([role])'),
-      aside: document.querySelectorAll('aside:not([aria-label])')
+      header: Array.from(document.querySelectorAll('header')),
+      nav: Array.from(document.querySelectorAll('nav')),
+      main: Array.from(document.querySelectorAll('main')),
+      footer: Array.from(document.querySelectorAll('footer')),
+      aside: Array.from(document.querySelectorAll('aside'))
     };
 
     // Add aria-labels to nav elements that need them
     let navIndex = 0;
+    const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
     landmarks.nav.forEach((nav) => {
       if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
-        const navLabels = ['Main Navigation', 'Secondary Navigation', 'Footer Navigation'];
         nav.setAttribute('aria-label', navLabels[navIndex] || `Navigation ${navIndex + 1}`);
         navIndex++;
       }
@@ -82,48 +126,55 @@ function addressAccessibilityIssues() {
         footer.setAttribute('role', 'contentinfo');
       }
     }
+  }
+}
 
-    // Fix SVGs to have accessible names
+// REACT_041: Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  if (typeof document !== 'undefined') {
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg, index) => {
+    let svgIndex = 0;
+    svgs.forEach((svg) => {
       if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        const titleId = `svg-title-${index}`;
+        const titleId = `svg-title-${svgIndex}`;
         let title = svg.querySelector('title');
         if (!title) {
           title = document.createElement('title');
           title.id = titleId;
-          title.textContent = `SVG graphic ${index + 1}`;
+          title.textContent = `SVG graphic ${svgIndex + 1}`;
           svg.insertBefore(title, svg.firstChild);
         } else if (!title.id) {
           title.id = titleId;
         }
         svg.setAttribute('aria-labelledby', title.id);
+        svgIndex++;
       }
     });
+  }
+}
 
-    // Fix fake links (links that don't navigate)
-    const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
-    fakeLinks.forEach((link) => {
-      if (link.getAttribute('role') === 'button' || link.onclick || !link.href || link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
-        // Check if it's actually a link or a button
+// REACT_036: Fix fake link issue
+function fixFakeLinkIssue() {
+  if (typeof document !== 'undefined') {
+    const links = document.querySelectorAll('a');
+    links.forEach((link) => {
+      const href = link.getAttribute('href');
+      const isFakeLink = !href || href === '#' || href === '' || link.getAttribute('role') === 'button' || link.onclick;
+      
+      if (isFakeLink) {
+        // Check if it's actually a button
         if (link.getAttribute('role') === 'button' || link.onclick) {
           // Convert to proper button
+          link.setAttribute('role', 'button');
+          link.setAttribute('tabindex', '0');
+        } else if (!href || href === '#' || href === '') {
+          // For links without proper href, add button role
           link.setAttribute('role', 'button');
           link.setAttribute('tabindex', '0');
         }
       }
     });
-
-    // Ensure main landmark is present and unique
-    if (landmarks.main.length === 0) {
-      const mainContent = document.querySelector('[role="main"]');
-      if (mainContent) {
-        mainContent.setAttribute('role', 'main');
-      }
-    }
   }
-
-  console.log('Accessibility issues addressed.');
 }
 
 // Function to render dependency graph
@@ -149,4 +200,4 @@ renderDependencyGraph();
 // Existing code preserved below
 // ...
 
-export { addressAccessibilityIssues, renderDependencyGraph };
+export { addressAccessibilityIssues, renderDependencyGraph, addLangAttribute, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, fixFakeLinkIssue };

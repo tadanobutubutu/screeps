@@ -2,14 +2,11 @@ import { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAcces
 
 // Existing functions, exports, and code
 
-function yourFunction() {
-  // Your implementation
-}
+// TODO: Your implementation for the function yourFunction goes here
 
 export { yourFunction };
 
 // Add the following functions
-
 function addLangAttribute() {
   // Add lang attribute to the HTML element
 }

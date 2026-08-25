@@ -56,9 +56,23 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+/**
+ * Add accessible name to SVG elements
+ */
+function addAccessibleNameToSVG() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    if (!svg.querySelector('title') && !svg.querySelector('desc') && !svg.getAttribute('aria-label') && !svg.getAttribute('role') && !svg.getAttribute('aria-labelledby')) {
+      // Add aria-label attribute if no title, desc, or text content
+      svg.setAttribute('aria-label', 'SVG Image');
+    }
+  });
+}
+
 module.exports = {
   prefersReducedMotion,
   applyAccessibilityAttributes,
   handleKeyboardNavigation,
-  announceToScreenReader
+  announceToScreenReader,
+  addAccessibleNameToSVG
 };

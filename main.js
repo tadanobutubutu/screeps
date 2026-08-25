@@ -1,6 +1,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// - [NEW] Wrap the primary content in <main> so it can be skipped to (DONE: wrapPrimaryContentInMain)
+// - [NEW] Add your code here if any other issues need to be addressed
 
 // Assuming you have a button with ID 'myButton'
 const button = document.getElementById('myButton');

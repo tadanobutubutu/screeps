@@ -34,9 +34,16 @@ document.addEventListener('DOMContentLoaded', function() {
   function wrapPrimaryContentWithMain() {
     const primaryContent = document.querySelector('table[id="table-rotated"], .container');
     if (primaryContent) {
-      const mainElement = document.createElement('main');
-      mainElement.appendChild(primaryContent);
-      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      // Check if a <main> element already exists
+      const existingMain = document.querySelector('main');
+      if (!existingMain) {
+        const mainElement = document.createElement('main');
+        mainElement.appendChild(primaryContent);
+        primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      } else {
+        // If main exists, add the content to it instead
+        existingMain.appendChild(primaryContent);
+      }
     }
   }
 

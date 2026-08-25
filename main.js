@@ -1,4 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
@@ -10,6 +9,7 @@ function fixFakeLinkIssue(filePath) {
 
 function addAriaAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
+  // Add an ARIA attribute to the button for accessibility
   const updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added ARIA attribute to button for better accessibility in ${filePath}`);
@@ -72,6 +72,14 @@ function addSvgAccessibleNames(filePath) {
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
+
+// Execute accessibility fixes on the dependency graph documentation
+fixFakeLinkIssue('docs/dependency-graph.html');
+addLangAttribute('docs/dependency-graph.html');
+fixTableStructure('docs/dependency-graph.html');
+addMainLandmark('docs/dependency-graph.html');
+ensureUniqueLandmarks('docs/dependency-graph.html');
+addSvgAccessibleNames('docs/dependency-graph.html');
 
 module.exports = {
   fixFakeLinkIssue,

@@ -300,10 +300,9 @@ const Root = () => {
           id="unrotate"
           label="Rotate back"
           onClick={handleRotateBack}
-          ariaLabel="Rotate back button"
         />
         {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" ariaLabel="Trigger new function" />
+        <InPageButton onClick={newFunction} label="New Function" />
       </main>
     </html>
   );

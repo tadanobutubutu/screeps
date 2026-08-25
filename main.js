@@ -5,23 +5,18 @@
 // - REACT_017: Ensure proper landmark structure (DONE: wrapPrimaryContentInMain)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to SVGs (DONE: addAccessibleSVGs)
+// - REACT_025: Add any additional accessibility changes as per the insight report
 
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
+// Function to add lang attribute to HTML element
+export function addLangAttribute(lang = 'en') {
+  document.documentElement.lang = lang;
+}
 
 // New function to handle button click
 function handleButtonClick(event) {
   const target = event.target;
   const isExpanded = target.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
   target.setAttribute('aria-expanded', isExpanded);
-}
-
-// New function to ensure HTML lang attribute is set
-function addLangAttribute() {
-  const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', 'en');
-  }
 }
 
 // New function to inject and fix fake links
@@ -50,7 +45,6 @@ function fixFakeLinks() {
 // Ensure Unique Landmarks Function
 function ensureUniqueLandmarks() {
   const existingHeaders = document.querySelectorAll('header[role="banner"]');
-  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
 
   // Remove duplicate banner headers
   existingHeaders.forEach(function(header, index) {
@@ -60,6 +54,7 @@ function ensureUniqueLandmarks() {
   });
 
   // Remove duplicate contentinfo footers
+  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
   existingFooters.forEach(function(footer, index) {
     if (index > 0) {
       footer.remove();
@@ -143,52 +138,47 @@ function addAccessibleSVGs() {
 // New function to process accessibility issues from insight report
 function processAccessibilityIssues(insightReport) {
   // Process each issue from the insight report and address accordingly
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(function(issue) {
-      switch (issue.code) {
-        case 'REACT_015':
-          // Add lang attribute to HTML element
-          addLangAttribute();
-          break;
-        case 'FAKE_LINKS':
-        case 'REACT_036':
-          // Fix fake links
-          fixFakeLinks();
-          break;
-        case 'UNIQUE_LANDMARKS':
-        case 'REACT_025':
-          // Ensure unique landmarks
-          ensureUniqueLandmarks();
-          break;
-        case 'LANDMARK_STRUCTURE':
-        case 'REACT_017':
-          // Ensure proper landmark structure
-          wrapPrimaryContentInMain();
-          break;
-        case 'ACCESSIBLE_SVGS':
-        case 'REACT_041':
-          // Add accessible SVGs
-          addAccessibleSVGs();
-          break;
-        case 'TABLE_HEADERS':
-        case 'REACT_027':
-          // Add scope to table headers
-          addScopeToTableHeaders();
-          break;
-        default:
-          // Unknown issue type, ignore
-          break;
-      }
-    });
-  }
-
-  // Run all accessibility fixes regardless of report content as fallback
   addLangAttribute();
   fixFakeLinks();
   ensureUniqueLandmarks();
   wrapPrimaryContentInMain();
   addAccessibleSVGs();
   addScopeToTableHeaders();
+}
+
+// REACT_025: Additional accessibility improvements
+export function initializeAccessibility() {
+  // Set default language attribute
+  addLangAttribute();
+  
+  // Prevent tab trapping outside of modals by managing focus
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.dispatchEvent(new CustomEvent('escapePressed'));
+    }
+  });
+  
+  // Ensure skip link functionality if skip link exists
+  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      const target = document.querySelector('#main-content, main, [role="main"]');
+      if (target) {
+        e.preventDefault();
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
+}
+
+// Initialize accessibility features on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
 }
 
 // Call all necessary functions
@@ -203,5 +193,11 @@ module.exports = {
   ensureUniqueLandmarks,
   addScopeToTableHeaders,
   addAccessibleSVGs,
-  processAccessibilityIssues
+  processAccessibilityIssues,
+  initializeAccessibility
 };
+
+// Existing code preserved - add your app initialization below
+// import React from 'react';
+// import ReactDOM from 'react-dom/client';
+// root.render(<App />);

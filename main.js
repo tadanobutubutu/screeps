@@ -25,9 +25,14 @@ function addLandmarkRegions(container, regions = []) {
       const element = document.createElement('div');
       element.setAttribute('role', landmarkRoles[regionType]);
       element.className = `landmark-region landmark-${regionType}`;
+      if (regionType === 'main') {
+        element.setAttribute('aria-label', 'Main content');
+      }
       addedRegions[regionType] = element;
     }
   });
+
+  container.appendChild(...Object.values(addedRegions));
 
   return addedRegions;
 }
@@ -38,6 +43,8 @@ function addMainLandmark(htmlElements) {
     const mainElement = element.getElementsByTagName('main')[0];
     if (!mainElement) {
       const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.setAttribute('aria-label', 'Main content');
       main.className = 'landmark-main';
       element.parentNode.insertBefore(main, element);
       if (element.firstChild) {
@@ -48,8 +55,22 @@ function addMainLandmark(htmlElements) {
   });
 }
 
+// Function for checking elements without href attribute and warns about them
+function checkForFakeLinks(elements) {
+  const fakeLinks = [];
+  elements.forEach(element => {
+    if (!element.hasAttribute('href')) {
+      fakeLinks.push(element);
+    }
+  });
+  if (fakeLinks.length > 0) {
+    console.warn('Fake links found:', fakeLinks.map(e => e.outerHTML));
+  }
+}
+
 module.exports = {
   requiredFunction: requiredFunction,
   addLandmarkRegions: addLandmarkRegions,
-  addMainLandmark: addMainLandmark
+  addMainLandmark: addMainLandmark,
+  checkForFakeLinks: checkForFakeLinks
 };

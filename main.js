@@ -8,7 +8,7 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
 
 // Import content modules for dependency graphs and index views
-import { dependencyGraphContent } from ...
+import { dependencyGraphContent } from './content/dependencyGraphContent.js';
 import { indexContent } from './content/indexContent.js';
 
 // New functions requested by the issue
@@ -306,3 +306,4 @@ function fixFakeLinkIssue() {
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from
+// their respective modules for better maintainability and content separation.

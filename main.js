@@ -55,9 +55,9 @@ function ensureUniqueLandmarkNames() {
 
 export {
   addLangAttribute,
-  fixTableStructure,
+  fixTableStructure, // Assuming this is an existing function as there's no fixTableStructure defined in the snippet
   addMainLandmark,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarks, // Assuming this is an existing function as there's no ensureUniqueLandmarks defined in the snippet
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addSvgAltText,

@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // main.js - Entry point for the application with accessibility fixes for React components
 
 // Import content modules for dependency graphs and index views
@@ -8,12 +11,12 @@ import { indexContent } from './content/indexContent.js';
 
 function addLangAttribute() {
   const html = document.documentElement;
-  ... getLangAttribute());
+  const lang = document.documentElement.lang || getLangAttribute();
+  html.lang = lang;
 }
 
 function getLangAttribute() {
-  const lang = document.documentElement.lang;
-  return lang ? lang : 'en';
+  return document.documentElement.lang || 'en';
 }
 
 function validateTableAccessibility() {
@@ -25,7 +28,7 @@ function validateTableAccessibility() {
       if (!th.scope) {
         // Try to infer scope from position
         const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
-        const isFirstInCol = ... === 0;
+        const isFirstInCol = headers.indexOf(th) === 0;
         if (isFirstInRow && isFirstInCol) {
           th.setAttribute('scope', 'col');
         } else if (isFirstInRow) {
@@ -61,23 +64,22 @@ function validateTableStructure() {
 function addSvgAccessibleNames() {
   const svgs = ...
   svgs.forEach((svg, index) => {
-    const title = svg.getAttribute('title') || `SVG graphic ${index + 1}`;
+    const title = svg.getAttribute('title') || `${svg.id || ...} graphic ${index + 1}`;
     ... `${svg.id || ...
     const titleEl = document.createElement('title');
-    titleEl.id = `${svg.id || `svg-${index}`}-title`;
+    titleEl.id = `${svg.id || ...}-title`;
     titleEl.textContent = title;
     ...
   });
 }
 
-// REACT_025: Ensure unique landmarks
-// Fixed by simplifying the code to add aria-labelledby attribute
+// REACT_025: Ensure unique landmarks (Simplified)
 function addUniqueLandmarks() {
-  const landmarks = [... ... footer, aside, main, header')];
+  const landmarks = [... document.querySelectorAll('footer, aside, main, header')];
   landmarks.forEach(landmark => {
-    const role = landmark.role || ...
+    const role = landmark.role;
     if (role && landmark.id) {
-      ... landmark.id);
+      landmark.setAttribute('aria-labelledby', landmark.id);
     }
   });
 }
@@ -117,7 +119,7 @@ function validateLinkAccessibility() {
  * Wrap the primary content of the page in a <main> element for accessibility.
  * This ensures the page has a proper main landmark for screen readers and
  * follows WCAG guidelines for semantic HTML structure.
- * 
+ *
  * @returns {boolean} True if successful, false if main element already exists or no primary content found
  */
 function wrapPrimaryContentInMain() {
@@ -172,7 +174,7 @@ function wrapPrimaryContentInMain() {
  * Render the dependency graph view using the imported dependencyGraphContent module.
  * This function identifies the container element and populates it with the
  * dependency graph content from the appropriate module.
- * 
+ *
  * @param {string} containerId - The ID of the container element to render the graph in
  * @param {Object} options - Optional configuration options for rendering
  * @returns {HTMLElement} The rendered dependency graph container
@@ -196,7 +198,7 @@ function renderDependencyGraph(containerId, options = {}) {
   } else if (graphContent instanceof HTMLElement) {
     ...
   } else if (Array.isArray(graphContent)) {
-    ... => {
+    content.forEach(item => {
       if (typeof item === 'string') {
         container.innerHTML += item;
       } else if (item instanceof HTMLElement) {
@@ -212,7 +214,7 @@ function renderDependencyGraph(containerId, options = {}) {
  * Render the index view using the imported indexContent module.
  * This function identifies the container element and populates it with the
  * index content from the appropriate module.
- * 
+ *
  * @param {string} containerId - The ID of the container element to render the index in
  * @param {Object} options - Optional configuration options for rendering
  * @returns {HTMLElement} The rendered index view container
@@ -251,14 +253,12 @@ function renderIndexView(containerId, options = {}) {
 // Main entry: Address all accessibility issues
 function addressAccessibilityIssues() {
   addLangAttribute();
-  ...
-  ...
+  wrapPrimaryContentInMain();
+  addSvgAccessibleNames();
   addUniqueLandmarks();
   fixFakeLinkIssue();
-  wrapPrimaryContentInMain();
 }
 
 // Example usage of the accessibility functions
 addressAccessibilityIssues();
-
-// Some existing functions have been removed for simplicity (e.g., validateLandmark, checkTableStructure, addMainLandmark, and addLandmarkRegions)
+```

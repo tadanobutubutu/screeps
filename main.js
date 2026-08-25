@@ -1,5 +1,3 @@
-// Assuming the React component that renders the HTML is called PrimaryContent
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 

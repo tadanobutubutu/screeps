@@ -1,6 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// Add lang attribute to HTML element
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
 // Placeholder icons object for exports
 const icons = {};
 
@@ -35,11 +43,11 @@ const renderLandmarkStructure = () => (
 const renderLandmarkRegions = () => (
   <aside aria-label="Landmarks">
     <article aria-labelledby="group-region-label" role="region" id="group-region">
-      <h3 ... Region</h3>
+      <h3 id="group-region-label">Group Region</h3>
       {/* Render specific landmark groups and regions here */}
     </article>
     <article aria-labelledby="contact-region-label" role="region" id="contact-region">
-      <h3 ... Region</h3>
+      <h3 id="contact-region-label">Contact Region</h3>
       {/* Render specific landmark contact details here */}
     </article>
   </aside>
@@ -95,18 +103,33 @@ const addressAccessibilityIssues = (insightReport) => {
   };
 };
 
-// ... (existing exports)
+// Initialize accessibility enhancements on DOM ready
+function initAccessibility() {
+  addLangAttribute();
+  // Maintain existing functions for adding main landmark, validating landmark, ensuring unique landmarks, and more
+  // fixTableStructure();
+  // createInPageButton();
+  // createAccessibleLink();
+  // Add the new function to create and render landmark regions
+  renderLandmarkRegions();
+}
 
 // Add the new export for the renderLandmarkRegions function
 export {
   icons,
   renderAccessibleSVG,
-  renderLandmarkStructure,
+  renderLandmarkStructure, // Maintain this export for the existing renderLandmarkStructure function
   generateRotateBackControl,
   setupRotateBack,
   createIconForTest,
   createIcon,
   App,
   renderLandmarkRegions, // Add this new export for the renderLandmarkRegions function
-  addressAccessibilityIssues // Add this new export for the function to address accessibility issues
+  addressAccessibilityIssues, // Add this new export for the function to address accessibility issues
+  initAccessibility // Export the initialization function
 };
+
+// Example usage of the accessibility functions
+document.addEventListener('DOMContentLoaded', () => {
+  initAccessibility();
+});

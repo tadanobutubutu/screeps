@@ -76,7 +76,7 @@ function addMainLandmark() {
   });
 }
 
-// REACT_041: Add accessible names to 2 SVGs
+// REACT_041: Add accessible name to 2 SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {

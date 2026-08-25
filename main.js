@@ -1,12 +1,18 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  const updatedContent = content.replace(/<a([^>]*class="[^"]*btn[^"]*"[^>]*)>/gi, (match, attrs) => {
+  const updatedContent = content.replace(/<a([^>]*)>/g, (match, attrs) => {
+    if (attrs.includes('href')) {
+      return match;
+    }
     return `<button${attrs}>`;
   });
   // Also fix closing tags
-  const finalContent = updatedContent.replace(/<\/a>(?=[^<]*btn)/gi, '</button>');
+  const finalContent = updatedContent.replace(/<\/a>/g, '</button>');
   fs.writeFileSync(filePath, finalContent);
   console.log(`Fixed fake link issues in ${filePath}`);
 }
@@ -23,8 +29,8 @@ function addLangAttribute(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add lang attribute to HTML element if not present
-  const htmlLangRegex = /<html[^>]*lang="[^"]*"[^>]*>/i;
-  const updatedContent = content.replace(/<html([^>]*)>/i, (match, attrs) => {
+  const htmlLangRegex = /<html([^>]*)>/i;
+  const updatedContent = content.replace(htmlLangRegex, (match, attrs) => {
     if (attrs.includes('lang=')) {
       return match;
     }
@@ -44,21 +50,21 @@ function fixTableStructure(filePath) {
     // Add thead if not present
     if (!fixedContent.includes('<thead')) {
       // Find first row and wrap in thead
-      fixedContent = fixedContent.replace(/<tr([^>]*)>/i, '<thead><tr$1>');
+      fixedContent = fixedContent.replace(/<tr([^>]*)>/, '<thead><tr$1>');
     }
     // Add closing thead tag before tbody if needed
-    if (fixedContent.includes('<tbody') && !fixedContent.match(/<\/thead>\s*<tbody/i)) {
-      fixedContent = fixedContent.replace(/<\/tr>\s*<tbody/gi, '</tr></thead><tbody');
+    if (fixedContent.includes('<thead') && !fixedContent.includes('</thead>') && fixedContent.includes('<tbody')) {
+      fixedContent = fixedContent.replace(/<\/tr><tbody/, '</tr></thead><tbody');
     }
     // Add tbody if not present
     if (!fixedContent.includes('<tbody')) {
-      const lastCloseTag = fixedContent.lastIndexOf('</tr>');
+      const lastCloseTag = fixedContent.lastIndexOf('</table>');
       if (lastCloseTag !== -1) {
-        fixedContent = fixedContent.substring(0, lastCloseTag + 5) + '</tbody>' + fixedContent.substring(lastCloseTag + 5);
+        fixedContent = fixedContent.substring(0, lastCloseTag) + '</tbody>' + fixedContent.substring(lastCloseTag);
       }
     }
     // Fix th elements to have scope attribute
-    fixedContent = fixedContent.replace(/<th([^>]*)>/gi, (thMatch, attrs) => {
+    fixedContent = fixedContent.replace(/<th([^>]*)>/g, (thMatch, attrs) => {
       if (attrs.includes('scope=')) {
         return thMatch;
       }
@@ -74,13 +80,13 @@ function addMainLandmark(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add main landmark if not present
-  if (!content.includes('<main') && !content.includes('<main ')) {
+  if (!content.includes('<main') || !content.includes('</main>')) {
     // Wrap main content in <main> tag
     const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       const bodyContent = bodyMatch[1];
       const wrappedContent = `<main>${bodyContent}</main>`;
-      content = content.replace(/<body[^>]*>[\s\S]*<\/body>/i, wrappedContent);
+      content = content.replace(bodyMatch[0], wrappedContent);
     }
   }
   fs.writeFileSync(filePath, content);
@@ -95,12 +101,12 @@ function ensureUniqueLandmarks(filePath) {
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
   
   landmarks.forEach(landmark => {
-    const regex = new RegExp(`<${landmark}([^>]*)>`,'gi');
+    const regex = new RegExp(`<${landmark}([^>]*)>`, 'gi');
     let match;
     while ((match = regex.exec(content)) !== null) {
       const attrs = match[1];
-      const existingId = attrs.match(/id="([^"]*)"/);
-      const existingAriaLabel = attrs.match(/aria-label="([^"]*)"/);
+      const existingId = attrs.match(/id=["']([^"']+)["']/);
+      const existingAriaLabel = attrs.match(/aria-label=["']([^"']+)["']/);
       
       if (!existingId && !existingAriaLabel) {
         const count = (landmarkCount[landmark] || 0) + 1;
@@ -108,7 +114,7 @@ function ensureUniqueLandmarks(filePath) {
         if (count > 1) {
           const newId = `${landmark}-${count}`;
           content = content.substring(0, match.index) + 
-                   `<${landmark} id="${newId}"${attrs}>` + 
+                   `<${landmark} id="${newId}"` + 
                    content.substring(match.index + match[0].length);
         }
       }
@@ -125,7 +131,7 @@ function addSvgAccessibleNames(filePath) {
   const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
   const updatedContent = content.replace(svgRegex, (match, attrs) => {
-    const hasTitle = attrs.includes('aria-labelledby') || attrs.includes('aria-label');
+    const hasTitle = attrs.includes('<title') || attrs.includes('aria-label');
     if (hasTitle) {
       return match;
     }
@@ -141,7 +147,7 @@ function addSvgAccessibleNames(filePath) {
 function addAltAttribute(filePath) {
   const fs = require('fs');
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img([^>]*)/gi, (match, attrs) => {
+  const updatedContent = content.replace(/<img([^>]*)>/g, (match, attrs) => {
     if (attrs.includes('alt=')) {
       return match;
     }

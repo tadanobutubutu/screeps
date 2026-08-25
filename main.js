@@ -157,6 +157,30 @@ const validateLandmarkStructure = () => {
 // Alias for backwards compatibility
 const validateLandmark = validateLandmarkStructure;
 
+// New function — validateTableStructure (for example purposes)
+const validateTableStructure = () => {
+  // Custom table structure validation logic goes here
+  const errors = [];
+
+  // Example structure check
+  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
+  if (tables.length > 0) {
+    tables.forEach((table) => {
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll('td, th');
+        cells.forEach((cell) => {
+          if (!cell.textContent || cell.textContent.trim() === '') {
+            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
+          }
+        });
+      });
+    });
+  }
+
+  return { errors };
+};
+
 // ... Keep existing code here
 
 const Root = () => {

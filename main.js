@@ -54,7 +54,7 @@ function fixTableStructure(filePath) {
     }
     // Add closing thead tag before tbody if needed
     if (fixedContent.includes('</tr></thead><tbody') && !fixedContent.includes('</thead><tbody')) {
-      fixedContent = fixedContent.replace('</tr></thead><tbody', '</tr></thead><tbody');
+      fixedContent = fixedContent.replace('</tr></thead><tbody', '</thead><tbody');
     }
     // Add tbody if not present
     if (!fixedContent.includes('<tbody')) {

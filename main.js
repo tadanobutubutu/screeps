@@ -1,45 +1,46 @@
-/**
- * Adds `aria-labelledby` to elements, if necessary
- * @param {HTMLElement} elem - Element to check aria-labelledby
- * @returns {void}
- */
-function addAriaLabelledbyIfNeeded(elem) {
-  if (elem) {
-    const ids = [];
-    const quasiIds = [];
+// Add these imports at the top of main.js
+import React from "react";
+import ReactDOMServer from "react-dom/server";
+import JSDOM from "jsdom";
 
-    // Collect defined IDs and quasi-ids from child elements
-    const collectIds = (current) => {
-      if (!current) {
-        return;
-      }
-      if (current.getAttribute('id')) {
-        ids.push(current.getAttribute('id'));
-      }
-      if (current.hasAttribute('data-quasi-id')) {
-        quasiIds.push(current.getAttribute('data-quasi-id'));
-      }
-      const children = current.children;
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE') {
-          collectIds(child);
-        }
-      }
-    };
+// ... (Pre-existing code)
 
-    collectIds(elem);
+// Add the following helper function at the end of the main.js file to create a mock React context
+function createReactContext() {
+  const { JSDOM: { window } } = JSDOM.virtualDOM;
 
-    // Compose aria-labelledby from IDs and quasi-ids,
-    // if there is at least one child element (avoids empty strings)
-    if (ids.length > 0 || quasiIds.length > 0) {
-      const ariaLabelbyValue = ids.length > 0 ? ids.join(' ') : quasiIds.join(' ');
-      elem.setAttribute('aria-labelledby', ariaLabelbyValue);
-    }
-  }
+  window.React = React;
+  window.ReactDOM = {
+    renderToString: (component) => ReactDOMServer.renderToString(component),
+  };
+
+  const mockDocument = new window.Document();
+  mockDocument.body.innerHTML = "<div id='root'></div>";
+  window.document = mockDocument;
+  window.navigator = { userAgent: "headless" };
+  return window;
 }
 
-// Add a new function for adding `aria-labelledby` to elements on initialization
+// Find the appropriate spot inside the addAriaLabelledbyIfNeeded function
+// and integrate the required imports and new logic:
+
+function addAriaLabelledbyIfNeeded(elem) {
+  if (!elem) return;
+
+  // ... (Pre-existing logic)
+
+  // New logic: Render React components within the HTML element and extract them as strings
+  const context = createReactContext();
+  const content = <div id="generatedId">{/* Your React component here */}</div>;
+  const contentString = ReactDOMServer.renderToString(content);
+  elem.insertAdjacentHTML("beforeend", contentString);
+
+  // ... (Pre-existing logic)
+}
+
+// Modify the initAriaLabels function to have the context setup as a property,
+// and use that context to render React components:
+
 function initAriaLabels() {
   const elements = document.querySelectorAll('[data-aria-init]');
   elements.forEach((elem) => {
@@ -49,53 +50,10 @@ function initAriaLabels() {
     labels.forEach((label) => {
       elem.setAttribute('aria-label', label.textContent);
     });
+
+    // New logic: Create a context, render a React component, and call addAriaLabelledbyIfNeeded
+    const context = createReactContext();
+    const content = <div id="generatedId">{/* Your React component here */}</div>;
     addAriaLabelledbyIfNeeded(elem);
   });
 }
-
-// Add a new function for validating landmark structure
-function validateLandmarkStructure(landmark) {
-  // Check if landmark structure is valid
-  const validRoles = ['landmark', 'banner', 'complementary', 'contentinfo', 'form', 'navigation', 'main', 'search', 'region'];
-  const role = landmark.getAttribute('role');
-  const isLandmark = role && validRoles.includes(role);
-
-  // Check for proper heading hierarchy within the landmark
-  const headings = landmark.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let previousLevel = 0;
-  let hasValidHeadingStructure = true;
-
-  headings.forEach((heading) => {
-    const tagName = heading.tagName.toLowerCase();
-    const level = parseInt(tagName.replace('h', ''), 10);
-    if (previousLevel > 0 && level > previousLevel + 1) {
-      hasValidHeadingStructure = false;
-    }
-    previousLevel = level;
-  });
-
-  // Check if there is at least one heading within the landmark
-  const hasHeading = headings.length > 0;
-
-  // Incorporate new conditions for a valid landmark
-  return isLandmark && hasValidHeadingStructure && hasHeading;
-}
-
-// Add a new function for validating landmark structure on elements
-function validateLandmarks(landmarks) {
-  const validLandmarks = [];
-  const invalidLandmarks = [];
-
-  landmarks.forEach((landmark) => {
-    const validationResult = validateLandmarkStructure(landmark);
-    if (validationResult) {
-      validLandmarks.push(landmark);
-    } else {
-      invalidLandmarks.push(landmark);
-    }
-  });
-
-  return { validLandmarks, invalidLandmarks };
-}
-
-// ... (Pre-existing exported functions and code)

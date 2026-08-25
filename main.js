@@ -227,4 +227,4 @@ function fixFakeLinkIssue(element) {
 export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain };
 export * from './otherModule';
 export { myOtherFunction };
-export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };
+export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, renderSkipLink, renderLandmarkNavigation, formatDate };

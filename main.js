@@ -16,7 +16,7 @@ function fixFakeLinkIssue() {
 function newFunctionForAccessibilityIssue(element) {
   // Address accessibility issues from insight report:
   // Implement the necessary code for the new function
-  
+
   if (!element) {
     return;
   }
@@ -77,8 +77,3 @@ module.exports = {
   fixFakeLinkIssue: fixFakeLinkIssue,
   newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue
 };
-
-// ADDING THE EXPORTS FOR THE NEW FUNCTIONS
-fixTableStructure = fixTableStructure;
-fixFakeLinkIssue = fixFakeLinkIssue;
-newFunctionForAccessibilityIssue = newFunctionForAccessibilityIssue;

@@ -13,7 +13,7 @@ import myOtherFunction from './otherModule'; // Assuming you have another module
 // ...
 
 // Function to add proper landmark regions
-function addProperLandmarkRegions() {
+function ... {
   // Implementation for adding proper landmark regions
   // Placeholder logic to be expanded as needed
   const landmarkRegions = [];

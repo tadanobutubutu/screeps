@@ -1,3 +1,4 @@
+// Add exports for new functions if needed in main.js
 // ... existing imports and declarations ...
 
 // TODO: Implement the new function as per the issue requirements

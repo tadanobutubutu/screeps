@@ -167,7 +167,7 @@ function addSvgAccessibleNames(filePath) {
 
 function addAltAttribute(filePath) {
   const fs = require('fs');
-  const content = fs.readFileSync(filePath, 'utf8');
+  let content = fs.readFileSync(filePath, 'utf8');
   const updatedContent = content.replace(/<img([^>]*)>/gi, (match, attrs) => {
     if (attrs.includes('alt=')) {
       return match;

@@ -1,9 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 
-// TODO: Address accessibility issues from insight report:
-// - ... (You can add more functions as needed)
-
-// Import dependency graph and index content from appropriate modules
+// Import dependencyGraphContent and indexContent from appropriate modules
 const { dependencyGraphContent, indexContent } = require('./content');
 
 // Add lang attribute to HTML element (REACT_015)
@@ -97,10 +94,8 @@ const addMissingLandmarks = function(content) {
     return content;
 };
 
-// Import the required rendering modules
+// Import the required rendering modules - REQUESTED CHANGE FOR THE OPEN ISSUE
 const { renderContent, renderGraph, renderLandmarks } = require('some-rendering-module');
-
-// Assuming you have render functions available, update the related rendering functions in the block below:
 
 // UPDATED: Render functions using imported modules
 const renderPage = function(content) {

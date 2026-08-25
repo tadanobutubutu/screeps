@@ -1,6 +1,11 @@
-// TODO: This is the existing code that needs to be preserved
-
-// Import dependencyGraphContent and indexContent from appropriate modules
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+//
 const { dependencyGraphContent, indexContent } = require('./content');
 
 // Add lang attribute to HTML element (REACT_015)
@@ -107,11 +112,9 @@ const renderPage = function(content) {
 
     // Add landmarks to the rendered content if needed
     const landmarks = renderLandmarks(content);
-    result = content;
-    result = result;
     if (landmarks) {
-        result = Array.isArray(landmarks) ? landmarks.join('') : landmarks;
-        result = result.replace(/<!-- TODO: Add rendering of landmarks here -->/, result);
+        const landmarksStr = Array.isArray(landmarks) ? landmarks.join('') : landmarks;
+        result = result.replace(/<!-- TODO: Add rendering of landmarks here -->/, landmarksStr);
     }
 
     // Render content using the imported render function

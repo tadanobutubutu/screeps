@@ -30,6 +30,9 @@ const setAccessibleName = (node, accessibleName) => {
   }
 };
 
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
+
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 

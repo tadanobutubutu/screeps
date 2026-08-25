@@ -3,33 +3,20 @@
 // - [NEW] Wrap the primary content in <main> so it can be skipped to (DONE: wrapPrimaryContentInMain)
 // - [NEW] Add your code here if any other issues need to be addressed
 
-// Assuming you have a button with ID 'myButton'
-const button = document.getElementById('myButton');
-button.setAttribute('aria-label', 'My Button');
-button.setAttribute('role', 'button');
-button.setAttribute('aria-expanded', 'false');
-
-// New function to handle button click
-function handleButtonClick() {
-  const button = document.getElementById('myButton');
-  const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
-  button.setAttribute('aria-expanded', isExpanded);
-}
-
-// Add the click event listener to the button
-button.addEventListener('click', handleButtonClick);
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App'; // Adjust the path to the actual App component
 
 // Import dependencyGraphContent if it is used in the code
 const { dependencyGraphContent } = require('./dependencyGraph');
 
-// New function to ensure HTML lang attribute is set
-function addLangAttribute() {
+// Accessibility utility functions - exported for use in React components via useEffect
+export function addLangAttribute() {
   const html = document.documentElement;
   html.setAttribute('lang', 'en');
 }
 
-// New function to inject and fix fake links
-function fixFakeLinks() {
+export function fixFakeLinks() {
   const fakeLinks = document.querySelectorAll('[data-fake-link]');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
@@ -41,8 +28,7 @@ function fixFakeLinks() {
   });
 }
 
-// Ensure Unique Landmarks Function
-function ensureUniqueLandmarks() {
+export function ensureUniqueLandmarks() {
   const existingHeaders = document.querySelectorAll('header:not([role="banner"])');
   const existingFooters = document.querySelectorAll('footer:not([role="contentinfo"])');
 
@@ -54,8 +40,7 @@ function ensureUniqueLandmarks() {
   }
 }
 
-// Add function to ensure proper landmark structure
-function ensureProperLandmarkStructure() {
+export function ensureProperLandmarkStructure() {
   // Remove existing landmarks to avoid duplication
   const allHeaders = document.querySelectorAll('header');
   const allFooters = document.querySelectorAll('footer');
@@ -112,43 +97,41 @@ function ensureProperLandmarkStructure() {
   copyright.textContent = '© 2023 Your Company. All rights reserved.';
   footerElement.appendChild(copyright);
 
-  // Add function to wrap primary content in main landmark
-  function wrapPrimaryContentInMain() {
-    const existingMains = document.querySelectorAll('main');
-
-    // Remove duplicate main elements if any
-    existingMains.forEach((main, index) => {
-      if (index > 0) {
-        main.remove();
-      }
-    });
-
-    // If no main element exists, create and wrap primary content
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('role', 'main');
-
-    // Find primary content container (adjust selector based on your content structure)
-    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
-
-    // Move existing content into main if not already inside one
-    if (!document.querySelector('main')) {
-      while (contentContainer.firstChild) {
-        mainElement.appendChild(contentContainer.firstChild);
-      }
-      contentContainer.appendChild(mainElement);
-    }
-  }
-
   // Call the wrapPrimaryContentInMain function
   wrapPrimaryContentInMain();
 }
 
-// Add Accessible SVGs Function
-function addAccessibleSVGs() {
+export function wrapPrimaryContentInMain() {
+  const existingMains = document.querySelectorAll('main');
+
+  // Remove duplicate main elements if any
+  existingMains.forEach((main, index) => {
+    if (index > 0) {
+      main.remove();
+    }
+  });
+
+  // If no main element exists, create and wrap primary content
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+
+  // Find primary content container (adjust selector based on your content structure)
+  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+
+  // Move existing content into main if not already inside one
+  if (!document.querySelector('main')) {
+    while (contentContainer.firstChild) {
+      mainElement.appendChild(contentContainer.firstChild);
+    }
+    contentContainer.appendChild(mainElement);
+  }
+}
+
+export function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const shouldUseTitle = svg.getAttribute('aria-labelledby') === null && !svg.querySelector('title');
-    const isBackground = svg.css && svg.css('position') === 'absolute' && svg.css('top') === '0' && svg.css('left') === '0' && svg.css('width') === '100%' && svg.css('height') === '100%';
+    const isBackground = svg.style && svg.style.position === 'absolute' && svg.style.top === '0' && svg.style.left === '0' && svg.style.width === '100%' && svg.style.height === '100%';
 
     if (shouldUseTitle || isBackground) {
       svg.setAttribute('aria-label', 'Description of SVG content');
@@ -160,8 +143,7 @@ function addAccessibleSVGs() {
   });
 }
 
-// Function to add 'scope="col"' attribute to table header cells
-function addScopeToTableHeaders() {
+export function addScopeToTableHeaders() {
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
@@ -170,35 +152,34 @@ function addScopeToTableHeaders() {
   });
 }
 
-// Call all necessary functions
-addLangAttribute();
-fixFakeLinks();
-ensureProperLandmarkStructure();
-ensureUniqueLandmarks();
-addAccessibleSVGs();
-addScopeToTableHeaders();
+// Button accessibility setup (for non-React buttons if any)
+export function setupButtonAccessibility() {
+  const button = document.getElementById('myButton');
+  if (button) {
+    button.setAttribute('aria-label', 'My Button');
+    button.setAttribute('role', 'button');
+    button.setAttribute('aria-expanded', 'false');
 
-// React root mount integration (from origin/main)
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+    function handleButtonClick() {
+      const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
+      button.setAttribute('aria-expanded', isExpanded);
+    }
 
-if (typeof document !== 'undefined') {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
+    button.addEventListener('click', handleButtonClick);
+  }
 }
 
-module.exports = {
-  wrapPrimaryContentInMain,
-  handleButtonClick,
-  addLangAttribute,
-  fixFakeLinks,
-  ensureUniqueLandmarks,
-  ensureProperLandmarkStructure,
-  addAccessibleSVGs,
-  addScopeToTableHeaders,
+// Example of how to update the icons in app/layout.tsx and dashboard/app/layout.tsx
+export const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" font-size="90">🐛</text></svg>',
 };
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+// ... rest of the code in main.js

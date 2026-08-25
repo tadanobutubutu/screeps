@@ -57,14 +57,13 @@ function ensureUniqueLandmarkNames() {
 
 export {
   addLangAttribute,
-  fixTableStructure, // <-- If this is a function that exists and needs to be preserved, please add it back
+  fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
-  ensureUniqueLandmarkIds, // <-- If this is a function that exists and needs to be preserved, please add it back
-  addSvgAltText, // <-- If this is a function that exists and needs to be preserved, please add it back
-  ensureUniqueLandmarkNames // ADDING new function for REACT_025
+  ensureUniqueLandmarkIds,
+  ensureUniqueLandmarkNames
 };

@@ -1,15 +1,1 @@
-// Example function definitions (assuming these are part of the existing code)
-function add(a, b) {
-  return a + b;
-}
-
-function subtract(a, b) {
-  return a - b;
-}
-
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-module.exports = {
-  add,
-  subtract
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

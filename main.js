@@ -169,6 +169,31 @@ function addSvgAccessibleNames(svgs) {
   });
 }
 
+// REACT_041: Create accessible SVG data URL for favicons
+function createAccessibleSvgDataUrl(options = {}) {
+  const {
+    viewBox = '0 0 100 100',
+    content = '',
+    title = 'Icon',
+    role = 'img',
+    ariaHidden = false
+  } = options;
+  
+  const encodedTitle = encodeURIComponent(title);
+  const ariaAttr = ariaHidden ? ' aria-hidden="true"' : ` aria-label="${encodedTitle}"`;
+  const roleAttr = ` role="${role}"`;
+  
+  // Build the SVG with title as first child for accessibility
+  const svgContent = `<title>${title}</title>${content}`;
+  
+  // Encode the entire SVG for use as data URL
+  const encodedSvg = encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${roleAttr}${ariaAttr}>${svgContent}</svg>`
+  );
+  
+  return `data:image/svg+xml,${encodedSvg}`;
+}
+
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!landmarks || !Array.isArray(landmarks)) return [];
@@ -301,4 +326,4 @@ function fixButtonAccessibility(buttons) {
 export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView, wrapPrimaryContentInMain, renderSkipLink, renderLandmarkNavigation, formatDate };
 export * from './otherModule';
 export { myOtherFunction };
-export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility };
+export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, fixButtonAccessibility, createAccessibleSvgDataUrl };

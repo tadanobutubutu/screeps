@@ -1,6 +1,12 @@
 // Add exports for new functions if needed in main.js
 // ... existing imports and declarations ...
 
+// Import dependency graph content from its respective module
+import { dependencyGraphContent } from './dependencyGraphContent.js';
+
+// Import index content from its respective module
+import { indexContent } from './indexContent.js';
+
 // TODO: Implement the new function as per the issue requirements
 function ensureUniqueLandmarkNames() {
   const landmarks = getLandmarks();
@@ -56,6 +62,20 @@ function fixFakeLinkIssue() {
   // ... existing fixFakeLinkIssue function ...
 }
 
+// FUNCTION TO RENDER DEPENDENCY GRAPH USING IMPORTED CONTENT
+function renderDependencyGraph(container) {
+  if (container && dependencyGraphContent) {
+    container.innerHTML = dependencyGraphContent;
+  }
+}
+
+// FUNCTION TO RENDER INDEX VIEW USING IMPORTED CONTENT
+function renderIndexView(container) {
+  if (container && indexContent) {
+    container.innerHTML = indexContent;
+  }
+}
+
 // EXPORTS
 export {
   addLangAttribute,
@@ -66,5 +86,9 @@ export {
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
-  ensureUniqueLandmarkIds
+  ensureUniqueLandmarkIds,
+  dependencyGraphContent,
+  indexContent,
+  renderDependencyGraph,
+  renderIndexView
 };

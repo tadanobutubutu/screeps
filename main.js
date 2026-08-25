@@ -53,20 +53,6 @@ function initAriaLabels() {
   });
 }
 
-// Update the event listener for the rotate button
-const myButton = document.getElementById('rotate');
-if (myButton) {
-  addAriaLabel(myButton, 'Rotate image clockwise');
-  myButton.addEventListener('click', rotate);
-}
-
-// Update the event listener for the unrotate button
-const unrotateButton = document.getElementById('unrotate');
-if (unrotateButton) {
-  addAriaLabel(unrotateButton, 'Rotate image anti-clockwise');
-  unrotateButton.addEventListener('click', rotateBack);
-}
-
 // Add a new function for validating landmark structure
 function validateLandmarkStructure(landmark) {
   // Check if landmark structure is valid
@@ -88,9 +74,11 @@ function validateLandmarkStructure(landmark) {
     previousLevel = level;
   });
 
-  // ... (You can add further checks for landmark's properties here, if needed)
+  // Check if there is at least one heading within the landmark
+  const hasHeading = headings.length > 0;
 
-  return isLandmark && hasValidHeadingStructure;
+  // Incorporate new conditions for a valid landmark
+  return isLandmark && hasValidHeadingStructure && hasHeading;
 }
 
 // Add a new function for validating landmark structure on elements
@@ -110,51 +98,4 @@ function validateLandmarks(landmarks) {
   return { validLandmarks, invalidLandmarks };
 }
 
-// Add a new function for getting the SVG accessible name
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement || svgElement.tagName !== 'svg') {
-    return '';
-  }
-
-  // Check for aria-label attribute
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for aria-labelledby attribute
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    return labelElement ? labelElement.textContent : '';
-  }
-
-  // Check for title element inside SVG
-  const titleElement = svgElement.querySelector('title');
-  if (titleElement) {
-    return titleElement.textContent;
-  }
-
-  return '';
-}
-
-// Implement createInPageButton functionality
-function createInPageButton(label, onClick, className) {
-  const button = document.createElement('button');
-  button.textContent = label;
-  if (className) {
-    button.className = className;
-  }
-  button.addEventListener('click', onClick);
-  return button;
-}
-
-// Include the new functions as an export
-module.exports = {
-  // ... (Pre-existing exports)
-
-  validateLandmarkStructure, // Add the new function to the exports
-  validateLandmarks,         // Add the new function to the exports
-  getSvgAccessibleName,      // Add the new function to the exports
-  createInPageButton         // Add the new function to the exports
-};
+// ... (Pre-existing exported functions and code)

@@ -9,7 +9,16 @@
 
 //_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 
-<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// TODO: Import required module(s) - for fixing table structure issues
+// ONLY ADD the new functions or changes requested in the issue
+import { autoFixTable } from 'table-auto-fix';
+
+// Add the new function to the existing functions in main.js
+function fixTableStructureIssues() {
+  autoFixTable(document);
+}
+
+// Preserve the rest of the existing main.js code
 const dependencyGraph = document.querySelector('[data-dependency-graph]');
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'region');
@@ -56,25 +65,7 @@ function fixFakeLinks() {
   });
 }
 
-// Add a new function to fix table structure issues
-function fixTableStructureIssues() {
-  // Ensure each table row has a TH or TD element
-  const tables = document.querySelectorAll('table');
-  for (let i = 0; i < tables.length; i++) {
-    const tableRow = tables[i].rows;
-    for (let j = 1; j < tableRow.length; j++) {
-      const cell = tableRow[j].cells[0];
-      if (cell && cell.tagName.toLowerCase() !== 'th' && cell.tagName.toLowerCase() !== 'td') {
-        cell.innerHTML = '';
-        const newCell = document.createElement(cell.tagName === 'TH' ? 'td' : 'th');
-        newCell.setAttribute('scope', 'row');
-        newCell.appendChild(cell);
-      }
-    }
-  }
-}
-
-// Add the new function to fix table header cell scope
+// Add a new function to fix table header cell scope
 function fixTableHeaderCellScope() {
   // Ensure each table header cell has a scope attribute
   const tableHeaders = document.querySelectorAll('th');
@@ -92,6 +83,7 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
+  fixTableHeaderCellScope,
   fixTableHeaderCellScope // Added here
 };
 

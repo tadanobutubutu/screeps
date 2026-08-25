@@ -153,8 +153,20 @@ async function createFixBranch(issue, analysis) {
 
     // ファイルを修正
     for (const change of analysis.suggestedFix.changes) {
-        const filePath = path.join(process.cwd(), change.file);
-        const fileDir = path.dirname(filePath);
+        const safePath = path.resolve(process.cwd(), change.file);
+        const relativePath = path.relative(process.cwd(), safePath);
+
+        // Security: Prevent Path Traversal attacks / arbitrary file write
+        if (
+            relativePath.startsWith('..') ||
+            path.isAbsolute(change.file) ||
+            relativePath === ''
+        ) {
+            console.warn(`⚠️ Security Warning: Ignored path traversal attempt in file: ${change.file}`);
+            continue;
+        }
+
+        const fileDir = path.dirname(safePath);
 
         // ディレクトリが存在しない場合は作成
         if (!fs.existsSync(fileDir)) {
@@ -163,13 +175,13 @@ async function createFixBranch(issue, analysis) {
 
         // ファイルが存在する場合は読み込み、存在しない場合は新規作成
         let fileContent = '';
-        if (fs.existsSync(filePath)) {
-            fileContent = fs.readFileSync(filePath, 'utf-8');
+        if (fs.existsSync(safePath)) {
+            fileContent = fs.readFileSync(safePath, 'utf-8');
         }
 
         // 変更を適用（簡易版：実際の実装ではより高度なマージが必要）
         const updatedContent = fileContent + '\n\n' + change.code;
-        fs.writeFileSync(filePath, updatedContent);
+        fs.writeFileSync(safePath, updatedContent);
 
         console.log(`✏️  Modified: ${change.file}`);
     }

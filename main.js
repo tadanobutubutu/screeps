@@ -45,9 +45,9 @@ function addAriaLabelledbyIfNeeded(elem) {
   
   // Determine which content to render based on elem type or attributes
   let content;
-  if (elem.getAttribute && elem.getAttribute('data-view') === 'dependency-graph') {
+  if (elem.getAttribute && elem.getAttribute('data-type') === 'dependency-graph') {
     content = dependencyGraphContent({ context });
-  } else if (elem.getAttribute && elem.getAttribute('data-view') === 'index') {
+  } else if (elem.getAttribute && elem.getAttribute('data-type') === 'index') {
     content = indexContent({ context });
   } else {
     content = <div id="generatedId">{/* Your React component here */}</div>;
@@ -116,5 +116,62 @@ function wrapPrimaryContentInMain(context) {
   return mainElement;
 }
 
+/**
+ * Renders a dependency graph view using the dependencyGraphContent module.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @param {Object} options - Optional configuration for the dependency graph
+ * @returns {string} - The rendered HTML string of the dependency graph
+ */
+function renderDependencyGraph(context, options = {}) {
+  const graphContent = dependencyGraphContent({ context, ...options });
+  return ReactDOMServer.renderToString(graphContent);
+}
+
+/**
+ * Renders an index view using the indexContent module.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @param {Object} options - Optional configuration for the index view
+ * @returns {string} - The rendered HTML string of the index view
+ */
+function renderIndexView(context, options = {}) {
+  const index = indexContent({ context, ...options });
+  return ReactDOMServer.renderToString(index);
+}
+
+/**
+ * Updates the DOM element with the appropriate content based on its data-type attribute.
+ * 
+ * @param {HTMLElement} elem - The DOM element to update
+ * @param {Object} context - The React context containing window and document references
+ */
+function updateElementContent(elem, context) {
+  if (!elem || !context) return;
+  
+  const dataType = elem.getAttribute ? elem.getAttribute('data-type') : null;
+  
+  let renderedContent;
+  if (dataType === 'dependency-graph') {
+    renderedContent = renderDependencyGraph(context);
+  } else if (dataType === 'index') {
+    renderedContent = renderIndexView(context);
+  }
+  
+  if (renderedContent) {
+    elem.innerHTML = renderedContent;
+  }
+}
+
 // Export the functions to make them accessible
-export { createReactContext, addAriaLabelledbyIfNeeded, initAriaLabels, wrapPrimaryContentInMain, dependencyGraphContent, indexContent };
+export { 
+  createReactContext, 
+  addAriaLabelledbyIfNeeded, 
+  initAriaLabels, 
+  wrapPrimaryContentInMain,
+  renderDependencyGraph,
+  renderIndexView,
+  updateElementContent,
+  dependencyGraphContent, 
+  indexContent 
+};

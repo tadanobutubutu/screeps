@@ -4,7 +4,10 @@ import _ from 'lodash';
 // Import myOtherFunction from another module
 import myOtherFunction from './otherModule';
 
-// TODO: Implement wrapPrimaryContentInMain function
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+
+// Function to wrap primary content in main element
 function wrapPrimaryContentInMain(content, options = {}) {
   if (!content) return '';
   
@@ -19,7 +22,8 @@ function wrapPrimaryContentInMain(content, options = {}) {
   const mainEnd = '</main>';
   
   // Check if content is already wrapped in a main element
-  const hasMainTag = /<main[\s>]/i.test(content);
+  const hasMainTag = /<main[^>]*>[\s\S]*<\/main>/i.test(content) ||
+                     /<main[^>]*\/?>/i.test(content);
   
   if (hasMainTag) {
     return content;
@@ -32,10 +36,10 @@ function wrapPrimaryContentInMain(content, options = {}) {
 function renderDependencyGraph(data) {
   if (!data) return '';
   const { nodes = [], edges = [] } = data;
-  let html = '<div ...';
+  let html = '<div class="dependency-graph"><ul>';
   nodes.forEach(node => {
     const connectedEdges = edges.filter(e => e.from === node.id || e.to === node.id);
-    html += `<li ... || node.id} (${connectedEdges.length} connections)</li>`;
+    html += `<li data-id="${node.id}">${node.label || node.id} (${connectedEdges.length} connections)</li>`;
   });
   html += '</ul></div>';
   return html;
@@ -45,8 +49,8 @@ function renderDependencyGraph(data) {
 function renderIndexView(data) {
   if (!data) return '<div class="index-view">Index View</div>';
   const { title = 'Index View', items = [] } = data;
-  let itemsHtml = items.map(item => `<li>${item.name || ...}</li>`).join('');
-  return `<div ...`;
+  let itemsHtml = items.map(item => `<li>${item.name || item.id || 'Item'}</li>`).join('');
+  return `<div class="index-view"><h2>${title}</h2><ul>${itemsHtml}</ul></div>`;
 }
 
 // Function to add proper landmark regions
@@ -58,9 +62,9 @@ function addProperLandmarkRegions(data) {
     const region = {
       role: landmark.role || 'region',
       label: landmark.label || landmark.role || 'content',
-      id: landmark.id || ...
+      id: landmark.id || `${landmark.role || 'region'}-${landmarkRegions.length}`
     };
-    ...
+    landmarkRegions.push(region);
   });
   
   return landmarkRegions;
@@ -79,7 +83,7 @@ function renderSkipLink() {
 // Original landmark navigation function
 function renderLandmarkNavigation() {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  return landmarks.map(landmark => `<div class="landmark-${landmark}" ...`);
+  return landmarks.map(landmark => `<div class="landmark-${landmark}" role="${landmark}"></div>`);
 }
 
 // Original utility function
@@ -95,7 +99,7 @@ function addLangAttribute(html, lang = 'en') {
   if (langPattern.test(html)) {
     return html.replace(langPattern, `lang="${lang}"`);
   }
-  return html.replace(/<\/html>/i, ` lang="${lang}">`);
+  return html.replace(/^(\s*<[a-z][^>]*>)/i, `$1 lang="${lang}">`);
 }
 
 // REACT_027: Fix table structure issues
@@ -128,25 +132,24 @@ function fixTableStructureIssues(tables) {
 function addMainLandmark(html) {
   if (!html) return html;
   
-  const hasMainLandmark = ... || 
-                          ...
+  const hasMainLandmark = /<main[^>]*>/i.test(html) || 
+                          /<div[^>]*role\s*=\s*["']main["'][^>]*>/i.test(html);
   
   if (!hasMainLandmark) {
     const mainId = 'main-content';
     const mainElement = `<main id="${mainId}" role="main"></main>`;
     
-    if ... {
-      return ... `$1\n    ${mainElement}`);
+    if (/<body[^>]*>/i.test(html)) {
+      return html.replace(/(<body[^>]*>)/i, `$1\n    ${mainElement}`);
     }
     return mainElement + html;
   }
   
-  const mainWithId = ... ||
-                     ...
+  const mainWithId = /<main[^>]*id\s*=\s*["'][^"']*["'][^>]*>/i.test(html);
   
   if (!mainWithId) {
-    html = ... `<$1 id="main-content">`;
-    html = ... `<$1 id="main-content">`;
+    html = html.replace(/<main([^>]*)>/i, `<main id="main-content"$1>`);
+    html = html.replace(/<div([^>]*)role\s*=\s*["']main["']([^>]*)>/i, `<div id="main-content"$1role="main"$2>`);
   }
   
   return html;
@@ -157,7 +160,7 @@ function addSvgAccessibleNames(svgs) {
   if (!svgs || !Array.isArray(svgs)) return [];
   
   return svgs.map((svg, index) => {
-    if (!svg.accessibleName && ... && ... {
+    if (!svg.accessibleName && !svg.title && !svg.desc) {
       svg.accessibleName = svg.title || `SVG icon ${index + 1}`;
       svg.role = 'img';
     }
@@ -177,7 +180,7 @@ function ensureUniqueLandmarks(landmarks) {
     
     if (landmark.id) {
       if (seenIds.has(landmark.id)) {
-        landmark.id = ...
+        landmark.id = `${landmark.id}-${index}`;
       }
       seenIds.add(landmark.id);
     } else {
@@ -194,7 +197,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     if (landmark.label) {
-      landmark.id = landmark.id || ... '-')}`;
+      landmark.id = landmark.id || `landmark-${role.replace(/\s+/g, '-')}`;
     }
     
     return landmark;
@@ -205,7 +208,7 @@ function ensureUniqueLandmarks(landmarks) {
 function fixFakeLinkIssue(element) {
   if (!element) return null;
   
-  const tagName = ...
+  const tagName = element.tagName?.toLowerCase();
   const isClickable = element.onclick || element.getAttribute?.('role') === 'link';
   const href = element.getAttribute?.('href');
   

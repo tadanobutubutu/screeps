@@ -77,16 +77,18 @@ function fixFakeLinkIssue() {
   // Implement the function as needed
 }
 
-// Preserving previously renamed exports
+// Preserving previously renamed exports and adding new ones
 module.exports = {
-  fixTableStructureIssues: fixTableStructureIssues,
-  addClassToElement: addClassToElement,
-  renderDependencyGraph:renderDependencyGraph,
-  renderDependencyGraphForComponent: renderDependencyGraphForComponent,
+  renderDependencyGraph: renderDependencyGraph,
+  addLangAttr: addLangAttr,
   addLandmarks: addLandmarks,
   addAccessibleSvgNames: addAccessibleSvgNames,
   addIdsToLandmarks: addIdsToLandmarks,
   fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue,
-  addLangAttr: addLangAttr
+  fixTableStructureIssues: fixTableStructureIssues, // Previously renamed export
+  addClassToElement: addClassToElement,
+  // Add new exports for the new functions
+  fixTableStructure: fixTableStructure,
+  fixFakeLinkIssue: fixFakeLinkIssue
 };

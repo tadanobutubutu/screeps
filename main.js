@@ -10,4 +10,12 @@
 module.exports.loop = function() {
     // Placeholder logic for the Screeps loop
     console.log('Loop executed');
+
+    // New function added as per the issue
+    function newFunction() {
+        console.log('New function called');
+    }
+
+    // Call the new function
+    newFunction();
 };

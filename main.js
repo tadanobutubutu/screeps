@@ -11,3 +11,12 @@ module.exports.loop = function() {
     // Placeholder logic for the Screeps loop
     console.log('Loop executed');
 };
+
+// New function requested in the issue
+function newFunction() {
+    // Implementation of the new function
+    console.log('New function executed');
+}
+
+// Export the new function
+module.exports.newFunction = newFunction;

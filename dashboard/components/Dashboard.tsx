@@ -409,8 +409,10 @@ export default function Dashboard() {
                         <span
                             className="interactive-hint"
                             tabIndex={0}
-                            title="最後にデータが更新された時間です"
-                            aria-label="最後にデータが更新された時間です"
+                            role="status"
+                            aria-live="polite"
+                            title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
+                            aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
                             style={{ fontSize: '0.8rem', color: '#718096' }}
                         >
                             🕒 {lastUpdated.toLocaleTimeString()}
@@ -517,8 +519,16 @@ export default function Dashboard() {
                             onMouseLeave={() => setRefreshHover(false)}
                             onFocus={() => setRefreshHover(true)}
                             onBlur={() => setRefreshHover(false)}
-                            aria-label={refreshing ? '更新中...' : '更新 (Alt + R)'}
-                            title={refreshing ? '更新中...' : 'データを更新 (Alt + R)'}
+                            aria-label={
+                                refreshing
+                                    ? 'データを更新中...'
+                                    : 'データを最新の状態に更新 (Alt + R)'
+                            }
+                            title={
+                                refreshing
+                                    ? 'データを更新中...'
+                                    : 'クリックまたは Alt + R キーで最新データを手動取得'
+                            }
                             style={{
                                 padding: '0.5rem',
                                 borderRadius: '50%',
@@ -965,7 +975,14 @@ export default function Dashboard() {
                               </button>
                           ))
                         : !roomQuery && (
-                              <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>なし</span>
+                              <span
+                                  role="status"
+                                  aria-live="polite"
+                                  aria-label="アクティブな部屋はありません"
+                                  style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.75rem' }}
+                              >
+                                  なし
+                              </span>
                           )}
                 </div>
             </div>

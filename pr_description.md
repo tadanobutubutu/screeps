@@ -1,7 +1,1 @@
-🎯 **What:** The `MissionSystem.createMission` function in `utils.missions.js` was too long and complex, violating the "Long Function" code health metric. This PR extracts input sanitization, memory eviction, and reward hardening logic into three smaller helper functions (`sanitizeInput`, `evictOldMissions`, `hardenReward`).
-
-💡 **Why:** By extracting these cohesive blocks of logic into standalone helper functions, `MissionSystem.createMission` becomes much shorter, easier to read, and simpler to maintain. The intent of each security operation is now clearly encapsulated in its own function.
-
-✅ **Verification:** I ran the isolated test suite (`tests/utils.missions.test.js`) and the full test suite to confirm that no existing functionality or security checks were broken by this refactoring. The code reviewer also verified the safety of the extraction.
-
-✨ **Result:** The `utils.missions.js` codebase is now cleaner, easier to parse visually, and the `createMission` function is significantly shorter while retaining identical behavior.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0000 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-25T13:59:03.647Z"},"status":402}}

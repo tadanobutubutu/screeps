@@ -9,23 +9,23 @@ const indexModule = require('./index');
 // Accessibility: Updated dependencyGraphFunction to use dependencyGraphContent directly
 // with proper accessibility attributes and semantic HTML
 function dependencyGraphFunction() {
-  // ... existing code for rendering the dependency graph ...
-  // ... other code for returning dependencyGraphContent ...
+  const dependencyGraphContent = dependencyGraphModule.render();
   return dependencyGraphContent;
 }
 
 // Accessibility: Updated indexFunction to use indexContent directly
 // with proper accessibility attributes and semantic HTML
 function indexFunction() {
-  // ... existing code for rendering the index view ...
-  // ... other code for returning indexContent ...
+  const indexContent = indexModule.render();
   return indexContent;
 }
 
 // Accessibility: Ensure that lang attribute is added to the document's HTML element
 function ensureLangAttribute() {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  }
 }
 
 // Accessibility: Add <main> landmark to the main content area of each HTML page (unchanged)
@@ -50,15 +50,15 @@ function addMainLandmark() {
 // Accessibility: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // (You will need to implement this function based on the fake links in your project)
 
-// ----- END ORIGINAL CODE -----
-=======
+// ----- END ORIGINAL CODE ----=
+
 /**
  * Adds lang attribute to the HTML element for accessibility
  * @param {string} lang - Language code (default: 'en')
  */
 function addLangAttribute(lang = 'en') {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
 }
@@ -82,7 +82,7 @@ function fixTableStructureIssues() {
     if (firstRow) {
       const cells = firstRow.querySelectorAll('td');
       cells.forEach((cell) => {
-        if (!cell.querySelector('th') && !cell.hasAttribute('headers')) {
+        if (!cell.querySelector('th') && cell.textContent.trim()) {
           const th = document.createElement('th');
           th.textContent = cell.textContent;
           cell.replaceWith(th);
@@ -118,7 +118,7 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && svg.getAttribute('aria-hidden') !== 'true') {
       const title = document.createElement('title');
       title.textContent = `SVG icon ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -165,7 +165,7 @@ function ensureUniqueLandmarks() {
  * Fixes fake link issues by making elements with onclick but no href proper links
  */
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[onclick], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach((element) => {
     if (element.tagName === 'A' && !element.getAttribute('href')) {
       element.setAttribute('role', 'link');
@@ -187,7 +187,6 @@ function initAccessibility() {
   ensureUniqueLandmarks();
   fixFakeLinkIssue();
 }
->>>>>>> origin/main
 
 // Export functions for testing
 module.exports = {
@@ -202,7 +201,6 @@ module.exports = {
   fixFakeLinkIssue,
   initAccessibility,
   handleAccessibilityInsights,
-  addressAccessibilityIssuesFromInsightReport,
   uniqueLandmarksHandler,
   restructureTable
 };

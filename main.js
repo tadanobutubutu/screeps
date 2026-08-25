@@ -197,7 +197,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     if (landmark.label) {
-      landmark.id = landmark.id || `${role}-${landmark.label.replace(/\s+/g, '-').toLowerCase()}`;
+      landmark.id = landmark.id || `${landmark.label.replace(/\s+/g, '-').toLowerCase()}`;
     }
     
     return landmark;

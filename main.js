@@ -97,7 +97,7 @@ function formatDate(date) {
 }
 
 // REACT_015: Add lang attribute to HTML element
-function addLangAttribute(html, lang = 'en') {
+export function addLangAttribute(html, lang = 'en') {
   if (!html) return html;
   const langPattern = /\s*lang\s*=\s*["'][^"']*["']/i;
   if (langPattern.test(html)) {

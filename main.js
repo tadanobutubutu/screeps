@@ -173,7 +173,7 @@ function addressAccessibilityIssues(document) {
   fixFakeLinkIssue(document);
   addProperLandmarkRegions(document);
   addSvgAccessibleNames(document);
-  addressAccessibilityIssues(document);
+  // Removed recursive call to itself: addressAccessibilityIssues(document);
 }
 
 // New function using the imported graphMetrics module
@@ -182,6 +182,8 @@ function calculateGraphMetrics(dependencies) {
   const metrics = graphMetrics.getGraphMetrics(dependencies);
   return metrics;
 }
+
+// TODO: Implement ...
 
 // New function for handling conflict
 function handleConflict() {

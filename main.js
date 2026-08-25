@@ -271,7 +271,7 @@ function getSvgAccessibleName() {
 // Wrap primary content in main element for accessibility
 function wrapPrimaryContentInMain() {
   // Check if a main element already exists
-  let mainElement = document.querySelector('main');
+  let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
   
   if (mainElement) {
     return mainElement;
@@ -297,12 +297,12 @@ function wrapPrimaryContentInMain() {
   // Create main element
   mainElement = document.createElement('main');
   mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
   
-  // Move content into main element (insert in reverse order to maintain position)
-  while (mainContent.length > 0) {
-    const child = mainContent.pop();
+  // Move content into main element preserving original order
+  mainContent.forEach(child => {
     mainElement.appendChild(child);
-  }
+  });
   
   // Insert main element after header if one exists
   const header = body.querySelector('header');

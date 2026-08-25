@@ -96,5 +96,5 @@ Table.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({ /* data structure */ })).isRequired,
 };
 
-export { App, handleRotate, handleRotateBack, Table };
+export { App, Table };
 export default Main;

@@ -39,9 +39,9 @@ const fixTableStructureIssues = function(tables) {
 // Add main landmark (REACT_017)
 const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
-        const hasMainTag = /<main[\s>]/i.test(content);
+        const hasMainTag = /<main/i.test(content);
         if (!hasMainTag) {
-            return content.replace(/<body/i, '<main').replace(/<\/body>/i, '</main>');
+            return content.replace(/<body/i, '<body><main').replace(/<\/body>/i, '</main></body>');
         }
     }
     return content;

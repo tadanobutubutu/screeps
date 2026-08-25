@@ -10,7 +10,7 @@
 
 // Add lang attribute to HTML element (REACT_015)
 const addLangAttribute = function(html) {
-    if (html && typeof html === 'string') {
+    if (html && typeof html === 'string' && !html.includes('lang=')) {
         return html.replace(/<html/, '<html lang="en"');
     }
     return html;
@@ -19,7 +19,7 @@ const addLangAttribute = function(html) {
 // Fix table structure issues (REACT_027)
 const fixTableStructureIssues = function(tables) {
     return tables.map(table => {
-        if (table && typeof table === 'object') {
+        if (table && typeof table === 'object' && !table.querySelector('thead')) {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
@@ -56,11 +56,13 @@ const addSvgAccessibleNames = function(svgs) {
             if (!svg.getAttribute('role')) {
                 svg.setAttribute('role', 'img');
             }
-            const titleElement = svg.querySelector('title');
-            if (titleElement) {
-                const titleId = `svg-title-${index + 1}`;
-                titleElement.id = titleId;
-                svg.setAttribute('aria-labelledby', titleId);
+            if (!svg.getAttribute('aria-labelledby')) {
+                const titleElement = svg.querySelector('title');
+                if (titleElement) {
+                    const titleId = `svg-title-${index + 1}`;
+                    titleElement.id = titleId;
+                    svg.setAttribute('aria-labelledby', titleId);
+                }
             }
         }
         return svg;
@@ -70,6 +72,7 @@ const addSvgAccessibleNames = function(svgs) {
 // Ensure unique landmarks (REACT_025)
 const ensureUniqueLandmarks = function(landmarks) {
     const seenTypes = {};
+    const seenNavCount = { count: 0 };
     landmarks.forEach(landmark => {
         if (landmark && typeof landmark === 'object') {
             const type = landmark.tagName ? landmark.tagName.toLowerCase() : '';
@@ -79,9 +82,8 @@ const ensureUniqueLandmarks = function(landmarks) {
                 if (type === 'nav') {
                     const label = landmark.getAttribute('aria-label');
                     if (!label) {
-                        const count = (seenTypes[role + '_count'] || 0) + 1;
-                        seenTypes[role + '_count'] = count;
-                        landmark.setAttribute('aria-label', `Navigation ${count}`);
+                        seenNavCount.count += 1;
+                        landmark.setAttribute('aria-label', `Navigation ${seenNavCount.count}`);
                     }
                 }
             }
@@ -113,7 +115,6 @@ const fixFakeLinkIssue = function(elements) {
 const renderDependencyGraph1 = function() {
     // Your implementation here
 };
-
 const renderDependencyGraph2 = function() {
     // Your implementation here
 };

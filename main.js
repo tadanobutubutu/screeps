@@ -235,6 +235,14 @@ function fixFakeLinkIssue() {
     });
 }
 
+// Function to fix the missing lang attribute on the <html> element
+function fixHtmlLangAttribute() {
+    const html = document.querySelector('html');
+    if (html && !html.getAttribute('lang')) {
+        html.setAttribute('lang', 'en');
+    }
+}
+
 export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,
@@ -254,5 +262,6 @@ export {
     createInPageButton,
     createAccessibleLink,
     wrapPrimaryContentInMain,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    fixHtmlLangAttribute
 };

@@ -52,7 +52,7 @@ function debounce(func, wait) {
   };
 }
 
-// Export all public functions
+// Add the following export to address the issue
 module.exports = {
   getVersion,
   getConfig,

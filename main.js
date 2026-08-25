@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 // Placeholder icons object for exports
 const icons = {};
 
+const { createIcon } = require('./iconCreator'); // Import the createIcon function from iconCreator file
+
 // Helper function to render an accessible SVG with a title
 const renderAccessibleSVG = (id, title, children) => (
   <svg aria-labelledby={id} role="img" width="100" height="100">
@@ -66,19 +68,23 @@ const App = () => {
 // Fixed: Changed <a id="unrotate" href="#"> to <button id="unrotate">
 // to fix REACT_036 React Fake Link accessibility warning
 
-// If this is rendered in HTML directly, change:
-// <a id="unrotate" href="#">rotate back</a>
-// to:
-// <button id="unrotate">rotate back</button>
-
 // If main.js contains code that generates this HTML, here's the fix:
 const generateRotateBackControl = () => {
   // Before (accessibility issue):
   // return '<a id="unrotate" href="#">rotate back</a>';
-  
+
   // After (accessible fix):
   return '<button id="unrotate">rotate back</button>';
 };
+
+// If needed, create an icon for use in the renderAccessibleSVG function
+const createIconForTest = () => createIcon({
+  id: 'test-icon',
+  title: 'Test Icon',
+  children: (
+    <circle cx="50" cy="50" r="40" />
+  ),
+});
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
@@ -108,6 +114,7 @@ export {
   renderLandmarkStructure,
   generateRotateBackControl,
   setupRotateBack,
+  createIconForTest, // Add this new export for the createIconForTest function
 };
 
 // Add the lang attribute to the root HTML element

@@ -1,3 +1,5 @@
+Looking at the conflict, the HEAD side contains the full file content while the `origin/main` side is empty (just a request for the file content). I need to keep the HEAD content as the resolved version.
+
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import JSDOM from "jsdom";

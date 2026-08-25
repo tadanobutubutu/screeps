@@ -37,4 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Call the function to wrap the primary content
   wrapPrimaryContentWithMain();
+
+  // New function requested in the issue
+  function newFunction() {
+    console.log('New function executed.');
+  }
+
+  // Example usage of the new function
+  newFunction();
 });

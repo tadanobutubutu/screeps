@@ -31,8 +31,6 @@ const renderLandmarkStructure = () => (
   </div>
 );
 
-// ... (existing code and logic)
-
 // Add the new function to create and render landmark regions
 const renderLandmarkRegions = () => (
   <aside aria-label="Landmarks">
@@ -61,5 +59,3 @@ export {
   App,
   renderLandmarkRegions, // Add this new export for the renderLandmarkRegions function
 };
-
-// ... (existing code)

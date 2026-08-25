@@ -99,15 +99,20 @@ function fixFakeLinkIssue(linkElement) {
   }
 }
 
-// FUNCTION TO FIX TABLE STRUCTURE
-function fixTableStructure() {
-  // Add table headers to table rows with corresponding data cells
-  const tableRows = document.querySelectorAll('tr:nth-child(even):not(:first-child) td');
-  tableRows.forEach((cell, index) => {
-    const heading = cell.parentNode.querySelector('th');
-    if (heading) {
-      heading.id = `heading-${index}`;
-      cell.innerHTML = heading.innerText;
+// ADD THE FUNCTION TO HANDLE UNIQUE LANDMARK NAMES (For REACT_025)
+function ensureUniqueLandmarkNames() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  const landmarkNames = new Set();
+
+  landmarks.forEach((landmark) => {
+    const landmarkName = landmark.getAttribute('aria-label');
+
+    if (landmarkName && !landmarkNames.has(landmarkName)) {
+      landmarkNames.add(landmarkName);
+    } else {
+      // Generate a unique id and add to the landmark
+      const id = Math.floor(Math.random() * 100000);
+      landmark.setAttribute('aria-label', `${landmarkName} - ${id}`);
     }
   });
 }
@@ -121,5 +126,5 @@ export {
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
-  fixTableStructure, // ADDING back the previously removed export
+  ensureUniqueLandmarkNames // ADDING new function for REACT_025
 };

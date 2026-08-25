@@ -41,11 +41,44 @@ function addAllTableHeadersScope() {
   });
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
+// Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssuesFromInsightReport() {
-  // Placeholder implementation
-  // This function should be implemented based on the insight report
+  // Apply accessibility fixes to SVGs
+  addAllSvgAccessibleNames();
+  
+  // Apply accessibility fixes to table headers
+  addAllTableHeadersScope();
+  
+  // Fix images missing alt attributes
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+    }
+  });
+  
+  // Ensure form inputs have associated labels
+  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])');
+  inputs.forEach(input => {
+    const id = input.id;
+    if (id) {
+      const label = document.querySelector(`label[for="${id}"]`);
+      if (!label && !input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+        console.warn(`Input with id="${id}" is missing an associated label`);
+      }
+    }
+  });
+  
+  // Check for proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headingLevels = Array.from(headings).map(h => parseInt(h.tagName.charAt(1)));
+  
+  for (let i = 1; i < headingLevels.length; i++) {
+    if (headingLevels[i] - headingLevels[i - 1] > 1) {
+      console.warn(`Heading hierarchy issue: skipping from h${headingLevels[i - 1]} to h${headingLevels[i]}`);
+    }
+  }
+  
   console.log('Addressing accessibility issues from insight report');
 }
 

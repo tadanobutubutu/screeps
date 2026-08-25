@@ -7,8 +7,44 @@ import ReactDOM from 'react-dom';
 const getLangAttribute = () => {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    return ...
+    return htmlElement.getAttribute('lang');
   }
+  return null;
+};
+
+// Function to get SVG accessible name
+const getSvgAccessibleName = (svgElement) => {
+  if (!svgElement || typeof document === 'undefined') {
+    return null;
+  }
+  
+  // Check for aria-labelledby attribute
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent;
+    }
+  }
+  
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for title element inside the SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+  
+  // Check for desc element inside the SVG
+  const descElement = svgElement.querySelector('desc');
+  if (descElement && descElement.textContent) {
+    return descElement.textContent;
+  }
+  
   return null;
 };
 
@@ -21,7 +57,7 @@ const validateLandmarkStructure = () => {
 
   if (typeof document !== 'undefined') {
     // Check for main landmark (should have exactly one)
-    const mainElements = document.querySelectorAll('main, [role="main"]');
+    const mainElements = document.querySelectorAll('[role="main"]');
     if (mainElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing main landmark - page should have exactly one main element');
@@ -31,28 +67,28 @@ const validateLandmarkStructure = () => {
     }
 
     // Check for header landmark
-    const headerElements = document.querySelectorAll('header, [role="banner"]');
+    const headerElements = document.querySelectorAll('[role="banner"]');
     if (headerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing header landmark - page should have at least one header element');
     }
 
     // Check for footer landmark
-    const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+    const footerElements = document.querySelectorAll('[role="contentinfo"]');
     if (footerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing footer landmark - page should have at least one footer element');
     }
 
     // Check for nav landmark
-    const navElements = document.querySelectorAll('nav, [role="navigation"]');
+    const navElements = document.querySelectorAll('nav');
     if (navElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing nav landmark - page should have at least one nav element');
     }
 
     // Check for aside (complementary landmark)
-    const asideElements = document.querySelectorAll('aside, [role="complementary"]');
+    const asideElements = document.querySelectorAll('aside');
     if (asideElements.length > 1) {
       results.valid = false;
       results.errors.push('Multiple aside landmarks found - should have at most one');
@@ -61,7 +97,7 @@ const validateLandmarkStructure = () => {
     // Check for form landmarks with labels
     const formElements = document.querySelectorAll('form');
     formElements.forEach((form, index) => {
-      const hasLabel = form.querySelector('label, legend');
+      const hasLabel = form.querySelector('legend');
       const hasAriaLabel = form.getAttribute('aria-label') || form.getAttribute('aria-labelledby');
       if (!hasLabel && !hasAriaLabel) {
         results.valid = false;
@@ -70,7 +106,7 @@ const validateLandmarkStructure = () => {
     });
 
     // Check for search landmark
-    const searchElements = document.querySelectorAll('[role="search"], input[type="search"]');
+    const searchElements = document.querySelectorAll('[role="search"]');
     if (searchElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing search landmark - consider adding a search form');
@@ -89,24 +125,24 @@ const validateLandmark = () => {
 
   if (typeof document !== 'undefined') {
     // Check for main landmark (should have exactly one)
-    const mainElements = ...
+    const mainElements = document.querySelectorAll('[role="main"]');
     if (mainElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing main landmark - page should have exactly one main element');
     } else if (mainElements.length > 1) {
       results.valid = false;
-      results.errors.push(`Multiple main landmarks found - should have exactly one (found ...
+      results.errors.push(`Multiple main landmarks found - should have exactly one (found ${mainElements.length})`);
     }
 
     // Check for header landmark
-    const headerElements = ...
+    const headerElements = document.querySelectorAll('[role="banner"]');
     if (headerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing header landmark - page should have at least one header element');
     }
 
     // Check for footer landmark
-    const footerElements = ...
+    const footerElements = document.querySelectorAll('[role="contentinfo"]');
     if (footerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing footer landmark - page should have at least one footer element');
@@ -124,7 +160,7 @@ const validateTableStructure = () => {
   };
 
   if (typeof document !== 'undefined') {
-    const tables = ...
+    const tables = document.querySelectorAll('table');
 
     tables.forEach((table, index) => {
       const ths = table.querySelectorAll('thead th');
@@ -160,7 +196,7 @@ const Root = () => {
 
   // Add new validateTableStructure function validation
   const tableStructureError = validateTableStructure();
-  if ... {
+  if (!tableStructureError.valid) {
     console.error(tableStructureError.errors);
   }
 
@@ -174,7 +210,7 @@ const Root = () => {
     <html lang="en">
       {/* Other JSX elements... */}
       <main>
-        <button id="unrotate" aria-label="Rotate back button" ... type="button">
+        <button id="unrotate" aria-label="Rotate back button" type="button">
           rotate back
         </button>
         {/* Example usage of new function */}
@@ -186,6 +222,6 @@ const Root = () => {
   );
 };
 
-export { Root, handleRotateBack, newFunction, getLangAttribute, validateLandmark, validateLandmarkStructure, validateTableAccessibility };
+export { Root, handleRotateBack, newFunction, getLangAttribute, validateLandmark, validateLandmarkStructure, validateTableAccessibility, getSvgAccessibleName };
 
-ReactDOM.render(<Root />, ...);
+ReactDOM.render(<Root />, document.getElementById('root'));

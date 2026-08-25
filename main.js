@@ -26,7 +26,7 @@ function fixTableStructureIssues() {
     if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('th');
+        const headers = firstRow.querySelectorAll('th, td');
         const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
@@ -62,7 +62,7 @@ function addMainLandmark() {
     main.id = 'main-content';
     const content = document.querySelector('.content') || document.body;
     if (content) {
-      main.appendChild(content.cloneNode(true));
+      document.body.insertBefore(main, content);
       content.remove();
     }
   } else {
@@ -115,7 +115,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main');
+  const mainLandmarks = document.querySelectorAll('main[role="main"]');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -139,7 +139,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"], a[href][href="#"], a[href][href=""]');
+  const fakeLinks = document.querySelectorAll('a[href][href="#"], a[href][href=""]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

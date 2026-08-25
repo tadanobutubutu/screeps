@@ -11,13 +11,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.getAttribute('aria-label')) {
+  if (node.hasAttribute && node.hasAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
-  if (node.getAttribute('aria-labelledby')) {
+  if (node.hasAttribute && node.hasAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = node.ownerDocument.getElementById(labelledById);
+    const labelledElement = node.ownerDocument ? node.ownerDocument.getElementById(labelledById) : null;
     return labelledElement ? labelledElement.textContent : null;
   }
 
@@ -27,7 +27,7 @@ const getAccessibleName = (node) => {
     }
   }
 
-  const titleEl = node.querySelector('title');
+  const titleEl = node.querySelector ? node.querySelector('title') : null;
   if (titleEl && titleEl.textContent) {
     return titleEl.textContent;
   }
@@ -77,19 +77,19 @@ const fixTableStructure = (document) => {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
 
     if (!table.querySelector('tbody')) {
       const tbodies = table.querySelectorAll('tbody');
-      tbodies.forEach((tbody) => {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+      table.querySelectorAll('tr').forEach((row) => {
+        const rows = table.querySelectorAll('tr');
         if (rows.length > 0) {
           const newTbody = document.createElement('tbody');
           rows.forEach((row) => newTbody.appendChild(row));
-          tbody.parentNode.replaceChild(newTbody, tbody);
+          table.appendChild(newTbody);
         }
       });
     }
@@ -128,10 +128,10 @@ const addMainLandmark = (document) => {
 };
 
 const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-label])');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -147,8 +147,42 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
+  // First, handle multiple <main> elements by converting extras to <section>
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    // Keep only the first main, convert others to section
+    for (let i = 1; i < mains.length; i++) {
+      const main = mains[i];
+      const innerHTML = main.innerHTML;
+      const section = document.createElement('section');
+      Array.from(main.attributes).forEach(attr => {
+        section.setAttribute(attr.name, attr.value);
+      });
+      // Update id to avoid duplicates
+      if (section.id) {
+        section.id = `section-${i + 1}`;
+      }
+      section.innerHTML = innerHTML;
+      main.parentNode.replaceChild(section, main);
+    }
+  }
+
+  // Process all landmark types for unique IDs
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const roleSelectors = {
+      'banner': '[role="banner"]',
+      'navigation': '[role="navigation"]',
+      'main': 'main',
+      'contentinfo': '[role="contentinfo"]',
+      'complementary': '[role="complementary"]',
+      'search': '[role="search"]'
+    };
+
+    const selector = roleSelectors[role];
+    const elements = selector ? document.querySelectorAll(selector) : [];
+
+    if (elements.length === 0) return;
+
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -187,8 +221,9 @@ const fixFakeLinkIssue = (document) => {
     if (href && !link.textContent.trim()) {
       const accessibleName = getAccessibleName(link);
       if (!accessibleName) {
-        if (link.getAttribute('aria-label')) {
-          link.setAttribute('aria-label', link.getAttribute('aria-label'));
+        if (link.querySelector('img')) {
+          const img = link.querySelector('img');
+          link.setAttribute('aria-label', img.alt || 'Link');
         } else if (link.title) {
           link.setAttribute('aria-label', link.title);
         } else {

@@ -47,52 +47,36 @@ function addLangAttribute(filePath) {
   console.log(`Added lang attribute to HTML element in ${filePath}`);
 }
 
-function fixTableStructure(filePath) {
-  const fs = require('fs');
-  let content = fs.readFileSync(filePath, 'utf8');
-  // Fix table structure: ensure tables have proper thead/tbody
-  const tableRegex = /<table\b([^>]*)>([\s\S]*?)<\/table>/gi;
-  const updatedContent = content.replace(tableRegex, (match, attrs, inner) => {
-    let fixed = inner;
-    // Fix th elements to have scope attribute
-    fixed = fixed.replace(/<th\b([^>]*)>/gi, (thMatch, thAttrs) => {
-      if (thAttrs.match(/scope=/i)) {
-        return thMatch;
-      }
-      return '<th scope="col"' + thAttrs + '>';
-    });
-    // Add thead if not present
-    if (!fixed.includes('<thead')) {
-      fixed = fixed.replace(/(<tr\b[^>]*>[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
-    }
-    // Add tbody if not present
-    if (!fixed.includes('<tbody')) {
-      const theadEnd = fixed.indexOf('</thead>');
-      if (theadEnd !== -1) {
-        fixed = fixed.substring(0, theadEnd + 8) + '<tbody>' + fixed.substring(theadEnd + 8) + '</tbody>';
-      }
-    }
-    return `<table${attrs}>${fixed}</table>`;
-  });
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Fixed table structure issues in ${filePath}`);
-}
+// Add new functions here for REACT_017 and REACT_025
 
-function addMainLandmark(filePath) {
+function addLandmarkRole(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Add main landmark if not present
-  if (!content.includes('<main') || !content.includes('</main>')) {
-    // Wrap main content in <main> tag
-    const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-    if (bodyMatch) {
-      const bodyContent = bodyMatch[1];
-      const wrappedContent = `<main role="main">${bodyContent}</main>`;
-      content = content.replace(bodyContent, wrappedContent);
+
+  // Add landmark roles to elements based on their tags
+  const landmarkMap = {
+    header: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    nav: ['nav'],
+    main: ['main'],
+    footer: ['footer'],
+    aside: ['aside'],
+    banner: ['header'],
+    contentInfo: ['article', 'section'],
+    complementary: ['footer', 'aside'],
+    form: ['form']
+  };
+
+  for (const [landmark, elementTypes] of Object.entries(landmarkMap)) {
+    const elementRegex = new RegExp(`<(${elementTypes.join('|')})([^>]*)>`, 'gi');
+    let match;
+
+    while ((match = elementRegex.exec(content)) !== null) {
+      content = content.replace(match[0], `<${match[1].trim()} role="${landmark}"${match[0].substring(match[0].indexOf('>'))}}`);
     }
   }
+
   fs.writeFileSync(filePath, content);
-  console.log(`Added main landmark in ${filePath}`);
+  console.log(`Added landmark roles to ${filePath}`);
 }
 
 function ensureUniqueLandmarks(filePath) {
@@ -144,69 +128,54 @@ function ensureUniqueLandmarks(filePath) {
   console.log(`Ensured unique landmarks in ${filePath}`);
 }
 
-function addSvgAccessibleNames(filePath) {
+// (New functions for REACT_017 and REACT_025 end here)
+
+function fixTableStructure(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Add accessible names to SVGs
-  const svgRegex = /<svg([^>]*)>/gi;
-  let svgIndex = 0;
-  let updatedContent = content;
-
-  let match;
-  let idx = 0;
-
-  while ((match = svgRegex.exec(content)) !== null) {
-    idx = match.index;
-    updatedContent = updatedContent.substring(0, idx + match[0].length) + `<svg role="img" aria-label="SVG image ${svgIndex}"${match[1]}>` + updatedContent.substring(idx + match[0].length);
-    svgIndex++;
-  }
-
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added accessible names to SVGs in ${filePath}`);
-}
-
-function addAltAttribute(filePath) {
-  const fs = require('fs');
-  let content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('alt=')) {
-      return match;
+  // Fix table structure: ensure tables have proper thead/tbody
+  const tableRegex = /<table\b([^>]*)>([\s\S]*?)<\/table>/gi;
+  const updatedContent = content.replace(tableRegex, (match, attrs, inner) => {
+    let fixed = inner;
+    // Fix th elements to have scope attribute
+    fixed = fixed.replace(/<th\b([^>]*)>/gi, (thMatch, thAttrs) => {
+      if (thAttrs.match(/scope=/i)) {
+        return thMatch;
+      }
+      return '<th scope="col"' + thAttrs + '>';
+    });
+    // Add thead if not present
+    if (!fixed.includes('<thead')) {
+      fixed = fixed.replace(/(<tr\b[^>]*>[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
     }
-    return `<img alt="Description of image"${attrs}`;
+    // Add tbody if not present
+    if (!fixed.includes('<tbody')) {
+      const theadEnd = fixed.indexOf('</thead>');
+      if (theadEnd !== -1) {
+        fixed = fixed.substring(0, theadEnd + 8) + '<tbody>' + fixed.substring(theadEnd + 8) + '</tbody>';
+      }
+    }
+    return `<table${attrs}>${fixed}</table>`;
   });
   fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
+  console.log(`Fixed table structure issues in ${filePath}`);
 }
 
-function replaceButtonId(filePath, newButtonId) {
+function addMainLandmark(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-
-  // Replace my-button with the actual button id
-  const buttonIdRegex = /id=["']my-button["']/gi;
-  let match;
-
-  // Replace id attributes
-  const updatedContent = content.replace(buttonIdRegex, (match) => {
-    return `id="${newButtonId}"`;
-  });
-
-  // Also replace any references in aria-controls, aria-labelledby, etc.
-  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
-  const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
-    return `${attr}="${newButtonId}"`;
-  });
-
-  // Replace data attributes if any
-  const dataRefRegex = /data-target=["']my-button["']/gi;
-  const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
-    return `data-target="${newButtonId}"`;
-  });
-
-  fs.writeFileSync(filePath, finalFinalContent);
-  console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${countReplacements} replacement(s) made)`);
-
-  return countReplacements;
+  // Add main landmark if not present
+  if (!content.includes('<main') || !content.includes('</main>')) {
+    // Wrap main content in <main> tag
+    const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    if (bodyMatch) {
+      const bodyContent = bodyMatch[1];
+      const wrappedContent = `<main role="main">${bodyContent}</main>`;
+      content = content.replace(bodyContent, wrappedContent);
+    }
+  }
+  fs.writeFileSync(filePath, content);
+  console.log(`Added main landmark in ${filePath}`);
 }
 
 function addressAccessibilityIssues(reportPath) {
@@ -244,9 +213,8 @@ function addressAccessibilityIssues(reportPath) {
           case 'button_id':
             replaceButtonId(issue.file, issue.newButtonId || 'action-button');
             break;
-          // ... (these cases were here previously)
-          case 'new_issue_type':
-            // Implementation for the new issue type goes here
+          case 'landmark_role':
+            addLandmarkRole(issue.file);
             break;
           default:
             console.log(`Unknown issue type: ${issue.type}`);
@@ -299,6 +267,7 @@ module.exports = {
   addSvgAccessibleNames,
   addAltAttribute,
   replaceButtonId,
+  addLandmarkRole,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
   renderDependencyGraph

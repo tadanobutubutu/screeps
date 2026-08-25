@@ -1,6 +1,12 @@
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
-document.documentElement.setAttribute('lang', 'en');
+function setHtmlLangAttribute() {
+    const html = document.querySelector('html');
+    if (html) {
+        html.setAttribute('lang', 'en');
+    }
+}
+setHtmlLangAttribute();
 
 // Function to add accessible names to SVGs
 // You can refactor and improve it based on the SVG structure in your project
@@ -11,13 +17,18 @@ function addSvgAccessibleNames(svg) {
         console.error('Missing required SVG tags: title or desc');
         return;
     }
-    svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
+    const accessibleName = `${svgTitle.textContent} ${svgDesc.textContent}`;
+    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('role', 'img');
+    return accessibleName;
 }
 
 // Function to find all SVG elements on the page and add accessible names
 function addAllSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach(addSvgAccessibleNames);
+    svgs.forEach(svg => {
+        addSvgAccessibleNames(svg);
+    });
 }
 
 // Function to add scope attribute to th elements for accessibility
@@ -37,7 +48,7 @@ function addAllTableHeadersScope() {
 }
 
 // Function to implement addressing accessibility issues from insight report
-function addressAccessibilityIssuesFromInsightReport() {
+function addressAccessibilityIssues() {
     // The implementation will depend on the insight report details
     // As an example, let's assume the report suggests adding labels to inputs
     const inputs = document.querySelectorAll('input');
@@ -45,7 +56,8 @@ function addressAccessibilityIssuesFromInsightReport() {
         const label = document.createElement('label');
         label.htmlFor = input.id;
         label.textContent = 'Input description';
-        input.parentNode.insertBefore(label, input);
+        document.body.appendChild(label);
+        input.setAttribute('aria-describedby', label.id);
     });
 }
 
@@ -89,4 +101,4 @@ function addProperLandmarkRegions() {
 }
 
 // Export the new functions
-export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssuesFromInsightReport, fixTableStructureIssues, addProperLandmarkRegions };
+export { addAllSvgAccessibleNames, addAllTableHeadersScope, addressAccessibilityIssues, fixTableStructureIssues, addProperLandmarkRegions };

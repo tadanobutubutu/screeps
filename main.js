@@ -1,14 +1,3 @@
-// Original main.js content
-export function rotateBack() {
-  // existing code for rotateBack function
-}
-
-// Changes requested to resolve the issue
-export function rotateBack() {
-  // existing code for rotateBack function
-  // Add an event listener for the button click if needed
-}
-
-// Replace the <a> tag with a <button> in the HTML file
-// Example:
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+// main.js - Entry point for the application
+// This file is intentionally minimal as the REACT_015 issue pertains to docs/dependency-graph.html
+// The HTML lang attribute fix should be applied to docs/dependency-graph.html, not this JavaScript file.

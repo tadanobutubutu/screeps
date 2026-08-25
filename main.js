@@ -1,21 +1,19 @@
-// Assuming you have a component that renders the primary content
+// Address accessibility issues from insight report
+// TODO-hash: 4960bda783623b568ecb422d6e6eb9ceac6573ea
 import React from 'react';
 
 // Example component that renders the primary content
 const PrimaryContent = () => {
   return (
-    <div className="primary-content">
+    <div>
       {/* Your primary content goes here */}
-      <h1>Example Title</h1>
+      <h1 id="main-title">Example Title</h1>
       <p>Example paragraph of primary content...</p>
 
-      // Adding an ARIA Landmark to the primary content for better accessibility
-      <div aria-labelledby="primaryContentTitle" role="region">
+      {/* Adding an ARIA Landmark to the primary content for better accessibility */}
+      <div role="region" aria-labelledby="region-title">
         {/* Render other accessibility-related components as needed */}
       </div>
-
-      // Create an ID for the main title to be used as an `aria-labelledby` reference
-      <h1 id="primaryContentTitle">Example Title</h1>
     </div>
   );
 };
@@ -23,7 +21,7 @@ const PrimaryContent = () => {
 // Your main component that will render the primary content wrapped in <main>
 const MainComponent = () => {
   return (
-    <main>
+    <main aria-labelledby="main-title">
       <PrimaryContent />
     </main>
   );

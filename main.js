@@ -7,6 +7,18 @@ export const findIndex = (array, id) => {
   return array.findIndex(item => item.id === id);
 };
 
+export const filterLandmarks = (query) => {
+  return originalFilterLandmarks(query);
+};
+
+export const sortLandmarksByName = () => {
+  return originalSortLandmarksByName();
+};
+
+export const someFunctionREACT_027 = (param) => {
+  return originalSomeFunctionREACT_027(param); // Call the original function
+};
+
 export const addRequiredLandmarks = () => {
   // Implementation based on insight report
   // Example placeholder:
@@ -17,27 +29,19 @@ export const addRequiredLandmarks = () => {
   // });
 };
 
-// Utility to fix table structure (REACT_027)
-export const fixTableStructure = () => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      table.insertBefore(thead, table.firstChild);
-    }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      table.appendChild(tbody);
-    }
-    const tbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(row => {
-      if (row.parentNode !== tbody && row.parentNode.tagName !== 'THEAD') {
-        tbody.appendChild(row);
-      }
-    });
-  });
-};
+// Jest mock for testing purposes
+const overrideFindIndex = jest.fn().mockImplementation((array, id) => {
+  // Add test-specific implementation here if needed
+  // For example:
+  // return array.findIndex((item) => item.someProperty === 'testValue');
+  return originalFindIndex(array, id); // Call the original function when not overriding
+});
+
+jest.mock('./utils', () => ({
+  // Override the existing findIndex function with the mock when running tests
+  ...jest.requireActual('./utils'),
+  findIndex: overrideFindIndex,
+}));
 
 // Context creation (unchanged)
 export const MainContext = createContext(undefined);
@@ -55,19 +59,22 @@ export const MainComponent = () => {
   };
 
   return (
-    // ... existing JSX
-    <Searchbar placeholder="Search landmarks" onChange={handleSearch} />
-    // ... existing JSX
+    <>
+      <LandmarkContext.Provider value={landmarks}>
+        {/* ... existing JSX */}
+        <Searchbar placeholder="Search landmarks" onChange={handleSearch} />
+        {/* ... existing JSX */}
+      </LandmarkContext.Provider>
+    </>
   );
 };
 
 // Exports
 module.exports = {
   findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
+  filterLandmarks,
+  sortLandmarksByName,
   addRequiredLandmarks,
-  fixTableStructure,
   MainComponent,
   MainContext,
   getLandmarks,

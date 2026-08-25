@@ -1,1 +1,14 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Address accessibility issues from insight report
+
+(function() {
+  'use strict';
+
+  const submitBtn = document.getElementById('submit-btn');
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Handle submission
+    });
+  }
+})();

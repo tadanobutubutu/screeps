@@ -23,10 +23,18 @@ document.documentElement.setAttribute('lang', 'en');
 // For example, replace invisible links with visible text links:
 // <a href="https://example.com" aria-label="Go to example.com">Visit example.com</a>
 
+// Importing the required module
+import { calculateTotal } from './calculationModule';
+
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js
+
 // Example of a new function that could be exported
 function newFunction() {
   console.log('This is a new function exported from main.js');
 }
 
+// Exporting the new function
 export { newFunction };
+
+// Exporting the function from the imported module
+export { calculateTotal };

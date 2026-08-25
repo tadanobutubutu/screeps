@@ -1,13 +1,13 @@
 const { getHTML } = require('./utils');
-const { processDOM } = require('./dom-manipulation');
+const { processDOM } = require('./utils');
 
 // Existing functions
 function addLangAttribute() {
-  processDOM(getHTML('setLangAttribute'), { lang: 'en' });
+  // ... { lang: 'en' });
 }
 
-function handleButtonClick(buttonId) {
-  const button = document.getElementById(buttonId);
+function handleButtonClick() {
+  const button = document.querySelector('.dropdown-toggle');
   if (button) {
     const isExpanded = button.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
     button.setAttribute('aria-expanded', isExpanded);
@@ -15,11 +15,11 @@ function handleButtonClick(buttonId) {
 }
 
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(fakeLink => {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
-      a.href = fakeLink.dataset.href || fakeLink.getAttribute('href') || '#';
+      a.href = fakeLink.dataset.href || fakeLink.getAttribute('data-href') || '#';
       a.textContent = fakeLink.textContent;
       a.setAttribute('role', 'button');
       Array.from(fakeLink.attributes).forEach(attr => {
@@ -53,23 +53,23 @@ function addProperLandmarkRegions() {
     addLandmarkRegions();
   }
 
-  const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.body;
+  const contentContainer = document.querySelector('article') || document.querySelector('.content') || document.body;
 
   if (!contentContainer.closest('main, [role="main"], header[role="banner"]')) {
     if (contentContainer === document.body) {
       addLandmarkRegions();
     } else {
-      const mainElementOrBanner = document.createElement('main');
+      const mainElementOrBanner = contentContainer.parentElement;
+      contentContainer.insertAdjacentElement('beforebegin', mainElementOrBanner);
       mainElementOrBanner.setAttribute('role', 'main');
-      contentContainer.appendChild(mainElementOrBanner);
     }
   }
 
   if (!existingMains.length && !existingBanners.length) {
     while (contentContainer.firstChild) {
-      contentContainer.firstChild.closest('main, [role="main"], header[role="banner"]').appendChild(contentContainer.firstChild);
+      contentContainer.parentElement.insertBefore(contentContainer.firstChild, contentContainer);
     }
-    contentContainer.appendChild(contentContainer.closest('main, [role="main"], header[role="banner"]'));
+    contentContainer.parentElement.prepend(document.createElement('main'), document.createElement('header[role="banner"]'));
   }
 }
 
@@ -80,11 +80,18 @@ module.exports = {
   fixFakeLinks,
   ensureUniqueLandmarks,
   addLandmarkRegions,
-  addProperLandmarkRegions, // NEW EXPORT
+  addProperLandmarkRegions,
+  // Export required functions from another file
+  getHTML,
+  processDOM,
 };
 
 // Add the function to be completed (TODO comment)
-// function addAnyRequiredExports() {
-//   // TODO: Add any required exports that might have been removed
-//   // Example of how to export a required function from another file
-// }
+function exportRequiredFunctions() {
+  // TODO: Add any required exports that might have been removed
+  // Example of how to export a required function from another file
+  
+  // Export getHTML and processDOM from utils
+  module.exports.getHTML = getHTML;
+  module.exports.processDOM = processDOM;
+}

@@ -6,31 +6,33 @@ import indexContent from './indexContent';
 document.documentElement.lang = 'en'; // Set lang attribute based on page content
 
 // Add landmark roles for main and footer
-const main = ...
+const main = document.querySelector('main');
 if (main) {
   main.setAttribute('role', 'main');
 }
 
-const footer = ...
+const footer = document.querySelector('footer');
 if (footer) {
   footer.setAttribute('role', 'contentinfo');
 }
 
 // Fix fake link issue and ensure unique landmarks
 const links = document.links;
-const uniqueId = 0;
+let uniqueId = 0;
 for (let link of links) {
   if (link.hash === '') {
     link.setAttribute('aria-label', 'Link to ' + link.textContent);
-    link.setAttribute('id', ...
+    link.setAttribute('id', 'unique-link-' + uniqueId);
+    uniqueId++;
   }
 }
 
 // Add accessible names to 2 SVGs
-const svgs = ...
+const svgs = document.querySelectorAll('svg');
 for (let svg of svgs) {
-  if ... {
-    ... svg.getAttribute('data-testid'));
+  const testId = svg.getAttribute('data-testid');
+  if (testId) {
+    svg.setAttribute('aria-label', testId);
   }
 }
 
@@ -38,10 +40,10 @@ for (let svg of svgs) {
 return (
   <div className="app">
     <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
-      <div ... __html: dependencyGraphContent }} />
+      <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
     </div>
     <main id="main-content" className="content" role="main">
-      <div ... __html: indexContent }} />
+      <div dangerouslySetInnerHTML={{ __html: indexContent }} />
     </main>
     <footer id="footnotes" className="footnotes" role="contentinfo">
       {/* Existing footer content */}
@@ -50,6 +52,8 @@ return (
 );
 
 // Assume existing exports and functions are preserved
-export default function MyApp() {
+export default MyApp;
+
+function MyApp() {
   // ... (Existing code)
 }

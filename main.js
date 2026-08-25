@@ -1,5 +1,8 @@
 // ... existing imports and declarations ...
 
+// TODO: Add back any required exports that might have been?
+// Restoring previously removed exports below
+
 // FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 function fixAccessibilityIssues() {
   // Add lang attribute to the root HTML element
@@ -46,9 +49,6 @@ function addSvgAltText(svgElement) {
 
   return svgElement;
 }
-
-// ADD THE FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
-fixAccessibilityIssues();
 
 // FUNCTION TO ADD LANG ATTRIBUTE
 function addLangAttribute(element) {
@@ -99,6 +99,19 @@ function fixFakeLinkIssue(linkElement) {
   }
 }
 
+// FUNCTION TO FIX TABLE STRUCTURE
+function fixTableStructure() {
+  // Add table headers to table rows with corresponding data cells
+  const tableRows = document.querySelectorAll('tr:nth-child(even):not(:first-child) td');
+  tableRows.forEach((cell, index) => {
+    const heading = cell.parentNode.querySelector('th');
+    if (heading) {
+      heading.id = `heading-${index}`;
+      cell.innerHTML = heading.innerText;
+    }
+  });
+}
+
 export {
   addLangAttribute,
   fixTableStructure,
@@ -108,4 +121,5 @@ export {
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
+  fixTableStructure, // ADDING back the previously removed export
 };

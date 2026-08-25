@@ -2,14 +2,12 @@
 const graphMetrics = require('./graph-metrics');
 
 // Button ID constant for accessibility
-// TODO: Address accessibility issues from insight report: in main.js (Replace `my-button` with the actual button id)
 const BUTTON_ID = 'graph-metrics-button';
 
 // ... existing code
 
 // ... existing exports
 
-// TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -48,7 +46,7 @@ function handleConflictMarkers() {
 module.exports = {
   calculateGraphMetrics,
   handleConflict,
-  handleConflictMarkers,  // Added the new function for handleConflictMarkers
+  handleConflictMarkers,
   BUTTON_ID,
   // ... existing exports
 };

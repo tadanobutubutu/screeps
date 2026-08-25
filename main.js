@@ -58,27 +58,35 @@ function addMainLandmark() {
   const mainContentSelector = 'div.container'; // This selector should be updated to match the actual main content container
   const mainContent = document.querySelector(mainContentSelector);
   if (mainContent) {
-    mainContent.insertAdjacentHTML('afterbegin', '<main></main>');
-    mainContent.insertBefore(mainContent.firstChild, [PERSON_NAME]);
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    while (mainContent.firstChild) {
+      mainElement.appendChild(mainContent.firstChild);
+    }
+    mainContent.insertBefore(mainElement, mainContent.firstChild);
   }
 }
 
 // Call the function to add <main> landmark to each page (unchanged)
-[ADDRESS]();
+addMainLandmark();
 
 // Accessibility: Add lang attribute to HTML element (DONE: addLangAttribute)
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Example value; should be set to the actual language of the content
+  }
 }
 
 // Accessibility: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 function addSvgAccessibleNames() {
   // Assuming there are two SVGs that need accessible names
   const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
+  svgs.forEach((svg, index) => {
     // Add an `aria-label` attribute or a similar approach to add accessible names
-    svg.setAttribute('aria-label', 'Descriptive name for the SVG');
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', 'SVG ' + (index + 1));
+    }
   });
 }
 
@@ -86,12 +94,45 @@ function addSvgAccessibleNames() {
 function fixTableStructureIssues() {
   // Assuming that the tables need to be restructured for accessibility
   // Implementation details are not provided here
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper structure with th elements
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const cells = firstRow.querySelectorAll('td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+        });
+      }
+    }
+    // Add scope attributes to headers
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
 }
 
 // Accessibility: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 function fixFakeLinkIssue() {
   // Assuming there is a fake link that needs to be fixed
-  // Implementation details are not provided here
+  // Convert non-link elements that behave as links to proper anchor tags or buttons
+  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"], a[href="#"]');
+  fakeLinks.forEach(fakeLink => {
+    const href = fakeLink.getAttribute('data-href');
+    if (href) {
+      const anchor = document.createElement('a');
+      anchor.setAttribute('href', href);
+      anchor.textContent = fakeLink.textContent;
+      fakeLink.parentNode.replaceChild(anchor, fakeLink);
+    }
+  });
 }
 
 // Added the required exports

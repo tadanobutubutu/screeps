@@ -17,5 +17,5 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addAltAttribute // <-- Here
+  addAltAttribute
 };

@@ -4,5 +4,11 @@
 module.exports = {
   loop: function () {
     // Main game loop logic goes here
+    myFunction();
   }
 };
+
+// Assuming you have a function named 'myFunction' that needs to be exported
+function myFunction() {
+  // function implementation
+}

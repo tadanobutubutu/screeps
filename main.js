@@ -25,10 +25,14 @@ const fixTableStructureIssues = function(tables) {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
-                const parent = firstRow.parentNode;
-                if (parent.tagName !== 'THEAD') {
-                    thead.appendChild(firstRow);
-                    table.insertBefore(thead, table.firstChild);
+                thead.appendChild(firstRow);
+                const parent = thead.parentNode;
+                if (parent && parent.tagName !== 'THEAD') {
+                    if (table.firstChild) {
+                        table.insertBefore(thead, table.firstChild);
+                    } else {
+                        table.appendChild(thead);
+                    }
                 }
             }
         }
@@ -41,7 +45,11 @@ const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
         const hasMainTag = /<main/i.test(content);
         if (!hasMainTag) {
-            return content.replace(/<body/i, '<body><main').replace(/<\/body>/i, '</main></body>');
+            const mainMatch = content.match(/<\/body>/i);
+            if (mainMatch) {
+                return content.replace(/<\/body>/i, '<main></main></body>');
+            }
+            return content + '<main></main></body>';
         }
     }
     return content;
@@ -55,7 +63,11 @@ const addSvgAccessibleNames = function(svgs) {
             if (!existingTitle) {
                 const title = document.createElement('title');
                 title.textContent = `SVG Icon ${index + 1}`;
-                svg.insertBefore(title, svg.firstChild);
+                if (svg.firstChild) {
+                    svg.insertBefore(title, svg.firstChild);
+                } else {
+                    svg.appendChild(title);
+                }
             }
             if (!svg.getAttribute('role')) {
                 svg.setAttribute('role', 'img');
@@ -113,7 +125,15 @@ const addProperLandmarkRegions = function(content) {
     if (content && typeof content === 'string') {
         let result = content;
 
-        // ... (You can implement the logic inside the function as needed)
+        // Add banner landmark (header) if not present
+        if (!/<header/i.test(result) && !/<banner/i.test(result)) {
+            result = result.replace(/<body/i, '<header role="banner"></header><body');
+        }
+
+        // Add contentinfo landmark (footer) if not present
+        if (!/<footer/i.test(result) && !/<contentinfo/i.test(result)) {
+            result = result.replace(/<\/body>/i, '<footer role="contentinfo"></footer></body>');
+        }
 
         return result;
     }
@@ -128,14 +148,24 @@ const renderDependencyGraph1 = function() {
     // Implementation for rendering dependency graph with horizontal layout
     // This function creates a dependency graph visualization
     // Returns a configured graph object or JSX representation
-    return null;
+    return {
+        type: 'dependency-graph',
+        layout: 'horizontal',
+        nodes: [],
+        edges: []
+    };
 };
 
 const renderDependencyGraph2 = function() {
     // Implementation for rendering dependency graph with vertical layout
     // This function creates an alternate visualization of the dependency graph
     // Returns a configured graph object or JSX representation
-    return null;
+    return {
+        type: 'dependency-graph',
+        layout: 'vertical',
+        nodes: [],
+        edges: []
+    };
 };
 
 // ... Existing code including exports for previous functions that are not affected ...

@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
   // Preserve existing code from main.js
-  const unrotateElement = document.getElementById('unrotate');
+  const unrotateElement = document.querySelector('.unrotate');
   
   if (unrotateElement && unrotateElement.tagName === 'A') {
     // Create a button to replace the fake link for better accessibility
@@ -25,16 +25,19 @@ document.addEventListener('DOMContentLoaded', function() {
     unrotateElement.parentNode.replaceChild(button, unrotateElement);
   }
 
+  // Set language attribute on root element for screen readers (REACT_015)
+  document.documentElement.lang = 'en';
+
   // Wrap the primary content in a <main> element for accessibility
-  function wrapPrimaryContentWithMain() {
-    const primaryContent = document.querySelector('table[id="table-rotated"], .container');
+  function wrapPrimaryContent() {
+    const primaryContent = document.querySelector('.container');
     if (primaryContent) {
       const mainElement = document.createElement('main');
       mainElement.appendChild(primaryContent);
-      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      document.body.appendChild(mainElement);
     }
   }
 
   // Call the function to wrap the primary content
-  wrapPrimaryContentWithMain();
-});
+  wrapPrimaryContent();
+})();

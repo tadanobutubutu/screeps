@@ -64,6 +64,28 @@ const initUnrotateButton = () => {
   }
 };
 
+// Fix for REACT_041: React SVG Accessible Name
+// Ensures all SVG elements have an accessible name via aria-label, title child, or aria-hidden
+const fixSvgAccessibleName = () => {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Skip if already has aria-hidden="true"
+    if (svg.getAttribute('aria-hidden') === 'true') {
+      return;
+    }
+
+    // Check if SVG already has an accessible name
+    const hasAriaLabel = svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '';
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby') && svg.getAttribute('aria-labelledby').trim() !== '';
+    const hasTitle = svg.querySelector('title') !== null;
+
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      // Mark as decorative since it has no accessible name and isn't hidden
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+};
+
 // Export all functions
 module.exports.Dashboard = Dashboard;
 module.exports.myFunction = myFunction;
@@ -72,3 +94,4 @@ module.exports.myMissingFunction2 = myMissingFunction2;
 module.exports.myNewFunction = myNewFunction;
 module.exports.enhanceAccessibility = enhanceAccessibility;
 module.exports.initUnrotateButton = initUnrotateButton;
+module.exports.fixSvgAccessibleName = fixSvgAccessibleName;

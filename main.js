@@ -17,24 +17,35 @@ const addLangAttribute = () => {
 
 // Accessibility fix for REACT_041: Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
-  const svgs = document.querySelectorAll('svg');
+  // Find all SVG elements that are visible (not hidden)
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"]):not(hidden)');
+  
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
-    if (!title) {
+    // Check if SVG already has an accessible name via aria-label, aria-labelledby, or title
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const existingTitle = svg.querySelector('title');
+    
+    if (!hasAriaLabel && !hasAriaLabelledby && !existingTitle) {
+      // Generate a unique ID for the title element
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      
+      // Create a title element with accessible text
       const titleElement = document.createElement('title');
-      titleElement.textContent = 'Accessible title for SVG';
-      svg.insertBefore(titleElement, svg.firstChild);
-
-      // Add aria-labelledby attribute to link the title
-      const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
       titleElement.id = titleId;
+      titleElement.textContent = 'Screeps Dashboard';
+      
+      // Insert title as first child of SVG
+      svg.insertBefore(titleElement, svg.firstChild);
+      
+      // Add aria-labelledby attribute to link the title
       svg.setAttribute('aria-labelledby', titleId);
     }
   });
 };
 
 // Function to validate table structure and add scope to <th> elements
-const validateTableStructureAndScopeTh = () => {
+const validateTableStructure = () => {
   const tables = document.querySelectorAll('table');
 
   tables.forEach(table => {
@@ -57,7 +68,7 @@ const validateTableStructureAndScopeTh = () => {
       let hasTbody = table.querySelector('tbody');
       let hasTfoot = table.querySelector('tfoot');
 
-      // If no thead but there are headers, wrap first row( s) in thead
+      // If no thead but there are headers, wrap first row(s) in thead
       if (!hasThead) {
         const firstRow = rows[0];
         const firstRowHeaders = firstRow.querySelectorAll('th');
@@ -85,8 +96,8 @@ const validateTableStructureAndScopeTh = () => {
         }
       }
 
-      // Fix header- cell associations using headers attribute
-      const allCells = table.querySelectorAll('td, th');
+      // Fix header-cell associations using headers attribute
+      const allCells = table.querySelectorAll('td');
       allCells.forEach(cell => {
         // If cell has headers attribute, ensure it's valid
         const headersAttr = cell.getAttribute('headers');
@@ -122,7 +133,7 @@ const validateTableStructureAndScopeTh = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
+export { class1, function1, Object1, unique, ... addLangAttribute, addAccessibleNamesToSVGs, fixFakeLink, wrapPrimaryContentInMain };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash‑only <a id="unrotate"> with a proper <button>
@@ -140,7 +151,7 @@ const fixFakeLink = () => {
 
   // If there was any click handling on the original <a>, re‑attach it.
   // Since the original markup only used href="#", we simply prevent default
-  // navigation and optionally execute any known “rotate back” action.
+  // navigation and optionally execute any known "rotate back" action.
   button.addEventListener('click', (e) => {
     e.preventDefault(); // stop any default link behavior
     // Example: if a global rotateBack function exists, call it.
@@ -187,7 +198,7 @@ const wrapPrimaryContentInMain = () => {
   // wrap the first content section that appears after header/hero sections
   if (!primaryContent) {
     const bodyChildren = Array.from(document.body.children);
-    const headerElements = document.querySelectorAll('header, .hero, .banner');
+    const headerElements = document.querySelectorAll('header, .header, .hero, .banner');
     
     // Find content that comes after typical header elements
     for (const child of bodyChildren) {
@@ -195,9 +206,9 @@ const wrapPrimaryContentInMain = () => {
         header.contains(child) || header === child
       );
       
-      if (!isHeader && child.textContent.trim() && !child.closest('main')) {
+      if (!isHeader && child.textContent.trim() && child.tagName !== 'SCRIPT') {
         // Skip navigation, aside, and footer elements
-        const tagName = child.tagName.toLowerCase();
+        const tagName = child.tagName;
         if (!['NAV', 'ASIDE', 'FOOTER', 'HEADER'].includes(tagName)) {
           primaryContent = child;
           break;
@@ -211,7 +222,7 @@ const wrapPrimaryContentInMain = () => {
     const mainElement = document.createElement('main');
     
     // If the primary content has a role="main" attribute, remove it since <main> has implicit role
-    if (primaryContent.hasAttribute('role') && primaryContent.getAttribute('role') === 'main') {
+    if (primaryContent.hasAttribute && primaryContent.hasAttribute('role') && primaryContent.getAttribute('role') === 'main') {
       primaryContent.removeAttribute('role');
     }
     
@@ -229,5 +240,5 @@ const wrapPrimaryContentInMain = () => {
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   fixFakeLink();
-  wrapPrimaryContentInMain();
+  addAccessibleNamesToSVGs();
 });

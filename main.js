@@ -150,14 +150,89 @@ function validateLandmarkStructure() {
 
 function validateTableAccessibility() {
   // Validate that tables have proper accessibility (captions, th scope, etc.)
+  // Check that all <th> elements have a scope attribute so assistive technologies
+  // can programmatically associate header cells with their corresponding data cells.
+  const headerCells = document.querySelectorAll('th');
+  
+  let allValid = true;
+  headerCells.forEach(th => {
+    const scope = th.getAttribute('scope');
+    if (!scope || !['col', 'row', 'colgroup', 'rowgroup'].includes(scope)) {
+      allValid = false;
+    }
+  });
+  
+  // Also check that tables have captions when appropriate
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Data tables should have a caption or aria-label/aria-labelledby
+    const hasCaption = table.querySelector('caption');
+    const hasAriaLabel = table.getAttribute('aria-label');
+    const hasAriaLabelledby = table.getAttribute('aria-labelledby');
+    
+    if (!hasCaption && !hasAriaLabel && !hasAriaLabelledby) {
+      // Not invalid, but recommended
+    }
+  });
+  
+  return allValid;
 }
 
 function validateTableStructure() {
   // Validate table structure (proper thead, tbody, tfoot usage)
+  // Ensure <th> elements have a valid scope attribute (col, row, colgroup, or rowgroup)
+  // so they can be programmatically associated with their data cells by assistive technologies.
+  const tables = document.querySelectorAll('table');
+  
+  let allValid = true;
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(th => {
+      const scope = th.getAttribute('scope');
+      if (!scope) {
+        allValid = false;
+      }
+    });
+  });
+  
+  return allValid;
 }
 
 function validateLandmark() {
   // Validate individual landmark elements
+}
+
+// NEW: Add scope attribute to th elements that lack one
+function addScopeToThElements() {
+  // Find all th elements and ensure they have a valid scope attribute.
+  // Defaults to "col" when the th is inside a thead (column header),
+  // otherwise "row" (row header) so assistive technologies can map
+  // header cells to their corresponding data cells.
+  const headerCells = document.querySelectorAll('th');
+  
+  headerCells.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const inThead = th.closest('thead') !== null;
+      th.setAttribute('scope', inThead ? 'col' : 'row');
+    }
+  });
+}
+
+// NEW: Get scope attribute value for a th element (helper)
+function getThScope(thElement) {
+  if (!thElement) return null;
+  const scope = thElement.getAttribute('scope');
+  if (scope && ['col', 'row', 'colgroup', 'rowgroup'].includes(scope)) {
+    return scope;
+  }
+  return null;
+}
+
+// NEW: Validate a single th element has proper scope
+function isThAccessible(thElement) {
+  if (!thElement) return false;
+  const scope = getThScope(thElement);
+  return scope !== null;
 }
 
 // Additional exports if needed (e. g., functions for testing)
@@ -165,5 +240,6 @@ export {
   Header, Navigation, MainContent, Sidebar, Footer, Logo, SearchIcon, UniqueSection,
   FakeLinkFixed, addLangAttribute, fixTableStructure,
   validateMainLandmark, validateLandmarkRoles, validateLandmarkStructure, createInPageButton, validateTableAccessibility,
-  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel
+  validateTableStructure, validateLandmark, getSvgAccessibleName, getAccessibleLabel,
+  addScopeToThElements, getThScope, isThAccessible
 };

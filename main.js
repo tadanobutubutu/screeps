@@ -6,6 +6,9 @@ import JSDOM from "jsdom";
 import { dependencyGraphContent } from "./dependencyGraphContent";
 import { indexContent } from "./indexContent";
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
   const { JSDOM } = require('jsdom');
@@ -160,4 +163,57 @@ function fixTableStructure(context) {
     let caption = table.querySelector('caption');
     if (!caption) {
       caption = document.createElement('caption');
-      caption.textContent =
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      issuesFixed++;
+    }
+    
+    // Check if table has a thead
+    const thead = table.querySelector('thead');
+    if (!thead && table.rows.length > 0) {
+      const newThead = document.createElement('thead');
+      newThead.appendChild(table.rows[0]);
+      table.insertBefore(newThead, table.firstChild);
+      issuesFixed++;
+    }
+    
+    // Check if table has a tbody
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+      const allRows = Array.from(table.querySelectorAll('tr'));
+      if (allRows.length > 0) {
+        const newTbody = document.createElement('tbody');
+        allRows.forEach((row) => {
+          if (row.parentNode === table) {
+            newTbody.appendChild(row);
+          }
+        });
+        table.appendChild(newTbody);
+        issuesFixed++;
+      }
+    }
+    
+    // Check if header cells have proper scope attributes
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach((th) => {
+      if (!th.getAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+        issuesFixed++;
+      }
+    });
+  });
+  
+  return issuesFixed;
+}
+
+// ----- END ORIGINAL CODE -----
+
+// Export all functions for external use
+export {
+  createReactContext,
+  addAriaLabelledbyIfNeeded,
+  initAriaLabels,
+  wrapMainElement,
+  addLangAttribute,
+  fixTableStructure
+};

@@ -35,7 +35,10 @@ const fixTableStructureIssues = function(tables) {
 // Add main landmark (REACT_017)
 const addMainLandmark = function(content) {
     if (content && typeof content === 'string') {
-        return `<main id="main-content">${content}</main>`;
+        const hasMainTag = /<main[\s>]/.test(content);
+        if (!hasMainTag) {
+            return `<main id="main-content">${content}</main>`;
+        }
     }
     return content;
 };
@@ -128,5 +131,5 @@ module.exports = {
     fixFakeLinkIssue,
     renderDependencyGraph1,
     renderDependencyGraph2,
-    // ... Add any other exports that were found to be affected by the update ...
+    // ... Add any other exports that are found to be affected by the update ...
 };

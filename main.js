@@ -1,30 +1,35 @@
 // Import the indexContent from src/index.js
 import { indexContent } from './src/index';
 
+// Import the dependencyGraphContent from src/dependencyGraph.js
+import { dependencyGraphContent } from './src/dependencyGraph';
+
 // ... (Existing imports and functions)
 
 // Add a new function to render dependency graph content or index view, as needed
 function renderContent(contentType) {
   switch (contentType) {
     case 'dependency-graph':
-      // Render dependency graph content
-      function renderDependencyGraphContent(data) {
-        // Replace the existing content within the dependencyGraph div using the provided data.
-        const container = document.getElementById('dependency-graph');
+      // Render dependency graph content using the imported dependencyGraphContent
+      function renderDependencyGraphContent() {
+        // Replace the existing content within the dependencyGraph div using the dependencyGraphContent.
+        const container = document.getElementById('dependencyGraph');
         if (container) {
-          container.innerHTML = data;
+          container.innerHTML = dependencyGraphContent;
         }
       }
       // Call the updated renderDependencyGraphContent function
-      renderDependencyGraphContent(/* data or function that generates data */);
+      renderDependencyGraphContent();
       break;
     case 'index':
       // Render index content
       function renderIndexContent() {
         // Get the container for index content
-        const container = document.getElementById('index-container');
+        const container = document.getElementById('index');
         // Update the container with the indexContent from index.js
-        container.innerHTML = indexContent;
+        if (container) {
+          container.innerHTML = indexContent;
+        }
       }
       // Call the renderIndexContent function
       renderIndexContent();

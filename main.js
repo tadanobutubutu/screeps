@@ -17,8 +17,8 @@ if (footer) {
 }
 
 // Fix fake link issue and ensure unique landmarks
-const links = document.links;
 let uniqueId = 0;
+const links = document.links;
 for (let link of links) {
   if (link.hash === '') {
     link.setAttribute('aria-label', 'Link to ' + link.textContent);
@@ -36,6 +36,16 @@ for (let svg of svgs) {
   }
 }
 
+// New function: Print Alert Messages
+function printAlertMessages(messages) {
+  messages.forEach((message) => {
+    const alert = document.createElement('div');
+    alert.className = 'alert';
+    alert.textContent = message;
+    document.body.appendChild(alert);
+  });
+}
+
 // Return the component with updated accessibility features
 return (
   <div className="app">
@@ -51,9 +61,17 @@ return (
   </div>
 );
 
-// Assume existing exports and functions are preserved
-export default MyApp;
-
+// Modify the MyApp function to use the new function printAlertMessages
 function MyApp() {
   // ... (Existing code)
+
+  // Add alert messages before the render
+  const errorMessages = ['Message 1', 'Message 2'];
+  printAlertMessages(errorMessages);
+
+  // Render component
+  // ... (Existing render code)
 }
+
+// Assume existing exports and functions are preserved
+export default MyApp;

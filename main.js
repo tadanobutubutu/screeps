@@ -51,15 +51,15 @@ const renderLandmarkRegions = () => (
 const addressAccessibilityIssues = (insightReport) => {
   // This function takes an insight report and performs necessary actions
   // to address the reported accessibility issues.
-  
+
   if (!insightReport || !insightReport.issues) {
     console.log('No valid accessibility issues found in report');
     return { totalIssues: 0, addressedIssues: [], unaddressedIssues: [] };
   }
-  
+
   const addressedIssues = [];
   const unaddressedIssues = [];
-  
+
   insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'missing-aria-label':
@@ -87,17 +87,15 @@ const addressAccessibilityIssues = (insightReport) => {
         unaddressedIssues.push({ ...issue, resolved: false });
     }
   });
-  
+
   console.log(`Addressed ${addressedIssues.length} accessibility issues out of ${insightReport.issues.length} total`);
-  
+
   return {
     totalIssues: insightReport.issues.length,
     addressedIssues,
     unaddressedIssues
   };
 };
-
-// ... (existing exports)
 
 // Add the new export for the renderLandmarkRegions function
 export {

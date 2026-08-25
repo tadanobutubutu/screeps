@@ -53,14 +53,14 @@ function divide(a, b) {
   return a / b;
 }
 
-// Add a new function for adding `aria-label` to elements
+// Add a function for adding `aria-label` to elements
 function addAriaLabel(elem, label) {
   if (elem) {
     elem.setAttribute('aria-label', label);
   }
 }
 
-// Modify the event listeners to include `aria-label` attributes
+// Add `aria-label` to the rotation and unrotate buttons
 addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
 addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
 addAriaLabel(document.getElementById('target'), 'Rotated image');
@@ -103,7 +103,10 @@ function renderDependencyGraph(dependencies, container) {
   container.appendChild(fragment);
 }
 
-// Include the new function as an export
+// An example usage of the function with a custom button element
+const customBtn = document.getElementById('custom-btn');
+addAriaLabel(customBtn, 'Perform custom action');
+
 module.exports = {
   loop: function() {
     myGameLoop(); /* Main game loop logic myNewFunction(); */ 

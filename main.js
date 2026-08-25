@@ -1,7 +1,5 @@
-// Hypothetical main.js file content with resolved conflicts
 /*
-*
-// Original code with conflict markers
+* Hypothetical main.js file content with resolved conflicts
 <th scope="col"><div>src/constants.js</div></th>
 <th scope="col"><div>src/managers/roomManager.js</div></th>
 <th scope="col"><div>src/managers/spawnManager.js</div></th>
@@ -10,14 +8,6 @@
 ...
 */
 
-/*
-// Original code that needs to be preserved
-export function originalFunction() {
-  // ...
-}
-
-// ...
-*/
 export function originalFunction() {
   // ... original implementation
 }

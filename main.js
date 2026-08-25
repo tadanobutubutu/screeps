@@ -33,7 +33,8 @@ function ensureUniqueLandmarks() {
 
 function fixFakeLinkIssues() {
   // Find and fix fake link issues
-  // ... (You'll need to update this function based on your specific HTML structure)
+  const contentWithFixedLinks = content.replace(/<a href="#">rotate back<\/a>/g, '<button id="unrotate">rotate back</button>');
+  content = contentWithFixedLinks;
 }
 
 function addThScope() {

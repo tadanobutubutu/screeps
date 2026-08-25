@@ -61,6 +61,15 @@ function addAriaLabel(elem, label) {
   }
 }
 
+// Add a new function to get the lang attribute
+function getLangAttribute(elem) {
+  if (elem) {
+    const lang = elem.getAttribute('lang');
+    return lang || document.documentElement.lang;
+  }
+  return null;
+}
+
 // Update the event listener for the rotate button
 const myButton = document.getElementById('rotate');
 addAriaLabel(myButton, 'Rotate image clockwise');
@@ -139,5 +148,6 @@ module.exports = {
   rotate,
   rotateBack,
   renderDependencyGraph,
-  initAriaLabels // Add the new function to the exports
+  initAriaLabels, // Add the new function to the exports
+  getLangAttribute // Add the new function to the exports
 };

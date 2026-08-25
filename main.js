@@ -23,7 +23,9 @@ const setAccessibleName = (node, accessibleName) => {
   // You may need to use appropriate methods or attributes to set the accessible name based on the DOM library or framework being used.
 
   // Assuming your library or framework has a method `setAttribute` to set attributes
-  node.setAttribute('aria-label', accessibleName);
+  if (node && node.setAttribute) {
+    node.setAttribute('aria-label', accessibleName);
+  }
 };
 
 // Existing exports and functions continue to be preserved

@@ -11,4 +11,9 @@ export function MyComponent({ hasError }) {
   );
 }
 
+// New function added
+export function processData(data) {
+  // Add your data processing logic here
+}
+
 export default MyComponent;

@@ -53,6 +53,23 @@ function setupLandmarkRegions() {
     return { header, nav, main, aside, footer };
 }
 
+// New function: getSvgAccessibleName
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement) return '';
+    const title = svgElement.querySelector('title');
+    if (title) {
+        return title.textContent.trim();
+    }
+    const desc = svgElement.querySelector('desc');
+    if (desc) {
+        return desc.textContent.trim();
+    }
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label').trim();
+    }
+    return '';
+}
+
 // Attach event listeners
 document.querySelector('.rotate-btn').addEventListener('click', rotate);
 document.querySelector('.rotate-back-btn').addEventListener('click', rotateBack);
@@ -63,4 +80,4 @@ document.querySelector('.toggle-rotation-btn').addEventListener('click', toggleR
 setupLandmarkRegions();
 
 // Export the new function if needed, otherwise preserve existing exports
-export { rotate, rotateBack, toggleRotation, setupLandmarkRegions };
+export { rotate, rotateBack, toggleRotation, setupLandmarkRegions, getSvgAccessibleName };

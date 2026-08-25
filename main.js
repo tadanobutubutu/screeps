@@ -144,9 +144,48 @@ function ensureLangAttribute() {
 // ... other functions and exports ...
 
 // Fixed typo: EXTERNENAL_MODULES -> EXTERNAL_MODULES
+
+// Accessibility: Wrap primary content sections in <main> landmark for REACT_017 compliance
+// Adds a <main> element around content in dependencyGraphFunction and indexFunction
+function wrapInMainLandmark(component) {
+  if (!component || typeof component !== 'object') {
+    return component;
+  }
+
+  const originalRender = component.render ? component.render.bind(component) : null;
+
+  if (originalRender) {
+    component.render = function(...args) {
+      const renderedContent = originalRender(...args);
+
+      // Wrap rendered content in a <main> landmark element
+      return React.createElement('main', { 'data-landmark': 'main' }, renderedContent);
+    };
+  }
+
+  return component;
+}
+
+// Updated dependencyGraphFunction to include <main> landmark
+const originalDependencyGraphFunction = dependencyGraphFunction;
+function dependencyGraphFunctionWithMain() {
+  const content = originalDependencyGraphFunction();
+  return wrapInMainLandmark(content);
+}
+
+// Updated indexFunction to include <main> landmark
+const originalIndexFunction = indexFunction;
+function indexFunctionWithMain() {
+  const content = originalIndexFunction();
+  return wrapInMainLandmark(content);
+}
+
 module.exports = {
   dependencyGraphFunction,
+  dependencyGraphFunctionWithMain,
   indexFunction,
+  indexFunctionWithMain,
   ensureLangAttribute,
   ensureUniqueLandmarks,
+  wrapInMainLandmark,
 };

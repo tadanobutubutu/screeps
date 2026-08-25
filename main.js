@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -80,4 +77,3 @@ export { myOtherFunction };
 
 // Additional exports for accessibility functions
 export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };
-```

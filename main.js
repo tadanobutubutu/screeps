@@ -4,12 +4,21 @@ import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandma
 
 // ADD NEW FUNCTION - addRequiredLandmarks (Assuming it's a new function to address REACT_017, REACT_025, and REACT_041 issues)
 export const addRequiredLandmarks = () => {
-  // Your implementation here based on the insight report
+  // Implement the addRequiredLandmarks function based on the insight report
+  // TODO: Add your code here
 };
 
 // Function to calculate the index of an item in an array based on its id ([NEW])
 export const findIndex = (array, id) => {
   return array.findIndex((item) => item.id === id);
+};
+
+// Function to override the existing findIndex function (only for test purpose)
+const overrideFindIndex = (array, id) => {
+  // Add test-specific implementation here if needed
+  // For example:
+  // return array.findIndex((item) => item.someProperty === 'testValue');
+  return originalFindIndex(array, id); // Call the original function when not overriding
 };
 
 // Function to fix table structure issues (REACT_027)
@@ -36,23 +45,13 @@ export const fixTableStructure = () => {
   });
 };
 
-// Function to override the existing findIndex function (only for test purpose)
-const overrideFindIndex = (array, id) => {
-  // Add test-specific implementation here if needed
-  // For example:
-  // return array.findIndex((item) => item.someProperty === 'testValue');
-  return originalFindIndex(array, id); // Call the original function when not overriding
-};
-
 const MainContext = createContext(undefined);
 
-// ... (Existing code below this line remains unchanged)
-
-// ... (some code has been reformatted for readability)
+// Other existing code remains unchanged
 
 export const MainComponent = () => {
   const [landmarks, setLandmarks] = useState([]);
-  
+
   const handleSearch = (event) => {
     const query = event.target.value;
     const filteredLandmarks = originalFilterLandmarks(landmarks, query);
@@ -61,9 +60,9 @@ export const MainComponent = () => {
   };
 
   return (
-    // ... existing code
+    // Existing JSX code remains unchanged
     <Searchbar placeholder="Search landmarks" onChange={handleSearch} />
-    // ... existing code
+    // Existing JSX code remains unchanged
   );
 };
 

@@ -1,38 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
+// Original main.js content
+// ... [Preserved code] ...
 
-// Existing function definitions here...
-function existingFunction() {
-  // Function code...
-}
+// Assuming this is the section of the code that uses the problematic <a> tag
+// <a id="unrotate" href="#">rotate back</a>
 
-// Existing component definitions here...
-class ExistingComponent extends React.Component {
-  render() {
-    // Component code...
-  }
-}
+// Update the <a> tag with a <button> tag
+document.getElementById('unrotate').innerHTML = '<button id="unrotateButton">rotate back</button>';
 
-// New function requested in the issue...
-function newFunction() {
-  // New function code...
-}
+// ... [Preserved code] ...
 
-// Updated main.js content, including new function
-ReactDOM.render(
-  <React.StrictMode>
-    <div>
-      {/* Existing components and JSX here */}
-      
-      {/* Example of calling newFunction */}
-      <button onClick={newFunction}>Call New Function</button>
-      
-      {/* More components and JSX */}
-    </div>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// Add the necessary event listener to the new button to perform the action without navigating
+document.getElementById('unrotateButton').addEventListener('click', function() {
+  // Perform the action that was intended by the original <a> tag
+  // For example, rotate back to the previous state or view
+});
 
-// Existing exports
-export { existingFunction, ExistingComponent };
+// ... [Preserved code] ...

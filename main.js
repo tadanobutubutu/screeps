@@ -114,5 +114,3 @@ module.exports = {
   fixFakeLink,
   // ...
 };
-
-// ----- END ORIGINAL CODE -----

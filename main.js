@@ -1,4 +1,10 @@
-import accessibilityModule from 'accessibility-module';
+import accessibilityModule, { 
+  validateLandmark as validateLandmarkUtil, 
+  validateLandmarkStructure as validateLandmarkStructureUtil,
+  ensureUniqueLandmarks as ensureUniqueLandmarksUtil,
+  fixFakeLinkIssue as fixFakeLinkIssueUtil,
+  createAccessibleLink as createAccessibleLinkUtil
+} from 'accessibility-module';
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
@@ -19,7 +25,7 @@ function validateLandmark() {
   // Implementation code
 }
 
-function validateUniqueLandmarks() {
+function ... {
   // Implementation code
 }
 
@@ -36,7 +42,7 @@ function getSvgAccessibleName() {
   // Implementation code
 }
 
-function createSvgAccessibilityProps() {
+function ... {
   // Implementation code
 }
 
@@ -58,7 +64,7 @@ function createInPageButton() {
   // Implementation code
 }
 
-function validateLinkOrButton() {
+function ... {
   // Implementation code
 }
 
@@ -66,19 +72,20 @@ function createAccessibleLink() {
   // Implementation code
 }
 
-// Example usage of the accessibility functions
-accessibilityModule.addLangAttribute();
-accessibilityModule.fixTableStructure();
-accessibilityModule.addMainLandmark();
-accessibilityModule.validateLandmark();
-accessibilityModule.validateUniqueLandmarks();
-accessibilityModule.validateLandmarkStructure();
-accessibilityModule.addSvgAccessibleNames();
-accessibilityModule.getSvgAccessibleName();
-accessibilityModule.createSvgAccessibilityProps();
-accessibilityModule.ensureUniqueLandmarks();
-accessibilityModule.fixFakeLinkIssue();
-accessibilityModule.validateLinkAccessibility();
-accessibilityModule.createInPageButton();
-accessibilityModule.validateLinkOrButton();
-accessibilityModule.createAccessibleLink();
+// Export the key accessibility functions
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  addSvgAccessibleNames,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  validateLinkAccessibility,
+  createInPageButton,
+  createAccessibleLink
+};
+
+export default accessibilityModule;

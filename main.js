@@ -100,14 +100,17 @@ function addMainLandmark(doc = document) {
       );
       
       if (contentStart !== -1 && children.length > 0) {
-        main.append(...children.slice(contentStart));
+        Array.from(children.slice(contentStart)).forEach(child => {
+          main.appendChild(child);
+        });
       }
       
       if (main.childNodes.length === 0) {
         main.textContent = 'Main content';
       }
       
-      body.insertBefore(main, children[contentStart] || null);
+      const refChild = children[contentStart] || null;
+      body.insertBefore(main, refChild);
     }
     return main;
   }

@@ -41,6 +41,3 @@ const Dashboard: React.FC<DashboardProps> = () => {
 };
 
 export default Dashboard;
-```
-
-In this solution, I've preserved both your original JavaScript code and the TypeScript component from the `origin/main` Git branch. The JavaScript code with the `iconsWithAccessibleName` object was added at the beginning of the file to address the SVG accessibility issue. The TypeScript-related code was indented under a new TypeScript import at the end of the file, ensuring that the JavaScript and TypeScript can coexist while providing the benefits of both type checking and functional tweaks.

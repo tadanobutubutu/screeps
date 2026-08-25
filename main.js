@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// app/layout.tsx
+import { StrictMode } from "react";
+import Layout from "./Layout";
+
+export default function App() {
+  return (
+    <StrictMode>
+      <Layout />
+    </StrictMode>
+  );
+}

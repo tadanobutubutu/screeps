@@ -2,18 +2,20 @@
 
 // TODO: Implement the new function as per the issue requirements
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="contentinfo"]');
+  const landmarks = getLandmarks();
   const landmarkNames = new Set();
+  let counter = 0;
 
   landmarks.forEach((landmark) => {
-    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+    const landmarkName = landmark.name || landmark.title || '';
 
     if (landmarkName && !landmarkNames.has(landmarkName)) {
       landmarkNames.add(landmarkName);
     } else {
       // Generate a unique id and add to the landmark
-      const id = `landmark-${Math.floor(Math.random() * 100000)}`;
-      landmark.setAttribute('id', id);
+      counter++;
+      const id = counter * 100000;
+      landmark.id = id;
     }
   });
 }

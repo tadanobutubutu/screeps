@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const fs = require('fs');
 
 // Hypothetical before and after code snippet for Dashboard.tsx
@@ -27,7 +24,7 @@ function addLangAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   // Check if <html> tag exists and does not have a lang attribute
   if (content.includes('<html') && !content.includes('<html lang')) {
-    const updatedContent = content.replace(/<html/i, '<html lang="en"');
+    const updatedContent = content.replace(/<html>/i, '<html lang="en"');
     fs.writeFileSync(filePath, updatedContent);
     console.log(`Added lang="en" to ${filePath}`);
   } else {
@@ -38,4 +35,3 @@ function addLangAttribute(filePath) {
 // Usage
 addScopeToTh('docs/dependency-graph.html');
 addLangAttribute('docs/dependency-graph.html');
-```

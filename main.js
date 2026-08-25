@@ -137,8 +137,8 @@ export const existingFunction = () => {
 };
 
 // New export of a React app component
-import React from 'react';
 import ReactDOM from 'react-dom';
+import App from './App'; // Adjust the path to the actual App component
 
 function App() {
   return (
@@ -148,7 +148,19 @@ function App() {
   );
 }
 
-export default App;
-```
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
 
-I added the missing `aria-label` attribute to the `AccessibleIcon` component and adapted it for the interactive case. Also, I moved the existing React app component to a new export section at the bottom.
+// Example of how to update the icons in app/layout.tsx and dashboard/app/layout.tsx
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" font-size="90">🐛</text></svg>',
+};
+
+// ... rest of the code in main.js
+
+export default App;

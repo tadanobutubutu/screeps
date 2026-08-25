@@ -85,10 +85,5 @@ module.exports = {
   addAccessibleSvgNames: addAccessibleSvgNames,
   addIdsToLandmarks: addIdsToLandmarks,
   fixTableStructure: fixTableStructure,
-  fixFakeLinkIssue: fixFakeLinkIssue,
-  fixTableStructureIssues: fixTableStructureIssues, // Previously renamed export
-  addClassToElement: addClassToElement,
-  // Add new exports for the new functions
-  fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue
 };

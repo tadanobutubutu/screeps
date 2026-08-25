@@ -15,7 +15,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach((main, index) => {
-    if (!main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
+    if (main && main.hasAttribute) {
       if (index === 0) {
         main.setAttribute('aria-label', 'Main content');
       } else {
@@ -30,7 +30,7 @@ function fixTableStructureIssues() {
   // Add scope attribute to th elements that are missing it
   const thElements = document.querySelectorAll('th');
   thElements.forEach((th) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       // Determine if header is in thead or tbody to set appropriate scope
       const parentRow = th.closest('tr');
       const parentSection = th.closest('thead') ? 'thead' : 'tbody';
@@ -38,8 +38,8 @@ function fixTableStructureIssues() {
         th.setAttribute('scope', 'col');
       } else {
         // For tbody, determine if it's a row header or column header
-        const rowIndex = parentRow ? Array.from(parentRow.parentElement.children).indexOf(parentRow) : -1;
-        const cellIndex = parentRow ? Array.from(parentRow.children).indexOf(th) : -1;
+        const rowIndex = parentRow ? Array.from(parentRow.parentNode.children).indexOf(parentRow) : -1;
+        const cellIndex = parentRow ? Array.from(parentRow.cells).indexOf(th) : -1;
         if (rowIndex === 0) {
           th.setAttribute('scope', 'col');
         } else if (cellIndex === 0) {
@@ -171,14 +171,3 @@ function App() {
         </main>
       </body>
     </html>
-  );
-}
-
-// Set language attribute on the HTML element
-document.documentElement.lang = 'en';
-
-// Export App component
-export default App;
-
-// Export the new functions
-export { handleRotateBack, addLangAttribute, addMainLandmark, fixTableStructureIssues, ensureUniqueLandmarks, addSvgAccessibleNames, addAriaLabelToMyDiv };

@@ -140,6 +140,18 @@ const addSvgAccessibleNames = (document) => {
     }
     svgIndex++;
   });
+
+  // Also handle favicon link elements that point to inline data: URI SVGs.
+  // These SVGs aren't in the DOM, but the <link> element itself can be given
+  // an accessible name so screen readers don't announce a bare/empty icon link.
+  const iconLinks = document.querySelectorAll('link[rel~="icon"]');
+  iconLinks.forEach((link) => {
+    const href = link.getAttribute('href') || '';
+    if (href.startsWith('data:image/svg+xml') && !link.hasAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Favicon');
+    }
+  });
+
   return document;
 };
 

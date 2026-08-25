@@ -261,29 +261,66 @@ function establishLandmarkRegions() {
   const body = document.body;
   if (!body) return;
 
-  const landmarkConfig = [
-    { tag: 'header', role: 'banner' },
-    { tag: 'footer', role: 'contentinfo' },
-    { tag: 'main', role: 'main' },
-    { tag: 'nav', role: 'navigation' },
-    { tag: 'aside', role: 'complementary' }
-  ];
+  const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside', 'section', 'article', 'form', 'search'];
 
-  landmarkConfig.forEach(({ tag, role }) => {
-    let elements = document.querySelectorAll(tag);
+  // Ensure each landmark type exists at least once
+  landmarkTags.forEach(tag => {
+    const elements = body.getElementsByTagName(tag);
     if (elements.length === 0) {
-      // Create element and append to body
-      const el = document.createElement(tag);
-      el.setAttribute('role', role);
-      body.appendChild(el);
+      // Create missing landmark if necessary
+      const landmark = document.createElement(tag);
+      // Add appropriate ARIA role based on tag
+      const roleMap = {
+        'header': 'banner',
+        'footer': 'contentinfo',
+        'main': 'main',
+        'nav': 'navigation',
+        'aside': 'complementary',
+        'section': 'region',
+        'article': 'article',
+        'form': 'form',
+        'search': 'search'
+      };
+      if (roleMap[tag]) {
+        landmark.setAttribute('role', roleMap[tag]);
+      }
+      // Insert at appropriate location
+      if (tag === 'main') {
+        body.insertBefore(landmark, body.firstChild);
+      } else {
+        body.appendChild(landmark);
+      }
     } else {
       // Ensure first element has the role (if not set)
-      elements.forEach((el, index) => {
-        if (index === 0 && !el.getAttribute('role')) {
-          el.setAttribute('role', role);
+      const firstEl = elements[0];
+      if (firstEl && !firstEl.getAttribute('role')) {
+        const roleMap = {
+          'header': 'banner',
+          'footer': 'contentinfo',
+          'main': 'main',
+          'nav': 'navigation',
+          'aside': 'complementary',
+          'section': 'region',
+          'article': 'article',
+          'form': 'form',
+          'search': 'search'
+        };
+        if (roleMap[tag]) {
+          firstEl.setAttribute('role', roleMap[tag]);
         }
-        // Optionally, remove role from duplicates? Not required.
-      });
+      }
     }
-  );
+  });
+
+  // Ensure proper nesting and structure
+  const main = body.querySelector('main') || body.querySelector('[role="main"]');
+  if (main) {
+    // Move main content to be after header but before footer
+    const header = body.querySelector('header');
+    const footer = body.querySelector('footer');
+    if (header && footer) {
+      header.parentNode.insertBefore(main, header.nextSibling);
+      footer.parentNode.insertBefore(footer, main.nextSibling);
+    }
+  }
 }

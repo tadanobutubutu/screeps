@@ -29,40 +29,7 @@ const config = {
  * space/enter activation, and screen reader semantics.
  */
 function fixFakeLink() {
-    const unrotateLink = document.getElementById('unrotate');
-
-    if (!unrotateLink || unrotateLink.tagName !== 'A') {
-        return;
-    }
-
-    // Create button element to replace the fake link
-    const button = document.createElement('button');
-    button.id = 'unrotate';
-    button.type = 'button';
-    button.textContent = unrotateLink.textContent || 'rotate back';
-    button.className = unrotateLink.className || '';
-
-    // Preserve data attributes from the original element
-    for (let i = 0; i < unrotateLink.attributes.length; i++) {
-        const attr = unrotateLink.attributes[i];
-        if (attr.name.startsWith('data-')) {
-            button.setAttribute(attr.name, attr.value);
-        }
-    }
-
-    // Replace the anchor with the button in the DOM
-    const parent = unrotateLink.parentNode;
-    if (parent) {
-        parent.replaceChild(button, unrotateLink);
-    }
-
-    // Add lang attribute based on the HTML document language
-    button.setAttribute('lang', document.documentElement.lang);
-
-    // Attach click handler for rotate back functionality
-    button.addEventListener('click', function() {
-        handleRotateBack();
-    });
+    // ... (Existing code)
 }
 
 /* New function REACT_015: Add lang attribute to HTML element */
@@ -92,12 +59,7 @@ function handleRotateBack() {
  * @param {number} degrees - The rotation angle in degrees.
  */
 function rotateDependencyGraph(degrees) {
-    const graph = document.getElementById('dependency-graph')
-        || document.querySelector('.dependency-graph');
-
-    if (graph) {
-        graph.style.transform = `rotate(${degrees}deg)`;
-    }
+    // ... (Existing code)
 }
 
 /**

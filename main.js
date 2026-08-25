@@ -2,45 +2,45 @@
 import React from 'react';
 
 // HTML Lang Attribute
-const App = () => (
+export const App = () => (
   <html lang="en">
     {/* Rest of the App JSX code */}
   </html>
 );
 
 // Table Structure Issues
-const ExampleTable = () => (
+export const ExampleTable = () => (
   <table>
     {/* Properly structured table */}
   </table>
 );
 
 // Landmark Issues
-const AppLandmark = () => (
+export const AppLandmark = () => (
   <>
     {/* Existing app content with appropriate landmark tags (for example, <header>, <nav>, <main>, <footer>) */}
   </>
 );
 
 // SVG Accessible Names
-const AccessibleSvg1 = () => (
+export const AccessibleSvg1 = () => (
   <svg role="img" aria-label="Description for SVG1">
     {/* Existing SVG1 code */}
   </svg>
 );
 
-const AccessibleSvg2 = () => (
+export const AccessibleSvg2 = () => (
   <svg role="img" aria-label="Description for SVG2">
     {/* Existing SVG2 code */}
   </svg>
 );
 
 // Landmark Uniqueness
-const MainLandmark = () => <main id="main-landmark" />;
-const FooterLandmark = () => <footer id="footer-landmark" />;
+export const MainLandmark = () => <main id="main-landmark" />;
+export const FooterLandmark = () => <footer id="footer-landmark" />;
 
 // Fake Link Issue
-const FakeLink = ({ href, children }) => (
+export const FakeLink = ({ href, children }) => (
   <a href={href} role="button" tabIndex={0}>
     {children}
   </a>

@@ -47,18 +47,26 @@ function dependencyGraphFunction() {
           ? rendered.props.children 
           : [rendered.props.children];
         
+        let mainFound = false;
         const processedChildren = children.map((child, index) => {
-          // Skip the first <main> element (index 0), replace subsequent ones with <section>
-          if (index > 0 && child && child.type === 'main') {
-            return React.createElement('section', { 
-              key: child.key || index,
-              ...child.props
-            }, child.props.children);
+          // Check if this child is a <main> element
+          if (child && (child.type === 'main' || (typeof child.type === 'string' && child.type === 'main'))) {
+            if (!mainFound) {
+              // Keep the first <main> element
+              mainFound = true;
+              return child;
+            } else {
+              // Replace subsequent <main> elements with <section>
+              return React.createElement('section', { 
+                key: child.key || index,
+                ...child.props
+              }, child.props.children);
+            }
           }
           return child;
         });
         
-        return React.createElement('div', { role: 'main' }, processedChildren);
+        return React.createElement(React.Fragment, null, processedChildren);
       }
       
       return rendered;
@@ -121,7 +129,7 @@ function indexFunction() {
 
   // Apply ensureUniqueLandmarks to index content as well
   // This ensures the index view also follows the single <main> landmark pattern
-  const fixedContent = ensureUniqueLandmarks ? ensureUniqueLandmarks(indexContent) : indexContent;
+  const fixedContent = ensureUniqueLandmarks(indexContent);
 
   // Accessibility: Add back any required exports that might have been removed (if any)
   // This step is optional since the index view doesn't directly import any external modules

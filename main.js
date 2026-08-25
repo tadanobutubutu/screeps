@@ -27,46 +27,6 @@ function dependencyGraphFunction() {
     return externalModules;
   }
 
-  // New function for ensuring unique landmarks
-  function ensureUniqueLandmarks(content) {
-    // Ensure the returned content has proper landmark structure
-    // Keep a single <main> landmark; use <section> for other regions
-    if (!content || !content.render) {
-      return content;
-    }
-
-    // Create a wrapper that ensures unique landmarks in the rendered output
-    const originalRender = content.render.bind(content);
-    content.render = function(...args) {
-      const rendered = originalRender(...args);
-      
-      // Replace any duplicate <main> elements with <section> to maintain unique landmark structure
-      // This ensures screen readers encounter only one <main> landmark
-      if (rendered && rendered.props && rendered.props.children) {
-        const children = Array.isArray(rendered.props.children) 
-          ? rendered.props.children 
-          : [rendered.props.children];
-        
-        const processedChildren = children.map((child, index) => {
-          // Skip the first <main> element (index 0), replace subsequent ones with <section>
-          if (index > 0 && child && child.type === 'main') {
-            return React.createElement('section', { 
-              key: child.key || index,
-              ...child.props
-            }, child.props.children);
-          }
-          return child;
-        });
-        
-        return React.createElement('div', { role: 'main' }, processedChildren);
-      }
-      
-      return rendered;
-    };
-
-    return content;
-  }
-
   // ---------------------------------------------------
 
   // New constant region for external modules
@@ -121,7 +81,7 @@ function indexFunction() {
 
   // Apply ensureUniqueLandmarks to index content as well
   // This ensures the index view also follows the single <main> landmark pattern
-  const fixedContent = ensureUniqueLandmarks ? ensureUniqueLandmarks(indexContent) : indexContent;
+  const fixedContent = ensureUniqueLandmarks(indexContent);
 
   // Accessibility: Add back any required exports that might have been removed (if any)
   // This step is optional since the index view doesn't directly import any external modules
@@ -135,10 +95,54 @@ function indexFunction() {
 function ensureLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
     const htmlElement = document.documentElement;
-    if (!htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
+    if ... {
+      ... 'en');
     }
   }
+}
+
+// Function for ensuring unique landmarks - replaces duplicate <main> elements with <section>
+function ensureUniqueLandmarks(content) {
+  // Ensure the returned content has proper landmark structure
+  // Keep a single <main> landmark; use <section> for other regions
+  if (!content || !content.render) {
+    return content;
+  }
+
+  // Create a wrapper that ensures unique landmarks in the rendered output
+  const originalRender = content.render.bind(content);
+  content.render = function(...args) {
+    const rendered = originalRender(...args);
+    
+    // Replace any duplicate <main> elements with <section> to maintain unique landmark structure
+    // This ensures screen readers encounter only one <main> landmark
+    if (rendered && rendered.props && rendered.props.children) {
+      const children = Array.isArray(rendered.props.children) 
+        ? rendered.props.children 
+        : [rendered.props.children];
+      
+      let mainFound = false;
+      const processedChildren = children.map((child, index) => {
+        // Skip the first <main> element, replace subsequent ones with <section>
+        if (child && child.type === 'main') {
+          if (mainFound) {
+            return React.createElement('section', { 
+              key: child.key || index,
+              ...child.props
+            }, child.props.children);
+          }
+          mainFound = true;
+        }
+        return child;
+      });
+      
+      return React.createElement('div', { role: 'main' }, processedChildren);
+    }
+    
+    return rendered;
+  };
+
+  return content;
 }
 
 // ... other functions and exports ...

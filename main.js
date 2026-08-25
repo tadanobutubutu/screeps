@@ -1,17 +1,44 @@
-Here is the resolved file content:
+// Accessibility fixes for Screeps bots based on insight report
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_027: Fix table structure issues (react implementation)
+// - REACT_017: Add/fix landmark issues (react implementation)
+// - REACT_041: Add accessible names to SVGs (react implementation)
+// - REACT_025: Ensure unique landmarks (react implementation)
 
-```javascript
-// Accessibility fix for REACT_015: Add lang attribute to HTML element
-const addLangAttribute = () => {
-  const htmlElement = document.documentElement;
-  if (htmlElement && htmlElement.lang === '') {
-    htmlElement.lang = 'en';
-  }
-};
-
-// Accessibility fix for REACT_027: Fix table structure issues (react implementation)
 import React from 'react';
 
+// Function to add lang attribute to HTML element
+export function addLangAttribute(lang = 'en') {
+  document.documentElement.lang = lang;
+}
+
+// REACT_025: Additional accessibility improvements
+export function initializeAccessibility() {
+  // Set default language attribute
+  addLangAttribute();
+  
+  // Prevent tab trapping outside of modals by managing focus
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.dispatchEvent(new CustomEvent('escapePressed'));
+    }
+  });
+  
+  // Ensure skip link functionality if skip link exists
+  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      const target = document.querySelector('#main-content, main, [role="main"]');
+      if (target) {
+        e.preventDefault();
+        target.setAttribute('tabindex', '-1');
+        target.focus();
+      }
+    });
+  }
+}
+
+// Accessibility fix for REACT_027: Fix table structure issues (react implementation)
 const fixTableStructure = (tableComponent) => {
   return React.forwardRef(({ caption, headers, rows, ...props }, ref) => {
     return (
@@ -39,8 +66,6 @@ const fixTableStructure = (tableComponent) => {
 };
 
 // Accessibility fix for REACT_017: Add/fix landmark issues (react implementation)
-import React from 'react';
-
 const addLandmarkIssues = (Component, landmarkType, label) => {
   const landmarkRoles = {
     header: 'banner',
@@ -64,8 +89,6 @@ const addLandmarkIssues = (Component, landmarkType, label) => {
 };
 
 // Accessibility fix for REACT_041: Add accessible names to SVGs (react implementation)
-import React from 'react';
-
 export const addSvgAccessibleNames = (svgProps) => {
   return {
     ...svgProps,
@@ -76,8 +99,6 @@ export const addSvgAccessibleNames = (svgProps) => {
 };
 
 // Accessibility fix for REACT_025: Ensure unique landmarks (react implementation)
-import React from 'react';
-
 export const ensureUniqueLandmarks = (landmarkElements) => {
   return landmarkElements.map((element, index) => {
     const existingLabel = element.props?.['aria-label'];
@@ -97,7 +118,18 @@ export { addLandmarkRegions, fixImageAltTexts };
 export { googleSignIn };
 
 // Export the remaining accessibility functions
-export { addLangAttribute, fixTableStructure, fixLandmarkIssues, addSvgAccessibleNames, ensureUniqueLandmarks };
-```
+export { fixTableStructure, addLandmarkIssues };
 
-This merged file contains the common JavaScript code from both branches for fixing accessibility issues in Screeps bots, including improvements for table structure, landmark roles, image alt texts, and handling unique landmarks. It also exports the Google sign-in logic and the functions for adding Landmark Regions and fixing image alt texts.
+// Initialize accessibility features on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+  } else {
+    initializeAccessibility();
+  }
+}
+
+// Existing code preserved - add your app initialization below
+// import React from 'react';
+// import ReactDOM from 'react-dom/client';
+// root.render(<App />);

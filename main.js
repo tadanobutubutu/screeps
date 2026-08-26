@@ -29,7 +29,7 @@ export function parseDependencyData() {
   };
 }
 
-export function getDashboardConfig() {
+export function ... {
   // Return dashboard configuration
   return {
     refreshInterval: 300000, // 5 minutes

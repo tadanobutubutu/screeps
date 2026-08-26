@@ -97,6 +97,9 @@ function addMainLandmark() {
       footer.setAttribute('role', 'contentinfo');
     }
   }
+
+  // Ensure a main landmark exists wrapping primary content
+  wrapPrimaryContentInMain();
 }
 
 /**

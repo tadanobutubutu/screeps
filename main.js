@@ -92,7 +92,7 @@ function ensureUniqueLandmarks(filePath) {
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
 
   landmarks.forEach(landmark => {
-    const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
+    let regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
     let match;
     let existingIds = [];
     let count = 0;

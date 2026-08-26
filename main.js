@@ -1,4 +1,6 @@
-let myHtml = ``; // With your existing HTML string
+let myHtml = `
+  <a id="unrotate" href="#">rotate back</a>
+`;
 
 function generateHtmlWithLangAttribute() {
   // You can specify the tag and language as needed
@@ -7,9 +9,8 @@ function generateHtmlWithLangAttribute() {
 }
 
 // TODO: Address accessibility issues from insight report
-// - Add lang attribute to HTML element
-// This line can probably be removed if myHtml variable already includes the HTML
-myHtml = generateHtmlWithLangAttribute();
+// - Replace the anchor tag with a button for better keyboard and screen reader accessibility
+myHtml = myHtml.replace('<a id="unrotate" href="#">rotate back</a>', '<button id="unrotate">rotate back</button>');
 
 // TODO: Preserve existing exports and functions
 // ... (Keep existing code, exports, and functions as they are)

@@ -59,7 +59,7 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('.content') || document.body.firstElementChild;
+    const content = document.querySelector('.content') || document.body;
     if (content) {
       main.appendChild(content);
       document.body.insertBefore(main, content);
@@ -122,8 +122,8 @@ function ensureUniqueLandmarks() {
         while (main.firstChild) {
           section.appendChild(main.firstChild);
         }
-        const attributes = Array.from(main.attributes);
-        attributes.forEach(attr => {
+        const attributes = main.attributes;
+        Array.from(attributes).forEach(attr => {
           if (attr.name !== 'aria-label') {
             section.setAttribute(attr.name, attr.value);
           }
@@ -136,7 +136,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('div.clickable');
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"], button:not([type])');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

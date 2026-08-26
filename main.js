@@ -10,7 +10,12 @@ function existingFunction2() {
   // ... existing code ...
 }
 
-// New functions to be added
+// The added function to render dependency graphs
+function renderDependencyGraph() {
+  // ... your implementation for rendering dependency graphs ...
+}
+export { renderDependencyGraph };
+
 function newFunction1() {
   // ... new functionality ...
 }

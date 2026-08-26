@@ -47,6 +47,38 @@ function addRoleAndLabelToCheckbox(filePath) {
   console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
 }
 
+// New function to address accessibility issues
+function addressAccessibilityIssues(filePath) {
+  // Example of a simple check for empty `alt` attribute in images
+  const images = content.match(/<img [^>]*>/g);
+  if (images) {
+    images.forEach((image) => {
+      const altAttribute = image.match(/alt="([^"]*)"/);
+      if (!altAttribute || altAttribute[1].trim() === '') {
+        updatedContent = updatedContent.replace(
+          image,
+          image.replace('<img', '<img alt="Image description"')
+        );
+      }
+    });
+  }
+
+  // Example of adding `aria-label` to buttons
+  const buttons = content.match(/<button [^>]*>/g);
+  if (buttons) {
+    buttons.forEach((button) => {
+      updatedContent = updatedContent.replace(
+        button,
+        button.replace('<button', '<button aria-label="Button description"')
+      );
+    });
+  }
+
+  // Write the updated content back to the file
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Improved accessibility in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -56,4 +88,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addRoleAndLabelToCheckbox,
+  addressAccessibilityIssues,
 };

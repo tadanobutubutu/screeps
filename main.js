@@ -7,7 +7,6 @@ const renderDependencyGraph = function (graph) {
   // Example implementation for demonstration purposes
   graph.forEach(node => {
     result.push(`Node: ${node.name}`);
-    result.push(`Dependencies:`);
     node.dependencies.forEach(dep => result.push(`  - ${dep}`));
   });
 

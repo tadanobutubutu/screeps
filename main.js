@@ -67,3 +67,19 @@ function handleAccessibilityIssues() {
   // You should replace this with your actual implementation
   // ...
 }
+
+// New function requested in the issue
+function calculateAverageRating() {
+  // Example implementation to calculate the average rating of a product
+  // You should replace this with your actual implementation
+  let sum = 0;
+  let count = 0;
+  // Assuming we have an array of ratings like: [4, 3, 5, 2, 5]
+  const ratings = [4, 3, 5, 2, 5];
+  ratings.forEach(function(rating) {
+    sum += rating;
+    count++;
+  });
+  const averageRating = sum / count;
+  return averageRating;
+}

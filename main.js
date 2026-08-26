@@ -4,7 +4,7 @@ interface DashboardProps {
   // Define any props that the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -12,11 +12,29 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
   const copyErr = () => {
-    // Implementation for copying error message
+    if (error) {
+      navigator.clipboard.writeText(error);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const fetchStats = (shouldRefresh: boolean) => {
-    // Implementation for fetching statistics
+    if (shouldRefresh) {
+      setRefreshing(true);
+    }
+    // Fetch implementation
+    fetch('/api/stats')
+      .then((res) => res.json())
+      .then((data) => {
+        // Handle successful data fetch
+        setError(null);
+        setRefreshing(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to fetch stats');
+        setRefreshing(false);
+      });
   };
 
   return (

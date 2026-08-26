@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report:
 // - ...
+
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -74,7 +75,7 @@ const addSkipLink = (document) => {
   skipLink.style.position = 'absolute';
   skipLink.style.top = '-40px';
   skipLink.style.left = '0';
-  skipLink.style.backgroundColor = '#000';
+  skipLink.style.background = '#000';
   skipLink.style.color = '#fff';
   skipLink.style.padding = '8px 16px';
   skipLink.style.zIndex = '10000';
@@ -88,10 +89,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -155,7 +156,7 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach((type) => {
+  landmarkTypes.forEach(type => {
     const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
@@ -180,12 +181,28 @@ const addressAccessibilityIssues = (document) => {
     return document;
   }
 
+  // Wrap primary content in main element
   wrapPrimaryContentInMain(document);
+  
+  // Add skip link for keyboard navigation
   addSkipLink(document);
-  addLangAttribute(document);
-  fixTableStructureIssues(document);
+  
+  // Add proper landmark regions
+  addProperLandmarkRegions(document);
+  
+  // Ensure unique landmarks
   ensureUniqueLandmarks(document);
+  
+  // Add language attribute to HTML
+  addLangAttribute(document);
+  
+  // Fix table structure issues
+  fixTableStructureIssues(document);
+  
+  // Add accessible names to SVGs
   addSvgAccessibleNames(document);
+  
+  // Fix fake link issues (links without proper href)
   fixFakeLinkIssue(document);
 
   return document;
@@ -216,4 +233,128 @@ const addLangAttribute = (document) => {
   return document;
 };
 
-const fixTableStructureIssues = (document) =>
+const fixTableStructureIssues = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper structure
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        thead.appendChild(firstRow.cloneNode(true));
+        table.insertBefore(thead, table.firstChild);
+        firstRow.remove();
+      }
+    }
+
+    // Ensure tables have a caption or title for accessibility
+    if (!table.querySelector('caption') && table.id) {
+      const caption = document.createElement('caption');
+      caption.textContent = table.id.replace(/-/g, ' ').replace(/^\w/, c => c.toUpperCase());
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Add scope attributes to header cells
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const row = th.parentElement;
+        if (row && row.parentElement && row.parentElement.tagName === 'THEAD') {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
+      }
+    });
+  });
+
+  return document;
+};
+
+const ensureUniqueLandmarks = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', '[role="banner"]', '[role="navigation"]', '[role="main"]', '[role="contentinfo"]', '[role="complementary"]'];
+  
+  landmarkSelectors.forEach(selector => {
+    const landmarks = document.querySelectorAll(selector);
+    if (landmarks.length > 1) {
+      let counter = 1;
+      landmarks.forEach(landmark => {
+        if (!landmark.id) {
+          const baseName = selector.replace(/[^a-zA-Z0-9]/g, '-').replace(/^-|-$/g, '');
+          landmark.id = `${baseName}-${counter}`;
+          counter++;
+        }
+      });
+    }
+  });
+
+  return document;
+};
+
+const addSvgAccessibleNames = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Check if SVG already has an accessible name
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
+    const hasTitle = svg.querySelector('title');
+    
+    if (!hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
+      // Add a title element for accessibility
+      const title = document.createElement('title');
+      const existingId = svg.id || `svg-${Math.random().toString(36).substr(2, 9)}`;
+      if (!svg.id) {
+        svg.id = existingId;
+      }
+      title.textContent = `SVG graphic ${existingId}`;
+      title.id = `${existingId}-title`;
+      
+      // Insert title as first child of SVG
+      if (svg.firstChild) {
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        svg.appendChild(title);
+      }
+      
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+
+  return document;
+};
+
+const fixFakeLinkIssue = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    // Check if it looks like a link but has no href
+    if (link.onclick || link.getAttribute('role') === 'link' || link.className.includes('link')) {
+      // Add button role if it's not a real link
+      if (!link.getAttribute('href') && !link.getAttribute('role')) {
+        link.setAttribute('role', 'button');
+      }
+      
+      // Add tabindex to make it keyboard accessible
+      if (!link.hasAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+    }
+  });
+
+  return document;
+};

@@ -168,6 +168,37 @@ function addSvgAccessibleNames(document) {
   return count;
 }
 
+// New function to address REACT_041 specifically for SVGs missing title elements
+function addAccessibleNamesToSVGs(document) {
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    // Check if SVG already has accessible name via title or aria-label
+    const hasAccessibleName = svg.getAttribute('aria-label') || 
+                              svg.getAttribute('aria-labelledby') ||
+                              svg.querySelector('title');
+    
+    if (!hasAccessibleName) {
+      // Create a title element for the SVG
+      const title = document.createElement('title');
+      // Use index+1 for unique ID
+      const titleId = `svg-title-${index + 1}`;
+      title.id = titleId;
+      title.textContent = `Icon ${index + 1}`;
+      
+      // Add title as first child of SVG
+      if (svg.firstChild) {
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        svg.appendChild(title);
+      }
+      
+      // Associate the title with the SVG using aria-labelledby
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
+
 // Function to fix fake link issue (origin/main approach - more robust)
 function fixFakeLinkIssue(document) {
   let count = 0;
@@ -343,7 +374,7 @@ function implementAccessibilityFixesFromReport(document) {
   // Assuming the insight report provides an object with the issues to be addressed
   const insightReport = {
     'REACT_015': () => addLangAttribute(document),
-    'REACT_041': () => addSvgAccessibleNames(document),
+    'REACT_041': () => { addSvgAccessibleNames(document); addAccessibleNamesToSVGs(document); },
     'REACT_036': () => { fixFakeLinkIssue(document); fixFakeLinkIssues(document); },
     'REACT_017': () => { fixLandmarkIssues(document); addLandmarkRegions(document); addMainLandmark(document); },
     'REACT_027': () => fixTableStructure(document),
@@ -379,6 +410,7 @@ export {
   handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
+  addAccessibleNamesToSVGs,
   implementAccessibilityFixesFromReport,
   class1, 
   function1, 

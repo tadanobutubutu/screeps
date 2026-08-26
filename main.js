@@ -1,4 +1,5 @@
 // TODO: Address accessibility issues from insight report — FIXED
+// TODO: Add new function to add role and aria-label to input type="radio" for better accessibility
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
@@ -29,6 +30,25 @@ function addSvgAccessibleNames(filePath) {
   // ... existing code ...
 }
 
+// NEW FUNCTION: addRoleAndLabelToRadio
+function addRoleAndLabelToRadio(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const radios = content.match(/<input type="radio"/g);
+  if (radios) {
+    radios.forEach((radio) => {
+      updatedContent = updatedContent.replace(
+        radio,
+        radio.replace('<input', '<input role="radio" aria-label="radio"')
+      );
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added role and aria-label to radios for better accessibility in ${filePath}`);
+}
+
 function addRoleAndLabelToCheckbox(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
@@ -43,8 +63,18 @@ function addRoleAndLabelToCheckbox(filePath) {
     });
   }
 
+  const radios = content.match(/<input type="radio"/g);
+  if (radios) {
+    radios.forEach((radio) => {
+      updatedContent = updatedContent.replace(
+        radio,
+        radio.replace('<input', '<input role="radio" aria-label="radio"')
+      );
+    });
+  }
+
   fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
+  console.log(`Added role and label to checkboxes and radios for better accessibility in ${filePath}`);
 }
 
 module.exports = {
@@ -56,4 +86,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addRoleAndLabelToCheckbox,
+  addRoleAndLabelToRadio,
 };

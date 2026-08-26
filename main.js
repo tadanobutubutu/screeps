@@ -1,43 +1,6 @@
-Below is the resolved main.js file with both changes integrated:
-
-```javascript
 /*
 ======= main.js =======
-<div>
-  <header>
-    {/* Header content */}
-  </header>
-  <main>
-    {/* Primary content */}
-  </main>
-  <footer>
-    {/* Footer content */}
-  </footer>
-  <div>
-    {/* Wrap the existing table in a more accessible Table structure */}
-    <Table data={data}>
-      {/* Address warning issue: React Fake Link */}
-      {/* Use Link component from next/link or react-router-dom instead of regular a tags for navigation */}
-      {/* ... existing table structure (adjust as needed) ... */}
-      <table role="grid" aria-label="My Table">
-        {/* ... add thead, tbody, and tr/th/td structure depending on data structure ... */}
-        {/* Address warning issue: React Table Structure */}
-        {/* Ensure the table headers have associated scope attributes */}
-        <thead>
-          <tr>
-            <th scope="col"><div>src/constants.js</div></th>
-            <th scope="col"><div>src/managers/roomManager.js</div></th>
-            <th scope="col"><div>src/managers/spawnManager.js</div></th>
-            {/* ... other <th> elements ... */}
-          </tr>
-        </thead>
-        {/* ... adjust row and cell structure to add scope="col" to headers */}
-      </table>
-    </Table>
-  </div>
-</div>
-=======
-// Import external package for internationalization
+*/
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
@@ -73,5 +36,3 @@ Main.propTypes = {
 
 export default Main;
 >>>>>>> origin/main
-*/
-```

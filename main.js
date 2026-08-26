@@ -1,11 +1,1 @@
-// main.js - Screeps Code Quality Metrics
-// This file contains the JavaScript entry point for the documentation site
-
-(function() {
-    'use strict';
-
-    // Initialize any required JavaScript functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Screeps Code Quality Metrics loaded');
-    });
-})();
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

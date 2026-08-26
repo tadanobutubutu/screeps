@@ -1,4 +1,8 @@
-Here is the resolved version of `main.js`:
+Looking at this conflict, the HEAD side contains a substantial resolved version of `main.js` with accessibility fixes, while the origin/main side is essentially a placeholder request for the file contents.
+
+The HEAD side appears to be the actual intended code with meaningful logic, while origin/main contains no real code—just a request to paste file contents. The HEAD version is clearly the working implementation that should be kept.
+
+The resolved file content is:
 
 ```javascript
 // Import the required module
@@ -149,5 +153,3 @@ module.exports = {
   someFunction
 };
 ```
-
-In this version, the code integrates both changes (fixing fake links and implementing unique landmarks), choosing the correct logic that compiles and satisfies both needs. It also extracts the shared functionality of fixing fake links from the new function and puts it in its own function (`fixFakeLinks`); makes use of the new function to implement accessibility fixes (`implementAccessibilityFixes`); and removes redundant code related to fixing table header cell scope, since it has not been addressed in either change.

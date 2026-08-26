@@ -8,6 +8,11 @@ function fixFakeLinkIssue(filePath) {
   console.log(`Changed anchor tag to button for better accessibility in ${filePath}`);
 }
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+
 function addAriaAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');

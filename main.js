@@ -2,28 +2,68 @@
 
 // TODO: Implement addProperLandmarkRegions();
 
-// … (existing code, imports, and exports — please insert them here)
-
+/**
+ * Adds proper landmark regions to the page for accessibility
+ * This function ensures that content areas have appropriate ARIA landmark roles
+ */
 function addProperLandmarkRegions() {
-  // Implement your function logic here
-}
+  // Add banner landmark to header if it exists
+  const header = document.querySelector('header');
+  if (header && !header.hasAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
 
-// Assuming you're adding the scope attributes to the th elements inside the table in 'myTable' id
-const myTable = document.getElementById('myTable');
-if (myTable) {
-  const tableHead = myTable.getElementsByTagName('thead')[0];
-  if (tableHead) {
-    const headers = tableHead.getElementsByTagName('th');
-    for (let i = 0; i < headers.length; i++) {
-      headers[i].setAttribute('scope', 'col');
+  // Add main landmark to main content area if it exists
+  const main = document.querySelector('main');
+  if (main && !main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+
+  // Add navigation landmark to nav elements
+  const navs = document.querySelectorAll('nav');
+  navs.forEach(nav => {
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+
+  // Add complementary landmark to aside elements
+  const asides = document.querySelectorAll('aside');
+  asides.forEach(aside => {
+    if (!aside.hasAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+  });
+
+  // Add contentinfo landmark to footer if it exists
+  const footer = document.querySelector('footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Add search landmark to search elements
+  const searches = document.querySelectorAll('[role="search"], .search, #search');
+  searches.forEach(search => {
+    if (!search.hasAttribute('role')) {
+      search.setAttribute('role', 'search');
+    }
+  });
+
+  // Assuming you're adding the scope attributes to the th elements inside the table in 'myTable' id
+  const myTable = document.getElementById('myTable');
+  if (myTable) {
+    const tableHead = myTable.getElementsByTagName('thead')[0];
+    if (tableHead) {
+      const headers = tableHead.getElementsByTagName('th');
+      for (let i = 0; i < headers.length; i++) {
+        headers[i].setAttribute('scope', 'col');
+      }
     }
   }
 }
 
-// … (remaining existing code, exports, and functions — please insert them here)
-
-module.exports = {
-  // Export whichever modules/functions you want to expose here
-  addProperLandmarkRegions,
-  // Other exports …
-};
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { addProperLandmarkRegions };
+} else {
+  window.addProperLandmarkRegions = addProperLandmarkRegions;
+}

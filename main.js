@@ -8,7 +8,11 @@ import { indexContent } from "./indexContent";
 // Import content modules for dependency graphs and index views
 // ... (Pre-existing code)
 
-// Add the following helper function at the end of the main.js file to create a mock React context
+/**
+ * Creates a mock React context for rendering components in a server-side environment.
+ * 
+ * @returns {Object} - An object containing mock window, document, and rootElement
+ */
 function createReactContext() {
   const { JSDOM: { window } } = JSDOM;
 
@@ -31,6 +35,11 @@ function createReactContext() {
   };
 }
 
+/**
+ * Adds aria-labelledby attribute to the given element if needed.
+ * 
+ * @param {HTMLElement} elem - The DOM element to process
+ */
 function addAriaLabelledbyIfNeeded(elem) {
   if (!elem) return;
 
@@ -50,11 +59,11 @@ function addAriaLabelledbyIfNeeded(elem) {
       }
     })();
   } else if (elem.getAttribute && elem.getAttribute('data-attribute')) {
-    content = <div id="generatedId">{/* Your custom React component here */}</div>;
+    content = `<div id="generatedId">{/* Your custom React component here */}</div>`;
   } else if (elem.getAttribute && elem.getAttribute('data-component')) {
-    content = <div id="generatedId">{/* Your custom React component here */}</div>;
+    content = `<div id="generatedId">{/* Your custom React component here */}</div>`;
   } else {
-    content = <div id="generatedId">{/* Your default React component here */}</div>;
+    content = `<div id="generatedId">{/* Your default React component here */}</div>`;
   }
 
   const contentString = ReactDOMServer.renderToString(content);
@@ -62,6 +71,9 @@ function addAriaLabelledbyIfNeeded(elem) {
   // Pre-existing logic
 }
 
+/**
+ * Initializes aria labels for all elements.
+ */
 function initAriaLabels() {
   const elements = [];
   elements.forEach((elem) => {
@@ -75,8 +87,8 @@ function initAriaLabels() {
     // New logic: Create a context, render a React component, and call addAriaLabelledbyIfNeeded
     const context = createReactContext();
     const content = elem.getAttribute('data-component')
-      ? <div id="generatedId">{/* Your custom React component here */}</div>
-      : <div id="generatedId">{/* Your default React component here */}</div>;
+      ? `<div id="generatedId">{/* Your custom React component here */}</div>`
+      : `<div id="generatedId">{/* Your default React component here */}</div>`;
     addAriaLabelledbyIfNeeded(elem);
   });
 }

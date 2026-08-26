@@ -126,12 +126,14 @@ const addProperLandmarkRegions = function(content) {
         let result = content;
 
         // Add banner landmark (header) if not present
-        if (!/<header/i.test(result) && !/<banner/i.test(result)) {
+        const bannerMatch = content.match(/<header/i);
+        if (!bannerMatch) {
             result = result.replace(/<body/i, '<header role="banner"></header><body');
         }
 
         // Add contentinfo landmark (footer) if not present
-        if (!/<footer/i.test(result) && !/<contentinfo/i.test(result)) {
+        const contentinfoMatch = content.match(/<footer/i);
+        if (!contentinfoMatch) {
             result = result.replace(/<\/body>/i, '<footer role="contentinfo"></footer></body>');
         }
 
@@ -141,34 +143,6 @@ const addProperLandmarkRegions = function(content) {
 };
 
 // ... (You can add more functions as needed)
-
-// If necessary, update the export for the new functions
-// Example assuming exporting as default
-const renderDependencyGraph1 = function() {
-    // Implementation for rendering dependency graph with horizontal layout
-    // This function creates a dependency graph visualization
-    // Returns a configured graph object or JSX representation
-    return {
-        type: 'dependency-graph',
-        layout: 'horizontal',
-        nodes: [],
-        edges: []
-    };
-};
-
-const renderDependencyGraph2 = function() {
-    // Implementation for rendering dependency graph with vertical layout
-    // This function creates an alternate visualization of the dependency graph
-    // Returns a configured graph object or JSX representation
-    return {
-        type: 'dependency-graph',
-        layout: 'vertical',
-        nodes: [],
-        edges: []
-    };
-};
-
-// ... Existing code including exports for previous functions that are not affected ...
 
 // Export the updated functions
 module.exports = {

@@ -14,7 +14,8 @@ const isSafetyEnabled = true;
 // </body>
 // </html>
 
-const img = document.getElementById('target'); let rotation = 0;
+const img = document.querySelector('img');
+let rotation = 0;
 
 function rotate() {
   rotation += 90;
@@ -41,7 +42,7 @@ function add(a, b) {
  * @param {Object} node - The JSXElement node for svg
  * @returns {Object} - { hasAccessibleName: boolean, ariaHidden: boolean, suggestion: string }
  */
-function checkSVGAccessibleName(node) {
+function hasSVGAccessibleName(node) {
   const attributes = node.openingElement.attributes;
   
   // Check for aria-hidden="true"
@@ -80,6 +81,24 @@ function checkSVGAccessibleName(node) {
   }
 
   return { hasAccessibleName: false, ariaHidden: false, suggestion: null };
+}
+
+/**
+ * Checks if an attribute has a specific value
+ * @param {Object} attr - The JSXAttribute node
+ * @param {*} value - The value to check for
+ * @returns {boolean} - True if the attribute has the specified value
+ */
+function hasAttributeWithValue(attr, value) {
+  if (!attr || !attr.value) return false;
+  
+  if (attr.value.type === 'Literal') {
+    return attr.value.value === value;
+  }
+  if (attr.value.type === 'JSXExpressionContainer' && attr.value.expression) {
+    return attr.value.expression.value === value;
+  }
+  return false;
 }
 
 /**
@@ -123,8 +142,11 @@ function addAriaLabel(elem, label) {
 }
 
 // Add `aria-label` to the rotation and unrotate buttons
-addAriaLabel(document.getElementById('rotate'), 'Rotate image clockwise');
-addAriaLabel(document.getElementById('unrotate'), 'Rotate image anti-clockwise');
+const rotateBtn = document.querySelector('.rotate-btn');
+addAriaLabel(rotateBtn, 'Rotate image clockwise');
+
+const unrotateBtn = document.querySelector('.unrotate-btn');
+addAriaLabel(unrotateBtn, 'Rotate image anti-clockwise');
 
 /**
  * A new function for adding `aria-label` to arbitrary elements
@@ -138,7 +160,7 @@ function setAriaLabelOn(elem, label) {
 }
 
 // An example usage of the new function with a custom button element
-const customBtn = document.getElementById('custom-btn');
+const customBtn = document.querySelector('.custom-btn');
 setAriaLabelOn(customBtn, 'Perform custom action');
 
 /**
@@ -171,7 +193,7 @@ function createReact041(context) {
       if (ariaHiddenAttr && hasAttributeWithValue(ariaHiddenAttr, 'true')) return;
 
       // Check for accessible name
-      const result = checkSVGAccessibleName(node);
+      const result = hasSVGAccessibleName(node);
 
       if (!result.hasAccessibleName) {
         context.report({
@@ -241,7 +263,7 @@ module.exports.default = create;
 module.exports.ruleName = 'REACT_027';
 module.exports.create = create;
 
-// New rule exports
+// New rule exports for REACT_041
 module.exports.REACT_041 = {
   meta: {
     type: 'suggestion',
@@ -261,8 +283,10 @@ module.exports.REACT_041 = {
 // Export create function for REACT_041
 module.exports.createReact041 = createReact041;
 
-// Export utility function
-module.exports.checkSVGAccessibleName = checkSVGAccessibleName;
+// Export utility functions
+module.exports.checkSVGAccessibleName = hasSVGAccessibleName;
+module.exports.hasAttributeWithValue = hasAttributeWithValue;
+module.exports.hasSVGAccessibleName = hasSVGAccessibleName;
 
 // Main Screeps exports
 module.exports.loop = function() { /* Main game loop logic myNewFunction(); */ };
@@ -272,3 +296,5 @@ module.exports.multiply = multiply;
 module.exports.divide = divide;
 module.exports.addAriaLabel = addAriaLabel;
 module.exports.setAriaLabelOn = setAriaLabelOn;
+module.exports.rotate = rotate;
+module.exports.rotateBack = rotateBack;

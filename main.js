@@ -63,6 +63,14 @@ function newFunctionForAccessibilityIssue(element) {
     }
   });
 
+  // Fix table header cells that lack a scope attribute (REACT_027)
+  // Add scope="col" so assistive technologies can programmatically
+  // associate header cells with their corresponding data cells.
+  const tableHeaders = element.querySelectorAll('th:not([scope])');
+  tableHeaders.forEach((th) => {
+    th.setAttribute('scope', 'col');
+  });
+
   return element;
 }
 

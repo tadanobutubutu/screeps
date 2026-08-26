@@ -8,13 +8,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.getAttribute('aria-label')) {
+  if (node.hasAttribute && node.hasAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
-  if (node.getAttribute('aria-labelledby')) {
+  if (node.hasAttribute && node.hasAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = node.ownerDocument.getElementById(labelledById);
+    const labelledElement = node.ownerDocument && node.ownerDocument.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
@@ -24,7 +24,7 @@ const getAccessibleName = (node) => {
     }
   }
 
-  const titleEl = node.querySelector('title');
+  const titleEl = node.querySelector && node.querySelector('title');
   if (titleEl && titleEl.textContent) {
     return titleEl.textContent;
   }
@@ -74,27 +74,24 @@ const fixTableStructure = (document) => {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        thead.appendChild(firstRow.cloneNode(true));
+        thead.appendChild(firstRow);
         table.insertBefore(thead, table.firstChild);
       }
     }
 
     if (!table.querySelector('tbody')) {
-      const tbodies = table.querySelectorAll('tbody');
-      tbodies.forEach((tbody) => {
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        if (rows.length > 0) {
-          const newTbody = document.createElement('tbody');
-          rows.forEach((row) => newTbody.appendChild(row));
-          tbody.parentNode.replaceChild(newTbody, tbody);
-        }
-      });
+      const rows = Array.from(table.querySelectorAll('tr'));
+      if (rows.length > 0) {
+        const newTbody = document.createElement('tbody');
+        rows.forEach((row) => newTbody.appendChild(row));
+        table.appendChild(newTbody);
+      }
     }
 
     // Add scope attributes to header cells in thead
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => {
+      thead.querySelectorAll('th').forEach((th) => {
         if (!th.hasAttribute('scope')) {
           th.setAttribute('scope', 'col');
         }
@@ -104,7 +101,7 @@ const fixTableStructure = (document) => {
     // Add scope attributes to header cells in tbody (row headers)
     const tbodies = table.querySelectorAll('tbody');
     tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => {
+      tbody.querySelectorAll('th').forEach((th) => {
         if (!th.hasAttribute('scope')) {
           th.setAttribute('scope', 'row');
         }
@@ -112,7 +109,7 @@ const fixTableStructure = (document) => {
     });
 
     // Handle any th elements not inside thead or tbody (e.g. direct table rows)
-    table.querySelectorAll('th').forEach(th => {
+    table.querySelectorAll('th').forEach((th) => {
       if (!th.hasAttribute('scope')) {
         const parent = th.parentElement;
         if (parent && parent.tagName === 'TR') {
@@ -134,10 +131,10 @@ const addMainLandmark = (document) => {
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
+    while (document.firstChild) {
+      main.appendChild(document.firstChild);
     }
-    document.body.insertBefore(main, document.body.firstChild);
+    document.body && document.body.appendChild(main);
   } else {
     mains.forEach((main, index) => {
       if (!main.id) {
@@ -152,7 +149,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && svg.id) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -169,7 +166,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -208,8 +205,8 @@ const fixFakeLinkIssue = (document) => {
     if (href && !link.textContent.trim()) {
       const accessibleName = getAccessibleName(link);
       if (!accessibleName) {
-        if (link.getAttribute('aria-label')) {
-          link.setAttribute('aria-label', link.getAttribute('aria-label'));
+        if (link.title) {
+          link.setAttribute('aria-label', link.title);
         } else if (link.title) {
           link.setAttribute('aria-label', link.title);
         } else {
@@ -225,8 +222,8 @@ const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
-  ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
   return document;
 };
@@ -238,4 +235,4 @@ function exportedFunction() {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, addressAccessibilityIssues, exportedFunction };
+module.exports = { existingFunction, getAccessibleName, setAccessibleName, addLangAttribute, fixTableStructure, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, addressAccessibilityIssues, exportedFunction };

@@ -13,15 +13,15 @@ export function addLangAttribute(lang = 'en') {
 }
 
 // New function to handle button click
-function handleButtonClick(event) {
+export function handleButtonClick(event) {
   const target = event.target;
   const isExpanded = target.getAttribute('aria-expanded') === 'true' ? 'false' : 'true';
   target.setAttribute('aria-expanded', isExpanded);
 }
 
 // New function to inject and fix fake links
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link');
+export function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(function(fakeLink) {
     if (fakeLink.tagName === 'DIV' || fakeLink.tagName === 'SPAN') {
       const a = document.createElement('a');
@@ -43,8 +43,8 @@ function fixFakeLinks() {
 }
 
 // Ensure Unique Landmarks Function
-function ensureUniqueLandmarks() {
-  const existingHeaders = document.querySelectorAll('header[role="banner"]');
+export function ensureUniqueLandmarks() {
+  const existingHeaders = document.querySelectorAll('[role="banner"]');
 
   // Remove duplicate banner headers
   existingHeaders.forEach(function(header, index) {
@@ -54,7 +54,7 @@ function ensureUniqueLandmarks() {
   });
 
   // Remove duplicate contentinfo footers
-  const existingFooters = document.querySelectorAll('footer[role="contentinfo"]');
+  const existingFooters = document.querySelectorAll('[role="contentinfo"]');
   existingFooters.forEach(function(footer, index) {
     if (index > 0) {
       footer.remove();
@@ -62,7 +62,7 @@ function ensureUniqueLandmarks() {
   });
 
   // Ensure only one main landmark exists
-  const existingMains = document.querySelectorAll('main, [role="main"]');
+  const existingMains = document.querySelectorAll('[role="main"]');
   existingMains.forEach(function(main, index) {
     if (index > 0) {
       main.remove();
@@ -71,8 +71,8 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to inject primary content into main landmark
-function wrapPrimaryContentInMain() {
-  const existingMains = document.querySelectorAll('main, [role="main"]');
+export function wrapPrimaryContentInMain() {
+  const existingMains = document.querySelectorAll('[role="main"]');
 
   // If multiple main elements exist, remove duplicates (keep first)
   existingMains.forEach(function(main, index) {
@@ -82,7 +82,7 @@ function wrapPrimaryContentInMain() {
   });
 
   // Get or create main element
-  let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  let mainElement = document.querySelector('[role="main"]') || document.querySelector('main');
 
   // If no main element exists, create and wrap primary content
   if (!mainElement) {
@@ -90,20 +90,20 @@ function wrapPrimaryContentInMain() {
     mainElement.setAttribute('role', 'main');
 
     // Find primary content container (adjust selector based on your content structure)
-    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.querySelector('article') || document.body;
+    const contentContainer = document.querySelector('#content') || document.querySelector('.content') || document.querySelector('.main-content') || document.body;
 
     // Move existing content into main if not already inside one
     if (contentContainer && contentContainer.firstChild) {
       while (contentContainer.firstChild) {
         mainElement.appendChild(contentContainer.firstChild);
       }
-      contentContainer.appendChild(mainElement);
+      document.body.appendChild(mainElement);
     }
   }
 }
 
 // Add function to add 'scope="col"' attribute to table header cells
-function addScopeToTableHeaders() {
+export function addScopeToTableHeaders() {
   const tables = document.querySelectorAll('table');
   tables.forEach(function(table) {
     const headers = table.querySelectorAll('th');
@@ -116,7 +116,7 @@ function addScopeToTableHeaders() {
 }
 
 // New function to add accessible names to SVGs
-function addAccessibleSVGs() {
+export function addAccessibleSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(function(svg) {
     // Check if SVG already has a title
@@ -124,7 +124,7 @@ function addAccessibleSVGs() {
     if (!existingTitle) {
       const title = document.createElement('title');
       title.textContent = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || 'SVG graphic';
-      title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+      title.id = 'svg-title-' + Math.random().toString(36).substring(2, 11);
       svg.insertBefore(title, svg.firstChild);
       
       // Ensure SVG has aria-labelledby pointing to the title
@@ -136,7 +136,7 @@ function addAccessibleSVGs() {
 }
 
 // New function to process accessibility issues from insight report
-function processAccessibilityIssues(insightReport) {
+export function processAccessibilityIssues() {
   // Process each issue from the insight report and address accordingly
   addLangAttribute();
   fixFakeLinks();
@@ -152,17 +152,20 @@ export function initializeAccessibility() {
   addLangAttribute();
   
   // Prevent tab trapping outside of modals by managing focus
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      document.dispatchEvent(new CustomEvent('escapePressed'));
+      const modals = document.querySelectorAll('[role="dialog"]:not([aria-hidden="true"])');
+      modals.forEach(function(modal) {
+        modal.setAttribute('aria-hidden', 'false');
+      });
     }
   });
   
   // Ensure skip link functionality if skip link exists
-  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  const skipLink = document.querySelector('.skip-link, [href="#main"], .skip-to-content');
   if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      const target = document.querySelector('#main-content, main, [role="main"]');
+    skipLink.addEventListener('click', function(e) {
+      const target = document.querySelector('#main, [role="main"]');
       if (target) {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');

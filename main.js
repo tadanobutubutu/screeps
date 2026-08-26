@@ -126,22 +126,6 @@ const addMainLandmark = (document) => {
   return document;
 };
 
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-    svgIndex++;
-  });
-  return document;
-};
-
 const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
@@ -176,6 +160,22 @@ const ensureUniqueLandmarks = (document) => {
     });
   });
 
+  return document;
+};
+
+const addSvgAccessibleNames = (document) => {
+  const svgs = document.querySelectorAll('svg');
+  let svgIndex = 0;
+  svgs.forEach((svg) => {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG ${svgIndex + 1}`;
+      title.id = `svg-title-${svgIndex + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+    svgIndex++;
+  });
   return document;
 };
 

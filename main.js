@@ -1,7 +1,22 @@
-// Import external package for internationalization
-import React from "react";
-import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+function generateTableHeader(headerContent) {
+  const thead = document.createElement('thead');
+  const tr = document.createElement('tr');
+
+  headerContent.forEach((content) => {
+    const th = document.createElement('th');
+    th.textContent = content;
+    th.setAttribute('scope', 'col'); // Add the scope attribute here
+    tr.appendChild(th);
+  });
+
+  thead.appendChild(tr);
+  return thead;
+}
+
+// Usage example:
+const headers = ['Header 1', 'Header 2', 'Header 3'];
+const tableHeader = generateTableHeader(headers);
+document.getElementById('myTable').appendChild(tableHeader);
 
 // Skip navigation link for keyboard users
 
@@ -28,24 +43,3 @@ const Main = ({ data }) => {
     </html>
   );
 };
-
-// Table component with proper role, headers, and accessibility properties
-// (Adjust as needed to fit your existing table structure)
-const Table = ({ data }) => {
-  return (
-    <table role="grid" aria-label="My Table">
-      {/* ... add thead, tbody, and tr/th/td structure depending on data structure ... */}
-      {/* Address warning issue: React Table Structure */}
-      {/* Ensure the table headers have associated scope attributes */}
-      {/* ... adjust row and cell structure to add scope="col" to headers ... */}
-    </table>
-  );
-};
-
-// Prop types for the Main and Table components
-Main.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({ /* data structure */ })).isRequired,
-};
-
-// Export the Main component
-export default Main;

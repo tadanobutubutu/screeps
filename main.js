@@ -1,6 +1,9 @@
 // Main module for Screeps documentation generation
 // Handles table structure validation and rendering
 
+// TODO: This is the existing code that needs to be preserved
+// New function or changes go below this line
+
 import React from 'react';
 
 /**

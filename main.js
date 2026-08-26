@@ -103,8 +103,6 @@ function fixFakeLinkIssue(link) {
   return link;
 }
 
-// ... any other existing functions or code ...
-
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 const rootElement = document.querySelector('html') || document.body;
 

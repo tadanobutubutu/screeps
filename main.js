@@ -23,13 +23,19 @@ function getSvgAccessibleName(svgElement) {
 // Export the new getSvgAccessibleName function
 export { getSvgAccessibleName };
 
-// Implement the createInPageButton functionality
+// Implement the createInPageButton functionality with event handling
 function createInPageButton(buttonId, buttonText, buttonClass) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
   button.className = buttonClass;
-  // Additional implementation details would go here
+
+  button.addEventListener('click', function() {
+    // Placeholder for the button event handler logic
+    console.log(`Button with ID ${buttonId} was clicked!`);
+  });
+
+  return button;
 }
 
 // Export the new createInPageButton function
@@ -58,7 +64,7 @@ function addressAccessibilityIssues() {
 // Export the new addressAccessibilityIssues function
 export { addressAccessibilityIssues };
 
-// Implement the validateLandmarkStructure function (Placeholder)
+// Implement the function for validating the structure of landmarks (Placeholder)
 function validateLandmarkStructure(landmark, parent) {
   // Your implementation for validating the structure of landmarks
 }

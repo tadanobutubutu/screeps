@@ -34,4 +34,7 @@ const MainComponent = () => {
 
 // TO ADD: Add proper ARIA attributes as needed for additional components or elements (e.g., buttons, forms, etc.)
 
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
 export default MainComponent;

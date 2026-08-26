@@ -41,12 +41,29 @@ function myButtonFunction(event) {
 // Export the updated my-button function
 export { myButtonFunction };
 
-// Existing exports ...
 // TODO: Implement getLangAttribute functionality
 function getLangAttribute() {
   // Assuming the document has a lang attribute that we want to access
   return document.documentElement.lang;
 }
 
-// Export the new function
-export { getLangAttribute };
+// New function to validate table accessibility
+function validateTableAccessibility(table) {
+  const headers = table.getElementsByTagName('th');
+  if (headers.length) {
+    for (let i = 0; i < headers.length; i++) {
+      headers[i].setAttribute('scope', 'col');
+      headers[i]. aria-labelledby = 'header-cell-' + (i + 1);
+    }
+  }
+
+  const cells = table.getElementsByTagName('td');
+  if (cells.length) {
+    for (let i = 0; i < cells.length; i++) {
+      cells[i].aria-labelledby = 'cell-' + (i + 1) + '-' + headers[i].id;
+    }
+  }
+}
+
+// Export the new validateTableAccessibility function
+export { validateTableAccessibility };

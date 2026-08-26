@@ -116,7 +116,7 @@ export function setLangAttribute(lang = 'en') {
 export function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    return htmlElement.getAttribute('lang');
+    return ...
   }
   return null;
 }
@@ -125,9 +125,9 @@ export function getLangAttribute() {
 export function getFullLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    const lang = htmlElement.getAttribute('lang');
+    const lang = ...
     if (lang) {
-      const xmlLang = htmlElement.getAttribute('xml:lang');
+      const xmlLang = ...
       return xmlLang || lang;
     }
   }
@@ -196,16 +196,16 @@ export function fixTableStructure() {
 
 // Function to validate table structure
 export function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const issues = [];
 
   tables.forEach((table, index) => {
-    const hasThead = table.querySelector('thead');
-    const hasTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const hasThead = ...
+    const hasTbody = ...
+    const rows = ...
     const firstRow = rows[0];
-    const firstCell = firstRow ? firstRow.querySelector('td, th') : null;
-    const headerCells = table.querySelectorAll('th');
+    const firstCell = firstRow ? ... th') : null;
+    const headerCells = ...
 
     if (!hasThead) {
       issues.push(`Table ${index + 1} is missing a thead element.`);
@@ -217,7 +217,7 @@ export function validateTableStructure() {
       issues.push(`Table ${index + 1} first row should contain header cells (th).`);
     }
     headerCells.forEach(th => {
-      if (!th.getAttribute('scope')) {
+      if ... {
         issues.push(`Table ${index + 1} header cell missing scope attribute.`);
       }
     });
@@ -228,12 +228,12 @@ export function validateTableStructure() {
 
 // Function to validate table accessibility
 export function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   const issues = [];
 
   tables.forEach((table, index) => {
-    const caption = table.querySelector('caption');
-    const summary = table.getAttribute('summary');
+    const caption = ...
+    const summary = ...
     const ariaLabel = table.getAttribute('aria-label');
     const aria-labelledby = table.getAttribute('aria-labelledby');
 
@@ -241,9 +241,9 @@ export function validateTableAccessibility() {
       issues.push(`Table ${index + 1} lacks an accessible name (caption, summary, aria-label, or aria-labelledby).`);
     }
 
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     headers.forEach(th => {
-      if (!th.getAttribute('scope')) {
+      if ... {
         issues.push(`Table ${index + 1} header cell missing scope attribute.`);
       }
     });
@@ -328,15 +328,15 @@ export function validateLandmark(landmark) {
     return issues;
   }
 
-  const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
-  const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
-  const ariaLabel = landmark.getAttribute ? landmark.getAttribute('aria-label') : null;
-  const ariaLabelledby = landmark.getAttribute ? landmark.getAttribute('aria-labelledby') : null;
+  const tagName = landmark.tagName ? ... : '';
+  const role = landmark.getAttribute ? ... : null;
+  const ariaLabel = landmark.getAttribute ? ... : null;
+  const ariaLabelledby = landmark.getAttribute ? ... : null;
 
   // Determine if the element qualifies as a landmark
   const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form', 'region'];
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region'];
-  const isLandmark = landmarkTags.includes(tagName) || (role && landmarkRoles.includes(role));
+  const isLandmark = ... || (role && ...
 
   if (!isLandmark) {
     issues.push(`Element <${tagName || 'unknown'}> with role="${role || ''}" is not a recognized landmark.`);
@@ -355,10 +355,10 @@ export function validateLandmark(landmark) {
     if (parent) {
       const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       const parentRole = parent.getAttribute ? parent.getAttribute('role') : null;
-      const parentIsLandmark = landmarkTags.includes(parentTag) ||
-                               (parentRole && landmarkRoles.includes(parentRole));
+      const parentIsLandmark = ... ||
+                               (parentRole && ...
       if (parentIsLandmark && parentTag !== 'body' && parentTag !== 'html') {
-        issues.push(`Main landmark should not be nested inside another landmark (<${parentTag}>).`);
+        issues.push(`Main landmark should not be nested inside another landmark ...
       }
     }
   }
@@ -369,105 +369,4 @@ export function validateLandmark(landmark) {
 // Function to validate the overall landmark structure of the document
 export function validateLandmarkStructure() {
   const issues = [];
-  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form', 'region'];
-
-  // Check for presence of a main landmark
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Document is missing a main landmark (<main> or role="main").');
-  } else if (mainElements.length > 1) {
-    issues.push(`Document has ${mainElements.length} main landmarks; only one is recommended.`);
-  }
-
-  // Gather all landmarks by type/role
-  const landmarksByType = {};
-  landmarkTypes.forEach(type => {
-    landmarksByType[type] = [];
-  });
-
-  // Native landmark elements
-  ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form'].forEach(tag => {
-    const elements = document.querySelectorAll(tag);
-    elements.forEach(el => {
-      landmarksByType[tag].push(el);
-    });
-  });
-
-  // Role-based landmarks
-  ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region'].forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    elements.forEach(el => {
-      landmarksByType[role].push(el);
-    });
-  });
-
-  // Validate each landmark and collect issues
-  Object.keys(landmarksByType).forEach(type => {
-    landmarksByType[type].forEach((landmark, index) => {
-      const landmarkIssues = validateLandmark(landmark);
-      landmarkIssues.forEach(msg => {
-        issues.push(`[${type} #${index + 1}] ${msg}`);
-      });
-    });
-  });
-
-  // Check for duplicate banner or contentinfo landmarks (typically only one allowed)
-  if (landmarksByType['header'].length > 1 || landmarksByType['banner'].length > 1) {
-    issues.push(`Document has multiple banner landmarks (${landmarksByType['header'].length + landmarksByType['banner'].length}); only one is recommended.`);
-  }
-  if (landmarksByType['footer'].length > 1 || landmarksByType['contentinfo'].length > 1) {
-    issues.push(`Document has multiple contentinfo landmarks (${landmarksByType['footer'].length + landmarksByType['contentinfo'].length}); only one is recommended.`);
-  }
-
-  return issues;
-}
-
-// Function to add accessible name to SVGs
-export function addSvgAccessibleNames() {
-  const svgs = ...
-  let count = 0;
-
-  svgs.forEach((svg, index) => {
-    const hasAccessibleName = ... ||
-                              ... ||
-                              ...
-    if (!hasAccessibleName) {
-      const title = document.createElement('title');
-      title.textContent = `SVG icon ${index + 1}`;
-      title.id = `svg-title-${index + 1}`;
-
-      // Insert title as first child
-      if (svg.firstChild) {
-        svg.insertBefore(title, svg.firstChild);
-      } else {
-        ...
-      }
-
-      ... title.id);
-      count++;
-    }
-  });
-
-  return count;
-}
-
-// Function addressing new accessibility issue from the insight report
-export function addressAccessibilityIssues(document) {
-  // Apply all accessibility fixes
-  setLangAttribute();
-  ...
-  addMainLandmark(document);
-  ensureUniqueLandmarks();
-  ...
-  
-  return {
-    langSet: true,
-    tablesFixed: ...
-    mainLandmarkAdded: ...
-    landmarksEnsured: true,
-    svgsAccessible: addSvgAccessibleNames()
-  };
-}
-
-// Export new functions and re-export content functions
-export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure };
+  const landmarkTypes

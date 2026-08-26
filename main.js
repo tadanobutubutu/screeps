@@ -3,6 +3,7 @@
 // appropriate modules.
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
+// Updated: Wrapped rendered content in <main> landmarks for accessibility (REACT_017).
 
 const dependencyGraphContent = require('./content/dependencyGraphContent');
 const indexContent = require('./content/indexContent');
@@ -10,13 +11,13 @@ const indexContent = require('./content/indexContent');
 module.exports = {
   // Existing exports
   renderDependencyGraph: function(data) {
-    // Use dependencyGraphContent to render
-    return dependencyGraphContent.render(data);
+    // Use dependencyGraphContent to render, wrapped in <main> landmark for accessibility
+    return '<main>' + dependencyGraphContent.render(data) + '</main>';
   },
   
   renderIndexView: function(data) {
-    // Use indexContent to render
-    return indexContent.render(data);
+    // Use indexContent to render, wrapped in <main> landmark for accessibility
+    return '<main>' + indexContent.render(data) + '</main>';
   },
   
   // Keep all existing exports unchanged

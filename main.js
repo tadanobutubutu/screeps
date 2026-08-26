@@ -33,34 +33,10 @@ const InPageButton = ({
   // ... existing function code ...
 };
 
-// New function — validateTableStructure (for example purposes)
-const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
-  const errors = [];
-
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
-  if (tables.length > 0) {
-    tables.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
-      rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
-        cells.forEach((cell) => {
-          if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
-          }
-        });
-      });
-    });
-  }
-
-  return { errors };
-};
-
 // Function to validate table accessibility
 const validateTableAccessibility = () => {
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { errors };
   }
@@ -81,7 +57,7 @@ const validateTableAccessibility = () => {
 
     // Check for scope attribute on headers
     headers.forEach((header) => {
-      if (!header.getAttribute('scope')) {
+      if (!header.hasAttribute('scope')) {
         errors.push({
           message: `Table header missing scope attribute`,
           line: 0,
@@ -130,7 +106,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   const headerElements = document.querySelectorAll('header, [role="banner"]');
 
   if (headerElements.length > 1) {
@@ -157,7 +133,7 @@ const validateLandmarkStructure = () => {
 // Alias for backwards compatibility
 const validateLandmark = validateLandmarkStructure;
 
-// New function — validateTableStructure (for example purposes)
+// Function to validate table structure
 const validateTableStructure = () => {
   // Custom table structure validation logic goes here
   const errors = [];
@@ -247,7 +223,7 @@ export {
   getSvgAccessibleName,
   createInPageButton,
   InPageButton,
-  validateTableStructure // Export the new validateTableStructure function
+  validateTableStructure
 };
 
 ReactDOM.render(<Root />, document.getElementById('root'));

@@ -9,7 +9,18 @@ function fixTableStructure() {
 }
 
 function fixFakeLinkIssue() {
-  // Implement the function as needed
+  // Replace all <a href="#"> elements with <button> elements to fix the fake link issue
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = link.textContent;
+
+    // Preserve any existing classes or attributes if needed (optional)
+    // For simplicity, we just replace the element directly.
+    const parent = link.parentNode;
+    parent.replaceChild(button, link);
+  });
 }
 
 // New function for addressing the accessibility issues from the insight report

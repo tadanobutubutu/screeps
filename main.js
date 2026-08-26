@@ -2,9 +2,9 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkUniqueness())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -162,7 +162,7 @@ function saveSettings(settings) {
 // Export the new function for testing purposes
 module.exports.saveSettings = saveSettings;
 
-// New Function to create an in-page button
+// New function to create an in-page button
 function createInPageButton(buttonId, text, callback) {
   const button = document.createElement('button');
   button.id = buttonId;

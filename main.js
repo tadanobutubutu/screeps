@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals';
 // REACT_017: Add/fix landmark issues - ensure proper landmark elements
 // REACT_025: Ensure unique landmarks
 
-function Navigation() {
+export function Navigation() {
   return (
     // REACT_017: Navigation should use <nav> landmark
     // Issue: Missing proper nav landmark
@@ -18,12 +18,12 @@ function Navigation() {
       <a href="#">About</a>
       {/* REACT_036: This is a fake link - should be a button */}
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <a href="#">Contact</a>
     </div>
   );
 }
 
-function Header() {
+export function Header() {
   return (
     // REACT_017: Header should use <header> landmark
     // Issue: Using div instead of header
@@ -34,7 +34,7 @@ function Header() {
   );
 }
 
-function Sidebar() {
+export function Sidebar() {
   return (
     // REACT_017: Sidebar should use <aside> landmark
     // Issue: Missing aside landmark for complementary content
@@ -46,7 +46,7 @@ function Sidebar() {
   );
 }
 
-function MainContent() {
+export function MainContent() {
   return (
     // REACT_017: Main content should use <main> landmark
     // Issue: Missing main landmark
@@ -64,7 +64,7 @@ function MainContent() {
   );
 }
 
-function Footer() {
+export function Footer() {
   return (
     // REACT_017: Footer should use <footer> landmark
     // Issue: Using div instead of footer
@@ -74,7 +74,7 @@ function Footer() {
   );
 }
 
-function AppLayout() {
+export function AppLayout() {
   return (
     <div className="app-layout">
       <Header />
@@ -86,7 +86,7 @@ function AppLayout() {
 }
 
 // Wrap App in accessibility-focused container
-function AccessibilityWrapper({ children }) {
+export function AccessibilityWrapper({ children }) {
   // REACT_015: lang attribute should be on HTML element (typically set in index.html)
   // This component ensures accessibility attributes are properly managed
   return (
@@ -107,7 +107,7 @@ function AccessibilityWrapper({ children }) {
 // }
 
 // Main render function with accessibility improvements
-function Root() {
+export function Root() {
   return (
     <React.StrictMode>
       <AccessibilityWrapper>

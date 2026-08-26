@@ -16,7 +16,7 @@ export function countDependencies() {
   
   // Read the current file and count named imports
   const fs = require('fs');
-  const content = fs.readFileSync(moduleCode, 'utf-8');
+  const content = ... 'utf-8');
   
   // Match import statements with named imports ( {...} )
   const importMatches = ... || [];
@@ -272,19 +272,19 @@ export function addSvgAccessibleNames() {
 export function addressAccessibilityIssues(document) {
   // Apply all accessibility fixes
   setLangAttribute();
-  fixTableStructure();
+  ...
   addMainLandmark(document);
   ensureUniqueLandmarks();
-  addSvgAccessibleNames();
+  ...
   
   return {
     langSet: true,
-    tablesFixed: fixTableStructure(),
-    mainLandmarkAdded: !!addMainLandmark(document),
+    tablesFixed: ...
+    mainLandmarkAdded: ...
     landmarksEnsured: true,
     svgsAccessible: addSvgAccessibleNames()
   };
 }
 
-// Export new functions
-export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute };
+// Export new functions and re-export content functions
+export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, dependencyGraphContent, indexContent };

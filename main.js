@@ -1,6 +1,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by addProperLandmarkRegions())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssue())
+// - REACT_041: Fix SVG accessible name issues (handled by fixSvgAccessibility())
 
 /// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
@@ -245,6 +246,82 @@ const fixFakeLinkIssue = (document) => {
   return document;
 };
 
+const fixSvgAccessibility = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  // Find all inline SVG elements
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    // Check if SVG already has an accessible name
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+    const hasTitleChild = svg.querySelector('title')?.textContent?.trim();
+    const hasRole = svg.hasAttribute('role');
+    const isHidden = svg.hasAttribute('aria-hidden');
+
+    // If SVG has no accessible name and is not explicitly hidden
+    if (!hasAriaLabel && !hasAriaLabelledBy && !hasTitleChild && !hasRole && !isHidden) {
+      // Check if it's likely a decorative icon (e.g., favicon, small decorative icon)
+      const viewBox = svg.getAttribute('viewBox');
+      const width = svg.getAttribute('width');
+      const height = svg.getAttribute('height');
+      const isSmallIcon = (width && parseInt(width) <= 32) || (height && parseInt(height) <= 32);
+      const isFavicon = svg.closest('link[rel*="icon"]') !== null;
+      const hasOnlyTextOrSimpleShapes = svg.children.length <= 2 && 
+        Array.from(svg.children).every(child => ['text', 'path', 'circle', 'rect'].includes(child.tagName.toLowerCase()));
+
+      // If it appears to be a small decorative icon/favicon, hide it from screen readers
+      if (isFavicon || (isSmallIcon && hasOnlyTextOrSimpleShapes)) {
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+      } else {
+        // For other SVGs without accessible names, try to use title content or add generic label
+        if (hasTitleChild) {
+          // Title exists but wasn't caught above - ensure it's properly associated
+          svg.setAttribute('aria-labelledby', svg.querySelector('title').id || '');
+          const title = svg.querySelector('title');
+          if (!title.id) {
+            title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+            svg.setAttribute('aria-labelledby', title.id);
+          }
+        } else {
+          // Add a generic label for informative SVGs
+          svg.setAttribute('aria-label', 'Graphic');
+        }
+      }
+    }
+
+    // Ensure focusable="false" for all decorative SVGs
+    if (svg.hasAttribute('aria-hidden') && svg.getAttribute('aria-hidden') === 'true') {
+      svg.setAttribute('focusable', 'false');
+    }
+  });
+
+  // Also check for SVG images in <img> tags
+  const svgImages = document.querySelectorAll('img[src$=".svg"], img[src*="svg"]');
+  svgImages.forEach(img => {
+    if (!img.hasAttribute('alt') && !img.hasAttribute('aria-label') && !img.hasAttribute('aria-labelledby')) {
+      if (!img.hasAttribute('aria-hidden')) {
+        // Check if it's likely a decorative icon
+        const width = img.getAttribute('width');
+        const height = img.getAttribute('height');
+        const isSmallIcon = (width && parseInt(width) <= 32) || (height && parseInt(height) <= 32);
+        const isFavicon = img.closest('link[rel*="icon"]') !== null;
+
+        if (isFavicon || isSmallIcon) {
+          img.setAttribute('aria-hidden', 'true');
+        } else {
+          img.setAttribute('alt', '');
+        }
+      }
+    }
+  });
+
+  return document;
+};
+
 // Add the updated addressAccessibilityIssues function
 const addressAccessibilityIssues = (document) => {
   // Call existing function with legacy escaped issues handling
@@ -264,6 +341,9 @@ const addressAccessibilityIssues = (document) => {
 
   // Fix fake link issues (links without proper href)
   fixFakeLinkIssue(document);
+
+  // Fix SVG accessibility issues (REACT_041)
+  fixSvgAccessibility(document);
 
   return document;
 };
@@ -285,4 +365,5 @@ export {
   addressAccessibilityIssuesLegacy, // Legacy function for cases where new function may cause unexpected behavior
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  fixSvgAccessibility,
 };

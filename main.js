@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report — CONTINUING
 // Add new functions (no existing functions should be removed or renamed)
+const fs = require('fs');
 
 function addFormLabels(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
@@ -59,7 +60,7 @@ function fixTableStructure(filePath) {
     const tableRows = content.split('<tr>');
 
     tableRows[+cellIndex + 1] = tableRows[+cellIndex + 1].replace(/<td>(.*?)<\/td>/, (match, cellContent) => {
-      return `<td id="${headerText.toLowerCase().replace(/[^a-z0-9]/g, '-')}-cell" headers="${headerText.toLowerCase()}, ${cellContent.match(/headers=("[^"]+)"/)[1]}">${cellContent}</td>`;
+      return `<td id="${headerText.toLowerCase().replace(/[^a-z0-9]/g, '-')}-cell" headers="${headerText.toLowerCase()}, ${cellContent.match(/headers=("[^"]+")/)[1]}">${cellContent}</td>`;
     });
 
     return match;
@@ -70,7 +71,8 @@ function fixTableStructure(filePath) {
 }
 
 module.exports = {
-  ... // Existing exports, no modifications
+  // Existing exports, no modifications
+  fixTableStructure,
   addFormLabels,
   addImageAltText
 };

@@ -4,8 +4,6 @@ module.exports.function2 = function2;
 // New exports added as per the issue
 module.exports.newFunction = newFunction;
 
-// New functions to fix table structure issues, ensure unique landmarks, add accessible name to SVGs, add lang attribute to HTML element, and fix landmark issues (already provided in the issue)
-
 // Function to fix 1 fake link issue
 function fixFakeLinkIssue() {
   // Grab all the anchor tags with hash-only hrefs
@@ -40,6 +38,7 @@ fixLandmarkIssues();
 // Ensure that fake link issue is fixed
 fixFakeLinkIssue();
 
-// Export the new function
+// Export the new functions as they are and the new function as 'myNewFunction'
+module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
 module.exports.myNewFunction = myNewFunction;
 export { myNewFunction as default };

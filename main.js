@@ -5,6 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Skip navigation link for keyboard users
 
 import React from 'react';
 
@@ -12,7 +13,7 @@ import React from 'react';
 
 // 1. For SVGs - add aria-label or role="img" with aria-labelledby
 const AccessibleIcon = ({ label, children }) => (
-  <svg role="img" aria-label={label} ...
+  <svg role="img" aria-label={label}>
     {children}
   </svg>
 );
@@ -59,7 +60,7 @@ export const fixTableStructure = (tableComponent) => {
         <thead>
           <tr>
             {headers?.map((header, index) => (
-              <th key={index} scope="col">{header}</th>
+              <th key={index}>{header}</th>
             ))}
           </tr>
         </thead>
@@ -106,7 +107,7 @@ export const addSvgAccessibleNames = (svgProps) => {
     ...svgProps,
     role: 'img',
     'aria-label': svgProps.label || 'Decorative icon',
-    'aria-hidden': svgProps['aria-hidden'] ?? !svgProps.label,
+    'aria-hidden': !svgProps.label,
   };
 };
 

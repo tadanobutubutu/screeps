@@ -1,13 +1,10 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
 import { createContext } from 'react';
 import { getLandmarks } from './api';
-import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, someFunctionREACT_027 as originalSomeFunctionREACT_027, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils'; // Importing the existing functions without renaming
+import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, someFunctionREACT_027 as originalSomeFunctionREACT_027, addRequiredLandmarks as originalAddRequiredLandmarks, findIndex as newFindIndex } from './utils'; // Importing the existing functions with newFindIndex for the new function
 
 // Function to calculate the index of an item in an array based on its id ([NEW])
-export const findIndex = (array, id) => {
+export const newFindIndex = (array, id) => {
   return array.findIndex((item) => item.id === id);
 };
 
@@ -52,17 +49,15 @@ export const MainComponent = () => {
 
 // Utility functions from React version (moved to bottom)
 import { originalFindIndex, originalFilterLandmarks, originalSortLandmarksByName, originalSomeFunctionREACT_027 } from './utils';
+import { newFindIndex as exportedFindIndex } from './utils'; // Exporting the new findIndex function
 
 // Exports
 module.exports = {
     // ... existing exports
-    findIndex,
+    newFindIndex: exportedFindIndex,
     filterLandmarks: originalFilterLandmarks,
     sortLandmarksByName: originalSortLandmarksByName,
     someFunctionREACT_027: originalSomeFunctionREACT_027,
     addRequiredLandmarks, // Make sure to add the new function to exports
     // ... additional exports if needed
 };
-```
-
-I prioritized keeping both changes, preserving the original code, and adding the new function. I also moved the utility functions from React version to the bottom of the file, and integrated the new export for the findIndex function. I also adjusted the exported function names to avoid possible naming conflicts and preserve the original function names for the imported functions from './utils'.

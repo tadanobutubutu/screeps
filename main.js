@@ -10,6 +10,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Helmet } from 'react-helmet';
 
 // Assuming your main App component is here
 class App extends React.Component {
@@ -20,14 +21,19 @@ class App extends React.Component {
 class AppWrapper extends React.Component {
   render() {
     return (
-      <div lang="en" data-testid="root">
-        <div id="mainContent" tabIndex={0} role="main">
-          <header id="navbar" tabIndex={0} role="banner"></header>
-          <main>
-            <App />
-          </main>
-          <footer id="footer" tabIndex={0} role="contentinfo"></footer>
-        </div>
+      <div data-testid="root">
+        <Helmet>
+          <html lang="en" />
+        </Helmet>
+        <header id="navbar">
+          {/* Navigation content should go here */}
+        </header>
+        <main id="mainContent">
+          <App />
+        </main>
+        <footer id="footer">
+          {/* Footer content should go here */}
+        </footer>
       </div>
     );
   }
@@ -35,12 +41,12 @@ class AppWrapper extends React.Component {
 
 // Replace the existing function that renders the App
 const render = (Component) => {
-  ReactDOM.render(<Component />, document.getElementById('root'));
+  ... />, ...
 };
 
 // Update the render function to use the AppWrapper component
-const AppWrapperWithProps = (Props) => {
-  return <AppWrapper {...Props} />;
+const AppWrapperWithProps = (props) => {
+  return <AppWrapper {...props} />;
 };
 
 // Export the updated render function and the AppWrapperWithProps higher-order component

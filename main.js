@@ -11,7 +11,7 @@
 import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
-function addLangAttribute(document, lang = 'en') {
+export function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
@@ -20,7 +20,7 @@ function addLangAttribute(document, lang = 'en') {
 }
 
 // Function to fix table structure issues
-function fixTableStructure(document) {
+export function fixTableStructure(document) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
   
@@ -79,7 +79,7 @@ function fixTableStructure(document) {
 }
 
 // Function to add/main landmark
-function addMainLandmark(document) {
+export function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
   
   if (!mainElement) {
@@ -111,7 +111,7 @@ function addMainLandmark(document) {
 }
 
 // Function to ensure unique landmarks (origin/main approach)
-function ensureUniqueLandmarks(document) {
+export function ensureUniqueLandmarks(document) {
   const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
   const usedLabels = {};
   
@@ -141,7 +141,7 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible names to SVGs
-function addSvgAccessibleNames(document) {
+export function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   
@@ -171,7 +171,7 @@ function addSvgAccessibleNames(document) {
 }
 
 // Function to fix fake link issue (origin/main approach - more robust)
-function fixFakeLinkIssue(document) {
+export function fixFakeLinkIssue(document) {
   let count = 0;
   
   // Find elements with onclick that look like links but aren't anchors
@@ -210,7 +210,7 @@ function fixFakeLinkIssue(document) {
 }
 
 // HEAD version: simpler fake link fix for anchors with href="#"
-function fixFakeLinkIssues(document) {
+export function fixFakeLinkIssues(document) {
   const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
     if (link.tagName === 'A' && link.getAttribute('href') === '#') {
@@ -220,7 +220,7 @@ function fixFakeLinkIssues(document) {
 }
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
+export function fixLandmarkIssues(document) {
   const landmarks = {
     'nav': 'navigation',
     'main': 'main',
@@ -241,7 +241,7 @@ function fixLandmarkIssues(document) {
   });
 }
 
-function addLandmarkRegions(document) {
+export function addLandmarkRegions(document) {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(landmark);
@@ -254,7 +254,7 @@ function addLandmarkRegions(document) {
 }
 
 // REACT_025: Ensure unique landmarks (HEAD approach - by role)
-function uniqueLandmarks(document) {
+export function uniqueLandmarks(document) {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
@@ -271,7 +271,7 @@ function uniqueLandmarks(document) {
 }
 
 // Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
+export function fixImageAltTexts(document) {
   const images = document.querySelectorAll('img');
   images.forEach((img) => {
     if (!img.getAttribute('alt')) {
@@ -281,7 +281,7 @@ function fixImageAltTexts(document) {
 }
 
 // REACT_037: Google sign-in logic
-function googleSignIn(document) {
+export function googleSignIn(document) {
   // Check if Google Identity Services is available
   if (typeof google !== 'undefined' && google.accounts) {
     google.accounts.id.initialize({
@@ -298,7 +298,7 @@ function googleSignIn(document) {
   }
 }
 
-function handleCredentialResponse(response) {
+export function handleCredentialResponse(response) {
   // Decode the JWT token
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   console.log('User signed in:', payload);
@@ -306,7 +306,7 @@ function handleCredentialResponse(response) {
 }
 
 // REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers(document) {
+export function fixButtonIdentifiers(document) {
   const buttonIdMap = {
     'my-button': 'primary-action-btn'
   };
@@ -328,7 +328,7 @@ function fixButtonIdentifiers(document) {
 }
 
 // Add the fix for REACT_017: Add <main> landmark to docs/index.html
-function addMainLandmarkToIndex(document) {
+export function addMainLandmarkToIndex(document) {
   const indexContent = document.querySelector('.content');
   if (indexContent) {
     const mainElement = document.createElement('main');

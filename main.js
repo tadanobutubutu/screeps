@@ -1,4 +1,3 @@
-// Existing code in main.js before conflict markers
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
@@ -25,7 +24,7 @@ const ensureAccessibility = (htmlContent) => {
   let accessibleHtml = generateHtmlWithLangAttribute(htmlContent);
   
   // Apply additional accessibility improvements
-  fixAccessibilityIssues();
+  accessibleHtml = accessibleHtml.replace(/<th>/g, '<th scope="col">');
   
   return accessibleHtml;
 };

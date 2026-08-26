@@ -41,14 +41,17 @@ function addMainLandmark(filePath) {
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
-  let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
+  let uniqueNavLabels = [];
+  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, () => {
+    const navLabel = uniqueNavLabels.length ? uniqueNavLabels.pop() : 'navigation';
+    return `<nav aria-label="${navLabel}">`;
+  });
+  const navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
   if (navCount > 1) {
-    const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
-    let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
-      return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
-    });
+    uniqueNavLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
+    while (uniqueNavLabels.length < navCount) {
+      uniqueNavLabels.push(`navigation-${uniqueNavLabels.length}`);
+    }
   }
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Ensured unique landmarks for better accessibility in ${filePath}`);
@@ -72,6 +75,17 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
+//merge conflict resolved function
+function replaceTags(filePath, replaceObj) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+  for (let [search, replace] of replaceObj) {
+    updatedContent = updatedContent.replace(search, replace);
+  }
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Replaced tags for better accessibility in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -79,5 +93,6 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  replaceTags
 };

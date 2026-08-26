@@ -7,7 +7,9 @@ import ReactDOM from 'react-dom';
 const getLangAttribute = () => {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    return ...
+    // Add lang attribute to HTML element
+    htmlElement.setAttribute('lang', 'en');
+    return htmlElement.getAttribute('lang');
   }
   return null;
 };
@@ -19,28 +21,28 @@ const getSvgAccessibleName = (svgElement) => {
   }
   
   // Check for aria-labelledby attribute
-  const ariaLabelledby = ...
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = ...
+    const labelElement = document.querySelector(`[id="${ariaLabelledby}"]`);
     if (labelElement) {
       return labelElement.textContent;
     }
   }
   
   // Check for aria-label attribute
-  const ariaLabel = ...
+  const ariaLabel = svgElement.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel;
   }
   
   // Check for title element inside the SVG
-  const titleElement = ...
+  const titleElement = svgElement.querySelector('title');
   if (titleElement && titleElement.textContent) {
     return titleElement.textContent;
   }
   
   // Check for desc element inside the SVG
-  const descElement = ...
+  const descElement = svgElement.querySelector('desc');
   if (descElement && descElement.textContent) {
     return descElement.textContent;
   }
@@ -57,48 +59,45 @@ const validateLandmarkStructure = () => {
 
   if (typeof document !== 'undefined') {
     // Check for main landmark (should have exactly one)
-    const mainElements = ...
-    if (mainElements.length === 0) {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length !== 1) {
       results.valid = false;
       results.errors.push('Missing main landmark - page should have exactly one main element');
-    } else if (mainElements.length > 1) {
-      results.valid = false;
-      results.errors.push(`Multiple main landmarks found - should have exactly one (found ...
     }
 
     // Check for header landmark
-    const headerElements = ...
+    const headerElements = document.querySelectorAll('header');
     if (headerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing header landmark - page should have at least one header element');
     }
 
     // Check for footer landmark
-    const footerElements = ...
+    const footerElements = document.querySelectorAll('footer');
     if (footerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing footer landmark - page should have at least one footer element');
     }
 
     // Check for nav landmark
-    const navElements = ...
+    const navElements = document.querySelectorAll('nav');
     if (navElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing nav landmark - page should have at least one nav element');
     }
 
     // Check for aside (complementary landmark)
-    const asideElements = ...
+    const asideElements = document.querySelectorAll('aside');
     if (asideElements.length > 1) {
       results.valid = false;
       results.errors.push('Multiple aside landmarks found - should have at most one');
     }
 
     // Check for form landmarks with labels
-    const formElements = ...
+    const formElements = document.querySelectorAll('form');
     formElements.forEach((form, index) => {
-      const hasLabel = ...
-      const hasAriaLabel = ... || ...
+      const hasLabel = form.querySelector('label') !== null;
+      const hasAriaLabel = form.getAttribute('aria-label') !== null;
       if (!hasLabel && !hasAriaLabel) {
         results.valid = false;
         results.errors.push(`Form ${index + 1}: Missing label or aria-label`);
@@ -106,7 +105,7 @@ const validateLandmarkStructure = () => {
     });
 
     // Check for search landmark
-    const searchElements = ...
+    const searchElements = document.querySelectorAll('form.search');
     if (searchElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing search landmark - consider adding a search form');
@@ -125,24 +124,21 @@ const validateLandmark = () => {
 
   if (typeof document !== 'undefined') {
     // Check for main landmark (should have exactly one)
-    const mainElements = ...
-    if (mainElements.length === 0) {
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length !== 1) {
       results.valid = false;
       results.errors.push('Missing main landmark - page should have exactly one main element');
-    } else if (mainElements.length > 1) {
-      results.valid = false;
-      results.errors.push(`Multiple main landmarks found - should have exactly one (found ...
     }
 
     // Check for header landmark
-    const headerElements = ...
+    const headerElements = document.querySelectorAll('header');
     if (headerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing header landmark - page should have at least one header element');
     }
 
     // Check for footer landmark
-    const footerElements = ...
+    const footerElements = document.querySelectorAll('footer');
     if (footerElements.length === 0) {
       results.valid = false;
       results.errors.push('Missing footer landmark - page should have at least one footer element');
@@ -160,7 +156,7 @@ const validateTableStructure = () => {
   };
 
   if (typeof document !== 'undefined') {
-    const tables = ...
+    const tables = document.querySelectorAll('table');
 
     tables.forEach((table, index) => {
       const ths = table.querySelectorAll('thead th');
@@ -271,7 +267,7 @@ const Root = () => {
 
   // Add new validateTableStructure function validation
   const tableStructureError = validateTableStructure();
-  if ... {
+  if (tableStructureError.errors.length > 0) {
     console.error(tableStructureError.errors);
   }
 

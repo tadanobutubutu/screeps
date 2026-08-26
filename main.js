@@ -26,7 +26,7 @@ function fixTableStructureIssues() {
     if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('th, td');
+        const headers = firstRow.querySelectorAll('td');
         const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
@@ -62,13 +62,13 @@ function addMainLandmark() {
     main.id = 'main-content';
     const content = document.querySelector('.content') || document.body;
     if (content) {
-      document.body.insertBefore(main, content);
+      content.parentNode.insertBefore(main, content);
       content.remove();
     }
   } else {
     main.id = main.id || 'main-content';
   }
-  const banners = document.querySelectorAll('header');
+  const banners = document.querySelectorAll('header[role="banner"], header:not(nav header)');
   banners.forEach((banner, index) => {
     if (index > 0) {
       banner.setAttribute('role', 'banner');
@@ -81,11 +81,15 @@ function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     let title = svg.querySelector('title') || document.createElement('title');
-    if (!svg.querySelector('title')) {
-      const ariaLabel = svg.getAttribute('aria-label') || 
+    const hasAccessibleName = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    
+    if (!hasAccessibleName || !svg.querySelector('title')) {
+      const ariaLabel = title.textContent || 
                         (index === 0 ? 'Logo' : 'Icon') + ' ' + (index + 1);
       title.textContent = ariaLabel;
-      svg.insertBefore(title, svg.firstChild);
+      if (!svg.querySelector('title')) {
+        svg.insertBefore(title, svg.firstChild);
+      }
     }
     svg.setAttribute('role', 'img');
     if (!title.id) {
@@ -115,7 +119,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main[role="main"]');
+  const mainLandmarks = document.querySelectorAll('main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -139,7 +143,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href][href="#"], a[href][href=""]');
+  const fakeLinks = document.querySelectorAll('a[href][href=""]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {
@@ -179,19 +183,3 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   initializeAccessibility
-};
-
-// Main application render
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// Run accessibility initialization after DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeAccessibility);
-} else {
-  initializeAccessibility();
-}

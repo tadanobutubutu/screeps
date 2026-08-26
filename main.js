@@ -235,9 +235,9 @@ export function validateTableAccessibility() {
     const caption = ...
     const summary = ...
     const ariaLabel = table.getAttribute('aria-label');
-    const aria-labelledby = table.getAttribute('aria-labelledby');
+    const ariaLabelledby = table.getAttribute('aria-labelledby');
 
-    if (!caption && !summary && !ariaLabel && !aria-labelledby) {
+    if (!caption && !summary && !ariaLabel && !ariaLabelledby) {
       issues.push(`Table ${index + 1} lacks an accessible name (caption, summary, aria-label, or aria-labelledby).`);
     }
 
@@ -284,24 +284,26 @@ export function addMainLandmark(document) {
   return mainElement;
 }
 
-// Function to ensure unique landmarks (origin/main approach)
+// Function to ensure unique landmarks
 export function ensureUniqueLandmarks() {
   const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
   const usedLabels = {};
 
-  ... => {
-    const landmarks = ...
+  landmarkTypes.forEach(type => {
+    const selector = type;
+    const landmarks = document.querySelectorAll(selector);
     landmarks.forEach((landmark, index) => {
-      const existingLabel = ... || ... ||
-                           ... || '';
-      const label = existingLabel || `${type}-${index + 1}`;
+      const existingLabel = landmark.getAttribute('aria-label') || 
+                           landmark.getAttribute('aria-labelledby') ||
+                           landmark.getAttribute('id') || '';
+      let label = existingLabel || `${type}-${index + 1}`;
 
       if (landmarks.length > 1) {
         let labelSuffix = '';
 
         // Ensure uniqueness
         if (usedLabels[type] && usedLabels[type].has(label)) {
-          labelSuffix = `${index + 1}`;
+          labelSuffix = `-${index + 1}`;
         }
 
         if (!usedLabels[type]) {
@@ -310,13 +312,14 @@ export function ensureUniqueLandmarks() {
         usedLabels[type].add(label);
 
         if (labelSuffix) {
-          label = `${type}-${index + 1}`;
+          label = `${type}${labelSuffix}`;
+          landmark.setAttribute('aria-label', label);
         }
-
-        ... label);
+      } else if (!existingLabel) {
+        landmark.setAttribute('aria-label', label);
       }
     });
-  };
+  });
 }
 
 // Function to validate a single landmark element for accessibility
@@ -355,18 +358,3 @@ export function validateLandmark(landmark) {
     if (parent) {
       const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       const parentRole = parent.getAttribute ? parent.getAttribute('role') : null;
-      const parentIsLandmark = ... ||
-                               (parentRole && ...
-      if (parentIsLandmark && parentTag !== 'body' && parentTag !== 'html') {
-        issues.push(`Main landmark should not be nested inside another landmark ...
-      }
-    }
-  }
-
-  return issues;
-}
-
-// Function to validate the overall landmark structure of the document
-export function validateLandmarkStructure() {
-  const issues = [];
-  const landmarkTypes

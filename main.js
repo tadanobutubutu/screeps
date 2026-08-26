@@ -1,6 +1,3 @@
-// TODO: Please provide the actual contents of main.js
-// I need to see the file to identify what exports are missing and resolve the TODO on line 33
-
 const fs = require('fs');
 const path = require('path');
 
@@ -24,7 +21,6 @@ function saveConfig(configPath, config) {
     }
 }
 
-// TODO: resolve missing exports
 function processData(data) {
     if (!data) return null;
     return data.map(item => ({
@@ -49,11 +45,21 @@ function formatDate(date) {
     return new Date(date).toISOString();
 }
 
+// New function as per the issue
+function getEnvironmentVariable(variableName) {
+    const value = process.env[variableName];
+    if (!value) {
+        throw new Error(`Environment variable ${variableName} is not set`);
+    }
+    return value;
+}
+
 module.exports = {
     readConfig,
     saveConfig,
     processData,
     validateInput,
     getAppRoot,
-    formatDate
+    formatDate,
+    getEnvironmentVariable // Added the new export
 };

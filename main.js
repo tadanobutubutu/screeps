@@ -10,15 +10,14 @@ Here is the resolved file content:
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
-const add = (a, b) => a + b;
-const subtract = (a, b) => a - b;
+export const add = (a, b) => a + b;
+export const subtract = (a, b) => a - b;
 
-// Other existing code and exports
-const multiply = (a, b) => a * b;
-const divide = (a, b) => a / b;
+export const multiply = (a, b) => a * b;
+export const divide = (a, b) => a / b;
 
 // Placeholder for a new function that might be required
-function calculateSum(a, b) {
+export function calculateSum(a, b) {
   return a + b;
 }
 
@@ -53,16 +52,14 @@ export function getSvgAccessibleName() {
 }
 
 // Function addressing new accessibility issue from the insight report
-function addressAccessibilityIssues(document) {
+export function addressAccessibilityIssues(document) {
   // Combine existing and new accessibility fixes
   // ...
   // Existing accessibility fixes
-  calculateSum(a, b); // Re-introduced the new function for the issue
+  calculateSum(1, 1); // Re-introduced the new function for the issue
   // Additional new accessibility fixes can be added here
 }
 
 // Export new functions
 export { calculateSum, addressAccessibilityIssues };
-
-module.exports = { add, subtract, multiply, divide, calculateSum, addressAccessibilityIssues };
 ```

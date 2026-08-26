@@ -34,9 +34,15 @@ function addLandmarkRegions(container, regions = []) {
   return addedRegions;
 }
 
+// Function to add accessible name to SVGs
+function addAccessibleNameToSVG(svgData) {
+  return svgData.replace(/<svg /g, '<svg aria-label="SVG Icon" ');
+}
+
 // TODO: Add back any required exports that might have been removed
 // Here's an example of how to export a required function from another file:
 module.exports = {
   requiredFunction: requiredFunction,
-  addLandmarkRegions: addLandmarkRegions
+  addLandmarkRegions: addLandmarkRegions,
+  addAccessibleNameToSVG: addAccessibleNameToSVG
 };

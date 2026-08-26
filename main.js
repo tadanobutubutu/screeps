@@ -4,12 +4,15 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
+// Import required modules
+import { getDocument } from './document';
+import { handleErrorState } from './errorHandler';
+
 // Add the missing lang attribute to the <html> element
 const htmlElement = getDocument().documentElement;
 htmlElement.lang = 'en'; // Change the value to the desired language code
 
 // Implement the handleAccessibilityError function that triggers the accessibility mode
-// (Assuming that handleErrorState is already defined)
 function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }
@@ -33,8 +36,8 @@ export { someNewFunction };
 // <head>...</head>
 // <body>...</body>
 
-const htmlHeading = document.getElementsByTagName('html')[0];
-if (htmlHeading.attributes.getNamedItem('lang') === null) {
+const htmlHeading = document.querySelector('html');
+if (htmlHeading.lang === null || htmlHeading.lang === '') {
   htmlHeading.lang = 'en';
 }
 

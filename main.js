@@ -8,4 +8,17 @@ import indexContent from './indexContent';
 // Assume existing exports and functions are preserved
 export default function MyApp() {
   // ... (Existing code)
+  
+  // Add the imported modules to the relevant rendering functions
+  // Example: Using indexContent for the main index page
+  const mainContent = indexContent;
+  
+  // Example: Using dependencyGraphContent for dependency visualization
+  const graphContent = dependencyGraphContent;
+  
+  // Export the content modules for use in other parts of the application
+  return {
+    mainContent,
+    graphContent
+  };
 }

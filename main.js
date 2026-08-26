@@ -116,8 +116,8 @@ const addMainLandmark = (document) => {
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-    while (document.firstChild) {
-      main.appendChild(document.firstChild);
+    while (document.body.firstChild) {
+      main.appendChild(document.body.firstChild);
     }
     document.body.insertBefore(main, document.body.firstChild);
   } else {
@@ -134,7 +134,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.querySelector('title') && !svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -151,7 +151,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    const elements = document.querySelectorAll(`[role="${role}"]`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -207,8 +207,8 @@ const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
-  ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
   return document;
 };
@@ -219,47 +219,4 @@ const addressAccessibilityIssues = (document) => {
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
-skipLink.className = 'skip-link';
-skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
-
-const handleSkipLinkClick = (e) => {
-  e.preventDefault();
-  const mainContent = document.getElementById('main-content') || document.querySelector('main');
-  if (mainContent) {
-    mainContent.tabIndex = -1;
-    mainContent.focus();
-  }
-};
-
-skipLink.addEventListener('click', handleSkipLinkClick);
-
-const mainElement = document.querySelector('main') || document.getElementById('content') || document.querySelector('[role="main"]');
-if (mainElement) {
-  mainElement.id = 'main-content';
-  mainElement.setAttribute('role', 'main');
-}
-
-const fetchAPI = async (url) => {
-  try {
-    const response = await fetch(url);
-    return response;
-  } catch (err) {
-    console.error('Error fetching data:', err);
-    throw err;
-  }
-};
-
-const addCaptionToTable = (table) => {
-  const tableHeader = table.querySelector('caption');
-  if (tableHeader && tableHeader.length > 0) return;
-  const caption = document.createElement('caption');
-  caption.textContent = table.id || `Table ${table.dataset.testid}`;
-  table.insertBefore(caption, table.firstChild);
-};
-
-const addUniqueIdToTable = (table) => {
-  table.id = table.id || `table-${table.dataset.testid}`;
-};
-
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, addCaptionToTable, addUniqueIdToTable, newFunction };
+skipLink.class

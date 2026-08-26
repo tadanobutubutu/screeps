@@ -1,8 +1,1 @@
-// main.js - React Language Attribute (REACT_015) fix applied
-// The root element now includes lang="en" for accessibility
-
-function createHtmlDocument() {
-  return '<html lang="en">';
-}
-
-module.exports = { createHtmlDocument };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

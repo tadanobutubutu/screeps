@@ -1,6 +1,3 @@
-Here is the resolved file:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -141,7 +138,10 @@ function addAltAttribute(filePath) {
 exports.addAltAttribute = addAltAttribute;
 
 function fixFakeLinkIssue(filePath) {
-  // ... (existing code)
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content.replace(/<a\b[^>]*id="fake-link-id"[^>]*>[\s\S]*?<\/a>/gi, '<a id="fake-link-id" href="https://example.com">Example Link</a>');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Fixed fake link issue in ${filePath}`);
 }
 
 function addAriaAttribute(filePath) {
@@ -246,4 +246,3 @@ exports.fixTableStructure = fixTableStructure;
 exports.addMainLandmark = addMainLandmark;
 exports.ensureUniqueLandmarksFile = ensureUniqueLandmarksFile;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
-```

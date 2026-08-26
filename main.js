@@ -1,20 +1,12 @@
 // ... (existing code and exports)
 
-// REACT_041: Add accessible names to 2 SVGs
+// REACT_017: Wrap the primary content in <main> to enhance accessibility
 import React from 'react';
 
-const Svg1 = () => (
-  <svg data-testid="svg1" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 1</title>
-  </svg>
+const MainContent = () => (
+  <main>
+    {/* ... (other primary content components) */}
+  </main>
 );
 
-const Svg2 = () => (
-  <svg data-testid="svg2" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 2</title>
-  </svg>
-);
-
-export { Svg1, Svg2 };
+export { MainContent };

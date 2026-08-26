@@ -13,6 +13,8 @@ const renderDependencyGraph = (dependencyGraph, container) => {
   // Implement rendering logic for dependencyGraph here
 };
 
+// Accessibility functions:
+
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 const getLangAttribute = (element) => {

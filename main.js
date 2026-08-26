@@ -408,3 +408,29 @@ export function makeFocusable(element) {
     element.setAttribute('tabindex', '0');
   }
 }
+
+// New function to ensure primary content is wrapped in a <main> element (REACT_017)
+export function wrapPrimaryContentInMain() {
+  const existingMain = document.querySelector('main');
+  if (existingMain) return;
+
+  const body = document.body;
+  if (!body) return;
+
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
+
+  const elementsToSkip = ['SCRIPT', 'STYLE', 'HEADER', 'NAV', 'FOOTER', 'ASIDE'];
+  const children = Array.from(body.childNodes).filter(child => {
+    return child.nodeType === Node.TEXT_NODE || 
+           (child.nodeType === Node.ELEMENT_NODE && 
+            !elementsToSkip.includes(child.tagName));
+  });
+
+  children.forEach(child => {
+    mainElement.appendChild(child);
+  });
+
+  body.appendChild(mainElement);
+}

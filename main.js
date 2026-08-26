@@ -1,14 +1,19 @@
 // Import helper functions for accessibility and focus-trap, react-transition-group modules
-const accessibilityHelpers = require('./helpers/accessibility');
-const domHelpers = require('./helpers/dom');
+const accessibilityHelpers = require('./accessibility-helpers');
+const domHelpers = require('./dom-helpers');
 const { FocusTrap } = require('focus-trap');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const ReactTransitionGroup = require('react-transition-group');
 
 // Existing code preserved
-const existingFunction = require('./existing-function');
-const anotherFunction = require('./another-function');
+const existingFunction = function() {
+  return 'existing function result';
+};
+
+const anotherFunction = function(input) {
+  return input ? input.toUpperCase() : '';
+};
 
 // New function to implement accessibility fixes with custom landmark addition and focus-trap
 function addressAccessibilityIssues(role = 'banner') {
@@ -17,25 +22,33 @@ function addressAccessibilityIssues(role = 'banner') {
   addLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixTableStructureIssues();
 
   // Add focus-trap related code
-  function addFocusTrap(element) {
+  function addFocusTrap(element, options = {}) {
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
-    wrapper.style.top = 0;
-    wrapper.style.left = 0;
+    wrapper.style.top = '0';
+    wrapper.style.left = '0';
     wrapper.style.width = '100%';
     wrapper.style.height = '100%';
-    wrapper.style.zIndex = 9999;
+    wrapper.style.zIndex = options.zIndex || 9999;
+    wrapper.style.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0.5)';
 
     const trappedElement = React.createElement(
       'div',
       {
         ref: el => {
           if (el) {
-            const trap = new FocusTrap(el);
+            const trap = new FocusTrap(el, {
+              escapeDeactivates: options.escapeDeactivates !== false,
+              returnFocusOnDeactivate: true,
+              ...options.focusTrapOptions
+            });
             trap.activate();
-            document.body.appendChild(wrapper);
+            if (options.onActivate) {
+              options.onActivate(trap);
+            }
           }
         }
       },
@@ -44,36 +57,54 @@ function addressAccessibilityIssues(role = 'banner') {
 
     document.body.appendChild(wrapper);
     ReactDOM.render(trappedElement, wrapper);
-    return trap;
+    return {
+      trap: trappedElement,
+      deactivate: () => {
+        if (trap) {
+          trap.deactivate();
+        }
+        if (wrapper.parentNode) {
+          wrapper.parentNode.removeChild(wrapper);
+        }
+      }
+    };
   }
 
   function removeFocusTrap(trap) {
-    if (trap) {
+    if (trap && trap.deactivate) {
       trap.deactivate();
-      const wrapper = document.querySelector('[data-focus-trap-wrapper]');
-      if (wrapper) {
-        wrapper.remove();
-      }
     }
   }
 
   // Add react-transition-group related code
   const CSSTransition = ReactTransitionGroup.CSSTransition;
 
-  function renderCSSTransition(element, cb) {
+  function renderCSSTransition(element, options = {}, cb) {
     const wrapper = document.createElement('div');
     document.body.appendChild(wrapper);
+
+    const timeout = options.timeout || 300;
+    const classNames = options.classNames || 'fade';
+
     ReactDOM.render(
       React.createElement(
         CSSTransition,
         {
           in: true,
-          timeout: 300,
-          classNames: 'fade',
-          onEnter: () => cb && cb(),
+          timeout: timeout,
+          classNames: classNames,
+          onEnter: () => {
+            if (cb && cb.onEnter) cb.onEnter();
+          },
+          onEntered: () => {
+            if (cb && cb.onEntered) cb.onEntered();
+          },
           onExit: () => {
-            // Remove the node and replace it with a new one to trigger re-rendering
+            if (cb && cb.onExit) cb.onExit();
+          },
+          onExited: () => {
             wrapper.remove();
+            if (cb && cb.onExited) cb.onExited();
           }
         },
         element
@@ -84,38 +115,44 @@ function addressAccessibilityIssues(role = 'banner') {
   }
 
   // Use focus-trap and react-transition-group in existing functions
-  function implementAccessibility(component) {
+  function implementAccessibility(component, options = {}) {
     const wrapper = document.createElement('div');
-    wrapper.id = 'accessibility-wrapper';
-    wrapper.setAttribute('data-focus-trap-wrapper', 'true');
-    document.body.appendChild(wrapper);
+    wrapper.id = options.id || 'accessibility-wrapper';
+    wrapper.setAttribute('role', options.role || 'region');
+    wrapper.setAttribute('aria-label', options.label || 'Accessible content');
+    wrapper.setAttribute('tabindex', '-1');
     
-    const focusedId = document.activeElement.id || null;
+    const focusedId = document.activeElement && document.activeElement.id ? document.activeElement.id : null;
 
-    renderCSSTransition(component, () => {
-      if (focusedId) {
-        const focusedElement = document.getElementById(focusedId);
-        if (focusedElement) {
-          focusedElement.focus();
+    renderCSSTransition(component, options.transition || {}, {
+      onEnter: () => {
+        if (options.onEnter) options.onEnter();
+      },
+      onExited: () => {
+        if (focusedId) {
+          const focusedElement = document.getElementById(focusedId);
+          if (focusedElement) {
+            focusedElement.focus();
+          }
         }
+        if (options.onExit) options.onExit();
       }
-      removeFocusTrap();
     });
   }
 
   // Add new function to implement accessibility with custom landmark and focus-trap
   function applyAccessibilityFixes(component, customRole = 'main') {
-    const landmark = document.createElement('div');
+    const landmark = document.createElement(customRole);
     landmark.setAttribute('role', customRole);
     landmark.setAttribute('aria-label', `${customRole} content`);
     
     const wrappedComponent = React.createElement(
       'div',
-      { role: customRole, 'aria-label': `${customRole} content` },
+      { role: customRole, 'aria-label': `${customRole} content`, className: `${customRole}-landmark` },
       component
     );
     
-    implementAccessibility(wrappedComponent);
+    return wrappedComponent;
   }
 
   // Expose new functions
@@ -130,13 +167,15 @@ function addressAccessibilityIssues(role = 'banner') {
 
 // Helper functions for accessibility
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('tabindex')) {
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
     link.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         link.click();
       }
     });
@@ -156,14 +195,17 @@ function ensureUniqueLandmarks() {
     
     if (counts[tag] > 1) {
       const role = landmark.getAttribute('role') || tag;
-      landmark.setAttribute('aria-label', `${role}-${counts[tag]}`);
+      if (!landmark.id) {
+        landmark.id = `${role}-${counts[tag]}`;
+      }
+      landmark.setAttribute('aria-label', `${role} ${counts[tag]}`);
     }
   });
 }
 
 function addLangAttribute() {
   const html = document.documentElement;
-  if (!html.getAttribute('lang')) {
+  if (!html.hasAttribute('lang')) {
     html.setAttribute('lang', 'en');
   }
 }
@@ -180,7 +222,7 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.getAttribute('role')) {
       svg.setAttribute('aria-label', `SVG icon ${index + 1}`);
     }
   });
@@ -197,19 +239,19 @@ function fixTableStructureIssues() {
     
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if (!th.hasAttribute('scope')) {
-        const isHeaderRow = Array.from(th.parentNode.children).every(
-          sibling => sibling.tagName.toLowerCase() === 'th'
-        );
-        if (isHeaderRow) {
-          th.setAttribute('scope', 'col');
-        } else {
-          th.setAttribute('scope', 'row');
-        }
+      const parentRow = th.parentElement;
+      const isHeaderRow = Array.from(parentRow.children).some(
+        sibling => sibling.tagName === 'TH'
+      );
+      if (isHeaderRow) {
+        th.setAttribute('scope', 'col');
+      } else {
+        th.setAttribute('scope', 'row');
       }
       
       if (!th.textContent.trim()) {
-        th.setAttribute('aria-label', `Column ${Array.from(th.parentNode.children).indexOf(th) + 1}`);
+        const columnIndex = Array.from(parentRow.children).indexOf(th);
+        th.setAttribute('aria-label', `Column ${columnIndex + 1}`);
       }
     });
   });

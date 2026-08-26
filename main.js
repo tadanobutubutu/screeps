@@ -6,7 +6,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-// TODO-hash: 6468a1295031a6500a8981582d2e182e6d55a296
+// TODO-hash: 6468a12950a89815a298c15a82d2e182e6d55a296
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -26,7 +26,7 @@ function fixTableStructureIssues() {
     if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('th, td');
+        const headers = firstRow.querySelectorAll('td');
         const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
@@ -62,7 +62,7 @@ function addMainLandmark() {
     main.id = 'main-content';
     const content = document.querySelector('.content') || document.body;
     if (content) {
-      document.body.insertBefore(main, content);
+      content.parentNode.insertBefore(main, content);
       content.remove();
     }
   } else {
@@ -115,7 +115,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main[role="main"]');
+  const mainLandmarks = document.querySelectorAll('main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -139,7 +139,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href][href="#"], a[href][href=""]');
+  const fakeLinks = document.querySelectorAll('a[href][href=""]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

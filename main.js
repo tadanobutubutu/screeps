@@ -1,4 +1,5 @@
-// TODO: Create or update the affected functions to be accessible
+// TODO: Address accessibility issues from insight report:
+// - ...
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -73,7 +74,7 @@ const addSkipLink = (document) => {
   skipLink.style.position = 'absolute';
   skipLink.style.top = '-40px';
   skipLink.style.left = '0';
-  skipLink.style.background = '#000';
+  skipLink.style.backgroundColor = '#000';
   skipLink.style.color = '#fff';
   skipLink.style.padding = '8px 16px';
   skipLink.style.zIndex = '10000';
@@ -154,102 +155,8 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach(type => {
+  landmarkTypes.forEach((type) => {
     const elements = document.querySelectorAll(`[role="${type}"]`);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
-  });
-};
-
-// Add the updated addressAccessibilityIssues function
-const addressAccessibilityIssues = (document) => {
-  if (!document) {
-    return document;
-  }
-
-  addLangAttribute(document);
-  fixTableStructureIssues(document);
-  addMainLandmark(document);
-  ensureUniqueLandmarks(document);
-  addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
-
-  return document;
-};
-
-//------ END OF ORIGINAL CODE ------
-
-// Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addressAccessibilityIssues,
-};
-
-// New functions to be added
-const addLangAttribute = (document) => {
-  const html = document.documentElement;
-  if (html && !html.lang) {
-    html.lang = 'en';
-  }
-  return document;
-};
-
-const fixTableStructureIssues = (document) => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-      }
-    }
-
-    if (table.querySelector('tbody') === null) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      if (rows.length > 0) {
-        const newTbody = document.createElement('tbody');
-        rows.forEach((row) => newTbody.appendChild(row));
-        table.appendChild(newTbody);
-      }
-    }
-
-    const thead = table.querySelector('thead');
-    if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
-    }
-
-    const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
-    });
-  });
-  return document;
-};
-
-const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
@@ -265,37 +172,48 @@ const ensureUniqueLandmarks = (document) => {
   });
 };
 
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-    svgIndex++;
-  });
+//------ END OF ORIGINAL CODE ------
+
+// Add the updated addressAccessibilityIssues function
+const addressAccessibilityIssues = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  wrapPrimaryContentInMain(document);
+  addSkipLink(document);
+  addLangAttribute(document);
+  fixTableStructureIssues(document);
+  ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
+  fixFakeLinkIssue(document);
+
   return document;
 };
 
-const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    // Add role="link" to ensure it's recognized as a link by screen readers
-    if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
-      link.setAttribute('role', 'link');
-    }
-    // Ensure the link has accessible name
-    if (link.getAttribute('role') === 'link' && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Link');
-    }
-    // Remove href="#" and add href="#" with proper handling
-    if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0);');
-    }
-  });
+// Export all functions for use in tests and other parts of the application
+export {
+  newFunction,
+  wrapPrimaryContentInMain,
+  addSkipLink,
+  getAccessibleName,
+  setAccessibleName,
+  addProperLandmarkRegions,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+};
+
+// New functions to be added
+const addLangAttribute = (document) => {
+  const html = document.documentElement;
+  if (html && !html.lang) {
+    html.lang = 'en';
+  }
   return document;
 };
+
+const fixTableStructureIssues = (document) =>

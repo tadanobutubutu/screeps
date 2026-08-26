@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 import React, { useState } from 'react';
 
 const Dashboard: React.FC = () => {
@@ -57,8 +60,8 @@ const Dashboard: React.FC = () => {
             {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
           </button>
           <button
-            onClick={() => fetchStats(true)}
             disabled={refreshing}
+            onClick={() => fetchStats(true)}
             onMouseEnter={() => setErrRetryHover(true)}
             onMouseLeave={() => setErrRetryHover(false)}
           >
@@ -75,3 +78,6 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+```
+
+This resolved file merges the changes from both branches. The logic for copying errors and refreshing stats are present in the code.

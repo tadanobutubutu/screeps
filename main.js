@@ -124,6 +124,40 @@ function validateLandmarkStructure() {
   });
 }
 
+// New function: getSvgAccessibleName
+function getSvgAccessibleName(svgElement) {
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+  // Check for aria-labelledby
+  if (svgElement.hasAttribute('aria-labelledby')) {
+    const ids = svgElement.getAttribute('aria-labelledby').split(' ');
+    let labels = [];
+    ids.forEach(id => {
+      const labelElement = document.getElementById(id);
+      if (labelElement) {
+        labels.push(labelElement.textContent.trim());
+      }
+    });
+    if (labels.length > 0) {
+      return labels.join(' ');
+    }
+  }
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent.trim();
+  }
+  // Check for desc element (often used as description, but can be used as name)
+  const desc = svgElement.querySelector('desc');
+  if (desc) {
+    return desc.textContent.trim();
+  }
+  // Fallback to text content
+  return svgElement.textContent.trim() || '';
+}
+
 // ... (Remaining functions for validation and creating accessible elements)
 
 // Implement the function for addressing the new accessibility issues
@@ -140,6 +174,9 @@ exports.totalDependencies = totalDependencies;
 // Export the new function to address specific accessibility issue REACT_038
 exports.addressAccessibilityIssueForSpecificElement = addressAccessibilityIssueForSpecificElement;
 
+// Export the getSvgAccessibleName function
+exports.getSvgAccessibleName = getSvgAccessibleName;
+
 // Preserve the existing exports
 module.exports = {
   // ... (All other exports from the current main.js)
@@ -151,5 +188,6 @@ module.exports = {
   addressAccessibilityIssueForSpecificElement,
   validateTableStructure, // Add the new function here
   validateLandmark, // Add the new function here
-  validateLandmarkStructure // Add the new function here
+  validateLandmarkStructure, // Add the new function here
+  getSvgAccessibleName // Add the new function here
 };

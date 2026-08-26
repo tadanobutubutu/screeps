@@ -58,7 +58,7 @@ const getSvgAccessibleName = (svgElement) => {
   const ariaLabel = svgElement.getAttribute('aria-label');
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
 
-  return ariaLabel || (title ? title.textContent : null);
+  return ariaLabel || (title ? title.textContent : null) || null;
 };
 
 // - REACT_025: Ensure unique landmarks

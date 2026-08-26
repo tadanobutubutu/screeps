@@ -43,13 +43,13 @@ function rotateBack() {
 }
 
 // Helper to ensure the document <html> element has a lang attribute (REACT_015)
-ensureHtmlLangAttribute: (lang = 'en') => {
+function ensureHtmlLangAttribute(lang = 'en') {
   if (typeof document === 'undefined') return;
   const rootElement = document.documentElement;
   if (rootElement && !rootElement.getAttribute('lang')) {
     rootElement.setAttribute('lang', lang);
   }
-},
+};
 
 // Preserve existing exports and functions
 // ... (Keep existing code, exports, and functions as they are)
@@ -99,22 +99,33 @@ module.exports = {
     // Fix for REACT_015: ensure document root has a lang attribute for accessibility
     ensureHtmlLangAttribute('en');
 
+    // Replace the <a id="unrotate"> with a <button> for better accessibility
+    const replaceUnrotateLink = () => {
+      const anchor = document.getElementById('unrotate');
+      if (anchor) {
+        const button = document.createElement('button');
+        button.id = 'unrotate';
+        button.textContent = 'rotate back';
+        button.onclick = rotateBack;
+        anchor.parentNode.replaceChild(button, anchor);
+      }
+    };
+
+    // Ensure the replacement runs after the DOM is ready
+    if (typeof document !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', replaceUnrotateLink);
+    }
+
     return table;
   },
 
   // ... other code ...
 
   // Helper to ensure the document <html> element has a lang attribute (REACT_015)
-  ensureHtmlLangAttribute: (lang = 'en') => {
-    if (typeof document === 'undefined') return;
-    const rootElement = document.documentElement;
-    if (rootElement && !rootElement.getAttribute('lang')) {
-      rootElement.setAttribute('lang', lang);
-    }
-  },
+  ensureHtmlLangAttribute: ensureHtmlLangAttribute,
 
   // Added rotateBack function
-  rotateBack,
+  rotateBack: rotateBack,
 
   // Export your functions and objects here, if any
   generateHtmlWithLangAttribute,

@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with Git conflict markers removed:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -93,6 +90,3 @@ function getSvgAccessibleName(element) {
 }
 
 // ... The remaining new functions were already present, no need to duplicate them
-```
-
-The Git conflict markers were removed to create a single, non-conflicted file that contains both changes.

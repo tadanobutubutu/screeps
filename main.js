@@ -199,6 +199,24 @@ function addSvgAccessibleNames() {
   });
 }
 
+// New function to ensure dependencyGraph container has proper ARIA role
+function addDependencyGraphLandmark(role = 'region') {
+  const containers = document.querySelectorAll('#dependencyGraph');
+  let container = null;
+
+  if (containers.length === 0) {
+    container = document.createElement('div');
+    container.id = 'dependencyGraph';
+    document.body.insertBefore(container, document.body.firstChild);
+  } else {
+    container = containers[0];
+  }
+
+  if (!container.hasAttribute('role')) {
+    container.setAttribute('role', role);
+  }
+}
+
 // New top-level functions (copies of those returned from addressAccessibilityIssues)
 function addFocusTrap(element, options = {}) {
   const wrapper = document.createElement('div');
@@ -305,5 +323,7 @@ module.exports = {
   applyAccessibilityFixes: accessibilityHelpers.applyAccessibilityFixes,
   // Export accessibilityHelpers and domHelpers for direct access if needed
   accessibilityHelpers: accessibilityHelpers,
-  domHelpers: domHelpers
+  domHelpers: domHelpers,
+  // Export new function for dependencyGraph landmark
+  addDependencyGraphLandmark: addDependencyGraphLandmark
 };

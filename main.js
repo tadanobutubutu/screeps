@@ -36,6 +36,200 @@ export function countDependencies() {
   return count;
 }
 
+// Function to create an in-page navigation button
+export function createInPageButton(options = {}) {
+  const {
+    text = 'Navigate',
+    targetId,
+    className = 'in-page-button',
+    ariaLabel,
+    iconText = '',
+    onClick
+  } = options;
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  
+  // Add accessible text content
+  const accessibleText = document.createElement('span');
+  accessibleText.textContent = text;
+  accessibleText.className = 'sr-only';
+  
+  // For screen readers, add aria-label if provided
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  } else {
+    button.setAttribute('aria-label', `Navigate to ${text}`);
+  }
+  
+  // Add visible content with icon
+  const visibleContent = document.createElement('span');
+  visibleContent.className = 'button-content';
+  if (iconText) {
+    const icon = document.createElement('span');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = iconText;
+    visibleContent.appendChild(icon);
+  }
+  visibleContent.appendChild(document.createTextNode(text));
+  
+  button.appendChild(accessibleText);
+  button.appendChild(visibleContent);
+  
+  // Set up click handler for smooth scrolling
+  if (targetId) {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.tabIndex = -1;
+        targetElement.focus({ preventScroll: true });
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Announce navigation to screen readers
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.className = 'sr-only';
+        announcement.textContent = `Navigated to ${targetElement.getAttribute('aria-label') || targetId}`;
+        document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 1000);
+      }
+      if (typeof onClick === 'function') {
+        onClick(event);
+      }
+    });
+    
+    // Link the button to the target for accessibility
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      const targetLabel = targetElement.getAttribute('aria-label') || 
+                          targetElement.getAttribute('aria-labelledby') ||
+                          targetId;
+      button.setAttribute('aria-label', `${text} to ${targetLabel}`);
+      button.setAttribute('aria-describedby', targetId);
+    }
+  } else if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Ensure proper button semantics
+  button.setAttribute('role', 'button');
+  
+  return button;
+}
+
+// Function to create an accessible link
+export function createAccessibleLink(options = {}) {
+  const {
+    href = '#',
+    text = '',
+    title,
+    className = 'accessible-link',
+    target,
+    rel,
+    ariaLabel,
+    ariaDescribedby,
+    external = false,
+    download = false,
+    onClick
+  } = options;
+
+  const link = document.createElement('a');
+  
+  // Set href
+  if (href) {
+    link.href = href;
+  } else {
+    link.href = '#';
+    link.setAttribute('aria-disabled', 'true');
+  }
+  
+  // Add basic attributes
+  link.className = className;
+  
+  if (text) {
+    link.textContent = text;
+  }
+  
+  // Add title attribute for mouse users
+  if (title) {
+    link.title = title;
+  }
+  
+  // Handle target attribute
+  if (target) {
+    link.target = target;
+    if (external || target === '_blank') {
+      link.rel = rel || 'noopener noreferrer';
+      
+      // Announce to screen readers that link opens in new tab
+      if (!ariaLabel) {
+        ariaLabel = `${text || title || 'Link'} (opens in new tab)`;
+      }
+    }
+  }
+  
+  // Handle download attribute
+  if (download) {
+    link.download = typeof download === 'string' ? download : '';
+  }
+  
+  // Set ARIA attributes for accessibility
+  if (ariaLabel) {
+    link.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (ariaDescribedby) {
+    link.setAttribute('aria-describedby', ariaDescribedby);
+  }
+  
+  // Add icon indicator for external links
+  if (external || target === '_blank') {
+    link.setAttribute('aria-label', ariaLabel || `${text || title || 'Link'} (opens in new tab)`);
+    
+    // Add visually hidden text to indicate new tab
+    const newTabIndicator = document.createElement('span');
+    newTabIndicator.className = 'sr-only';
+    newTabIndicator.textContent = '(opens in new tab)';
+    link.appendChild(newTabIndicator);
+  }
+  
+  // Handle click events
+  if (typeof onClick === 'function') {
+    link.addEventListener('click', (event) => {
+      // Check if link is disabled
+      if (link.getAttribute('aria-disabled') === 'true') {
+        event.preventDefault();
+        return;
+      }
+      onClick(event);
+    });
+  }
+  
+  // Handle keyboard interaction
+  link.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      // Allow default behavior but ensure focus is visible
+      setTimeout(() => {
+        link.classList.add('focus-visible');
+      }, 0);
+    }
+  });
+  
+  // Add focus indicator for accessibility
+  link.addEventListener('focus', () => {
+    link.classList.add('link-focused');
+  });
+  
+  link.addEventListener('blur', () => {
+    link.classList.remove('link-focused');
+  });
+  
+  return link;
+}
+
 // Function to render dependency graphs
 export function renderDependencyGraph(containerId) {
   const container = ...
@@ -244,117 +438,4 @@ export function validateTableAccessibility() {
     const headers = ...
     headers.forEach(th => {
       if ... {
-        issues.push(`Table ${index + 1} header cell missing scope attribute.`);
-      }
-    });
-  });
-
-  return issues;
-}
-
-// Function to add main landmark
-export function addMainLandmark(document) {
-  let mainElement = ...
-
-  if (!mainElement) {
-    // Find the main content area and wrap it or create main element
-    const body = document.body;
-    const main = ...
-    main.setAttribute('id', 'main-content');
-
-    // Move first significant content child to main
-    const children = [...body.childNodes];
-    for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
-          child.tagName !== 'LINK' && child.tagName !== 'META') {
-        main.appendChild(child);
-        break;
-      }
-    }
-
-    ... body.firstChild);
-    mainElement = main;
-  }
-
-  // Ensure main has proper role if not using native element
-  if (mainElement.tagName !== 'MAIN') {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  return mainElement;
-}
-
-// Function to ensure unique landmarks
-export function ensureUniqueLandmarks() {
-  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
-  const usedLabels = {};
-
-  landmarkTypes.forEach(type => {
-    const selector = type;
-    const landmarks = document.querySelectorAll(selector);
-    landmarks.forEach((landmark, index) => {
-      const existingLabel = landmark.getAttribute('aria-label') || 
-                           landmark.getAttribute('aria-labelledby') ||
-                           landmark.getAttribute('id') || '';
-      let label = existingLabel || `${type}-${index + 1}`;
-
-      if (landmarks.length > 1) {
-        let labelSuffix = '';
-
-        // Ensure uniqueness
-        if (usedLabels[type] && usedLabels[type].has(label)) {
-          labelSuffix = `-${index + 1}`;
-        }
-
-        if (!usedLabels[type]) {
-          usedLabels[type] = new Set();
-        }
-        usedLabels[type].add(label);
-
-        if (labelSuffix) {
-          label = `${type}${labelSuffix}`;
-          landmark.setAttribute('aria-label', label);
-        }
-      } else if (!existingLabel) {
-        landmark.setAttribute('aria-label', label);
-      }
-    });
-  });
-}
-
-// Function to validate a single landmark element for accessibility
-export function validateLandmark(landmark) {
-  const issues = [];
-
-  if (!landmark) {
-    issues.push('Landmark element is null or undefined.');
-    return issues;
-  }
-
-  const tagName = landmark.tagName ? ... : '';
-  const role = landmark.getAttribute ? ... : null;
-  const ariaLabel = landmark.getAttribute ? ... : null;
-  const ariaLabelledby = landmark.getAttribute ? ... : null;
-
-  // Determine if the element qualifies as a landmark
-  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form', 'region'];
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region'];
-  const isLandmark = ... || (role && ...
-
-  if (!isLandmark) {
-    issues.push(`Element <${tagName || 'unknown'}> with role="${role || ''}" is not a recognized landmark.`);
-    return issues;
-  }
-
-  // Region/section landmarks require an accessible name
-  if ((tagName === 'section' || tagName === 'form' || role === 'region' || role === 'form') &&
-      !ariaLabel && !ariaLabelledby) {
-    issues.push(`Landmark <${tagName}> (role="${role || ''}") is missing an accessible name (aria-label or aria-labelledby).`);
-  }
-
-  // Main landmark should not be nested inside another landmark
-  if (tagName === 'main' || role === 'main') {
-    const parent = landmark.parentElement;
-    if (parent) {
-      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
-      const parentRole = parent.getAttribute ? parent.getAttribute('role') : null;
+        issues.push(`Table ${index + 1} header cell missing scope attribute

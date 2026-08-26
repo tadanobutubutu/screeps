@@ -183,13 +183,6 @@ const autoEvolution = {
             terminals: 0,
         };
 
-        const structureCounter = (structure) => {
-            const type = structure.structureType;
-            if (type === STRUCTURE_TOWER) structures.towers++;
-            else if (type === STRUCTURE_LINK) structures.links++;
-            else if (type === STRUCTURE_LAB) structures.labs++;
-        };
-
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
 
@@ -201,8 +194,17 @@ const autoEvolution = {
             }
 
             // ⚡ PERFORMANCE: main.jsで準備された部屋ごとのキャッシュを優先使用。
-            const roomStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
-            roomStructures.forEach(structureCounter);
+            if (room._myStructures === undefined) {
+                room._myStructures = room.find(FIND_MY_STRUCTURES);
+            }
+            const roomStructures = room._myStructures;
+
+            for (let j = 0; j < roomStructures.length; j++) {
+                const type = roomStructures[j].structureType;
+                if (type === STRUCTURE_TOWER) structures.towers++;
+                else if (type === STRUCTURE_LINK) structures.links++;
+                else if (type === STRUCTURE_LAB) structures.labs++;
+            }
         }
 
         return structures;

@@ -1,5 +1,5 @@
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
+// TODO: Please provide the actual contents of main.js
 function setHtmlLangAttribute(lang = 'en') {
     const html = document.querySelector('html');
     if (html && html.tagName) {

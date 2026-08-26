@@ -5,6 +5,9 @@ const { renderGraphContent } = require('./dependency-graph');
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   document.querySelector('#dependencyGraph .dependencyGraph').innerHTML = data;
+
+  // Adding landmark for main content
+  document.getElementById('dependencyGraph').setAttribute('role', 'region');
 }
 
 // Export renderDependencyGraphContent function

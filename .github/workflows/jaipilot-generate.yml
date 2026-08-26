@@ -25,7 +25,7 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Exchange GitHub OIDC token for JAIPilot runtime token

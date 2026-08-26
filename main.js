@@ -1,3 +1,5 @@
+// main.js - Resolved Version
+
 // Existing code in main.js before conflict markers
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -13,16 +15,21 @@ const fixAccessibilityIssues = () => {
 // Utility function from origin/main for HTML generation with language attributes
 let myHtml = ``; // With your existing HTML string
 
-function generateHtmlWithLangAttribute(tag, lang = 'en') {
+function generateHtmlWithLangAttribute(tag, language = 'en') {
   // You can specify the tag and language as needed
-  const htmlWithLang = `<div lang="${lang}">`;
+  const htmlWithLang = `<${tag} lang="${language}">${myHtml}</${tag}>`;
   return htmlWithLang;
 }
 
 // Integrated accessibility function that addresses both concerns
 const ensureAccessibility = (htmlContent) => {
   // Generate HTML with lang attribute for screen readers
-  let accessibleHtml = `<main>\n${htmlContent}\n</main>`;
+  let accessibleHtml = generateHtmlWithLangAttribute('div', 'en');
+  
+  // Wrap in main tag for structural accessibility if content is provided
+  if (htmlContent) {
+    accessibleHtml = `<main>\n${accessibleHtml}\n${htmlContent}\n</main>`;
+  }
   
   // Apply additional accessibility improvements
   fixAccessibilityIssues();
@@ -30,7 +37,7 @@ const ensureAccessibility = (htmlContent) => {
   return accessibleHtml;
 };
 
-// TODO: Preserve existing exports and functions
+// Preserve existing exports and functions
 // ... (Keep existing code, exports, and functions as they are)
 
 const App = () => {

@@ -32,6 +32,14 @@ export function initializeAccessibility() {
       }
     });
   }
+  
+  // [NEW] Example of addressing another accessibility issue, such as ensuring keyboard focus order is logical
+  // This is a placeholder for the actual code that needs to be added based on the insight report
+  // Example: Add a logical focus order for interactive elements
+  const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea');
+  interactiveElements.forEach((element, index) => {
+    element.setAttribute('tabindex', index);
+  });
 }
 
 // Initialize accessibility features on DOM ready

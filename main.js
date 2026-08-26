@@ -13,11 +13,18 @@ function updateIconsWithAriaHidden(icons) {
   });
 }
 
-// ... (add the following line below any existing imports at the top)
-import { updateIconsWithAriaHidden } from './utils/accessibility';
+// Add accessibility enhancements with a function for buttons
+const makeButtonAccessible = (buttonId) => {
+  const myButton = document.getElementById(buttonId);
+
+  if (myButton) {
+    myButton.setAttribute('aria-label', 'Click the button');
+  }
+};
 
 // ... (app and dashboard modules should import icons as updated)
 import { updateIconsWithAriaHidden } from './utils/accessibility';
+import { makeButtonAccessible } from './utils/accessibility';
 import { MyComponent } from './MyComponent';
 
 // ... (Update the lines with importing icons in app and dashboard)
@@ -50,3 +57,17 @@ export const dashboard = () => {
     </div>
   );
 };
+
+// Add the following line below any existing imports at the top
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Accessibility enhancements
+makeButtonAccessible('actual-button-id'); // Replace 'actual-button-id' with the actual button id
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);

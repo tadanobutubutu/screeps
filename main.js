@@ -1,5 +1,3 @@
-// Address accessibility issues from insight report
-// Ensure the dependencyGraph container has a proper ARIA role
 const { renderGraphContent } = require('./dependency-graph');
 
 const container = document.getElementById('dependencyGraph');

@@ -140,6 +140,60 @@ const addProperLandmarkRegions = function(content) {
     return content;
 };
 
+// Include safety categories other than Unauthorized Advice
+const SAFETY_CATEGORIES = [
+    'Hate Speech',
+    'Violence',
+    'Sexual Content',
+    'Self-Harm',
+    'Illegal Acts',
+    'PII',
+    'Spam',
+    'Harassment',
+    'Dangerous Content',
+    'Medical Advice',
+    'Financial Advice',
+    'Legal Advice'
+];
+
+const getSafetyCategories = function() {
+    return [...SAFETY_CATEGORIES];
+};
+
+const isSafetyCategory = function(category) {
+    return SAFETY_CATEGORIES.includes(category);
+};
+
+const addSafetyCategory = function(category) {
+    if (category && typeof category === 'string' && !SAFETY_CATEGORIES.includes(category)) {
+        SAFETY_CATEGORIES.push(category);
+        return true;
+    }
+    return false;
+};
+
+const removeSafetyCategory = function(category) {
+    const index = SAFETY_CATEGORIES.indexOf(category);
+    if (index !== -1) {
+        SAFETY_CATEGORIES.splice(index, 1);
+        return true;
+    }
+    return false;
+};
+
+const filterContentBySafetyCategories = function(content, categoriesToFilter = SAFETY_CATEGORIES) {
+    if (!content || typeof content !== 'string') {
+        return content;
+    }
+    // Placeholder for actual content filtering logic
+    // In a real implementation, this would integrate with a content moderation API
+    return {
+        content,
+        filtered: false,
+        categoriesChecked: categoriesToFilter
+    };
+};
+
 // ... (You can add more functions as needed)
 
 // If necessary, update the export for the new functions
@@ -181,6 +235,13 @@ module.exports = {
     fixFakeLinkIssue,
     addProperLandmarkRegions, // Include the new function in the exports
     renderDependencyGraph1,
-    renderDependencyGraph2
+    renderDependencyGraph2,
+    // Safety category functions
+    SAFETY_CATEGORIES,
+    getSafetyCategories,
+    isSafetyCategory,
+    addSafetyCategory,
+    removeSafetyCategory,
+    filterContentBySafetyCategories
     // ... Add any other exports that were found to be affected by the update ...
 };

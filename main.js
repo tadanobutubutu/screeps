@@ -1,3 +1,5 @@
+=========================================
+<<<<<<< HEAD
 const getLangAttribute = () => {
   // Your logic to get the lang attribute or use the provided example
   // If you use the provided example, handle the case when navigator.language or navigator.userLanguage is undefined
@@ -106,3 +108,8 @@ const root = createRoot(container);
 root.render(<App />);
 */
 */
+=======
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+>>>>>>> origin/main
+
+=========================================

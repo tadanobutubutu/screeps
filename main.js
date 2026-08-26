@@ -6,12 +6,12 @@ import indexContent from './indexContent';
 document.documentElement.lang = 'en'; // Set lang attribute based on page content
 
 // Add landmark roles for main and footer
-const main = document.querySelector('main');
+const main = ...
 if (main) {
   main.setAttribute('role', 'main');
 }
 
-const footer = document.querySelector('footer');
+const footer = ...
 if (footer) {
   footer.setAttribute('role', 'contentinfo');
 }
@@ -28,21 +28,21 @@ for (let link of links) {
 }
 
 // Add accessible names to 2 SVGs
-const svgs = document.querySelectorAll('svg');
+const svgs = ...
 for (let svg of svgs) {
   const testId = svg.getAttribute('data-testid');
   if (testId) {
-    svg.setAttribute('aria-label', testId);
+    ... testId);
   }
 }
 
 // New function: Print Alert Messages
-function printAlertMessages(messages) {
+export function printAlertMessages(messages) {
   messages.forEach((message) => {
-    const alert = document.createElement('div');
+    const alert = ...
     alert.className = 'alert';
     alert.textContent = message;
-    document.body.appendChild(alert);
+    ...
   });
 }
 
@@ -50,10 +50,10 @@ function printAlertMessages(messages) {
 return (
   <div className="app">
     <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
-      <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+      <div ... __html: dependencyGraphContent }} />
     </div>
     <main id="main-content" className="content" role="main">
-      <div dangerouslySetInnerHTML={{ __html: indexContent }} />
+      <div ... __html: indexContent }} />
     </main>
     <footer id="footnotes" className="footnotes" role="contentinfo">
       {/* Existing footer content */}

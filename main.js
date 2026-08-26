@@ -1,17 +1,1 @@
-// Existing exports
-module.exports = {
-  existingFunction1,
-  existingFunction2,
-  // ...
-};
-
-// New export (TODO: replace this with the actual name)
-const newFunction = () => {
-  // Function implementation
-};
-
-// Add the new export to the module.exports
-module.exports = {
-  ...module.exports,
-  newFunction,
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

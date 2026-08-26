@@ -1,1 +1,17 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Import the HTML file or component that corresponds to 'docs/dependency-graph.html'
+import DependencyGraphHTML from './docs/dependency-graph.html';
+
+// A hypothetical function that might be responsible for rendering the HTML content
+function renderHTMLContent() {
+  return (
+    <div>
+      {/* Render the DependencyGraphHTML component or use the raw HTML */}
+      <DependencyGraphHTML />
+    </div>
+  );
+}
+
+// Render the HTML content somewhere in your application
+export default function App() {
+  return renderHTMLContent();
+}

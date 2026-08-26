@@ -72,3 +72,6 @@ function MyApp() {
 
 // Assume existing exports and functions are preserved
 export default MyApp;
+
+// Export the newly added function
+export { printAlertMessages };

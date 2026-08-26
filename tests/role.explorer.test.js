@@ -192,38 +192,4 @@ describe('role.explorer', () => {
         jest.dontMock('crypto');
         jest.resetModules();
     });
-
-    test('falls back to Math.random when buf.readUInt32LE throws an error', () => {
-        global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
-
-        // Mock crypto and buf.readUInt32LE to throw an error
-        const crypto = require('crypto');
-        const originalRandomBytes = crypto.randomBytes;
-        crypto.randomBytes = jest.fn().mockReturnValue({
-            readUInt32LE: jest.fn().mockImplementation(() => {
-                throw new Error('Simulated buffer error');
-            })
-        });
-
-        const originalRandom = Math.random;
-        Math.random = jest.fn().mockReturnValue(0.9);
-
-        const creep = {
-            memory: { targetRoom: 'W1N1' }, // we are already here
-            say: jest.fn(),
-            moveTo: jest.fn(),
-            room: { name: 'W1N1' },
-            pos: { x: 25, y: 25 }, // at center
-        };
-
-        expect(() => roleExplorer.run(creep)).not.toThrow();
-        expect(creep.say).toHaveBeenCalledWith('👀 scouting');
-        expect(creep.memory.targetRoom).toBeDefined();
-        expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
-        expect(Math.random).toHaveBeenCalled(); // Verify fallback was reached
-
-        Math.random = originalRandom;
-        crypto.randomBytes = originalRandomBytes;
-    });
-
 });

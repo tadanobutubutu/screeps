@@ -871,6 +871,12 @@ describe('src/roles/miner', () => {
             };
             roomMock.getTerrain.mockReturnValue(mockTerrain);
 
+            // _countMiningSpots is not exported directly, but we can test it indirectly via _findBestSource
+            // if we can control minerCounts to be 0 for all.
+            // A better way is to test the effect of _countMiningSpots on the assignment logic.
+            // If we have 2 sources, one with 1 spot, one with 3 spots, and current assignments are 1 for both.
+            // The one with 1 spot should not accept more miners, so the one with 3 spots should be chosen.
+
             const source1 = { id: 's_spot1', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
             const source2 = {
                 id: 's_spot3',

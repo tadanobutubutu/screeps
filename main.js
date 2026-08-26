@@ -8,7 +8,14 @@ myDiv.setAttribute('aria-hidden', true);
 const myButton = document.getElementById('my-button');
 myButton.setAttribute('aria-label', 'A Button with special purpose');
 
-// TODO: Add back any required exports that might have been?
+// Add back any required exports that might have been?
 // Placeholder: Below is a sample structure. Replace with actual existing code + added exports.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
+
+// Example of adding a new function and exporting it
+export function displayMessage(message) {
+  const messageElement = document.createElement('p');
+  messageElement.textContent = message;
+  myDiv.appendChild(messageElement);
+}

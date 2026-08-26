@@ -8,18 +8,28 @@ export function addLangAttribute(lang = 'en') {
   document.documentElement.lang = lang;
 }
 
+// Function to add accessible names to given SVGs
+export function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+
+  // Add accessible names to all SVG elements
+  Array.from(svgs).forEach((svg) => {
+    svg.setAttribute('aria-label', svg.getAttribute('data-aria-label') || svg.getAttribute('alt') || 'An SVG image');
+  });
+}
+
 // REACT_025: Additional accessibility improvements
 export function initializeAccessibility() {
   // Set default language attribute
   addLangAttribute();
-  
+
   // Prevent tab trapping outside of modals by managing focus
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       document.dispatchEvent(new CustomEvent('escapePressed'));
     }
   });
-  
+
   // Ensure skip link functionality if skip link exists
   const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
   if (skipLink) {
@@ -32,6 +42,9 @@ export function initializeAccessibility() {
       }
     });
   }
+
+  // Add accessible names to all SVGs (if not set already)
+  addSvgAccessibleNames();
 }
 
 // Initialize accessibility features on DOM ready

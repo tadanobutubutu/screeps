@@ -19,7 +19,6 @@ const addLangAttribute = (element, lang) => {
   element.setAttribute('lang', lang);
 };
 
-// - REACT_015 & REACT_036: Handled by personName()
 const getLangAttribute = (element) => {
   return element.getAttribute('lang');
 };
@@ -80,7 +79,7 @@ const newFunction = (input) => {
   return input;
 };
 
-// Existing exports should stay the same
+// - Preserve the existing exports
 module.exports = {
   addId,
   addAriaLabel,

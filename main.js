@@ -40,7 +40,7 @@ function fixDuplicateLandmarkRoles(container) {
 
 function renderDependencyGraph(data) {
     const graphContainer = document.getElementById('graph-container')
-    if (!graphContainer) return
+    if ( === undefined ||  === null) return
 
     graphContainer.innerHTML = ''
     someDependency.render(data, graphContainer)

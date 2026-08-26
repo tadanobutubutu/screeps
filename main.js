@@ -33,8 +33,15 @@ const setAccessibleName = (node, accessibleName) => {
   }
 };
 
-// Existing exports and functions continue to be preserved
-// No changes to exports are allowed
+// Add the new function to fix the REACT_027 issue
+const fixTableHeaders = (table) => {
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+};
 
 // New function to wrap the primary content in a <main> element
 const wrapPrimaryContentInMain = (content) => {
@@ -45,5 +52,4 @@ const wrapPrimaryContentInMain = (content) => {
 
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
-
-module.exports = { getAccessibleName, setAccessibleName, wrapPrimaryContentInMain };
+module.exports = { getAccessibleName, setAccessibleName, fixTableHeaders, wrapPrimaryContentInMain };

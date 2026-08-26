@@ -23,23 +23,23 @@ function addLandmarkRoles() {
 
 function addSvgAccessibleNames() {
   // Add accessible names to SVGs
-  const contentWithAccessibleNames = content.replace(/<svg[^>]*>/g, (svg) => {
-    const ariaHiddenMatch = svg.match(/aria-hidden="[^"]*"/i);
+  const contentWithAccessibleNames = ... (svg) => {
+    const ariaHiddenMatch = ...
     const hasAriaHidden = ariaHiddenMatch ? ariaHiddenMatch[0] : '';
-    const svgWithAccessibleName = svg.replace(/<svg/g, `<svg ${hasAriaHidden}>`);
+    const svgWithAccessibleName = svg.replace(/<svg/g, `<svg ...
 
     if (!hasAriaHidden) {
-      const ariaLabelMatch = svg.match(/aria-label="[^"]*"/i);
+      const ariaLabelMatch = ...
       const hasAriaLabel = ariaLabelMatch ? ariaLabelMatch[0] : '';
-      const titleMatch = svg.match(/<title>(.*?)<\/title>/i);
+      const titleMatch = ...
       const hasTitle = titleMatch ? titleMatch[0] : '';
 
       if (!hasAriaLabel && !hasTitle) {
         // Add aria-label or title if not present
         if (titleMatch) {
-          return svgWithAccessibleName.replace(titleMatch[0], `<title>Svg Description</title>${titleMatch[0]}`);
+          return ... `<title>Svg ...
         } else {
-          return svgWithAccessibleName.replace(/<svg/g, `<svg aria-label="Svg Description">`);
+          return ... `<svg aria-label="Svg Description">`);
         }
       }
     }
@@ -67,27 +67,27 @@ function addThScope() {
 }
 
 // New Function for handling unique landmarks
-function checkForUniqueLandmarks(html) {
+function ... {
   // Check for unique landmarks in the provided HTML
-  const uniqueLandmarks = [...new Set(findLandmarkRoles(html))];
+  const uniqueLandmarks = [...new ...
 
-  if (uniqueLandmarks.length !== getUniqueLandmarkCount(html)) {
+  if ... !== ... {
     throw new Error('Non-unique landmarks found in the HTML');
   }
 }
 
-function findLandmarkRoles(html) {
+function ... {
   // Find landmark roles in the provided HTML
-  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+  const landmarks = ... [aria-landmark]')];
 
-  return landmarks.map(landmark => landmark.getAttribute('aria-landmark'));
+  return landmarks.map(landmark => ...
 }
 
-function getUniqueLandmarkCount(html) {
+function ... {
   // Count the unique landmark roles in the provided HTML
-  const landmarks = [...html.querySelectorAll('[aria-separator="landmarks"] [aria-landmark]')];
+  const landmarks = ... [aria-landmark]')];
 
-  return new Set(landmarks.map(landmark => landmark.getAttribute('aria-landmark'))).size;
+  return new Set(landmarks.map(landmark => ...
 }
 
 function addressIssuesFromInsightReport() {
@@ -105,10 +105,10 @@ function addressIssuesFromInsightReport() {
   addLandmarkRoles();
 
   // Add accessible names to SVGs
-  addSvgAccessibleNames();
+  ...
 
   // Ensure unique landmarks
-  checkForUniqueLandmarks(content);
+  ...
 
   // Fix fake link issues
   fixFakeLinkIssues();

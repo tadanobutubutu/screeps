@@ -17,6 +17,7 @@ const setAccessibleName = (node, accessibleName) => {
 
 const newFunction = () => {
   // Function body of the new function goes here...
+  console.log('New function executed');
 };
 
 const addLangAttribute = (document) => {

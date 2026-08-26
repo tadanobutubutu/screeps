@@ -48,7 +48,7 @@ export function fixTableStructureIssues(html) {
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('scope=')) {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
@@ -56,7 +56,7 @@ export function fixTableStructureIssues(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('summary=') || attrs.includes('aria-describedby=')) {
+    if (attrs && (attrs.includes(' summary=') || attrs.includes(' caption>'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -64,17 +64,17 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/<tr([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const beforeTr = result.substring(0, result.indexOf(match));
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (beforeTr && !beforeTr.endsWith('</tbody>') && beforeTr.includes('<tbody')) {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -82,8 +82,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !table.includes('</tbody>')) {
-        result = result.replace(table, table.replace(/(<table[^>]*>[\s\S]*?<tbody>)([\s\S]*?)(<\/table>)/, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
+        result = result.replace(table, table.replace(/(<table[\s\S]*>)([\s\S]*)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -105,12 +105,12 @@ export function addMainLandmark(html) {
   }
   
   // Try to match body content
-  const bodyMatch = /<body([^>]*)>([\s\S]*)<\/body>/i.exec(html);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main role="main">${bodyContent}</main>`;
-    return html.replace(/<body([^>]*)>[\s\S]*<\/body>/i, `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
   }
   
   return html;
@@ -126,26 +126,40 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.includes('aria-label=') || attrs.includes('aria-labelledby=');
-    
-    if (existingLabel) {
+  // Handle SVG elements - check for existing accessible name
+  return html.replace(/<svg([^>]*)>[\s\S]*?<\/svg>/gi, (match, attrs) => {
+    // Check for existing aria-label
+    const ariaLabelMatch = /aria-label=["']([^"']+)["']/i.exec(attrs);
+    if (ariaLabelMatch) {
       return match;
     }
     
-    // Extract title if present
-    const titleMatch = /<title[^>]*>([^<]+)<\/title>/i.exec(match);
+    // Check for existing aria-labelledby
+    const ariaLabelledbyMatch = /aria-labelledby=["']([^"']+)["']/i.exec(attrs);
+    if (ariaLabelledbyMatch) {
+      return match;
+    }
+    
+    // Check for existing title element with id
+    const existingTitleMatch = /<title[^>]*id=["']([^"']+)["'][^>]*>([^<]*)<\/title>/i.exec(match);
+    if (existingTitleMatch) {
+      const titleId = existingTitleMatch[1];
+      return match.replace(/<svg/, `<svg role="img" aria-labelledby="${titleId}"`);
+    }
+    
+    // Extract title if present without id
+    const titleMatch = /<title[^>]*>([^<]*)<\/title>/i.exec(match);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
-    // Check for id to reference
-    const idMatch = /\bid="([^"]+)"/i.exec(attrs);
+    // Check for id attribute to reference
+    const idMatch = /id=["']([^"']+)["']/i.exec(attrs);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}">`;
+      return match.replace(/<svg/, `<svg role="img" aria-labelledby="${idMatch[1]}"`);
     }
     
     // Add inline title for accessibility
     const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title></svg>`;
+    return match.replace(/<svg/, `<svg role="img" aria-labelledby="${titleId}"`).replace('</svg>', `<title id="${titleId}">${label}</title></svg>`);
   });
 }
 
@@ -162,7 +176,7 @@ export function ensureUniqueLandmarks(html) {
   
   // Initialize counters for each landmark type
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}(?:\\s[^>]*)?>`, 'gi');
+    const regex = new RegExp(`<${lm}[\\s>]`, 'gi');
     const matches = html.match(regex);
     if (matches) {
       counters[lm] = matches.length;
@@ -171,11 +185,12 @@ export function ensureUniqueLandmarks(html) {
   
   // Assign unique IDs to landmarks
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}((?:\\s[^>]*)?)>`, 'gi');
+    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
     const idCounter = counters[lm];
+    let count = 0;
     html = html.replace(regex, (match) => {
-      const id = `${lm}-${idCounter}`;
-      return match.replace(`<${lm}`, `<${lm} id="${id}"`);
+      const id = `${lm}-${++count}`;
+      return `<${lm} id="${id}"${regex.exec(match) ? '' : ''}`;
     });
   });
   
@@ -192,7 +207,7 @@ export function fixFakeLinkIssue(html) {
   
   // Fix any fake links that do not have a valid href attribute
   return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
-    if (attrs.includes('href=')) {
+    if (attrs && attrs.includes('href=')) {
       return match;
     }
     return match.replace(/<a/, '<a href="#"');

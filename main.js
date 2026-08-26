@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -88,6 +91,42 @@ function validateLandmark(element, landmarkType) {
   }
 }
 
+// New function: validateLandmarkStructure
+function validateLandmarkStructure() {
+  // Check for required landmarks and proper structure
+  const mainLandmark = document.querySelector('[role="main"], main');
+  if (!mainLandmark) {
+    throw new Error('Document must have a main landmark (role="main" or <main> element)');
+  }
+
+  // Check for duplicate banners
+  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+  if (banners.length > 1) {
+    throw new Error('Document should have at most one banner or header landmark');
+  }
+
+  // Check for duplicate contentinfo
+  const contentinfos = document.querySelectorAll('[role="contentinfo"], [role="footer"]');
+  if (contentinfos.length > 1) {
+    throw new Error('Document should have at most one contentinfo or footer landmark');
+  }
+
+  // Check for nested landmarks of the same type
+  const allLandmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"], [role="region"], [role="article"], [role="aside"], [role="figure"], [role="footer"], [role="header"], [role="landmark"], main, header, footer, aside, nav, section[aria-label], form[aria-label]');
+
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    let parent = landmark.parentElement;
+    while (parent) {
+      const parentRole = parent.getAttribute('role') || parent.tagName.toLowerCase();
+      if (parentRole === role) {
+        throw new Error(`Landmark with role "${role}" should not be nested inside another with the same role`);
+      }
+      parent = parent.parentElement;
+    }
+  });
+}
+
 // ... (Remaining functions for validation and creating accessible elements)
 
 // Implement the function for addressing the new accessibility issues
@@ -104,15 +143,12 @@ exports.totalDependencies = totalDependencies;
 // Export the new function to address specific accessibility issue REACT_038
 exports.addressAccessibilityIssueForSpecificElement = addressAccessibilityIssueForSpecificElement;
 
-// Preserve the existing exports
-module.exports = {
-  // ... (All other exports from the current main.js)
-  renderDependencyGraph,
-  newFunction,
-  addressAccessibilityIssue038,
-  totalDependencies,
-  addressAccessibilityIssues,
-  addressAccessibilityIssueForSpecificElement,
-  validateTableStructure, // Add the new function here
-  validateLandmark // Add the new function here
-};
+// Export the new function to validate table structure
+exports.validateTableStructure = validateTableStructure;
+
+// Export the new function to validate landmark
+exports.validateLandmark = validateLandmark;
+
+// Export the new function to validate landmark structure
+exports.validateLandmarkStructure = validateLandmarkStructure;
+```

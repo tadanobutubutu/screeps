@@ -1,3 +1,13 @@
+// Fix for REACT_015: Ensure HTML element has lang attribute for accessibility
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = 'en';
+}
+
+// React application entry point
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
@@ -178,3 +188,10 @@ module.exports = {
   fixFakeLinkIssue,
   // ... existing exports
 };
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

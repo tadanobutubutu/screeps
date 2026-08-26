@@ -59,7 +59,7 @@ export const fixTableStructure = (tableComponent) => {
         <thead>
           <tr>
             {headers?.map((header, index) => (
-              <th key={index} scope="col">{header}</th>
+              <th key={index} ...
             ))}
           </tr>
         </thead>
@@ -88,7 +88,7 @@ export const addLandmarkIssues = (Component, landmarkType, label) => {
     section: 'region',
   };
 
-  return React.forwardRef(({ role = landmarkRoles[landmarkType], ...props }, ref) => {
+  return React.forwardRef(({ role = ... ...props }, ref) => {
     return (
       <Component
         ref={ref}
@@ -106,14 +106,14 @@ export const addSvgAccessibleNames = (svgProps) => {
     ...svgProps,
     role: 'img',
     'aria-label': svgProps.label || 'Decorative icon',
-    'aria-hidden': svgProps['aria-hidden'] ?? !svgProps.label,
+    'aria-hidden': ... ?? !svgProps.label,
   };
 };
 
 // REACT_025: Ensure unique landmarks
 export const ensureUniqueLandmarks = (landmarkElements) => {
   return landmarkElements.map((element, index) => {
-    const existingLabel = element.props?.['aria-label'];
+    const existingLabel = ...
     const uniqueLabel = existingLabel || `${element.props?.role || 'section'}-${index + 1}`;
     
     return React.cloneElement(element, {

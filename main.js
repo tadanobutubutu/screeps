@@ -1,10 +1,1 @@
-tsx
-import React from 'react';
-
-const Main = ({ children }) => (
-  <main aria-label="Main content">
-    {children}
-  </main>
-);
-
-export default Main;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

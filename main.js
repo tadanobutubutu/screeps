@@ -3,7 +3,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
+import { dependencyGraphContent, indexContent } from ... // Imported new modules here
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
@@ -77,7 +77,7 @@ const validateTableStructure = () => {
 
   // Add render dependency graph content here
   const dependencyGraph = ... // Assuming you have a function to generate the dependency graph data
-  ReactDOM.render(<React.Fragment>{dependencyGraphContent(dependencyGraph)}</React.Fragment>, document.getElementById('dependency-graph'));
+  ... ...
 
   return { errors };
 };
@@ -130,9 +130,26 @@ const validateTableAccessibility = () => {
 
   // Add render index content here
   const indexData = ... // Assuming you have a function to generate the index data
-  ReactDOM.render(<React.Fragment>{indexContent(indexData)}</React.Fragment>, document.getElementById('index'));
+  ... ...
 
   return { errors };
+};
+
+// Accessibility fix: RotateBackButton component using button instead of anchor with href="#"
+// This fixes REACT_036 - React Fake Link warning
+const RotateBackButton = ({ onClick, className = '', disabled = false, ariaLabel = 'rotate back' }) => {
+  return (
+    <button
+      id="unrotate"
+      type="button"
+      className={className}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    >
+      rotate back
+    </button>
+  );
 };
 
 // Function to create an in-page button with fake link handling
@@ -229,6 +246,7 @@ export {
   getSvgAccessibleName,
   createInPageButton,
   InPageButton,
+  RotateBackButton,
   validateTableStructure,
   validateTableAccessibility,
   validateLandmarkStructure,

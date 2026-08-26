@@ -10,7 +10,7 @@ import { handleErrorState } from './errorHandler';
 
 // Add the missing lang attribute to the <html> element
 const htmlElement = getDocument().documentElement;
-htmlElement.lang = 'en'; // Change the value to the desired language code
+htmlElement.lang = htmlElement.lang || 'en'; // Change the value to the desired language code
 
 // Implement the handleAccessibilityError function that triggers the accessibility mode
 function handleAccessibilityError(errorElement, container) {
@@ -46,9 +46,8 @@ export { addLandmarkRegions };
 // <head>...</head>
 // <body>...</body>
 
-const htmlHeading = document.querySelector('html');
-if (htmlHeading.lang === null || htmlHeading.lang === '') {
-  htmlHeading.lang = 'en';
+if (!htmlElement.hasAttribute('lang')) {
+  htmlElement.setAttribute('lang', 'en');
 }
 
 // For the sake of example, let's also provide a new function to highlight errors based on accessibility issues

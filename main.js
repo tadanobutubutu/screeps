@@ -1,7 +1,3 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
-
-// Existing exports and functions
-
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -23,7 +19,9 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
 
 // Implement the requested function for addressing new accessibility issues (Uncomment this function)
 function addressAccessibilityIssues() {
-    // New implementation goes here
+  // New implementation goes here
+  // Add the lang attribute to the document root for example
+  document.documentElement.setAttribute('lang', 'en');
 }
 
 // Implement the new function to calculate the total count of dependencies

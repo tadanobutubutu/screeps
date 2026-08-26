@@ -1,5 +1,4 @@
-// main.js - Build/validation script for documentation
-// This file preserves existing functionality while ensuring valid JavaScript syntax
+// Assuming this is the main.js file and the following function is part of it
 
 // ... (other code)
 
@@ -77,7 +76,7 @@ function renderDependencyGraph() {
     };
 
     // Append the button to the parent element
-    rotateBackButton.parentNode.appendChild(rotateBackButton);
+    rotateBackLink.parentNode.appendChild(rotateBackButton);
   }
 }
 

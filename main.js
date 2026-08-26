@@ -33,7 +33,7 @@ function addressAccessibilityIssues() {
       element.setAttribute('aria-label', element.innerText);
     }
 
-    // ... Add more checks foridentifying and addressing other accessibility problems here
+    // ... Add more checks for identifying and addressing other accessibility problems here
   });
 }
 

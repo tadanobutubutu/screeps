@@ -2,7 +2,7 @@
 
 // ... (existing code)
 
-// TODO: Implement fixTableStructureIssues();
+// TODO: Implement ...
 function fixTableStructureIssues() {
   // Your implementation here.
   // This function should ideally manipulate tables in the DOM or in your application's state.
@@ -22,6 +22,8 @@ function fixTableStructureIssues() {
       headers.forEach((headerCell, index) => {
         const th = document.createElement('th');
         th.textContent = headerCell.textContent;
+        // Preserve scope attribute for accessibility
+        th.setAttribute('scope', 'col');
         headerRow.appendChild(th);
       });
       thead.appendChild(headerRow);
@@ -35,4 +37,4 @@ function fixTableStructureIssues() {
 // ... (rest of your main.js code)
 
 // Export the function if it's meant to be used outside of this file
-// export { fixTableStructureIssues };
+export { fixTableStructureIssues };

@@ -1,8 +1,7 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-// Updated: imported and used dependencyGraphContent and indexContent in the
-// relevant rendering functions.
+// TODO: Address accessibility issues from insight report
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 
 const dependencyGraphContent = require('./content/dependencyGraphContent');
 const indexContent = require('./content/indexContent');
@@ -26,9 +25,9 @@ module.exports = {
   
   handleRequest: function(req, res) {
     if (req.path === '/dependency-graph') {
-      return this.renderDependencyGraph(req.data);
+      return this.renderDependencyGraph(req.query);
     } else if (req.path === '/index') {
-      return this.renderIndexView(req.data);
+      return this.renderIndexView(req.query);
     }
     return null;
   },
@@ -43,11 +42,31 @@ module.exports = {
   },
 
   // Add new function to add accessible name to SVG content
-  addAccessibleNameToSVG: function(svgContent) {
+  addSvgTitle: function(svgContent) {
     // Add an accessible name to the SVG content by wrapping the text within a <title> tag
     return svgContent.replace(
-      /<text[^>]*>(.*?)<\/text>/g,
-      '<title>$1</title><text$&>'
+      /<text([^>]*)>(.*?)<\/text>/g,
+      '<title>$2</title><text$1>$2</text>'
     );
+  },
+
+  // Function to ensure HTML has proper lang attribute for accessibility
+  ensureHtmlLangAttribute: function(htmlContent, lang) {
+    const defaultLang = lang || 'en';
+    
+    // Check if html tag already has lang attribute
+    if (/<html[^>]*lang=["'][^"']*["'][^>]*>/i.test(htmlContent)) {
+      // Replace existing lang attribute
+      return htmlContent.replace(
+        /<html([^>]*)lang=["'][^"']*["']([^>]*)>/i,
+        '<html$1lang="' + defaultLang + '"$2>'
+      );
+    } else {
+      // Add lang attribute to html tag
+      return htmlContent.replace(
+        /<html([^>]*)>/i,
+        '<html$1 lang="' + defaultLang + '">'
+      );
+    }
   }
 };

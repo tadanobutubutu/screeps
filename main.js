@@ -96,10 +96,16 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
-    document.body.insertBefore(skipLink, document.body.firstChild);
+  if (document.body) {
+    if (document.body.firstChild) {
+      document.body.insertBefore(skipLink, document.body.firstChild);
+    } else {
+      document.body.appendChild(skipLink);
+    }
+  } else if (document.documentElement && document.documentElement.firstChild) {
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.appendChild(skipLink);
   }
 
   return document;
@@ -168,7 +174,7 @@ const addProperLandmarkRegions = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = document.querySelectorAll(`[id]`).forEach(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('*')).map((el) => el.id);
         let id = `${role}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -211,12 +217,12 @@ const fixTableStructureIssues = (document) => {
 
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      Array.from(thead.querySelectorAll('th')).forEach((th) => th.setAttribute('scope', 'col'));
     }
 
     const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+    tbodies.forEach((tbody) => {
+      Array.from(tbody.querySelectorAll('th')).forEach((th) => th.setAttribute('scope', 'row'));
     });
   });
   return document;
@@ -245,7 +251,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -266,7 +272,7 @@ const ensureUniqueLandmarks = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = document.querySelectorAll(`[id]`).forEach(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('*')).map((el) => el.id);
         let id = `${role}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;

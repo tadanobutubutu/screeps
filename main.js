@@ -255,6 +255,50 @@ function checkTableStructure() {
   return true;
 }
 
+// REACT_027: Fix missing scope attributes on table headers
+function fixMissingTHScope() {
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        // Determine appropriate scope based on cell position
+        // First cell in row is typically a row header (scope="row")
+        // Other cells in first row are column headers (scope="col")
+        const parentRow = th.parentElement;
+        if (parentRow) {
+          const cellIndex = Array.from(parentRow.children).indexOf(th);
+          const isFirstCell = cellIndex === 0;
+          
+          if (isFirstCell) {
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+          fixedCount++;
+        }
+      }
+    });
+  });
+  return fixedCount;
+}
+
+// REACT_027: Count missing scope attributes in tables
+function countMissingTHScope() {
+  const tables = document.querySelectorAll('table');
+  let missingCount = 0;
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        missingCount++;
+      }
+    });
+  });
+  return missingCount;
+}
+
 // Add main landmark if missing
 function addMainLandmark() {
   const main = document.querySelector('main');

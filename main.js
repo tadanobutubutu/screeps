@@ -194,6 +194,64 @@ export function fixTableStructure() {
   return fixedCount;
 }
 
+// Function to validate table structure
+export function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    const firstRow = rows[0];
+    const firstCell = firstRow ? firstRow.querySelector('td, th') : null;
+    const headerCells = table.querySelectorAll('th');
+
+    if (!hasThead) {
+      issues.push(`Table ${index + 1} is missing a thead element.`);
+    }
+    if (!hasTbody && rows.length > 1) {
+      issues.push(`Table ${index + 1} is missing a tbody element.`);
+    }
+    if (firstRow && firstCell && firstCell.tagName !== 'TH') {
+      issues.push(`Table ${index + 1} first row should contain header cells (th).`);
+    }
+    headerCells.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        issues.push(`Table ${index + 1} header cell missing scope attribute.`);
+      }
+    });
+  });
+
+  return issues;
+}
+
+// Function to validate table accessibility
+export function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
+    const ariaLabel = table.getAttribute('aria-label');
+    const aria-labelledby = table.getAttribute('aria-labelledby');
+
+    if (!caption && !summary && !ariaLabel && !aria-labelledby) {
+      issues.push(`Table ${index + 1} lacks an accessible name (caption, summary, aria-label, or aria-labelledby).`);
+    }
+
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.getAttribute('scope')) {
+        issues.push(`Table ${index + 1} header cell missing scope attribute.`);
+      }
+    });
+  });
+
+  return issues;
+}
+
 // Function to add main landmark
 export function addMainLandmark(document) {
   let mainElement = ...
@@ -309,4 +367,4 @@ export function addressAccessibilityIssues(document) {
 }
 
 // Export new functions and re-export content functions
-export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent };
+export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent, validateTableAccessibility, validateTableStructure };

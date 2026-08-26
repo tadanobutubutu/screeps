@@ -66,15 +66,41 @@ const dependencyDashboard = {
   }
 };
 
+function renderDocument() {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Added landmark regions -->
+  <region id="landmark1" aria-label="Landmark 1"></region>
+  <region id="landmark2" aria-label="Landmark 2"></region>
+
+</body>
+</html>
+  `.trim();
+}
+
+function addLandmarkRegions() {
+  // Your implementation here...
+}
+
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = dependencyDashboard;
+  module.exports = {
+    dependencyDashboard,
+    renderDocument,
+    addLandmarkRegions
+  };
 }
 
 // Export for ES modules
 if (typeof window !== 'undefined') {
   window.dependencyDashboard = dependencyDashboard;
 }
-
-// Default export
-module.exports = dependencyDashboard;

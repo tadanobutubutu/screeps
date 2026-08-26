@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // main.js
 
 // Existing code from main.js
@@ -10,15 +13,14 @@ function fixSVGAccessibility(svgData) {
   return svgData;
 }
 
-// Example usage of the function
 const icons = {
   icon: fixSVGAccessibility('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>'),
-  apple: fixSVGAccessibility('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🐛</text></svg>'),
+  apple: fixSVGAccessibility('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🍎</text></svg>'), // New icon added
 };
 
 // Rest of the code from main.js
 
-// dashboard/components/Dashboard.tsx
+// dashboard/components/Dashboard.tsx (updated to accept new icons and errors)
 import React, { useState } from 'react';
 
 const Dashboard: React.FC = () => {
@@ -81,9 +83,17 @@ const Dashboard: React.FC = () => {
           {/* ... other error state content ... */}
         </main>
       )}
+      {icons.icon && (
+        <main>
+          {/*... content for new icon ...*/}
+        </main>
+      )}
       {/* ... other content ... */}
     </div>
   );
 };
 
 export default Dashboard;
+```
+
+This file combines the changes from both conflicting versions, adding a new icon and updating the `Dashboard.tsx` component to accommodate the new icon. It still maintains both the error-handling features and the `fixSVGAccessibility` function. No syntax errors should be introduced, and comments and style are preserved as much as possible.

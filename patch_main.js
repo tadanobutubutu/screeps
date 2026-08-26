@@ -1,6 +1,10 @@
 const fs = require('fs');
 
-const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
+function runPatch() {
+    const file = 'main.js';
+    let content = fs.readFileSync(file, 'utf8') || '';
+
+    const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, allStructures) {
         // 3. 構造物の分類（1パスで実行）
         const myStructures = [];
         const deliveryTargets = [];
@@ -111,7 +115,7 @@ const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, all
         room._freeSpawnsTick = Game.time;
     }`;
 
-const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
+    const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, state) {
         state.myStructures.push(s);
 
         if (
@@ -234,10 +238,6 @@ const newCategorizeRoomStructures = `function _categorizeMyStructure(s, type, st
         room._freeSpawns = state.freeSpawns;
         room._freeSpawnsTick = Game.time;
     }`;
-
-function runPatch() {
-    const file = 'main.js';
-    let content = fs.readFileSync(file, 'utf8') || '';
 
     if (content) {
         content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures);

@@ -3,8 +3,8 @@
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
@@ -140,7 +140,7 @@ const addLangAttribute = (document) => {
   return document;
 };
 
-const fixTableStructure = (document) => {
+const fixTableStructureIssues = (document) => {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     if (!table.querySelector('thead')) {
@@ -268,7 +268,7 @@ const fixFakeLinkIssue = (document) => {
 
 const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
-  fixTableStructure(document);
+  fixTableStructureIssues(document);
   addMainLandmark(document);
   addProperLandmarkRegions(document);
   ensureUniqueLandmarks(document);
@@ -294,7 +294,7 @@ module.exports = {
   setAccessibleName,
   addProperLandmarkRegions,
   addLangAttribute,
-  fixTableStructure,
+  fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,

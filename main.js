@@ -267,3 +267,12 @@ const fixTableStructureIssues = (document) => {
 
     // Add scope attributes to header cells
     const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (header.querySelector('abbr')) {
+        header.setAttribute('scope', 'row');
+      } else {
+        header.setAttribute('scope', 'col');
+      }
+    });
+  });
+};

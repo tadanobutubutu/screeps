@@ -37,3 +37,15 @@ export { validateLandmarkStructure };
 // The validateTableAccessibility, validateTableStructure, validateLandmarkStructure, validateLandmarkAttributes,
 // getSvgAccessibleName, setSvgAttributes, validateLinkAccessibility, handleFakeLinks, and ensureUniqueLandmarks
 // functions are still remaining to be implemented
+
+// TODO: Implement createInPageButton functionality
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  document.body.appendChild(button);
+}
+
+// Export the new createInPageButton function
+export { createInPageButton };

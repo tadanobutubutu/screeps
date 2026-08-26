@@ -34,10 +34,16 @@ ensureElementHasId(myElement);
 // add aria-label to the element
 addAriaLabel(myElement, 'A descriptive text for myElement');
 
+// New Function for testing purposes
+function newTestFunction() {
+  // ADD YOUR NEW FUNCTION'S CODE HERE
+}
+
 // Export for testing purposes
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
   myElement,
-  renderDependencyGraph // add new exported function
+  renderDependencyGraph, // keep the old exported function
+  newTestFunction // add new exported function
 };

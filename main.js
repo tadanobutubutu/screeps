@@ -217,7 +217,27 @@ function addAriaLabel(element, labelText) {
   return element;
 }
 
-// Preserve existing exports if any
+// Function to render dependency graphs
+function renderDependencyGraph() {
+  // mock graph here
+  const graph = {
+    nodes: ['A', 'B', 'C'],
+    edges: [
+      { from: 'A', to: 'B' },
+      { from: 'B', to: 'C' }
+    ]
+  };
+  return graph;
+}
+
+// make sure the element has an id
+const myElement = document.getElementById('myElement') || document.createElement('div');
+ensureElementHasId(myElement);
+
+// add aria-label to the element
+addAriaLabel(myElement, 'A descriptive text for myElement');
+
+// Export for testing purposes
 module.exports = {
     dependencyGraphHtml: updatedDependencyGraphHtml,
     hasMainLandmark,
@@ -225,5 +245,7 @@ module.exports = {
     checkAllFilesForLandmarks,
     addressAccessibilityIssues,
     ensureElementHasId,
-    addAriaLabel
+    addAriaLabel,
+    renderDependencyGraph,
+    myElement
 };

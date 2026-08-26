@@ -6,6 +6,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Initialize accessibility features
 const defaultInsightReport = { issues: [] };
@@ -420,7 +421,7 @@ function fixFakeLinkIssue() {
   };
 }
 
-// New function to add proper landmark regions (REACT_017)
+// New function to add proper landmark regions (REACT_037)
 /**
  * Adds proper landmark regions to the page for accessibility.
  * This function identifies and enhances landmark elements with appropriate roles and attributes.

@@ -2,7 +2,13 @@
 
 // Preserve all existing code, exports, and functions from current main.js.
 
-// Add the following changes in the specified locations
+// Note: The REACT_027 issue concerns <th> elements in docs/dependency-graph.html
+// (an HTML file), not JavaScript code in main.js. No changes to main.js are
+// required to address this issue; the scope attributes need to be added directly
+// to the <th> elements in docs/dependency-graph.html. Modifying main.js with
+// HTML markup would break JavaScript syntax and cause test failures.
+
+// Existing code below is preserved unchanged:
 
 // dashboard/app/layout.tsx:7
 import React from "react";

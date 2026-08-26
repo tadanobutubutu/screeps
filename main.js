@@ -278,6 +278,9 @@ const handleNewFunction = (document) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
+// TODO: Add back any required exports that might have been removed
+// Here is an example of how to export a required function from another file:
+
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
 skipLink.id = 'skip-link';

@@ -17,7 +17,7 @@ function Navigation() {
       <a href="#">Home</a>
       <a href="#">About</a>
       {/* REACT_036: This is a fake link - should be a button */}
-      <a href="#" onClick={() => console.log('clicked')}>Click me</a>
+      <button onClick={() => console.log('clicked')}>Click me</button>
       <a href="https://example.com">External</a>
     </div>
   );
@@ -27,10 +27,10 @@ function Header() {
   return (
     // REACT_017: Header should use <header> landmark
     // Issue: Using div instead of header
-    <div className="header">
+    <header className="header">
       <h1>My Application</h1>
       <Navigation />
-    </div>
+    </header>
   );
 }
 
@@ -38,11 +38,11 @@ function Sidebar() {
   return (
     // REACT_017: Sidebar should use <aside> landmark
     // Issue: Missing aside landmark for complementary content
-    <div className="sidebar">
+    <aside className="sidebar">
       <h2>Related Links</h2>
       <a href="#section1">Section 1</a>
       <a href="#section2">Section 2</a>
-    </div>
+    </aside>
   );
 }
 
@@ -51,7 +51,7 @@ function MainContent() {
     // REACT_017: Main content should use <main> landmark
     // Issue: Missing main landmark
     // REACT_025: Ensure only one main landmark exists
-    <div className="main-content">
+    <main className="main-content">
       <section>
         <h2>Welcome</h2>
         <p>This is the main content area of the application.</p>
@@ -60,7 +60,7 @@ function MainContent() {
         <h2>Features</h2>
         <p>Discover our amazing features.</p>
       </section>
-    </div>
+    </main>
   );
 }
 
@@ -68,9 +68,9 @@ function Footer() {
   return (
     // REACT_017: Footer should use <footer> landmark
     // Issue: Using div instead of footer
-    <div className="footer">
+    <footer className="footer">
       <p>&copy; 2024 My Application. All rights reserved.</p>
-    </div>
+    </footer>
   );
 }
 
@@ -95,16 +95,6 @@ function AccessibilityWrapper({ children }) {
     </div>
   );
 }
-
-// REACT_025: Demo of duplicate landmark issue - this would be in separate components
-// Uncomment to see the duplicate main issue:
-// function DuplicateMain() {
-//   return (
-//     <main>
-//       <p>This is a duplicate main landmark (accessibility violation)</p>
-//     </main>
-//   );
-// }
 
 // Main render function with accessibility improvements
 function Root() {

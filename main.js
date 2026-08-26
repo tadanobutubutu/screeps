@@ -25,10 +25,25 @@ const newFunction = () => {
   // TODO: Implement ...
 };
 
+// Adding aria-label to the SVGs
+const iconsWithAccessibleName = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><aria-label="Screeps Dashboard"><text y=".9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Apple Icon</title><aria-label="Screeps Apple Icon"><text y=".9em" font-size="90">🍎</text></svg>',
+};
+
+// REACT_025: React Unique Landmarks
+function createLandmark(role, label, children) {
+  return {
+    type: role,
+    props: { 'aria-label': label, children }
+  };
+}
+
 // Preserve the existing exports
 module.exports = {
-  // ... (All other exports from the current main.js)
   renderDependencyGraph,
   newFunction,
-  addressAccessibilityIssue038
+  addressAccessibilityIssue038,
+  iconsWithAccessibleName,
+  createLandmark
 };

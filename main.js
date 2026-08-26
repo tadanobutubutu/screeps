@@ -1,11 +1,10 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
 // TODO-hash: 6468a1295031a6500a8981582d2e182e6d55a296
 
 import React from 'react';
@@ -54,8 +53,36 @@ function fixTableStructureIssues() {
   });
 }
 
-// REACT_017: Add/fix 2 landmark issues
+// REACT_017: Add/fix 4 landmark issues
 function addMainLandmark() {
+  // Header landmark - role="banner"
+  let header = document.querySelector('header');
+  if (!header) {
+    header = document.createElement('header');
+    const content = document.querySelector('.content') || document.body;
+    if (content) {
+      content.insertBefore(header, content.firstChild);
+    }
+  }
+  if (header) {
+    header.setAttribute('role', 'banner');
+  }
+
+  // Nav landmark - role="navigation"
+  let nav = document.querySelector('nav');
+  if (!nav) {
+    nav = document.createElement('nav');
+    nav.setAttribute('aria-label', 'Primary navigation');
+    const content = document.querySelector('.content') || document.body;
+    if (content) {
+      content.insertBefore(nav, content.firstChild);
+    }
+  }
+  if (nav && !nav.hasAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+
+  // Main landmark - role="main"
   let main = document.querySelector('main');
   if (!main) {
     main = document.createElement('main');
@@ -68,10 +95,29 @@ function addMainLandmark() {
   } else {
     main.id = main.id || 'main-content';
   }
-  const banners = document.querySelectorAll('header');
-  banners.forEach((banner, index) => {
+  if (main && !main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+
+  // Footer landmark - role="contentinfo"
+  let footer = document.querySelector('footer');
+  if (!footer) {
+    footer = document.createElement('footer');
+    footer.setAttribute('aria-label', 'Site footer');
+    const content = document.querySelector('.content') || document.body;
+    if (content) {
+      content.appendChild(footer);
+    }
+  }
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Fix banner duplication (ensure only first header has role="banner")
+  const headers = document.querySelectorAll('header[role="banner"]');
+  headers.forEach((header, index) => {
     if (index > 0) {
-      banner.setAttribute('role', 'banner');
+      header.removeAttribute('role');
     }
   });
 }

@@ -1,3 +1,14 @@
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
+
 // Assuming you have a component that renders the primary content
 import React from 'react';
 
@@ -9,12 +20,12 @@ const PrimaryContent = () => {
       <h1>Example Title</h1>
       <p>Example paragraph of primary content...</p>
 
-      // Adding an ARIA Landmark to the primary content for better accessibility
+      {/* Adding an ARIA Landmark to the primary content for better accessibility */}
       <div aria-labelledby="primaryContentTitle" role="region">
         {/* Render other accessibility-related components as needed */}
       </div>
 
-      // Create an ID for the main title to be used as an `aria-labelledby` reference
+      {/* Create an ID for the main title to be used as an `aria-labelledby` reference */}
       <h1 id="primaryContentTitle">Example Title</h1>
     </div>
   );

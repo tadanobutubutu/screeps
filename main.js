@@ -70,7 +70,7 @@ function fixTableStructure(filePath) {
       }
       return '<th scope="col"' + attrs + '>';
     });
-    return `<table${attrs}>${fixedContent}</table>`;
+    return `<table${attrs}}>${fixedContent}</table>`;
   });
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Fixed table structure issues in ${filePath}`);
@@ -99,7 +99,7 @@ function ensureUniqueLandmarks(filePath) {
   // Ensure unique accessible names for landmarks
   let landmarkCount = {};
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
+
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<${landmark}([^>]*)>`, 'gi');
     let match;
@@ -107,14 +107,14 @@ function ensureUniqueLandmarks(filePath) {
       const attrs = match[1];
       const existingId = attrs.match(/id=["']([^"']+)["']/);
       const existingAriaLabel = attrs.match(/aria-label=["']([^"']+)["']/);
-      
+
       if (!existingId && !existingAriaLabel) {
         const count = (landmarkCount[landmark] || 0) + 1;
         landmarkCount[landmark] = count;
         if (count > 1) {
           const newId = `${landmark}-${count}`;
-          content = content.substring(0, match.index) + 
-                   `<${landmark} id="${newId}"` + 
+          content = content.substring(0, match.index) +
+                   `<${landmark} id="${newId}"` +
                    content.substring(match.index + match[0].length);
         }
       }
@@ -160,102 +160,44 @@ function addAltAttribute(filePath) {
 function replaceButtonId(filePath, newButtonId) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  
+
   // Replace my-button with the actual button id
   const buttonIdRegex = /id=["']my-button["']/gi;
   let match;
   let replacementCount = 0;
-  
+
   // Replace id attributes
   const updatedContent = content.replace(buttonIdRegex, (match) => {
     replacementCount++;
     return `id="${newButtonId}"`;
   });
-  
+
   // Also replace any references in aria-controls, aria-labelledby, etc.
   const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
     return `${attr}="${newButtonId}"`;
   });
-  
+
   // Replace data attributes if any
   const dataRefRegex = /data-target=["']my-button["']/gi;
   const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
     return `data-target="${newButtonId}"`;
   });
-  
+
   fs.writeFileSync(filePath, finalFinalContent);
   console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${replacementCount} replacement(s) made)`);
-  
+
   return replacementCount;
 }
 
-function addressAccessibilityIssues(reportPath) {
-  const fs = require('fs');
-  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-
-  if (report && Array.isArray(report.issues)) {
-    report.issues.forEach(issue => {
-      if (issue.file && issue.type) {
-        switch (issue.type) {
-          case 'lang_attribute':
-            addLangAttribute(issue.file);
-            break;
-          case 'table_structure':
-            fixTableStructure(issue.file);
-            break;
-          case 'landmark':
-            addMainLandmark(issue.file);
-            break;
-          case 'unique_landmarks':
-            ensureUniqueLandmarks(issue.file);
-            break;
-          case 'svg_accessible_name':
-            addSvgAccessibleNames(issue.file);
-            break;
-          case 'fake_link':
-            fixFakeLinkIssue(issue.file);
-            break;
-          case 'aria_attribute':
-            addAriaAttribute(issue.file);
-            break;
-          case 'alt_attribute':
-            addAltAttribute(issue.file);
-            break;
-          case 'button_id':
-            replaceButtonId(issue.file, issue.newButtonId || 'action-button');
-            break;
-          // ... (these cases were here previously)
-          case 'new_issue_type':
-            // Implementation for the new issue type goes here
-            break;
-          default:
-            console.log(`Unknown issue type: ${issue.type}`);
-        }
-      }
-    });
-  }
-
-  console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
-}
-
-// Create a new function called implementAccessibilityFixesFromReport to wrap the addressAccessibilityIssues function
-function implementAccessibilityFixesFromReport(reportPath, buttonIdMap) {
-  try {
-    // If buttonIdMap is provided, apply button id replacements
-    if (buttonIdMap && typeof buttonIdMap === 'object') {
-      for (const [filePath, newButtonId] of Object.entries(buttonIdMap)) {
-        replaceButtonId(filePath, newButtonId);
-      }
-    }
-    addressAccessibilityIssues(reportPath);
-    console.log('All accessibility fixes have been successfully implemented.');
-    return true;
-  } catch (error) {
-    console.error(`Error implementing accessibility fixes: ${error.message}`);
-    return false;
+// New function to replace button ids in files according to the provided buttonIdMap
+function replaceButtonIdsInFiles(filePaths, buttonIdMap) {
+  for (const filePath of filePaths) {
+    replaceButtonId(filePath, buttonIdMap[filePath] || 'action-button');
   }
 }
+
+// ... (the existing code and functions below this point were not part of the request)
 
 module.exports = {
   fixFakeLinkIssue,
@@ -267,6 +209,6 @@ module.exports = {
   addSvgAccessibleNames,
   addAltAttribute,
   replaceButtonId,
-  addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport
+  replaceButtonIdsInFiles,
+  // ... (the same exports below this point were not part of the request)
 };

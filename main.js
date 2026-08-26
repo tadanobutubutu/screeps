@@ -1,4 +1,7 @@
-// Existing exports and functions
+Here's the resolved file:
+
+```javascript
+/* Existing exports and functions */
 
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 const addId = (element, id) => {
@@ -52,13 +55,11 @@ const validateLandmarkStructure = (document) => {
 };
 
 // - REACT_041: Add accessible names to SVGs
-const getSvgAccessibleName = (svgElement) => {
-  // Get or set accessible name for SVG elements
-  const title = svgElement.querySelector('title');
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-
-  return ariaLabel || (title ? title.textContent : null);
+// New code to fix the React SVG Accessible Name issue
+// Adding aria-label to the SVGs in app/layout.tsx and dashboard/app/layout.tsx
+const iconsWithAccessibleName = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text><aria-label="Screeps Dashboard"></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Apple Icon</title><text y=".9em" font-size="90">🍎</text><aria-label="Screeps Apple Icon"></svg>',
 };
 
 // - REACT_025: Ensure unique landmarks
@@ -92,8 +93,9 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
+  iconsWithAccessibleName, // Incorporate the new code for SVG accessible names
   validateUniqueLandmarks,
   createInPageButton,
   newFunction
 };
+```

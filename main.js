@@ -10,6 +10,9 @@
 
 import { class1, function1, Object1 } from './path/to/module';
 
+// Export imported values (if needed)
+export { class1, function1, Object1 };
+
 // Function to add lang attribute to HTML element
 export function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
@@ -327,6 +330,14 @@ export function fixButtonIdentifiers(document) {
   }
 }
 
+// Exported helper used elsewhere (if needed)
+export function getAccessibleName(button) {
+  return button.getAttribute('aria-label') || 
+         button.getAttribute('aria-labelledby') ||
+         button.textContent?.trim() ||
+         button.value;
+}
+
 // Add the fix for REACT_017: Add <main> landmark to docs/index.html
 export function addMainLandmarkToIndex(document) {
   const indexContent = document.querySelector('.content');
@@ -338,3 +349,6 @@ export function addMainLandmarkToIndex(document) {
       container.appendChild(mainElement);
     }
     mainElement.setAttribute('role', 'main');
+  }
+  return document;
+}

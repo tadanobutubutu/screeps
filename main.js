@@ -1,6 +1,7 @@
+import React from 'react';
+
 // Existing code from main.js
 // ... (Preserve all existing code, exports, and functions)
-import React from 'react';
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
@@ -97,5 +98,3 @@ const MyTable = () => {
     </table>
   );
 };
-
-export default MyTable;

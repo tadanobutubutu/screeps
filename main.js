@@ -12,6 +12,19 @@ function addAriaLabel(element, labelText) {
   return element;
 }
 
+// Function to render dependency graphs
+function renderDependencyGraph() {
+  // mock graph here
+  const graph = {
+    nodes: ['A', 'B', 'C'],
+    edges: [
+      { from: 'A', to: 'B' },
+      { from: 'B', to: 'C' }
+    ]
+  };
+  return graph;
+}
+
 // make sure the element has an id
 const myElement = document.getElementById('myElement') || document.createElement('div');
 ensureElementHasId(myElement);
@@ -23,5 +36,6 @@ addAriaLabel(myElement, 'A descriptive text for myElement');
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  myElement
+  myElement,
+  renderDependencyGraph // add new exported function
 };

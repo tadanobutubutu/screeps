@@ -66,6 +66,53 @@ function newFunctionForAccessibilityIssue(element) {
   return element;
 }
 
+// New function to address the React Landmarks (REACT_017) issue
+// Wraps the primary content in a <main> landmark for screen reader accessibility
+function addReactLandmarks(element) {
+  if (!element) {
+    return;
+  }
+
+  // Check if a <main> landmark already exists
+  const existingMain = element.querySelector('main');
+  if (existingMain) {
+    return element;
+  }
+
+  // Find the primary content area to wrap in <main>
+  // Look for common content containers first
+  let primaryContent = element.querySelector('[role="main"]');
+
+  if (!primaryContent) {
+    // Try to find a container div, table, or section that represents primary content
+    primaryContent = element.querySelector('table, .container, .content, .main-content, section, article');
+  }
+
+  if (!primaryContent) {
+    // If no content container found, find the body or document content
+    primaryContent = element.body || element;
+  }
+
+  // Create the <main> landmark wrapper
+  const mainLandmark = element.ownerDocument
+    ? element.ownerDocument.createElement('main')
+    : document.createElement('main');
+
+  // Add an accessible label to the main landmark
+  mainLandmark.setAttribute('aria-label', 'Main content');
+  mainLandmark.setAttribute('role', 'main');
+
+  // Clone the primary content's children into the main landmark
+  while (primaryContent.firstChild) {
+    mainLandmark.appendChild(primaryContent.firstChild);
+  }
+
+  // Append the main landmark to the primary content container
+  primaryContent.appendChild(mainLandmark);
+
+  return element;
+}
+
 // Preserving previously renamed exports and adding new ones
 module.exports = {
   renderDependencyGraph: renderDependencyGraph,
@@ -75,5 +122,6 @@ module.exports = {
   addIdsToLandmarks: addIdsToLandmarks,
   fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue,
-  newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue
+  newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue,
+  addReactLandmarks: addReactLandmarks
 };

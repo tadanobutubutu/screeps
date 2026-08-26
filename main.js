@@ -35,7 +35,21 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 // Export the new createInPageButton function
 export { createInPageButton };
 
-// ADD the new validateLandmarkStructure function
+// ADD the new getLangAttribute function to handle REACT_015
+function getLangAttribute(element) {
+  if (!element) return '';
+
+  const langAttribute = element.getAttribute('lang');
+  if (langAttribute) return langAttribute;
+
+  // If 'lang' attribute is missing, use default language (e.g., "en")
+  return 'en';
+}
+
+// Export the new getLangAttribute function
+export { getLangAttribute };
+
+// Implement the validateLandmarkStructure function (Placeholder)
 function validateLandmarkStructure(landmark, parent) {
   // Your implementation for validating the structure of landmarks
 }
@@ -43,7 +57,6 @@ function validateLandmarkStructure(landmark, parent) {
 // Export the new validateLandmarkStructure function
 export { validateLandmarkStructure };
 
-// The getLangAttribute functionality is still remaining
 // ...
 
 // The validateTableAccessibility, validateTableStructure, validateLandmarkAttributes,

@@ -6,7 +6,7 @@ export { getElementId };
 function newIssueFunction() {
   if (typeof document === 'undefined') return;
 
-  const elements = document.querySelectorAll('p');
+  const elements = document.querySelectorAll('[data-replace-text]');
   elements.forEach((element) => {
     // Replace with your custom logic for the new issue
     element.textContent = 'Replaced Text';
@@ -35,7 +35,7 @@ function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     const firstRow = table.querySelector('tr');
-    const headers = firstRow ? Array.from(firstRow.querySelectorAll('th')) : [];
+    const headers = firstRow ? firstRow.querySelectorAll('th') : [];
     headers.forEach((th) => {
       if (!th.hasAttribute('scope')) {
         const row = th.closest('tr');
@@ -59,7 +59,7 @@ function addMainLandmark() {
 
   const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
-    const fallbackMain = document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.querySelector('#content');
+    const fallbackMain = document.getElementById('main') || document.querySelector('[role="main"]') || document.querySelector('.main') || document.querySelector('#content');
     if (fallbackMain) {
       const newMain = document.createElement('main');
       newMain.innerHTML = fallbackMain.innerHTML;
@@ -110,7 +110,7 @@ function wrapPrimaryContentInMain() {
     return;
   }
 
-  const primaryContent = getElementById('content') || document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.body;
+  const primaryContent = getElementById('content') || document.getElementById('main') || document.querySelector('[role="main"]') || document.querySelector('.main') || document.body;
   if (primaryContent) {
     const main = document.createElement('main');
     if (primaryContent.parentNode) {
@@ -264,8 +264,8 @@ function establishLandmarkRegions() {
   const landmarkTags = ['header', 'footer', 'main', 'nav', 'aside', 'section', 'article', 'form', 'search'];
   
   // Ensure each landmark type exists at least once
-  landmarkTags.forEach(tag => {
-    const elements = body.getElementsByTagName(tag);
+  landmarkTags.forEach((tag) => {
+    const elements = document.querySelectorAll(tag);
     if (elements.length === 0) {
       // Create missing landmark if necessary
       const landmark = document.createElement(tag);
@@ -294,14 +294,17 @@ function establishLandmarkRegions() {
   });
 
   // Ensure proper nesting and structure
-  const main = body.querySelector('main') || body.querySelector('[role="main"]');
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
   if (main) {
     // Move main content to be after header but before footer
-    const header = body.querySelector('header');
-    const footer = body.querySelector('footer');
-    if (header && footer) {
+    const header = document.querySelector('header');
+    const footer = document.querySelector('footer');
+    if (header && footer && header.parentNode === body && footer.parentNode === body) {
       header.parentNode.insertBefore(main, header.nextSibling);
       footer.parentNode.insertBefore(footer, main.nextSibling);
     }
   }
 }
+
+// Export all functions
+export { newIssueFunction, addLangAttribute, fixTableStructure, addMainLandmark, wrapPrimaryContentInMain, ensureUniqueLandmarks, addSvgAccessibleNames, fixFakeLinks, establishLandmarkRegions };

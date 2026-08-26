@@ -1,3 +1,6 @@
+Here is the resolved version of the `main.js` file:
+
+```javascript
 // TODO: Add back any required exports that might have been removed
 // Here’s an example of how to export a required function from another file:
 // Import functions from other modules if needed
@@ -8,6 +11,16 @@ export function setLanguage(lang = 'en') {
   if (typeof document !== 'undefined') {
     document.documentElement.lang = lang;
   }
+}
+
+// REACT_025 & REACT_017: React Landmarks
+export function createLandmark(role, label, children) {
+  // Using the provided role, if the label is given, assign it as an aria-label. If not, use the role as aria-label.
+  let ariaLabel = label || role;
+  return {
+    type: role,
+    props: { 'aria-label': ariaLabel, children }
+  };
 }
 
 // REACT_027: React Table Structure
@@ -47,23 +60,7 @@ export function createSVG(label, children) {
   };
 }
 
-// REACT_025: React Unique Landmarks
-export function createLandmark(role, label, children) {
-  return {
-    type: role,
-    props: { 'aria-label': label, children }
-  };
-}
-
-// REACT_017: React Landmarks
-export function createLandmark(role, children) {
-  return {
-    type: role,
-    props: { children }
-  };
-}
-
-// REACT_036: React Fake Link
+// REACT_036: React Fake Link (with minor fix for onKeyDown event)
 export function createFakeLink(href, children) {
   return {
     type: 'a',
@@ -73,6 +70,7 @@ export function createFakeLink(href, children) {
       tabIndex: 0,
       onKeyDown: (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); // Prevent default action
           window.location.href = href;
         }
       },
@@ -80,3 +78,6 @@ export function createFakeLink(href, children) {
     }
   };
 }
+```
+
+I have merged the REACT_017 and REACT_025 landmark functions into a single function, using the provided role as a default `aria-label` if no label is provided. I have also adjusted the onKeyDown event listener in the REACT_036 fake link function to prevent the default action before redirecting.

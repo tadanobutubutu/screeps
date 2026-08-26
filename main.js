@@ -19,8 +19,24 @@ export function updateMainContent() {
     }
 
     // Append the new <main> element to the body
-    document.body.insertBefore(mainElement, document.body.firstChild);
+    document.body.appendChild(mainElement);
   }
+}
+
+/**
+ * Sets the lang attribute on the HTML element for accessibility.
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr').
+ */
+export function setHtmlLang(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// Call on initialization to ensure lang attribute is set
+if (typeof document !== 'undefined') {
+  setHtmlLang();
 }
 
 // ... (Rest of the main.js code)

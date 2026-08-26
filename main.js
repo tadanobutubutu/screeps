@@ -23,4 +23,24 @@ function findAndFixFakeLinks() {
 // Call the new function to address the fake link
 findAndFixFakeLinks();
 
+// Function to handle the case where there's only a hash in the URL (origin/main change)
+function handleUrlWithHash() {
+  window.onload = function () {
+    const hash = window.location.hash;
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+}
+
+// Combine both functions to address different scenarios
+function addressLinks() {
+  findAndFixFakeLinks();
+  handleUrlWithHash();
+}
+
+// Call the combined function to address different link scenarios
+addressLinks();
+
 // ... (existing code)

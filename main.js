@@ -62,11 +62,23 @@ const setAccessibleName = (node, accessibleName) => {
   }
 };
 
-// Adding a new function
-const newFunction = function () {
-  // Function body of the new function goes here
-  // For example:
-  console.log('This is the new function!');
+const addProperLandmarkRegions = (document) => {
+  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
+  landmarkTypes.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((element) => {
+      if (!element.id) {
+        let idSuffix = 1;
+        const existingIds = Array.from(document.querySelectorAll(`[id^="${role}-"]`)).map(el => el.id);
+        let id = `${role}-${idSuffix}`;
+        while (existingIds.includes(id)) {
+          idSuffix++;
+          id = `${role}-${idSuffix}`;
+        }
+        element.id = id;
+      }
+    });
+  });
 };
 
 const addLangAttribute = (document) => {
@@ -210,6 +222,7 @@ const addressAccessibilityIssues = (document) => {
   addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
+  addProperLandmarkRegions(document);
   return document;
 };
 
@@ -219,4 +232,4 @@ const addressAccessibilityIssues = (document) => {
 const skipLink = document.createElement('a');
 skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
-skipLink.class
+skipLink.className = 'skip-link';

@@ -1,6 +1,14 @@
+// main.js - React Application Entry Point
 // Import the necessary functions to read files and check for the presence of the scope attribute
 const fs = require('fs');
 const path = require('path');
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+// Set the language attribute on the HTML element for accessibility
+document.documentElement.lang = 'en';
 
 // Function to check if all <th> elements have the scope attribute
 function checkThScopeAttribute(filePath) {
@@ -31,3 +39,10 @@ function testThScopeAttribute() {
 
 // Run the test
 testThScopeAttribute();
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

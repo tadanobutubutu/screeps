@@ -304,6 +304,74 @@ function fixFakeLinkIssue() {
   });
 }
 
+// REACT_041: Fix inline SVG favicon accessibility (for data:image/svg+xml favicons)
+// These SVGs are decorative and should be hidden from screen readers
+function fixInlineFaviconSvgAccessibility() {
+  // Find all SVG elements that appear to be favicons (small, in head or used as icons)
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Check if this SVG is likely a favicon/icon (small viewBox, contains only emoji/text)
+    const viewBox = svg.getAttribute('viewBox');
+    const width = svg.getAttribute('width');
+    const height = svg.getAttribute('height');
+    
+    // Favicons typically have small viewBox like 0 0 100 100 or similar
+    const isSmallIcon = viewBox && viewBox.includes('100') && viewBox.includes('100');
+    const isIconSize = (width && parseInt(width) <= 32) || (height && parseInt(height) <= 32);
+    
+    // Check if SVG contains only a text/emoji element (typical for emoji favicons)
+    const hasOnlyText = svg.children.length === 1 && svg.querySelector('text');
+    const hasTitle = svg.querySelector('title');
+    
+    // If it's a small decorative icon without proper accessible name, mark as decorative
+    if ((isSmallIcon || isIconSize) && hasOnlyText && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      // If it has a title, keep it but ensure it's accessible
+      // If no title, mark as decorative
+      if (!hasTitle) {
+        svg.setAttribute('aria-hidden', 'true');
+      } else {
+        // Ensure the title is properly associated
+        if (!svg.hasAttribute('aria-labelledby')) {
+          const title = svg.querySelector('title');
+          if (title && !title.id) {
+            title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+          }
+          if (title && title.id) {
+            svg.setAttribute('aria-labelledby', title.id);
+          }
+        }
+      }
+    }
+  });
+}
+
+// REACT_041: Comprehensive fix for favicon SVGs in metadata (Next.js generated)
+// This handles the case where favicons are defined as data URLs in layout.tsx
+function fixMetadataFaviconAccessibility() {
+  // For Next.js metadata icons, the SVGs are embedded as data URLs in <link> tags
+  // We can't modify data URLs directly, but we can ensure any rendered SVG favicons are accessible
+  const iconLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
+  iconLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    // If it's a data URL SVG, mark the link as decorative since the SVG itself can't be modified
+    if (href && href.startsWith('data:image/svg+xml')) {
+      link.setAttribute('aria-hidden', 'true');
+    }
+  });
+}
+
+// Initialize all accessibility fixes
+function initializeAccessibilityFixes() {
+  addLangAttribute();
+  fixTableStructure();
+  addLandmarkRegions();
+  fixFakeLinkIssue();
+  fixFaviconAccessibility();
+  addSvgAccessibleNames();
+  fixInlineFaviconSvgAccessibility();
+  fixMetadataFaviconAccessibility();
+}
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from
 // their respective modules for better maintainability and content separation.

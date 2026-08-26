@@ -88,5 +88,67 @@ async function fetchAPI(url) {
   }
 }
 
+// ----- BEGIN NEW CODE (REACT_025 fix) -----
+
+/**
+ * New function to enforce a single <main> landmark in the DOM.
+ * REACT_025 — React Unique Landmarks.
+ *
+ * If multiple <main> elements exist, convert all but the first
+ * into <section> elements (with an appropriate aria-label) so that
+ * only one main landmark is exposed to assistive technologies.
+ *
+ * @returns {number} the number of extra <main> elements that were
+ *                   demoted to <section>.
+ */
+function enforceUniqueMainLandmark() {
+  if (typeof document === 'undefined') return 0;
+
+  const mainElements = Array.from(document.querySelectorAll('main'));
+  if (mainElements.length <= 1) return 0;
+
+  // Keep the first <main> as the primary landmark; convert the rest to <section>.
+  const extras = mainElements.slice(1);
+  let demoted = 0;
+
+  extras.forEach((el) => {
+    // Skip if already a section (defensive)
+    if (el.tagName.toLowerCase() === 'section') return;
+
+    const section = document.createElement('section');
+
+    // Copy all attributes (except ones that are invalid on <section>)
+    for (const attr of Array.from(el.attributes)) {
+      try {
+        section.setAttribute(attr.name, attr.value);
+      } catch (e) {
+        // ignore attribute copy failures
+      }
+    }
+
+    // Ensure the demoted region is labeled for screen readers
+    if (!section.hasAttribute('aria-label') && !section.hasAttribute('aria-labelledby')) {
+      section.setAttribute('aria-label', 'Additional content region');
+    }
+    // Make sure it is not exposed as a main landmark
+    section.setAttribute('role', 'region');
+
+    // Move all children over to the new <section>
+    while (el.firstChild) {
+      section.appendChild(el.firstChild);
+    }
+
+    // Replace the original <main> with the new <section>
+    if (el.parentNode) {
+      el.parentNode.replaceChild(section, el);
+      demoted += 1;
+    }
+  });
+
+  return demoted;
+}
+
+// ----- END NEW CODE (REACT_025 fix) -----
+
 // Export the module with the new fetchAPI function added
-export { fetchAPI, fetchAPI as default, addressAccessibilityIssues };
+export { fetchAPI, fetchAPI as default, addressAccessibilityIssues, enforceUniqueMainLandmark };

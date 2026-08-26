@@ -129,4 +129,23 @@ function addressAccessibilityIssues(issues, options = {}) {
   return { addressed, skipped, summary };
 }
 
-module.exports = { addressAccessibilityIssues };
+// Function to ensure the element has an id
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+// Function to add aria-label to the element
+function addAriaLabel(element, labelText) {
+  element.setAttribute('aria-label', labelText);
+  return element;
+}
+
+// Export for testing purposes
+module.exports = {
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  addAriaLabel
+};

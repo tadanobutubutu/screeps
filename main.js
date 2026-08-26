@@ -103,6 +103,24 @@ function fixFakeLinkIssue(link) {
   return link;
 }
 
+function hideDecorativeSvg(svgElement) {
+  // Add aria-hidden="true" to decorative SVGs that lack an accessible name
+  if (!svgElement || svgElement.tagName !== 'SVG') {
+    return svgElement;
+  }
+
+  const hasAccessibleName =
+    svgElement.hasAttribute('aria-label') ||
+    svgElement.hasAttribute('aria-labelledby') ||
+    svgElement.querySelector('title');
+
+  if (!hasAccessibleName) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+
+  return svgElement;
+}
+
 // ... any other existing functions or code ...
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
@@ -122,4 +140,5 @@ export {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
+  hideDecorativeSvg,
 };

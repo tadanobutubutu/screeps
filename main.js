@@ -168,6 +168,11 @@ function addSvgAccessibleNames(document) {
   return count;
 }
 
+// Alias for addSvgAccessibleNames as referenced in the accessibility TODO
+function addAccessibleNamesToSVGs(document) {
+  return addSvgAccessibleNames(document);
+}
+
 // Function to fix fake link issue (origin/main approach - more robust)
 function fixFakeLinkIssue(document) {
   let count = 0;
@@ -369,6 +374,7 @@ export {
   addMainLandmark, 
   ensureUniqueLandmarks, 
   addSvgAccessibleNames, 
+  addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
   fixLandmarkIssues,

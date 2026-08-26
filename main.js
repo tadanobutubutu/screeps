@@ -16,7 +16,7 @@ export function countDependencies() {
   
   // Read the current file and count named imports
   const fs = require('fs');
-  const content = ... 'utf-8');
+  const content = fs.readFileSync(moduleCode, 'utf-8');
   
   // Match import statements with named imports ( {...} )
   const importMatches = ... || [];
@@ -236,7 +236,7 @@ export function ensureUniqueLandmarks() {
         ... label);
       }
     });
-  });
+  };
 }
 
 // Function to add accessible name to SVGs

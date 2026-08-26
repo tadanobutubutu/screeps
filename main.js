@@ -140,8 +140,6 @@ const addProperLandmarkRegions = function(content) {
     return content;
 };
 
-// ... (You can add more functions as needed)
-
 // If necessary, update the export for the new functions
 // Example assuming exporting as default
 const renderDependencyGraph1 = function() {

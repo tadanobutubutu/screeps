@@ -18,3 +18,25 @@ const Svg2 = () => (
 );
 
 export { Svg1, Svg2 };
+
+// REACT_027: Add scope attribute to <th> elements
+// Assuming the <th> elements are within a <table> or <thead> tag
+const MyTableComponent = () => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {/* Example of adding scope="col" */}
+          <th scope="col">Header 1</th>
+          <th scope="col">Header 2</th>
+          {/* ... other headers ... */}
+        </tr>
+      </thead>
+      <tbody>
+        {/* ... table rows ... */}
+      </tbody>
+    </table>
+  );
+};
+
+export { MyTableComponent };

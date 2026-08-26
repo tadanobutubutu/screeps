@@ -1,108 +1,80 @@
-// ... existing imports and declarations ...
+// Existing code ...
 
-function addLangAttribute(htmlElement, lang = 'en') {
-  // Add lang attribute to the provided htmlElement
-  if (htmlElement && htmlElement.setAttribute) {
-    htmlElement.setAttribute('lang', lang);
+// Implement the getSvgAccessibleName functionality
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.nodeName !== 'svg') return '';
+
+  const id = svgElement.getAttribute('id');
+  const label = id ? document.getElementById(id) : null;
+
+  if (!label) return '';
+
+  if (label.nodeName === 'title') {
+    return label.textContent;
   }
-  return htmlElement;
+
+  if (label.nodeName === 'desc') {
+    return label.textContent;
+  }
+
+  return ''; // If neither 'title' nor 'desc' are found, return an empty string
 }
 
-function fixTableStructure(table) {
-  // Fix table structure issues in the provided table
-  if (!table || table.tagName !== 'TABLE') {
-    return table;
-  }
+// Export the new getSvgAccessibleName function
+export { getSvgAccessibleName };
 
-  const tbody = table.querySelector('tbody');
-  if (!tbody && table.rows) {
-    const wrapper = document.createElement('tbody');
-    while (table.firstChild) {
-      wrapper.appendChild(table.firstChild);
-    }
-    table.appendChild(wrapper);
-  }
+// Implement the createInPageButton functionality with event handling
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
 
-  return table;
-}
-
-function addMainLandmark(rootElement) {
-  // Add main landmark to the provided rootElement
-  if (!rootElement) {
-    return null;
-  }
-
-  const existingMain = rootElement.querySelector('main, [role="main"]');
-  if (!existingMain) {
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('id', 'main-content');
-    while (rootElement.firstChild) {
-      mainElement.appendChild(rootElement.firstChild);
-    }
-    rootElement.insertBefore(mainElement, rootElement.firstChild);
-  }
-
-  return rootElement;
-}
-
-function ensureUniqueLandmarks() {
-  // Ensure unique landmarks in the entire application
-  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (index > 0 && el.id) {
-          el.id = `${el.id}-${index}`;
-        }
-      });
-    }
+  button.addEventListener('click', function() {
+    // Placeholder for the button event handler logic
+    console.log(`Button with ID ${buttonId} was clicked!`);
   });
+
+  return button;
 }
 
-function addSvgAccessibleNames(svgElement) {
-  // Add accessible names to the provided svgElement
-  if (!svgElement || svgElement.tagName !== 'SVG') {
-    return svgElement;
-  }
+// Export the new createInPageButton function
+export { createInPageButton };
 
-  const title = svgElement.querySelector('title');
-  if (!title) {
-    const newTitle = document.createElement('title');
-    newTitle.textContent = 'Decorative graphic';
-    svgElement.insertBefore(newTitle, svgElement.firstChild);
-  }
+// Implement the getLangAttribute function to handle REACT_015
+function getLangAttribute(element) {
+  if (!element) return '';
 
-  const desc = svgElement.querySelector('desc');
-  if (!desc) {
-    const newDesc = document.createElement('desc');
-    newDesc.textContent = '';
-    svgElement.appendChild(newDesc);
-  }
-  
-  return svgElement;
+  const langAttribute = element.getAttribute('lang');
+  if (langAttribute) return langAttribute;
+
+  // If 'lang' attribute is missing, use default language (e.g., "en")
+  return 'en';
 }
 
-function fixFakeLinkIssue(link) {
-  // Fix fake link issues in the provided link
-  if (!link) {
-    return link;
-  }
+// Export the new getLangAttribute function
+export { getLangAttribute };
 
-  if (link.href === '#' || link.href === '' || !link.href) {
-    const parent = link.parentElement;
-    if (parent && parent.tagName === 'A') {
-      const hasClickHandler = parent.onclick || parent.getAttribute('onclick');
-      if (!hasClickHandler) {
-        parent.setAttribute('role', 'button');
-      }
-    }
-  }
-
-  return link;
+// Implement the function for addressing new accessibility issues from the insight report
+function addressAccessibilityIssues() {
+  // Set minimum font size
+  document.body.style.fontSize = '16px';
 }
 
+// Export the new addressAccessibilityIssues function
+export { addressAccessibilityIssues };
+
+// Implement the function for validating the structure of landmarks (Placeholder)
+function validateLandmarkStructure(landmark, parent) {
+  // Your implementation for validating the structure of landmarks
+}
+
+// Export the new validateLandmarkStructure function
+export { validateLandmarkStructure };
+
+// The validateTableAccessibility, validateTableStructure, validateLandmarkAttributes,
+// setSvgAttributes, validateLinkAccessibility, handleFakeLinks, and ensure_uniqueLandmarks
+// functions are still remaining to be implemented
 // ADD THE FUNCTION TO FIX INSIGHT REPORT ISSUES
 function fixAccessibilityIssues() {
   // Add lang attribute to the root HTML element
@@ -130,6 +102,7 @@ function fixAccessibilityIssues() {
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 fixAccessibilityIssues();
+addressAccessibilityIssues();
 
 export {
   addLangAttribute,
@@ -139,4 +112,6 @@ export {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   fixAccessibilityIssues,
+  addressAccessibilityIssues,
+  validateLandmarkStructure,
 };

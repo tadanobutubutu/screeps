@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// <<<<<<< HEAD
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+// =======
+function greet(name) {
+  return `Hi, ${name}!`;
+}
+// >>>>>>> origin/main
+
+function farewell(name) {
+  return `Goodbye, ${name}!`;
+}
+
+module.exports = { greet, farewell };

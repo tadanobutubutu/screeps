@@ -26,4 +26,14 @@ const setAccessibleName = (node, accessibleName) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName };
+// Add the new function to fix the REACT_027 issue
+const fixTableHeaders = (table) => {
+  const headers = table.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+};
+
+module.exports = { getAccessibleName, setAccessibleName, fixTableHeaders };

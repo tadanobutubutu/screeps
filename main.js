@@ -1,27 +1,78 @@
-// TODO: Identify and update the renderDependencyGraph function that renders dependency graphs or
+tsx
+import React, { useState } from 'react';
 
-// Assuming renderDependencyGraph is a function, you can replace its implementation as needed:
-const renderDependencyGraph = function (graph) {
-  const result = [];
+const Dashboard: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
+  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
-  // Example implementation for demonstration purposes
-  graph.forEach(node => {
-    result.push(`Node: ${node.name}`);
-    result.push(`Dependencies:`);
-    node.dependencies.forEach(dep => result.push(`  - ${dep}`));
-  });
+  const copyErr = () => {
+    // Copy error message logic
+  };
 
-  return result.join('\n');
+  const fetchStats = (shouldRefresh: boolean) => {
+    // Fetch stats logic
+  };
+
+  // ... other component logic ...
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      {/* ... other content ... */}
+      {error && (
+        <main>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          <button
+            onClick={copyErr}
+            onMouseEnter={() => setErrCopyHover(true)}
+            onMouseLeave={() => setErrCopyHover(false)}
+            onFocus={() => setErrCopyHover(true)}
+            onBlur={() => setErrCopyHover(false)}
+            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+            title={copied ? 'コピー済み' : 'エラーをコピー'}
+            style={{
+              backgroundColor: copied ? '#155d27' : '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errCopyHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          </button>
+          <button
+            onClick={() => fetchStats(true)}
+            disabled={refreshing}
+            onMouseEnter={() => setErrRetryHover(true)}
+            onMouseLeave={() => setErrRetryHover(false)}
+          >
+            {/* ... button content ... */}
+          </button>
+        </main>
+      )}
+      {/* ... other content ... */}
+    </div>
+  );
 };
 
-// You may need to update imports or exports as well, but make sure not to modify existing code.
-// For example, if the renderDependencyGraph function is a new export:
-module.exports = {
-  // existing exports
-  getSomeFunction() {
-    // existing implementation
-  },
-
-  // update or add new exports as needed
-  renderDependencyGraph
-};
+export default Dashboard;

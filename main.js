@@ -3,7 +3,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
+import { dependencyGraphContent, indexContent } from ... // Imported new modules here
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
@@ -77,7 +77,7 @@ const validateTableStructure = () => {
 
   // Add render dependency graph content here
   const dependencyGraph = ... // Assuming you have a function to generate the dependency graph data
-  ReactDOM.render(<React.Fragment>{dependencyGraphContent(dependencyGraph)}</React.Fragment>, document.getElementById('dependency-graph'));
+  ... ...
 
   return { errors };
 };
@@ -130,9 +130,58 @@ const validateTableAccessibility = () => {
 
   // Add render index content here
   const indexData = ... // Assuming you have a function to generate the index data
-  ReactDOM.render(<React.Fragment>{indexContent(indexData)}</React.Fragment>, document.getElementById('index'));
+  ... ...
 
   return { errors };
+};
+
+// Function to validate landmark structure (accessibility)
+const validateLandmarkStructure = () => {
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: true, errors };
+  }
+
+  // Check for main landmark (should have exactly one)
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    errors.push({
+      message: 'Page is missing a main landmark',
+      line: 0,
+      column: 0
+    });
+  } else if (mainElements.length > 1) {
+    errors.push({
+      message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for header/nav landmarks
+  const navElements = ...
+  const headerElements = document.querySelectorAll('header, [role="banner"]');
+
+  if (headerElements.length > 1) {
+    errors.push({
+      message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for footer landmark
+  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    errors.push({
+      message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
 };
 
 // Function to create an in-page button with fake link handling
@@ -147,55 +196,6 @@ const createInPageButton = (options = {}) => {
     disabled = false,
     href = '#'
   } = options;
-
-  // Function to validate landmarks
-  const validateLandmarkStructure = () => {
-    const errors = [];
-
-    if (typeof document === 'undefined') {
-      return { valid: true, errors };
-    }
-
-    // Check for main landmark (should have exactly one)
-    const mainElements = ... [role="main"]');
-    if (mainElements.length === 0) {
-      errors.push({
-        message: 'Page is missing a main landmark',
-        line: 0,
-        column: 0
-      });
-    } else if (mainElements.length > 1) {
-      errors.push({
-        message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    // Check for header/nav landmarks
-    const navElements = ... ...
-    const headerElements = ... [role="banner"]');
-
-    if (headerElements.length > 1) {
-      errors.push({
-        message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    // Check for footer landmark
-    const footerElements = ... [role="contentinfo"]');
-    if (footerElements.length > 1) {
-      errors.push({
-        message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    return { valid: errors.length === 0, errors };
-  };
 
   // Alias for backwards compatibility
   const validateLandmark = validateLandmarkStructure;

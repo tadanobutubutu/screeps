@@ -1,3 +1,30 @@
-I don't have access to the actual `main.js` content - it appears the placeholder was included instead of the real code. Please paste the complete `main.js` file contents so I can properly fix the accessibility issue by adding `scope="col"` or `scope="row"` attributes to the `<th>` elements.
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 
-Once you provide the actual file content, I'll add the scope attributes to all 26 `<th>` elements while preserving all existing code and ensuring the syntax remains valid.
+// Add proper ARIA role to dependencyGraph container
+function initializeAccessibilityFeatures() {
+    const dependencyGraph = document.getElementById('dependencyGraph') || 
+                           document.querySelector('.dependencyGraph') ||
+                           document.querySelector('#dependency-graph');
+    
+    if (dependencyGraph) {
+        // Set ARIA role for accessibility
+        dependencyGraph.setAttribute('role', 'region');
+        dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+        
+        // Add additional accessibility attributes
+        dependencyGraph.setAttribute('tabindex', '0');
+    }
+}
+
+// Initialize accessibility features when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAccessibilityFeatures);
+} else {
+    initializeAccessibilityFeatures();
+}
+
+// Export for testing purposes (if module system is used)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { initializeAccessibilityFeatures };
+}

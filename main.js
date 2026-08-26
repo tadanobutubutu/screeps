@@ -255,17 +255,6 @@ function checkTableStructure() {
   return true;
 }
 
-// Add main landmark if missing
-function addMainLandmark() {
-  const main = document.querySelector('main');
-  if (!main) {
-    const newMain = document.createElement('main');
-    document.body.insertBefore(newMain, document.body.firstChild);
-    return newMain;
-  }
-  return main;
-}
-
 // Add landmark regions for accessibility
 function addLandmarkRegions() {
   // Ensure main landmark exists
@@ -307,3 +296,29 @@ function fixFakeLinkIssue() {
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from
 // their respective modules for better maintainability and content separation.
+
+// Export all functions for external use
+export {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addMainLandmark,
+  ensureUniqueLandmarkIds,
+  fixMultipleMainLandmarks,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFaviconAccessibility,
+  createInPageButton,
+  createAccessibleLink,
+  validateLinkAccessibility,
+  hasValidTHScope,
+  addLangAttribute,
+  fixTableStructure,
+  checkTableStructure,
+  addLandmarkRegions,
+  fixFakeLinkIssue,
+  dependencyGraphContent,
+  indexContent
+};

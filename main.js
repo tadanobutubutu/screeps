@@ -285,6 +285,106 @@ function addLandmarkRegions() {
   });
 }
 
+// REACT_017: Validate that the page has a main landmark
+function validateLandmark() {
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  return mainElements.length > 0;
+}
+
+// REACT_017: Validate the structure of landmarks on the page
+function validateLandmarkStructure() {
+  const issues = [];
+
+  // Check that a main landmark exists
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('No <main> landmark found on the page.');
+  } else if (mainElements.length > 1) {
+    issues.push(`Multiple <main> landmarks found (${mainElements.length}). Only one is allowed.`);
+  }
+
+  // Check for redundant/no-op landmarks (empty landmark elements)
+  const landmarkSelectors = ['header', 'footer', 'aside', 'nav', 'main'];
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (!el.textContent.trim() && !el.querySelector('img, svg, table, ul, ol, h1, h2, h3, h4, h5, h6, p')) {
+        issues.push(`Empty <${selector}> landmark found.`);
+      }
+    });
+  });
+
+  // Check that landmarks have accessible names when there are duplicates
+  const duplicateLandmarkTypes = ['header', 'footer', 'aside', 'nav'];
+  duplicateLandmarkTypes.forEach(type => {
+    const elements = document.querySelectorAll(type);
+    if (elements.length > 1) {
+      elements.forEach(el => {
+        if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby') && !el.hasAttribute('title')) {
+          issues.push(`Multiple <${type}> landmarks without distinguishing accessible names.`);
+        }
+      });
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    mainCount: mainElements.length
+  };
+}
+
+// REACT_017: Ensure primary content is wrapped in a <main> landmark by
+// moving body children (other than <header>/<footer>/<nav>/<aside>/<script>/<link>/<meta>/<style>)
+// into a newly created <main> if one is not already present.
+function ensureMainLandmarkWrapsContent() {
+  let main = document.querySelector('main');
+
+  if (main) {
+    return main;
+  }
+
+  main = document.createElement('main');
+
+  // Collect elements that should remain outside the main landmark
+  const skipTags = new Set([
+    'SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE', 'HEAD',
+    'HEADER', 'FOOTER', 'NAV', 'ASIDE'
+  ]);
+
+  const bodyChildren = Array.from(document.body.children);
+  let moved = 0;
+
+  bodyChildren.forEach(child => {
+    if (skipTags.has(child.tagName)) {
+      return;
+    }
+    main.appendChild(child);
+    moved++;
+  });
+
+  document.body.appendChild(main);
+
+  return main;
+}
+
+// REACT_017: Apply all landmark fixes for a page
+function applyLandmarkFixes() {
+  // Wrap primary content in a main landmark if missing
+  ensureMainLandmarkWrapsContent();
+
+  // Resolve multiple main landmarks
+  fixMultipleMainLandmarks();
+
+  // Ensure landmark ids are unique
+  ensureUniqueLandmarkIds();
+
+  // Label landmarks for clarity
+  addLandmarkRegions();
+
+  return validateLandmarkStructure();
+}
+
 // Fix fake link issue - convert anchor tags without href to buttons
 function fixFakeLinkIssue() {
   const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"]');

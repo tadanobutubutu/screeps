@@ -8,6 +8,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // - (A NEW FUNCTION: REACT_037: ADD PROPER LANDMARK REGIONS)
+// - ADD_FOCUS: Make an HTML element focusable (NEW)
 // - ... (You can add more functions as needed)
 
 // Add lang attribute to HTML element (REACT_015)
@@ -140,6 +141,19 @@ const addProperLandmarkRegions = function(content) {
     return content;
 };
 
+// ADD A NEW FUNCTION: ADD_FOCUS: MAKE AN HTML ELEMENT FOCUSABLE
+const makeElementFocusable = function(element) {
+    if (element && typeof element === 'object') {
+        if (!element.hasAttribute('tabindex')) {
+            element.setAttribute('tabindex', '0');
+        }
+        if (!element.hasAttribute('focusable')) {
+            element.setAttribute('focusable', 'true');
+        }
+    }
+    return element;
+};
+
 // ... (You can add more functions as needed)
 
 // If necessary, update the export for the new functions
@@ -180,6 +194,7 @@ module.exports = {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     addProperLandmarkRegions, // Include the new function in the exports
+    makeElementFocusable, // Include the new function in the exports
     renderDependencyGraph1,
     renderDependencyGraph2
     // ... Add any other exports that were found to be affected by the update ...

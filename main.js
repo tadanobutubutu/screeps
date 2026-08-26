@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+import React from 'react';
+
+function MyApp() {
+  return (
+    <html>
+      {/* Missing lang attribute */}
+      <head>
+        <title>My App</title>
+      </head>
+      <body>
+        <div>
+          {/* App content here */}
+        </div>
+      </body>
+    </html>
+  );
+}
+
+export default MyApp;

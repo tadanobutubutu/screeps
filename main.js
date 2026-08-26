@@ -13,7 +13,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
   fixFakeLinks();
   ensureUniqueLandmarks();
   // Add focus-trap related code
-  function focusTrapтонHTMLComponent(element) {
+  function focusTrapotonHTMLComponent(element) {
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
     wrapper.style.top = 0;
@@ -96,9 +96,9 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
     });
   }
 
-  // Call the new function with focus-trap integration
-  function implementAccessibilityWithFocusTrap(component, customLandmarkRole) {
-    focusTrapтонHTMLComponent(component);
+  // Add new function to implement accessibility with custom landmark and focus-trap
+  function implementAccessibilityWithCustomLandmarkFocusTrap(component) {
+    focusTrapotonHTMLComponent(component);
     implementAccessibility(component);
   }
 
@@ -109,13 +109,13 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
   implementAccessibilityWithCustomLandmark.implementAccessibility =
     implementAccessibility;
   implementAccessibilityWithCustomLandmark.implementAccessibilityWithFocusTrap =
-    implementAccessibilityWithFocusTrap;
+    implementAccessibilityWithCustomLandmarkFocusTrap;
 }
 
 // New function to call the new function with custom landmark and focus-trap
 function applyAccessibilityFixes(component) {
   implementAccessibilityWithCustomLandmark('banner');
-  implementAccessibilityWithCustomLandmark.implementAccessibilityWithFocusTrap(component, 'banner');
+  implementAccessibilityWithCustomLandmark.implementAccessibilityWithFocusTrap(component);
 }
 
 // Export the module functions

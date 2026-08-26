@@ -6,11 +6,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
 
-_Commit: fcb0a33e9b4314946bba82ef96ee7395f1f1f97b_
-
-<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
-
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
 function fixFakeLinkIssue(filePath) {

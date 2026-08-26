@@ -8,6 +8,12 @@ function addressAccessibilityIssues(insightReport) {
   return addressed;
 }
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js
+function newFunction() {
+  // New function code goes here
+}
+
 module.exports = {
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  newFunction
 };

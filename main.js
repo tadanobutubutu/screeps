@@ -1,21 +1,49 @@
-// Assuming main.js is the entry point for the React application and contains imports and setup code.
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App'; // Adjust the path to the actual App component
+// ... rest of the code in main.js
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+// Add validation function for landmark structure
+function validateLandmarkStructure(landmark) {
+  if (!landmark || !landmark.name || !landmark.position || !landmark.structure) {
+    return false;
+  }
 
-// Below is the updated code for the affected files, which would be included in the main.js or in separate components.
+  // Additional custom validation rules can be added here
+  return true;
+}
 
-// Example of how to update the icons in app/layout.tsx and dashboard/app/layout.tsx
-const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" font-size="90">🐛</text></svg>',
-};
+// Now let's update the App component's state to include the landmark data and call our validation function
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      landmark: {
+        name: '',
+        position: { x: 0, y: 0 },
+        structure: '',
+      },
+      errors: {},
+    };
+  }
+
+  // ... rest of the code in App component
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    const { landmark } = this.state;
+
+    // Validate landmark structure
+    if (!validateLandmarkStructure(landmark)) {
+      this.setState({
+        errors: {
+          landmark: 'Landmark structure is not valid',
+        },
+      });
+      return;
+    }
+
+    // Rest of your code for handling form submission
+  };
+
+  // ... rest of the code in App component
+}
 
 // ... rest of the code in main.js

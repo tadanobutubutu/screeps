@@ -6,61 +6,6 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
 
-const App = () => {
-  // Existing code and logic
-  return (
-    // JSX code that might be causing accessibility issues
-    <html lang="en">
-      <head>
-        {/* Existing head content */}
-      </head>
-      <body>
-        <div>
-          <a href="/home">Home</a>
-          <table>
-            {/* Table content */}
-          </table>
-          <svg aria-hidden="true">
-            {/* SVG content */}
-          </svg>
-        </div>
-      </body>
-    </html>
-  );
-};
-
-<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// If main.js contains code that generates this HTML, here's the fix:
-const generateRotateBackControl = () => {
-  // Before (accessibility issue):
-  // return '<a id="unrotate" href="#">rotate back</a>';
-
-  // After (accessible fix):
-  return '<button id="unrotate">rotate back</button>';
-};
-
-// Example event handler update if needed:
-const setupRotateBack = () => {
-  const unrotateBtn = ...
-  if (unrotateBtn) {
-    ... () => {
-      // rotation logic here
-    });
-  }
-};
-
-// Initialize the application on the client side
-if (typeof document !== 'undefined') {
-  ... () => {
-    setupRotateBack(); // Ensure button wiring after DOM is ready
-    ReactDOM.render(<App />, ...
-  }
-}
-
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
@@ -353,6 +298,8 @@ function renderDependencyGraph(graphData, containerId) {
   console.log(`Rendering dependency graph${containerId ? ' in ' + containerId : ''}:`, graphString);
   return graphString;
 }
+
+// TODO: Add any required exports that might have been removed
 
 module.exports = {
   fixFakeLinkIssue,

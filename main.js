@@ -1,17 +1,1 @@
-module.exports = {
-  apps: [
-    {
-      name: 'screeps-dashboard',
-      script: 'dashboard/.next/standalone.js',
-      cwd: '/home/runner/work/screeps/screeps',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '200M',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3000,
-      },
-    },
-  ],
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -1,4 +1,5 @@
-// ... existing imports and declarations ...
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 
 function addLangAttribute(htmlElement, lang = 'en') {
   // Add lang attribute to the provided htmlElement
@@ -15,7 +16,7 @@ function fixTableStructure(table) {
   }
 
   const tbody = table.querySelector('tbody');
-  if (!tbody && table.rows) {
+  if (!tbody && table.rows && table.rows.length > 0) {
     const wrapper = document.createElement('tbody');
     while (table.firstChild) {
       wrapper.appendChild(table.firstChild);
@@ -32,7 +33,7 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('main, [role="main"]');
+  const existingMain = rootElement.querySelector('[role="main"]');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
@@ -106,7 +107,7 @@ function fixFakeLinkIssue(link) {
 // ... any other existing functions or code ...
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
-const rootElement = document.querySelector('html') || document.body;
+const rootElement = document.querySelector('main') || document.body;
 
 if (rootElement) {
   addLangAttribute(rootElement);

@@ -1,11 +1,15 @@
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
 // Import helper functions for accessibility
-const accessibilityHelpers = require('./utils/accessibilityHelpers');
-const domHelpers = require('./utils/domHelpers');
+const accessibilityHelpers = require('./helpers/accessibility');
+const domHelpers = require('./helpers/dom');
 
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraph = domHelpers.getElement('dependency-graph');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]');
   if (dependencyGraph) {
     accessibilityHelpers.setRole(dependencyGraph, 'tree');
     accessibilityHelpers.setAriaLabel(dependencyGraph, 'Dependency Graph');
@@ -15,22 +19,22 @@ function addressAccessibilityIssues() {
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = domHelpers.getElement('dependency-graph');
+  const container = document.getElementById('dependency-graph');
   if (container) {
     container.innerHTML = data;
     // Apply accessibility fixes after rendering content
-    accessibilityHelpers.applyAccessibilityFixes(container);
+    addressAccessibilityIssues();
   }
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = domHelpers.queryElements('[role="landmark"]');
+  const landmarks = document.querySelectorAll('[role]');
   const seen = new Set();
   landmarks.forEach(landmark => {
-    const role = accessibilityHelpers.getRole(landmark);
+    const role = landmark.getAttribute('role');
     if (seen.has(role)) {
-      accessibilityHelpers.removeLandmark(landmark);
+      accessibilityHelpers.makeUnique(landmark, role);
     } else {
       seen.add(role);
     }
@@ -47,11 +51,11 @@ function ensureUniqueLandmarks() {
 
 // Fix fake link issue
 function fixFakeLinks() {
-  const fakeLinks = domHelpers.queryElements('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     accessibilityHelpers.setRole(link, 'button');
     accessibilityHelpers.setTabIndex(link, '0');
-    if (accessibilityHelpers.needsAriaLabel(link)) {
+    if (!link.textContent.trim()) {
       accessibilityHelpers.setAriaLabel(link, 'Button');
     }
   });
@@ -67,7 +71,7 @@ function addLangAttribute() {
 
 // Fix table structure issues
 function fixTableStructureIssues() {
-  const tables = domHelpers.queryElements('table');
+  const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure tables have proper structure
     if (!table.querySelector('thead')) {
@@ -81,7 +85,7 @@ function fixTableStructureIssues() {
     }
     // Ensure tables have at least one tbody
     if (!table.querySelector('tbody')) {
-      const rows = domHelpers.getTableRows(table);
+      const rows = Array.from(table.querySelectorAll('tr'));
       if (rows.length > 0) {
         const tbody = document.createElement('tbody');
         rows.forEach(row => tbody.appendChild(row));
@@ -93,7 +97,7 @@ function fixTableStructureIssues() {
 
 // Add main landmark
 function addMainLandmark() {
-  const mainElements = domHelpers.queryElements('main');
+  const mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
     if (!main.getAttribute('role')) {
       accessibilityHelpers.setRole(main, 'main');
@@ -101,7 +105,7 @@ function addMainLandmark() {
   });
   // If no main element exists, create one for the main content
   if (mainElements.length === 0) {
-    const content = domHelpers.getElement('content');
+    const content = document.querySelector('#content');
     if (content) {
       const main = document.createElement('main');
       accessibilityHelpers.setRole(main, 'main');
@@ -115,25 +119,25 @@ function addMainLandmark() {
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = domHelpers.queryElements('svg');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = domHelpers.getSvgTitle(svg);
+    const title = svg.querySelector('title');
     if (title) {
       const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
       accessibilityHelpers.setAriaLabelledBy(svg, titleId);
     } else {
-      console.log(`SVG graphic ${index + 1}`);
+      console.log(`SVG graphic ${index + 1} lacks a title element`);
     }
   });
 }
 
 // New function to implement accessibility fixes with custom landmark addition
-function implementNewFunction(customLandmarkID, customLandmarkRole = 'introduction') {
+function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'introduction') {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
-  addCustomLandmark(`#${customLandmarkID}`, customLandmarkRole); // New line
+  addCustomLandmark('#intro', customLandmarkRole); // New line
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
@@ -141,8 +145,8 @@ function implementNewFunction(customLandmarkID, customLandmarkRole = 'introducti
 }
 
 // New function to call the new function with custom landmark
-function callNewFunction(customLandmarkID) {
-  implementNewFunction(`#${customLandmarkID}`);
+function applyAccessibilityFixes() {
+  implementAccessibilityWithCustomLandmark('banner');
 }
 
 // Export the module functions
@@ -150,11 +154,11 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  implementNewFunction,
+  implementAccessibilityWithCustomLandmark,
   addressAccessibilityIssues,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
-  callNewFunction // New export for calling the new function with custom landmark
+  applyAccessibilityFixes // Renamed export for calling the new function with custom landmark
 };

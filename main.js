@@ -26,4 +26,20 @@ const setAccessibleName = (node, accessibleName) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName };
+// New function to add accessible name to SVG elements
+const addAccessibleNameToSVG = (svgElement, accessibleName) => {
+  if (!svgElement) return;
+
+  // Set aria-label to provide an accessible name
+  setAccessibleName(svgElement, accessibleName);
+
+  // If the SVG is decorative, hide it
+  if (!svgElement.querySelector('title') && !svgElement.querySelector('text') && !svgElement.querySelector('image')) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+};
+
+// Existing exports and functions continue to be preserved
+// No changes to exports are allowed
+
+module.exports = { getAccessibleName, setAccessibleName, addAccessibleNameToSVG };

@@ -1,6 +1,3 @@
-Here's the resolved main.js file with both changes integrated:
-
-```javascript
 // TODO: Create or update the affected functions to be accessible
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -118,8 +115,10 @@ const getAccessibleName = (node) => {
     if (node.labels && node.labels.length > 0) {
       return node.labels[0].textContent;
     }
-=======
-// ADD THE BELOW FUNCTION TO THE FILE
+  }
+  return null;
+};
+
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   landmarkTypes.forEach(type => {
@@ -139,18 +138,12 @@ const addProperLandmarkRegions = (document) => {
   });
 };
 
-// ADD THIS EXPORT LINE AT THE END OF THE FILE
-export { addProperLandmarkRegions };
->>>>>>> origin/main
-
 export {
   newFunction,
   wrapPrimaryContentInMain,
   addSkipLink,
   getAccessibleName,
+  addProperLandmarkRegions
 };
 
 addProperLandmarkRegions();
-```
-
-This file now includes the requested `addProperLandmarkRegions()` function and exports it along with the other functions.

@@ -26,4 +26,12 @@ const setAccessibleName = (node, accessibleName) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName };
+// New function added based on the issue requirement
+const updateAccessibleName = (node, newAccessibleName) => {
+  const currentAccessibleName = getAccessibleName(node);
+  if (currentAccessibleName !== newAccessibleName) {
+    setAccessibleName(node, newAccessibleName);
+  }
+};
+
+module.exports = { getAccessibleName, setAccessibleName, updateAccessibleName };

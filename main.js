@@ -1,11 +1,11 @@
-// Main.js - Accessibility fix for REACT_017 (React Landmarks)
+import React from 'react';
 
 /**
  * Wraps content in a <main> landmark for accessibility
  * @param {string} content - The content to wrap
  * @returns {string} - Content wrapped in <main> tags
  */
-function wrapInMainLandmark(content) {
+export function wrapInMainLandmark(content) {
   return `<main>${content}</main>`;
 }
 
@@ -14,7 +14,7 @@ function wrapInMainLandmark(content) {
  * @param {string} content - The main content area
  * @returns {string} - Content with main landmark
  */
-function generateMainContent(content) {
+export function generateMainContent(content) {
   if (!content.includes('<main>')) {
     return wrapInMainLandmark(content);
   }
@@ -26,7 +26,7 @@ function generateMainContent(content) {
  * @param {string} content - HTML content to check
  * @returns {boolean} - True if main landmark exists
  */
-function hasMainLandmark(content) {
+export function hasMainLandmark(content) {
   return /<main[\s>]/.test(content);
 }
 
@@ -35,17 +35,30 @@ function hasMainLandmark(content) {
  * @param {string} content - Content to potentially wrap
  * @returns {string} - Processed content
  */
-function processMainLandmark(content) {
+export function processMainLandmark(content) {
   if (hasMainLandmark(content)) {
     return content;
   }
   return wrapInMainLandmark(content);
 }
 
-// Export all functions for testing and external use
-module.exports = {
-  wrapInMainLandmark,
-  generateMainContent,
-  hasMainLandmark,
-  processMainLandmark
+const MyTableComponent = ({ headers }) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {/* ... table rows ... */}
+      </tbody>
+    </table>
+  );
 };
+
+export default MyTableComponent;

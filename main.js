@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // New function implementation addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // Example implementation: log and return addressed issues
@@ -61,4 +58,3 @@ function addressAccessibilityIssues(insightReport) {
 module.exports = {
   addressAccessibilityIssues
 };
-```

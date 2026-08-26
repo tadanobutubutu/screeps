@@ -58,7 +58,7 @@ const addProperLandmarkRegions = function(content) {
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/gi.test(result)) {
-            result = result.replace(/<\/body>/i, '<footer></footer></body>');
+            result = result.replace('</body>', '<footer></footer></body>');
         }
 
         return result;
@@ -71,7 +71,7 @@ const renderDependencyGraph = function(layout) {
     // Use dependencyGraphContent from the appropriate module to render the graph
     // Based on the provided layout parameter
     if (layout === 'horizontal') {
-        return dependencyGraphContent.horizontal || '<div class="dependency-graph horizontal"></div>';
+        return dependencyGraphContent.horizontal || '<div class="dependency-graph"></div>';
     } else if (layout === 'vertical') {
         return dependencyGraphContent.vertical || '<div class="dependency-graph vertical"></div>';
     }
@@ -94,7 +94,7 @@ const addMissingLandmarks = function(content) {
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/gi.test(result)) {
-            result = result.replace(/<\/body>/i, '<footer></footer></body>');
+            result = result.replace('</body>', '<footer></footer></body>');
         }
 
         return result;

@@ -37,6 +37,20 @@ const ensureAccessibility = (htmlContent) => {
   return accessibleHtml;
 };
 
+// Rotate back function from origin/main
+function rotateBack() {
+  // Your code to rotate back
+}
+
+// Helper to ensure the document <html> element has a lang attribute (REACT_015)
+ensureHtmlLangAttribute: (lang = 'en') => {
+  if (typeof document === 'undefined') return;
+  const rootElement = document.documentElement;
+  if (rootElement && !rootElement.getAttribute('lang')) {
+    rootElement.setAttribute('lang', lang);
+  }
+},
+
 // Preserve existing exports and functions
 // ... (Keep existing code, exports, and functions as they are)
 
@@ -99,7 +113,10 @@ module.exports = {
     }
   },
 
-  /* Export your functions and objects here, if any */
+  // Added rotateBack function
+  rotateBack,
+
+  // Export your functions and objects here, if any
   generateHtmlWithLangAttribute,
   ensureAccessibility,
   fixAccessibilityIssues

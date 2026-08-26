@@ -17,7 +17,7 @@ function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  content = content.replace(/<a([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
+  content = content.replace(/<a([^>]*)>(.*?)<\/a>/gi, (match, attrs, inner) => {
     if (attrs.includes('href')) {
       return match;
     }
@@ -76,7 +76,7 @@ function addLandmarkRole(filePath) {
       if (attrs) {
         newTag += ` ${attrs}`;
       }
-      newTag += ` role="${landmark}">`;
+      newTag += ` role="${landmark}"`;
       return newTag;
     });
   }
@@ -99,29 +99,31 @@ function ensureUniqueLandmarks(filePath) {
 
     while ((match = regex.exec(content)) !== null) {
       const attrs = match[2];
-      if (attrs.includes('id=')) {
-        const idAttr = attrs.match(/id=['"]([^'"]*)['"]/i)[1];
-        existingIds.push(idAttr);
+      if (attrs) {
+        const idMatch = attrs.match(/id=["']([^"']+)["']/);
+        if (idMatch) {
+          existingIds.push(idMatch[1]);
+        }
       }
       count++;
     }
 
     existingIds = Array.from(new Set(existingIds));
 
-    regex = new RegExp(`<(${landmark})([^>]*(?:id=['"])(.*?)['"][^>]*)>`, 'gi');
+    regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
 
     let updatedContent = content;
     let index = 0;
 
     while ((match = regex.exec(content)) !== null) {
-      const idAttr = match[3];
-      const idExists = existingIds.includes(idAttr);
+      const idAttr = match[2] ? match[2].match(/id=["']([^"']+)["']/) : null;
+      const idExists = idAttr && existingIds.includes(idAttr[1]);
       if (!idExists || (count > 1 && idAttr === existingIds[0])) {
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${idAttr}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark}${match[2]}>` + updatedContent.substring(match.index + match[0].length);
       } else {
         // Generate unique ID based on the landmark type
         const uniqueId = `${landmark}-${count}`;
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${uniqueId}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${uniqueId}"${match[2]}>` + updatedContent.substring(match.index + match[0].length);
         count++;
       }
       index = match.index + match[0].length;
@@ -140,19 +142,20 @@ function fixTableStructure(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix table structure: ensure tables have proper thead/tbody
-  const tableRegex = /<table\b([^>]*)>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table([^>]*)>([\s\S]*?)<\/table>/gi;
   const updatedContent = content.replace(tableRegex, (match, attrs, inner) => {
     let fixed = inner;
     // Fix th elements to have scope attribute
-    fixed = fixed.replace(/<th\b([^>]*)>/gi, (thMatch, thAttrs) => {
-      if (thAttrs.match(/scope=/i)) {
+    fixed = fixed.replace(/<th([^>]*)>/gi, (thMatch, thAttrs) => {
+      if (thAttrs.includes('scope=')) {
         return thMatch;
       }
       return '<th scope="col"' + thAttrs + '>';
     });
     // Add thead if not present
     if (!fixed.includes('<thead')) {
-      fixed = fixed.replace(/(<tr\b[^>]*>[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
+      fixed = fixed.replace(/<tr/, '<thead><tr');
+      fixed = fixed.replace(/<\/tr>/, '</tr></thead>');
     }
     // Add tbody if not present
     if (!fixed.includes('<tbody')) {
@@ -176,7 +179,7 @@ function addMainLandmark(filePath) {
     const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       const bodyContent = bodyMatch[1];
-      const wrappedContent = `<main role="main">${bodyContent}</main>`;
+      const wrappedContent = `<main>${bodyContent}</main>`;
       content = content.replace(bodyContent, wrappedContent);
     }
   }
@@ -190,7 +193,7 @@ function addSvgAccessibleNames(filePath) {
   // Add accessible names to SVG elements that lack them
   const svgRegex = /<svg([^>]*)>/gi;
   const updatedContent = content.replace(svgRegex, (match, attrs) => {
-    if (attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i) || attrs.match(/role=["']img["']/i)) {
+    if (attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i) || attrs.match(/role="img"/i)) {
       return match;
     }
     // Add a default accessible name if none exists
@@ -219,7 +222,7 @@ function replaceButtonId(filePath, newButtonId) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Replace button IDs with a unique one
-  const buttonRegex = /<button([^>]*)id=['"][^'"]*['"]([^>]*)>/gi;
+  const buttonRegex = /<button([^>]*)id=["'][^"']*["']([^>]*)>/gi;
   const updatedContent = content.replace(buttonRegex, (match, attrsBefore, attrsAfter) => {
     return `<button${attrsBefore}id="${newButtonId}"${attrsAfter}>`;
   });
@@ -247,77 +250,3 @@ function addressAccessibilityIssues(reportPath) {
           case 'unique_landmarks':
             ensureUniqueLandmarks(issue.file);
             break;
-          case 'svg_accessible_name':
-            addSvgAccessibleNames(issue.file);
-            break;
-          case 'fake_link':
-            fixFakeLinkIssue(issue.file);
-            break;
-          case 'aria_attribute':
-            addAriaAttribute(issue.file);
-            break;
-          case 'alt_attribute':
-            addAltAttribute(issue.file);
-            break;
-          case 'button_id':
-            replaceButtonId(issue.file, issue.newButtonId || 'action-button');
-            break;
-          case 'landmark_role':
-            addLandmarkRole(issue.file);
-            break;
-          default:
-            console.log(`Unknown issue type: ${issue.type}`);
-        }
-      }
-    });
-  }
-
-  console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
-}
-
-// Create a new function called implementAccessibilityFixesFromReport to wrap the addressAccessibilityIssues function
-function implementAccessibilityFixesFromReport(reportPath, buttonIdMap) {
-  try {
-    // If buttonIdMap is provided, apply button id replacements
-    if (buttonIdMap && typeof buttonIdMap === 'object') {
-      for (const [filePath, newButtonId] of Object.entries(buttonIdMap)) {
-        replaceButtonId(filePath, newButtonId);
-      }
-    }
-    addressAccessibilityIssues(reportPath);
-    console.log('All accessibility fixes have been successfully implemented.');
-    return true;
-  } catch (error) {
-    console.error(`Error implementing accessibility fixes: ${error.message}`);
-    return false;
-  }
-}
-
-/**
- * Renders a dependency graph based on the provided data.
- * @param {Object} graphData - The data representing the dependency graph.
- * @param {string} [containerId] - Optional container ID to render into.
- * @returns {string} - The rendered graph as a string (placeholder implementation).
- */
-function renderDependencyGraph(graphData, containerId) {
-  // Placeholder implementation: convert graph data to JSON string
-  const graphString = JSON.stringify(graphData, null, 2);
-  console.log(`Rendering dependency graph${containerId ? ' in ' + containerId : ''}:`, graphString);
-  return graphString;
-}
-
-module.exports = {
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAltAttribute,
-  replaceButtonId,
-  addLandmarkRole,
-  addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport,
-  renderDependencyGraph
-};

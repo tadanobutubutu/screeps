@@ -196,9 +196,20 @@ function fixTableStructureIssues() {
     }
     
     const headers = table.querySelectorAll('th');
-    headers.forEach((th, index) => {
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const isHeaderRow = Array.from(th.parentNode.children).every(
+          sibling => sibling.tagName.toLowerCase() === 'th'
+        );
+        if (isHeaderRow) {
+          th.setAttribute('scope', 'col');
+        } else {
+          th.setAttribute('scope', 'row');
+        }
+      }
+      
       if (!th.textContent.trim()) {
-        th.setAttribute('aria-label', `Column ${index + 1}`);
+        th.setAttribute('aria-label', `Column ${Array.from(th.parentNode.children).indexOf(th) + 1}`);
       }
     });
   });

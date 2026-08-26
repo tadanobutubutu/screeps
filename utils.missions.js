@@ -53,41 +53,6 @@ function secureRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-/**
- * 入力文字列をサニタイズして切り詰める
- */
-function sanitizeInput(input) {
-    const safeInput = utilsMemory.isSafeKey(input) ? input : 'unknown';
-    return String(safeInput).substring(0, MAX_STRING_LENGTH);
-}
-
-/**
- * ミッション上限に達した場合に古いミッションを破棄する
- */
-function evictOldMissions() {
-    if (Memory.missions.active.length >= MAX_MISSIONS_COUNT) {
-        // Attempt to evict the oldest completed mission first
-        let evictIndex = Memory.missions.active.findIndex((m) => m.status === 'completed');
-
-        // If no completed missions, evict the oldest active mission (first in array)
-        if (evictIndex === -1) {
-            evictIndex = 0;
-        }
-
-        Memory.missions.active.splice(evictIndex, 1);
-    }
-}
-
-/**
- * 報酬を安全な数値に変換する
- */
-function hardenReward(reward) {
-    if (typeof reward === 'number' && Number.isFinite(reward) && !isNaN(reward)) {
-        return Math.max(0, reward);
-    }
-    return 0;
-}
-
 const MissionSystem = {
     initMemory() {
         if (!Memory.missions) {
@@ -102,14 +67,31 @@ const MissionSystem = {
         this.initMemory();
 
         // Security: Sanitize and truncate type and target to prevent Memory DoS.
-        const sanitizedType = sanitizeInput(type);
-        const sanitizedTarget = sanitizeInput(target);
+        // If a key is unsafe, use a fallback to ensure we don't return null and crash callers.
+        const safeType = utilsMemory.isSafeKey(type) ? type : 'unknown';
+        const safeTarget = utilsMemory.isSafeKey(target) ? target : 'unknown';
+
+        const sanitizedType = String(safeType).substring(0, MAX_STRING_LENGTH);
+        const sanitizedTarget = String(safeTarget).substring(0, MAX_STRING_LENGTH);
 
         // Security: Enforce mission count limit to prevent Memory DoS (2MB limit)
-        evictOldMissions();
+        if (Memory.missions.active.length >= MAX_MISSIONS_COUNT) {
+            // Attempt to evict the oldest completed mission first
+            let evictIndex = Memory.missions.active.findIndex((m) => m.status === 'completed');
+
+            // If no completed missions, evict the oldest active mission (first in array)
+            if (evictIndex === -1) {
+                evictIndex = 0;
+            }
+
+            Memory.missions.active.splice(evictIndex, 1);
+        }
 
         // Security: Harden reward parameter to prevent injection of negative numbers, NaN, Infinity, or non-number types.
-        const safeReward = hardenReward(reward);
+        let safeReward = 0;
+        if (typeof reward === 'number' && Number.isFinite(reward) && !isNaN(reward)) {
+            safeReward = Math.max(0, reward);
+        }
 
         const mission = {
             id: generateMissionId(),

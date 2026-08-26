@@ -1,46 +1,15 @@
 // ... existing imports and declarations ...
 
-// FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
-function fixAccessibilityIssues() {
-  // ... existing fixAccessibilityIssues function ...
-}
-
-// FUNCTION TO ADD A DECORATIVE SVG ALT TEXT
-function addSvgAltText() {
-  // ... existing addSvgAltText function ...
-}
-
-// FUNCTION TO ADD LANG ATTRIBUTE
-function addLangAttribute(element) {
-  // ... existing addLangAttribute function ...
-}
-
-// ADD THE FUNCTION TO ADD MAIN LANDMARK
-function addMainLandmark(element) {
-  // ... existing addMainLandmark function ...
-}
-
-// ADD THE FUNCTION TO ENSURE UNIQUE LANDMARK IDS
-function ensureUniqueLandmarkIds() {
-  // ... existing ensureUniqueLandmarkIds function ...
-}
-
-// ADD THE FUNCTION TO ADD ACCESSIBLE NAMES TO SVGs
-function addSvgAccessibleNames() {
-  // ... existing addSvgAccessibleNames function ...
-}
-
-// ADD THE FUNCTION TO FIX FAKE LINK ISSUES
-function fixFakeLinkIssue() {
-  // ... existing fixFakeLinkIssue function ...
-}
-
-// NEW FUNCTIONS FROM ISSUE REPORT
+// NEW FUNCTION FROM ISSUE REPORT: Ensure unique landmark names and add scope to table headers
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], th');
   const landmarkNames = new Set();
 
   landmarks.forEach((landmark) => {
+    if (landmark.tagName === 'TH') {
+      landmark.setAttribute('scope', 'col');
+    }
+
     const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
 
     if (landmarkName && !landmarkNames.has(landmarkName)) {
@@ -56,9 +25,9 @@ function ensureUniqueLandmarkNames() {
 // EXPORTS
 export {
   addLangAttribute,
-  fixTableStructure, // Assuming this is an existing function as there's no fixTableStructure defined in the snippet
+  fixTableStructure,
   addMainLandmark,
-  ensureUniqueLandmarks, // Assuming this is an existing function as there's no ensureUniqueLandmarks defined in the snippet
+  ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addSvgAltText,

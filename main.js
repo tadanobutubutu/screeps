@@ -1,2 +1,1 @@
-// This file should contain JavaScript code, not HTML
-// The REACT_015 issue is about adding lang="en" to the HTML file, not main.js
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -6,6 +6,11 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
+// <<<<<<< HEAD
+// [your current branch changes]
+// =======
+// [incoming changes from origin/main]
+// >>>>>>> origin/main
 
 import { class1, function1, Object1 } from './path/to/module';
 

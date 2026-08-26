@@ -11,6 +11,17 @@ const renderDependencyGraph = function (graph) {
     node.dependencies.forEach(dep => result.push(`  - ${dep}`));
   });
 
+  // Replace the anchor tag with a button for in-page action
+  const rotateBackLink = document.createElement('button');
+  rotateBackLink.id = 'unrotate';
+  rotateBackLink.textContent = 'rotate back';
+  rotateBackLink.onclick = function() {
+    // The actual implementation of the rotate back action would go here
+    console.log('Rotate back action triggered');
+  };
+
+  result.push(rotateBackLink.outerHTML);
+
   return result.join('\n');
 };
 

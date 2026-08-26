@@ -26,5 +26,9 @@ module.exports = {
   },
   // Begin new functions or changes
 
+  setDocumentLanguage: function(lang) {
+    document.documentElement.setAttribute('lang', lang);
+  },
+
   // END NEW FUNCTIONS OR CHANGES
 };

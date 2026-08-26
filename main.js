@@ -1,20 +1,48 @@
-// main.js
+// main.js - React Application Entry Point
+// Import the necessary functions to read files and check for the presence of the scope attribute
+const fs = require('fs');
+const path = require('path');
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
 
-// ... (existing code before conflict markers)
+// Set the language attribute on the HTML element for accessibility
+document.documentElement.lang = 'en';
 
-// BEGIN INSIGHT CODE REACT_036 FIX
+// Function to check if all <th> elements have the scope attribute
+function checkThScopeAttribute(filePath) {
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  const thElements = fileContent.match(/<th\b[^>]*>/g);
+  if (!thElements) {
+    return true; // No <th> elements found, so no issue
+  }
 
-// Replace the <a> element with a <button> element for the 'rotate back' action
-// This change ensures that keyboard and screen reader users can interact with the element
+  const hasNoScope = thElements.some((th) => {
+    return !th.includes('scope="');
+  });
 
-// Assuming the original code looked something like this:
-// <a id="unrotate" href="#">rotate back</a>
+  return !hasNoScope;
+}
 
-// The updated code would be:
-document.getElementById('unrotate').outerHTML = '<button id="unrotate">rotate back</button>';
+// Function to test the presence of the scope attribute in all <th> elements
+function testThScopeAttribute() {
+  const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+  const hasScopeAttribute = checkThScopeAttribute(filePath);
 
-// END INSIGHT CODE REACT_036 FIX
+  if (!hasScopeAttribute) {
+    throw new Error('Not all <th> elements have the scope attribute.');
+  }
 
-// ... (existing code after conflict markers)
+  console.log('All <th> elements have the scope attribute.');
+}
 
-// ... (rest of the main.js file)
+// Run the test
+testThScopeAttribute();
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

@@ -14,9 +14,11 @@ function existingFunction2() {
 function newFunction1() {
   // ... new functionality ...
 }
+export { newFunction1 };
 
 function newFunction2(arg1, arg2) {
   // ... new functionality ...
 }
+export { newFunction2 };
 
 // Existing exports ...

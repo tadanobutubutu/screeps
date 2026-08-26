@@ -38,6 +38,9 @@ const wrapPrimaryContentInMain = (document) => {
     if (!anyMain.id) {
       anyMain.id = 'main-content';
     }
+    // Merge newFunction functionality with the existing main handling, since they don't conflict
+    newFunction(anyMain);
+
     return document;
   }
 
@@ -60,6 +63,9 @@ const wrapPrimaryContentInMain = (document) => {
     // Append main to body
     body.appendChild(main);
   }
+
+  // Merge newFunction functionality with the main creation, since they don't conflict
+  newFunction(main);
 
   return document;
 };
@@ -238,6 +244,8 @@ const addMainLandmark = (document) => {
       }
     });
   }
+  // Add the newFunction logic to the main handling, since they don't conflict
+  mains.forEach(main => newFunction(main));
   return document;
 };
 
@@ -272,7 +280,10 @@ const ensureUniqueLandmarks = (document) => {
           idSuffix++;
           id = `${role}-${idSuffix}`;
         }
-        element.id = id;
+        if (!usedIds.has(id)) {
+          element.id = id;
+          usedIds.add(id);
+        }
       }
     });
   });

@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+// SVG accessibility fixes are handled in:
+// - app/layout.tsx
+// - dashboard/app/layout.tsx
+// 
+// To fix REACT_041 (React SVG Accessible Name), add aria-label, <title>, or aria-hidden="true" to SVG elements
+
+module.exports = {};

@@ -1,5 +1,14 @@
 // main.js
 
+// Handle unrotate button click
+const unrotateBtn = document.getElementById('unrotate');
+if (unrotateBtn) {
+  unrotateBtn.addEventListener('click', () => {
+    // Logic to rotate back
+    document.body.classList.remove('rotated');
+  });
+}
+
 // Original code preserved
 // ...
 
@@ -102,6 +111,14 @@ export function generateAccessibleTable(headers, rows) {
       </tbody>
     </table>
   `.trim();
+}
+
+export function initializeApp() {
+  // ... existing code
+}
+
+export function rotateBack() {
+  document.body.classList.remove('rotated');
 }
 
 // Export accessibility functions for use in other modules

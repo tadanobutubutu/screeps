@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
@@ -140,6 +143,16 @@ function implementNewFunction() {
   addSvgAccessibleNames();
 }
 
+// Fix table structure issues
+function fixTableStructureIssues() {
+  // Implementation for fixing table structure issues goes here.
+}
+
+// Fix table header cell scope
+function fixTableHeaderCellScope() {
+  // Implementation for fixing table header cell scope issues goes here.
+}
+
 // Existing code preserved below
 function main() {
   console.log('Running main application');
@@ -152,6 +165,8 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
   implementNewFunction,
   addLangAttribute,
   fixTableStructureIssues,
@@ -163,3 +178,6 @@ module.exports = {
 
 // Existing code preserved below
 main();
+```
+
+I moved the added functions `fixTableStructureIssues` and `fixTableHeaderCellScope` to remain consistent with the rest of the exported functions, keeping them separate from the `implementNewFunction` for better modularity. The other changes were made to preserve both sets of additions and eliminate conflict markers.

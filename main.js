@@ -11,14 +11,19 @@
 
 // TODO: Import required module(s) - for fixing table structure issues
 import { autoFixTable } from 'table-auto-fix';
+import { addScopeToTH } from 'table-auto-fix';
 
 // Add the new function to the existing functions in main.js
 function fixTableStructureIssues() {
-  autoFixTable(document);
+  // Fix table structure issues using autoFixTable
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    autoFixTable(table);
+  });
 }
 
 // TODO: Import required module(s) - for fixing table header cell scope
-import { addScopeToTH } from 'table-header-accessibility-fix';
+import { addScopeToTH } from 'table-auto-fix';
 
 // Add a new function to fix table header cell scope
 function fixTableHeaderCellScope() {
@@ -32,9 +37,9 @@ const dependencyGraph = document.querySelector('[data-dependency-graph]');
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'region');
   dependencyGraph.setAttribute('aria-label', 'Dependency Tree');
-  dependencyGraph.innerHTML = dependencyGraph.innerHTML.replace(/\.\.\./g, '');
-  dependencyGraph.setAttribute('role', 'tree');
-  dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  dependencyGraph.innerHTML = '<div class="dependency-tree"></div>';
+  dependencyGraph.querySelector('.dependency-tree').setAttribute('role', 'tree');
+  dependencyGraph.querySelector('.dependency-tree').setAttribute('aria-label', 'Dependency Graph');
 }
 
 // Render dependency graph content
@@ -49,7 +54,7 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -64,11 +69,11 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
-  const fakeLinks = document.querySelectorAll('div[role="link"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+    if (!link.getAttribute('href') && !link.textContent.trim()) {
       link.setAttribute('aria-label', 'Button');
     }
   });

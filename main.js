@@ -1,4 +1,6 @@
-// TODO: Address accessibility issues from insight report
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+
 // ... (preserve existing functions and exports)
 
 // Add the missing lang attribute to the <html> element

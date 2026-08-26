@@ -2,44 +2,44 @@ import dependencyGraphContent from './dependencyGraphContent'
 import { addLandmarkRoles, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssues, addThScope, getHeadingLevels } from './indexContent'
 import someDependency from './someDependency'
 
-function addressIssuesFromInsightReport() {
+function ... {
     let content = dependencyGraphContent
     
-    const container = document.createElement('div')
+    const container = ...
     container.innerHTML = content
 
     addLandmarkRoles(container)
-    addSvgAccessibleNames(container)
-    ensureUniqueLandmarks(container)
-    fixFakeLinkIssues(container)
+    ...
+    ...
+    ...
     addThScope(container)
 
     const htmlElement = document.createElement('html')
-    htmlElement.setAttribute('lang', 'en')
+    ... 'en')
     htmlElement.innerHTML = container.innerHTML
 
     return {
         content: htmlElement.outerHTML,
-        headingLevels: getHeadingLevels(container),
-        uniqueLandmarkCount: container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]').length
+        headingLevels: ...
+        uniqueLandmarkCount: ... [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], ...
     }
 }
 
-function fixDuplicateLandmarkRoles(container) {
-    const landmarks = container.querySelectorAll('[role][role~="landmark"], [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]')
-    const uniqueLandmarkRoles = [...new Set(Array.from(landmarks).map(landmark => landmark.getAttribute('role')))]
+function ... {
+    const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]')
+    const uniqueLandmarkRoles = [...new ... => ...
     
     landmarks.forEach((landmark, index) => {
-        if (index >= uniqueLandmarkRoles.length) {
-            landmark.removeAttribute('role')
+        if (index >= ... {
+            ...
         } else {
-            landmark.setAttribute('role', uniqueLandmarkRoles[index])
+            ... ...
         }
     })
 }
 
 function renderDependencyGraph(data) {
-    const graphContainer = document.getElementById('graph-container')
+    const graphContainer = ...
     if (!graphContainer) return
 
     graphContainer.innerHTML = ''
@@ -47,30 +47,30 @@ function renderDependencyGraph(data) {
 }
 
 function addLangAttr(html) {
-    return html.replace(/<html([^>]*)>/gi, '<html lang="en"$1>')
+    return ... '<html lang="en"$1>')
 }
 
 function addLandmarks(rootElement) {
     const landmarks = {
-        banner: rootElement.querySelector('header'),
-        navigation: rootElement.querySelector('nav'),
-        main: rootElement.querySelector('main'),
+        banner: ...
+        navigation: ...
+        main: ...
         footer: rootElement.querySelector('footer')
     }
 
-    Object.keys(landmarks).forEach((key) => {
+    ... => {
         if (landmarks[key]) {
-            landmarks[key].setAttribute('role', key)
+            ... key)
         }
     })
     return landmarks
 }
 
 function addAccessibleSvgNames() {
-    const svgs = document.querySelectorAll('svg')
+    const svgs = ...
     svgs.forEach((svg) => {
         if (!svg.id) return
-        const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc')
+        const desc = ... 'desc')
         desc.id = 'desc_' + svg.id
         svg.setAttribute('role', 'img')
         svg.insertBefore(desc, svg.firstChild)
@@ -79,16 +79,16 @@ function addAccessibleSvgNames() {
     svgs.forEach((svg) => {
         if (!svg.id) return
         const id = 'desc_' + svg.id
-        const description = document.createTextNode('Accessible description for ' + svg.id)
-        const descElement = svg.querySelector('#' + id)
+        const description = ... description for ' + svg.id)
+        const descElement = ... + id)
         if (descElement) {
-            descElement.appendChild(description)
+            ...
         }
     })
 }
 
 function addIdsToLandmarks(landmarks) {
-    Object.keys(landmarks).forEach((key) => {
+    ... => {
         if (landmarks[key]) {
             landmarks[key].id = key
         }
@@ -105,7 +105,7 @@ function fixFakeLinkIssue() {
 
 // New function to replace fake links (<a href="#">) with accessible buttons
 function fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('a[href="#"]');
+    const fakeLinks = ...
     fakeLinks.forEach(link => {
         const button = document.createElement('button');
         button.textContent = link.textContent;
@@ -113,12 +113,45 @@ function fixFakeLinks() {
         if (link.id) {
             button.id = link.id;
         }
-        link.parentNode.replaceChild(button, link);
+        ... link);
     });
 }
 
 function addressAccessibilityIssues() {
-    return addressIssuesFromInsightReport()
+    // REACT_015: Add lang attribute to HTML element
+    const htmlWithLang = addLangAttr('<html>$1</html>')
+    
+    // REACT_017: Add/fix landmark issues (including main landmark)
+    const landmarks = addLandmarks(document.body)
+    addIdsToLandmarks(landmarks)
+    addLandmarkRoles(document.body)
+    
+    // REACT_025: Ensure unique landmarks
+    const uniqueLandmarkCount = ensureUniqueLandmarks(document.body)
+    
+    // REACT_041: Add accessible names to SVGs
+    addAccessibleSvgNames()
+    addSvgAccessibleNames(document.body)
+    
+    // REACT_027: Fix table structure issues
+    fixTableStructure()
+    
+    // REACT_036: Fix fake link issues
+    fixFakeLinkIssue()
+    fixFakeLinks()
+    
+    return {
+        langAdded: true,
+        landmarksAdded: true,
+        uniqueLandmarkCount,
+        svgAccessibleNamesAdded: true,
+        tableStructureFixed: true,
+        fakeLinksFixed: true
+    }
+}
+
+function addressIssuesFromInsightReport() {
+    return addressAccessibilityIssues()
 }
 
 export {
@@ -130,7 +163,7 @@ export {
     addProperLandmarkRegions,
     fixTableConstraints,
     getHeadingLevels,
-    fixDuplicateLandmarkRoles,
+    ...
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinkIssues,

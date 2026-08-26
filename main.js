@@ -26,4 +26,19 @@ function newFunction2(arg1, arg2) {
 }
 export { newFunction2 };
 
+// Update the my-button function to have an appropriate accesskey
+function myButtonFunction(event) {
+  const button = document.getElementById('my-actual-button-id');
+  button.addEventListener('click', function() {
+    // Button action here with an appropriate focus management
+    button.focus();
+  });
+
+  // Set the accesskey property
+  button.accessKey = 'A'; // Use a meaningful key (A as an example)
+}
+
+// Export the updated my-button function
+export { myButtonFunction };
+
 // Existing exports ...

@@ -1,3 +1,3 @@
 // ... Existing code and exports in main.js ...
-
 // TODO: Address accessibility issues from insight report:
+```

@@ -22,11 +22,11 @@ function newFunctionForAccessibilityIssue(element) {
   }
   
   // Add accessibility improvements to the element
-  const accessibleElements = element.querySelectorAll('[role="button"], a:not([href])');
+  const accessibleElements = element.querySelectorAll('a:not([href])');
   
   accessibleElements.forEach((el) => {
     // Ensure interactive elements have proper tabindex
-    if (!el.hasAttribute('tabindex') && !el.hasAttribute('href')) {
+    if (el && el.hasAttribute('data-interactive')) {
       el.setAttribute('tabindex', '0');
     }
     
@@ -44,7 +44,7 @@ function newFunctionForAccessibilityIssue(element) {
   });
   
   // Ensure proper heading hierarchy
-  const headings = element.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = element.querySelectorAll('h2, h3, h4, h5, h6');
   let lastLevel = 0;
   headings.forEach((heading) => {
     const level = parseInt(heading.tagName.charAt(1));
@@ -56,10 +56,12 @@ function newFunctionForAccessibilityIssue(element) {
   });
   
   // Add focus indicator for keyboard users
-  const focusableElements = element.querySelectorAll('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusableElements = element.querySelectorAll('button, a, input, select, textarea, [tabindex]');
   focusableElements.forEach((el) => {
-    if (!el.classList.contains('focus-visible')) {
-      el.classList.add('needs-focus-indicator');
+    if (!el.hasAttribute('tabindex') || el.getAttribute('tabindex') !== '-1') {
+      if (!el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
     }
   });
   

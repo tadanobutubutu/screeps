@@ -14,3 +14,7 @@ function newFunction2(arg1, arg2) {
   // Function implementation here
 }
 export default newFunction2;
+
+// REACT_025 note: The <main> landmark duplication is in .tsx components
+// (components/Dashboard.tsx and dashboard/components/Dashboard.tsx),
+// not in this .js file. This module has no JSX/TSX, so it is unaffected.

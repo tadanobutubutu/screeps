@@ -7,6 +7,9 @@ const { renderGraphContent } = require('./graphRenderer');
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   document.getElementById('dependencyGraph').innerHTML = data;
+
+  // Adding landmark for main content
+  document.getElementById('dependencyGraph').setAttribute('role', 'region');
 }
 
 // Ensure unique landmarks

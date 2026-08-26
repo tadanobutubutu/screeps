@@ -1,1 +1,18 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+
+const { dependencyGraphContent, indexContent } = require('./views');
+
+function renderDependencyGraph(data) {
+  return dependencyGraphContent(data);
+}
+
+function renderIndex(data) {
+  return indexContent(data);
+}
+
+module.exports = {
+  renderDependencyGraph,
+  renderIndex
+};

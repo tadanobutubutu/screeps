@@ -8,6 +8,22 @@
 import dependencyGraphContent from './path/to/dependencyGraphContent'; // Replace './path/to/' with the actual directory path
 import indexContent from './path/to/indexContent'; // Replace './path/to/' with the actual directory path
 
+/**
+ * Ensures that the HTML document has a language attribute (<html lang="en">)
+ * to support accessibility for screen readers.
+ * 
+ * This function adds a lang="en" attribute to the <html> element if it's missing.
+ */
+function ensureHtmlLangAttribute() {
+  const htmlElement = document && document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Call this function during app initialization or where the DOM is ready
+ensureHtmlLangAttribute();
+
 // Identify the function causing an issue at line 296 (Render dependency graphs or index views):
 
 function renderIndexViewOrDependencyGraph(/* ... other arguments ... */) {

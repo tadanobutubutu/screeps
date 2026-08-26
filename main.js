@@ -43,7 +43,6 @@ export { myButtonFunction };
 
 // TODO: Implement getLangAttribute functionality
 function getLangAttribute() {
-  // Assuming the document has a lang attribute that we want to access
   return document.documentElement.lang;
 }
 
@@ -78,3 +77,10 @@ function validateTableStructure(table) {
 
 // Export the new validateTableStructure function
 export { validateTableStructure };
+
+// TODO: Implement validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes()
+// TODO: Implement validateLandmarkStructure() and validateLandmarkAttributes()
+// TODO: Implement getSvgAccessibleName() and setSvgAttributes()
+
+// TODO: Implement validateLinkAccessibility() and handleFakeLinks()
+// TODO: Implement ensureUniqueLandmarks()

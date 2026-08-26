@@ -14,7 +14,7 @@
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 /**
@@ -151,8 +151,10 @@ export function addSvgAccessibleNames(html) {
 
 /**
  * Ensures unique landmark identifiers for screen readers
+ * Converts additional <main> landmarks to <section> so only one <main> exists per page.
+ * Also assigns unique IDs to other landmark types.
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmark IDs
+ * @returns {string} HTML with unique landmarks
  */
 export function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
@@ -169,12 +171,61 @@ export function ensureUniqueLandmarks(html) {
     }
   });
   
-  // Assign unique IDs to landmarks
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+    // Replace additional <main> tags with <section> while preserving any attributes
+    const safeAttrs = attrs || '';
+    // Avoid duplicating an aria-label if one already exists
+    if (/aria-label\s*=/i.test(safeAttrs) || /aria-labelledby\s*=/i.test(safeAttrs)) {
+      return `<section${safeAttrs}>`;
+    }
+    return `<section${safeAttrs} aria-label="Content section">`;
+  });
+  
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <main> opening tags in the original-like state and
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main(\s[^>]*)?>/gi) || []).length;
+  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
+  if (mainCloseCount > mainOpenCount) {
+    const extras = mainCloseCount - mainOpenCount;
+    let replaced = 0;
+    html = html.replace(/<\/main>/gi, (match) => {
+      if (replaced < extras) {
+        replaced += 1;
+        return '</section>';
+      }
+      return match;
+    });
+  }
+  
+  // Recompute counters after main -> section conversion
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}((?:\\s[^>]*)?)>`, 'gi');
-    const idCounter = counters[lm];
-    html = html.replace(regex, (match) => {
-      const id = `${lm}-${idCounter}`;
+    const regex = new RegExp(`<${lm}(?:\\s[^>]*)?>`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+  
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
+    const count = counters[lm] || 0;
+    if (count === 0) return;
+    const seen = {};
+    const openRegex = new RegExp(`<${lm}((\\s[^>]*)?)>`, 'gi');
+    html = html.replace(openRegex, (match, _inner) => {
+      // Skip if an id attribute is already present
+      if (/\bid\s*=/i.test(match)) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
       return match.replace(`<${lm}`, `<${lm} id="${id}"`);
     });
   });

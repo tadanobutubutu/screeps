@@ -1,5 +1,4 @@
 // TODO: Create or update the affected functions to be accessible
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
@@ -277,8 +276,6 @@ const ensureUniqueLandmarks = (document) => {
     });
   });
 };
-
-// ----- END OF ORIGINAL CODE -----
 
 // Export all functions for use in tests and other parts of the application
 export {

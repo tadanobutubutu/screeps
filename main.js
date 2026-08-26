@@ -1,3 +1,7 @@
+// TODO: Address accessibility issues from insight report
+// Set lang attribute on html element for accessibility
+document.documentElement.lang = 'en';
+
 // Import dependencyGraphContent and indexContent
 import dependencyGraphContent from './dependencyGraphContent';
 import indexContent from './indexContent';

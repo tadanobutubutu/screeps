@@ -29,16 +29,21 @@ function addLandmarks(rootElement) {
 // Addressing REACT_041: Add accessible names to 2 SVGs
 function addAccessibleNamesForSVGS(svgs) {
   svgs.forEach((svg) => {
-    svg.setAttribute('aria-labelledby', 'desc_' + svg.id);
     svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-labelledby', 'desc_' + svg.id);
   });
 
   // Adding descriptions for each SVG
   svgs.forEach((svg) => {
     const id = 'desc_' + svg.id;
     const description = svg.getAttribute('data-description');
-    document.body.appendChild(document.createTextNode(description));
-    document.body.appendChild(document.createElement('br'));
+    if (description) {
+      const descriptionElement = document.createElement('div');
+      descriptionElement.setAttribute('id', id);
+      descriptionElement.setAttribute('role', 'document');
+      descriptionElement.textContent = description;
+      svg.parentNode.insertBefore(descriptionElement, svg.nextSibling);
+    }
   });
 }
 

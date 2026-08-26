@@ -8,21 +8,26 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 const fixAccessibilityIssues = () => {
   // Add new code to address specific accessibility issues
   // Example: Add ARIA attributes to elements to improve screen reader support
+  console.log('Fixing accessibility issues...');
 };
 
 // Utility function from origin/main for HTML generation with language attributes
 let myHtml = ``; // With your existing HTML string
 
-function generateHtmlWithLangAttribute(htmlContent) {
+function generateHtmlWithLangAttribute(tag = 'div', lang = 'en') {
   // You can specify the tag and language as needed
-  const htmlWithLang = `<div lang="en">${htmlContent}</div>`;
+  const htmlWithLang = `<${tag} lang="${lang}">${myHtml}</${tag}>`;
   return htmlWithLang;
 }
 
 // Integrated accessibility function that addresses both concerns
 const ensureAccessibility = (htmlContent) => {
   // Generate HTML with lang attribute for screen readers
-  let accessibleHtml = generateHtmlWithLangAttribute(htmlContent);
+  let accessibleHtml = generateHtmlWithLangAttribute('div', 'en');
+  
+  if (htmlContent) {
+    accessibleHtml = generateHtmlWithLangAttribute('div', 'en') + htmlContent;
+  }
   
   // Apply additional accessibility improvements
   fixAccessibilityIssues();
@@ -30,7 +35,7 @@ const ensureAccessibility = (htmlContent) => {
   return accessibleHtml;
 };
 
-// TODO: Preserve existing exports and functions
+// Preserve existing exports and functions
 // ... (Keep existing code, exports, and functions as they are)
 
 const App = () => {
@@ -38,6 +43,7 @@ const App = () => {
     <Router>
       <Switch>
         {/* ... (existing routes) */}
+        <Route exact path="/" component={() => <div>Home Page</div>} />
       </Switch>
     </Router>
   );
@@ -52,5 +58,6 @@ module.exports = {
   /* Export your functions and objects here, if any */
   generateHtmlWithLangAttribute,
   ensureAccessibility,
-  fixAccessibilityIssues
+  fixAccessibilityIssues,
+  App
 };

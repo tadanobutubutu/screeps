@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// TODO: This is the existing code that needs to be preserved
 // - REACT_025: Add any additional accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 

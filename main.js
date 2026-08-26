@@ -41,7 +41,7 @@ function addMainLandmark(filePath) {
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
+  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="main-navigation">');
   let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
   if (navCount > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
@@ -56,15 +56,15 @@ function ensureUniqueLandmarks(filePath) {
 
 function addSvgAccessibleNames(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
+  let updatedContent = content.replace(/<svg([^>]*)>/g, (match, attrs) => {
     if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
       return `<svg${attrs} role="img" aria-label="SVG icon">`;
     }
     return match;
   });
-  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/gi, (match, before, after) => {
+  updatedContent = updatedContent.replace(/<svg([^>]*)>([^<]*)<\/svg>/g, (match, before, after) => {
     if (!before.includes('aria-label') && !before.includes('aria-labelledby')) {
-      return `<svg${before}role="img"${after} aria-label="SVG icon">`;
+      return `<svg${before} role="img" aria-label="SVG icon">${after}</svg>`;
     }
     return match;
   });

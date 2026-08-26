@@ -26,13 +26,13 @@ const wrapPrimaryContentInMain = (document) => {
   }
 
   // Check if main element already exists with main-content id
-  const existingMain = document.querySelector('main#main-content, [role="main"]#main-content');
+  const existingMain = document.querySelector('#main-content');
   if (existingMain) {
     return document;
   }
 
   // Check if any main element exists
-  const anyMain = document.querySelector('main, [role="main"]');
+  const anyMain = document.querySelector('[role="main"]');
   if (anyMain) {
     // Add id to existing main element if it doesn't have one
     if (!anyMain.id) {
@@ -96,10 +96,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -110,13 +110,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.hasAttribute('aria-labelledby')) {
+  if (node.getAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
     const labelledElement = document.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
-  if (node.hasAttribute('aria-label')) {
+  if (node.getAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
@@ -163,16 +163,16 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach(type => {
+    const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = document.querySelectorAll(`[id]`).forEach(el => el.id);
-        let id = `${role}-${idSuffix}`;
+        const existingIds = Array.from(document.querySelectorAll(`#${type}-${idSuffix}`)).map(el => el.id);
+        let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
-          id = `${role}-${idSuffix}`;
+          id = `${type}-${idSuffix}`;
         }
         element.id = id;
       }
@@ -223,7 +223,7 @@ const fixTableStructureIssues = (document) => {
 };
 
 const addMainLandmark = (document) => {
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"]');
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
@@ -242,10 +242,10 @@ const addMainLandmark = (document) => {
 };
 
 const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -261,16 +261,16 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach(type => {
+    const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = document.querySelectorAll(`[id]`).forEach(el => el.id);
-        let id = `${role}-${idSuffix}`;
+        const existingIds = Array.from(document.querySelectorAll(`[id]`)).map(el => el.id);
+        let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
-          id = `${role}-${idSuffix}`;
+          id = `${type}-${idSuffix}`;
         }
         element.id = id;
       }

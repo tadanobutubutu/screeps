@@ -77,11 +77,22 @@ function validateTableStructure() {
   });
 }
 
+// New function: validateLandmark
+function validateLandmark(element, landmarkType) {
+  // Check if the specified element is a landmark (using given landmarkType)
+  // You may use a library like "axe-core" for more reliable checks considering the various landmark roles.
+  // For the sake of simplicity, this example will check only for presence of ARIA attributes, but a more accurate solution would involve verified matching with the given landmarkType.
+  // If the element is not a valid landmark of the requested type, throw an error with a message.
+  if (!element.hasAttribute('aria-' + landmarkType)) {
+    throw new Error(`Element '${element.outerHTML}' is not a valid ${landmarkType} landmark`);
+  }
+}
+
 // ... (Remaining functions for validation and creating accessible elements)
 
 // Implement the function for addressing the new accessibility issues
 function addressAccessibilityIssues() {
-  // ... (Implementation unchanged after adding validateTableStructure())
+  // ... (Implementation unchanged after adding validateTableStructure() and validateLandmark())
 }
 
 // Export the modified function to address accessibility issues
@@ -102,5 +113,6 @@ module.exports = {
   totalDependencies,
   addressAccessibilityIssues,
   addressAccessibilityIssueForSpecificElement,
-  validateTableStructure // Add the new function here
+  validateTableStructure, // Add the new function here
+  validateLandmark // Add the new function here
 };

@@ -26,13 +26,13 @@ const wrapPrimaryContentInMain = (document) => {
   }
 
   // Check if main element already exists with main-content id
-  const existingMain = document.querySelector('#main-content');
+  const existingMain = document.getElementById('main-content');
   if (existingMain) {
     return document;
   }
 
   // Check if any main element exists
-  const anyMain = document.querySelector('[role="main"]');
+  const anyMain = document.querySelector('main');
   if (anyMain) {
     // Add id to existing main element if it doesn't have one
     if (!anyMain.id) {
@@ -96,10 +96,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body) {
+  if (document.body.firstChild) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
+    document.body.appendChild(skipLink);
   }
 
   return document;
@@ -168,7 +168,7 @@ const addProperLandmarkRegions = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}-${idSuffix}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -223,7 +223,7 @@ const fixTableStructureIssues = (document) => {
 };
 
 const addMainLandmark = (document) => {
-  const mains = document.querySelectorAll('[role="main"]');
+  const mains = document.querySelectorAll('main');
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
@@ -245,7 +245,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -262,11 +262,11 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"]`);
+    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`[id]`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -279,23 +279,40 @@ const ensureUniqueLandmarks = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]:not([href]), a:not([href])');
+  const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
     if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
       link.setAttribute('role', 'link');
     }
     // Ensure the link has accessible name
-    if (!link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby') && !link.textContent.trim()) {
+    if (link.getAttribute('role') === 'link' && !link.textContent.trim()) {
       link.setAttribute('aria-label', 'Link');
     }
     // Remove href="#" and add href="#" with proper handling
     if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0)');
+      link.setAttribute('href', 'javascript:void(0);');
     }
   });
   return document;
 };
+
+// Function implementation goes here
+function addressAccessibilityIssues(document) {
+  if (!document) {
+    return document;
+  }
+
+  // Address accessibility issues from insight report
+  addLangAttribute(document);
+  fixTableStructureIssues(document);
+  addMainLandmark(document);
+  ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
+  fixFakeLinkIssue(document);
+
+  return document;
+}
 
 // ----- END OF ORIGINAL CODE -----
 
@@ -313,4 +330,5 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  addressAccessibilityIssues,
 };

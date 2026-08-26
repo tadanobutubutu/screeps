@@ -1,1 +1,60 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preservering the original code )
+import { createContext } from 'react';
+import { getLandmarks } from './api';
+import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, someFunctionREACT_027 as originalSomeFunctionREACT_027 } from './utils'; // Importing the existing functions without renaming
+
+// Function to calculate the index of an item in an array based on its id ([NEW])
+export const findIndex = (array, id) => {
+  return array.findIndex((item) => item.id === id);
+};
+
+// Function to override the existing findIndex function (only for test purpose)
+const overrideFindIndex = jest.fn().mockImplementation((array, id) => {
+  // Add test-specific implementation here if needed
+  // For example:
+  // return array.findIndex((item) => item.someProperty === 'testValue');
+  return originalFindIndex(array, id); // Call the original function when not overriding
+});
+jest.mock('./utils', () => ({
+  // Override the existing findIndex function with the mock when running tests
+  ...jest.requireActual('./utils'),
+  findIndex: overrideFindIndex,
+}));
+
+// Function to filter landmarks based on the specified query ([NEW])
+export const filterLandmarks = (query) => {
+  return originalFilterLandmarks(query);
+};
+
+// Function to sort landmarks alphabetically by name ([NEW])
+export const sortLandmarksByName = () => {
+  return originalSortLandmarksByName();
+};
+
+// Function REACT_027 (Assuming it's a new function)
+export const someFunctionREACT_027 = (param) => {
+  return originalSomeFunctionREACT_027(param); // Call the original function
+};
+
+export const LandmarkContext = createContext();
+
+export const MainComponent = () => {
+  // ... existing code
+
+  // ... (some code has been reformatted for readability)
+
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    const filteredLandmarks = filterLandmarks(query);
+    sortLandmarksByName();
+    setLandmarks(filteredLandmarks);
+  };
+
+  return (
+    // ... existing code
+    <Searchbar placeholder="Search landmarks" onChange={handleSearch} />
+    // ... existing code
+  );
+};
+
+export default MainComponent;

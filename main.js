@@ -66,6 +66,27 @@ function newFunctionForAccessibilityIssue(element) {
   return element;
 }
 
+// New function to add lang attribute to <html> element (REACT_015)
+function addLangAttribute(element) {
+  if (!element) {
+    return;
+  }
+
+  // Find the <html> element
+  let htmlElement = null;
+  if (element.tagName && element.tagName.toLowerCase() === 'html') {
+    htmlElement = element;
+  } else if (element.querySelector) {
+    htmlElement = element.querySelector('html');
+  }
+
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+
+  return element;
+}
+
 // Preserving previously renamed exports and adding new ones
 module.exports = {
   renderDependencyGraph: renderDependencyGraph,
@@ -75,5 +96,6 @@ module.exports = {
   addIdsToLandmarks: addIdsToLandmarks,
   fixTableStructure: fixTableStructure,
   fixFakeLinkIssue: fixFakeLinkIssue,
-  newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue
+  newFunctionForAccessibilityIssue: newFunctionForAccessibilityIssue,
+  addLangAttribute: addLangAttribute
 };

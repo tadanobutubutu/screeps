@@ -1,15 +1,12 @@
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
-const { renderGraphContent } = require('./dependency-graph');
-
-document.querySelector('#dependencyGraph .dependencyGraph').setAttribute('role', 'tree');
-document.querySelector('#dependencyGraph .dependencyGraph').setAttribute('aria-label', 'Dependency Graph');
+const { renderGraphContent } = require('./graphRenderer');
 
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  document.querySelector('#dependencyGraph .dependencyGraph').innerHTML = data;
+  document.getElementById('dependencyGraph').innerHTML = data;
 }
 
 // Ensure unique landmarks

@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// Import the functions from util.js
+const { functionA, functionB } = require('./util');
+
+// Your existing code, exports, and functions...

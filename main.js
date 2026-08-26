@@ -4,9 +4,9 @@
 const fs = require('fs');
 const path = require('path');
 
-function readConfig(configPath) {
+function readConfig() {
     try {
-        const data = fs.readFileSync(configPath, 'utf8');
+        const data = fs.readFileSync(path.join(getAppRoot(), 'config.json'), 'utf8');
         return JSON.parse(data);
     } catch (error) {
         console.error('Error reading config:', error);
@@ -14,9 +14,9 @@ function readConfig(configPath) {
     }
 }
 
-function saveConfig(configPath, config) {
+function saveConfig(config) {
     try {
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+        fs.writeFileSync(path.join(getAppRoot(), 'config.json'), JSON.stringify(config, null, 2));
         return true;
     } catch (error) {
         console.error('Error saving config:', error);
@@ -42,7 +42,7 @@ function validateInput(input) {
 }
 
 function getAppRoot() {
-    return path.resolve(__dirname);
+    return process.cwd();
 }
 
 function formatDate(date) {

@@ -53,17 +53,28 @@ function validateTableAccessibility(table) {
   if (headers.length) {
     for (let i = 0; i < headers.length; i++) {
       headers[i].setAttribute('scope', 'col');
-      headers[i]. aria-labelledby = 'header-cell-' + (i + 1);
+      headers[i].setAttribute('aria-labelledby', 'header-cell-' + (i + 1));
     }
   }
 
   const cells = table.getElementsByTagName('td');
   if (cells.length) {
     for (let i = 0; i < cells.length; i++) {
-      cells[i].aria-labelledby = 'cell-' + (i + 1) + '-' + headers[i].id;
+      cells[i].setAttribute('aria-labelledby', 'cell-' + (i + 1) + '-' + headers[i].id);
     }
   }
 }
 
 // Export the new validateTableAccessibility function
 export { validateTableAccessibility };
+
+// TODO: Implement validateTableStructure functionality
+function validateTableStructure(table) {
+  // Implement the logic to validate the structure of the table
+  // For example, you could check for the presence of thead, tbody, and tfoot
+  // and that th elements have appropriate headers or that td elements have appropriate spans.
+  // This is a placeholder for the actual implementation.
+}
+
+// Export the new validateTableStructure function
+export { validateTableStructure };

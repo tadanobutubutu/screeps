@@ -15,3 +15,16 @@ function makeFocusable(element) {
 }
 
 // Existing code and exports will go here...
+
+// Added function to fix the missing scope attribute in th elements
+function addScopeToThElements() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Call the function to fix the issue when the script is loaded
+document.addEventListener('DOMContentLoaded', addScopeToThElements);

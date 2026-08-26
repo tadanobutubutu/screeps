@@ -1,13 +1,18 @@
+Here is the resolved version of the 'main.js' file:
+
+```javascript
 // Assuming there is a reference to the document in main.js
 document.documentElement.lang = 'en';
 
-// Merged from origin/main:
-// ... other code ...
+// From both branches, we have this common code, so let's include it.
+// ... other common code ...
 
 // dashboard/app/layout.tsx:7
-// icons: { icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>' },
+// icons: { icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>' },
 
+// We will include the SVG icon data from the `origin/main` branch, since it is valid SVG data.
 // app/layout.tsx:7
-// data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>
+// data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><text y=".9em" font-size="90">🐛</text></svg>
 
 // ... other code ...
+```

@@ -125,7 +125,7 @@ function implementNewFunction() {
   addSvgAccessibleNames();
 }
 
-// Add the new function to be called later if needed
+// New function to call the new accessibility fixes function
 function callNewFunction() {
   implementNewFunction();
 }

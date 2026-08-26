@@ -73,6 +73,3 @@ function fixTableStructureIssues() {
 }
 
 // ... (rest of your main.js code)
-
-// Export the function if it's meant to be used outside of this file
-// export { fixTableStructureIssues };

@@ -61,6 +61,32 @@ function addressAccessibilityIssues() {
   document.body.style.fontSize = '16px';
 }
 
+// ADD THE FUNCTION TO FIX INSIGHT REPORT ISSUES
+function fixAccessibilityIssues() {
+  // Add lang attribute to the root HTML element
+  const rootElement = document.querySelector('html') || document.body;
+  if (rootElement) {
+    addLangAttribute(rootElement);
+  }
+
+  // Add main landmark to the root element
+  addMainLandmark(rootElement);
+
+  // Add accessible names to 2 SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(addSvgAccessibleNames);
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // Fix 1 fake link issue
+  const links = document.querySelectorAll('a[href="#"]');
+  links.forEach(fixFakeLinkIssue);
+}
+
+// ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
+fixAccessibilityIssues();
+
 // Export the new addressAccessibilityIssues function
 export { addressAccessibilityIssues };
 
@@ -77,3 +103,13 @@ export { validateLandmarkStructure };
 // The validateTableAccessibility, validateTableStructure, validateLandmarkAttributes,
 // setSvgAttributes, validateLinkAccessibility, handleFakeLinks, and ensureUniqueLandmarks
 // functions are still remaining to be implemented
+
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  fixAccessibilityIssues,
+};

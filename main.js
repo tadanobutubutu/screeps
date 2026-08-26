@@ -1,5 +1,3 @@
-// Preserving existing code, exports, and functions from current main.js
-
 module.exports = {
   getGreeting: function() {
     return 'Hello, World!';
@@ -25,6 +23,12 @@ module.exports = {
     return length * width;
   },
   // Begin new functions or changes
-
+  ensureUniqueMainLandmark: function() {
+    console.log('Ensuring a single <main> landmark.');
+    var mainElements = document.getElementsByTagName('main');
+    if (mainElements.length > 1) {
+      console.warn('Multiple <main> elements detected. Use <section> or <article> for other regions.');
+    }
+  }
   // END NEW FUNCTIONS OR CHANGES
 };

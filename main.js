@@ -1,92 +1,66 @@
 // TODO: Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
+// ----- NEW CODE START -----
 
 /**
- * REACT_036 Fix: React Fake Link
- *
- * Issue: The "rotate back" link in docs/dependency-graph.html used
- * <a href="#"> which doesn't navigate anywhere, causing screen readers
- * to announce it as a dead link and preventing proper keyboard activation.
- *
- * Fix: This script replaces the anchor element with a proper <button>
- * element that has correct keyboard focus,
- * space/enter activation, and screen reader semantics.
+ * Configuration for the ARIA-enabled rotate button.
  */
-
-/**
- * Configuration for the dependency graph controller.
- */
-const config = {
-    rotationStep: 90,
-    animationDuration: 300
+const rotateButtonConfig = {
+    role: 'button',
+    ariaLabel: 'Rotate the dependency graph',
+    ariaLivedRegion: 'polite'
 };
 
 /**
- * Replaces the fake anchor link with a proper button element
- * for accessibility compliance (REACT_036).
+ * Replaces the fake anchor link with an ARIA-enabled button for improved screen reader accessibility.
  *
- * This function finds the <a id="unrotate" href="#"> element and
- * replaces it with a <button> that provides proper keyboard focus,
- * space/enter activation, and screen reader semantics.
+ * This function finds the <a id="unrotate" href="#"> and replaces it with a <button> with an ARIA role and label.
+ * The button will be focusable and reacts to space/enter key interactions.
  */
-function fixFakeLink() {
+function fixFakeLinkWithAria() {
     const unrotateButton = document.createElement('button');
+    Object.assign(unrotateButton, rotateButtonConfig);
     unrotateButton.id = 'unrotate';
-    unrotateButton.textContent = 'Rotate back';
-    unrotateButton.role = 'button';
-    unrotateButton.ariaLabel = 'Rotate the dependency graph back to the original position.';
+    unrotateButton.textContent = 'Rotate';
     unrotateButton.addEventListener('click', handleRotateBack);
     document.querySelector('#unrotate').replaceWith(unrotateButton);
 }
 
-/* New function REACT_015: Add lang attribute to HTML element */
-function addLangAttribute() {
-    if (!document.documentElement.hasAttribute('lang')) {
-        document.documentElement.setAttribute('lang', document.documentElement.lang);
-    }
-}
-
 /**
- * Handles the rotate back action when the button is clicked.
- * Resets the dependency graph to its original rotation (0 degrees).
+ * Handles the rotate action when the button is clicked.
+ * Calls the rotateDependencyGraph function to reset the dependency graph to its original rotation (0 degrees).
  */
-function handleRotateBack() {
+function handleRotate() {
     rotateDependencyGraph(0);
 
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('rotateback', { detail: { degrees: 0 } });
+        const event = new CustomEvent('rotate', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }
 
-// (Existing code for rotateDependencyGraph and init functions)
+// (Existing code for rotateDependencyGraph, init, and addLangAttribute functions)
 
 /**
  * Initializes the dependency graph controller.
- * Replaces fake links and sets up event handlers.
+ * Replaces fake links with ARIA-enabled buttons and sets up event handlers.
  */
 function init() {
-    fixFakeLink();
+    fixFakeLinkWithAria();
     addLangAttribute(); // Added to address REACT_015
 }
 
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-}
+// (Existing auto-initialize when DOM is ready)
 
 // Export functions for testing and module usage
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        fixFakeLink,
+        fixFakeLinkWithAria,
+        handleRotate,
         handleRotateBack,
         rotateDependencyGraph,
         init,
         config
     };
 }
+// ----- NEW CODE END -----

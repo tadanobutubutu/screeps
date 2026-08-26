@@ -16,4 +16,46 @@ function addLandmarkRegions() {
   return landmarks;
 }
 
+// Function to add accessible name to SVG elements (fixes REACT_041)
+function addAccessibleNameToSvg(svgString, accessibleName) {
+  if (!accessibleName || accessibleName.trim() === '') {
+    // If no accessible name provided, add aria-hidden="true" for decorative SVGs
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
+  }
+  
+  // Add aria-label to the SVG element
+  const ariaLabelAttr = `aria-label="${accessibleName}"`;
+  
+  if (svgString.includes('aria-label=')) {
+    // Replace existing aria-label
+    return svgString.replace(/aria-label="[^"]*"/, ariaLabelAttr);
+  } else {
+    // Add aria-label after the opening <svg tag
+    return svgString.replace('<svg', `<svg ${ariaLabelAttr}`);
+  }
+}
+
+// Helper function to ensure SVG has a title child element for accessibility
+function ensureSvgTitle(svgString, titleText) {
+  if (svgString.includes('<title>')) {
+    return svgString;
+  }
+  
+  // Add title element after <svg> opening tag
+  const titleElement = `<title>${titleText}</title>`;
+  return svgString.replace(/<svg([^>]*)>/, `<svg$1>${titleElement}`);
+}
+
+// Function to fix SVG accessibility in app/layout.tsx and dashboard/app/layout.tsx
+function fixSvgAccessibility(svgString, accessibleName) {
+  // First ensure it has aria-label
+  let fixedSvg = addAccessibleNameToSvg(svgString, accessibleName);
+  // Then ensure it has a title child element
+  fixedSvg = ensureSvgTitle(fixedSvg, accessibleName);
+  return fixedSvg;
+}
+
 // Existing exports and functions remain here
+
+// Export for use in other modules
+export { addLandmarkRegions, addAccessibleNameToSvg, ensureSvgTitle, fixSvgAccessibility };

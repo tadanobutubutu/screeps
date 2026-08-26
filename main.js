@@ -41,7 +41,6 @@ function fixTableStructureIssues(tables) {
 
 // ... (Preserve existing code, exports, and functions from current main.js)
 
-// TODO: Add back any required exports that might have been?
 // Restoring previously removed exports below
 module.exports = {
   // ... (Preserve existing code, exports, and functions from current main.js)

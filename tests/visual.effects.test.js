@@ -223,4 +223,27 @@ describe('visual.effects', () => {
         // Memoryからは削除されているはず
         expect(mockCreep.memory.trailPositions).toBeUndefined();
     });
+    test('secureRandomFloat falls back to Math.random on exception', () => {
+        const originalMathRandom = Math.random;
+        Math.random = jest.fn().mockReturnValue(0.99);
+        try {
+            jest.resetModules();
+            jest.mock('crypto', () => {
+                throw new Error('Module not found');
+            });
+            jest.mock('system.adaptive', () => ({
+                isEnabled: jest.fn().mockReturnValue(true),
+            }));
+            const visualEffects = require('../visual.effects');
+            expect(() => {
+                visualEffects.particles({ x: 25, y: 25, roomName: 'W0N0' }, '#FFD700', 1);
+            }).not.toThrow();
+            expect(Math.random).toHaveBeenCalled();
+        } finally {
+            Math.random = originalMathRandom;
+            jest.unmock('crypto');
+            jest.unmock('system.adaptive');
+        }
+    });
+
 });

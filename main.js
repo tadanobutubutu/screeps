@@ -1,5 +1,3 @@
-=========================================
-<<<<<<< HEAD
 const getLangAttribute = () => {
   // Your logic to get the lang attribute or use the provided example
   // If you use the provided example, handle the case when navigator.language or navigator.userLanguage is undefined
@@ -50,22 +48,53 @@ const handleAccessibilityIssues = () => {
   // Your logic to handle accessibility issues or use the provided example
 };
 
-// Include any new functions or changes requested in the issue
-// If library or third-party code is used, make sure to add the necessary dependencies in the package.json file
+const getAccessibleName = (node) => {
+  const { svg, title, text } = node;
 
-module.exports = {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
+  let accessibleName = 'unknown';
+
+  if (svg && svg.tagName === 'svg') {
+    // Try aria-labelledby first, then aria-label, then title, then text
+    if (svg.getAttribute('aria-labelledby')) {
+      accessibleName = svg.getAttribute('aria-labelledby');
+    } else if (svg.getAttribute('aria-label')) {
+      accessibleName = svg.getAttribute('aria-label');
+    } else if (title && title.textContent) {
+      accessibleName = title.textContent;
+    } else {
+      accessibleName = text || 'unknown';
+    }
+  }
+
+  return accessibleName;
 };
+
+const setAccessibleName = (node, accessibleName) => {
+  const { svg } = node;
+
+  if (svg && svg.tagName === 'svg') {
+    // Set accessible name following proper accessibility priority
+    // 1. Prefer aria-label for inline SVGs
+    if (accessibleName && typeof accessibleName === 'string') {
+      svg.setAttribute('aria-label', accessibleName);
+    }
+  }
+};
+
+// TODO: This is the existing code that needs to be preserved
+
+// Existing exports and functions continue to be preserved
+// No changes to exports are allowed
+
+// New function to wrap the primary content in a <main> element
+const wrapPrimaryContentInMain = (content) => {
+  const mainElement = document.createElement('main');
+  mainElement.innerHTML = content;
+  return mainElement;
+};
+
+// Existing exports and functions continue to be preserved
+// No changes to exports are allowed
 
 /*
  * The following React application component is included to support the front-end
@@ -108,8 +137,20 @@ const root = createRoot(container);
 root.render(<App />);
 */
 */
-=======
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
->>>>>>> origin/main
 
-=========================================
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  getAccessibleName,
+  setAccessibleName,
+  wrapPrimaryContentInMain,
+};

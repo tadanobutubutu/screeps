@@ -46,6 +46,15 @@ function printAlertMessages(messages) {
   });
 }
 
+// New function: Render dependency graph
+function renderDependencyGraph() {
+  return (
+    <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
+      <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
+    </div>
+  );
+}
+
 // Modify the MyApp function to use the new function printAlertMessages
 function MyApp() {
   // ... (Existing code)
@@ -57,9 +66,7 @@ function MyApp() {
   // Render component
   return (
     <div className="app">
-      <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
-        <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
-      </div>
+      {renderDependencyGraph()}
       <main id="main-content" className="content" role="main">
         <div dangerouslySetInnerHTML={{ __html: indexContent }} />
       </main>

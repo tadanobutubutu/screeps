@@ -39,6 +39,25 @@ function renderDependencyGraph(dependencies) {
   document.body.appendChild(container);
 }
 
+// Existing code preserved...
+
+// New changes to address the REACT_041 issue
+// Add accessible name to the SVGs in the icons object
+
+const icons = {
+  // Existing icons...
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>',
+  // ... other icons
+};
+
+// Existing code preserved...
+
+// Ensure that other parts of the code that use the icons variable
+// are not affected by the changes made to it
+
+// Existing code preserved...
+
 // TODO: Implement function for addressing accessibility issues from insight report
 
 /**
@@ -103,28 +122,48 @@ function resolveConflicts(content) {
 
 // New Function to get SVG accessible name
 function getSvgAccessibleName(element) {
-  if (!element.getAttributeNS(null, "aria-labelledby")) {
-    let labelText = "";
-
-    if (element.nodeName === "svg") {
-      const titles = element.getElementsByTagName("title");
-      if (titles.length > 0) labelText = titles[0].textContent;
-
-      const descs = element.getElementsByTagName("desc");
-      if (descs.length > 0) labelText = descs[0].textContent;
-    } else {
-      labelText = element.getAttributeNS(null, "aria-label");
-    }
-
-    if (labelText) {
-      const id = ensureElementHasId(document.createElement("span"));
-      document.getElementById("myElement").appendChild(document.createTextNode(labelText));
-      element.setAttribute("aria-labelledby", id);
-    }
+  if (!element) {
+    return '';
   }
 
-  // Expose element's aria-labelledby value as accessibleName
-  return document.getElementById(ensureElementHasId(document.createElement("span")).id);
+  // Check if aria-labelledby is already present
+  const labelledBy = element.getAttribute('aria-labelledby') || element.getAttributeNS(null, 'aria-labelledby');
+  if (labelledBy) {
+    const ref = document.getElementById(labelledBy);
+    return ref ? (ref.textContent || '') : '';
+  }
+
+  let labelText = '';
+
+  if (element.nodeName === 'svg' || element.nodeName.toLowerCase() === 'svg') {
+    const titles = element.getElementsByTagName('title');
+    if (titles.length > 0) {
+      labelText = titles[0].textContent || '';
+    }
+
+    if (!labelText) {
+      const descs = element.getElementsByTagName('desc');
+      if (descs.length > 0) {
+        labelText = descs[0].textContent || '';
+      }
+    }
+  } else {
+    labelText = element.getAttribute('aria-label') || element.getAttributeNS(null, 'aria-label') || '';
+  }
+
+  if (labelText) {
+    const span = document.createElement('span');
+    const uniqueId = 'svg-accessible-name-' + Math.random().toString(36).substr(2, 9);
+    span.id = uniqueId;
+    span.textContent = labelText;
+    span.style.position = 'absolute';
+    span.style.left = '-9999px';
+    document.body.appendChild(span);
+    element.setAttribute('aria-labelledby', span.id);
+    return labelText;
+  }
+
+  return labelText || '';
 }
 
 // Make sure the element has an id
@@ -143,7 +182,8 @@ module.exports = {
   newTestFunction, // add new exported function
   resolveConflicts, // add new exported function
   getSvgAccessibleName, // add new exported function
-  addressAccessibilityIssues // add new exported function
+  addressAccessibilityIssues, // add new exported function
+  icons // include the icons constant from the merged branch
 };
 
 // New Function for handling a specific event

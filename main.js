@@ -17,7 +17,8 @@ const { someFunction } = require('./someModule');
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraph = document.querySelector('.dependencyGraph');
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -27,7 +28,8 @@ function addressAccessibilityIssues() {
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.querySelector('.dependencyGraph');
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependencyGraph, [data-dependency-graph]');
   if (container) {
     container.innerHTML = data;
   }
@@ -36,6 +38,7 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
+  // Include navigation, banner, and contentinfo roles
   const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
@@ -51,8 +54,11 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
-  const fakeLinks = document.querySelectorAll('div[role="link"]');
-  fakeLinks.forEach(link => {
+  // Handle both anchor tags with href="#" and div elements with role="link"
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]:not([aria-label])');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
+  
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
     if (!link.getAttribute('aria-label')) {

@@ -1,8 +1,3 @@
-Looking at the issue, I need to implement a `wrapPrimaryContentInMain` function in `main.js`. This function should wrap the primary content of the page in a `<main>` element with the id `main-content` to work with the existing skip link functionality.
-
-Let me create the complete updated file with the new function properly implemented and all existing code preserved:
-
-```javascript
 // TODO: Create or update the affected functions to be accessible
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -268,4 +263,34 @@ const ensureUniqueLandmarks = (document) => {
 
   landmarkTypes.forEach((role) => {
     const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
-    const seenRoleIds =
+    elements.forEach((element) => {
+      if (!element.id) {
+        let idSuffix = 1;
+        const existingIds = Array.from(document.querySelectorAll('*')).map((el) => el.id);
+        let id = `${role}-${idSuffix}`;
+        while (existingIds.includes(id)) {
+          idSuffix++;
+          id = `${role}-${idSuffix}`;
+        }
+        element.id = id;
+      }
+    });
+  });
+};
+
+// ----- END OF ORIGINAL CODE -----
+
+// Export all functions for use in tests and other parts of the application
+export {
+  newFunction,
+  wrapPrimaryContentInMain,
+  addSkipLink,
+  getAccessibleName,
+  setAccessibleName,
+  addProperLandmarkRegions,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+};

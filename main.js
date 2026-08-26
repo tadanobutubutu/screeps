@@ -41,10 +41,10 @@ const wrapPrimaryContentInMain = (Component) => {
 };
 
 // Export the PrimaryContent component so it can be imported independently
-export const PrimaryContent = PrimaryContent;
+export { PrimaryContent };
 
 // Export the wrapPrimaryContentInMain function for usage elsewhere
-export const wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+export { wrapPrimaryContentInMain };
 
 // Wrap the PrimaryContent component by default when exported
 export default wrapPrimaryContentInMain(PrimaryContent);

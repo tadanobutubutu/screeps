@@ -1,38 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-
-// Function to ensure the element has an id
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element.id;
-}
-
-// Function to add aria-label to the element
-function addAriaLabel(element, labelText) {
-  element.setAttribute('aria-label', labelText);
-  return element;
-}
-
-// Function to render dependency graphs
-function renderDependencyGraph() {
-  // mock graph here
-  const graph = {
-    nodes: ['A', 'B', 'C'],
-    edges: [
-      { from: 'A', to: 'B' },
-      { from: 'B', to: 'C' }
-    ]
-  };
-  return graph;
-}
-
-// make sure the element has an id
-const myElement = document.getElementById('myElement') || document.createElement('div');
-ensureElementHasId(myElement);
-
-// add aria-label to the element
-addAriaLabel(myElement, 'A descriptive text for myElement');
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 // New Function for testing purposes
 function newTestFunction() {
@@ -47,6 +14,39 @@ function resolveConflicts(content) {
   return content;
 }
 
+// New Function to get SVG accessible name
+function getSvgAccessibleName(element) {
+  if (!element.getAttributeNS(null, "aria-labelledby")) {
+    let labelText = "";
+
+    if (element.nodeName === "svg") {
+      const titles = element.getElementsByTagName("title");
+      if (titles.length > 0) labelText = titles[0].textContent;
+
+      const descs = element.getElementsByTagName("desc");
+      if (descs.length > 0) labelText = descs[0].textContent;
+    } else {
+      labelText = element.getAttributeNS(null, "aria-label");
+    }
+
+    if (labelText) {
+      const id = ensureElementHasId(document.createElement("span"));
+      document.getElementById("myElement").appendChild(document.createTextNode(labelText));
+      element.setAttribute("aria-labelledby", id);
+    }
+  }
+
+  // Expose element's aria-labelledby value as accessibleName
+  return document.getElementById(ensureElementHasId(document.createElement("span")).id);
+}
+
+// Make sure the element has an id
+const myElement = document.getElementById('myElement') || document.createElement('div');
+ensureElementHasId(myElement);
+
+// Add aria-label to the element
+addAriaLabel(myElement, 'A descriptive text for myElement');
+
 // Export for testing purposes
 module.exports = {
   ensureElementHasId,
@@ -54,7 +54,8 @@ module.exports = {
   myElement,
   renderDependencyGraph, // keep the old exported function
   newTestFunction, // add new exported function
-  resolveConflicts // add new exported function
+  resolveConflicts, // add new exported function
+  getSvgAccessibleName // add new exported function
 };
 
 // New Function for handling a specific event

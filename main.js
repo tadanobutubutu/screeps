@@ -73,3 +73,15 @@ function saveSettings(settings) {
 
 // Export the new function for testing purposes
 module.exports.saveSettings = saveSettings;
+
+// New Function to create an in-page button
+function createInPageButton(buttonId, text, callback) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = text;
+  button.addEventListener('click', callback);
+  document.body.appendChild(button);
+}
+
+// Export the new function for testing purposes
+module.exports.createInPageButton = createInPageButton;

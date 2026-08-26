@@ -18,7 +18,7 @@ function Navigation() {
       <a href="#">About</a>
       {/* REACT_036: This is a fake link - should be a button */}
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <a href="#">Contact</a>
     </div>
   );
 }
@@ -124,3 +124,6 @@ root.render(<Root />);
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// TODO: Add back any required exports that might have been removed
+export default AppLayout;

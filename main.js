@@ -32,7 +32,7 @@ function addAllSvgAccessibleNames() {
     svgs.forEach(svg => addSvgAccessibleNames(svg));
 }
 
-// Function to implement addressing accessibility issues from insight report
+// New functions requested in the issue
 function fixInputAccessibility() {
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
@@ -53,7 +53,6 @@ function fixInputAccessibility() {
     });
 }
 
-// Function to add proper landmark regions to the page
 function addProperLandmarkRegions() {
     // Add role="banner" to header elements
     const headers = document.querySelectorAll('header');
@@ -82,62 +81,6 @@ function addProperLandmarkRegions() {
     });
 }
 
-// Function to find all th elements on the page and add the scope attribute
-function addAllTableHeadersScope() {
-    const thElements = document.querySelectorAll('th');
-    thElements.forEach(th => {
-        th.setAttribute('scope', 'col');
-    });
-}
-
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
-
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
-        }
-
-        const tableHeaders = table.querySelectorAll('th');
-        tableHeaders.forEach(th => {
-            th.setAttribute('scope', 'col');
-        });
-    });
-}
-
-// Function to fix table constraints
-function fixTableConstraints() {
-    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
-
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
-        }
-    });
-}
-
-// Additional functions required by the issue
 function getLangAttribute() {
     const html = document.querySelector('html');
     return html ? html.getAttribute('lang') : null;
@@ -145,9 +88,7 @@ function getLangAttribute() {
 
 function getFullLangAttribute() {
     const html = document.querySelector('html');
-    if (!html) return null;
-    const lang = html.getAttribute('lang');
-    return lang ? lang : null;
+    return html ? html.getAttribute('lang') : null;
 }
 
 function validateTableAccessibility() {
@@ -184,6 +125,7 @@ function validateLandmarkStructure() {
     }
 }
 
+// Additional functions provided for completeness, but not explicitly requested
 function getSvgAccessibleName(svg) {
     const title = svg.querySelector('title');
     return title ? title.textContent : '';
@@ -236,7 +178,6 @@ function wrapPrimaryContentInMain() {
     nonLandmarks.forEach(child => mainEl.appendChild(child));
 }
 
-// New function to fix an issue with fake links
 function fixFakeLinkIssue() {
     const links = document.querySelectorAll('a');
     links.forEach(link => {
@@ -247,14 +188,61 @@ function fixFakeLinkIssue() {
     });
 }
 
+// Modified function to fix table structure issues
+function fixTableStructureIssues() {
+    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or headerRowCount rows in TABLEs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        let hasThead = false;
+        const headerRowCount = 1; // Modify this number if required
+
+        const theads = table.querySelectorAll('thead');
+        theads.forEach(thead => {
+            if (thead.rows.length > 0) {
+                hasThead = true;
+            }
+        });
+
+        if (!hasThead) {
+            console.error("Table does not have a thead or enough header rows:", table);
+        }
+
+        const tableHeaders = table.querySelectorAll('th');
+        tableHeaders.forEach(th => {
+            th.setAttribute('scope', 'col');
+        });
+    });
+}
+
+// Modified function to fix table constraints
+function fixTableConstraints() {
+    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        let hasThead = false;
+        const headerRowCount = 1; // Modify this number if required
+
+        const theads = table.querySelectorAll('thead');
+        theads.forEach(thead => {
+            if (thead.rows.length > 0) {
+                hasThead = true;
+            }
+        });
+
+        if (!hasThead && table.rows.length < headerRowCount) {
+            console.error("Table does not have a thead or enough header rows:", table);
+        }
+    });
+}
+
 export {
     setHtmlLangAttribute,
     addSvgAccessibleNames,
     addAllSvgAccessibleNames,
-    addAllTableHeadersScope,
     fixInputAccessibility,
-    fixTableStructureIssues,
     addProperLandmarkRegions,
+    fixTableStructureIssues,
+    addAllTableHeadersScope,
     fixTableConstraints,
     getLangAttribute,
     getFullLangAttribute,

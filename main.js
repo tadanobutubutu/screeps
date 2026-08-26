@@ -1,19 +1,10 @@
-// Current main.js content
-// (Assuming this is the existing content with conflict markers)
-
-// <<<<<<< HEAD
-// Original code that uses a fake link
+// Updated main.js content
 function rotateBack() {
   // ... existing logic ...
   document.getElementById('unrotate').click();
 }
 
-// ========
-
-// New code to replace the fake link with a button
-function rotateBack() {
+function rotateBackWithButton() {
   // ... existing logic ...
   document.getElementById('rotateBackButton').click();
 }
-
-// >>>>>>> origin/main

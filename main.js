@@ -1,20 +1,128 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-// ... (other code in main.js)
+// Existing code in main.js before conflict markers
+// ... (other imports and existing code)
 
-// Before:
-// <a id="unrotate" href="#">rotate back</a>
+// New function or changes requested in the issue
+const fixAccessibilityIssues = () => {
+  // Add new code to address specific accessibility issues
+  // Example: Add ARIA attributes to elements to improve screen reader support
+};
 
-// After:
-// Replace the <a> tag with a <button> element
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+// Utility function from origin/main for HTML generation with language attributes
+let myHtml = ``; // With your existing HTML string
 
-// ... (other code in main.js)
-
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-function rotateBack() {
-  // Your code to rotate back
+function generateHtmlWithLangAttribute(tag, language = 'en') {
+  // You can specify the tag and language as needed
+  const htmlWithLang = `<${tag} lang="${language}">${myHtml}</${tag}>`;
+  return htmlWithLang;
 }
 
-// ... (other code in main.js)
+// Integrated accessibility function that addresses both concerns
+const ensureAccessibility = (htmlContent) => {
+  // Generate HTML with lang attribute for screen readers
+  let accessibleHtml = generateHtmlWithLangAttribute('div', 'en');
+
+  // Wrap in main tag for structural accessibility if content is provided
+  if (htmlContent) {
+    accessibleHtml = `<main>\n${accessibleHtml}\n${htmlContent}\n</main>`;
+  }
+
+  // Apply additional accessibility improvements
+  fixAccessibilityIssues();
+
+  return accessibleHtml;
+};
+
+// Preserve existing exports and functions
+// ... (Keep existing code, exports, and functions as they are)
+
+const App = () => {
+  return (
+    <Router>
+      <Switch>
+        {/* ... (existing routes) */}
+      </Switch>
+    </Router>
+  );
+};
+
+export default App;
+
+// Additional exports for utility functions if needed
+export { generateHtmlWithLangAttribute, ensureAccessibility, fixAccessibilityIssues };
+
+// Code that needs to be updated for REACT_027 issue
+renderDependencyGraph: () => {
+  const graphData = fetchGraphData();
+  const table = document.createElement('table');
+
+  // ... existing table setup code ...
+
+  graphData.headers.forEach(header => {
+    const th = document.createElement('th');
+    th.textContent = header;
+    th.setAttribute('scope', 'col'); // Adding scope attribute as per REACT_027 issue
+    table.appendChild(th);
+  });
+
+  graphData.dependencies.forEach(dependency => {
+    const tr = document.createElement('tr');
+
+    // ... existing row setup code ...
+
+    table.appendChild(tr);
+  });
+
+  // ... existing table append code ...
+
+  // Fix for REACT_015: ensure document root has a lang attribute for accessibility
+  ensureHtmlLangAttribute('en');
+
+  // Replace the <a id="unrotate"> with a <button> for better accessibility
+  const replaceUnrotateLink = () => {
+    const anchor = document.getElementById('unrotate');
+    if (anchor) {
+      const button = document.createElement('button');
+      button.id = 'unrotate';
+      button.textContent = 'rotate back';
+      button.onclick = rotateBack;
+      anchor.parentNode.replaceChild(button, anchor);
+    }
+  };
+
+  // Ensure the replacement runs after the DOM is ready
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', replaceUnrotateLink);
+  }
+
+  return table;
+},
+
+// Helper to ensure the document <html> element has a lang attribute (REACT_015)
+ensureHtmlLangAttribute: (lang = 'en') => {
+  if (typeof document === 'undefined') return;
+  const rootElement = document.documentElement;
+  if (rootElement && !rootElement.getAttribute('lang')) {
+    rootElement.setAttribute('lang', lang);
+  }
+},
+
+/* Export your functions and objects here, if any */
+generateHtmlWithLangAttribute,
+ensureAccessibility,
+fixAccessibilityIssues
+;
+module.exports = {
+  // ... other code ...
+
+  // Additional exports for utility functions if needed
+  generateHtmlWithLangAttribute,
+  ensureAccessibility,
+  fixAccessibilityIssues
+};
+function rotateBack() {
+  // Placeholder for rotation logic
+  console.log('Rotating back');
+}

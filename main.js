@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// <<<<<<< HEAD
+const add = (a, b) => a + b;
+// =======
+const subtract = (a, b) => a - b;
+// >>>>>>> origin/main
+
+// Other existing code and exports
+const multiply = (a, b) => a * b;
+const divide = (a, b) => a / b;
+
+module.exports = { add, subtract, multiply, divide };

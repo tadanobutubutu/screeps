@@ -7,6 +7,10 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
+// Initialize accessibility features
+const defaultInsightReport = { issues: [] };
+addressAccessibilityIssues(defaultInsightReport);
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 

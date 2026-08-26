@@ -1,18 +1,11 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
-
 import React, { useState } from 'react';
 
-interface DashboardProps {
-  // Define any props the Dashboard component might receive
-}
-
-const Dashboard: React.FC<DashboardProps> = (props) => {
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
-  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
+const Dashboard = () => {
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
   const copyErr = () => {
     // Implement the copy error logic
@@ -21,16 +14,15 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const fetchStats = (shouldRetry: boolean) => {
+  const fetchStats = (shouldRetry) => {
     // Implement the fetch stats logic
     setRefreshing(true);
     // Reset refreshing state after some time
     setTimeout(() => setRefreshing(false), 2000);
   };
 
-  // Remove the redundant <main> elements and use <section> or <article> for different states
   return (
-    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <div>
       <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
       {error && (
         <section

@@ -8,28 +8,10 @@
 
 const App = () => {
   // Existing code and logic
-  return (
-    // JSX code that might be causing accessibility issues
-    <html lang="en">
-      <head>
-        {/* Existing head content */}
-      </head>
-      <body>
-        <div>
-          <a href="/home">Home</a>
-          <table>
-            {/* Table content */}
-          </table>
-          <svg aria-hidden="true">
-            {/* SVG content */}
-          </svg>
-        </div>
-      </body>
-    </html>
-  );
+  return null;
 };
 
-<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
+/* todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 */
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -45,9 +27,9 @@ const generateRotateBackControl = () => {
 
 // Example event handler update if needed:
 const setupRotateBack = () => {
-  const unrotateBtn = ...
+  const unrotateBtn = typeof document !== 'undefined' ? document.getElementById('unrotate') : null;
   if (unrotateBtn) {
-    ... () => {
+    unrotateBtn.addEventListener('click', () => {
       // rotation logic here
     });
   }
@@ -55,10 +37,10 @@ const setupRotateBack = () => {
 
 // Initialize the application on the client side
 if (typeof document !== 'undefined') {
-  ... () => {
+  (function() {
     setupRotateBack(); // Ensure button wiring after DOM is ready
-    ReactDOM.render(<App />, ...
-  }
+    ReactDOM.render(App, document.getElementById('root'));
+  })();
 }
 
 function fixFakeLinkIssue(filePath) {
@@ -355,6 +337,8 @@ function renderDependencyGraph(graphData, containerId) {
 }
 
 module.exports = {
+  generateRotateBackControl,
+  setupRotateBack,
   fixFakeLinkIssue,
   addAriaAttribute,
   addLangAttribute,

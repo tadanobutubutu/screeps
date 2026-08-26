@@ -83,13 +83,6 @@ const ensureUniqueLandmarks = () => {
 // function init() { /* ... */ }
 // module.exports.loop = function() { /* ... */ }
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Example:
-// const someVar = require('some-module');
-// function init() { /* ... */ }
-// module.exports.loop = function() { /* ... */ }
-// ----- END ORIGINAL CODE -----
-
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
 export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, setLandmarkRoles, ensureUniqueLandmarks, fixFakeLink, wrapPrimaryContentInMain };
 

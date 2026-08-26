@@ -1,6 +1,4 @@
-// Import dependencyGraphContent and indexContent
-import dependencyGraphContent from './dependencyGraphContent';
-import indexContent from './indexContent';
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
 
 // Address accessibility issues from insight report
 document.documentElement.lang = 'en'; // Set lang attribute based on page content
@@ -36,6 +34,12 @@ for (let svg of svgs) {
   }
 }
 
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+function rotateBack() {
+  // Your code to rotate back
+}
+
 // Return the component with updated accessibility features
 return (
   <div className="app">
@@ -47,11 +51,8 @@ return (
     </main>
     <footer id="footnotes" className="footnotes" role="contentinfo">
       {/* Existing footer content */}
+      {/* Replace the <a> tag with a <button> element */}
+      <button id="unrotate" onClick={rotateBack}>rotate back</button>
     </footer>
   </div>
 );
-
-// Assume existing exports and functions are preserved
-export default function MyApp() {
-  // ... (Existing code)
-}

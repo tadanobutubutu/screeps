@@ -119,6 +119,18 @@ describe('add-contributor', () => {
             const result = await promise;
             expect(result).toEqual(mockUser);
         });
+
+        it('should throw error on invalid/malicious username attempting path traversal', async () => {
+            await expect(script.getUserInfo('../admin')).rejects.toThrow(
+                'Invalid GitHub username for API request: ../admin'
+            );
+            await expect(script.getUserInfo('user/extra')).rejects.toThrow(
+                'Invalid GitHub username for API request: user/extra'
+            );
+            await expect(script.getUserInfo('user;cat /etc/passwd')).rejects.toThrow(
+                'Invalid GitHub username for API request: user;cat /etc/passwd'
+            );
+        });
     });
 
     describe('getAllContributorsConfig', () => {

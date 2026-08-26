@@ -41,11 +41,60 @@ function newTestFunction() {
   return result;
 }
 
+// Real conflict markers
+function parseGitConflictMarkers(content) {
+  const lines = content.split('\n');
+  const conflicts = [];
+  let inConflict = false;
+  let currentConflict = null;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    if (line.startsWith('<<<<<<<')) {
+      inConflict = true;
+      currentConflict = {
+        start: i,
+        head: [],
+        remote: [],
+        end: -1,
+        resolved: null
+      };
+    } else if (line.startsWith('=======')) {
+      inConflict = false;
+      conflicts.push(currentConflict);
+      currentConflict.remote = [];
+    } else if (line.startsWith('>>>>>>>')) {
+      currentConflict.end = i;
+      inConflict = false;
+    } else if (inConflict && currentConflict.head.length >= 0) {
+      currentConflict.head.push(line);
+    } else if (!inConflict && currentConflict && currentConflict.remote !== null) {
+      currentConflict.remote.push(line);
+    }
+  }
+  
+  return conflicts;
+}
+
+function resolveConflicts(content) {
+  const conflicts = this.parseGitConflictMarkers(content);
+  // Implement conflict resolution logic
+  return content;
+}
+
+function detectConflicts(content) {
+  return this.parseGitConflictMarkers(content).length > 0;
+}
+
 // Export for testing purposes
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
   myElement,
   renderDependencyGraph, // keep the old exported function
-  newTestFunction // add new exported function
+  newTestFunction, // add new exported function
+  parseGitConflictMarkers,
+  resolveConflicts,
+  detectConflicts
 };

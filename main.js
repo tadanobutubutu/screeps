@@ -56,6 +56,14 @@ function addAltAttribute(filePath) {
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
+function wrapPrimaryContentInMain(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<div class="primary-content">/gi, '<main>');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Wrapped primary content in main element for better semantic structure in ${filePath}`);
+}
+
 // TODO: Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
@@ -102,15 +110,6 @@ function addressAccessibilityIssues(reportPath) {
 // New implementation for addressing new accessibility issues from the insight report
 function implementAccessibilityFixesFromReport(reportPath) {
   addressAccessibilityIssues(reportPath);
-}
-
-// New function to wrap primary content in a main element
-function wrapPrimaryContentInMain(filePath) {
-  const fs = require('fs');
-  let content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<div class="primary-content">/gi, '<main>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Wrapped primary content in main element for better semantic structure in ${filePath}`);
 }
 
 module.exports = {

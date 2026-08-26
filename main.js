@@ -6,12 +6,18 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+
 // TODO-hash: 6468a1295031a6500a8981582d2e182e6d55a296
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles.css';
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
 
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute() {
@@ -26,7 +32,7 @@ function fixTableStructureIssues() {
     if (!existingThead) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
-        const headers = firstRow.querySelectorAll('th, td');
+        const headers = firstRow.querySelectorAll('td');
         const thead = document.createElement('thead');
         const tr = document.createElement('tr');
         headers.forEach(header => {
@@ -62,7 +68,7 @@ function addMainLandmark() {
     main.id = 'main-content';
     const content = document.querySelector('.content') || document.body;
     if (content) {
-      document.body.insertBefore(main, content);
+      content.parentNode.insertBefore(main, content);
       content.remove();
     }
   } else {
@@ -115,7 +121,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main[role="main"]');
+  const mainLandmarks = document.querySelectorAll('main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -139,7 +145,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href][href="#"], a[href][href=""]');
+  const fakeLinks = document.querySelectorAll('a[href][href=""]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {
@@ -160,6 +166,24 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Function to render dependency graph view using imported content
+function renderDependencyGraphView(container) {
+  if (dependencyGraphContent) {
+    container.innerHTML = dependencyGraphContent;
+    return true;
+  }
+  return false;
+}
+
+// Function to render index view using imported content
+function renderIndexView(container) {
+  if (indexContent) {
+    container.innerHTML = indexContent;
+    return true;
+  }
+  return false;
+}
+
 // Initialize accessibility fixes
 function initializeAccessibility() {
   addLangAttribute();
@@ -178,6 +202,8 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  renderDependencyGraphView,
+  renderIndexView,
   initializeAccessibility
 };
 

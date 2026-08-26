@@ -21,7 +21,7 @@ function addressAccessibilityIssues(role = 'banner') {
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
-  addMainLandmark();
+  addMainLandmark(role);
   fixTableStructureIssues();
   addSvgAccessibleNames();
 
@@ -168,17 +168,20 @@ function fixTableStructureIssues() {
   });
 }
 
-function addMainLandmark() {
+function addMainLandmark(role = 'banner') {
   const mains = document.querySelectorAll('main');
+  let mainElement = null;
+
   if (mains.length === 0) {
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    document.body.insertBefore(main, document.body.firstChild);
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    document.body.insertBefore(mainElement, document.body.firstChild);
   } else {
-    const firstMain = mains[0];
-    if (!firstMain.id) {
-      firstMain.id = 'main-content';
-    }
+    mainElement = mains[0];
+  }
+
+  if (!mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', role);
   }
 }
 

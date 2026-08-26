@@ -1,3 +1,4 @@
+// TODO: Address accessibility issues from insight report — FIXED
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
@@ -72,6 +73,24 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
+function addRoleAndLabelToCheckbox(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const checkboxes = content.match(/<input type="checkbox"/g);
+  if (checkboxes) {
+    checkboxes.forEach((checkbox) => {
+      updatedContent = updatedContent.replace(
+        checkbox,
+        checkbox.replace('<input', '<input role="checkbox" aria-label="checkbox"')
+      );
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
+  console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
+}
+
 function fixAccessibilityIssues(filePath) {
   const issueFixFunctions = [
     fixFakeLinkIssue,
@@ -95,5 +114,6 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  fixAccessibilityIssues
+  fixAccessibilityIssues,
+  addRoleAndLabelToCheckbox
 };

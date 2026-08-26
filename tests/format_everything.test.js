@@ -1,1 +1,50 @@
-{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0000 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-25T14:00:12.887Z"},"status":402}}
+jest.mock('child_process', () => ({
+    execSync: jest.fn(),
+}));
+
+describe('format_everything.js', () => {
+    beforeEach(() => {
+        jest.resetModules();
+        jest.clearAllMocks();
+    });
+
+    it('executes prettier and eslint successfully', () => {
+        const child_process = require('child_process');
+        child_process.execSync = jest.fn();
+
+        jest.doMock('child_process', () => child_process);
+
+        require('../format_everything.js');
+
+        expect(child_process.execSync).toHaveBeenCalledWith(
+            expect.stringContaining('prettier --write'),
+            expect.any(Object)
+        );
+        expect(child_process.execSync).toHaveBeenCalledWith(
+            expect.stringContaining('eslint'),
+            expect.any(Object)
+        );
+    });
+
+    it('catches and ignores errors from execSync', () => {
+        const child_process = require('child_process');
+        child_process.execSync = jest.fn().mockImplementation(() => {
+            throw new Error('Mock error');
+        });
+
+        jest.doMock('child_process', () => child_process);
+
+        expect(() => {
+            require('../format_everything.js');
+        }).not.toThrow();
+
+        expect(child_process.execSync).toHaveBeenCalledWith(
+            expect.stringContaining('prettier --write'),
+            expect.any(Object)
+        );
+        expect(child_process.execSync).toHaveBeenCalledWith(
+            expect.stringContaining('eslint'),
+            expect.any(Object)
+        );
+    });
+});

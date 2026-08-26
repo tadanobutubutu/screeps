@@ -5,8 +5,10 @@
 // (Previously existing code that needs to be preserved)
 
 // Add the missing lang attribute to the <html> element
-const htmlElement = getDocument().documentElement;
-htmlElement.lang = 'en'; // Change the value to the desired language code
+const htmlElement = document.documentElement;
+if (!htmlElement.lang) {
+  htmlElement.lang = 'en';
+}
 
 // Implement the handleAccessibilityError function that triggers the accessibility mode
 // (Assuming that handleErrorState is already defined)
@@ -78,22 +80,10 @@ function newFunctionForAccessibilityIssue(element) {
   return element;
 }
 
-// ADD: Implement the requested accessibility fix based on the insight report
-// Assuming that getDocument() returns the HTMLDocument object and the structure is as follows:
-// <!DOCTYPE html>
-// <html lang="DefaultLanguageHere">
-// <head>...</head>
-// <body>...</body>
-
-const htmlHeading = document.getElementsByTagName('html')[0];
-if (htmlHeading.attributes.getNamedItem('lang') === null) {
-  htmlHeading.lang = 'en';
-}
-
 // For the sake of example, let's also provide a new function to highlight errors based on accessibility issues
 function highlightAccessibilityError(errorElement) {
   errorElement.style.border = '2px solid red';
 }
 
-// Export the new function
+// Export the new functions
 export { someNewFunction, newFunctionForAccessibilityIssue, highlightAccessibilityError };

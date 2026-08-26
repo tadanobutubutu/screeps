@@ -1,13 +1,13 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 
 /// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
@@ -183,55 +183,6 @@ const addProperLandmarkRegions = (document) => {
 
 //------ END OF ORIGINAL CODE ------
 
-// Add the updated addressAccessibilityIssues function
-const addressAccessibilityIssues = (document) => {
-  if (!document) {
-    return document;
-  }
-
-  // Wrap primary content in main element
-  wrapPrimaryContentInMain(document);
-  
-  // Add skip link for keyboard navigation
-  addSkipLink(document);
-  
-  // Add proper landmark regions
-  addProperLandmarkRegions(document);
-  
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(document);
-  
-  // Add language attribute to HTML
-  addLangAttribute(document);
-  
-  // Fix table structure issues
-  fixTableStructureIssues(document);
-  
-  // Add accessible names to SVGs
-  addSvgAccessibleNames(document);
-  
-  // Fix fake link issues (links without proper href)
-  fixFakeLinkIssue(document);
-
-  return document;
-};
-
-// Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addressAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructureIssues,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-};
-
 // New functions to be added
 const addLangAttribute = (document) => {
   const html = document.documentElement;
@@ -275,4 +226,142 @@ const fixTableStructureIssues = (document) => {
       }
     });
   });
+
+  return document;
+};
+
+const ensureUniqueLandmarks = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'form'];
+  const seenLabels = {};
+
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+          const labels = {
+            header: 'Banner',
+            nav: 'Navigation',
+            main: 'Main content',
+            footer: 'Footer',
+            aside: 'Complementary',
+            section: 'Section',
+            form: 'Form',
+          };
+          const baseLabel = labels[selector] || selector;
+          let label = baseLabel;
+          let count = index + 1;
+          while (seenLabels[label]) {
+            label = `${baseLabel} ${count}`;
+            count++;
+          }
+          seenLabels[label] = true;
+          element.setAttribute('aria-label', label);
+        } else {
+          const existingLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+          if (existingLabel) {
+            seenLabels[existingLabel] = true;
+          }
+        }
+      });
+    }
+  });
+
+  return document;
+};
+
+const addSvgAccessibleNames = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const titleEl = svg.querySelector('title');
+      const label = titleEl && titleEl.textContent
+        ? titleEl.textContent.trim()
+        : svg.getAttribute('data-name') || 'Graphic';
+      svg.setAttribute('aria-label', label);
+    }
+  });
+
+  return document;
+};
+
+const fixFakeLinkIssue = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href=""], a[href="#"], a[href="javascript:void(0)"], a[href="javascript:void(0);"]');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+    if (!link.getAttribute('aria-label') && link.textContent && link.textContent.trim()) {
+      link.setAttribute('aria-label', link.textContent.trim());
+    }
+  });
+
+  return document;
+};
+
+// Add the updated addressAccessibilityIssues function
+const addressAccessibilityIssues = (document) => {
+  if (!document) {
+    return document;
+  }
+
+  // Wrap primary content in main element
+  wrapPrimaryContentInMain(document);
+
+  // Add skip link for keyboard navigation
+  addSkipLink(document);
+
+  // Add proper landmark regions
+  addProperLandmarkRegions(document);
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks(document);
+
+  // Add language attribute to HTML
+  addLangAttribute(document);
+
+  // Fix table structure issues
+  fixTableStructureIssues(document);
+
+  // Add accessible names to SVGs
+  addSvgAccessibleNames(document);
+
+  // Fix fake link issues (links without proper href)
+  fixFakeLinkIssue(document);
+
+  return document;
+};
+
+// Export all functions for use in tests and other parts of the application
+export {
+  newFunction,
+  wrapPrimaryContentInMain,
+  addSkipLink,
+  getAccessibleName,
+  setAccessibleName,
+  addProperLandmarkRegions,
+  addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
 };

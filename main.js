@@ -94,6 +94,12 @@ export function createNavigationLink(href, text, isExternal = false) {
   return link;
 }
 
+// New requested function from origin/main
+function newFunction() {
+  // Implement the new function
+  console.log('newFunction executed');
+}
+
 // Initialize accessibility features
 export function initAccessibility() {
   // Set default language
@@ -106,6 +112,9 @@ export function initAccessibility() {
 // Application initialization
 export function init() {
   initAccessibility();
+  
+  // Call the new function as part of initialization
+  newFunction();
 }
 
 // Auto-initialize if this is the main module

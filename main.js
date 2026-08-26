@@ -127,7 +127,7 @@ function getSvgAccessibleName(element) {
   return document.getElementById(ensureElementHasId(document.createElement("span")).id);
 }
 
-// Make sure the element has an id
+// Ensure element has an id
 const myElement = document.getElementById('myElement') || document.createElement('div');
 ensureElementHasId(myElement);
 
@@ -240,7 +240,42 @@ function setSvgAttributes(element) {
 
 // New function to validate landmark uniqueness (REACT_025)
 function validateLandmarkUniqueness() {
-  return { valid: true };
+  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', '[role="search"]', 'form', '[role="contentinfo"]', '[role="banner"]', '[role="complementary"]', '[role="region"]'];
+  const duplicateLandmarks = [];
+
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      duplicateLandmarks.push({
+        selector: selector,
+        count: elements.length
+      });
+    }
+  });
+
+  return {
+    valid: duplicateLandmarks.length === 0,
+    message: duplicateLandmarks.length === 0 ? 'All landmarks are unique' : `Found ${duplicateLandmarks.length} duplicate landmark(s)`,
+    duplicates: duplicateLandmarks
+  };
+}
+
+// New function to ensure landmarks are unique (REACT_025)
+function ensureUniqueLandmarks() {
+  const result = validateLandmarkUniqueness();
+  if (!result.valid) {
+    result.duplicates.forEach(duplicate => {
+      const elements = document.querySelectorAll(duplicate.selector);
+      // Keep the first element as-is and remove role from others
+      for (let i = 1; i < elements.length; i++) {
+        elements[i].removeAttribute('role');
+        // Add a generic region role with unique aria-label
+        elements[i].setAttribute('role', 'region');
+        addAriaLabel(elements[i], `${duplicate.selector}-${i + 1}`);
+      }
+    });
+  }
+  return result;
 }
 
 // New function to validate link accessibility (REACT_036)
@@ -256,11 +291,129 @@ function handleFakeLinks(element) {
   if (!element) {
     return;
   }
+  // Convert fake links (divs/spans with click handlers) to proper anchor elements
+  if (element.getAttribute('role') === 'link' || element.style.cursor === 'pointer') {
+    const href = element.getAttribute('data-href') || element.getAttribute('href') || '#';
+    const anchor = document.createElement('a');
+    anchor.href = href;
+    anchor.textContent = element.textContent;
+    anchor.className = element.className;
+    anchor.id = element.id;
+    
+    // Preserve any click handlers by cloning
+    const newAnchor = anchor.cloneNode(true);
+    const events = element._events ? element._events.click : null;
+    
+    element.parentNode.replaceChild(newAnchor, element);
+    
+    if (events) {
+      newAnchor.addEventListener('click', events.handler);
+    }
+    
+    return newAnchor;
+  }
+  
+  return element;
 }
 
 // New function to get lang attribute (REACT_015)
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
+}
+
+// New function to add language attribute to HTML element (REACT_015)
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = getLangAttribute();
+  }
+  return document.documentElement.lang;
+}
+
+// New function to add main landmark (REACT_017)
+function addMainLandmark() {
+  let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    addAriaLabel(mainElement, 'Main content');
+    
+    // Move all content that isn't already in landmarks to main
+    const bodyChildren = Array.from(document.body.children);
+    const landmarkSelectors = ['nav', 'header', 'footer', 'aside', 'main', '[role]'];
+    
+    bodyChildren.forEach(child => {
+      if (!landmarkSelectors.some(selector => child.matches(selector))) {
+        mainElement.appendChild(child);
+      }
+    });
+    
+    document.body.appendChild(mainElement);
+  }
+  
+  return mainElement;
+}
+
+// New function to fix table structure issues (REACT_027)
+function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const validationResult = validateTableStructure(table);
+    if (!validationResult.valid) {
+      results.push({ table: index, result: validationResult });
+      return;
+    }
+    
+    // Ensure table has headers
+    const headerRow = table.querySelector('tr')?.querySelector('th');
+    if (!headerRow) {
+      // Check if first row exists and convert cells to headers
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const firstCells = firstRow.querySelectorAll('td');
+        if (firstCells.length > 0) {
+          firstCells.forEach(cell => {
+            const th = document.createElement('th');
+            th.scope = 'col';
+            th.innerHTML = cell.innerHTML;
+            cell.parentNode.replaceChild(th, cell);
+          });
+        }
+      }
+    }
+    
+    results.push({ table: index, result: { valid: true } });
+  });
+  
+  return results;
+}
+
+// New function to validate and fix fake link issues (REACT_036)
+function fixFakeLinkIssue() {
+  const potentialFakeLinks = document.querySelectorAll('[role="link"], [onclick], [style*="cursor: pointer"]');
+  const fixedLinks = [];
+  
+  potentialFakeLinks.forEach(element => {
+    if (element.tagName === 'A') {
+      return; // Already a proper link
+    }
+    
+    const fixedElement = handleFakeLinks(element);
+    if (fixedElement && fixedElement.tagName === 'A') {
+      fixedLinks.push({
+        original: element,
+        fixed: fixedElement
+      });
+    }
+  });
+  
+  return {
+    totalScanned: potentialFakeLinks.length,
+    fixed: fixedLinks.length,
+    details: fixedLinks
+  };
 }
 
 // New function to add proper landmark regions (REACT_017)
@@ -321,7 +474,7 @@ function addProperLandmarkRegions() {
   // Validate landmark uniqueness after adding regions
   const uniqueness = validateLandmarkUniqueness();
   if (!uniqueness.valid) {
-    results.skipped.push({ landmark: 'uniqueness', reason: 'Landmark uniqueness validation failed' });
+    results.skipped.push({ landmark: 'uniqueness', reason: 'Landmark uniqueness validation failed', details: uniqueness });
   }
 
   return results;
@@ -339,3 +492,8 @@ module.exports.validateLinkAccessibility = validateLinkAccessibility;
 module.exports.handleFakeLinks = handleFakeLinks;
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.addMainLandmark = addMainLandmark;
+module.exports.fixTableStructure = fixTableStructure;
+module.exports.fixFakeLinkIssue = fixFakeLinkIssue;

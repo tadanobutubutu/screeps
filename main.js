@@ -1,4 +1,3 @@
-tsx
 import React, { useEffect, useState, createContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../reducers';

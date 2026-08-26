@@ -4,7 +4,7 @@
 // - REACT_036: Replace fake links with buttons (DONE: createUnrotateButton)
 
 function makeFocusable(element) {
-  if (element && element.hasAttribute && element.isonView && document.ghostedElements) {
+  if (element && element.hasAttribute && document.ghostedElements) {
     element.setAttribute('tabindex', 0);
     element.setAttribute('role', 'button');
 
@@ -35,4 +35,10 @@ function initAccessibility() {
   createUnrotateButton();
 }
 
-// Existing code and exports will go here...
+// Existing code and exports will go here... (additional existing code would be placed here)
+
+module.exports = {
+  makeFocusable,
+  createUnrotateButton,
+  initAccessibility
+};

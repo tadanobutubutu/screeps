@@ -56,3 +56,11 @@ module.exports = {
   newTestFunction, // add new exported function
   resolveConflicts // add new exported function
 };
+
+// New Function for handling a specific event
+function handleMyEvent(event) {
+  // Event handling logic here
+}
+
+// Export the new function for testing purposes
+module.exports.handleMyEvent = handleMyEvent;

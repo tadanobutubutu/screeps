@@ -28,6 +28,11 @@ const fixTableStructureIssues = function(tables) {
                 firstRow.remove();
             }
         }
+        // Add scope="col" to all th elements that don't have a scope attribute
+        const thElements = table.querySelectorAll('th:not([scope])');
+        thElements.forEach(th => {
+            th.setAttribute('scope', 'col');
+        });
         return table;
     });
 };

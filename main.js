@@ -14,10 +14,9 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
 
 // Handle skip link click
-skipLink.addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
   e.preventDefault();
   const mainContent = document.getElementById('main-content') || document.querySelector('main');
   if (mainContent) {
@@ -35,21 +34,21 @@ if (mainElement) {
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  const insightReportUrl = 'https://api.example.com/insights/accessibility';
+  const insightReportUrl = 'https://api.example.com/accessibility-report';
 
-  const response = await fetchAPI(insightReportUrl);
+  const response = await axios.get(insightReportUrl);
   const accessibilityIssues = response.data || response;
 
   accessibilityIssues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-caption':
-        const table = document.querySelector(`#${issue.elementId}`);
+        const table = document.getElementById(issue.elementId);
         if (table) {
           addCaptionToTable(table);
         }
         break;
       case 'table-no-unique-id':
-        const tableElement = document.querySelector(`#${issue.elementId}`);
+        const tableElement = document.getElementById(issue.elementId);
         if (tableElement) {
           addUniqueIdToTable(tableElement);
         }
@@ -62,7 +61,7 @@ async function addressAccessibilityIssues() {
 
 // New function to add a caption to a missing table
 function addCaptionToTable(table) {
-  const tableHeader = table.querySelector('caption');
+  const tableHeader = table.querySelector('thead');
 
   // If a caption exist on the table, return early
   if (tableHeader && tableHeader.length > 0) return;

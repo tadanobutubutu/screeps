@@ -15,8 +15,8 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-const getLangAttribute = (element) => {
-  return element.getAttribute('lang');
+const addLangAttribute = (element, lang) => {
+  element.setAttribute('lang', lang);
 };
 
 // - REACT_015 & REACT_036: Handled by personName()
@@ -69,11 +69,19 @@ const createInPageButton = (element) => {
   return true;
 };
 
+// New function as per the issue
+const newFunction = (input) => {
+  // Implementation of the new function as described in the issue
+  // Placeholder implementation:
+  return input;
+};
+
 // Existing exports should stay the same
 module.exports = {
   addId,
   addAriaLabel,
   renderDependencyGraph,
+  addLangAttribute,
   getLangAttribute,
   personName,
   validateTableAccessibility,
@@ -83,5 +91,6 @@ module.exports = {
   getSvgAccessibleName,
   validateUniqueLandmarks,
   createInPageButton,
+  newFunction,
   // Other existing exports...
 };

@@ -35,20 +35,20 @@ function fixFakeLinkIssue() {
   // ... existing fixFakeLinkIssue function ...
 }
 
-// NEW FUNCTIONS FROM ISSUE REPORT
+// FUNCTION TO ENSURE UNIQUE LANDMARK NAMES
 function ensureUniqueLandmarkNames() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]');
   const landmarkNames = new Set();
 
   landmarks.forEach((landmark) => {
-    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    const landmarkName = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || landmark.textContent?.trim();
 
     if (landmarkName && !landmarkNames.has(landmarkName)) {
       landmarkNames.add(landmarkName);
     } else {
       // Generate a unique id and add to the landmark
       const id = Math.floor(Math.random() * 100000);
-      landmark.setAttribute('id', `landmark-${id}`);
+      landmark.id = `landmark-${id}`;
     }
   });
 }
@@ -56,9 +56,9 @@ function ensureUniqueLandmarkNames() {
 // EXPORTS
 export {
   addLangAttribute,
-  fixTableStructure, // Assuming this is an existing function as there's no fixTableStructure defined in the snippet
+  fixTableStructure,
   addMainLandmark,
-  ensureUniqueLandmarks, // Assuming this is an existing function as there's no ensureUniqueLandmarks defined in the snippet
+  ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addSvgAltText,

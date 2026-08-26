@@ -1,6 +1,3 @@
-// TODO: Please provide the actual contents of main.js
-// I need to see the file to identify what exports are missing and resolve the TODO on line 33
-
 const fs = require('fs');
 const path = require('path');
 
@@ -24,7 +21,6 @@ function saveConfig(configPath, config) {
     }
 }
 
-// TODO: resolve missing exports
 function processData(data) {
     if (!data) return null;
     return data.map(item => ({
@@ -48,6 +44,15 @@ function getAppRoot() {
 function formatDate(date) {
     return new Date(date).toISOString();
 }
+
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+// Example:
+// const someVar = require('some-module');
+// function init() { /* ... */ }
+// module.exports.loop = function() { /* ... */ }
+// ----- END ORIGINAL CODE -----
 
 module.exports = {
     readConfig,

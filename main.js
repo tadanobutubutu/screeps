@@ -14,7 +14,7 @@ export function addLangAttribute(document, lang = 'en') {
 }
 
 // Function to fix table structure issues
-export function fixTableStructure(document) {
+export function fixTableStructureIssues(document) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
   
@@ -33,7 +33,7 @@ export function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
+      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -45,7 +45,7 @@ export function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('th, td');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
@@ -53,7 +53,8 @@ export function fixTableStructure(document) {
           const th = document.createElement('th');
           th.textContent = firstCell.textContent;
           th.scope = 'col';
-          row.replaceChild(th, firstCell);
+          row.insertBefore(th, firstCell);
+          firstCell.remove();
           fixedCount++;
         }
       }
@@ -97,7 +98,7 @@ export function addMainLandmark(document) {
   }
   
   // Ensure main has proper role if not using native element
-  if (!mainElement.hasAttribute('role')) {
+  if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
   
@@ -180,7 +181,7 @@ export function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('navigation'))) {
+        onclick.includes('.href'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -188,7 +189,7 @@ export function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.addEventListener('click', element.onclick);
+      span.onclick = element.onclick;
       
       // Copy styling if available
       if (element.className) {
@@ -204,8 +205,8 @@ export function fixFakeLinkIssue(document) {
 }
 
 // HEAD version: simpler fake link fix for anchors with href="#"
-export function fixFakeLinkIssues(document) {
-  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
+export function fixFakeLinkIssueHead(document) {
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(link => {
     if (link.tagName === 'A' && link.getAttribute('href') === '#') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
@@ -214,7 +215,7 @@ export function fixFakeLinkIssues(document) {
 }
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-export function fixLandmarkIssues(document) {
+export function addLandmarkRoles(document) {
   const landmarks = {
     'nav': 'navigation',
     'main': 'main',
@@ -225,8 +226,8 @@ export function fixLandmarkIssues(document) {
     'article': 'article'
   };
 
-  Object.entries(landmarks).forEach(([selector, role]) => {
-    const elements = document.querySelectorAll(selector);
+  Object.entries(landmarks).forEach(([element, role]) => {
+    const elements = document.querySelectorAll(element);
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -248,7 +249,7 @@ export function addLandmarkRegions(document) {
 }
 
 // REACT_025: Ensure unique landmarks (HEAD approach - by role)
-export function uniqueLandmarks(document) {
+export function ensureUniqueLandmarksHead(document) {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
@@ -282,7 +283,7 @@ export function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g-signin-button');
+    const buttonContainer = document.getElementById('g_id_onload');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -307,39 +308,3 @@ export function fixButtonIdentifiers(document) {
   
   Object.entries(buttonIdMap).forEach(([oldId, newId]) => {
     const button = document.getElementById(oldId);
-    if (button) {
-      button.id = newId;
-      button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
-    }
-  });
-  
-  function getAccessibleName(button) {
-    return button.getAttribute('aria-label') || 
-           button.getAttribute('aria-labelledby') ||
-           button.textContent?.trim() ||
-           button.value;
-  }
-}
-
-// Exported helper used elsewhere (if needed)
-export function getAccessibleName(button) {
-  return button.getAttribute('aria-label') || 
-         button.getAttribute('aria-labelledby') ||
-         button.textContent?.trim() ||
-         button.value;
-}
-
-// Add the fix for REACT_017: Add <main> landmark to docs/index.html
-export function addMainLandmarkToIndex(document) {
-  const indexContent = document.querySelector('.content');
-  if (indexContent) {
-    const mainElement = document.createElement('main');
-    mainElement.appendChild(indexContent);
-    const container = document.querySelector('.container');
-    if (container) {
-      container.appendChild(mainElement);
-    }
-    mainElement.setAttribute('role', 'main');
-  }
-  return document;
-}

@@ -5,6 +5,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
 
+// Set the lang attribute on the html element if it's missing
+if (typeof document !== 'undefined') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // Function to get language attribute from the document
 const getLangAttribute = () => {
   if (typeof document === 'undefined') {

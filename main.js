@@ -1,20 +1,32 @@
-// ... (existing code and exports)
-
-// REACT_041: Add accessible names to 2 SVGs
+tsx
 import React from 'react';
 
-const Svg1 = () => (
-  <svg data-testid="svg1" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 1</title>
-  </svg>
+// ... (existing imports and code, up to line 320)
+
+const ErrorSection = () => (
+  <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+    <pre
+        tabIndex={0}
+        aria-label="エラーメッセージ詳細"
+        style={{
+          color: '#c53030',
+          backgroundColor: '#fff5f5',
+          padding: '1rem',
+          borderRadius: '4px',
+          overflow: 'auto',
+        }}
+    >
+        {error}
+    </pre>
+    // ... (remaining error section code)
+  </section>
 );
 
-const Svg2 = () => (
-  <svg data-testid="svg2" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 2</title>
-  </svg>
+const SuccessSection = () => (
+  <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    // ... (remaining success section code)
+  </section>
 );
 
-export { Svg1, Svg2 };
+// ... (remaining code and exports)

@@ -1,30 +1,51 @@
-Here is the resolved file content:
-
-```javascript
 // Import and ReactDOM rendering remain unchanged
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
 
 // Set the language attribute on the HTML element for accessibility
 document.documentElement.lang = 'en';
 
-const App = () => {
-  return (
-    <div>
-      {/* Existing JSX */}
-    </div>
-  );
-};
+// Function to check if all <th> elements have the scope attribute
+function checkThScopeAttribute(filePath) {
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  const thElements = fileContent.match(/<th\b[^>]*>/g);
+  if (!thElements) {
+    return true; // No <th> elements found, so no issue
+  }
+
+  const hasNoScope = thElements.some((th) => {
+    return !th.includes('scope="');
+  });
+
+  return !hasNoScope;
+}
+
+// Function to test the presence of the scope attribute in all <th> elements
+function testThScopeAttribute() {
+  const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+  const hasScopeAttribute = checkThScopeAttribute(filePath);
+
+  if (!hasScopeAttribute) {
+    throw new Error('Not all <th> elements have the scope attribute.');
+  }
+
+  console.log('All <th> elements have the scope attribute.');
+}
+
+// Run the test
+testThScopeAttribute();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const main = document.createElement('main');
+
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
 
-// Add main tag around the primary content
-const main = document.createElement('main');
 main.appendChild(root.renderToString(<App />));
 document.body.insertBefore(main, document.getElementById('root'));
 
@@ -58,6 +79,3 @@ const fakeLinks = document.querySelectorAll('.fake-link');
 fakeLinks.forEach(link => {
   link.setAttribute('role', 'presentation');
 });
-```
-
-In this resolution, both changes were combined. The `main` tag was inserted around the primary content, and landmark, unique landmark, and fake link issues were addressed. The code also uses `ReactDOM.createRoot()` as suggested by the second change but still uses `ReactDOM.renderToString()` to render the JSX as suggested by the first change. The other changes were preserved considering both modifications were functional additions rather than redundancies or errors.

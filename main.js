@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // This is the main entry point
 // TODO: Implement the new function as per the issue requirements
 
@@ -35,6 +32,3 @@ module.exports = {
   multiply,
   divide
 };
-```
-
-In this solution, I merged both changes by adding a new `operations` object to the `processData` return value. Both `add` and `subtract` functions were kept, with the merged changes chosen based on their presence. Default implementations for both functions were also added (overloading) to avoid throwing syntax errors when accessed outside of the `processData` function.

@@ -67,4 +67,5 @@ module.exports = {
   totalDependencies,
   addressAccessibilityIssues,
   // Add the new export (addressAccessibilityIssueForSpecificElement)
+  addressAccessibilityIssueForSpecificElement
 };

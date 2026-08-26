@@ -74,3 +74,30 @@ if (require.main === module) {
     process.exit(1);
   }
 }
+
+/*
+ * Browser-side utilities (used in documentation UI)
+ * This section is only executed in a browser environment.
+ */
+if (typeof document !== 'undefined') {
+  // Hypothetical main.js code snippet
+  function generateTableHeader(headerContent) {
+    const thead = document.createElement('thead');
+    const tr = document.createElement('tr');
+
+    headerContent.forEach((content) => {
+      const th = document.createElement('th');
+      th.textContent = content;
+      th.setAttribute('scope', 'col'); // Add the scope attribute here
+      tr.appendChild(th);
+    });
+
+    thead.appendChild(tr);
+    return thead;
+  }
+
+  // Example usage (can be activated as needed)
+  // const headers = ['Header 1', 'Header 2', 'Header 3'];
+  // const tableHeader = generateTableHeader(headers);
+  // document.getElementById('myTable').appendChild(tableHeader);
+}

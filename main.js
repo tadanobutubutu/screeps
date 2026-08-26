@@ -11,12 +11,12 @@ skipLink.href = '#main-content';
 skipLink.id = 'skip-link';
 skipLink.className = 'skip-link';
 skipLink.textContent = 'Skip to main content';
-document.body.insertBefore(skipLink, document.body.firstChild);
+document.body.prepend(skipLink);
 
 // Handle skip link click
 skipLink.addEventListener('click', (e) => {
   e.preventDefault();
-  const mainContent = document.getElementById('main-content') || document.querySelector('main');
+  const mainContent = document.getElementById('main-content') || document.querySelector('main') || document.body;
   if (mainContent) {
     mainContent.tabIndex = -1;
     mainContent.focus();
@@ -26,29 +26,45 @@ skipLink.addEventListener('click', (e) => {
 // Mark the main content area as a primary region
 const mainElement = document.querySelector('main') || document.getElementById('content') || document.body;
 if (mainElement) {
-  mainElement.id = 'main-content';
-  mainElement.setAttribute('role', 'main');
+  // If there's no existing <main> element, create one and wrap the main content
+  if (!document.querySelector('main')) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    main.setAttribute('role', 'main');
+    main.tabIndex = -1;
+    
+    // Wrap the body content in the main element
+    while (document.body.firstChild) {
+      main.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(main);
+  } else {
+    // If a <main> element already exists, ensure it has the correct id and role
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+    mainElement.tabIndex = -1;
+  }
 }
 
 // New function to address accessibility issues using the insight report
 async function addressAccessibilityIssues() {
-  const insightReportUrl = 'https://api.example.com/insights/accessibility';
+  const insightReportUrl = ...
 
-  const response = await fetchAPI(insightReportUrl);
+  const response = await ...
   const accessibilityIssues = response.data || response;
 
   accessibilityIssues.forEach((issue) => {
     switch (issue.type) {
       case 'missing-caption':
-        const table = document.querySelector(`#${issue.elementId}`);
+        const table = ...
         if (table) {
           addCaptionToTable(table);
         }
         break;
       case 'table-no-unique-id':
-        const tableElement = document.querySelector(`#${issue.elementId}`);
+        const tableElement = ...
         if (tableElement) {
-          addUniqueIdToTable(tableElement);
+          ...
         }
         break;
       default:
@@ -59,14 +75,14 @@ async function addressAccessibilityIssues() {
 
 // New function to add a caption to a missing table
 function addCaptionToTable(table) {
-  const tableHeader = table.querySelector('caption');
+  const tableHeader = ...
 
   // If a caption exist on the table, return early
   if (tableHeader && tableHeader.length > 0) return;
 
-  const caption = document.createElement('caption');
+  const caption = ...
   caption.textContent = table.id || `Table ${table.dataset.testid}`;
-  table.insertBefore(caption, table.firstChild);
+  ... table.firstChild);
 }
 
 // New function to assign a unique id to table

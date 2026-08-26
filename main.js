@@ -16,4 +16,30 @@ function addLandmarkRegions() {
   return landmarks;
 }
 
+// Helper function to generate unique landmark IDs for accessibility
+function generateUniqueLandmarkId(landmarkName, index) {
+  const normalizedName = landmarkName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${normalizedName}-${index}`;
+}
+
+// Helper function to validate landmark regions
+function validateLandmarkRegion(region) {
+  const validRegions = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+  return validRegions.includes(region);
+}
+
+// Function to create proper ARIA landmark regions
+function createLandmarkRegions(landmarks) {
+  return landmarks.map((landmark, index) => ({
+    ...landmark,
+    landmarkId: generateUniqueLandmarkId(landmark.name, index),
+    landmarkRegion: landmark.region || 'main',
+    isValidRegion: validateLandmarkRegion(landmark.region || 'main')
+  }));
+}
+
 // Existing exports and functions remain here
+module.exports = { addLandmarkRegions, generateUniqueLandmarkId, validateLandmarkRegion, createLandmarkRegions };

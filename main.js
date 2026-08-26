@@ -133,5 +133,8 @@ module.exports = {
     fixFakeLinkIssue: fixFakeLinkIssue,
     fixFakeLinks: fixFakeLinks,
     addressIssuesFromInsightReport: addressIssuesFromInsightReport,
-    fixDuplicateLandmarkRoles: fixDuplicateLandmarkRoles
+    fixDuplicateLandmarkRoles: fixDuplicateLandmarkRoles,
+    fixTableStructure: fixTableStructure, // Add fixTableStructure to exports
+    fixFakeLinkIssue: fixFakeLinkIssue,  // Add fixFakeLinkIssue to exports
+    fixFakeLinks // Add fixFakeLinks to exports
 };

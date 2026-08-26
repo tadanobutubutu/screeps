@@ -1,6 +1,3 @@
-Here is the resolved file:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -246,4 +243,3 @@ exports.fixTableStructure = fixTableStructure;
 exports.addMainLandmark = addMainLandmark;
 exports.ensureUniqueLandmarksFile = ensureUniqueLandmarksFile;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
-```

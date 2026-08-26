@@ -20,7 +20,7 @@ global.RoomVisual = class {
     }
 };
 
-jest.mock('system.adaptive', () => ({
+jest.mock('../system.adaptive', () => ({
     isEnabled: jest.fn().mockReturnValue(true),
 }));
 
@@ -193,7 +193,7 @@ describe('visual.effects', () => {
     });
 
     test('rainbowTrailがVFX無効時にtrailPositionsを削除する', () => {
-        const { isEnabled } = require('system.adaptive');
+        const { isEnabled } = require('../system.adaptive');
         isEnabled.mockReturnValueOnce(false);
         // isVfxEnabled()のper-tickキャッシュをリセットするために異なるGame.timeを使用
         global.Game.time = 999;

@@ -2,7 +2,7 @@
  * Visual Effects System - Z世代向けドーパミン爆発ビジュアル
  */
 
-const adaptiveSystem = require('system.adaptive');
+const adaptiveSystem = require('./system.adaptive');
 
 /**
  * セキュアな乱数を生成する (PRNGの脆弱性対策)

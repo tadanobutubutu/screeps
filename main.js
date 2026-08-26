@@ -25,7 +25,7 @@ function addLangAttribute(filePath) {
 function fixTableStructure(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content.replace(/<table>/g, '<table role="table">');
-  updatedContent = updatedContent.replace(/<td>/g, '<td scope="col">');
+  updatedContent = updatedContent.replace(/<td>/g, '<td>');
   updatedContent = updatedContent.replace(/<th>/g, '<th scope="col">');
   updatedContent = updatedContent.replace(/<\/th>/g, '</th>');
   fs.writeFileSync(filePath, updatedContent);
@@ -42,7 +42,7 @@ function addMainLandmark(filePath) {
 
 function ensureUniqueLandmarks(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
+  let updatedContent = content;
   let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
   if (navCount > 1) {
     const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
@@ -57,15 +57,9 @@ function ensureUniqueLandmarks(filePath) {
 
 function addSvgAccessibleNames(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
-    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
-      return `<svg${attrs} role="img" aria-label="SVG icon">`;
-    }
-    return match;
-  });
-  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/gi, (match, before, after) => {
+  let updatedContent = content.replace(/(<svg[^>]*)(?<!aria-label)(?<!aria-labelledby)([^>]*>)/gi, (match, before, after) => {
     if (!before.includes('aria-label') && !before.includes('aria-labelledby')) {
-      return `<svg${before}role="img"${after} aria-label="SVG icon">`;
+      return `<svg${before} role="img" aria-label="SVG icon"${after}>`;
     }
     return match;
   });

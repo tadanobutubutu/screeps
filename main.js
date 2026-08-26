@@ -33,13 +33,10 @@ const InPageButton = ({
   // ... existing function code ...
 };
 
-// New function — validateTableStructure (for example purposes)
-const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
+// New function for validating table structure
+const validateTableStructure = (tables) => {
   const errors = [];
 
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
   if (tables.length > 0) {
     tables.forEach((table) => {
       const rows = table.querySelectorAll('tr');
@@ -60,7 +57,7 @@ const validateTableStructure = () => {
 // Function to validate table accessibility
 const validateTableAccessibility = () => {
   const errors = [];
-  
+
   if (typeof document === 'undefined') {
     return { errors };
   }
@@ -157,30 +154,6 @@ const validateLandmarkStructure = () => {
 // Alias for backwards compatibility
 const validateLandmark = validateLandmarkStructure;
 
-// New function — validateTableStructure (for example purposes)
-const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
-  const errors = [];
-
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
-  if (tables.length > 0) {
-    tables.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
-      rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
-        cells.forEach((cell) => {
-          if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
-          }
-        });
-      });
-    });
-  }
-
-  return { errors };
-};
-
 // React component for the Root component
 const Root = () => {
   // Other component code...
@@ -200,7 +173,7 @@ const Root = () => {
   const lang = getLangAttribute();
 
   // Add new validateTableStructure function validation
-  const tableStructureError = validateTableStructure();
+  const tableStructureError = validateTableStructure(document.querySelectorAll('table'));
   if (tableStructureError.errors.length > 0) {
     console.error(tableStructureError.errors);
   }

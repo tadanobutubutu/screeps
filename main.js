@@ -1,9 +1,16 @@
 // ... existing imports and declarations ...
 
-// TODO: Add back any required exports that might have been?
-// Restoring previously removed exports below
+function useDependencyGraphContent(fileName) {
+  const content = require('./dependencyGraphContent/' + fileName)[0];
+  if (!content) {
+    console.warn(`Could not find content for ${fileName}`);
+    return '';
+  }
+  return content;
+}
 
-// FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
+// TODO: Add relevant sections to use useDependencyGraphContent where needed
+
 function fixAccessibilityIssues() {
   // Add lang attribute to the root HTML element
   const rootElement = document.querySelector('html') || document.body;
@@ -16,7 +23,11 @@ function fixAccessibilityIssues() {
 
   // Add accessible names to 2 SVGs
   const svgs = document.querySelectorAll('svg');
-  svgs.forEach(addSvgAccessibleNames);
+  svgs.forEach((svgElement) => {
+    if (!useDependencyGraphContent(`indexContent-${svgElement.id}.content`)) {
+      addSvgAccessibleNames(svgElement);
+    }
+  });
 
   // Ensure unique landmarks
   ensureUniqueLandmarks();
@@ -78,7 +89,7 @@ function ensureUniqueLandmarkIds() {
   });
 }
 
-// ADD THE FUNCTION TO ADD ACCESSIBLE NAMES TO SVGs
+// ADD THE FUNCTION TO ADD ACCESSIBLE NAMES TO SVGs (if not already handled by useDependencyGraphContent)
 function addSvgAccessibleNames(svgElement) {
   // Add accessible names to the provided svgElement
   svgElement.setAttribute('aria-labelledby', 'svg-title-id');
@@ -121,5 +132,6 @@ export {
   fixFakeLinkIssue,
   addSvgAltText,
   fixAccessibilityIssues,
-  fixTableStructure, // ADDING back the previously removed export
+  fixTableStructure,
+  useDependencyGraphContent, // ADDING the new function
 };

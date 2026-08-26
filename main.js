@@ -165,7 +165,7 @@ const addMissingLandmarks = function(content) {
         }
 
         // Add contentinfo landmark (footer) if not present
-        if (!/<footer/gi.test(result)) {
+        if (!<footer/gi.test(result)) {
             result = result.replace(/<\/body>/i, '<footer></footer></body>');
         }
 

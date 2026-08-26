@@ -16,15 +16,20 @@ export function initializeAccessibility() {
   // Prevent tab trapping outside of modals by managing focus
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      document.dispatchEvent(new CustomEvent('escapePressed'));
+      const modal = document.querySelector('[role="dialog"], [role="alertdialog"]');
+      if (modal && modal.contains(document.activeElement)) {
+        modal.setAttribute('aria-hidden', 'true');
+        modal.dispatchEvent(new CustomEvent('modal-close', { bubbles: true }));
+      }
     }
   });
   
   // Ensure skip link functionality if skip link exists
-  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+  const skipLink = document.getElementById('skip-link') || document.querySelector('[class*="skip"], [aria-label*="skip"]');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
-      const target = document.querySelector('#main-content, main, [role="main"]');
+      const targetId = skipLink.getAttribute('href')?.replace('#', '');
+      const target = targetId ? document.getElementById(targetId) : document.querySelector('main, [role="main"]');
       if (target) {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');

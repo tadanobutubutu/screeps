@@ -134,6 +134,88 @@ function ensureUniqueLandmarks(filePath) {
   console.log(`Ensured unique landmarks in ${filePath}`);
 }
 
+/**
+ * Wraps the primary content of the page in a <main> landmark element.
+ * Identifies primary content by excluding common landmark regions (header, nav, footer, aside)
+ * and common boilerplate elements. Falls back to wrapping body content if no clear
+ * primary content area can be determined.
+ * @param {string} filePath - Path to the HTML file to process
+ */
+function wrapPrimaryContentInMain(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  // Check if main landmark already exists
+  if (content.includes('<main') && content.includes('</main>')) {
+    console.log(`Main landmark already exists in ${filePath}`);
+    return;
+  }
+
+  // Find the body content
+  const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  if (!bodyMatch) {
+    console.log(`No body tag found in ${filePath}`);
+    return;
+  }
+
+  const bodyContent = bodyMatch[1];
+
+  // Define landmark elements to exclude from primary content
+  const landmarkSelectors = [
+    { tag: 'header', role: 'banner' },
+    { tag: 'nav', role: 'navigation' },
+    { tag: 'footer', role: 'contentinfo' },
+    { tag: 'aside', role: 'complementary' }
+  ];
+
+  // Try to find explicit main content containers first
+  const contentContainerRegex = /<(div|section|article)[^>]*(?:id|class)=['"](?:main|content|primary|main-content|primary-content)[^'"]*['"][^>]*>([\s\S]*?)<\/(div|section|article)>/i;
+  const containerMatch = bodyContent.match(contentContainerRegex);
+
+  let primaryContent = '';
+  let replacementStrategy = 'fallback';
+
+  if (containerMatch) {
+    // Found an explicit content container - use its inner content
+    primaryContent = containerMatch[2].trim();
+    replacementStrategy = 'container';
+  } else {
+    // No explicit container found - extract content by removing landmark regions
+    let remainingContent = bodyContent;
+
+    // Remove landmark elements (header, nav, footer, aside) and their content
+    landmarkSelectors.forEach(({ tag }) => {
+      const landmarkRegex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+      remainingContent = remainingContent.replace(landmarkRegex, '');
+    });
+
+    // Also remove elements with landmark roles
+    const roleLandmarkRegex = /<[^>]*\srole=['"](?:banner|navigation|contentinfo|complementary|search)['"][^>]*>([\s\S]*?)<\/[^>]+>/gi;
+    remainingContent = remainingContent.replace(roleLandmarkRegex, '');
+
+    // Clean up excessive whitespace
+    primaryContent = remainingContent
+      .replace(/\s+/g, ' ')
+      .replace(/>\s+</g, '><')
+      .trim();
+
+    replacementStrategy = 'exclusion';
+  }
+
+  // If no meaningful primary content remains, fall back to full body content
+  if (!primaryContent || primaryContent.length < 10) {
+    primaryContent = bodyContent.trim();
+    replacementStrategy = 'fallback';
+  }
+
+  // Wrap the primary content in <main> element
+  const wrappedContent = `<main role="main">${primaryContent}</main>`;
+  content = content.replace(bodyContent, wrappedContent);
+
+  fs.writeFileSync(filePath, content);
+  console.log(`Wrapped primary content in main landmark (${replacementStrategy}) in ${filePath}`);
+}
+
 // (New functions for REACT_017 and REACT_025 end here)
 
 function fixTableStructure(filePath) {
@@ -265,6 +347,9 @@ function addressAccessibilityIssues(reportPath) {
           case 'landmark_role':
             addLandmarkRole(issue.file);
             break;
+          case 'wrap_primary_content':
+            wrapPrimaryContentInMain(issue.file);
+            break;
           default:
             console.log(`Unknown issue type: ${issue.type}`);
         }
@@ -319,5 +404,6 @@ module.exports = {
   addLandmarkRole,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
-  renderDependencyGraph
+  renderDependencyGraph,
+  wrapPrimaryContentInMain
 };

@@ -30,6 +30,9 @@ function addAriaLabel(element, labelText) {
   return element;
 }
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // Render dependency graph
 function renderDependencyGraph(dependencies) {
   // Dummy implementation for dependency graph rendering
@@ -42,6 +45,7 @@ function renderDependencyGraph(dependencies) {
   });
   document.body.appendChild(container);
 }
+
 
 // TODO: Implement function for addressing accessibility issues from insight report
 

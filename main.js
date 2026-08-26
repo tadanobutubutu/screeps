@@ -1,26 +1,8 @@
-import React from 'react';
+// TODO: Address accessibility issues from insight report: replace `my-button` with actual button id
 
-const MyTable = ({ headers, rows }) => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th scope="col" key={index}>{header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+const myButton = document.getElementById('actual-button-id');
 
-export default MyTable;
+// If myButton exists, let's make it accessible
+if (myButton) {
+  myButton.setAttribute('aria-label', 'Click the button');
+}

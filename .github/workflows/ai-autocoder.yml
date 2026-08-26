@@ -146,7 +146,7 @@ jobs:
                   git add "$FILE"
                 fi
               done
-              git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD"
+              git commit -m "chore: Auto-resolve conflicts via AI" && git pull --rebase origin "$HEAD" && git push origin "$HEAD"
             fi
           done
 

@@ -11,20 +11,20 @@ export { class1, function1, Object1 };
 // Function to count dependencies
 export function countDependencies() {
   // Get all import statements from the module
-  const importRegex = ...
+  const importRegex = ...;
   const moduleCode = __filename;
   
   // Read the current file and count named imports
   const fs = require('fs');
-  const content = ... 'utf-8');
+  const content = fs.readFileSync('main.js', 'utf-8');
   
   // Match import statements with named imports ( {...} )
-  const importMatches = ... || [];
+  const importMatches = content.match(importRegex) || [];
   
   let count = 0;
   importMatches.forEach(match => {
     // Extract the content inside the braces
-    const braceMatch = ...
+    const braceMatch = match.match(/[{](.+?)[}]/s);
     if (braceMatch) {
       const imports = braceMatch[1];
       // Split by comma and filter out whitespace, count remaining imports
@@ -232,7 +232,7 @@ export function createAccessibleLink(options = {}) {
 
 // Function to render dependency graphs
 export function renderDependencyGraph(containerId) {
-  const container = ...
+  const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container with id "${containerId}" not found`);
     return null;
@@ -243,18 +243,18 @@ export function renderDependencyGraph(containerId) {
   container.innerHTML = graphHtml;
   
   // Apply accessibility improvements to the rendered graph
-  const svgs = ...
+  const svgs = container.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if ... && ... {
+    if (!svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `Dependency graph ${index + 1}`;
-      title.id = ... + 1}`;
+      title.id = `dependency-graph-title-${index + 1}`;
       if (svg.firstChild) {
         svg.insertBefore(title, svg.firstChild);
       } else {
-        ...
+        svg.appendChild(title);
       }
-      ... title.id);
+      svg.setAttribute('aria-labelledby', title.id);
     }
   });
   
@@ -263,7 +263,7 @@ export function renderDependencyGraph(containerId) {
 
 // Function to render index view
 export function renderIndexView(containerId) {
-  const container = ...
+  const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container with id "${containerId}" not found`);
     return null;
@@ -274,24 +274,25 @@ export function renderIndexView(containerId) {
   container.innerHTML = indexHtml;
   
   // Ensure proper landmark structure for accessibility
-  const existingMain = ...
+  const existingMain = container.querySelector('main#main-content');
   if (!existingMain) {
-    const mainElement = ...
+    const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
     mainElement.setAttribute('role', 'main');
     
     // Move all children into main
-    while ... {
-      if ... !== 'SCRIPT' && 
-          ... !== 'STYLE' &&
-          ... !== 'LINK') {
-        ...
+    while (container.firstChild) {
+      const child = container.firstChild;
+      if (child.tagName !== 'SCRIPT' && 
+          child.tagName !== 'STYLE' &&
+          child.tagName !== 'LINK') {
+        mainElement.appendChild(child);
       } else {
-        ...
+        container.appendChild(child);
       }
     }
     
-    ...
+    container.appendChild(mainElement);
   }
   
   return container;
@@ -300,8 +301,8 @@ export function renderIndexView(containerId) {
 // Function to add lang attribute to HTML element
 export function setLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && ... {
-    ... lang);
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -310,7 +311,7 @@ export function setLangAttribute(lang = 'en') {
 export function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    return ...
+    return htmlElement.getAttribute('lang');
   }
   return null;
 }
@@ -319,9 +320,9 @@ export function getLangAttribute() {
 export function getFullLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    const lang = ...
+    const lang = htmlElement.getAttribute('lang');
     if (lang) {
-      const xmlLang = ...
+      const xmlLang = htmlElement.getAttribute('xml:lang');
       return xmlLang || lang;
     }
   }
@@ -330,42 +331,55 @@ export function getFullLangAttribute() {
 
 // Function to fix table structure issues
 export function fixTableStructure() {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody
-    const existingThead = ...
-    const existingTbody = ...
-    const rows = ...
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
 
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
-      ...
+      const headerRow = document.createElement('tr');
+      
+      // Move first row to thead and convert cells to th
+      while (firstRow.firstChild) {
+        const cell = firstRow.firstChild;
+        const th = document.createElement('th');
+        th.textContent = cell.textContent;
+        th.scope = 'col';
+        headerRow.appendChild(th);
+        cell.remove();
+      }
+      thead.appendChild(headerRow);
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? rows.slice(1) : [];
+      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
-        const tbody = ...
-        ...
-        ...
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => {
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
         fixedCount++;
       }
     }
 
     // Ensure proper header cells (th) are used
-    const allRows = ...
+    const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = ...
+      const cells = row.querySelectorAll('th, td');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         if (firstCell.tagName !== 'TH') {
-          const th = ...
+          const th = document.createElement('th');
           th.textContent = firstCell.textContent;
           th.scope = 'col';
           row.insertBefore(th, firstCell);
@@ -376,7 +390,7 @@ export function fixTableStructure() {
     });
 
     // Additional HEAD logic: ensure scope on header cells
-    const headerCells = ...
+    const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (th.getAttribute('scope') !== 'col') {
         th.setAttribute('scope', 'col');
@@ -390,16 +404,16 @@ export function fixTableStructure() {
 
 // Function to validate table structure
 export function validateTableStructure() {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   const issues = [];
 
   tables.forEach((table, index) => {
-    const hasThead = ...
-    const hasTbody = ...
-    const rows = ...
+    const hasThead = table.querySelector('thead') !== null;
+    const hasTbody = table.querySelector('tbody') !== null;
+    const rows = table.querySelectorAll('tr');
     const firstRow = rows[0];
-    const firstCell = firstRow ? ... th') : null;
-    const headerCells = ...
+    const firstCell = firstRow ? firstRow.querySelector('th') : null;
+    const headerCells = table.querySelectorAll('th');
 
     if (!hasThead) {
       issues.push(`Table ${index + 1} is missing a thead element.`);
@@ -411,7 +425,7 @@ export function validateTableStructure() {
       issues.push(`Table ${index + 1} first row should contain header cells (th).`);
     }
     headerCells.forEach(th => {
-      if ... {
+      if (!th.hasAttribute('scope')) {
         issues.push(`Table ${index + 1} header cell missing scope attribute.`);
       }
     });
@@ -422,12 +436,12 @@ export function validateTableStructure() {
 
 // Function to validate table accessibility
 export function validateTableAccessibility() {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   const issues = [];
 
   tables.forEach((table, index) => {
-    const caption = ...
-    const summary = ...
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
     const ariaLabel = table.getAttribute('aria-label');
     const ariaLabelledby = table.getAttribute('aria-labelledby');
 
@@ -435,7 +449,77 @@ export function validateTableAccessibility() {
       issues.push(`Table ${index + 1} lacks an accessible name (caption, summary, aria-label, or aria-labelledby).`);
     }
 
-    const headers = ...
+    const headers = table.querySelectorAll('th');
     headers.forEach(th => {
-      if ... {
-        issues.push(`Table ${index + 1} header cell missing scope attribute
+      if (!th.hasAttribute('scope')) {
+        issues.push(`Table ${index + 1} header cell missing scope attribute.`);
+      }
+    });
+  });
+
+  return issues;
+}
+
+// Function to ensure tables have captions for accessibility
+export function ensureTableCaptions() {
+  const tables = document.querySelectorAll('table');
+  let captionCount = 0;
+
+  tables.forEach((table, index) => {
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      const newCaption = document.createElement('caption');
+      newCaption.textContent = `Table ${index + 1}: Data table description`;
+      table.insertBefore(newCaption, table.firstChild);
+      captionCount++;
+    }
+  });
+
+  return captionCount;
+}
+
+// Function to add ARIA attributes to tables for better accessibility
+export function addTableARIAAttributes() {
+  const tables = document.querySelectorAll('table');
+  let ariaCount = 0;
+
+  tables.forEach((table) => {
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
+    
+    if (caption || summary) {
+      if (!table.hasAttribute('aria-describedby')) {
+        const captionId = `caption-${ariaCount}`;
+        if (caption) {
+          caption.id = captionId;
+        }
+        table.setAttribute('aria-describedby', captionId);
+        ariaCount++;
+      }
+    }
+  });
+
+  return ariaCount;
+}
+
+// Function to enhance semantic structure of the document
+export function enhanceSemanticStructure() {
+  const elements = document.querySelectorAll('[role], [aria-*]');
+  let enhancementCount = 0;
+
+  elements.forEach((element) => {
+    const role = element.getAttribute('role');
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledby = element.getAttribute('aria-labelledby');
+    
+    if (role && !ariaLabel && !ariaLabelledby) {
+      const textContent = element.textContent.trim();
+      if (textContent) {
+        element.setAttribute('aria-label', textContent);
+        enhancementCount++;
+      }
+    }
+  });
+
+  return enhancementCount;
+}

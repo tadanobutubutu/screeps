@@ -72,7 +72,7 @@ function addIdsToLandmarks(landmarks) {
 module.exports = {
   // ... (Preserve existing code, exports, and functions from current main.js)
   fixTableStructure: fixTableStructure,
-  fixFakeLinkIssue: fixFakeLinkIssue, // New export (renamed from original fixTableStructureIssues)
+  fixFakeLinkIssue: fixTableStructureIssues, // NEW EXPORT: Renamed from original fixTableStructureIssues
   fixTableStructureIssues: fixTableStructureIssues, // Keep duplicate export for testing compatibility (but do not update or call it)
   addClassToElement: addClassToElement, // New export
   renderDependencyGraph: renderDependencyGraph, // Added back original export
@@ -82,13 +82,8 @@ module.exports = {
   addAccessibleSvgNames: addAccessibleSvgNames, // New export
   addIdsToLandmarks: addIdsToLandmarks, // New export
   // ... (Preserve existing exports)
+  // ADD NEW FUNCTIONS HERE
+  fixTableIssue: function() {
+    // Implement the function as needed (New function for the TODO comment)
+  }
 };
-
-// ADD NEW FUNCTIONS HERE
-function fixTableStructure() {
-  // Implement the function as needed
-}
-
-function fixFakeLinkIssue() {
-  // Implement the function as needed (renamed from original fixTableStructureIssues)
-}

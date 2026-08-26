@@ -104,6 +104,15 @@ function implementAccessibilityFixesFromReport(reportPath) {
   addressAccessibilityIssues(reportPath);
 }
 
+// New function to wrap primary content in a main element
+function wrapPrimaryContentInMain(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<div class="primary-content">/gi, '<main>');
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Wrapped primary content in main element for better semantic structure in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -114,5 +123,6 @@ module.exports = {
   addSvgAccessibleNames,
   addAltAttribute,
   addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport
+  implementAccessibilityFixesFromReport,
+  wrapPrimaryContentInMain
 };

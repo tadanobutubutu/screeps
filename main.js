@@ -82,7 +82,7 @@ function addMainLandmark(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add main landmark if not present
-  if (!content.includes('<main') || !content.includes('</main>')) {
+  if (!content.includes('<main')) {
     // Wrap main content in <main> tag
     const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
@@ -103,41 +103,28 @@ function ensureUniqueLandmarks(filePath) {
 
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
+    const matches = [];
     let match;
-    let existingIds = [];
-    let count = 0;
 
     while ((match = regex.exec(content)) !== null) {
-      const attrs = match[2];
-      if (attrs.includes('id=')) {
-        const idAttr = attrs.match(/id=['"]([^'"]*)['"]/i)[1];
-        existingIds.push(idAttr);
-      }
-      count++;
+      matches.push({
+        index: match.index,
+        fullMatch: match[0],
+        tag: match[1],
+        attrs: match[2]
+      });
     }
 
-    existingIds = Array.from(new Set(existingIds));
-
-    regex = new RegExp(`<(${landmark})([^>]*(?:id=['"])(.*?)['"][^>]*)>`, 'gi');
-
-    let updatedContent = content;
-    let index = 0;
-
-    while ((match = regex.exec(content)) !== null) {
-      const idAttr = match[3];
-      const idExists = existingIds.includes(idAttr);
-      if (!idExists || (count > 1 && idAttr === existingIds[0])) {
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${idAttr}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
-      } else {
-        // Generate unique ID based on the landmark type
-        const uniqueId = `${landmark}-${count}`;
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${uniqueId}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
-        count++;
+    if (matches.length > 1) {
+      // Apply replacements from last to first so indices remain valid
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const m = matches[i];
+        let attrs = m.attrs.replace(/\s*id=["'][^"']*["']/gi, '');
+        const newId = `${landmark}-${i + 1}`;
+        const replacement = `<${m.tag}${attrs ? ' ' + attrs.trim() : ''} id="${newId}">`;
+        content = content.substring(0, m.index) + replacement + content.substring(m.index + m.fullMatch.length);
       }
-      index = match.index + match[0].length;
     }
-
-    content = updatedContent;
   });
 
   fs.writeFileSync(filePath, content);
@@ -150,18 +137,10 @@ function addSvgAccessibleNames(filePath) {
   // Add accessible names to SVGs
   const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
-  let updatedContent = content;
-
-  let match;
-  let idx = 0;
-
-  while ((match = svgRegex.exec(content)) !== null) {
-    idx = match.index;
-    updatedContent = updatedContent.substring(0, idx + match[0].length) + `<svg role="img" aria-label="SVG image ${svgIndex}"${match[1]}>` + updatedContent.substring(idx + match[0].length);
-    svgIndex++;
-  }
-
-  fs.writeFileSync(updatedContent, updatedContent);
+  const updatedContent = content.replace(svgRegex, (match, attrs) => {
+    return `<svg${attrs} role="img" aria-label="SVG image ${svgIndex++}">`;
+  });
+  fs.writeFileSync(filePath, updatedContent);
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
 
@@ -181,25 +160,26 @@ function addAltAttribute(filePath) {
 function replaceButtonId(filePath, newButtonId) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
+  let countReplacements = 0;
 
   // Replace my-button with the actual button id
-  const buttonIdRegex = /id=["']my-button["']/gi;
-  let match;
-
-  // Replace id attributes
+  const buttonIdRegex = /id=["\']my-button["\']/gi;
   const updatedContent = content.replace(buttonIdRegex, (match) => {
+    countReplacements++;
     return `id="${newButtonId}"`;
   });
 
   // Also replace any references in aria-controls, aria-labelledby, etc.
-  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
+  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["\']my-button["\']/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
+    countReplacements++;
     return `${attr}="${newButtonId}"`;
   });
 
   // Replace data attributes if any
-  const dataRefRegex = /data-target=["']my-button["']/gi;
+  const dataRefRegex = /data-target=["\']my-button["\']/gi;
   const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
+    countReplacements++;
     return `data-target="${newButtonId}"`;
   });
 
@@ -264,6 +244,61 @@ function ensureUniqueMainLandmark(filePath) {
   return replacedCount;
 }
 
+function fixSvgDataUriAccessibility(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  
+  // Fix SVG data URIs in icons configuration (favicons)
+  // Pattern matches data:image/svg+xml,<svg...> strings
+  const dataUriRegex = /(icons:\s*\{[^}]*icon:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  
+  let updatedContent = content.replace(dataUriRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    // Check if SVG already has a title or aria-label
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    let newSvgContent = svgContent;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // Add aria-hidden="true" for decorative favicon SVGs
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // SVG has title but no explicit accessible name on SVG element
+      // Add role="img" to ensure title is used as accessible name
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${newSvgContent}</svg>${suffix}`;
+  });
+  
+  // Also handle apple touch icon if present
+  const appleIconRegex = /(apple:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  updatedContent = updatedContent.replace(appleIconRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${svgContent}</svg>${suffix}`;
+  });
+  
+  if (updatedContent !== content) {
+    fs.writeFileSync(filePath, updatedContent);
+    console.log(`Fixed SVG data URI accessibility in ${filePath}`);
+  }
+  
+  return updatedContent !== content;
+}
+
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
@@ -289,6 +324,9 @@ function addressAccessibilityIssues(reportPath) {
             break;
           case 'svg_accessible_name':
             addSvgAccessibleNames(issue.file);
+            break;
+          case 'svg_data_uri_accessible_name':
+            fixSvgDataUriAccessibility(issue.file);
             break;
           case 'fake_link':
             fixFakeLinkIssue(issue.file);
@@ -360,5 +398,6 @@ module.exports = {
   replaceButtonId,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
-  renderDependencyGraph
+  renderDependencyGraph,
+  fixSvgDataUriAccessibility
 };

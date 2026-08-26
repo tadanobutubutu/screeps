@@ -6,3 +6,8 @@ function newFunction() {
 }
 
 // Rest of the main.js content...
+
+module.exports = {
+    // Existing exports...
+    newFunction
+};

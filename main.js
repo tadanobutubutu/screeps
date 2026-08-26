@@ -47,6 +47,22 @@ function addRoleAndLabelToCheckbox(filePath) {
   console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
 }
 
+function addLangAttributeToHtmlElement(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const htmlTag = content.match(/<html[^>]*>/);
+  if (htmlTag) {
+    updatedContent = updatedContent.replace(
+      htmlTag[0],
+      htmlTag[0].replace('<html', '<html lang="en"')
+    );
+  }
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added lang attribute to HTML element in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -56,4 +72,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addRoleAndLabelToCheckbox,
+  addLangAttributeToHtmlElement,
 };

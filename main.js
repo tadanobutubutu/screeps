@@ -42,3 +42,11 @@ function myButtonFunction(event) {
 export { myButtonFunction };
 
 // Existing exports ...
+// TODO: Implement getLangAttribute functionality
+function getLangAttribute() {
+  // Assuming the document has a lang attribute that we want to access
+  return document.documentElement.lang;
+}
+
+// Export the new function
+export { getLangAttribute };

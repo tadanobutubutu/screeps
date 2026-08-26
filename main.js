@@ -22,6 +22,7 @@ function addressAccessibilityIssues(role = 'banner') {
   ensureUniqueLandmarks();
   addLangAttribute();
   addMainLandmark(role);
+  addDependencyGraphLandmark();
   fixTableStructureIssues();
   addSvgAccessibleNames();
 

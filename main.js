@@ -1,4 +1,5 @@
 // TODO: Address accessibility issues from insight report
+// ... (preserve existing functions and exports)
 
 // Add the missing lang attribute to the <html> element
 const htmlElement = getDocument().documentElement;
@@ -38,7 +39,7 @@ function getButtonWithId() {
   return getDocument().querySelector('#buttonWithId');
 }
 
-// Exit the existing handleErrorState function
+// Export the existing handleErrorState function
 export { handleErrorState };
 
 // Export the new handleAccessibilityError function

@@ -3,14 +3,29 @@
 // - ADD_FOCUS: Make an HTML element focusable (NEW)
 
 function makeFocusable(element) {
-  if (element && element.hasAttribute && element.ingtonView && document.ghostedElements) {
+  if (element && element.hasAttribute && element.isInView && document.ghostedElements) {
     element.setAttribute('tabindex', 0);
-    document.ghostedElements.push(element);
+    element.setAttribute('role', 'button');
 
     element.ontouchend = () => {
       element.focus();
       document.ghostedElements = document.ghostedElements.filter(el => el !== element);
     };
+  }
+}
+
+function addLangAttribute(document, lang = 'en') {
+  const html = document.documentElement;
+  if (html && !html.hasAttribute('lang')) {
+    html.setAttribute('lang', lang);
+  }
+  return html;
+}
+
+function removeFocusable(element) {
+  if (element && element.hasAttribute) {
+    element.removeAttribute('tabindex');
+    element.removeAttribute('role');
   }
 }
 

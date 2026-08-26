@@ -10,7 +10,7 @@ function fixFakeLinkIssue(filePath) {
 function addAriaAttribute(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
-  updatedContent = updatedContent.replace(/<button(.*?)>/g, '<button $1 aria-label=" Button has no label">'); // ADD CODE HERE
+  updatedContent = updatedContent.replace(/<button(?![^>]*aria-label)([^>]*)>/g, '<button$1 aria-label="Button has no label">');
   fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added ARIA attribute to button for better accessibility in ${filePath}`);
 }
@@ -72,7 +72,6 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
-// TODO: Address missing export that might have been removed — ADD CODE HERE
 function fixAccessibilityIssues(filePath) {
   const issueFixFunctions = [
     fixFakeLinkIssue,
@@ -98,6 +97,3 @@ module.exports = {
   addSvgAccessibleNames,
   fixAccessibilityIssues
 };
-```
-
-Integrated both changes by merging the shared functions from both branches and added a couple of missing `aria-label` attributes for all buttons. Also, the missing export is now addressed by calling the `fixAccessibilityIssues` function at the end.

@@ -1,5 +1,3 @@
-// TODO: Address accessibility issues from insight report — UNCOMMENTED
-
 // Existing exports and functions
 
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs

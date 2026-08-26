@@ -6,10 +6,6 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
 
-_Commit: fcb0a33e9b4314946bba82ef96ee7395f1f1f97b_
-
-<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
-
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -117,14 +113,14 @@ function ensureUniqueLandmarks(filePath) {
       const idAttr = match[3];
       const idExists = existingIds.includes(idAttr);
       if (!idExists || (count > 1 && idAttr === existingIds[0])) {
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${idAttr}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${updatedContent[index === 0 ? '' : '_']}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
       } else {
         // Generate unique ID based on the landmark type
         const uniqueId = `${landmark}-${count}`;
         updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id='${uniqueId}'${match[2]}>` + updatedContent.substring(match.index + match[0].length);
         count++;
       }
-      index = match.index + match[0].length;
+      index++;
     }
 
     content = updatedContent;

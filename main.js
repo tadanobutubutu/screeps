@@ -13,12 +13,16 @@
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Fix fake links: replace <a> tags without href that should be <button>
+  // Fix fake links: replace <a> tags without href or with hash-only href that should be <button>
   content = content.replace(/<a([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
-    if (attrs.includes('href')) {
+    // Check if href exists and is a real navigation target (not hash-only)
+    const hrefMatch = attrs.match(/href=['"]([^'"]*)['"]/i);
+    if (hrefMatch && hrefMatch[1] !== '#' && hrefMatch[1] !== '') {
       return match;
     }
-    return `<button${attrs}>${inner}</button>`;
+    // Remove href="#" or empty href attribute, keep other attributes
+    const cleanedAttrs = attrs.replace(/\s*href=['"]#['"]/gi, '').replace(/\s*href=['"]['"]/gi, '');
+    return `<button${cleanedAttrs}>${inner}</button>`;
   });
   fs.writeFileSync(filePath, content);
   console.log(`Fixed fake link issues in ${filePath}`);
@@ -29,7 +33,7 @@ function addAriaAttribute(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   // Implementation details omitted for brevity
   fs.writeFileSync(filePath, content);
-  console.log(`Added ARIA attributes in ${filePath}`);
+  console.log(`Added [PERSON_NAME] attributes in ${filePath}`);
 }
 
 function addLangAttribute(filePath) {
@@ -157,7 +161,7 @@ function addSvgAccessibleNames(filePath) {
 
   while ((match = svgRegex.exec(content)) !== null) {
     idx = match.index;
-    updatedContent = updatedContent.substring(0, idx + match[0].length) + `<svg role="img" aria-label="SVG image ${svgIndex}"${match[1]}>` + updatedContent.substring(idx + match[0].length);
+    updatedContent = updatedContent.substring(0, idx + match[0].length) + `<svg role="img" [PERSON_NAME] image ${svgIndex}"${match[1]}>` + updatedContent.substring(idx + match[0].length);
     svgIndex++;
   }
 
@@ -191,7 +195,7 @@ function replaceButtonId(filePath, newButtonId) {
     return `id="${newButtonId}"`;
   });
 
-  // Also replace any references in aria-controls, aria-labelledby, etc.
+  // Also replace any references in aria-controls, [PERSON_NAME], etc.
   const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
     return `${attr}="${newButtonId}"`;

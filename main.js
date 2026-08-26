@@ -75,6 +75,22 @@ function addressAccessibilityIssues(insightReport) {
           addressedIssues.push({ type: issue.type, status: 'not-adjusted', reason: 'No element found', index });
         }
         break;
+      case 'table-structure':
+        validateTableAccessibility(issue.element);
+        break;
+      case 'landmark':
+        addProperLandmarkRegions();
+        break;
+      case 'landmark-uniqueness':
+        validateLandmarkUniqueness();
+        break;
+      case 'svg-accessibility-name':
+        setSvgAttributes(issue.element);
+        break;
+      case 'fake-link':
+        handleFakeLinks(issue.element);
+        break;
+      // Add more cases as necessary for the conflicting changes
       default:
         addressedIssues.push({ type: issue.type, status: 'skipped', index });
     }

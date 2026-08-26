@@ -17,6 +17,7 @@ function addressAccessibilityIssues(role = 'banner') {
   addLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixTableStructureIssues();
 
   // Add focus-trap related code
   function addFocusTrap(element) {

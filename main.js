@@ -127,17 +127,13 @@ function ensureUniqueLandmarks(filePath) {
 function addSvgAccessibleNames(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Add accessible names to SVGs
+  // Add aria-hidden="true" to decorative SVGs that lack an accessible name
   const svgRegex = /<svg([^>]*)>/gi;
-  let svgIndex = 0;
   const updatedContent = content.replace(svgRegex, (match, attrs) => {
-    const hasTitle = attrs.includes('<title') || attrs.includes('aria-label');
-    if (hasTitle) {
+    if (attrs.includes('aria-hidden') || attrs.includes('aria-label')) {
       return match;
     }
-    svgIndex++;
-    // Add role and aria-label to SVG
-    const newAttrs = ` role="img" aria-label="SVG image ${svgIndex}"${attrs}`;
+    const newAttrs = ` aria-hidden="true"${attrs}`;
     return `<svg${newAttrs}>`;
   });
   fs.writeFileSync(filePath, updatedContent);

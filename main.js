@@ -119,5 +119,6 @@ module.exports = {
     renderDependencyGraph,
     addMissingLandmarks,
     dependencyGraphContent,
-    indexContent
+    indexContent,
+    addMissingBannerAndContentInfoLandmarks: addMissingLandmarks // Add new export for the missing landmarks function
 };

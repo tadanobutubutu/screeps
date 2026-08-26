@@ -6,6 +6,47 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
+const addSkipLink = (document) => {
+  if (!document || !document.body) {
+    return document;
+  }
+  
+  const existingSkipLink = document.getElementById('skip-link');
+  if (existingSkipLink) {
+    return document;
+  }
+  
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.id = 'skip-link';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.style.position = 'absolute';
+  skipLink.style.top = '-40px';
+  skipLink.style.left = '0';
+  skipLink.style.background = '#000';
+  skipLink.style.color = '#fff';
+  skipLink.style.padding = '8px 16px';
+  skipLink.style.zIndex = '10000';
+  skipLink.style.transition = 'top 0.3s';
+  
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '0';
+  });
+  
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-40px';
+  });
+  
+  if (document.body.firstChild) {
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  } else {
+    document.body.appendChild(skipLink);
+  }
+  
+  return document;
+};
+
 const getAccessibleName = (node) => {
   if (!node) {
     return null;
@@ -64,16 +105,16 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach((type) => {
+    const elements = document.getElementsByTagName(type);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`[id^="${role}-"]`)).map(el => el.id);
-        let id = `${role}-${idSuffix}`;
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map((el) => el.id);
+        let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
-          id = `${role}-${idSuffix}`;
+          id = `${type}-${idSuffix}`;
         }
         element.id = id;
       }
@@ -84,7 +125,7 @@ const addProperLandmarkRegions = (document) => {
 const addLangAttribute = (document) => {
   const html = document.documentElement;
   if (html && !html.hasAttribute('lang')) {
-    html.setAttribute('lang', 'en');
+    document.documentElement.setAttribute('lang', 'en');
   }
   return document;
 };
@@ -124,14 +165,14 @@ const fixTableStructure = (document) => {
 };
 
 const addMainLandmark = (document) => {
-  const mains = document.querySelectorAll('main');
+  const mains = document.getElementsByTagName('main');
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
     while (document.body.firstChild) {
       main.appendChild(document.body.firstChild);
     }
-    document.body.insertBefore(main, document.body.firstChild);
+    document.body.appendChild(main);
   } else {
     mains.forEach((main, index) => {
       if (!main.id) {
@@ -146,7 +187,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -163,7 +204,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -219,10 +260,11 @@ const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
-  addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
   fixFakeLinkIssue(document);
   addProperLandmarkRegions(document);
+  addSkipLink(document);
   return document;
 };
 

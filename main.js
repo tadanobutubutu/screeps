@@ -5,7 +5,7 @@ import React from 'react';
 
 /**
  * Generates an accessible React table with proper scope attributes,
- * language attribute on the wrapper, and a clear grid role for accessibility.
+// language attribute on the wrapper, and a clear grid role for accessibility.
  */
 function generateAccessibleTable({ data }) {
   return (

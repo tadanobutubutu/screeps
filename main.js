@@ -55,9 +55,29 @@ function ensureMainLandmark(htmlContent) {
   return htmlContent;
 }
 
+/**
+ * Generates an accessible table header (thead) element with proper scope attributes
+ * for screen reader compatibility (REACT_017)
+ */
+function generateTableHeader(headerContent) {
+  const thead = document.createElement('thead');
+  const tr = document.createElement('tr');
+
+  headerContent.forEach((content) => {
+    const th = document.createElement('th');
+    th.textContent = content;
+    th.setAttribute('scope', 'col'); // Add the scope attribute here
+    tr.appendChild(th);
+  });
+
+  thead.appendChild(tr);
+  return thead;
+}
+
 module.exports = {
   validateHtmlLandmarks,
-  ensureMainLandmark
+  ensureMainLandmark,
+  generateTableHeader
 };
 
 // CLI usage
@@ -72,5 +92,12 @@ if (require.main === module) {
   if (missing.length > 0) {
     console.error('\nAccessibility issue: Missing <main> landmark in:', missing.map(m => m.file).join(', '));
     process.exit(1);
+  }
+
+  // Usage example:
+  const headers = ['Header 1', 'Header 2', 'Header 3'];
+  const tableHeader = generateTableHeader(headers);
+  if (document.getElementById('myTable')) {
+    document.getElementById('myTable').appendChild(tableHeader);
   }
 }

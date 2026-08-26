@@ -9,7 +9,8 @@ const exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addAltAttribute
+  addAltAttribute,
+  addLandmarkRegions
 };
 
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
@@ -89,6 +90,34 @@ function addSvgAccessibleNames(filePath) {
   });
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
+}
+
+function addLandmarkRegions(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+  // Wrap top-level content sections in proper landmark regions
+  // Add <header> landmark if not present
+  if (!/<header[\s>]/i.test(updatedContent)) {
+    updatedContent = updatedContent.replace(/(<body[^>]*>)/i, '$1\n<header role="banner">');
+    updatedContent = updatedContent.replace(/(<\/header>)/i, '</header>');
+  }
+  // Add <footer> landmark before </body> if not present
+  if (!/<footer[\s>]/i.test(updatedContent) && /<\/body>/i.test(updatedContent)) {
+    updatedContent = updatedContent.replace(/<\/body>/i, '<footer role="contentinfo">\n</footer>\n</body>');
+  }
+  // Add <aside> landmark wrapper for content identified as complementary
+  updatedContent = updatedContent.replace(/<div[^>]*class="sidebar"[^>]*>/gi, '<aside role="complementary">');
+  updatedContent = updatedContent.replace(/<\/div>\s*(?=<div[^>]*class="sidebar")/gi, '</aside>\n');
+  // Ensure <main> landmark is present
+  if (!/<main[\s>]/i.test(updatedContent) && /<body[^>]*>/i.test(updatedContent)) {
+    updatedContent = updatedContent.replace(/(<body[^>]*>(?:\s*<header[\s\S]*?<\/header>)?)/i, '$1\n<main role="main">');
+    updatedContent = updatedContent.replace(/(<\/main>\s*<footer)/i, '</main>\n$1');
+    if (!/<\/main>/i.test(updatedContent)) {
+      updatedContent = updatedContent.replace(/<\/body>/i, '</main>\n</body>');
+    }
+  }
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Added proper landmark regions for better accessibility in ${filePath}`);
 }
 
 module.exports = exports;

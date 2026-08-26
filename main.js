@@ -22,5 +22,6 @@ addAriaLabel(myElement, 'A descriptive text for myElement');
 // Export for testing purposes
 module.exports = {
   ensureElementHasId,
-  addAriaLabel
+  addAriaLabel,
+  myElement
 };

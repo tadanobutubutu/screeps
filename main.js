@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {

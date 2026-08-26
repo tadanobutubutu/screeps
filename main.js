@@ -41,7 +41,7 @@ class AppWrapper extends React.Component {
 
 // Replace the existing function that renders the App
 const render = (Component) => {
-  ... />, ...
+  ... /><Component />;
 };
 
 // Update the render function to use the AppWrapper component

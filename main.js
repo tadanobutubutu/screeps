@@ -110,6 +110,10 @@ const addMissingLandmarks = function(content) {
     return content;
 };
 
+// Import required module(s) and export the new necessary function(s) here in main.js
+// Note: dependencyGraphContent and indexContent are imported from './content' module above
+// All accessibility functions are exported below
+
 // Adjust export for the new functions
 module.exports = {
     addLangAttribute,

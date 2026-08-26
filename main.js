@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // This is the main entry point
 // TODO: Implement the new function as per the issue requirements
 
@@ -10,14 +13,28 @@ function processData(data) {
   if (!Array.isArray(data)) {
     return { error: 'Input must be an array' };
   }
-  
+
   return {
     count: data.length,
     items: data,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    operations: {
+      add: (a, b) => a + b,
+      subtract: (a, b) => a - b // Merged changes
+    }
   };
 }
 
+const multiply = (a, b) => a * b;
+const divide = (a, b) => a / b;
+
 module.exports = {
-  processData
+  processData,
+  add: processData.operations.add || function (a, b) { return a + b }, // Added default implementation for merged add function
+  subtract: processData.operations.subtract || function (a, b) { return a - b }, // Added default implementation for merged subtract function, function overload
+  multiply,
+  divide
 };
+```
+
+In this solution, I merged both changes by adding a new `operations` object to the `processData` return value. Both `add` and `subtract` functions were kept, with the merged changes chosen based on their presence. Default implementations for both functions were also added (overloading) to avoid throwing syntax errors when accessed outside of the `processData` function.

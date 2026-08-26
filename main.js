@@ -1,5 +1,3 @@
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// TODO: Please provide the actual contents of main.js
 function setHtmlLangAttribute(lang = 'en') {
     const html = document.querySelector('html');
     if (html && html.tagName) {
@@ -7,8 +5,6 @@ function setHtmlLangAttribute(lang = 'en') {
     }
 }
 
-// Function to add accessible names to SVGs
-// You can refactor and improve it based on the SVG structure in your project
 function addSvgAccessibleNames(svg) {
     const svgTitle = svg.querySelector('title');
     const svgDesc = svg.querySelector('desc');
@@ -26,26 +22,27 @@ function addSvgAccessibleNames(svg) {
     svg.setAttribute('aria-labelledby', `${svgTitle.id} ${svgDesc.id}`);
 }
 
-// Function to find all SVG elements on the page and add accessible names
 function addAllSvgAccessibleNames() {
     const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => addSvgAccessibleNames(svg));
+    svgs.forEach(svg => {
+        addSvgAccessibleNames(svg);
+    });
 }
 
-// Function to implement addressing accessibility issues from insight report
+// Unified fixInputAccessibility function
 function fixInputAccessibility() {
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
         if (!input.id) {
             input.id = 'input-' + Math.random().toString(36).substr(2, 9);
         }
-        const label = document.querySelector(`label[for="${input.id}"]`);
+        let label = document.querySelector(`label[for="${input.id}"]`);
         if (!label) {
-            const newLabel = document.createElement('label');
-            newLabel.htmlFor = input.id;
-            newLabel.textContent = 'Input description';
-            input.parentNode.insertBefore(newLabel, input);
-            newLabel.id = 'label-' + input.id;
+            label = document.createElement('label');
+            label.htmlFor = input.id;
+            label.textContent = 'Input description';
+            input.parentNode.insertBefore(label, input);
+            label.id = 'label-' + input.id;
         } else {
             label.textContent = 'Input description';
             label.id = 'label-' + input.id;
@@ -53,36 +50,25 @@ function fixInputAccessibility() {
     });
 }
 
-// Function to add proper landmark regions to the page
+// Unified addProperLandmarkRegions function
 function addProperLandmarkRegions() {
-    // Add role="banner" to header elements
-    const headers = document.querySelectorAll('header');
-    headers.forEach(header => {
-        header.setAttribute('role', 'banner');
-    });
-    // Add role="navigation" to nav elements
-    const navs = document.querySelectorAll('nav');
-    navs.forEach(nav => {
-        nav.setAttribute('role', 'navigation');
-    });
-    // Add role="main" to main elements
-    const mains = document.querySelectorAll('main');
-    mains.forEach(main => {
-        main.setAttribute('role', 'main');
-    });
-    // Add role="complementary" to aside elements
-    const asides = document.querySelectorAll('aside');
-    asides.forEach(aside => {
-        aside.setAttribute('role', 'complementary');
-    });
-    // Add role="contentinfo" to footer elements
-    const footers = document.querySelectorAll('footer');
-    footers.forEach(footer => {
-        footer.setAttribute('role', 'contentinfo');
-    });
+    const landmarks = {
+        banner: document.querySelectorAll('header'),
+        navigation: document.querySelectorAll('nav'),
+        main: document.querySelectorAll('main'),
+        complementary: document.querySelectorAll('aside'),
+        contentinfo: document.querySelectorAll('footer')
+    };
+    for (const type in landmarks) {
+        landmarks[type].forEach(element => {
+            if (element) {
+                element.setAttribute('role', type);
+            }
+        });
+    }
 }
 
-// Function to find all th elements on the page and add the scope attribute
+// Unified addAllTableHeadersScope function
 function addAllTableHeadersScope() {
     const thElements = document.querySelectorAll('th');
     thElements.forEach(th => {
@@ -90,25 +76,14 @@ function addAllTableHeadersScope() {
     });
 }
 
-// New function to fix table structure issues
-function fixTableStructureIssues() {
-    // Example implementation: Add scope attribute to all th elements and enforce at least one THEAD or headerRowCount rows in TABLEs
+// Combined fixTableStructureIssues and fixTableConstraints functions
+function fixTableIssues() {
     const tables = document.querySelectorAll('table');
     tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
-
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
+        const hasThead = table.querySelector('thead');
+        if (!hasThead) {
+            table.insertBefore(document.createElement('thead'), table.childNodes[0]);
         }
-
         const tableHeaders = table.querySelectorAll('th');
         tableHeaders.forEach(th => {
             th.setAttribute('scope', 'col');
@@ -116,38 +91,10 @@ function fixTableStructureIssues() {
     });
 }
 
-// Function to fix table constraints
-function fixTableConstraints() {
-    // Example implementation: Enforce at least one THEAD or headerRowCount rows in TABLEs
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        let hasThead = false;
-        const headerRowCount = 1; // Modify this number if required
-
-        const theads = table.querySelectorAll('thead');
-        theads.forEach(thead => {
-            if (thead.rows.length > 0) {
-                hasThead = true;
-            }
-        });
-
-        if (!hasThead && table.rows.length < headerRowCount) {
-            console.error("Table does not have a thead or enough header rows:", table);
-        }
-    });
-}
-
-// Additional functions required by the issue
-function getLangAttribute() {
-    const html = document.querySelector('html');
-    return html ? html.getAttribute('lang') : null;
-}
-
+// Reorganized and condensed additional functions
 function getFullLangAttribute() {
     const html = document.querySelector('html');
-    if (!html) return null;
-    const lang = html.getAttribute('lang');
-    return lang ? lang : null;
+    return html ? html.getAttribute('lang') : null;
 }
 
 function validateTableAccessibility() {
@@ -171,7 +118,7 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    const landmarks = document.querySelectorAll('[role]');
     if (landmarks.length === 0) {
         console.warn('No landmark regions found');
     }
@@ -189,16 +136,20 @@ function getSvgAccessibleName(svg) {
     return title ? title.textContent : '';
 }
 
-function createInPageButton() {
-    const button = document.createElement('button');
-    button.textContent = 'Click me';
+function createInPageButton(options = {}) {
+    const defaults = {
+        label: 'Click me'
+    };
+    const button = Object.assign(document.createElement('button'), defaults, options);
     return button;
 }
 
-function createAccessibleLink() {
-    const link = document.createElement('a');
-    link.textContent = 'Accessible link';
-    link.setAttribute('href', '#');
+function createAccessibleLink(options = {}) {
+    const defaults = {
+        label: 'Accessible link',
+        href: '#'
+    };
+    const link = Object.assign(document.createElement('a'), defaults, options);
     return link;
 }
 
@@ -206,57 +157,40 @@ function ensureMainLandmark() {
     let main = document.querySelector('main');
     if (!main) {
         main = document.createElement('main');
-        const body = document.body;
-        if (body) {
-            body.appendChild(main);
-        }
+        document.body.appendChild(main);
     }
     return main;
 }
 
 function wrapPrimaryContentInMain() {
-    const main = document.querySelector('main');
-    if (main) {
-        return;
-    }
-    const body = document.body;
-    if (!body) {
-        return;
-    }
-    const nonLandmarks = Array.from(body.children).filter(element => {
+    const main = ensureMainLandmark();
+    const nonLandmarks = Array.from(document.body.children).filter(element => {
         const tag = element.tagName.toLowerCase();
         return !['header', 'nav', 'aside', 'footer', 'script', 'style'].includes(tag);
     });
     if (nonLandmarks.length === 0) {
         return;
     }
-    const mainEl = document.createElement('main');
-    const first = nonLandmarks[0];
-    body.insertBefore(mainEl, first);
-    nonLandmarks.forEach(child => mainEl.appendChild(child));
+    nonLandmarks.forEach(child => main.appendChild(child));
 }
 
-// New function to fix an issue with fake links
 function fixFakeLinkIssue() {
     const links = document.querySelectorAll('a');
     links.forEach(link => {
         const clickable = document.createElement('a');
         clickable.href = link.getAttribute('href') || '#';
         clickable.textContent = 'Click me';
-        link.appendChild(clickable);
+        link.parentNode.insertBefore(clickable, link.nextSibling);
     });
 }
 
 export {
     setHtmlLangAttribute,
-    addSvgAccessibleNames,
     addAllSvgAccessibleNames,
-    addAllTableHeadersScope,
     fixInputAccessibility,
-    fixTableStructureIssues,
+    addAllTableHeadersScope,
     addProperLandmarkRegions,
-    fixTableConstraints,
-    getLangAttribute,
+    fixTableIssues,
     getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,

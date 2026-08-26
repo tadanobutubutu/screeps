@@ -54,6 +54,14 @@ async function addressAccessibilityIssues() {
           addUniqueIdToTable(tableElement);
         }
         break;
+      case 'react-svg-accessible-name':
+        const svgElements = document.querySelectorAll('svg');
+        svgElements.forEach((svg) => {
+          if (!svg.ariaLabel && !svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+            svg.setAttribute('aria-label', 'Descriptive text for SVG');
+          }
+        });
+        break;
       default:
         console.warn(`Unhandled accessibility issue type: ${issue.type}`);
     }

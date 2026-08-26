@@ -89,5 +89,3 @@ module.exports = {
   createAccessibleLink,
   createIcon,
 };
-```
-In the merged version of the `main.js` file, I integrated the code from both branches to address accessibility issues and support the dashboard integration by adding the ability to set an icon for in-page buttons and links using an SVG string. I used the `createIcon` helper function to make it easier to create and insert the icon elements. All other functions remain unchanged.

@@ -167,6 +167,7 @@ function replaceButtonId(filePath, newButtonId) {
   let match;
 
   // Replace id attributes
+  let countReplacements = 0;
   const updatedContent = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
     return `id="${newButtonId}"`;
@@ -192,6 +193,61 @@ function replaceButtonId(filePath, newButtonId) {
   return countReplacements;
 }
 
+function fixSvgDataUriAccessibility(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  
+  // Fix SVG data URIs in icons configuration (favicons)
+  // Pattern matches data:image/svg+xml,<svg...> strings
+  const dataUriRegex = /(icons:\s*\{[^}]*icon:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  
+  let updatedContent = content.replace(dataUriRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    // Check if SVG already has a title or aria-label
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    let newSvgContent = svgContent;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // Add aria-hidden="true" for decorative favicon SVGs
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // SVG has title but no explicit accessible name on SVG element
+      // Add role="img" to ensure title is used as accessible name
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${newSvgContent}</svg>${suffix}`;
+  });
+  
+  // Also handle apple touch icon if present
+  const appleIconRegex = /(apple:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  updatedContent = updatedContent.replace(appleIconRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${svgContent}</svg>${suffix}`;
+  });
+  
+  if (updatedContent !== content) {
+    fs.writeFileSync(filePath, updatedContent);
+    console.log(`Fixed SVG data URI accessibility in ${filePath}`);
+  }
+  
+  return updatedContent !== content;
+}
+
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
@@ -214,6 +270,9 @@ function addressAccessibilityIssues(reportPath) {
             break;
           case 'svg_accessible_name':
             addSvgAccessibleNames(issue.file);
+            break;
+          case 'svg_data_uri_accessible_name':
+            fixSvgDataUriAccessibility(issue.file);
             break;
           case 'fake_link':
             fixFakeLinkIssue(issue.file);
@@ -284,5 +343,6 @@ module.exports = {
   replaceButtonId,
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
-  renderDependencyGraph
+  renderDependencyGraph,
+  fixSvgDataUriAccessibility
 };

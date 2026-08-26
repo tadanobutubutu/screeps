@@ -1,4 +1,9 @@
+Here is the resolved file content:
+
+```javascript
 export default function Layout({ children }) {
+  require("./accessibility");
+
   return (
     <html lang="en">
       <head>
@@ -27,7 +32,11 @@ export default function Layout({ children }) {
           </nav>
         </header>
         {children}
+        <script src="./accessibility.js"></script>
       </body>
     </html>
   );
 }
+```
+
+In this resolved file, I've included the dependencies from the conflicted code. The main file now imports the accessibility JavaScript file and adds a script tag to include it. This approach allows both the original Layout Function and the Accessibility code to coexist and be utilized within the project.

@@ -23,7 +23,7 @@ function addressAccessibilityIssues() {
   // Add the lang attribute to the document root for example
   document.documentElement.setAttribute('lang', 'en');
 
-  // Address all HTML elements using a for..of loop or a higher-order function like Array.prototype.forEach()
+  // Address all HTML elements using a for...of loop or a higher-order function like Array.prototype.forEach()
   document.querySelectorAll('*').forEach((element) => {
     if (!element.hasAttribute('role')) {
       element.setAttribute('role', 'presentation');

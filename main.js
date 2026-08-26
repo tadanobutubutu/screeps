@@ -1,5 +1,26 @@
+// Function to ensure the element has an id
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
+}
+
+// Function to add aria-label to the element
+function addAriaLabel(element, labelText) {
+  element.setAttribute('aria-label', labelText);
+  return element;
+}
+
 // make sure the element has an id
-const myElement = document.getElementById('my-element');
+const myElement = document.getElementById('myElement') || document.createElement('div');
+ensureElementHasId(myElement);
 
 // add aria-label to the element
-myElement.setAttribute('aria-label', 'A descriptive text for myElement');
+addAriaLabel(myElement, 'A descriptive text for myElement');
+
+// Export for testing purposes
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel
+};

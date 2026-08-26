@@ -64,6 +64,51 @@ function fixFakeLinkIssues(document) {
       });
 }
 
+// REACT_036: Convert fake link <a href="#"> into a proper <button> for in-page actions
+function fixFakeLinkAsButton(document) {
+  let count = 0;
+  
+  // Find all <a> elements with href="#" (with or without other attributes)
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  
+  fakeLinks.forEach(anchor => {
+    const button = document.createElement('button');
+    
+    // Copy attributes from anchor to button (except href and link-specific ones)
+    const attributesToSkip = new Set(['href']);
+    for (const attr of Array.from(anchor.attributes)) {
+      if (!attributesToSkip.has(attr.name)) {
+        button.setAttribute(attr.name, attr.value);
+      }
+    }
+    
+    // Set button type to "button" so it doesn't default to submit
+    if (!button.hasAttribute('type')) {
+      button.setAttribute('type', 'button');
+    }
+    
+    // Copy inline content
+    button.innerHTML = anchor.innerHTML;
+    
+    // Preserve text content for accessible name if no other labelling exists
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action');
+    }
+    
+    // Preserve any existing click handlers by re-binding via a wrapper
+    const existingOnclick = anchor.getAttribute('onclick');
+    if (existingOnclick) {
+      button.setAttribute('onclick', existingOnclick);
+    }
+    
+    // Replace the fake link with the button
+    anchor.parentNode.replaceChild(button, anchor);
+    count++;
+  });
+  
+  return count;
+}
+
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
       // ... updated landmark issue fix implementation
@@ -127,6 +172,30 @@ function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
+// TODO: Implement function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport(document) {
+  // Assuming the insight report provides an object with the issues to be addressed
+  const insightReport = {
+    'REACT_015': () => addLangAttribute(document),
+    'REACT_041': () => addSvgAccessibleNames(document),
+    'REACT_036': () => { fixFakeLinkIssue(document); fixFakeLinkIssues(document); fixFakeLinkAsButton(document); },
+    'REACT_017': () => { fixLandmarkIssues(document); addLandmarkRegions(document); addMainLandmark(document); },
+    'REACT_027': () => fixTableStructure(document),
+    'REACT_025': () => { ensureUniqueLandmarks(document); uniqueLandmarks(document); },
+    'REACT_037': () => googleSignIn(document),
+    'REACT_040': () => fixButtonIdentifiers(document),
+    // Additional fixes
+    'IMAGE_ALT': () => fixImageAltTexts(document),
+    'INDEX_MAIN': () => addMainLandmarkToIndex(document),
+  };
+
+  Object.values(insightReport).forEach((functionToCall) => {
+    if (typeof functionToCall === 'function') {
+      functionToCall();
+    }
+  });
+}
+
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(document) {
   addLangAttribute(document);
@@ -153,6 +222,7 @@ export {
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
+  fixFakeLinkAsButton,
   fixLandmarkIssues,
   addLandmarkRegions,
   uniqueLandmarks,
@@ -161,6 +231,7 @@ export {
   handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
+  implementAccessibilityFixesFromReport,
   addressAccessibilityIssues,
   class1,
   function1,

@@ -64,6 +64,44 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
 };
-```
 
-This file resolves the Git merge conflict by keeping both changes and merging the logic for the `getFullLangAttribute` function. It also provides comments with suggestions to replace the example implementations with the developers' actual logic wherever necessary.
+/*
+ * The following React application component is included to support the front-end
+ * portion of the project (e.g., a Quality & Metrics dashboard). It can be rendered
+ * in a separate entry point (such as a dedicated `index.js` for the browser) and
+ * does not conflict with the Node.js utility exports above.
+ *
+ * If you wish to render this in the same module system, consider splitting the
+ * React code into its own file (e.g., `App.jsx`) and importing it where needed.
+ */
+/*
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+function App() {
+    return (
+        <main>
+            <div id="home">
+                <table id="table-rotated">
+                    {/* Table content *\/}
+                </table>
+            </div>
+            <div className="container">
+                <h2>Quality & Metrics Reports</h2>
+                <p>
+                    This repository is fully optimized with automated tools. Explore the generated
+                    reports below:
+                </p>
+                <div className="links">
+                    <a href="...">Plato Code Complexity Report</a>
+                    <a href="...">Dependency Graph</a>
+                </div>
+            </div>
+        </main>
+    );
+}
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
+*/

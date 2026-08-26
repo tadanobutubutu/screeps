@@ -45,15 +45,6 @@ function renderDependencyGraph(dependencies) {
 
 // TODO: Implement function for addressing accessibility issues from insight report
 
-/**
- * Address accessibility issues from the provided insight report.
- * @param {Object} insightReport - The accessibility insight report object.
- * @returns {Object} A summary of addressed issues.
- */
-function addressAccessibilityIssues(insightReport) {
-  // ... (function implementation remains unchanged)
-}
-
 // New Function to address additional accessibility issue (REACT_025)
 
 /**
@@ -103,7 +94,7 @@ module.exports = {
   addressAdditionalAccessibilityIssues // add new exported function
 };
 
-// New Function for handling a specific event
+// New Function for handling a specific event (Optional)
 function handleMyEvent(event) {
   // Event handling logic here
 }
@@ -111,7 +102,7 @@ function handleMyEvent(event) {
 // Export the new function for testing purposes
 module.exports.handleMyEvent = handleMyEvent;
 
-// New function to save settings
+// New function to save settings (Optional)
 function saveSettings(settings) {
   // Implement settings saving logic
 }
@@ -119,7 +110,7 @@ function saveSettings(settings) {
 // Export the new function for testing purposes
 module.exports.saveSettings = saveSettings;
 
-// New function to create an in-page button
+// New function to create an in-page button (Optional)
 function createInPageButton(buttonId, text, callback) {
   const button = document.createElement('button');
   button.id = buttonId;

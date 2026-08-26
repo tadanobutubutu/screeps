@@ -69,11 +69,85 @@ function addIdsToLandmarks(landmarks) {
 
 // New functions for addressing remaining issues
 function fixTableStructure() {
-    // Implement the function as needed
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        // Ensure table has a caption or summary
+        if (!table.querySelector('caption') && !table.hasAttribute('summary') && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Data table';
+            caption.style.cssText = 'position: absolute; left: -9999px;'; // Visually hidden but accessible
+            table.insertBefore(caption, table.firstChild);
+        }
+
+        // Ensure header cells have scope attribute
+        const headers = table.querySelectorAll('th');
+        headers.forEach(th => {
+            if (!th.hasAttribute('scope')) {
+                // Determine scope based on position
+                const parentRow = th.closest('tr');
+                const isFirstInRow = parentRow && parentRow.firstElementChild === th;
+                const isFirstInCol = Array.from(th.parentNode.children).indexOf(th) === 0;
+                
+                if (isFirstInRow && isFirstInCol) {
+                    th.setAttribute('scope', 'col');
+                } else if (isFirstInRow) {
+                    th.setAttribute('scope', 'row');
+                } else {
+                    th.setAttribute('scope', 'col');
+                }
+            }
+        });
+
+        // Ensure proper table structure with thead, tbody, tfoot
+        if (!table.querySelector('thead') && table.rows.length > 0) {
+            const thead = document.createElement('thead');
+            const firstRow = table.rows[0];
+            // Check if first row contains only th elements
+            const allHeaders = Array.from(firstRow.cells).every(cell => cell.tagName === 'TH');
+            if (allHeaders) {
+                thead.appendChild(firstRow);
+                table.insertBefore(thead, table.firstChild);
+            }
+        }
+    });
 }
 
 function fixFakeLinkIssue() {
-    // Implement the function as needed
+    // Fix links that have no href or javascript: href but act as interactive elements
+    const problematicLinks = document.querySelectorAll('a:not([href]), a[href="javascript:void(0)"], a[href^="javascript:"]');
+    problematicLinks.forEach(link => {
+        // If it has click handlers or role=button, convert to button
+        const hasClickHandler = link.onclick || link.getAttribute('onclick') || 
+                                link.addEventListener || 
+                                link.classList.contains('btn') || 
+                                link.classList.contains('button') ||
+                                link.getAttribute('role') === 'button';
+        
+        if (hasClickHandler) {
+            const button = document.createElement('button');
+            button.textContent = link.textContent;
+            button.type = 'button';
+            
+            // Transfer attributes
+            if (link.id) button.id = link.id;
+            if (link.className) button.className = link.className;
+            if (link.getAttribute('aria-label')) button.setAttribute('aria-label', link.getAttribute('aria-label'));
+            if (link.getAttribute('aria-expanded')) button.setAttribute('aria-expanded', link.getAttribute('aria-expanded'));
+            if (link.getAttribute('aria-controls')) button.setAttribute('aria-controls', link.getAttribute('aria-controls'));
+            if (link.getAttribute('tabindex')) button.setAttribute('tabindex', link.getAttribute('tabindex'));
+            
+            // Transfer event listeners by cloning
+            const clone = link.cloneNode(true);
+            link.parentNode.replaceChild(button, link);
+        } else {
+            // If it's just a placeholder link, add proper href or role
+            if (!link.getAttribute('href')) {
+                link.setAttribute('href', '#');
+                link.setAttribute('role', 'link');
+                link.setAttribute('tabindex', '0');
+            }
+        }
+    });
 }
 
 // New function to replace fake links (<a href="#">) with accessible buttons

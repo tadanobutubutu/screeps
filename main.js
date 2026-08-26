@@ -51,9 +51,8 @@ export { getLangAttribute };
 
 // Implement the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
-  // Your implementation for addressing accessibility issues goes here
-  // Example:
-  // document.body.style.fontSize = '16px'; // Set minimum font size
+  // Set minimum font size
+  document.body.style.fontSize = '16px';
 }
 
 // Export the new addressAccessibilityIssues function

@@ -20,8 +20,7 @@ if (footer) {
 let uniqueId = 0;
 const links = document.links;
 for (let link of links) {
-  if (link.hash === '') {
-    link.setAttribute('aria-label', 'Link to ' + link.textContent);
+  if (link.hash === '') [PERSON_NAME]-label', 'Link to ' + link.textContent);
     link.setAttribute('id', 'unique-link-' + uniqueId);
     uniqueId++;
   }
@@ -61,8 +60,8 @@ return (
   </div>
 );
 
-// Modify the MyApp function to use the new function printAlertMessages
-function MyApp() {
+// Modify the [PERSON_NAME] function to use the new function printAlertMessages
+function [PERSON_NAME]() {
   // ... (Existing code)
 
   // Add alert messages before the render
@@ -74,4 +73,7 @@ function MyApp() {
 }
 
 // Assume existing exports and functions are preserved
-export default MyApp;
+export default [PERSON_NAME];
+
+// Add necessary exports for new functions
+export { printAlertMessages };

@@ -57,7 +57,7 @@ function MyApp() {
   // Render component
   return (
     <div className="app">
-      <div id="dependencyGraph" className="dependencyGraph" role="documentsummary">
+      <div id="dependencyGraph" className="dependencyGraph" role="region">
         <div dangerouslySetInnerHTML={{ __html: dependencyGraphContent }} />
       </div>
       <main id="main-content" className="content" role="main">

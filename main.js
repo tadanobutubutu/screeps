@@ -16,11 +16,11 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
   function focusTrapтонHTMLComponent(element) {
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
-    wrapper. style.top = 0;
-    wrapper. style.left = 0;
-    wrapper. style.width = '100%';
-    wrapper. style.height = '100%';
-    wrapper. style.zIndex = Number.MAX_SAFE_INTEGER;
+    wrapper.style.top = 0;
+    wrapper.style.left = 0;
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.zIndex = Number.MAX_SAFE_INTEGER;
 
     const trappedElement = React.createElement(
       'div',
@@ -98,7 +98,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
 
   // Call the new function with focus-trap integration
   function implementAccessibilityWithFocusTrap(component, customLandmarkRole) {
-    focusTrapotonHTMLComponent(component);
+    focusTrapтонHTMLComponent(component);
     implementAccessibility(component);
   }
 

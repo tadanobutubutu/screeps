@@ -1,7 +1,6 @@
 // ... existing imports and declarations ...
 
-// TODO: Add back any required exports that might have been?
-// Restoring previously removed exports below
+// TODO: Restoring previously removed exports below
 
 // FUNCTIONS TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 function fixAccessibilityIssues() {
@@ -99,7 +98,7 @@ function fixFakeLinkIssue(linkElement) {
   }
 }
 
-// FUNCTION TO FIX TABLE STRUCTURE
+// Function toFix Table structure (assuming it was removed previously, and needs to be added back)
 function fixTableStructure() {
   // Add table headers to table rows with corresponding data cells
   const tableRows = document.querySelectorAll('tr:nth-child(even):not(:first-child) td');
@@ -112,6 +111,7 @@ function fixTableStructure() {
   });
 }
 
+// Exporting the functions and ensuring the previously removed export (fixTableStructure) is included again
 export {
   addLangAttribute,
   fixTableStructure,

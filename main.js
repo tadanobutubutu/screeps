@@ -1,18 +1,3 @@
-// Existing code and conflict markers preserved
-// <<<<<<< HEAD
-import React from 'react';
-
-const App = () => {
-  return (
-    <div>
-      {/* ... existing code ... */}
-    </div>
-  );
-};
-
-export default App;
-// =======
-// <<<<<<< HEAD
 import React from 'react';
 
 const App = () => {
@@ -24,10 +9,9 @@ const App = () => {
         <text y="0.9em" fontSize="90">🐛</text>
       </svg>
       {/* ... existing code ... */}
+      <button id="unrotate" onClick={() => {/* Rotate back action */}}>rotate back</button>
     </div>
   );
 };
 
 export default App;
-// >>>>>>> branch-name
-// >>>>>>> branch-name

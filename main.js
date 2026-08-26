@@ -3,7 +3,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { dependencyGraphContent, indexContent } from './dependencyGraphAndIndexViews'; // Imported new modules here
+import { dependencyGraphContent, indexContent } from ... // Imported new modules here
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
@@ -77,7 +77,7 @@ const validateTableStructure = () => {
 
   // Add render dependency graph content here
   const dependencyGraph = ... // Assuming you have a function to generate the dependency graph data
-  ReactDOM.render(<React.Fragment>{dependencyGraphContent(dependencyGraph)}</React.Fragment>, document.getElementById('dependency-graph'));
+  ... ...
 
   return { errors };
 };
@@ -90,10 +90,10 @@ const validateTableAccessibility = () => {
     return { errors };
   }
 
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   tables.forEach((table, index) => {
     // Check if table has proper headers
-    const headers = ...
+    const headers = table.querySelectorAll('th');
     const hasHeaders = headers.length > 0;
 
     if (!hasHeaders) {
@@ -106,10 +106,16 @@ const validateTableAccessibility = () => {
 
     // Check for scope attribute on headers
     headers.forEach((header) => {
-      const scope = ...
+      const scope = header.getAttribute('scope');
       if (!scope) {
         errors.push({
           message: `Table header missing scope attribute`,
+          line: 0,
+          column: 0
+        });
+      } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
+        errors.push({
+          message: `Table header has invalid scope attribute value "${scope}"`,
           line: 0,
           column: 0
         });
@@ -117,8 +123,8 @@ const validateTableAccessibility = () => {
     });
 
     // Check for caption or summary
-    const caption = ...
-    const summary = ...
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
     if (!caption && !summary) {
       errors.push({
         message: `Table ${index + 1} is missing a caption or summary`,
@@ -130,7 +136,7 @@ const validateTableAccessibility = () => {
 
   // Add render index content here
   const indexData = ... // Assuming you have a function to generate the index data
-  ReactDOM.render(<React.Fragment>{indexContent(indexData)}</React.Fragment>, document.getElementById('index'));
+  ... ...
 
   return { errors };
 };

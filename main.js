@@ -112,6 +112,28 @@ export function setLangAttribute(lang = 'en') {
   return document;
 }
 
+// Function to get lang attribute from HTML element
+export function getLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang');
+  }
+  return null;
+}
+
+// Function to get full lang attribute (including xml:lang and complete language info)
+export function getFullLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    const lang = htmlElement.getAttribute('lang');
+    if (lang) {
+      const xmlLang = htmlElement.getAttribute('xml:lang');
+      return xmlLang || lang;
+    }
+  }
+  return null;
+}
+
 // Function to fix table structure issues
 export function fixTableStructure() {
   const tables = ...
@@ -287,4 +309,4 @@ export function addressAccessibilityIssues(document) {
 }
 
 // Export new functions and re-export content functions
-export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, dependencyGraphContent, indexContent };
+export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent };

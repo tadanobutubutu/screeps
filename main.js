@@ -1,30 +1,36 @@
+// Import helper functions for accessibility
+const accessibilityHelpers = require('./utils/accessibilityHelpers');
+const domHelpers = require('./utils/domHelpers');
+
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraph = document.querySelector('#dependencyGraph');
+  const dependencyGraph = domHelpers.getElement('dependency-graph');
   if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    accessibilityHelpers.setRole(dependencyGraph, 'tree');
+    accessibilityHelpers.setAriaLabel(dependencyGraph, 'Dependency Graph');
   }
 }
 
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.querySelector('#dependencyGraph');
+  const container = domHelpers.getElement('dependency-graph');
   if (container) {
     container.innerHTML = data;
+    // Apply accessibility fixes after rendering content
+    accessibilityHelpers.applyAccessibilityFixes(container);
   }
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="contentinfo"]');
+  const landmarks = domHelpers.queryElements('[role="landmark"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
+    const role = accessibilityHelpers.getRole(landmark);
     if (seen.has(role)) {
-      landmark.removeAttribute('role');
+      accessibilityHelpers.removeLandmark(landmark);
     } else {
       seen.add(role);
     }
@@ -33,12 +39,12 @@ function ensureUniqueLandmarks() {
 
 // Fix fake link issue
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a');
+  const fakeLinks = domHelpers.queryElements('a[href="#"]');
   fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Button');
+    accessibilityHelpers.setRole(link, 'button');
+    accessibilityHelpers.setTabIndex(link, '0');
+    if (accessibilityHelpers.needsAriaLabel(link)) {
+      accessibilityHelpers.setAriaLabel(link, 'Button');
     }
   });
 }
@@ -47,13 +53,13 @@ function fixFakeLinks() {
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en');
+    accessibilityHelpers.setLang(htmlElement, 'en');
   }
 }
 
 // Fix table structure issues
 function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
+  const tables = domHelpers.queryElements('table');
   tables.forEach(table => {
     // Ensure tables have proper structure
     if (!table.querySelector('thead')) {
@@ -67,7 +73,7 @@ function fixTableStructureIssues() {
     }
     // Ensure tables have at least one tbody
     if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
+      const rows = domHelpers.getTableRows(table);
       if (rows.length > 0) {
         const tbody = document.createElement('tbody');
         rows.forEach(row => tbody.appendChild(row));
@@ -79,18 +85,18 @@ function fixTableStructureIssues() {
 
 // Add main landmark
 function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = domHelpers.queryElements('main');
   mainElements.forEach(main => {
     if (!main.getAttribute('role')) {
-      main.setAttribute('role', 'main');
+      accessibilityHelpers.setRole(main, 'main');
     }
   });
   // If no main element exists, create one for the main content
   if (mainElements.length === 0) {
-    const content = document.querySelector('#content');
+    const content = domHelpers.getElement('content');
     if (content) {
       const main = document.createElement('main');
-      main.setAttribute('role', 'main');
+      accessibilityHelpers.setRole(main, 'main');
       while (content.firstChild) {
         main.appendChild(content.firstChild);
       }
@@ -101,13 +107,13 @@ function addMainLandmark() {
 
 // Add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = domHelpers.queryElements('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    const title = domHelpers.getSvgTitle(svg);
     if (title) {
       const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
-      svg.setAttribute('aria-labelledby', titleId);
+      accessibilityHelpers.setAriaLabelledBy(svg, titleId);
     } else {
       console.log(`SVG graphic ${index + 1}`);
     }

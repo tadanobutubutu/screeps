@@ -79,8 +79,8 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
+  fixTableStructureIssues, // Added here
+  fixTableHeaderCellScope, // Added here
   fixTableHeaderCellScope // Added here
 };
 

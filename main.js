@@ -319,6 +319,109 @@ export function ensureUniqueLandmarks() {
   };
 }
 
+// Function to validate a single landmark element for accessibility
+export function validateLandmark(landmark) {
+  const issues = [];
+
+  if (!landmark) {
+    issues.push('Landmark element is null or undefined.');
+    return issues;
+  }
+
+  const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+  const role = landmark.getAttribute ? landmark.getAttribute('role') : null;
+  const ariaLabel = landmark.getAttribute ? landmark.getAttribute('aria-label') : null;
+  const ariaLabelledby = landmark.getAttribute ? landmark.getAttribute('aria-labelledby') : null;
+
+  // Determine if the element qualifies as a landmark
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form', 'region'];
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region'];
+  const isLandmark = landmarkTags.includes(tagName) || (role && landmarkRoles.includes(role));
+
+  if (!isLandmark) {
+    issues.push(`Element <${tagName || 'unknown'}> with role="${role || ''}" is not a recognized landmark.`);
+    return issues;
+  }
+
+  // Region/section landmarks require an accessible name
+  if ((tagName === 'section' || tagName === 'form' || role === 'region' || role === 'form') &&
+      !ariaLabel && !ariaLabelledby) {
+    issues.push(`Landmark <${tagName}> (role="${role || ''}") is missing an accessible name (aria-label or aria-labelledby).`);
+  }
+
+  // Main landmark should not be nested inside another landmark
+  if (tagName === 'main' || role === 'main') {
+    const parent = landmark.parentElement;
+    if (parent) {
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
+      const parentRole = parent.getAttribute ? parent.getAttribute('role') : null;
+      const parentIsLandmark = landmarkTags.includes(parentTag) ||
+                               (parentRole && landmarkRoles.includes(parentRole));
+      if (parentIsLandmark && parentTag !== 'body' && parentTag !== 'html') {
+        issues.push(`Main landmark should not be nested inside another landmark (<${parentTag}>).`);
+      }
+    }
+  }
+
+  return issues;
+}
+
+// Function to validate the overall landmark structure of the document
+export function validateLandmarkStructure() {
+  const issues = [];
+  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form', 'region'];
+
+  // Check for presence of a main landmark
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    issues.push('Document is missing a main landmark (<main> or role="main").');
+  } else if (mainElements.length > 1) {
+    issues.push(`Document has ${mainElements.length} main landmarks; only one is recommended.`);
+  }
+
+  // Gather all landmarks by type/role
+  const landmarksByType = {};
+  landmarkTypes.forEach(type => {
+    landmarksByType[type] = [];
+  });
+
+  // Native landmark elements
+  ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form'].forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    elements.forEach(el => {
+      landmarksByType[tag].push(el);
+    });
+  });
+
+  // Role-based landmarks
+  ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region'].forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(el => {
+      landmarksByType[role].push(el);
+    });
+  });
+
+  // Validate each landmark and collect issues
+  Object.keys(landmarksByType).forEach(type => {
+    landmarksByType[type].forEach((landmark, index) => {
+      const landmarkIssues = validateLandmark(landmark);
+      landmarkIssues.forEach(msg => {
+        issues.push(`[${type} #${index + 1}] ${msg}`);
+      });
+    });
+  });
+
+  // Check for duplicate banner or contentinfo landmarks (typically only one allowed)
+  if (landmarksByType['header'].length > 1 || landmarksByType['banner'].length > 1) {
+    issues.push(`Document has multiple banner landmarks (${landmarksByType['header'].length + landmarksByType['banner'].length}); only one is recommended.`);
+  }
+  if (landmarksByType['footer'].length > 1 || landmarksByType['contentinfo'].length > 1) {
+    issues.push(`Document has multiple contentinfo landmarks (${landmarksByType['footer'].length + landmarksByType['contentinfo'].length}); only one is recommended.`);
+  }
+
+  return issues;
+}
+
 // Function to add accessible name to SVGs
 export function addSvgAccessibleNames() {
   const svgs = ...
@@ -367,4 +470,4 @@ export function addressAccessibilityIssues(document) {
 }
 
 // Export new functions and re-export content functions
-export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent, validateTableAccessibility, validateTableStructure };
+export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView, fixTableStructure, addMainLandmark, ensureUniqueLandmarks, addSvgAccessibleNames, setLangAttribute, getLangAttribute, getFullLangAttribute, dependencyGraphContent, indexContent, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure };

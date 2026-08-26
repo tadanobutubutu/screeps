@@ -4,8 +4,8 @@
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks(), fixMultipleMainLandmarks(), and ensureUniqueLandmarkIds())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and validateLinkAccessibility())
 
 // Import content modules for dependency graphs and index views
 import { dependencyGraphContent } from './content/dependencyGraphContent.js';
@@ -25,19 +25,19 @@ function getFullLangAttribute() {
 
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
-  let hasIssues = false;
+  let hasInvalidScope = false;
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
     headers.forEach(th => {
       const scope = th.getAttribute('scope');
       if (!scope) {
-        hasIssues = true;
+        hasInvalidScope = true;
       } else if (!['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
-        hasIssues = true;
+        hasInvalidScope = true;
       }
     });
   });
-  return !hasIssues;
+  return !hasInvalidScope;
 }
 
 function validateTableStructure() {
@@ -72,18 +72,19 @@ function addMainLandmark() {
   return main;
 }
 
-// REACT_025: Ensure unique landmarks
+// REACT_025: Ensure unique landmark ids
 function ensureUniqueLandmarkIds() {
   const landmarks = document.querySelectorAll('header, footer, aside, main, nav, [role="banner"], [role="contentinfo"], [role="complementary"], [role="main"], [role="navigation"], [role="search"]');
-  const landmarkRoles = new Map();
+  const landmarkRoles = new Set();
+  const landmarkCounts = new Map();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     if (role && landmark.id) {
-      if (landmarkRoles.has(role)) {
-        landmark.id = role + '-' + (landmarkRoles.get(role) + 1);
-        landmarkRoles.set(role, landmarkRoles.get(role) + 1);
+      if (landmarkCounts.has(role)) {
+        landmark.id = role + '-' + (landmarkCounts.get(role) + 1);
+        landmarkCounts.set(role, landmarkCounts.get(role) + 1);
       } else {
-        landmarkRoles.set(role, 1);
+        landmarkCounts.set(role, 1);
       }
     }
   });
@@ -153,6 +154,84 @@ function ensureUniqueLandmarks() {
   };
 }
 
+// REACT_025: Fix main landmark count in a virtual DOM / React context
+// In React components where conditional rendering may produce multiple <main> tags
+// in the source, convert extra <main> elements to <section> to satisfy unique landmark rule.
+function fixReactMainLandmarks(jsxTree) {
+  if (!jsxTree || typeof jsxTree !== 'object') {
+    return jsxTree;
+  }
+
+  let mainCount = 0;
+
+  function walk(node) {
+    if (!node || typeof node !== 'object') {
+      return node;
+    }
+
+    // Handle arrays of children
+    if (Array.isArray(node)) {
+      return node.map(walk);
+    }
+
+    // Check if this is a React element with a type
+    if (node.type) {
+      // If type is 'main', check if we already have one
+      if (node.type === 'main') {
+        mainCount++;
+        if (mainCount > 1) {
+          // Convert to section with role region
+          return {
+            ...node,
+            type: 'section',
+            props: {
+              ...node.props,
+              role: 'region',
+              'aria-label': node.props && (node.props['aria-label'] || node.props['aria-labelledby']) ?
+                (node.props['aria-label'] || node.props['aria-labelledby']) : 'Content section',
+            },
+          };
+        }
+      }
+
+      // Recursively process children
+      if (node.props && node.props.children) {
+        const children = Array.isArray(node.props.children)
+          ? node.props.children.map(walk)
+          : walk(node.props.children);
+        return {
+          ...node,
+          props: {
+            ...node.props,
+            children,
+          },
+        };
+      }
+    }
+
+    return node;
+  }
+
+  return walk(jsxTree);
+}
+
+// REACT_025: Ensure single main landmark in the document and fix any extras
+function ensureSingleMainLandmark() {
+  // First, fix any multiple main elements in the DOM
+  const fixedCount = fixMultipleMainLandmarks();
+
+  // Then ensure unique landmark ids
+  ensureUniqueLandmarkIds();
+
+  // Finally validate
+  const result = ensureUniqueLandmarks();
+
+  return {
+    ...result,
+    fixedCount,
+  };
+}
+
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
@@ -195,13 +274,14 @@ function createAccessibleLink(href, label) {
 // Validate link accessibility (fake link check)
 function validateLinkAccessibility() {
   const links = document.querySelectorAll('a');
-  let hasIssues = false;
+  let hasFakeLink = false;
   links.forEach(link => {
-    if (!link.href || link.getAttribute('href') === '#') {
-      hasIssues = true;
+    const href = link.getAttribute('href');
+    if (!href || href === '#') {
+      hasFakeLink = true;
     }
   });
-  return !hasIssues;
+  return !hasFakeLink;
 }
 
 // Check valid TH scope attribute
@@ -256,7 +336,7 @@ function checkTableStructure() {
 }
 
 // Add main landmark if missing
-function addMainLandmark() {
+function addMainLandmarkIfMissing() {
   const main = document.querySelector('main');
   if (!main) {
     const newMain = document.createElement('main');
@@ -274,6 +354,7 @@ function addLandmarkRegions() {
   // Validate and fix unique landmarks
   ensureUniqueLandmarks();
   fixMultipleMainLandmarks();
+  ensureUniqueLandmarkIds();
 
   // Ensure other landmarks have proper labeling
   const landmarks = document.querySelectorAll('header, footer, nav, aside');
@@ -300,9 +381,38 @@ function fixFakeLinkIssue() {
     });
     // Copy event listeners by cloning
     const clonedLink = link.cloneNode(true);
-    link.parentNode.replaceChild(button, link);
+    if (link.parentNode) {
+      link.parentNode.replaceChild(button, link);
+    }
   });
 }
+
+// Export functions for use in other modules and tests
+export {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  addMainLandmark,
+  ensureUniqueLandmarkIds,
+  fixMultipleMainLandmarks,
+  ensureUniqueLandmarks,
+  fixReactMainLandmarks,
+  ensureSingleMainLandmark,
+  addSvgAccessibleNames,
+  fixFaviconAccessibility,
+  createInPageButton,
+  createAccessibleLink,
+  validateLinkAccessibility,
+  hasValidTHScope,
+  addLangAttribute,
+  fixTableStructure,
+  checkTableStructure,
+  addMainLandmarkIfMissing,
+  addLandmarkRegions,
+  fixFakeLinkIssue,
+};
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from

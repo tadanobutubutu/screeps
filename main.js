@@ -2,10 +2,22 @@
 import dependencyGraphContent from './dependencyGraphContent';
 import indexContent from './indexContent';
 
-// TODO: Add these imported modules to the relevant rendering functions
-// ... (Fill in here with the appropriate function calls)
+// Add these imported modules to the relevant rendering functions
+function renderDependencyGraph() {
+  // Placeholder for rendering logic for dependency graph
+  console.log('Rendering dependency graph with', dependencyGraphContent);
+}
+
+function renderIndex() {
+  // Placeholder for rendering logic for index
+  console.log('Rendering index with', indexContent);
+}
 
 // Assume existing exports and functions are preserved
 export default function MyApp() {
-  // ... (Existing code)
+  // Placeholder for existing code
+
+  // Example of using the new rendering functions
+  renderDependencyGraph();
+  renderIndex();
 }

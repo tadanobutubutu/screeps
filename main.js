@@ -12,9 +12,12 @@ const anotherFunction = require('./another-function');
 
 // New function to implement accessibility fixes with custom landmark addition and focus-trap
 function addressAccessibilityIssues(role = 'banner') {
-  addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
+
   // Add focus-trap related code
   function addFocusTrap(element) {
     const wrapper = document.createElement('div');
@@ -80,10 +83,6 @@ function addressAccessibilityIssues(role = 'banner') {
     return wrapper;
   }
 
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  addMainLandmark();
-  addSvgAccessibleNames();
   // Use focus-trap and react-transition-group in existing functions
   function implementAccessibility(component) {
     const wrapper = document.createElement('div');
@@ -120,26 +119,13 @@ function addressAccessibilityIssues(role = 'banner') {
   }
 
   // Expose new functions
-  addFocusTrap = addFocusTrap;
-  removeFocusTrap = removeFocusTrap;
-  renderCSSTransition = renderCSSTransition;
-  implementAccessibility = implementAccessibility;
-  applyAccessibilityFixes = applyAccessibilityFixes;
-}
-
-// New function to call the new function with custom landmark and focus-trap
-function applyAccessibilityFixes(component, customRole = 'main') {
-  const landmark = document.createElement('div');
-  landmark.setAttribute('role', customRole);
-  landmark.setAttribute('aria-label', `${customRole} content`);
-  
-  const wrappedComponent = React.createElement(
-    'div',
-    { role: customRole, 'aria-label': `${customRole} content` },
-    component
-  );
-  
-  implementAccessibility(wrappedComponent);
+  return {
+    addFocusTrap,
+    removeFocusTrap,
+    renderCSSTransition,
+    implementAccessibility,
+    applyAccessibilityFixes
+  };
 }
 
 // Helper functions for accessibility
@@ -220,18 +206,11 @@ function fixTableStructureIssues() {
 
 // Export the module functions
 module.exports = {
-  renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
   addressAccessibilityIssues,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
-  addSvgAccessibleNames,
-  applyAccessibilityFixes,
-  implementAccessibility,
-  addFocusTrap,
-  removeFocusTrap,
-  renderCSSTransition,
-  removeFocusTrap
+  addSvgAccessibleNames
 };

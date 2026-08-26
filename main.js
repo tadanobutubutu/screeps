@@ -28,7 +28,7 @@ function fixTableStructureIssues() {
       headers.forEach((headerCell) => {
         const th = document.createElement('th');
         th.textContent = headerCell.textContent;
-        // Preserve scope attribute if present; otherwise default to 'col' for accessibility
+        // Preserve scope attribute for accessibility; copy existing if present, else default to col
         if (headerCell.getAttribute('scope')) {
           th.setAttribute('scope', headerCell.getAttribute('scope'));
         } else {
@@ -75,9 +75,6 @@ function fixTableStructureIssues() {
 }
 
 // ... (rest of your main.js code)
-
-// Preserve request note from origin/main:
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 // Export the function if it's meant to be used outside of this file
 export { fixTableStructureIssues };

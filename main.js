@@ -69,7 +69,46 @@ function addIdsToLandmarks(landmarks) {
 
 // New functions for addressing remaining issues
 function fixTableStructure() {
-    // Implement the function as needed
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        // Add caption if missing
+        if (!table.querySelector('caption')) {
+            const caption = document.createElement('caption');
+            caption.textContent = 'Data table';
+            caption.style.cssText = 'position: absolute; left: -9999px;'; // Visually hidden but accessible
+            table.insertBefore(caption, table.firstChild);
+        }
+
+        // Ensure header cells have scope attributes
+        const headers = table.querySelectorAll('th');
+        headers.forEach(th => {
+            if (!th.hasAttribute('scope')) {
+                // Heuristic: if in thead, assume column header; if first cell in row, assume row header
+                const isInThead = th.closest('thead');
+                const isFirstInRow = th.parentElement && th.parentElement.firstElementChild === th;
+                
+                if (isInThead) {
+                    th.setAttribute('scope', 'col');
+                } else if (isFirstInRow) {
+                    th.setAttribute('scope', 'row');
+                }
+            }
+        });
+
+        // Ensure data cells have headers attribute if complex table
+        const rows = table.querySelectorAll('tr');
+        const headerCells = Array.from(table.querySelectorAll('th[scope="col"]'));
+        if (headerCells.length > 0) {
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    if (headerCells[index] && !cell.hasAttribute('headers')) {
+                        cell.setAttribute('headers', headerCells[index].id || `col-${index}`);
+                    }
+                });
+            });
+        }
+    });
 }
 
 function fixFakeLinkIssue() {

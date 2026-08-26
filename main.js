@@ -26,8 +26,20 @@ module.exports = {
 
     // ... existing table append code ...
 
+    // Fix for REACT_015: ensure document root has a lang attribute for accessibility
+    ensureHtmlLangAttribute('en');
+
     return table;
   },
 
   // ... other code ...
+
+  // Helper to ensure the document <html> element has a lang attribute (REACT_015)
+  ensureHtmlLangAttribute: (lang = 'en') => {
+    if (typeof document === 'undefined') return;
+    const rootElement = document.documentElement;
+    if (rootElement && !rootElement.getAttribute('lang')) {
+      rootElement.setAttribute('lang', lang);
+    }
+  },
 };

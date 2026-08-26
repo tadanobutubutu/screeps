@@ -39,17 +39,44 @@ function getSvgAccessibleName() {
 // Function to ensure unique landmarks
 // ... (Code for ensuring unique landmarks)
 
-// Function to create an in-page button
+// Imported from the conflicting branch for dashboard integration (icons for icons object)
+const dashboardIconSvg = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>';
+
+// Function to create an in-page button (updated to merge both styles)
 function createInPageButton() {
-  // ... (Code for creating an in-page button)
+  // ... (Original code for creating an in-page button)
+
+  // Added: Support for setting an icon using an SVG string (for integration with dashboard)
+  if (iconString) {
+    btn.setAttribute('aria-label', iconString);
+    const iconEl = document.createElementNS('http://www.w3.org/2000/svg', 'img');
+    iconEl.setAttribute('src', iconString);
+    iconEl.setAttribute('alt', '');
+    iconEl.style.width = '30px';
+    iconEl.style.height = '30px';
+    btn.prepend(iconEl);
+  }
 }
 
-// Function to create an accessible link
-function createAccessibleLink() {
-  // ... (Code for creating an accessible link)
+// Function to create an accessible link (updated to merge both styles)
+function createAccessibleLink(href, textContent, iconString) {
+  // ... (Original code for creating an accessible link)
+
+  // Added: Support for setting an icon using an SVG string (for integration with dashboard)
+  if (iconString) {
+    link.prepend(createIcon(iconString));
+  }
 }
 
-// ... (Remaining code from your main.js file, if any)
+// Helper function to create an icon element from an SVG string
+function createIcon(iconString) {
+  const iconEl = document.createElementNS('http://www.w3.org/2000/svg', 'img');
+  iconEl.setAttribute('src', iconString);
+  iconEl.setAttribute('alt', '');
+  iconEl.style.width = '30px';
+  iconEl.style.height = '30px';
+  return iconEl;
+}
 
 // Exports the functions
 module.exports = {
@@ -58,5 +85,9 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
-  // ... (Rest of the exports for the new functions)
+  createInPageButton,
+  createAccessibleLink,
+  createIcon,
 };
+```
+In the merged version of the `main.js` file, I integrated the code from both branches to address accessibility issues and support the dashboard integration by adding the ability to set an icon for in-page buttons and links using an SVG string. I used the `createIcon` helper function to make it easier to create and insert the icon elements. All other functions remain unchanged.

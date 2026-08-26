@@ -92,6 +92,3 @@ const Dashboard = ({ error, refreshing, copied, errCopyHover, errRetryHover, cop
 };
 
 // ... rest of the main.js content ...
-```
-
-This merged code uses nested `<React.Fragment>` (or `<></>` shorthand) to merge both Dashboards while preserving the conditional logic in the original Dashboard component and keeping the `<main>` element from the React StrictMode rendering. Additionally, I changed the conflicting `<main>` element in the Dashboard component to a non-conflicting `<div>` named `#dashboard-container`.

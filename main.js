@@ -1,5 +1,4 @@
 tsx
-// app/layout.tsx
 import React from 'react';
 
 const Layout = ({ children }) => {
@@ -19,11 +18,6 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout;
-
-// dashboard/app/layout.tsx
-import React from 'react';
-
 const DashboardLayout = ({ children }) => {
   return (
     <div>
@@ -41,4 +35,4 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
-export default DashboardLayout;
+export { Layout, DashboardLayout };

@@ -222,18 +222,27 @@ const Root = () => {
     console.error(landmarkError.errors);
   }
 
+  // Add header and footer landmarks
   return (
     <html lang={lang || 'en'}>
-      {/* Other JSX elements... */}
-      <main>
-        <InPageButton
-          id="unrotate"
-          label="Rotate back"
-          onClick={handleRotateBack}
-        />
-        {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
-      </main>
+      <header role="banner">
+        {/* Header content */}
+      </header>
+      <body>
+        {/* Other JSX elements... */}
+        <main role="main">
+          <InPageButton
+            id="unrotate"
+            label="Rotate back"
+            onClick={handleRotateBack}
+          />
+          {/* Example usage of new function */}
+          <InPageButton onClick={newFunction} label="New Function" />
+        </main>
+      </body>
+      <footer role="contentinfo">
+        {/* Footer content */}
+      </footer>
     </html>
   );
 };

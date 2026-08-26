@@ -42,11 +42,14 @@ function ensureUniqueLandmarks() {
 
   // New method to add custom landmarks
   function addCustomLandmark(elementId, landmarkRole) {
-    const element = document.querySelector(elementId);
+    const element = document.getElementById(elementId);
     if (element) {
       accessibilityHelpers.setRole(element, landmarkRole);
     }
   }
+
+  // Expose addCustomLandmark so it can be called from implementAccessibilityWithCustomLandmark
+  ensureUniqueLandmarks.addCustomLandmark = addCustomLandmark;
 }
 
 // Fix fake link issue
@@ -137,7 +140,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'introduc
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
-  addCustomLandmark('#intro', customLandmarkRole); // New line
+  ensureUniqueLandmarks.addCustomLandmark('#intro', customLandmarkRole); // New line
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();

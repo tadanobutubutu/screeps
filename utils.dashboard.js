@@ -79,23 +79,18 @@ const DashboardRenderer = {
         return info;
     },
 
-    displayVisuals(room) {
-        const info = this.renderRoomDashboard(room);
 
-        let y = 2.0;
-        const x = 1;
-        const width = 8.5;
-        const height = 12.2;
-
-        // 🎨 Accessibility: Semi-transparent background for readability
+    _drawBackground(room, x, y, width, height) {
         room.visual.rect(x - 0.5, y - 1, width, height, {
             fill: '#000000',
             opacity: 0.5,
             stroke: '#ffffff',
             strokeWidth: 0.05,
         });
+        return y;
+    },
 
-        // 🏠 Room Name & Mode
+    _drawModeInfo(room, info, x, y) {
         const modeIcons = {
             EMERGENCY: '🚨',
             MINIMAL: '🔋',
@@ -118,9 +113,10 @@ const DashboardRenderer = {
             stroke: '#000000',
             strokeWidth: 0.05,
         });
-        y++;
+        return y + 1;
+    },
 
-        // 🌐 GCL info
+    _drawGCLInfo(room, info, x, y) {
         room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent.toFixed(2)}%)`, x, y, {
             font: 0.7,
             color: '#00aaff',
@@ -130,10 +126,9 @@ const DashboardRenderer = {
         });
         y += 0.4;
 
-        // GCL Progress Bar
         const gclBarWidth = 6;
         const gclBarHeight = 0.2;
-        const gclProgress = info.gcl.progress / info.gcl.progressTotal;
+        const gclProgress = info.gcl.progressTotal ? info.gcl.progress / info.gcl.progressTotal : 0;
         room.visual.rect(x, y - 0.1, gclBarWidth, gclBarHeight, {
             fill: '#333333',
             stroke: '#ffffff',
@@ -143,9 +138,10 @@ const DashboardRenderer = {
             fill: '#00aaff',
             opacity: 0.8,
         });
-        y += 0.6;
+        return y + 0.6;
+    },
 
-        // 🎮 Controller info
+    _drawControllerInfo(room, info, x, y) {
         let controllerText = info.controller
             ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
             : '🎮 RCL: None';
@@ -167,11 +163,10 @@ const DashboardRenderer = {
         });
         y += 0.4;
 
-        // RCL Progress Bar
         if (info.controller && info.controller.level < 8) {
             const barWidth = 6;
             const barHeight = 0.2;
-            const progress = info.controller.progress / info.controller.progressTotal;
+            const progress = info.controller.progressTotal ? info.controller.progress / info.controller.progressTotal : 0;
 
             room.visual.rect(x, y - 0.1, barWidth, barHeight, {
                 fill: '#333333',
@@ -183,16 +178,17 @@ const DashboardRenderer = {
                 opacity: 0.8,
             });
         }
-        y += 0.8;
+        return y + 0.8;
+    },
 
-        // ⚡ Energy info
-        let energyColor = '#00ffff'; // Cyan (Default/Healthy)
+    _drawEnergyInfo(room, info, x, y) {
+        let energyColor = '#00ffff';
         if (info.energyAvailable >= info.energyCapacity && info.energyCapacity > 0) {
-            energyColor = '#FFD700'; // Gold (Full)
+            energyColor = '#FFD700';
         } else if (info.energyPercent < 30) {
-            energyColor = '#ff0000'; // Red (Critical)
+            energyColor = '#ff0000';
         } else if (info.energyPercent < 70) {
-            energyColor = '#ffff00'; // Yellow (Warning)
+            energyColor = '#ffff00';
         }
 
         room.visual.text(`⚡ Energy: ${info.energy} (${info.energyPercent}%)`, x, y, {
@@ -204,10 +200,9 @@ const DashboardRenderer = {
         });
         y += 0.4;
 
-        // Energy Progress Bar
         const energyBarWidth = 6;
         const energyBarHeight = 0.2;
-        const energyProgress = Math.min(info.energyAvailable / info.energyCapacity, 1) || 0;
+        const energyProgress = info.energyCapacity > 0 ? Math.min(info.energyAvailable / info.energyCapacity, 1) : 0;
         room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, {
             fill: '#333333',
             stroke: '#ffffff',
@@ -217,16 +212,17 @@ const DashboardRenderer = {
             fill: energyColor,
             opacity: 0.8,
         });
-        y += 0.6;
+        return y + 0.6;
+    },
 
-        // 📦 Storage info
-        let storageColor = '#00ffff'; // Cyan (Healthy)
+    _drawStorageInfo(room, info, x, y) {
+        let storageColor = '#00ffff';
         if (info.storagePercent >= 100) {
-            storageColor = '#FFD700'; // Gold (Full)
+            storageColor = '#FFD700';
         } else if (info.storagePercent < 30) {
-            storageColor = '#ff0000'; // Red (Critical)
+            storageColor = '#ff0000';
         } else if (info.storagePercent < 70) {
-            storageColor = '#ffff00'; // Yellow (Warning)
+            storageColor = '#ffff00';
         }
 
         room.visual.text(`📦 Storage: ${info.storage} (${info.storagePercent}%)`, x, y, {
@@ -238,7 +234,6 @@ const DashboardRenderer = {
         });
         y += 0.4;
 
-        // Storage Progress Bar
         const storageBarWidth = 6;
         const storageBarHeight = 0.2;
         const storageProgress = info.storagePercent / 100;
@@ -251,11 +246,12 @@ const DashboardRenderer = {
             fill: storageColor,
             opacity: 0.8,
         });
-        y += 0.8;
+        return y + 0.8;
+    },
 
-        // 👥 Creeps info
+    _drawCreepsInfo(room, info, x, y) {
         room.visual.text(
-            `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
+            `👥 ⛏️:${info.creeps.harvester || 0} ⬆️:${info.creeps.upgrader || 0} 🛠️:${info.creeps.builder || 0} 🔧:${info.creeps.repairer || 0}`,
             x,
             y,
             {
@@ -268,7 +264,7 @@ const DashboardRenderer = {
         );
         y += 0.8;
         room.visual.text(
-            `   🚚:${info.creeps.transporter} 📡:${info.creeps.scout} 💊:${info.creeps.medic} 🗺️:${info.creeps.explorer}`,
+            `   🚚:${info.creeps.transporter || 0} 📡:${info.creeps.scout || 0} 💊:${info.creeps.medic || 0} 🗺️:${info.creeps.explorer || 0}`,
             x,
             y,
             {
@@ -279,10 +275,12 @@ const DashboardRenderer = {
                 strokeWidth: 0.05,
             }
         );
+        return y;
+    },
 
+    _drawHostilesInfo(room, info, x, y) {
         if (info.hostiles > 0) {
             y++;
-            // 🎨 Animation: Pulsing opacity for urgency
             const pulse = 0.7 + 0.3 * Math.sin(Game.time / 3);
             room.visual.text(`⚠️ HOSTILES: ${info.hostiles}`, x, y, {
                 font: 0.8,
@@ -293,8 +291,10 @@ const DashboardRenderer = {
                 strokeWidth: 0.1,
             });
         }
+        return y;
+    },
 
-        // 🔋 CPU Bucket
+    _drawCPUInfo(room, info, x, y) {
         y += 0.8;
         const bucketProgress = Math.min(info.bucket / 10000, 1);
         const bucketPulse = info.bucket < 1000 ? 0.7 + 0.3 * Math.sin(Game.time / 2) : 1.0;
@@ -319,13 +319,283 @@ const DashboardRenderer = {
             y + 0.6,
             {
                 font: 0.4,
-                color: '#ffffff', // 🎨 Accessibility: White text for consistency and contrast
+                color: '#ffffff',
                 opacity: bucketPulse,
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.05,
             }
         );
+        return y + 0.6;
+    },
+
+
+    _drawBackground(room, x, y, width, height) {
+        room.visual.rect(x - 0.5, y - 1, width, height, {
+            fill: '#000000',
+            opacity: 0.5,
+            stroke: '#ffffff',
+            strokeWidth: 0.05,
+        });
+        return y;
+    },
+
+    _drawModeInfo(room, info, x, y) {
+        const modeIcons = {
+            EMERGENCY: '🚨',
+            MINIMAL: '🔋',
+            NORMAL: '⚖️',
+            FULL: '🚀',
+        };
+        const modeColors = {
+            EMERGENCY: '#ff0000',
+            MINIMAL: '#ffaa00',
+            NORMAL: '#ffff00',
+            FULL: '#00ff00',
+        };
+        const modeColor = modeColors[info.mode] || '#ffffff';
+        const modeIcon = modeIcons[info.mode] || '⚙️';
+
+        room.visual.text(`🏠 ${info.room} ${modeIcon} [${info.mode}]`, x, y, {
+            font: 0.8,
+            color: modeColor,
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        return y + 1;
+    },
+
+    _drawGCLInfo(room, info, x, y) {
+        room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent.toFixed(2)}%)`, x, y, {
+            font: 0.7,
+            color: '#00aaff',
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y += 0.4;
+
+        const gclBarWidth = 6;
+        const gclBarHeight = 0.2;
+        const gclProgress = info.gcl.progressTotal ? info.gcl.progress / info.gcl.progressTotal : 0;
+        room.visual.rect(x, y - 0.1, gclBarWidth, gclBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, gclBarWidth * gclProgress, gclBarHeight, {
+            fill: '#00aaff',
+            opacity: 0.8,
+        });
+        return y + 0.6;
+    },
+
+    _drawControllerInfo(room, info, x, y) {
+        let controllerText = info.controller
+            ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
+            : '🎮 RCL: None';
+
+        if (info.controller) {
+            if (info.controller.safeMode) {
+                controllerText += ` 🛡️:${info.controller.safeMode}`;
+            } else {
+                controllerText += ` 🛡️:x${info.controller.safeModeAvailable || 0}`;
+            }
+        }
+
+        room.visual.text(controllerText, x, y, {
+            font: 0.7,
+            color: '#ffff00',
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y += 0.4;
+
+        if (info.controller && info.controller.level < 8) {
+            const barWidth = 6;
+            const barHeight = 0.2;
+            const progress = info.controller.progressTotal ? info.controller.progress / info.controller.progressTotal : 0;
+
+            room.visual.rect(x, y - 0.1, barWidth, barHeight, {
+                fill: '#333333',
+                stroke: '#ffffff',
+                strokeWidth: 0.02,
+            });
+            room.visual.rect(x, y - 0.1, barWidth * progress, barHeight, {
+                fill: '#ffff00',
+                opacity: 0.8,
+            });
+        }
+        return y + 0.8;
+    },
+
+    _drawEnergyInfo(room, info, x, y) {
+        let energyColor = '#00ffff';
+        if (info.energyAvailable >= info.energyCapacity && info.energyCapacity > 0) {
+            energyColor = '#FFD700';
+        } else if (info.energyPercent < 30) {
+            energyColor = '#ff0000';
+        } else if (info.energyPercent < 70) {
+            energyColor = '#ffff00';
+        }
+
+        room.visual.text(`⚡ Energy: ${info.energy} (${info.energyPercent}%)`, x, y, {
+            font: 0.7,
+            color: energyColor,
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y += 0.4;
+
+        const energyBarWidth = 6;
+        const energyBarHeight = 0.2;
+        const energyProgress = info.energyCapacity > 0 ? Math.min(info.energyAvailable / info.energyCapacity, 1) : 0;
+        room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, energyBarWidth * energyProgress, energyBarHeight, {
+            fill: energyColor,
+            opacity: 0.8,
+        });
+        return y + 0.6;
+    },
+
+    _drawStorageInfo(room, info, x, y) {
+        let storageColor = '#00ffff';
+        if (info.storagePercent >= 100) {
+            storageColor = '#FFD700';
+        } else if (info.storagePercent < 30) {
+            storageColor = '#ff0000';
+        } else if (info.storagePercent < 70) {
+            storageColor = '#ffff00';
+        }
+
+        room.visual.text(`📦 Storage: ${info.storage} (${info.storagePercent}%)`, x, y, {
+            font: 0.7,
+            color: storageColor,
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y += 0.4;
+
+        const storageBarWidth = 6;
+        const storageBarHeight = 0.2;
+        const storageProgress = info.storagePercent / 100;
+        room.visual.rect(x, y - 0.1, storageBarWidth, storageBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, storageBarWidth * storageProgress, storageBarHeight, {
+            fill: storageColor,
+            opacity: 0.8,
+        });
+        return y + 0.8;
+    },
+
+    _drawCreepsInfo(room, info, x, y) {
+        room.visual.text(
+            `👥 ⛏️:${info.creeps.harvester || 0} ⬆️:${info.creeps.upgrader || 0} 🛠️:${info.creeps.builder || 0} 🔧:${info.creeps.repairer || 0}`,
+            x,
+            y,
+            {
+                font: 0.7,
+                color: '#ffffff',
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
+        );
+        y += 0.8;
+        room.visual.text(
+            `   🚚:${info.creeps.transporter || 0} 📡:${info.creeps.scout || 0} 💊:${info.creeps.medic || 0} 🗺️:${info.creeps.explorer || 0}`,
+            x,
+            y,
+            {
+                font: 0.7,
+                color: '#ffffff',
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
+        );
+        return y;
+    },
+
+    _drawHostilesInfo(room, info, x, y) {
+        if (info.hostiles > 0) {
+            y++;
+            const pulse = 0.7 + 0.3 * Math.sin(Game.time / 3);
+            room.visual.text(`⚠️ HOSTILES: ${info.hostiles}`, x, y, {
+                font: 0.8,
+                color: '#ff0000',
+                opacity: pulse,
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.1,
+            });
+        }
+        return y;
+    },
+
+    _drawCPUInfo(room, info, x, y) {
+        y += 0.8;
+        const bucketProgress = Math.min(info.bucket / 10000, 1);
+        const bucketPulse = info.bucket < 1000 ? 0.7 + 0.3 * Math.sin(Game.time / 2) : 1.0;
+
+        room.visual.rect(x, y, 6, 0.2, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 });
+
+        let bucketColor = '#ff0000';
+        if (info.bucket > 7000) {
+            bucketColor = '#00ff00';
+        } else if (info.bucket > 3000) {
+            bucketColor = '#ffff00';
+        }
+
+        room.visual.rect(x, y, 6 * bucketProgress, 0.2, {
+            fill: bucketColor,
+            opacity: 0.7 * bucketPulse,
+        });
+        const bucketPercent = Math.floor(bucketProgress * 100);
+        room.visual.text(
+            `📊 CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
+            x,
+            y + 0.6,
+            {
+                font: 0.4,
+                color: '#ffffff',
+                opacity: bucketPulse,
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
+        );
+        return y + 0.6;
+    },
+
+    displayVisuals(room) {
+        const info = this.renderRoomDashboard(room);
+
+        let y = 2.0;
+        const x = 1;
+        const width = 8.5;
+        const height = 12.2;
+
+        this._drawBackground(room, x, y, width, height);
+        y = this._drawModeInfo(room, info, x, y);
+        y = this._drawGCLInfo(room, info, x, y);
+        y = this._drawControllerInfo(room, info, x, y);
+        y = this._drawEnergyInfo(room, info, x, y);
+        y = this._drawStorageInfo(room, info, x, y);
+        y = this._drawCreepsInfo(room, info, x, y);
+        y = this._drawHostilesInfo(room, info, x, y);
+        y = this._drawCPUInfo(room, info, x, y);
     },
 };
 

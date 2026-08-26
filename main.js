@@ -36,6 +36,30 @@ export function countDependencies() {
   return count;
 }
 
+/**
+ * Processes data according to the issue requirements
+ * @param {Array} data - The input data to process
+ * @returns {Object} The processed result
+ */
+function processData(data) {
+  if (!Array.isArray(data)) {
+    return { error: 'Input must be an array' };
+  }
+
+  return {
+    count: data.length,
+    items: data,
+    timestamp: Date.now(),
+    operations: {
+      add: (a, b) => a + b,
+      subtract: (a, b) => a - b
+    }
+  };
+}
+
+const multiply = (a, b) => a * b;
+const divide = (a, b) => a / b;
+
 // Function to render dependency graphs
 export function renderDependencyGraph(containerId) {
   const container = document.getElementById(containerId);
@@ -109,7 +133,6 @@ export function setLangAttribute(lang = 'en') {
   if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
-  return document;
 }
 
 // Function to fix table structure issues
@@ -279,3 +302,14 @@ function addressAccessibilityIssues(document) {
 
 // Export new functions
 export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView };
+
+// Export data processing functions
+export { processData, multiply, divide };
+
+module.exports = {
+  processData,
+  add: processData.operations.add,
+  subtract: processData.operations.subtract,
+  multiply,
+  divide
+};

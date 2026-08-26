@@ -60,11 +60,11 @@ function Table({ data }) {
 
 // Prop types for the generateAccessibleTable and Table components
 generateAccessibleTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 Table.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})),
+  data: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 // Export for use in other modules

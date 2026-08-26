@@ -1,20 +1,10 @@
 // ... (existing code and exports)
 
-// REACT_041: Add accessible names to 2 SVGs
+// REACT_036: Replace non-interactive link with a button for accessibility
 import React from 'react';
 
-const Svg1 = () => (
-  <svg data-testid="svg1" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 1</title>
-  </svg>
+const RotateBackButton = () => (
+  <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
 );
 
-const Svg2 = () => (
-  <svg data-testid="svg2" aria-hidden="true" focusable="false">
-    {/* SVG Code */}
-    <title>My SVG 2</title>
-  </svg>
-);
-
-export { Svg1, Svg2 };
+export { Svg1, Svg2, RotateBackButton };

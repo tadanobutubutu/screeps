@@ -1,10 +1,11 @@
 // Import helper functions for accessibility and focus-trap, react-transition-group modules
-const accessibilityHelpers = require('./accessibility-helpers');
-const domHelpers = require('./dom-helpers');
+const accessibilityHelpers = require('./helpers/accessibility');
+const domHelpers = require('./helpers/dom');
 const { FocusTrap } = require('focus-trap');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const ReactTransitionGroup = require('react-transition-group');
+const { CSSTransition } = ReactTransitionGroup;
 
 // Existing code preserved
 const existingFunction = function() {
@@ -21,8 +22,8 @@ function addressAccessibilityIssues(role = 'banner') {
   ensureUniqueLandmarks();
   addLangAttribute();
   addMainLandmark();
-  addSvgAccessibleNames();
   fixTableStructureIssues();
+  addSvgAccessibleNames();
 
   // Add focus-trap related code
   function addFocusTrap(element, options = {}) {
@@ -35,12 +36,14 @@ function addressAccessibilityIssues(role = 'banner') {
     wrapper.style.zIndex = options.zIndex || 9999;
     wrapper.style.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0.5)';
 
+    let trap = null;
+
     const trappedElement = React.createElement(
       'div',
       {
         ref: el => {
           if (el) {
-            const trap = new FocusTrap(el, {
+            trap = new FocusTrap(el, {
               escapeDeactivates: options.escapeDeactivates !== false,
               returnFocusOnDeactivate: true,
               ...options.focusTrapOptions
@@ -116,8 +119,8 @@ function addressAccessibilityIssues(role = 'banner') {
 
   // Export the new functions
   return {
-    addFocusTrap: accessibilityHelpers.addFocusTrap,
-    removeFocusTrap: accessibilityHelpers.removeFocusTrap,
+    addFocusTrap: addFocusTrap,
+    removeFocusTrap: removeFocusTrap,
     renderCSSTransition,
     implementAccessibility: accessibilityHelpers.implementAccessibility,
     applyAccessibilityFixes: accessibilityHelpers.applyAccessibilityFixes
@@ -126,27 +129,140 @@ function addressAccessibilityIssues(role = 'banner') {
 
 // Helper functions for accessibility
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  // ... (rest of the function remains unchanged)
+  const fakeLinks = document.querySelectorAll('[role="link"]:not([href])');
+  fakeLinks.forEach(link => {
+    link.style.cursor = 'pointer';
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+  });
 }
 
-// ... (other helper functions remain unchanged)
+function ensureUniqueLandmarks() {
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].removeAttribute('role');
+      mainElements[i].style.display = 'none';
+    }
+  }
+}
+
+function addLangAttribute() {
+  const html = document.querySelector('html');
+  if (html && !html.hasAttribute('lang')) {
+    html.setAttribute('lang', navigator.language || 'en');
+  }
+}
+
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const hasHeader = table.querySelector('th');
+    if (!hasHeader && table.rows.length > 0) {
+      const firstRow = table.rows[0];
+      Array.from(firstRow.cells).forEach(cell => {
+        cell.setAttribute('scope', 'col');
+      });
+    }
+  });
+}
+
+function addMainLandmark() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length === 0) {
+    const main = document.createElement('main');
+    main.id = 'main-content';
+    document.body.insertBefore(main, document.body.firstChild);
+  } else {
+    const firstMain = mains[0];
+    if (!firstMain.id) {
+      firstMain.id = 'main-content';
+    }
+  }
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const newTitle = document.createElement('title');
+      newTitle.textContent = `SVG ${index + 1}`;
+      svg.insertBefore(newTitle, svg.firstChild);
+    }
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+  });
+}
 
 // New top-level functions (copies of those returned from addressAccessibilityIssues)
-// ... (other top-level functions remain unchanged)
+function addFocusTrap(element, options = {}) {
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'fixed';
+  wrapper.style.top = '0';
+  wrapper.style.left = '0';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+  wrapper.style.zIndex = options.zIndex || 9999;
+  wrapper.style.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0.5)';
+
+  let trap = null;
+
+  const trappedElement = React.createElement(
+    'div',
+    {
+      ref: el => {
+        if (el) {
+          trap = new FocusTrap(el, {
+            escapeDeactivates: options.escapeDeactivates !== false,
+            returnFocusOnDeactivate: true,
+            ...options.focusTrapOptions
+          });
+          trap.activate();
+          if (options.onActivate) {
+            options.onActivate(trap);
+          }
+        }
+      }
+    },
+    element
+  );
+
+  document.body.appendChild(wrapper);
+  ReactDOM.render(trappedElement, wrapper);
+  return {
+    trap: trappedElement,
+    deactivate: () => {
+      if (trap) {
+        trap.deactivate();
+      }
+      if (wrapper.parentNode) {
+        wrapper.parentNode.removeChild(wrapper);
+      }
+    }
+  };
+}
+
+function removeFocusTrap(trap) {
+  if (trap && trap.deactivate) {
+    trap.deactivate();
+  }
+}
 
 // Export the module functions
 module.exports = {
-  ensureUniqueLandmarks: accessibilityHelpers.ensureUniqueLandmarks,
-  fixFakeLinks: accessibilityHelpers.fixFakeLinks,
-  addressAccessibilityIssues,
-  addLangAttribute: accessibilityHelpers.addLangAttribute,
-  fixTableStructureIssues: accessibilityHelpers.fixTableStructureIssues,
-  addMainLandmark: accessibilityHelpers.addMainLandmark,
-  addSvgAccessibleNames: accessibilityHelpers.addSvgAccessibleNames,
-  addFocusTrap: accessibilityHelpers.addFocusTrap,
-  removeFocusTrap: accessibilityHelpers.removeFocusTrap,
-  renderCSSTransition,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  fixFakeLinks: fixFakeLinks,
+  addressAccessibilityIssues: addressAccessibilityIssues,
+  addLangAttribute: addLangAttribute,
+  fixTableStructureIssues: fixTableStructureIssues,
+  addMainLandmark: addMainLandmark,
+  addSvgAccessibleNames: addSvgAccessibleNames,
+  addFocusTrap: addFocusTrap,
+  removeFocusTrap: removeFocusTrap,
+  renderCSSTransition: renderCSSTransition,
   implementAccessibility: accessibilityHelpers.implementAccessibility,
   applyAccessibilityFixes: accessibilityHelpers.applyAccessibilityFixes
 };

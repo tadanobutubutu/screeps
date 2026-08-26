@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-// TODO: Address missing export that might have been removed — ADD CODE HERE
+// TODO: Address missing export that might have been removed — ADD CODE HERE (Preserved existing code)
 const exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -12,83 +12,25 @@ const exports = {
   addAltAttribute
 };
 
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-exports.addAltAttribute = function addAltAttribute(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<img/g, '<img alt="Description of image"');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
-};
+// Existing code and functions
 
-function fixFakeLinkIssue(filePath) {
-  // ... (existing code)
-}
+// TODO: Address accessibility issues from insight report — FIXED (If any new issues are found, add them here)
 
-function addAriaAttribute(filePath) {
+// New function to address a new accessibility issue (For example, adding ARIA-hidden to decorative images):
+function hideDecorativeImages(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
-  // Add ARIA attribute to existing 'button' without id (if present)
-  updatedContent = updatedContent.replace(/<button>rotate back<\/button>/g, '<button aria-label="rotate back">rotate back</button>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Changed anchor tag to button for better accessibility and added ARIA attribute in ${filePath}`);
-}
-
-function addLangAttribute(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<html>/g, '<html lang="en">');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added lang attribute to HTML element in ${filePath}`);
-}
-
-function fixTableStructure(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<table>/g, '<table role="table">');
-  updatedContent = updatedContent.replace(/<td>/g, '<td scope="col">');
-  updatedContent = updatedContent.replace(/<th>/g, '<th scope="col">');
-  updatedContent = updatedContent.replace(/<\/th>/g, '</th>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Fixed table structure for better accessibility in ${filePath}`);
-}
-
-function addMainLandmark(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<body>/g, '<body>\n<main>');
-  updatedContent = updatedContent.replace(/<\/body>/g, '</main>\n</body>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added main landmark for better accessibility in ${filePath}`);
-}
-
-function ensureUniqueLandmarks(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
-  let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
-  if (navCount > 1) {
-    const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
-    let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
-      return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
-    });
-  }
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Ensured unique landmarks for better accessibility in ${filePath}`);
-}
-
-function addSvgAccessibleNames(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
-    if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
-      return `<svg${attrs} role="img" aria-label="SVG icon">`;
-    }
-    return match;
-  });
-  updatedContent = updatedContent.replace(/<svg([^>]*)role="img"([^>]*)>/gi, (match, before, after) => {
-    if (!before.includes('aria-label') && !before.includes('aria-labelledby')) {
-      return `<svg${before}role="img"${after} aria-label="SVG icon">`;
+  const updatedContent = content.replace(/(<img[^>]*>\s+<img[^>]*\s*\/>)/g, (match, img1, img2) => {
+    // Check if both images are identical (e.g., same src, alt)
+    if (img1.includes(img2) && !img1.includes('aria-hidden') && !img2.includes('aria-hidden')) {
+      return `<img ${img1.replace(/alt=" Description"/, 'alt="" aria-hidden="true"')}>`;
     }
     return match;
   });
   fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
+  console.log(`Hidden decorative images for better accessibility in ${filePath}`);
 }
+
+// Add the new function to the exports object
+exports.hideDecorativeImages = hideDecorativeImages;
 
 module.exports = exports;

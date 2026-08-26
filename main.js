@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with both changes integrated:
-
-```javascript
 // Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
@@ -9,6 +6,7 @@ import { dependencyGraphContent } from "./dependencyGraphContent";
 import { indexContent } from "./indexContent";
 
 // Import content modules for dependency graphs and index views
+// ... (Pre-existing code)
 
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
@@ -25,7 +23,7 @@ function createReactContext() {
   const rootElement = body.querySelector('#root');
   window.document = mockDocument;
   window.navigator = { userAgent: "headless" };
-
+  
   return {
     window,
     document: mockDocument,
@@ -85,6 +83,91 @@ function initAriaLabels() {
 
 // ... (Keep the rest of the functions as they were)
 
+/**
+ * Wraps the primary content in a <main> element for semantic HTML structure.
+ * This function finds the main content area and wraps it appropriately.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {HTMLElement|null} - The created main element or null if no content found
+ */
+function wrapPrimaryContentInMain(context) {
+  if (!context || !context.document) return null;
+  
+  const { document } = context;
+  
+  // Check if a main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  // Find the primary content area (body or main content container)
+  const body = document.body;
+  if (!body || body.children.length === 0) {
+    return null;
+  }
+  
+  // Create a new main element
+  const mainElement = document.createElement('main');
+  
+  // Move all body children into the main element
+  while (body.firstChild) {
+    mainElement.appendChild(body.firstChild);
+  }
+  
+  // Append the main element to the body
+  body.appendChild(mainElement);
+  
+  return mainElement;
+}
+
+/**
+ * Renders a dependency graph view using the dependencyGraphContent module.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @param {Object} options - Optional configuration for the dependency graph
+ * @returns {string} - The rendered HTML string of the dependency graph
+ */
+function renderDependencyGraph(context, options = {}) {
+  const graphContent = dependencyGraphContent({ context, ...options });
+  return ReactDOMServer.renderToString(graphContent);
+}
+
+/**
+ * Renders an index view using the indexContent module.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @param {Object} options - Optional configuration for the index view
+ * @returns {string} - The rendered HTML string of the index view
+ */
+function renderIndexView(context, options = {}) {
+  const index = indexContent({ context, ...options });
+  return ReactDOMServer.renderToString(index);
+}
+
+/**
+ * Updates the DOM element with the appropriate content based on its data-type attribute.
+ * 
+ * @param {HTMLElement} elem - The DOM element to update
+ * @param {Object} context - The React context containing window and document references
+ */
+function updateElementContent(elem, context) {
+  if (!elem || !context) return;
+  
+  const dataType = elem.getAttribute ? elem.getAttribute('data-type') : null;
+  
+  let renderedContent;
+  if (dataType === 'dependency-graph') {
+    renderedContent = renderDependencyGraph(context);
+  } else if (dataType === 'index') {
+    renderedContent = renderIndexView(context);
+  }
+  
+  if (renderedContent) {
+    elem.innerHTML = renderedContent;
+  }
+}
+
 // Export the functions to make them accessible
 export {
   createReactContext,
@@ -97,6 +180,3 @@ export {
   dependencyGraphContent,
   indexContent
 };
-```
-
-In this resolved version, I combined the old and new logic in the `addAriaLabelledbyIfNeeded` and `initAriaLabels` functions. I added a new way to determine which content to render based on the `data-attribute` and `data-component` attributes on the `elem`. The new logic will render custom or default React components if such attributes are present on the element. Otherwise, it will behave as it did before. The rest of the functions, such as `wrapPrimaryContentInMain`, `renderDependencyGraph`, and `renderIndexView`, have remained unchanged.

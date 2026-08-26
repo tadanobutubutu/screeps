@@ -6,10 +6,6 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinks)
 
-_Commit: fcb0a33e9b4314946bba82ef96ee7395f1f1f97b_
-
-<!-- todo-hash: 0dc182849994d6e16764e2c6919a83ec5d14daa4 -->
-
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -30,7 +26,13 @@ function fixFakeLinkIssue(filePath) {
 function addAriaAttribute(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Implementation details omitted for brevity
+  // Add aria-label to button elements that lack accessible names
+  content = content.replace(/<button([^>]*)>/gi, (match, attrs) => {
+    if (attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i)) {
+      return match;
+    }
+    return `<button${attrs} aria-label="Button">`;
+  });
   fs.writeFileSync(filePath, content);
   console.log(`Added ARIA attributes in ${filePath}`);
 }

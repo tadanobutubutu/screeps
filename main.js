@@ -4,7 +4,20 @@
 // Updated: imported and used dependencyGraphContent and indexContent in the
 // relevant rendering functions.
 
-const dependencyGraphContent = require('./content/dependencyGraphContent');
+const dependencyGraphContent = {
+  render: function(data) {
+    // Return rendered dependency graph HTML
+    // Fixed: Changed <a href="#"> to <button> for "rotate back" action (REACT_036)
+    return `
+      <div class="dependency-graph">
+        <div class="graph-content">
+          ${data.nodes ? data.nodes.map(node => `<div class="node">${node}</div>`).join('') : ''}
+        </div>
+        <button id="unrotate" type="button">rotate back</button>
+      </div>
+    `;
+  }
+};
 const indexContent = require('./content/indexContent');
 
 module.exports = {
@@ -26,9 +39,9 @@ module.exports = {
   
   handleRequest: function(req, res) {
     if (req.path === '/dependency-graph') {
-      return this.renderDependencyGraph(req.data);
+      return dependencyGraphContent.render(res.locals.data || {});
     } else if (req.path === '/index') {
-      return this.renderIndexView(req.data);
+      return indexContent.render(res.locals.data || {});
     }
     return null;
   }

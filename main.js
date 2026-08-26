@@ -1,5 +1,6 @@
 // Existing code from main.js
 // ... (Preserve all existing code, exports, and functions)
+import React from 'react';
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
@@ -79,3 +80,22 @@ export function someExistingFunction() {
 // export function newExportedFunction() {
 //   // New function implementation
 // }
+
+const MyTable = () => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Column Name</th>
+          <th scope="col">Another Column</th>
+          {/* ... other headers ... */}
+        </tr>
+      </thead>
+      <tbody>
+        {/* ... table rows ... */}
+      </tbody>
+    </table>
+  );
+};
+
+export default MyTable;

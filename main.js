@@ -64,6 +64,3 @@ module.exports = {
   createAccessibleLink,
   handleAccessibilityIssues,
 };
-```
-
-This file resolves the Git merge conflict by keeping both changes and merging the logic for the `getFullLangAttribute` function. It also provides comments with suggestions to replace the example implementations with the developers' actual logic wherever necessary.

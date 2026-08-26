@@ -199,6 +199,135 @@ function fixFakeLinkIssue(element) {
   return element;
 }
 
+// getLangAttribute function for REACT_015
+function getLangAttribute() {
+  return 'en';
+}
+
+// validateTableAccessibility function for REACT_027
+function validateTableAccessibility(tables) {
+  if (!tables || !Array.isArray(tables)) return [];
+  
+  return tables.map(table => {
+    const hasCaption = !!table.caption;
+    const hasHeader = table.rows?.some(row => row.isHeader);
+    
+    if (!hasCaption && !table.hasCaptionAdded) {
+      const caption = { text: 'Table caption', isHeader: true };
+      table.rows = [caption, ...(table.rows || [])];
+      table.caption = caption;
+    }
+    
+    if (hasHeader) {
+      table.rows = table.rows.map(row => {
+        if (row.isHeader && row.type === 'column') {
+          row.scope = 'col';
+        } else if (row.isHeader && row.type === 'row') {
+          row.scope = 'row';
+        }
+        return row;
+      });
+    }
+    
+    return table;
+  });
+}
+
+// validateTableStructure function for REACT_027
+function validateTableStructure(tables) {
+  if (!tables || !Array.isArray(tables)) return [];
+  
+  return tables.map(table => {
+    const scopeAttributes = ['col', 'row'];
+    const hasValidScope = table.rows?.every(row => {
+      if (row.isHeader) {
+        return scopeAttributes.includes(row.scope);
+      }
+      return true;
+    });
+    
+    if (!hasValidScope) {
+      table.rows = table.rows.map(row => {
+        if (row.isHeader && !row.scope) {
+          row.scope = row.type === 'column' ? 'col' : 'row';
+        }
+        return row;
+      });
+    }
+    
+    return table;
+  });
+}
+
+// validateLandmark function for REACT_017
+function validateLandmark(elements) {
+  if (!elements || !Array.isArray(elements)) return [];
+  
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  
+  return elements.filter(element => {
+    const role = element.getAttribute?.('role')?.toLowerCase();
+    return validRoles.includes(role);
+  });
+}
+
+// validateLandmarkStructure function for REACT_017
+function validateLandmarkStructure(elements) {
+  if (!elements || !Array.isArray(elements)) return [];
+  
+  return elements.map(element => {
+    const hasRole = element.getAttribute?.('role');
+    const hasLabel = element.getAttribute?.('aria-label') || element.getAttribute?.('aria-labelledby');
+    
+    if (!hasRole) {
+      element.setAttribute?.('role', 'region');
+    }
+    
+    if (!hasLabel) {
+      const textContent = element.textContent?.trim();
+      if (textContent) {
+        element.setAttribute?.('aria-label', textContent);
+      }
+    }
+    
+    return element;
+  });
+}
+
+// getSvgAccessibleName function for REACT_041
+function getSvgAccessibleName(svg, index = 0) {
+  if (!svg) return null;
+  
+  const existingLabel = svg.getAttribute?.('aria-label');
+  const existingLabelledby = svg.getAttribute?.('aria-labelledby');
+  
+  if (existingLabel || existingLabelledby) {
+    return svg.getAttribute?.('aria-label') || document.getElementById(existingLabelledby)?.textContent;
+  }
+  
+  const titleElement = svg.querySelector?.('title');
+  if (titleElement) {
+    return titleElement.textContent || `SVG icon ${index + 1}`;
+  }
+  
+  return `SVG icon ${index + 1}`;
+}
+
+// createInPageButton function for REACT_036
+function createInPageButton(text, targetId) {
+  const button = document.createElement('a');
+  button.href = `#${targetId}`;
+  button.textContent = text;
+  button.className = 'in-page-link';
+  button.setAttribute('role', 'link');
+  return button;
+}
+
+// PERSON_NAME function referenced in issue
+function PERSON_NAME() {
+  return 'PERSON_NAME';
+}
+
 // Export the new functions, preserving the existing exports
 export { myNewFunction as default, myNewFunction, addProperLandmarkRegions, renderDependencyGraph, renderIndexView };
 export * from './otherModule';
@@ -206,3 +335,6 @@ export { myOtherFunction };
 
 // Additional exports for accessibility functions
 export { addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue };
+
+// Exports for new accessibility functions
+export { getLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, PERSON_NAME };

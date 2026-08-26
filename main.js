@@ -18,7 +18,17 @@ function updateTableStructure(tableData) {
   return formattedTable;
 }
 
+// Math functions
+const add = (a, b) => a + b;
+const subtract = (a, b) => a - b;
+const multiply = (a, b) => a * b;
+const divide = (a, b) => a / b;
+
 module.exports = {
   formatTableData,
-  updateTableStructure
+  updateTableStructure,
+  add,
+  subtract,
+  multiply,
+  divide
 };

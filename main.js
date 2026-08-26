@@ -1,18 +1,9 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// <<<<<<< HEAD
-// [your current branch changes]
-// =======
-// [incoming changes from origin/main]
-// >>>>>>> origin/main
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 
 import { class1, function1, Object1 } from './path/to/module';
+import { dependencyGraphContent } from './content/dependencyGraphContent';
+import { indexContent } from './content/indexContent';
 
 // Export imported values (if needed)
 export { class1, function1, Object1 };
@@ -43,6 +34,73 @@ export function countDependencies() {
   });
   
   return count;
+}
+
+// Function to render dependency graphs
+export function renderDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return null;
+  }
+  
+  // Use dependencyGraphContent to render the graph
+  const graphHtml = dependencyGraphContent();
+  container.innerHTML = graphHtml;
+  
+  // Apply accessibility improvements to the rendered graph
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = document.createElement('title');
+      title.textContent = `Dependency graph ${index + 1}`;
+      title.id = `graph-title-${index + 1}`;
+      if (svg.firstChild) {
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        svg.appendChild(title);
+      }
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+  
+  return container;
+}
+
+// Function to render index view
+export function renderIndexView(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return null;
+  }
+  
+  // Use indexContent to render the index view
+  const indexHtml = indexContent();
+  container.innerHTML = indexHtml;
+  
+  // Ensure proper landmark structure for accessibility
+  const existingMain = container.querySelector('main');
+  if (!existingMain) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    mainElement.setAttribute('role', 'main');
+    
+    // Move all children into main
+    while (container.firstChild) {
+      if (container.firstChild.tagName !== 'SCRIPT' && 
+          container.firstChild.tagName !== 'STYLE' &&
+          container.firstChild.tagName !== 'LINK') {
+        mainElement.appendChild(container.firstChild);
+      } else {
+        container.removeChild(container.firstChild);
+      }
+    }
+    
+    container.appendChild(mainElement);
+  }
+  
+  return container;
 }
 
 // Function to add lang attribute to HTML element
@@ -218,4 +276,4 @@ function addressAccessibilityIssues(document) {
 }
 
 // Export new functions
-export { addressAccessibilityIssues };
+export { addressAccessibilityIssues, renderDependencyGraph, renderIndexView };

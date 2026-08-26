@@ -331,7 +331,7 @@ function handleRotateBack() {
 }
 
 // New code to be added:
-const img = document.querySelector('img');
+let img = document.querySelector('img');
 let rotation = 0;
 
 function rotate() {

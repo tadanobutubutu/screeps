@@ -161,7 +161,7 @@ function addSvgAccessibleNames(filePath) {
     svgIndex++;
   }
 
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(updatedContent, updatedContent);
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
 
@@ -209,6 +209,61 @@ function replaceButtonId(filePath, newButtonId) {
   return countReplacements;
 }
 
+/**
+ * Ensures there is only a single <main> landmark per file (REACT_025).
+ * If more than one <main> element is present, the additional ones are
+ * converted to <section> elements to maintain a unique main landmark.
+ *
+ * @param {string} filePath - Path to the file to fix.
+ * @returns {number} The number of duplicate <main> landmarks that were replaced.
+ */
+function ensureUniqueMainLandmark(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  // Find all <main> opening tags (not self-closing)
+  const mainOpenRegex = /<main\b([^>]*)>/gi;
+  const matches = [];
+  let m;
+  while ((m = mainOpenRegex.exec(content)) !== null) {
+    matches.push({ index: m.index, length: m[0].length, attrs: m[1] });
+  }
+
+  if (matches.length <= 1) {
+    console.log(`Only ${matches.length} <main> landmark(s) found in ${filePath}; no fix needed.`);
+    return 0;
+  }
+
+  // Keep the first <main>, convert the rest to <section>
+  let updatedContent = content;
+  // Process from last to first to keep indices valid
+  for (let i = matches.length - 1; i >= 1; i--) {
+    const matchInfo = matches[i];
+    const originalTag = `<main${matchInfo.attrs}>`;
+    const replacementTag = `<section${matchInfo.attrs}>`;
+    updatedContent =
+      updatedContent.substring(0, matchInfo.index) +
+      replacementTag +
+      updatedContent.substring(matchInfo.index + originalTag.length);
+
+    // Also replace the corresponding closing tag </main> with </section>
+    const closingRegex = /<\/main>/gi;
+    closingRegex.lastIndex = matchInfo.index + replacementTag.length;
+    const closingMatch = closingRegex.exec(updatedContent);
+    if (closingMatch) {
+      updatedContent =
+        updatedContent.substring(0, closingMatch.index) +
+        '</section>' +
+        updatedContent.substring(closingMatch.index + closingMatch[0].length);
+    }
+  }
+
+  const replacedCount = matches.length - 1;
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Replaced ${replacedCount} duplicate <main> landmark(s) with <section> in ${filePath}`);
+  return replacedCount;
+}
+
 function addressAccessibilityIssues(reportPath) {
   const fs = require('fs');
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
@@ -228,6 +283,9 @@ function addressAccessibilityIssues(reportPath) {
             break;
           case 'unique_landmarks':
             ensureUniqueLandmarks(issue.file);
+            break;
+          case 'unique_main_landmark':
+            ensureUniqueMainLandmark(issue.file);
             break;
           case 'svg_accessible_name':
             addSvgAccessibleNames(issue.file);
@@ -296,6 +354,7 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
+  ensureUniqueMainLandmark,
   addSvgAccessibleNames,
   addAltAttribute,
   replaceButtonId,

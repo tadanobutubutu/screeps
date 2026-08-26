@@ -26,33 +26,11 @@ describe('format_everything.js', () => {
         );
     });
 
-    it('catches error on first execSync (prettier) and proceeds to second', () => {
+    it('catches and ignores errors from execSync', () => {
         const child_process = require('child_process');
-        child_process.execSync = jest.fn()
-            .mockImplementationOnce(() => { throw new Error('Prettier mock error'); })
-            .mockImplementationOnce(() => {});
-
-        jest.doMock('child_process', () => child_process);
-
-        expect(() => {
-            require('../format_everything.js');
-        }).not.toThrow();
-
-        expect(child_process.execSync).toHaveBeenCalledWith(
-            expect.stringContaining('prettier --write'),
-            expect.any(Object)
-        );
-        expect(child_process.execSync).toHaveBeenCalledWith(
-            expect.stringContaining('eslint'),
-            expect.any(Object)
-        );
-    });
-
-    it('succeeds on first execSync (prettier) and catches error on second (eslint)', () => {
-        const child_process = require('child_process');
-        child_process.execSync = jest.fn()
-            .mockImplementationOnce(() => {})
-            .mockImplementationOnce(() => { throw new Error('ESLint mock error'); });
+        child_process.execSync = jest.fn().mockImplementation(() => {
+            throw new Error('Mock error');
+        });
 
         jest.doMock('child_process', () => child_process);
 

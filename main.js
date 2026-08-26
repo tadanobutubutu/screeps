@@ -130,5 +130,10 @@ module.exports = {
     addProperLandmarkRegions,
     renderDependencyGraph,
     addMissingLandmarks,
-    renderPage
+    renderPage,
+    dependencyGraphContent,
+    indexContent,
+    renderContent,
+    renderGraph,
+    renderLandmarks
 };

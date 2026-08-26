@@ -11,7 +11,7 @@ export { class1, function1, Object1 };
 // Function to count dependencies
 export function countDependencies() {
   // Get all import statements from the module
-  const importRegex = /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"][^'"]+['"]|['"][^'"]+['"])/g;
+  const importRegex = /import\s+(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"][^'"]+['"]/g;
   const moduleCode = __filename;
   
   // Read the current file and count named imports
@@ -78,7 +78,7 @@ export function createInPageButton(options = {}) {
   
   // Set up click handler for smooth scrolling
   if (targetId) {
-    button.addEventListener('click', (event) => {
+    button.addEventListener('click', function(event) {
       event.preventDefault();
       const targetElement = document.getElementById(targetId);
       if (targetElement) {
@@ -197,7 +197,7 @@ export function createAccessibleLink(options = {}) {
   
   // Handle click events
   if (typeof onClick === 'function') {
-    link.addEventListener('click', (event) => {
+    link.addEventListener('click', function(event) {
       // Check if link is disabled
       if (link.getAttribute('aria-disabled') === 'true') {
         event.preventDefault();
@@ -208,7 +208,7 @@ export function createAccessibleLink(options = {}) {
   }
   
   // Handle keyboard interaction
-  link.addEventListener('keydown', (event) => {
+  link.addEventListener('keydown', function(event) {
     if (event.key === 'Enter' || event.key === ' ') {
       // Allow default behavior but ensure focus is visible
       setTimeout(() => {
@@ -218,12 +218,12 @@ export function createAccessibleLink(options = {}) {
   });
   
   // Add focus indicator for accessibility
-  link.addEventListener('focus', () => {
-    link.classList.add('keyboard-focus');
+  link.addEventListener('focus', function() {
+    link.classList.add('focus-visible');
   });
   
-  link.addEventListener('blur', () => {
-    link.classList.remove('keyboard-focus');
+  link.addEventListener('blur', function() {
+    link.classList.remove('focus-visible');
   });
   
   return link;
@@ -273,7 +273,7 @@ export function renderIndexView(containerId) {
   container.innerHTML = indexHtml;
   
   // Ensure proper landmark structure for accessibility
-  const existingMain = container.querySelector('main, [role="main"]');
+  const existingMain = container.querySelector('[role="main"]');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
@@ -337,7 +337,7 @@ export function fixTableStructure() {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
 
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -359,6 +359,4 @@ export function fixTableStructure() {
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? rows.slice(1) : [];
-      if (remainingRows.length > 0) {
-        const
+      const remainingRows =

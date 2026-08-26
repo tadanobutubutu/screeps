@@ -307,3 +307,6 @@ function fixFakeLinkIssue() {
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from
 // their respective modules for better maintainability and content separation.
+
+// Fix REACT_015: Add lang attribute to HTML element on page load
+addLangAttribute();

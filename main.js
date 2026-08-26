@@ -13,16 +13,21 @@ const fixAccessibilityIssues = () => {
 // Utility function from origin/main for HTML generation with language attributes
 let myHtml = ``; // With your existing HTML string
 
-function generateHtmlWithLangAttribute(htmlContent) {
-  // You can specify the tag and language as needed
-  const htmlWithLang = `<div lang="en">${htmlContent}</div>`;
+/**
+ * Generates an HTML string with the specified language attribute for screen readers
+ * @param {string} content - The HTML content to wrap
+ * @param {string} lang - The language code (default: 'en')
+ * @returns {string} Complete HTML document with lang attribute
+ */
+const generateHtmlWithLangAttribute = (content, lang = 'en') => {
+  const htmlWithLang = `<html lang="${lang}">${content}</html>`;
   return htmlWithLang;
-}
+};
 
 // Integrated accessibility function that addresses both concerns
-const ensureAccessibility = (htmlContent) => {
+const ensureAccessibility = (htmlContent, lang = 'en') => {
   // Generate HTML with lang attribute for screen readers
-  let accessibleHtml = generateHtmlWithLangAttribute(htmlContent);
+  let accessibleHtml = generateHtmlWithLangAttribute(htmlContent, lang);
   
   // Apply additional accessibility improvements
   fixAccessibilityIssues();

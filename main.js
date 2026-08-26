@@ -1,16 +1,23 @@
 tsx
-// Assuming icons are defined or imported here
 import React from 'react';
-import { icons } from './icons'; // Assuming icons are exported from a separate module
+import { icons } from './icons';
 
+// Assuming you have a container element with an id "container"
 const Layout = () => {
   return (
-    <div>
-      {/* Other content */}
-      <link rel="icon" href={icons.icon} aria-label="Screeps Dashboard" />
+    <div id="container" aria-labelledby="container-label">
+      <link
+        rel="icon"
+        href={icons.icon}
+        aria-label="Screeps Dashboard"
+        aria-labelledby="container-label"
+      />
       {/* Other content */}
     </div>
   );
 };
+
+// Define an ID and label for the container
+const containerLabel = 'Screeps Dashboard layout';
 
 export default Layout;

@@ -263,6 +263,70 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
+// New function to add proper landmark regions (REACT_017)
+/**
+ * Adds proper landmark regions to the page for accessibility.
+ * This function identifies and enhances landmark elements with appropriate roles and attributes.
+ * @returns {Object} Summary of landmark regions added or updated.
+ */
+function addProperLandmarkRegions() {
+  const landmarks = {
+    main: { selector: 'main', role: 'main' },
+    navigation: { selector: 'nav', role: 'navigation' },
+    banner: { selector: 'header', role: 'banner' },
+    contentinfo: { selector: 'footer', role: 'contentinfo' },
+    complementary: { selector: 'aside', role: 'complementary' },
+    search: { selector: '[role="search"]', role: 'search' },
+    form: { selector: 'form', role: 'form' },
+    region: { selector: 'section', role: 'region' }
+  };
+
+  const results = {
+    added: [],
+    updated: [],
+    skipped: []
+  };
+
+  // Ensure unique IDs for landmark elements
+  Object.entries(landmarks).forEach(([name, config]) => {
+    const elements = document.querySelectorAll(config.selector);
+    
+    elements.forEach((element, index) => {
+      // Skip if already has proper role
+      if (element.getAttribute('role') === config.role) {
+        results.skipped.push({ landmark: name, reason: 'Already has proper role', element });
+        return;
+      }
+
+      // Ensure element has an ID
+      ensureElementHasId(element);
+
+      // Add or update role attribute
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', config.role);
+        results.added.push({ landmark: name, element, role: config.role });
+      } else {
+        element.setAttribute('role', config.role);
+        results.updated.push({ landmark: name, element, role: config.role });
+      }
+
+      // Add aria-label if missing and no aria-labelledby
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        const label = `${name}${index > 0 ? ` ${index + 1}` : ''}`;
+        addAriaLabel(element, label);
+      }
+    });
+  });
+
+  // Validate landmark uniqueness after adding regions
+  const uniqueness = validateLandmarkUniqueness();
+  if (!uniqueness.valid) {
+    results.skipped.push({ landmark: 'uniqueness', reason: 'Landmark uniqueness validation failed' });
+  }
+
+  return results;
+}
+
 // Export new validation functions for testing purposes
 module.exports.validateTableAccessibility = validateTableAccessibility;
 module.exports.validateTableStructure = validateTableStructure;
@@ -274,3 +338,4 @@ module.exports.validateLandmarkUniqueness = validateLandmarkUniqueness;
 module.exports.validateLinkAccessibility = validateLinkAccessibility;
 module.exports.handleFakeLinks = handleFakeLinks;
 module.exports.getLangAttribute = getLangAttribute;
+module.exports.addProperLandmarkRegions = addProperLandmarkRegions;

@@ -6,6 +6,7 @@ const htmlElement = getDocument().documentElement;
 htmlElement.lang = 'en'; // Change the value to the desired language code
 
 // Implement the handleAccessibilityError function that triggers the accessibility mode
+// (Assuming that handleErrorState is already defined)
 function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }

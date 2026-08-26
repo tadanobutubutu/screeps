@@ -2,6 +2,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by addProperLandmarkRegions())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssue())
 // - REACT_041: Fix SVG accessible name issues (handled by fixSvgAccessibility())
+// - REACT_015: Add lang attribute to html element (handled by addHtmlLangAttribute())
 
 /// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
@@ -352,10 +353,28 @@ const fixSvgAccessibility = (document) => {
   return document;
 };
 
+const addHtmlLangAttribute = (document) => {
+  if (!document || !document.documentElement) {
+    return document;
+  }
+
+  const htmlElement = document.documentElement;
+
+  // Check if lang attribute already exists
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+
+  return document;
+};
+
 // Add the updated addressAccessibilityIssues function
 const addressAccessibilityIssues = (document) => {
   // Call existing function with legacy escaped issues handling
   addressAccessibilityIssuesLegacy(document);
+
+  // Add lang attribute to html element (REACT_015)
+  addHtmlLangAttribute(document);
 
   // Wrap primary content in main element
   wrapPrimaryContentInMain(document);
@@ -396,4 +415,5 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   fixSvgAccessibility,
+  addHtmlLangAttribute,
 };

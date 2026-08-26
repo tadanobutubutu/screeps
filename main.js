@@ -25,45 +25,33 @@ function fixTableStructure(document) {
   let fixedCount = 0;
   
   tables.forEach((table) => {
-    // Ensure tables have proper structure with thead and tbody
+    // Ensure <thead> exists; if not, wrap the first row in <thead>
     const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
-    
-    if (rows.length > 0 && !existingThead) {
-      const firstRow = rows[0];
+    if (!existingThead && table.rows.length > 0) {
+      const firstRow = table.rows[0];
       const thead = document.createElement('thead');
       thead.appendChild(firstRow);
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
     
-    if (!existingTbody) {
-      const remainingRows = Array.from(table.querySelectorAll('tr'));
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-    
-    // Ensure proper header cells (th) are used
+    // Convert first <td> to <th> with scope="col" for any row inside <thead>
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        firstCell.parentNode.replaceChild(th, firstCell);
-        fixedCount++;
+      if (row.closest('thead')) {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+          const firstCell = cells[0];
+          const th = document.createElement('th');
+          th.textContent = firstCell.textContent;
+          th.scope = 'col';
+          firstCell.parentNode.replaceChild(th, firstCell);
+          fixedCount++;
+        }
       }
     });
     
-    // Additional HEAD logic: ensure scope on header cells
+    // Ensure scope attribute on all <th> elements
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (!th.hasAttribute('scope')) {
@@ -71,6 +59,18 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     });
+    
+    // Ensure <tbody> exists; if not, wrap rows not inside <thead> in <tbody>
+    const existingTbody = table.querySelector('tbody');
+    if (!existingTbody) {
+      const rowsNotInThead = Array.from(table.querySelectorAll('tr')).filter(row => !row.closest('thead'));
+      if (rowsNotInThead.length > 0) {
+        const tbody = document.createElement('tbody');
+        rowsNotInThead.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
   });
   
   return fixedCount;

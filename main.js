@@ -1,17 +1,17 @@
 // Address accessibility issues from insight report
-// Ensure the dependencyGraph container has a proper ARIA role
-const { renderGraphContent } = require('./dependency-graph');
-
-const dependencyGraph = document.querySelector('#dependencyGraph .dependencyGraph');
-if (dependencyGraph) {
-  dependencyGraph.setAttribute('role', 'tree');
-  dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+function addressAccessibilityIssues() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.querySelector('.dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
 }
 
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('.dependencyGraph');
   if (container) {
     container.innerHTML = data;
   }
@@ -20,7 +20,7 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -35,7 +35,7 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
-  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
+  const fakeLinks = document.querySelectorAll('div[role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
@@ -47,6 +47,7 @@ function fixFakeLinks() {
 
 // New function to implement accessibility fixes
 function implementNewFunction() {
+  addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
 }
@@ -57,5 +58,5 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinks,
   implementNewFunction,
-  renderGraphContent // original export preserves for calling from another file
+  addressAccessibilityIssues
 };

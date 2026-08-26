@@ -272,3 +272,12 @@ module.exports.multiply = multiply;
 module.exports.divide = divide;
 module.exports.addAriaLabel = addAriaLabel;
 module.exports.setAriaLabelOn = setAriaLabelOn;
+
+// Added back required exports
+module.exports.rotate = rotate;
+module.exports.rotateBack = rotateBack;
+module.exports.isSafetyEnabled = isSafetyEnabled;
+module.exports.img = img;
+module.exports.rotation = rotation;
+module.exports.customBtn = customBtn;
+module.exports.Safety = isSafetyEnabled;

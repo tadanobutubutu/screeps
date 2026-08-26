@@ -24,6 +24,14 @@ const Root = () => {
     // Logic for the new function
   };
 
+  // Adding accessibility improvements
+  const handleLanguageChange = (newLang) => {
+    if (typeof document !== 'undefined') {
+      const htmlElement = document.documentElement;
+      htmlElement.setAttribute('lang', newLang);
+    }
+  };
+
   return (
     <html lang="en">
       {/* Other JSX elements... */}
@@ -35,11 +43,15 @@ const Root = () => {
         <button onClick={newFunction} type="button">
           New Function
         </button>
+        {/* Example usage of new language change function */}
+        <button onClick={() => handleLanguageChange('fr')} type="button">
+          Change Language to French
+        </button>
       </main>
     </html>
   );
 };
 
-export { Root, handleRotateBack, newFunction, getLangAttribute };
+export { Root, handleRotateBack, newFunction, getLangAttribute, handleLanguageChange };
 
 ReactDOM.render(<Root />, ...);

@@ -1,10 +1,10 @@
 // Original code from commit 03041ab01242078f1852a3612aeff2ebf03b760d
-// TODO: Please provide the actual contents of main.js
+// TODO: Please provide the actual contents of main.js (from commit)
 
 // Add the new function here from commit and the functions from React version
-function newFunction() {
+function newFunctionWithCommitChanges() {
     // Implementation details...
-    console.log('This is the new function');
+    console.log('This is the updated new function');
 }
 
 // Add functions overridden from React version here
@@ -21,7 +21,10 @@ const overrideFindIndex = jest.fn().mockImplementation((array, id) => {
 });
 
 // Utility functions from React version
-import { originalFindIndex, originalFilterLandmarks, originalSortLandmarksByName, originalSomeFunctionREACT_027 } from './utils';
+import { originalFindIndex as originalFindIndexREACT_027, originalFilterLandmarks, originalSortLandmarksByName, originalSomeFunctionREACT_027 } from './utils';
+
+// Replace 'originalFindIndex' with 'originalFindIndexREACT_027' in the mock implementation of overrideFindIndex
+// to avoid name collision with the new findIndex export in case it has the same name
 
 // Exports
 module.exports = {
@@ -31,10 +34,11 @@ module.exports = {
     existingFunction2: function() {
         // Existing implementation...
     },
-    newFunction: newFunction, // Make sure to add the new function to exports
+    newFunction: newFunctionWithCommitChanges, // Make sure to add the updated new function to exports
     findIndex: findIndex,
     filterLandmarks: originalFilterLandmarks,
     sortLandmarksByName: originalSortLandmarksByName,
     someFunctionREACT_027: originalSomeFunctionREACT_027,
-    // Add new export here if necessary
+    findIndexREACT_027: originalFindIndexREACT_027, // Add the originalFindIndex from React version to exports
+    overrideFindIndex: overrideFindIndex // Keep the override function for tests
 };

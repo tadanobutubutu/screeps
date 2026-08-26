@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report — FIXED
+
 // Existing exports and functions
 
 // TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -20,6 +22,10 @@ const addLangAttribute = (element, lang) => {
 };
 
 // - REACT_015 & REACT_036: Handled by personName()
+const getLangAttribute = (element) => {
+  return element.getAttribute('lang');
+};
+
 const personName = (element) => {
   // Return accessible name for person elements
   return element.getAttribute('name') || element.textContent;
@@ -91,6 +97,5 @@ module.exports = {
   getSvgAccessibleName,
   validateUniqueLandmarks,
   createInPageButton,
-  newFunction,
-  // Other existing exports...
+  newFunction
 };

@@ -24,7 +24,7 @@ function myButtonFunction(event) {
     button.focus();
   });
 
-  // Set the accesskey property
+  // Set the accessKey property
   button.accessKey = 'A'; // Use a meaningful key (A as an example)
 }
 
@@ -46,6 +46,14 @@ function validateLandmark(landmark) {
 
 // Export the new validateLandmark function
 export { validateLandmark };
+
+// Add the new validateLandmarkStructure function
+function validateLandmarkStructure(landmark, parent) {
+  // Your implementation for validating the structure of landmarks
+}
+
+// Export the new validateLandmarkStructure function
+export { validateLandmarkStructure };
 
 // The getLangAttribute functionality is still remaining
 // ...

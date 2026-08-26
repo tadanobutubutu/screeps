@@ -64,3 +64,11 @@ function handleMyEvent(event) {
 
 // Export the new function for testing purposes
 module.exports.handleMyEvent = handleMyEvent;
+
+// New function to save settings
+function saveSettings(settings) {
+  // Implement settings saving logic
+}
+
+// Export the new function for testing purposes
+module.exports.saveSettings = saveSettings;

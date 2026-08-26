@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 // Assuming there's a div with id 'my-div' and a button with id 'my-button'
 const myDiv = document.getElementById('my-div');
 const myButton = document.getElementById('my-button');
@@ -30,35 +27,36 @@ export function getLangAttribute(lang = 'en') {
 
 // Function to fix table structure issues
 export function validateTableAccessibility() {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody
-    const existingThead = ...
-    const existingTbody = ...
-    const rows = ...
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
 
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
-      ...
+      thead.appendChild(firstRow.cloneNode(true));
+      firstRow.remove();
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? ... : [];
+      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
-        const tbody = ...
-        ... => ...
-        ...
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
         fixedCount++;
       }
     }
 
     // Ensure proper header cells (th) are used
-    const allRows = ...
+    const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
       const cells = row.querySelectorAll('th, td');
       // Check if first cell should be a header
@@ -90,16 +88,16 @@ export function validateTableAccessibility() {
 
 // Function to add main landmark
 export function addMainLandmark(document) {
-  let mainElement = ...
+  let mainElement = document.querySelector('main');
 
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
-    const main = ...
+    const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
 
     // Move first significant content child to main
-    const children = body.children;
+    const children = Array.from(body.children);
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
@@ -108,6 +106,7 @@ export function addMainLandmark(document) {
       }
     }
 
+    body.insertBefore(main, body.firstChild);
     mainElement = main;
   }
 
@@ -121,36 +120,45 @@ export function addMainLandmark(document) {
 
 // Function to ensure unique landmarks (combined HEAD and origin/main approaches)
 export function ensureUniqueLandmarks(document) {
-  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
+  const landmarkTypes = {
+    'HEADER': 'header',
+    'NAV': 'nav',
+    'MAIN': 'main',
+    'ASIDE': 'aside',
+    'FOOTER': 'footer'
+  };
   const usedLabels = {};
+  let fixedCount = 0;
 
-  ... => {
-    const landmarks = ...
+  Object.keys(landmarkTypes).forEach(tagName => {
+    const landmarks = document.querySelectorAll(tagName.toLowerCase());
     landmarks.forEach((landmark, index) => {
       let existingLabel = landmark.getAttribute('aria-label');
 
       // Ensure uniqueness
-      if (!existingLabel || usedLabels[landmark.tagName]) {
-        let label = existingLabel || `${landmarkTypes[landmark.tagName]} - ${index + 1}`;
+      if (!existingLabel || usedLabels[tagName]) {
+        let label = existingLabel || `${landmarkTypes[tagName]} - ${index + 1}`;
 
-        if (usedLabels[landmark.tagName]) {
+        if (usedLabels[tagName]) {
           let count = 2;
-          while (usedLabels[landmark.tagName].has(label)) {
-            label = `${landmarkTypes[landmark.tagName]} - ${count}`;
+          while (usedLabels[tagName].has(label)) {
+            label = `${landmarkTypes[tagName]} - ${count}`;
             count++;
           }
         }
 
-        if (!usedLabels[landmark.tagName]) {
-          usedLabels[landmark.tagName] = new Set();
+        if (!usedLabels[tagName]) {
+          usedLabels[tagName] = new Set();
         }
-        usedLabels[landmark.tagName].add(label);
+        usedLabels[tagName].add(label);
 
         landmark.setAttribute('aria-label', label);
         fixedCount++;
       }
     });
   });
+
+  return fixedCount;
 }
 
 // Function to add accessible name to SVGs
@@ -158,7 +166,7 @@ export function getSvgAccessibleName(svg) {
   let name = svg.getAttribute('data-name') || 'SVG icon';
   if (name) {
     const title = document.createElement('title');
-    title.id = `svg-title-${svg.id}`;
+    title.id = `svg-title-${svg.id || Math.random().toString(36).substr(2, 9)}`;
     title.textContent = name;
 
     // Insert title as first child
@@ -173,15 +181,19 @@ export function getSvgAccessibleName(svg) {
   return null;
 }
 
+function fixTitleId(id) {
+  return id;
+}
+
 // Function addressing new accessibility issue from the insight report
-function addressAccessibilityIssues(document) {
+export function addressAccessibilityIssues(document) {
   addMainLandmark(document);
   ensureUniqueLandmarks(document);
 
-  // Find and fix 26 table structure issues
+  // Find and fix table structure issues
   validateTableAccessibility();
 
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   let count = 0;
 
   svgs.forEach((svg, index) => {
@@ -193,8 +205,5 @@ function addressAccessibilityIssues(document) {
   });
 
   // Additional new accessibility fixes can be added here
+  return count;
 }
-
-// Export new functions
-export { addressAccessibilityIssues };
-```

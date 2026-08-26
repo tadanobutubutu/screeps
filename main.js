@@ -269,3 +269,5 @@ export {
     ensureMainLandmark,
     fixFakeLinkIssue
 };
+
+setHtmlLangAttribute();

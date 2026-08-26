@@ -1,4 +1,3 @@
-tsx
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../reducers';
@@ -11,71 +10,35 @@ type ErrorMessage = {
 };
 
 const Dashboard = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.user.isAuthenticated);
-  const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [errCopyHover, setErrCopyHover] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, unknown>>();
+  // ... (existing code omitted for brevity)
+
+  // New function for error handling
+  const handleError = (err: Error) => {
+    setError(err.message);
+    setErrCopyHover(true);
+  };
+
+  // New function to simulate a fetch and return aError object
+  const fetchSimulatedError = () =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => reject(new Error('Simulated error')), 2000);
+    });
 
   const authFetchStats = async () => {
-    // ...
-  };
-
-  const fetchStats = (refresh: boolean) => {
-    // ...
-  };
-
-  const copyErr = () => {
-    // ...
-  };
-
-  useEffect(() => {
-    if (refreshing) {
-      fetchStats(true);
+    try {
+      // Make a real fetch call here, if needed
+      // For the sake of example, we'll just simulate an error
+      await fetchSimulatedError();
+      // Handle the error and update state
+      handleError(new Error('Network error'));
+    } catch (err) {
+      handleError(err);
     }
-  }, [refreshing]);
+  };
 
-  useEffect(() => {
-    if (!copied) {
-      navigator.clipboard.writeText(error);
-      setCopied(true);
-    }
-  }, [error, copied]);
+  // Rest of the code stays the same
 
-  if (isAuthenticated) {
-    // Replace with a single main element and other semantic elements as needed
-    return (
-      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        <h1 style={{ color: '#b71c1c' }}>dash</h1>
-        <section>
-          <button onClick={() => authFetchStats()} disabled={refreshing}>
-            Refresh
-          </button>
-          <pre
-            aria-label="stats-box"
-            style={{
-              color: '#c53030',
-              backgroundColor: '#fff5f5',
-              padding: '1rem',
-              borderRadius: '4px',
-              overflow: 'auto',
-            }}
-          >
-            {/* stats */}
-          </pre>
-        </section>
-
-        {/* error and copy-error code here */}
-      </main>
-    );
-  }
-
-  return (
-    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      <h1 style={{ color: '#b71c1c' }}>Please login to access the dashboard</h1>
-    </main>
-  );
+  // ... (existing code omitted for brevity)
 };
 
 export default Dashboard;

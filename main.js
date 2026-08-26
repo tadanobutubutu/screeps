@@ -35,6 +35,14 @@ function ensureUniqueLandmarks() {
       seen.add(role);
     }
   });
+
+  // New method to add custom landmarks
+  function addCustomLandmark(elementId, landmarkRole) {
+    const element = document.querySelector(elementId);
+    if (element) {
+      accessibilityHelpers.setRole(element, landmarkRole);
+    }
+  }
 }
 
 // Fix fake link issue
@@ -120,20 +128,21 @@ function addSvgAccessibleNames() {
   });
 }
 
-// New function to implement accessibility fixes
-function implementNewFunction() {
+// New function to implement accessibility fixes with custom landmark addition
+function implementNewFunction(customLandmarkID, customLandmarkRole = 'introduction') {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
+  addCustomLandmark(`#${customLandmarkID}`, customLandmarkRole); // New line
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
   addSvgAccessibleNames();
 }
 
-// New function to call the new accessibility fixes function
-function callNewFunction() {
-  implementNewFunction();
+// New function to call the new function with custom landmark
+function callNewFunction(customLandmarkID) {
+  implementNewFunction(`#${customLandmarkID}`);
 }
 
 // Export the module functions
@@ -147,5 +156,5 @@ module.exports = {
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
-  callNewFunction // New export for calling the new function
+  callNewFunction // New export for calling the new function with custom landmark
 };

@@ -22,16 +22,16 @@ function newFunctionForAccessibilityIssue(element) {
   }
   
   // Add accessibility improvements to the element
-  const accessibleElements = element.querySelectorAll('[role="button"], a:not([href])');
+  const accessibleElements = element.querySelectorAll('a:not([href])');
   
   accessibleElements.forEach((el) => {
     // Ensure interactive elements have proper tabindex
-    if (!el.hasAttribute('tabindex') && !el.hasAttribute('href')) {
+    if (el && el.hasAttribute && el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
     
     // Add aria-label if element lacks accessible name
-    if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
+    if (el && (!el.getAttribute('aria-label') && !el.textContent.trim())) {
       el.setAttribute('aria-label', 'Interactive element');
     }
   });
@@ -58,8 +58,9 @@ function newFunctionForAccessibilityIssue(element) {
   // Add focus indicator for keyboard users
   const focusableElements = element.querySelectorAll('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
   focusableElements.forEach((el) => {
-    if (!el.classList.contains('focus-visible')) {
-      el.classList.add('needs-focus-indicator');
+    if (el && el.style) {
+      el.style.outline = '2px solid #005fcc';
+      el.style.outlineOffset = '2px';
     }
   });
   

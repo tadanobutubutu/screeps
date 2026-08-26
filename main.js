@@ -278,6 +278,25 @@ const ensureUniqueLandmarks = (document) => {
   });
 };
 
+const fixFakeLinkIssue = (document) => {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[role="button"]:not([href]), a:not([href])');
+  fakeLinks.forEach(link => {
+    // Add role="link" to ensure it's recognized as a link by screen readers
+    if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
+      link.setAttribute('role', 'link');
+    }
+    // Ensure the link has accessible name
+    if (!link.getAttribute('aria-label') && !link.getAttribute('aria-labelledby') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+    // Remove href="#" and add href="#" with proper handling
+    if (link.getAttribute('href') === '#') {
+      link.setAttribute('href', 'javascript:void(0)');
+    }
+  });
+  return document;
+};
+
 // ----- END OF ORIGINAL CODE -----
 
 // Export all functions for use in tests and other parts of the application
@@ -293,4 +312,5 @@ export {
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
+  fixFakeLinkIssue,
 };

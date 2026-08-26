@@ -33,7 +33,7 @@ function Table({ data }) {
       <thead>
         <tr>
           <th scope="col">ID</th>
-          <th scope="col">Name</th>
+          <th ...
           <th scope="col">Role</th>
         </tr>
       </thead>
@@ -60,11 +60,11 @@ function Table({ data }) {
 
 // Prop types for the generateAccessibleTable and Table components
 generateAccessibleTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  data: ...
 };
 
 Table.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})),
+  data: ...
 };
 
 // Export for use in other modules

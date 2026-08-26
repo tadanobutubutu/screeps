@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 const getLangAttribute = () => {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    return htmlElement.getAttribute('lang');
+    return ...
   }
   return null;
 };

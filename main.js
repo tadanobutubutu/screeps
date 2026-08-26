@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address accessibility issues from insight report — UNCOMMENTED
 
 // Existing exports and functions
 
@@ -59,7 +59,7 @@ const getSvgAccessibleName = (svgElement) => {
   const title = svgElement.querySelector('title');
   const ariaLabel = svgElement.getAttribute('aria-label');
   const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  
+
   return ariaLabel || (title ? title.textContent : null);
 };
 
@@ -75,7 +75,7 @@ const createInPageButton = (element) => {
   return true;
 };
 
-// New function as per the issue
+// New function as per the issue: REACT_038
 const newFunction = (input) => {
   // Implementation of the new function as described in the issue
   // Placeholder implementation:

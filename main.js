@@ -126,6 +126,58 @@ const validateTableAccessibility = () => {
   return { errors };
 };
 
+// Function to validate landmarks (moved to module scope for accessibility)
+const validateLandmarkStructure = () => {
+  const errors = [];
+
+  if (typeof document === 'undefined') {
+    return { valid: true, errors };
+  }
+
+  // Check for main landmark (should have exactly one)
+  const mainElements = ... [role="main"]');
+  if (mainElements.length === 0) {
+    errors.push({
+      message: 'Page is missing a main landmark',
+      line: 0,
+      column: 0
+    });
+  } else if (mainElements.length > 1) {
+    errors.push({
+      message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for header/nav landmarks
+  const navElements = ... ...
+  const headerElements = ... [role="banner"]');
+
+  if (headerElements.length > 1) {
+    errors.push({
+      message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  // Check for footer landmark
+  const footerElements = ... [role="contentinfo"]');
+  if (footerElements.length > 1) {
+    errors.push({
+      message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
+      line: 0,
+      column: 0
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+};
+
+// Alias for backwards compatibility
+const validateLandmark = validateLandmarkStructure;
+
 // Function to create an in-page button with fake link handling
 const createInPageButton = (options = {}) => {
   const {
@@ -139,68 +191,16 @@ const createInPageButton = (options = {}) => {
     href = '#'
   } = options;
 
-  // Function to validate landmarks
-  const validateLandmarkStructure = () => {
-    const errors = [];
-
-    if (typeof document === 'undefined') {
-      return { valid: true, errors };
-    }
-
-    // Check for main landmark (should have exactly one)
-    const mainElements = ... [role="main"]');
-    if (mainElements.length === 0) {
-      errors.push({
-        message: 'Page is missing a main landmark',
-        line: 0,
-        column: 0
-      });
-    } else if (mainElements.length > 1) {
-      errors.push({
-        message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    // Check for header/nav landmarks
-    const navElements = ... ...
-    const headerElements = ... [role="banner"]');
-
-    if (headerElements.length > 1) {
-      errors.push({
-        message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    // Check for footer landmark
-    const footerElements = ... [role="contentinfo"]');
-    if (footerElements.length > 1) {
-      errors.push({
-        message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    return { valid: errors.length === 0, errors };
-  };
-
-  // Alias for backwards compatibility
-  const validateLandmark = validateLandmarkStructure;
-
-  // React component for the Root component
-  const Root = () => {
-    // ... (The Root function remains the same)
+  // React component for the InPageButton
+  const InPageButton = () => {
+    // ... (The InPageButton component remains the same)
   };
 
   // Export all functions and components
   return {
     validateLandmarkStructure,
     validateLandmark,
-    Root
+    InPageButton
   };
 };
 

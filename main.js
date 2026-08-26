@@ -1,61 +1,32 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address accessibility issues from insight report
 const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<a id="unrotate" href="#">rotate back<\/a>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Changed anchor tag to button for better accessibility in ${filePath}`);
+  // ... existing code ...
 }
 
 function addAriaAttribute(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<button id="unrotate">rotate back<\/button>/g, '<button id="unrotate" aria-label="rotate back">rotate back</button>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added ARIA attribute to button for better accessibility in ${filePath}`);
+  // ... existing code ...
 }
 
 function addLangAttribute(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<html>/g, '<html lang="en">');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added lang attribute to HTML element in ${filePath}`);
+  // ... existing code ...
 }
 
 function fixTableStructure(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<table>/g, '<table role="table">');
-  updatedContent = updatedContent.replace(/<td>/g, '<td scope="col">');
-  updatedContent = updatedContent.replace(/<th>/g, '<th scope="col">');
-  updatedContent = updatedContent.replace(/<\/th>/g, '</th>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Fixed table structure for better accessibility in ${filePath}`);
+  // ... existing code ...
 }
 
 function addMainLandmark(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<body>/g, '<body>\n<main>');
-  updatedContent = updatedContent.replace(/<\/body>/g, '</main>\n</body>');
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added main landmark for better accessibility in ${filePath}`);
+  // ... existing code ...
 }
 
 function ensureUniqueLandmarks(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  let updatedContent = content.replace(/<nav aria-label="main-navigation">/g, '<nav aria-label="navigation">');
-  let navCount = (updatedContent.match(/<nav aria-label="main-navigation">/g) || []).length;
-  if (navCount > 1) {
-    const navLabels = ['main-navigation', 'secondary-navigation', 'footer-navigation'];
-    let index = 0;
-    updatedContent = updatedContent.replace(/<nav aria-label="main-navigation">/g, () => {
-      return `<nav aria-label="${navLabels[index] || 'navigation-' + index}">`;
-    });
-  }
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Ensured unique landmarks for better accessibility in ${filePath}`);
+  // ... existing code (with slight modification) ...
 }
 
 function addSvgAccessibleNames(filePath) {
+  // ... new function ...
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content.replace(/(<svg[^>]*>)/gi, (match, attrs) => {
     if (!attrs.includes('aria-label') && !attrs.includes('aria-labelledby')) {
@@ -73,6 +44,10 @@ function addSvgAccessibleNames(filePath) {
   console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
+function addAltAttribute(filePath) {
+  // ... new function (assuming images have been left for this purpose) ...
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -80,5 +55,6 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addAltAttribute // you might want to add this to exports later
 };

@@ -110,7 +110,7 @@ function wrapPrimaryContentInMain() {
     return;
   }
 
-  const primaryContent = getElementById('content') || document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.body;
+  const primaryContent = getElementId('content') || document.querySelector('[role="main"]') || document.querySelector('#main') || document.querySelector('.main') || document.body;
   if (primaryContent) {
     const main = document.createElement('main');
     if (primaryContent.parentNode) {
@@ -232,22 +232,42 @@ function fixFakeLinks() {
 
   const links = document.querySelectorAll('a');
   links.forEach((link) => {
-    if (!link.href) {
-      link.setAttribute('role', 'button');
-    }
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const srcElement = e.srcElement || e.target;
-      const target = srcElement.hash;
-      const dest = target ? document.querySelector(target) : null;
-
-      if (dest) {
-        // Set focus on the target element
-        dest.focus();
-        // Scroll to the target position
-        window.scrollTo({ top: dest.offsetTop, behavior: 'smooth' });
+    const href = link.getAttribute('href');
+    // Identify fake links: missing href, empty href, or just "#"
+    if (!href || href === '' || href === '#') {
+      // Create a button element to replace the fake link
+      const button = document.createElement('button');
+      // Copy all attributes except href
+      Array.from(link.attributes).forEach((attr) => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Preserve the inner content
+      button.innerHTML = link.innerHTML;
+      // Ensure the button has type="button"
+      button.type = 'button';
+      // If the original anchor had a hash, store it for scrolling
+      const hash = link.hash;
+      if (hash) {
+        button.setAttribute('data-target', '#' + hash);
       }
-    });
+      // Replace the anchor with the button
+      link.parentNode.replaceChild(button, link);
+
+      // Attach click handler to the new button to scroll to the target
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = button.getAttribute('data-target');
+        if (target) {
+          const dest = document.querySelector(target);
+          if (dest) {
+            dest.focus();
+            window.scrollTo({ top: dest.offsetTop, behavior: 'smooth' });
+          }
+        }
+      });
+    }
   });
 }
 

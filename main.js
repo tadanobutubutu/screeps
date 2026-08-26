@@ -1,11 +1,8 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by addProperLandmarkRegions())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssue())
 // - REACT_041: Fix SVG accessible name issues (handled by fixSvgAccessibility())
 // - REACT_015: Add lang attribute to html element (handled by addHtmlLangAttribute())
-
-/// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
@@ -57,7 +54,7 @@ const wrapPrimaryContentInMain = (document) => {
     });
 
     // Append main to body
-    body.appendChild(main);
+    document.body.appendChild(main);
   }
 
   return document;
@@ -81,7 +78,7 @@ const addSkipLink = (document) => {
   skipLink.style.position = 'absolute';
   skipLink.style.top = '-40px';
   skipLink.style.left = '0';
-  skipLink.style.background = '#000';
+  skipLink.style.backgroundColor = '#000';
   skipLink.style.color = '#fff';
   skipLink.style.padding = '8px 16px';
   skipLink.style.zIndex = '10000';
@@ -163,7 +160,7 @@ const setAccessibleName = (node, accessibleName) => {
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(type);
+    const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
@@ -197,7 +194,7 @@ const ensureUniqueLandmarks = (document) => {
         if (!main.id) {
           main.id = 'main-content';
         }
-        if (!main.hasAttribute('role')) {
+        if (!main.getAttribute('role')) {
           main.setAttribute('role', 'main');
         }
       } else {
@@ -261,12 +258,12 @@ const fixFakeLinkIssue = (document) => {
     return document;
   }
 
-  const fakeLinks = document.querySelectorAll('a:not([href]), a[href=""], a[href="#"], a[href="javascript:void(0)"], a[href="javascript:void(0);"]');
+  const fakeLinks = document.querySelectorAll('a[href=""], a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     if (!link.getAttribute('role')) {
       link.setAttribute('role', 'button');
     }
-    if (!link.hasAttribute('tabindex')) {
+    if (!link.getAttribute('tabindex')) {
       link.setAttribute('tabindex', '0');
     }
     if (!link.getAttribute('aria-label') && link.textContent && link.textContent.trim()) {
@@ -286,134 +283,13 @@ const fixSvgAccessibility = (document) => {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     // Check if SVG already has an accessible name
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
-    const hasTitleChild = svg.querySelector('title')?.textContent?.trim();
-    const hasRole = svg.hasAttribute('role');
-    const isHidden = svg.hasAttribute('aria-hidden');
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
+    const hasTitleChild = svg.querySelector('title');
+    const hasRole = svg.getAttribute('role');
+    const isHidden = svg.getAttribute('hidden') !== null;
 
     // If SVG has no accessible name and is not explicitly hidden
     if (!hasAriaLabel && !hasAriaLabelledBy && !hasTitleChild && !hasRole && !isHidden) {
       // Check if it's likely a decorative icon (e.g., favicon, small decorative icon)
-      const viewBox = svg.getAttribute('viewBox');
-      const width = svg.getAttribute('width');
-      const height = svg.getAttribute('height');
-      const isSmallIcon = (width && parseInt(width) <= 32) || (height && parseInt(height) <= 32);
-      const isFavicon = svg.closest('link[rel*="icon"]') !== null;
-      const hasOnlyTextOrSimpleShapes = svg.children.length <= 2 && 
-        Array.from(svg.children).every(child => ['text', 'path', 'circle', 'rect'].includes(child.tagName.toLowerCase()));
-
-      // If it appears to be a small decorative icon/favicon, hide it from screen readers
-      if (isFavicon || (isSmallIcon && hasOnlyTextOrSimpleShapes)) {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
-      } else {
-        // For other SVGs without accessible names, try to use title content or add generic label
-        if (hasTitleChild) {
-          // Title exists but wasn't caught above - ensure it's properly associated
-          svg.setAttribute('aria-labelledby', svg.querySelector('title').id || '');
-          const title = svg.querySelector('title');
-          if (!title.id) {
-            title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
-            svg.setAttribute('aria-labelledby', title.id);
-          }
-        } else {
-          // Add a generic label for informative SVGs
-          svg.setAttribute('aria-label', 'Graphic');
-        }
-      }
-    }
-
-    // Ensure focusable="false" for all decorative SVGs
-    if (svg.hasAttribute('aria-hidden') && svg.getAttribute('aria-hidden') === 'true') {
-      svg.setAttribute('focusable', 'false');
-    }
-  });
-
-  // Also check for SVG images in <img> tags
-  const svgImages = document.querySelectorAll('img[src$=".svg"], img[src*="svg"]');
-  svgImages.forEach(img => {
-    if (!img.hasAttribute('alt') && !img.hasAttribute('aria-label') && !img.hasAttribute('aria-labelledby')) {
-      if (!img.hasAttribute('aria-hidden')) {
-        // Check if it's likely a decorative icon
-        const width = img.getAttribute('width');
-        const height = img.getAttribute('height');
-        const isSmallIcon = (width && parseInt(width) <= 32) || (height && parseInt(height) <= 32);
-        const isFavicon = img.closest('link[rel*="icon"]') !== null;
-
-        if (isFavicon || isSmallIcon) {
-          img.setAttribute('aria-hidden', 'true');
-        } else {
-          img.setAttribute('alt', '');
-        }
-      }
-    }
-  });
-
-  return document;
-};
-
-const addHtmlLangAttribute = (document) => {
-  if (!document || !document.documentElement) {
-    return document;
-  }
-
-  const htmlElement = document.documentElement;
-
-  // Check if lang attribute already exists
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-
-  return document;
-};
-
-// Add the updated addressAccessibilityIssues function
-const addressAccessibilityIssues = (document) => {
-  // Call existing function with legacy escaped issues handling
-  addressAccessibilityIssuesLegacy(document);
-
-  // Add lang attribute to html element (REACT_015)
-  addHtmlLangAttribute(document);
-
-  // Wrap primary content in main element
-  wrapPrimaryContentInMain(document);
-
-  // Add skip link for keyboard navigation
-  addSkipLink(document);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions(document);
-
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(document);
-
-  // Fix fake link issues (links without proper href)
-  fixFakeLinkIssue(document);
-
-  // Fix SVG accessibility issues (REACT_041)
-  fixSvgAccessibility(document);
-
-  return document;
-};
-
-// Legacy escaping of issues without accessibility methods
-const addressAccessibilityIssuesLegacy = (document) => {
-  // Do nothing for now since all accessibility issues have been handled
-};
-
-// Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addressAccessibilityIssues,
-  addressAccessibilityIssuesLegacy, // Legacy function for cases where new function may cause unexpected behavior
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  fixSvgAccessibility,
-  addHtmlLangAttribute,
-};
+      const viewBox

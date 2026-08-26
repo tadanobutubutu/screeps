@@ -186,40 +186,70 @@ const ensureUniqueLandmarks = (document) => {
     return document;
   }
 
-  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'form'];
+  // Handle main: ensure only one <main> element
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Keep the first main, convert others to section
+    mainElements.forEach((main, index) => {
+      if (index === 0) {
+        // Ensure the first main has id 'main-content' and role main
+        if (!main.id) {
+          main.id = 'main-content';
+        }
+        if (!main.hasAttribute('role')) {
+          main.setAttribute('role', 'main');
+        }
+      } else {
+        // Convert to section
+        const section = document.createElement('section');
+        // Copy attributes (except id, role)
+        for (const attr of Array.from(main.attributes)) {
+          if (attr.name !== 'id' && attr.name !== 'role') {
+            section.setAttribute(attr.name, attr.value);
+          }
+        }
+        // Copy children
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        // Replace main with section
+        main.parentNode.replaceChild(section, main);
+      }
+    });
+  }
+
+  // For other landmark selectors, add aria-label if duplicates
+  const landmarkSelectors = ['header', 'nav', 'footer', 'aside', 'section', 'form'];
   const seenLabels = {};
 
   landmarkSelectors.forEach(selector => {
     const elements = document.querySelectorAll(selector);
-    if (elements.length > 1) {
-      elements.forEach((element, index) => {
-        if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-          const labels = {
-            header: 'Banner',
-            nav: 'Navigation',
-            main: 'Main content',
-            footer: 'Footer',
-            aside: 'Complementary',
-            section: 'Section',
-            form: 'Form',
-          };
-          const baseLabel = labels[selector] || selector;
-          let label = baseLabel;
-          let count = index + 1;
-          while (seenLabels[label]) {
-            label = `${baseLabel} ${count}`;
-            count++;
-          }
-          seenLabels[label] = true;
-          element.setAttribute('aria-label', label);
-        } else {
-          const existingLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
-          if (existingLabel) {
-            seenLabels[existingLabel] = true;
-          }
+    elements.forEach((element, index) => {
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        const labels = {
+          header: 'Banner',
+          nav: 'Navigation',
+          footer: 'Footer',
+          aside: 'Complementary',
+          section: 'Section',
+          form: 'Form',
+        };
+        const baseLabel = labels[selector] || selector;
+        let label = baseLabel;
+        let count = index + 1;
+        while (seenLabels[label]) {
+          label = `${baseLabel} ${count}`;
+          count++;
         }
-      });
-    }
+        seenLabels[label] = true;
+        element.setAttribute('aria-label', label);
+      } else {
+        const existingLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+        if (existingLabel) {
+          seenLabels[existingLabel] = true;
+        }
+      }
+    });
   });
 
   return document;

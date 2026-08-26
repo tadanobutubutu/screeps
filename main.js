@@ -62,7 +62,7 @@ const createInPageButton = (options = {}) => {
 
   if (typeof document !== 'undefined') {
     // Use semantic <button> element instead of <a> for better accessibility
-    let button = document.createElement('button');
+    const button = document.createElement('button');
 
     if (id) {
       button.id = id;
@@ -176,7 +176,7 @@ const validateTableAccessibility = () => {
 
     // Check for scope attribute on headers
     headers.forEach((header) => {
-      if (!header.getAttribute('scope')) {
+      if (!header.hasAttribute('scope')) {
         errors.push({
           message: `Table header missing scope attribute`,
           line: 0,
@@ -225,7 +225,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   const headerElements = document.querySelectorAll('header, [role="banner"]');
   
   if (headerElements.length > 1) {

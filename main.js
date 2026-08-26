@@ -1,1 +1,21 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+x
+import React from 'react';
+
+const MyTable = () => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Column Name</th>
+          <th scope="col">Another Column</th>
+          {/* ... other headers ... */}
+        </tr>
+      </thead>
+      <tbody>
+        {/* ... table rows ... */}
+      </tbody>
+    </table>
+  );
+};
+
+export default MyTable;

@@ -1,1 +1,5 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// make sure the element has an id
+const myElement = document.getElementById('my-element');
+
+// add aria-label to the element
+myElement.setAttribute('aria-label', 'A descriptive text for myElement');

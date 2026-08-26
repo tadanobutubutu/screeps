@@ -1,7 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
 // Import helper functions for accessibility
 const accessibilityHelpers = require('./helpers/accessibility');
 const domHelpers = require('./helpers/dom');
@@ -136,7 +132,7 @@ function addSvgAccessibleNames() {
 }
 
 // New function to implement accessibility fixes with custom landmark addition
-function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'introduction') {
+function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner') {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();

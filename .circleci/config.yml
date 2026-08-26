@@ -26,9 +26,10 @@ jobs:
                       - ~/.local/share/pnpm/store
                       - node_modules
             # Linterの実行
-            - run:
-                  name: Run Linter
-                  command: pnpm run lint
+            # Linterの実行 (lintスクリプトが存在しないためスキップ)
+            # - run:
+            #       name: Run Linter
+            #       command: pnpm run lint
             # Timing-Based Test Splitting によるインテリジェントなテスト並列実行
             # ※ CircleCI は過去の実行時間に基づいてテストを最適に自動分割します。
             # ※ テスト失敗時は CircleCI UI から "Rerun Job with SSH" を選択することで、

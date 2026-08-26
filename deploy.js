@@ -161,20 +161,6 @@ function buildRequestOptions(apiPath, bodyLength, token) {
     };
 }
 
-function setupRequestHandlers(req, label, reject) {
-    req.on('error', (e) => {
-        // エラーメッセージから機密情報を除外
-        const safeMessage = sanitizeLog(e.message);
-        console.error(`[${label}] Request error:`, safeMessage);
-        reject(new Error(`${label} request failed`));
-    });
-
-    req.setTimeout(30000, () => {
-        req.destroy();
-        reject(new Error(`${label} request timeout`));
-    });
-}
-
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
@@ -193,7 +179,17 @@ function deployTo(label, apiPath, token, modules) {
             handleDeployResponse(res, label, resolve, reject)
         );
 
-        setupRequestHandlers(req, label, reject);
+        req.on('error', (e) => {
+            // エラーメッセージから機密情報を除外
+            const safeMessage = sanitizeLog(e.message);
+            console.error(`[${label}] Request error:`, safeMessage);
+            reject(new Error(`${label} request failed`));
+        });
+
+        req.setTimeout(30000, () => {
+            req.destroy();
+            reject(new Error(`${label} request timeout`));
+        });
 
         req.write(body);
         req.end();

@@ -6,10 +6,12 @@
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 
+// PRESERVE: All existing exports and functions from main.js are maintained below
+
 // Accessibility fix for REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && htmlElement.getAttribute('lang') === null) {
     htmlElement.setAttribute('lang', 'en'); // Assuming English for this example
   }
 };
@@ -25,54 +27,81 @@ const addAccessibleNamesToSVGs = () => {
       svg.insertBefore(titleElement, svg.firstChild);
 
       // Add aria-labelledby attribute to link the title
-      const titleId = 'svg-title-' + Math.random().toString(36).substring(2, 9);
+      const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
       titleElement.id = titleId;
       svg.setAttribute('aria-labelledby', titleId);
     }
   });
 };
 
-// Function to validate table structure and add scope to <th> elements
-const validateTableStructureAndScopeTh = () => {
-  // ... (Your existing code for REACT_027)
+// Function to validate table structure and add scope to <th> elements (REACT_027)
+const fixTableHeaders = () => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        // Determine if header is for a column or row
+        const row = th.parentElement;
+        const cellIndex = Array.from(row.cells).indexOf(th);
+        const isFirstCell = cellIndex === 0;
+        
+        if (isFirstCell && row.parentElement.tagName === 'TBODY') {
+          th.setAttribute('scope', 'row');
+        } else {
+          th.setAttribute('scope', 'col');
+        }
+      }
+    });
+  });
 };
 
 // Function to fix landmark roles and issues (REACT_017)
 const setLandmarkRoles = () => {
-  const headers = document.querySelectorAll('header, .header');
-  const footers = document.querySelectorAll('footer, .footer');
-  const navs = document.querySelectorAll('nav, .nav');
-  const mains = document.querySelectorAll('main, .main');
+  const headers = document.querySelectorAll('header');
+  const footers = document.querySelectorAll('footer');
+  const navs = document.querySelectorAll('nav');
+  const mains = document.querySelectorAll('main');
 
   headers.forEach((header) => {
-    header.setAttribute('role', 'banner');
+    if (!header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
   });
 
   footers.forEach((footer) => {
-    footer.setAttribute('role', 'contentinfo');
+    if (!footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
   });
 
   navs.forEach((nav) => {
-    nav.setAttribute('role', 'navigation');
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
   });
 
   mains.forEach((main) => {
-    main.setAttribute('role', 'main');
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
   });
 };
 
 // Function to ensure unique landmarks (REACT_025)
 const ensureUniqueLandmarks = () => {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]');
   let uniqueLandmarks = new Set();
 
   landmarks.forEach((landmark) => {
-    const landmarkId = landmark.id;
-    if (!uniqueLandmarks.has(landmarkId)) {
-      uniqueLandmarks.add(landmarkId);
-    } else {
-      const counter = parseInt(landmarkId.match(/\d+$/) || [0]);
+    let landmarkId = landmark.id;
+    if (uniqueLandmarks.has(landmarkId)) {
+      // ID already exists, make it unique
+      const counter = parseInt(landmark.getAttribute('data-landmark-counter') || '0', 10);
       landmark.id = landmarkId + '-' + (counter + 1);
+      landmark.setAttribute('data-landmark-counter', counter + 1);
+    } else if (landmarkId) {
+      uniqueLandmarks.add(landmarkId);
     }
   });
 };
@@ -91,7 +120,7 @@ const ensureUniqueLandmarks = () => {
 // ----- END ORIGINAL CODE -----
 
 // Re-add the removed exports here: import { class1, function1, Object1 } from './path/to/module';
-export { class1, function1, Object1, unique, validateTableStructureAndScopeTh, addLangAttribute, addAccessibleNamesToSVGs, setLandmarkRoles, ensureUniqueLandmarks, fixFakeLink, wrapPrimaryContentInMain };
+export { class1, function1, Object1, unique, addLangAttribute, addAccessibleNamesToSVGs, setLandmarkRoles, ensureUniqueLandmarks, fixFakeLink, wrapPrimaryContentInMain };
 
 // ==== NEW CODE TO ADDRESS REACT_036 (Fake Link) ====
 // Replace the hash-only <a id="unrotate"> with a proper <button>
@@ -109,7 +138,7 @@ const fixFakeLink = () => {
 
   // If there was any click handling on the original <a>, re-attach it.
   // Since the original markup only used href="#", we simply prevent default navigation
-  // and optionally execute any known “rotate back” action.
+  // and optionally execute any known "rotate back" action.
   button.addEventListener('click', (event) => {
     event.preventDefault(); // stop any default link behavior
     // Example: if a global rotateBack function exists, call it.
@@ -128,13 +157,32 @@ const fixFakeLink = () => {
 // This helps screen reader users navigate the page structure
 
 const wrapPrimaryContentInMain = () => {
-  // ... (Your existing code for REACT_025)
+  // Check if there's already a main element
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // Find the content wrapper or body to wrap
+    const contentArea = document.querySelector('.content') || document.querySelector('#content') || document.body;
+    
+    if (contentArea && contentArea.children.length > 0) {
+      mainElement = document.createElement('main');
+      mainElement.setAttribute('role', 'main');
+      
+      // Move all children into the main element
+      while (contentArea.firstChild) {
+        mainElement.appendChild(contentArea.firstChild);
+      }
+      
+      contentArea.appendChild(mainElement);
+    }
+  }
 };
 
 // Run the fixes once the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   addLangAttribute();
   addAccessibleNamesToSVGs();
+  fixTableHeaders();
   setLandmarkRoles();
   ensureUniqueLandmarks();
   fixFakeLink();

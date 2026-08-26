@@ -1,5 +1,13 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: Address accessibility issues from insight report
 // ----- NEW CODE START -----
+// ----- Originated Code START -----
+
+// Could not determine if this code was intended to be removed, hence kept it.
+// const unrotateLink = document.querySelector('#unrotate');
+// unrotateLink.removeAttribute('href');
 
 /**
  * Configuration for the ARIA-enabled rotate button.
@@ -12,17 +20,24 @@ const rotateButtonConfig = {
 
 /**
  * Replaces the fake anchor link with an ARIA-enabled button for improved screen reader accessibility.
- *
- * This function finds the <a id="unrotate" href="#"> and replaces it with a <button> with an ARIA role and label.
- * The button will be focusable and reacts to space/enter key interactions.
+ * Interacts with the existing code to ensure both functionalities are maintained.
  */
-function fixFakeLinkWithAria() {
+function fixFakeLinks() {
+    const unrotateLink = document.querySelector('#unrotate');
     const unrotateButton = document.createElement('button');
     Object.assign(unrotateButton, rotateButtonConfig);
     unrotateButton.id = 'unrotate';
     unrotateButton.textContent = 'Rotate';
-    unrotateButton.addEventListener('click', handleRotateBack);
-    document.querySelector('#unrotate').replaceWith(unrotateButton);
+    unrotateButton.addEventListener('click', handleRotate);
+
+    if (unrotateLink) {
+        // Disable the original link
+        unrotateLink.removeAttribute('href');
+        unrotateLink.setAttribute('aria-hidden', 'true');
+
+        // Replace it with the ARIA-enabled button
+        unrotateLink.replaceWith(unrotateButton);
+    }
 }
 
 /**
@@ -38,15 +53,16 @@ function handleRotate() {
         window.dispatchEvent(event);
     }
 }
+// ----- Originated Code END -----
 
-// (Existing code for rotateDependencyGraph, init, and addLangAttribute functions)
+// Existing code for rotateDependencyGraph, init, and addLangAttribute functions
 
 /**
  * Initializes the dependency graph controller.
  * Replaces fake links with ARIA-enabled buttons and sets up event handlers.
  */
 function init() {
-    fixFakeLinkWithAria();
+    fixFakeLinks();
     addLangAttribute(); // Added to address REACT_015
 }
 
@@ -55,7 +71,7 @@ function init() {
 // Export functions for testing and module usage
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        fixFakeLinkWithAria,
+        fixFakeLinks, // Incorporated the new function
         handleRotate,
         handleRotateBack,
         rotateDependencyGraph,
@@ -64,3 +80,4 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 // ----- NEW CODE END -----
+```

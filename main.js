@@ -11,20 +11,20 @@ export { class1, function1, Object1 };
 // Function to count dependencies
 export function countDependencies() {
   // Get all import statements from the module
-  const importRegex = ...;
+  const importRegex = /import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"][^'"]+['"]|['"][^'"]+['"])/g;
   const moduleCode = __filename;
   
   // Read the current file and count named imports
   const fs = require('fs');
-  const content = ... 'utf-8');
+  const content = fs.readFileSync(moduleCode, 'utf-8');
   
   // Match import statements with named imports ( {...} )
-  const importMatches = ... || [];
+  const importMatches = content.match(importRegex) || [];
   
   let count = 0;
   importMatches.forEach(match => {
     // Extract the content inside the braces
-    const braceMatch = ...
+    const braceMatch = match.match(/\{([^}]+)\}/);
     if (braceMatch) {
       const imports = braceMatch[1];
       // Split by comma and filter out whitespace, count remaining imports
@@ -52,7 +52,7 @@ export function createInPageButton(options = {}) {
   button.className = className;
   
   // Add accessible text content
-  const accessibleText = ...
+  const accessibleText = document.createElement('span');
   accessibleText.textContent = text;
   accessibleText.className = 'sr-only';
   
@@ -64,36 +64,35 @@ export function createInPageButton(options = {}) {
   }
   
   // Add visible content with icon
-  const visibleContent = ...
+  const visibleContent = document.createElement('span');
   visibleContent.className = 'button-content';
   if (iconText) {
-    const icon = ...
-    ... 'true');
+    const icon = document.createElement('span');
+    icon.setAttribute('aria-hidden', 'true');
     icon.textContent = iconText;
-    ...
+    visibleContent.appendChild(icon);
   }
-  ...
   
-  ...
-  ...
+  button.appendChild(accessibleText);
+  button.appendChild(visibleContent);
   
   // Set up click handler for smooth scrolling
   if (targetId) {
-    ... (event) => {
+    button.addEventListener('click', (event) => {
       event.preventDefault();
-      const targetElement = ...
+      const targetElement = document.getElementById(targetId);
       if (targetElement) {
         targetElement.tabIndex = -1;
-        ... preventScroll: true });
-        ... behavior: 'smooth', block: 'start' });
+        targetElement.focus({ preventScroll: true });
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         // Announce navigation to screen readers
-        const announcement = ...
+        const announcement = document.createElement('div');
         announcement.setAttribute('role', 'status');
-        ... 'polite');
+        announcement.setAttribute('aria-live', 'polite');
         announcement.className = 'sr-only';
-        announcement.textContent = `Navigated to ... || targetId}`;
-        ...
+        announcement.textContent = `Navigated to ${text || targetId}`;
+        document.body.appendChild(announcement);
         setTimeout(() => announcement.remove(), 1000);
       }
       if (typeof onClick === 'function') {
@@ -102,16 +101,16 @@ export function createInPageButton(options = {}) {
     });
     
     // Link the button to the target for accessibility
-    const targetElement = ...
+    const targetElement = document.getElementById(targetId);
     if (targetElement) {
       const targetLabel = targetElement.getAttribute('aria-label') || 
-                          ... ||
+                          targetElement.getAttribute('title') ||
                           targetId;
       button.setAttribute('aria-label', `${text} to ${targetLabel}`);
-      ... targetId);
+      button.setAttribute('aria-controls', targetId);
     }
   } else if (typeof onClick === 'function') {
-    ... onClick);
+    button.addEventListener('click', onClick);
   }
   
   // Ensure proper button semantics
@@ -143,7 +142,7 @@ export function createAccessibleLink(options = {}) {
     link.href = href;
   } else {
     link.href = '#';
-    ... 'true');
+    link.setAttribute('aria-disabled', 'true');
   }
   
   // Add basic attributes
@@ -182,7 +181,7 @@ export function createAccessibleLink(options = {}) {
   }
   
   if (ariaDescribedby) {
-    ... ariaDescribedby);
+    link.setAttribute('aria-describedby', ariaDescribedby);
   }
   
   // Add icon indicator for external links
@@ -190,17 +189,17 @@ export function createAccessibleLink(options = {}) {
     link.setAttribute('aria-label', ariaLabel || `${text || title || 'Link'} (opens in new tab)`);
     
     // Add visually hidden text to indicate new tab
-    const newTabIndicator = ...
-    ... = 'sr-only';
+    const newTabIndicator = document.createElement('span');
+    newTabIndicator.className = 'sr-only';
     newTabIndicator.textContent = '(opens in new tab)';
-    ...
+    link.appendChild(newTabIndicator);
   }
   
   // Handle click events
   if (typeof onClick === 'function') {
-    ... (event) => {
+    link.addEventListener('click', (event) => {
       // Check if link is disabled
-      if ... === 'true') {
+      if (link.getAttribute('aria-disabled') === 'true') {
         event.preventDefault();
         return;
       }
@@ -209,22 +208,22 @@ export function createAccessibleLink(options = {}) {
   }
   
   // Handle keyboard interaction
-  ... (event) => {
+  link.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       // Allow default behavior but ensure focus is visible
       setTimeout(() => {
-        ...
+        link.classList.add('focus-visible');
       }, 0);
     }
   });
   
   // Add focus indicator for accessibility
-  ... () => {
-    ...
+  link.addEventListener('focus', () => {
+    link.classList.add('keyboard-focus');
   });
   
-  ... () => {
-    ...
+  link.addEventListener('blur', () => {
+    link.classList.remove('keyboard-focus');
   });
   
   return link;
@@ -232,7 +231,7 @@ export function createAccessibleLink(options = {}) {
 
 // Function to render dependency graphs
 export function renderDependencyGraph(containerId) {
-  const container = ...
+  const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container with id "${containerId}" not found`);
     return null;
@@ -243,18 +242,18 @@ export function renderDependencyGraph(containerId) {
   container.innerHTML = graphHtml;
   
   // Apply accessibility improvements to the rendered graph
-  const svgs = ...
+  const svgs = container.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if ... {
+    if (!svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `Dependency graph ${index + 1}`;
-      title.id = ... + 1}`;
+      title.id = `svg-title-${index + 1}`;
       if (svg.firstChild) {
         svg.insertBefore(title, svg.firstChild);
       } else {
-        ...
+        svg.appendChild(title);
       }
-      ... title.id);
+      svg.setAttribute('aria-labelledby', title.id);
     }
   });
   
@@ -263,7 +262,7 @@ export function renderDependencyGraph(containerId) {
 
 // Function to render index view
 export function renderIndexView(containerId) {
-  const container = ...
+  const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container with id "${containerId}" not found`);
     return null;
@@ -274,25 +273,25 @@ export function renderIndexView(containerId) {
   container.innerHTML = indexHtml;
   
   // Ensure proper landmark structure for accessibility
-  const existingMain = ...
+  const existingMain = container.querySelector('main, [role="main"]');
   if (!existingMain) {
-    const mainElement = ...
+    const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
     mainElement.setAttribute('role', 'main');
     
     // Move all children into main
-    while ... {
+    while (container.firstChild) {
       const child = container.firstChild;
       if (child.tagName !== 'SCRIPT' && 
           child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK') {
-        ...
+        mainElement.appendChild(child);
       } else {
-        ...
+        container.appendChild(child);
       }
     }
     
-    ...
+    container.appendChild(mainElement);
   }
   
   return container;
@@ -302,7 +301,7 @@ export function renderIndexView(containerId) {
 export function setLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && lang) {
-    ... lang);
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -311,7 +310,7 @@ export function setLangAttribute(lang = 'en') {
 export function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    return ...
+    return htmlElement.getAttribute('lang');
   }
   return null;
 }
@@ -320,9 +319,9 @@ export function getLangAttribute() {
 export function getFullLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    const lang = ...
+    const lang = htmlElement.getAttribute('lang');
     if (lang) {
-      const xmlLang = ...
+      const xmlLang = htmlElement.getAttribute('xml:lang');
       return xmlLang || lang;
     }
   }
@@ -331,14 +330,14 @@ export function getFullLangAttribute() {
 
 // Function to fix table structure issues
 export function fixTableStructure() {
-  const tables = ...
+  const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody
-    const existingThead = ...
-    const existingTbody = ...
-    const rows = ...
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = Array.from(table.querySelectorAll('tr'));
 
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -348,83 +347,18 @@ export function fixTableStructure() {
       // Move first row to thead and convert cells to th
       while (firstRow.firstChild) {
         const cell = firstRow.firstChild;
-        const th = ...
+        const th = document.createElement('th');
         th.textContent = cell.textContent;
         th.scope = 'col';
-        ...
+        headerRow.appendChild(th);
         cell.remove();
       }
-      ...
+      thead.appendChild(headerRow);
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? ... : [];
+      const remainingRows = rows.length > 1 ? rows.slice(1) : [];
       if (remainingRows.length > 0) {
-        const tbody = ...
-        ... => {
-          ...
-        });
-        ...
-        fixedCount++;
-      }
-    }
-
-    // Ensure proper header cells (th) are used
-    const allRows = ...
-    allRows.forEach(row => {
-      const cells = ... td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        if (firstCell.tagName !== 'TH') {
-          const th = ...
-          th.textContent = firstCell.textContent;
-          th.scope = 'col';
-          row.insertBefore(th, firstCell);
-          firstCell.remove();
-          fixedCount++;
-        }
-      }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = ...
-    headerCells.forEach(th => {
-      if (th.getAttribute('scope') !== 'col') {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
-}
-
-// Function to validate table structure
-export function validateTableStructure() {
-  const tables = ...
-  const issues = [];
-
-  tables.forEach((table, index) => {
-    const hasThead = ... !== null;
-    const hasTbody = ... !== null;
-    const rows = ...
-    const firstRow = rows[0];
-    const firstCell = firstRow ? ... : null;
-    const headerCells = ...
-
-    if (!hasThead) {
-      issues.push(`Table ${index + 1} is missing a thead element.`);
-    }
-    if (!hasTbody && rows.length > 1) {
-      issues.push(`Table ${index + 1} is missing a tbody element.`);
-    }
-    if (firstRow && firstCell && firstCell.tagName !== 'TH') {
-      issues.push(`Table ${index + 1} first row should contain header cells (th).`);
-    }
-    headerCells.forEach(th => {
-      if ... {
-        issues.push(`Table ${index + 1} header cell missing scope attribute.`);
-      }
+        const

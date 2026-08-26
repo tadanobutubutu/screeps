@@ -4,19 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-// REACT_036: Fix fake link issue - links with href="#" should be buttons
-// REACT_015: Add lang attribute to HTML element
-// REACT_017: Add/fix landmark issues - ensure proper landmark elements
-// REACT_025: Ensure unique landmarks
-
 function Navigation() {
   return (
-    // REACT_017: Navigation should use <nav> landmark
-    // Issue: Missing proper nav landmark
     <div className="navigation">
       <a href="#">Home</a>
       <a href="#">About</a>
-      {/* REACT_036: This is a fake link - should be a button */}
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
       <a href="https://example.com">External</a>
     </div>
@@ -25,8 +17,6 @@ function Navigation() {
 
 function Header() {
   return (
-    // REACT_017: Header should use <header> landmark
-    // Issue: Using div instead of header
     <div className="header">
       <h1>My Application</h1>
       <Navigation />
@@ -36,8 +26,6 @@ function Header() {
 
 function Sidebar() {
   return (
-    // REACT_017: Sidebar should use <aside> landmark
-    // Issue: Missing aside landmark for complementary content
     <div className="sidebar">
       <h2>Related Links</h2>
       <a href="#section1">Section 1</a>
@@ -48,9 +36,6 @@ function Sidebar() {
 
 function MainContent() {
   return (
-    // REACT_017: Main content should use <main> landmark
-    // Issue: Missing main landmark
-    // REACT_025: Ensure only one main landmark exists
     <div className="main-content">
       <section>
         <h2>Welcome</h2>
@@ -66,8 +51,6 @@ function MainContent() {
 
 function Footer() {
   return (
-    // REACT_017: Footer should use <footer> landmark
-    // Issue: Using div instead of footer
     <div className="footer">
       <p>&copy; 2024 My Application. All rights reserved.</p>
     </div>
@@ -85,10 +68,7 @@ function AppLayout() {
   );
 }
 
-// Wrap App in accessibility-focused container
 function AccessibilityWrapper({ children }) {
-  // REACT_015: lang attribute should be on HTML element (typically set in index.html)
-  // This component ensures accessibility attributes are properly managed
   return (
     <div role="application" aria-label="main application">
       {children}
@@ -96,17 +76,6 @@ function AccessibilityWrapper({ children }) {
   );
 }
 
-// REACT_025: Demo of duplicate landmark issue - this would be in separate components
-// Uncomment to see the duplicate main issue:
-// function DuplicateMain() {
-//   return (
-//     <main>
-//       <p>This is a duplicate main landmark (accessibility violation)</p>
-//     </main>
-//   );
-// }
-
-// Main render function with accessibility improvements
 function Root() {
   return (
     <React.StrictMode>

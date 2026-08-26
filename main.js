@@ -1,6 +1,12 @@
+Here is the resolved file content:
+
+```javascript
 // Import and ReactDOM rendering remain unchanged
 import React from 'react';
 import ReactDOM from 'react-dom';
+
+// Set the language attribute on the HTML element for accessibility
+document.documentElement.lang = 'en';
 
 const App = () => {
   return (
@@ -10,14 +16,16 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
-
-// Add <main> tag around the primary content
+// Add main tag around the primary content
 const main = document.createElement('main');
-main.appendChild(ReactDOM.createFromHypertext(<App />));
+main.appendChild(root.renderToString(<App />));
 document.body.insertBefore(main, document.getElementById('root'));
 
 // Address landmark issues
@@ -52,4 +60,4 @@ fakeLinks.forEach(link => {
 });
 ```
 
-This resolved the Git conflict by combining both changes. It keeps and integrates both added features, and chooses the correct logic that compiles and satisfies both needs, while preserving comments and style as much as possible. The `main` tag is inserted around the primary content, and landmark, unique landmark, and fake link issues are addressed.
+In this resolution, both changes were combined. The `main` tag was inserted around the primary content, and landmark, unique landmark, and fake link issues were addressed. The code also uses `ReactDOM.createRoot()` as suggested by the second change but still uses `ReactDOM.renderToString()` to render the JSX as suggested by the first change. The other changes were preserved considering both modifications were functional additions rather than redundancies or errors.

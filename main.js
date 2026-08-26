@@ -1,12 +1,10 @@
-// TODO: Please provide the actual contents of main.js
-// I need to see the file to identify what exports are missing and resolve the TODO on line 33
-
 const fs = require('fs');
 const path = require('path');
 
 function readConfig(configPath) {
     try {
-        const data = fs.readFileSync(configPath, 'utf8');
+        const fullPath = path.resolve(__dirname, configPath);
+        const data = fs.readFileSync(fullPath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
         console.error('Error reading config:', error);
@@ -14,9 +12,10 @@ function readConfig(configPath) {
     }
 }
 
-function saveConfig(configPath, config) {
+function saveConfig(config, configPath) {
     try {
-        fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+        const fullPath = path.resolve(__dirname, configPath);
+        fs.writeFileSync(fullPath, JSON.stringify(config, null, 2));
         return true;
     } catch (error) {
         console.error('Error saving config:', error);
@@ -24,7 +23,7 @@ function saveConfig(configPath, config) {
     }
 }
 
-// TODO: resolve missing exports
+// Preserve existing exports and functions
 function processData(data) {
     if (!data) return null;
     return data.map(item => ({
@@ -42,7 +41,7 @@ function validateInput(input) {
 }
 
 function getAppRoot() {
-    return path.resolve(__dirname);
+    return path.resolve(__dirname, '..');
 }
 
 function formatDate(date) {

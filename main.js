@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Address accessibility issues from insight report
 
 import React from 'react';
@@ -37,46 +40,45 @@ const InPageButton = ({
 const validateTableAccessibility = () => {
   const errors = [];
 
-  if (typeof document === 'undefined') {
-    return { errors };
-  }
+  if (typeofdocument !== 'undefined' && typeof window !== 'undefined') {
+    // Check if both document and window are defined to compensate for the differences between browser and Node.js environment
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table, index) => {
+      // Check if table has proper headers
+      const headers = table.querySelectorAll('th');
+      const hasHeaders = headers.length > 0;
 
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table, index) => {
-    // Check if table has proper headers
-    const headers = table.querySelectorAll('th');
-    const hasHeaders = headers.length > 0;
-
-    if (!hasHeaders) {
-      errors.push({
-        message: `Table ${index + 1} is missing header cells (th elements)`,
-        line: 0,
-        column: 0
-      });
-    }
-
-    // Check for scope attribute on headers
-    headers.forEach((header) => {
-      if (!header.hasAttribute('scope')) {
+      if (!hasHeaders) {
         errors.push({
-          message: `Table header missing scope attribute`,
+          message: `Table ${index + 1} is missing header cells (th elements)`,
+          line: 0,
+          column: 0
+        });
+      }
+
+      // Check for scope attribute on headers
+      headers.forEach((header) => {
+        if (!header.hasAttribute('scope')) {
+          errors.push({
+            message: `Table header missing scope attribute`,
+            line: 0,
+            column: 0
+          });
+        }
+      });
+
+      // Check for caption or summary
+      const caption = table.querySelector('caption');
+      const summary = table.getAttribute('summary');
+      if (!caption && !summary) {
+        errors.push({
+          message: `Table ${index + 1} is missing a caption or summary`,
           line: 0,
           column: 0
         });
       }
     });
-
-    // Check for caption or summary
-    const caption = table.querySelector('caption');
-    const summary = table.getAttribute('summary');
-    if (!caption && !summary) {
-      errors.push({
-        message: `Table ${index + 1} is missing a caption or summary`,
-        line: 0,
-        column: 0
-      });
-    }
-  });
+  }
 
   return { errors };
 };
@@ -85,46 +87,44 @@ const validateTableAccessibility = () => {
 const validateLandmarkStructure = () => {
   const errors = [];
 
-  if (typeof document === 'undefined') {
-    return { valid: true, errors };
-  }
+  if (typeof document !== 'undefined') {
+    // Check for main landmark (should have exactly one)
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    if (mainElements.length === 0) {
+      errors.push({
+        message: 'Page is missing a main landmark',
+        line: 0,
+        column: 0
+      });
+    } else if (mainElements.length > 1) {
+      errors.push({
+        message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
+        line: 0,
+        column: 0
+      });
+    }
 
-  // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    errors.push({
-      message: 'Page is missing a main landmark',
-      line: 0,
-      column: 0
-    });
-  } else if (mainElements.length > 1) {
-    errors.push({
-      message: `Page has ${mainElements.length} main landmarks. Should have exactly one.`,
-      line: 0,
-      column: 0
-    });
-  }
+    // Check for header/nav landmarks
+    const navElements = document.querySelectorAll('nav');
+    const headerElements = document.querySelectorAll('header, [role="banner"]');
 
-  // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+    if (headerElements.length > 1) {
+      errors.push({
+        message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
+        line: 0,
+        column: 0
+      });
+    }
 
-  if (headerElements.length > 1) {
-    errors.push({
-      message: `Page has ${headerElements.length} header landmarks. Should have at most one.`,
-      line: 0,
-      column: 0
-    });
-  }
-
-  // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    errors.push({
-      message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
-      line: 0,
-      column: 0
-    });
+    // Check for footer landmark
+    const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+    if (footerElements.length > 1) {
+      errors.push({
+        message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
+        line: 0,
+        column: 0
+      });
+    }
   }
 
   return { valid: errors.length === 0, errors };
@@ -135,23 +135,23 @@ const validateLandmark = validateLandmarkStructure;
 
 // Function to validate table structure
 const validateTableStructure = () => {
-  // Custom table structure validation logic goes here
   const errors = [];
 
-  // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
-  if (tables.length > 0) {
-    tables.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
-      rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
-        cells.forEach((cell) => {
-          if (!cell.textContent || cell.textContent.trim() === '') {
-            errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
-          }
+  if (typeof document !== 'undefined') {
+    const tables = document.querySelectorAll('table');
+    if (tables.length > 0) {
+      tables.forEach((table) => {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach((row) => {
+          const cells = row.querySelectorAll('td, th');
+          cells.forEach((cell) => {
+            if (!cell.textContent || cell.textContent.trim() === '') {
+              errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
+            }
+          });
         });
       });
-    });
+    }
   }
 
   return { errors };
@@ -227,3 +227,4 @@ export {
 };
 
 ReactDOM.render(<Root />, document.getElementById('root'));
+```

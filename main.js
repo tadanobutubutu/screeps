@@ -1,3 +1,5 @@
+// main.js - Resolved Version
+
 // Existing code in main.js before conflict markers
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';

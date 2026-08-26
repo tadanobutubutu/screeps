@@ -257,6 +257,32 @@ function fixTableStructureIssues() {
   });
 }
 
+// New top-level functions (copies of those returned from addressAccessibilityIssues)
+function addFocusTrap(element, options = {}) {
+  const accessibility = addressAccessibilityIssues();
+  return accessibility.addFocusTrap(element, options);
+}
+
+function removeFocusTrap(trap) {
+  const accessibility = addressAccessibilityIssues();
+  return accessibility.removeFocusTrap(trap);
+}
+
+function renderCSSTransition(element, options = {}, cb) {
+  const accessibility = addressAccessibilityIssues();
+  return accessibility.renderCSSTransition(element, options, cb);
+}
+
+function implementAccessibility(component, options = {}) {
+  const accessibility = addressAccessibilityIssues();
+  return accessibility.implementAccessibility(component, options);
+}
+
+function applyAccessibilityFixes(component, customRole = 'main') {
+  const accessibility = addressAccessibilityIssues();
+  return accessibility.applyAccessibilityFixes(component, customRole);
+}
+
 // Export the module functions
 module.exports = {
   ensureUniqueLandmarks,
@@ -265,5 +291,10 @@ module.exports = {
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addFocusTrap,
+  removeFocusTrap,
+  renderCSSTransition,
+  implementAccessibility,
+  applyAccessibilityFixes
 };

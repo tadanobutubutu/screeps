@@ -10,7 +10,7 @@ const srcDir = path.join(baseDir, 'src');
 module.exports = {
   baseDir,
   srcDir,
-  
+
   // Accessibility helper functions
   announceToScreenReader: function(message) {
     const announcement = document.createElement('div');
@@ -22,7 +22,7 @@ module.exports = {
     document.body.appendChild(announcement);
     setTimeout(() => announcement.remove(), 1000);
   },
-  
+
   // Focus management for accessibility
   manageFocus: function(elementId) {
     const element = document.getElementById(elementId);
@@ -31,12 +31,29 @@ module.exports = {
       element.focus();
     }
   },
-  
+
   // Keyboard navigation helpers
   handleKeyboardNav: function(event, callback) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       callback();
+    }
+  },
+
+  // Make a given element accessible based on the insight report
+  makeElementAccessible: function(element) {
+    if (!element) return;
+    // Ensure the element is focusable
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+    // Add appropriate ARIA role if missing
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'button');
+    }
+    // Add accessible label if missing
+    if (!element.hasAttribute('aria-label') && element.textContent) {
+      element.setAttribute('aria-label', element.textContent.trim());
     }
   }
 };

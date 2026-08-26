@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -49,70 +46,8 @@ function fixTableStructure(doc) {
     }
   });
 
-  // Added code for applying addMainLandmark and ensureUniqueLandmarks
-  const mainElements = doc.querySelectorAll('main');
-  let uniqueMain = false;
-
-  mainElements.forEach(main => {
-    if (!main.hasAttribute('aria-hidden') && !main.hasAttribute('role')) {
-      // Move content into main landmark
-      const body = doc.body;
-      if (body.firstChild) {
-        main.appendChild(body.firstChild);
-        body.insertBefore(main, body.firstChild);
-      } else {
-        body.appendChild(main);
-      }
-      uniqueMain = true;
-    }
-  });
-
-  // If main element is not found (or was moved above), add a new unique one
-  if (!uniqueMain) {
-    let main = doc.createElement('main');
-    main.setAttribute('aria-hidden', 'false');
-    // Move content into main landmark
-    const body = doc.body;
-    if (body.firstChild) {
-      main.appendChild(body.firstChild);
-      body.insertBefore(main, body.firstChild);
-    } else {
-      body.appendChild(main);
-    }
-  }
-
-  function ensureUniqueLandmarks(doc) {
-    const landmarkTypes = ['header', 'nav', 'main', 'footer', 'aside'];
-
-    landmarkTypes.forEach(landmark => {
-      const elements = doc.querySelectorAll(landmark);
-      const roleElements = doc.querySelectorAll(`[role="${landmark}"]`);
-      const totalElements = elements.length + roleElements.length;
-
-      // If multiple landmarks of same type, add labels to distinguish them
-      if (totalElements > 1) {
-        let count = 0;
-        elements.forEach(el => {
-          if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
-            el.setAttribute('aria-label', `${landmark} ${++count}`);
-          }
-        });
-        count = 0;
-        roleElements.forEach(el => {
-          if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
-            el.setAttribute('aria-label', `${landmark} ${++count}`);
-          }
-        });
-      }
-    });
-    return doc;
-  }
-  fixTableStructure(doc);
-  ensureUniqueLandmarks(doc);
   return doc;
 }
-
-// ----- END ORIGINAL CODE (unchanged) -----
 
 /**
  * Adds main landmark for accessibility (REACT_017)
@@ -138,7 +73,7 @@ function addMainLandmark(doc) {
 }
 
 /**
- * Ensures unique landmarks for accessibility (DONE: ensureUniqueLandmarks)
+ * Ensures unique landmarks for accessibility (REACT_025)
  * @param {Document} doc - The document object
  */
 function ensureUniqueLandmarks(doc) {
@@ -256,6 +191,3 @@ module.exports = {
   fixFakeLinkIssue,
   applyAccessibilityFixes
 };
-```
-
-In this resolution, I merged both changes by moving the implementation of adding and ensuring unique main landmarks into the `fixTableStructure` function to keep the code organized. The initial implementation of the unique landmark function was kept as it already addressed all landmark types and ensured uniqueness in naming.

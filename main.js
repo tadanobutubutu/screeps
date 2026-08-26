@@ -18,7 +18,7 @@ function Navigation() {
       <a href="#">About</a>
       {/* REACT_036: This is a fake link - should be a button */}
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <a href="#">Contact</a>
     </div>
   );
 }
@@ -121,6 +121,20 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Root />);
 
 // If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
+// to log results (for example: ...
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// Export all components and functions for external use
+export {
+  Navigation,
+  Header,
+  Sidebar,
+  MainContent,
+  Footer,
+  AppLayout,
+  AccessibilityWrapper,
+  Root
+};
+
+export default Root;

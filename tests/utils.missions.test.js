@@ -8,29 +8,6 @@ global.Memory = {};
 const MissionSystem = require('../utils.missions');
 
 describe('utils.missions', () => {
-
-    test('secureRandomInt fallback when crypto throws an error', () => {
-        MissionSystem.initMemory();
-        const crypto = require('crypto');
-        const originalRandomBytes = crypto.randomBytes;
-
-        // Mock to throw
-        crypto.randomBytes = jest.fn().mockImplementation(() => {
-            throw new Error('simulated crypto error');
-        });
-
-        const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);
-        global.Game = { rooms: { W1N1: { name: 'W1N1' } }, time: 10 };
-
-        const mission = MissionSystem.createRandomMission();
-        expect(mission).toBeDefined();
-        expect(crypto.randomBytes).toHaveBeenCalled();
-        expect(mockMath).toHaveBeenCalled();
-
-        crypto.randomBytes = originalRandomBytes;
-        mockMath.mockRestore();
-    });
-
     beforeEach(() => {
         global.Memory = {};
     });

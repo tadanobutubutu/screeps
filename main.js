@@ -1,5 +1,1 @@
-// src/utils/indexContent.js
-export const indexContent = () => 'This is the index content';
-
-// src/utils/dependencyGraphContent.js
-export const dependencyGraphContent = () => 'This is the dependency graph content';
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

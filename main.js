@@ -30,7 +30,10 @@ module.exports = {
 function addLangAttribute() {
   // Add lang attribute to HTML element for accessibility
   if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('lang', 'en');
+    const html = document.documentElement;
+    if (html && !html.hasAttribute('lang')) {
+      html.setAttribute('lang', 'en');
+    }
   }
 }
 
@@ -56,10 +59,10 @@ function fixTableStructureIssues() {
 function addMainLandmark() {
   // Add main landmark for accessibility
   if (typeof document !== 'undefined') {
-    const existingMain = document.querySelector('main');
+    const existingMain = document.querySelector('main, [role="main"]');
     if (!existingMain) {
       const body = document.body;
-      if (body && !body.querySelector('main')) {
+      if (body) {
         const main = document.createElement('main');
         main.setAttribute('role', 'main');
         while (body.firstChild) {
@@ -76,8 +79,11 @@ function addSvgAccessibleNames() {
   if (typeof document !== 'undefined') {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(function(svg, index) {
-      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        svg.setAttribute('aria-label', 'SVG graphic ' + (index + 1));
+      const title = svg.querySelector('title');
+      if (!title) {
+        const newTitle = document.createElement('title');
+        newTitle.textContent = 'SVG graphic ' + (index + 1);
+        svg.insertBefore(newTitle, svg.firstChild);
       }
     });
   }
@@ -103,7 +109,7 @@ function ensureUniqueLandmarks() {
 function fixFakeLinkIssue() {
   // Fix fake link issues for accessibility (links that aren't anchor tags)
   if (typeof document !== 'undefined') {
-    const fakeLinks = document.querySelectorAll('[role="link"], [data-link]');
+    const fakeLinks = document.querySelectorAll('[data-link]');
     fakeLinks.forEach(function(link) {
       if (link.tagName !== 'A') {
         link.setAttribute('role', 'button');

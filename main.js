@@ -37,10 +37,17 @@ function hasMultipleLockFiles() {
   return detectMultipleLockFiles().length > 1;
 }
 
-module.exports = {
-  detectMultipleLockFiles,
-  hasMultipleLockFiles,
-};
+/**
+ * Make a given element accessible based on insight report recommendations.
+ * @param {HTMLElement} element - The DOM element to make accessible.
+ */
+function makeElementAccessible(element) {
+  if (!element) return;
+  
+  // Implement the logic to make the given element accessible, based on the provided insight report.
+  // This is a placeholder for accessibility enhancements.
+  // Actual implementation would depend on the specific element and insight report details.
+}
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -137,7 +144,16 @@ function exportData() {
 }
 
 // Initial render
-render();
+if (typeof document !== 'undefined' && document.getElementById('root')) {
+  render();
+}
 
-// Export functions for testing
-export { render, handleAction, exportData };
+// Export functions for testing and external use
+module.exports = {
+  detectMultipleLockFiles,
+  hasMultipleLockFiles,
+  makeElementAccessible,
+  render,
+  handleAction,
+  exportData
+};

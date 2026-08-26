@@ -59,7 +59,7 @@ function addMainLandmark() {
   if (!main) {
     main = document.createElement('main');
     main.id = 'main-content';
-    const content = document.querySelector('.content') || document.body.firstElementChild;
+    const content = document.querySelector('.content') || document.querySelector('#content');
     if (content) {
       main.appendChild(content);
       document.body.insertBefore(main, content);
@@ -80,16 +80,33 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    let title = svg.querySelector('title') || document.createElement('title');
-    if (!svg.querySelector('title')) {
+    // Skip decorative SVGs with aria-hidden="true"
+    if (svg.getAttribute('aria-hidden') === 'true') {
+      return;
+    }
+    
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      svg.insertBefore(title, svg.firstChild);
+    }
+    
+    // Set accessible name based on context
+    if (!title.textContent) {
       const ariaLabel = svg.getAttribute('aria-label') || 
                         (index === 0 ? 'Logo' : 'Icon') + ' ' + (index + 1);
       title.textContent = ariaLabel;
-      svg.insertBefore(title, svg.firstChild);
     }
+    
+    // Ensure role="img" is set for screen readers
     svg.setAttribute('role', 'img');
-    if (!title.id) {
-      title.id = 'svg-title-' + index;
+    
+    // Link the title with aria-labelledby if not already linked
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      if (!title.id) {
+        title.id = 'svg-title-' + index;
+      }
+      svg.setAttribute('aria-labelledby', title.id);
     }
   });
 }
@@ -112,7 +129,7 @@ function ensureUniqueLandmarks() {
       });
     }
   });
-  const mainLandmarks = document.querySelectorAll('main');
+  const mainLandmarks = document.querySelectorAll('main[role="main"]');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((main, index) => {
       if (index > 0) {
@@ -122,7 +139,7 @@ function ensureUniqueLandmarks() {
         while (main.firstChild) {
           section.appendChild(main.firstChild);
         }
-        const attributes = Array.from(main.attributes);
+        const attributes = main.attributes;
         attributes.forEach(attr => {
           if (attr.name !== 'aria-label') {
             section.setAttribute(attr.name, attr.value);
@@ -136,7 +153,7 @@ function ensureUniqueLandmarks() {
 
 // REACT_036: Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('div.clickable');
+  const fakeLinks = document.querySelectorAll('[onclick], [role="link"]');
   fakeLinks.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     if (tagName !== 'a') {

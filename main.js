@@ -1,5 +1,11 @@
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
-const { findIndex: originalFindIndex, filterLandmarks: originalFilterLandmarks, sortLandmarksByName: originalSortLandmarksByName, someFunctionREACT_027: originalSomeFunctionREACT_027, addRequiredLandmarks: originalAddRequiredLandmarks, newFunction } = require('./utils');
+const { 
+  findIndex: originalFindIndex, 
+  filterLandmarks: originalFilterLandmarks, 
+  sortLandmarksByName: originalSortLandmarksByName, 
+  someFunctionREACT_027: originalSomeFunctionREACT_027, 
+  addRequiredLandmarks: originalAddRequiredLandmarks 
+} = require('./utils');
 
 // Function to calculate the index of an item in an array based on its id
 const findIndex = (array, id) => {

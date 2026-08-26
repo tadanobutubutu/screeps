@@ -26,4 +26,14 @@ const setAccessibleName = (node, accessibleName) => {
 // Existing exports and functions continue to be preserved
 // No changes to exports are allowed
 
-module.exports = { getAccessibleName, setAccessibleName };
+// New function to wrap the primary content in a <main> element
+const wrapPrimaryContentInMain = (content) => {
+  const mainElement = document.createElement('main');
+  mainElement.innerHTML = content;
+  return mainElement;
+};
+
+// Existing exports and functions continue to be preserved
+// No changes to exports are allowed
+
+module.exports = { getAccessibleName, setAccessibleName, wrapPrimaryContentInMain };

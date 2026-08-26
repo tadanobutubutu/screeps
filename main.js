@@ -12,7 +12,7 @@ import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
@@ -28,7 +28,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -39,7 +39,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(table.querySelectorAll('tr'));
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -51,15 +51,17 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll('td, th');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        firstCell.parentNode.replaceChild(th, firstCell);
-        fixedCount++;
+        if (firstCell.tagName !== 'TH') {
+          const th = document.createElement('th');
+          th.textContent = firstCell.textContent;
+          th.scope = 'col';
+          row.replaceChild(th, firstCell);
+          fixedCount++;
+        }
       }
     });
     
@@ -183,8 +185,8 @@ function fixFakeLinkIssue(document) {
     
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('location.href') || 
-        onclick.includes('navigate'))) {
+        onclick.includes('document.location') || 
+        onclick.includes('navigation'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -192,7 +194,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.setAttribute('onkeypress', `if(event.key==='Enter'){${onclick}}`);
+      span.addEventListener('click', element.onclick);
       
       // Copy styling if available
       if (element.className) {
@@ -211,7 +213,7 @@ function fixFakeLinkIssue(document) {
 function fixFakeLinkIssues(document) {
   const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('aria-label')) {
+    if (link.tagName === 'A' && link.getAttribute('href') === '#') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
     }
   });
@@ -229,8 +231,8 @@ function fixLandmarkIssues(document) {
     'article': 'article'
   };
 
-  Object.entries(landmarks).forEach(([tag, role]) => {
-    const elements = document.querySelectorAll(tag);
+  Object.entries(landmarks).forEach(([selector, role]) => {
+    const elements = document.querySelectorAll(selector);
     elements.forEach(element => {
       if (element.getAttribute('role') !== role) {
         element.setAttribute('role', role);
@@ -286,7 +288,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onbutton');
+    const buttonContainer = document.getElementById('g-signin-button');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -327,60 +329,12 @@ function fixButtonIdentifiers(document) {
 
 // Add the fix for REACT_017: Add <main> landmark to docs/index.html
 function addMainLandmarkToIndex(document) {
-  const indexContent = document.querySelector('#content');
+  const indexContent = document.querySelector('.content');
   if (indexContent) {
     const mainElement = document.createElement('main');
     mainElement.appendChild(indexContent);
-    const container = document.createElement('div');
-    container.classList.add('container');
-    mainElement.appendChild(container);
-    document.body.appendChild(mainElement);
-  }
-}
-
-// Function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(document) {
-  // Assuming the insight report provides an object with the issues to be addressed
-  const insightReport = {
-    'REACT_015': () => addLangAttribute(document),
-    'REACT_041': () => addSvgAccessibleNames(document),
-    'REACT_036': () => { fixFakeLinkIssue(document); fixFakeLinkIssues(document); },
-    'REACT_017': () => { fixLandmarkIssues(document); addLandmarkRegions(document); addMainLandmark(document); },
-    'REACT_027': () => fixTableStructure(document),
-    'REACT_025': () => { ensureUniqueLandmarks(document); uniqueLandmarks(document); },
-    'REACT_037': () => googleSignIn(document),
-    'REACT_040': () => fixButtonIdentifiers(document),
-    // Additional fixes
-    'IMAGE_ALT': () => fixImageAltTexts(document),
-    'INDEX_MAIN': () => addMainLandmarkToIndex(document),
-  };
-
-  Object.values(insightReport).forEach((functionToCall) => {
-    if (typeof functionToCall === 'function') {
-      functionToCall();
+    const container = document.querySelector('.container');
+    if (container) {
+      container.appendChild(mainElement);
     }
-  });
-}
-
-// Export all functions
-export { 
-  addLangAttribute, 
-  fixTableStructure, 
-  addMainLandmark, 
-  ensureUniqueLandmarks, 
-  addSvgAccessibleNames, 
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  handleCredentialResponse,
-  fixButtonIdentifiers,
-  addMainLandmarkToIndex,
-  implementAccessibilityFixesFromReport,
-  class1, 
-  function1, 
-  Object1 
-};
+    mainElement.setAttribute('role', 'main');

@@ -254,8 +254,12 @@ function removeFocusTrap(trap) {
   }
 }
 
+const { renderCSSTransition } = ReactTransitionGroup.CSSTransition;
+
 // Export the module functions
 module.exports = {
+  existingFunction: existingFunction,
+  anotherFunction: anotherFunction,
   ensureUniqueLandmarks: ensureUniqueLandmarks,
   fixFakeLinks: fixFakeLinks,
   addressAccessibilityIssues: addressAccessibilityIssues,

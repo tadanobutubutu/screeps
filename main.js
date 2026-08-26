@@ -18,8 +18,18 @@ function render() {
   document.body.appendChild(index);
 }
 
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function farewell(name) {
+  return `Goodbye, ${name}!`;
+}
+
 // Exports should remain the same
 module.exports = {
   // ... existing exports ...
+  greet,
+  farewell,
   render,
 };

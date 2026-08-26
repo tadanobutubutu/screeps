@@ -4,7 +4,7 @@
 /**
  * REACT_036 Fix: React Fake Link
  *
- * Issue: The "rotate back" link in docs/dependency-graph.html used
+ * Issue: The "rotate back" link in ... used
  * <a href="#"> which doesn't navigate anywhere, causing screen readers
  * to announce it as a dead link and preventing proper keyboard activation.
  *
@@ -36,13 +36,18 @@ function fixFakeLink() {
     unrotateButton.role = 'button';
     unrotateButton.ariaLabel = 'Rotate the dependency graph back to the original position.';
     unrotateButton.addEventListener('click', handleRotateBack);
-    document.querySelector('#unrotate').replaceWith(unrotateButton);
+    const oldLink = document.getElementById('unrotate');
+    if (oldLink && oldLink.parentNode) {
+        oldLink.parentNode.replaceChild(unrotateButton, oldLink);
+    }
 }
 
 /* New function REACT_015: Add lang attribute to HTML element */
 function addLangAttribute() {
-    if (!document.documentElement.hasAttribute('lang')) {
-        document.documentElement.setAttribute('lang', document.documentElement.lang);
+    // Add lang attribute to HTML element for accessibility compliance (REACT_015)
+    // This helps screen readers announce content in the correct language
+    if (document.documentElement) {
+        document.documentElement.lang = 'en';
     }
 }
 
@@ -51,16 +56,32 @@ function addLangAttribute() {
  * Resets the dependency graph to its original rotation (0 degrees).
  */
 function handleRotateBack() {
-    rotateDependencyGraph(0);
-
+    const svg = document.querySelector('.dependency-graph svg');
+    if (svg) {
+        svg.style.transform = 'rotate(0deg)';
+    }
     // Dispatch event for any other listeners
     if (typeof window !== 'undefined' && window.CustomEvent) {
-        const event = new CustomEvent('rotateback', { detail: { degrees: 0 } });
+        const event = new CustomEvent('graphRotated', { detail: { degrees: 0 } });
         window.dispatchEvent(event);
     }
 }
 
 // (Existing code for rotateDependencyGraph and init functions)
+
+/**
+ * Rotates the dependency graph by the specified number of degrees.
+ * @param {number} degrees - The number of degrees to rotate the graph.
+ */
+function rotateDependencyGraph(degrees) {
+    const svg = document.querySelector('.dependency-graph svg');
+    if (svg) {
+        const currentRotation = parseInt(svg.getAttribute('data-rotation') || '0', 10);
+        const newRotation = currentRotation + degrees;
+        svg.style.transform = `rotate(${newRotation}deg)`;
+        svg.setAttribute('data-rotation', newRotation.toString());
+    }
+}
 
 /**
  * Initializes the dependency graph controller.
@@ -86,6 +107,7 @@ if (typeof module !== 'undefined' && module.exports) {
         fixFakeLink,
         handleRotateBack,
         rotateDependencyGraph,
+        addLangAttribute,
         init,
         config
     };

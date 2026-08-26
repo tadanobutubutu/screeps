@@ -2,10 +2,10 @@
 
 // Implement the getSvgAccessibleName functionality
 function getSvgAccessibleName(svgElement) {
-  if (!svgElement || !svgElement.hasAttribute('aria-labelledby')) return '';
+  if (!svgElement || svgElement.nodeName !== 'svg') return '';
 
-  const id = svgElement.getAttribute('aria-labelledby');
-  const label = document.getElementById(id);
+  const id = svgElement.getAttribute('id');
+  const label = id ? document.getElementById(id) : null;
 
   if (!label) return '';
 
@@ -29,7 +29,7 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.id = buttonId;
   button.textContent = buttonText;
   button.className = buttonClass;
-  document.body.appendChild(button);
+  ...
 }
 
 // Export the new createInPageButton function

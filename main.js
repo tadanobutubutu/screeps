@@ -74,10 +74,34 @@ function fixTableStructureIssues() {
   });
 }
 
+function fixReactUniqueLandmarks() {
+  if (typeof document === 'undefined' || !document.querySelectorAll) {
+    return;
+  }
+  const mains = document.querySelectorAll('main');
+  if (mains.length <= 1) {
+    return;
+  }
+  for (let i = 1; i < mains.length; i++) {
+    const main = mains[i];
+    const section = document.createElement('section');
+    for (let j = 0; j < main.attributes.length; j++) {
+      const attr = main.attributes[j];
+      section.setAttribute(attr.name, attr.value);
+    }
+    while (main.firstChild) {
+      section.appendChild(main.firstChild);
+    }
+    if (main.parentNode) {
+      main.parentNode.replaceChild(section, main);
+    }
+  }
+}
+
 // ... (rest of your main.js code)
 
 // Preserve request note from origin/main:
 // Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
-// Export the function if it's meant to be used outside of this file
-export { fixTableStructureIssues };
+// Export the function if it's meant to be used outside this file
+export { fixTableStructureIssues, fixReactUniqueLandmarks };

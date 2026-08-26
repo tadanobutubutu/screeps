@@ -3,6 +3,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 
+// Skip navigation link for keyboard users
+
 // Main functional component
 const Main = ({ data }) => {
   // Address critical issue: React Language Attribute

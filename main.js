@@ -13,7 +13,7 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-// New requested function (Line 82 - 95)
+// New requested function
 const newFunction = (document) => {
   // Implementation for handling the new function
   // This could include additional processing or setup needed for the document

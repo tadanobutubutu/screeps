@@ -8,6 +8,7 @@
 import React from "react";
 
 const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+                   <title>Screeps Dashboard</title>
                    <text y=".9em" font-size="90">🐛</text>
                  </svg>`;
 
@@ -32,17 +33,10 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
-// Add the missing function from the Node.js branch
-function MyMissingFunction() {
-  // Add your function's implementation here
-}
-
-exports.MyMissingFunction = MyMissingFunction;
-
 // app/layout.tsx:7
 import React from "react";
 
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard">
                    <title>Screeps Dashboard</title>
                    <text y=".9em" font-size="90">🐛</text>
                  </svg>`;

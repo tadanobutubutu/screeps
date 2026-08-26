@@ -4,11 +4,11 @@
 
 // Add the following changes in the specified locations
 
-// dashboard/app/layout.tsx:7
+// ...
 import React from "react";
 
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
-                   <text y=".9em" font-size="90">🐛</text>
+const iconSvg = `<svg ... viewBox="0 0 100 100" aria-hidden="true">
+                   <text y=".9em" ...
                  </svg>`;
 
 const DashboardLayout = ({ children }) => {
@@ -18,16 +18,18 @@ const DashboardLayout = ({ children }) => {
     <div className="layout">
       {/*....(your existing code here)....*/}
 
-      <div className="header-mobile">
+      <div ...
         {/*....(your existing code here)....*/}
-        <div className="header-icon">
+        <div ...
           <img src={icon} alt="Screeps" />
           {/* Replace `icon` with `iconSvg` */}
-          <div dangerouslySetInnerHTML={{ __html: iconSvg }} />
+          <div ... __html: iconSvg }} />
         </div>
       </div>
 
-      {/*....(your existing code here)....*/}
+      <main>
+        {/*....(your existing code here)....*/}
+      </main>
     </div>
   );
 };
@@ -42,9 +44,9 @@ exports.MyMissingFunction = MyMissingFunction;
 // app/layout.tsx:7
 import React from "react";
 
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+const iconSvg = `<svg ... viewBox="0 0 100 100">
                    <title>Screeps Dashboard</title>
-                   <text y=".9em" font-size="90">🐛</text>
+                   <text y=".9em" ...
                  </svg>`;
 
 const Layout = ({ children }) => {
@@ -54,16 +56,18 @@ const Layout = ({ children }) => {
     <div className="layout">
       {/*....(your existing code here)....*/}
 
-      <div className="header-mobile">
+      <div ...
         {/*....(your existing code here)....*/}
-        <div className="header-icon">
+        <div ...
           <img src={icon} alt="Screeps" />
           {/* Replace `icon` with `iconSvg` */}
-          <div dangerouslySetInnerHTML={{ __html: iconSvg }} />
+          <div ... __html: iconSvg }} />
         </div>
       </div>
 
-      {/*....(your existing code here)....*/}
+      <main>
+        {/*....(your existing code here)....*/}
+      </main>
     </div>
   );
 };

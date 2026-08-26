@@ -1,6 +1,6 @@
 // Import helper functions for accessibility and focus-trap, react-transition-group modules
-const accessibilityHelpers = require('./helpers/accessibility');
-const domHelpers = require('./helpers/dom');
+const accessibilityHelpers = require('./helpers/accessibility-helpers');
+const domHelpers = require('./helpers/dom-helpers');
 const { FocusTrap } = require('focus-trap');
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -84,7 +84,6 @@ function addressAccessibilityIssues(role = 'banner') {
 
   function renderCSSTransition(element, options = {}, cb) {
     const wrapper = document.createElement('div');
-    document.body.appendChild(wrapper);
 
     const timeout = options.timeout || 300;
     const classNames = options.classNames || 'fade';
@@ -129,10 +128,10 @@ function addressAccessibilityIssues(role = 'banner') {
 
 // Helper functions for accessibility
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"]:not([href])');
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"]');
   fakeLinks.forEach(link => {
     link.style.cursor = 'pointer';
-    if (!link.hasAttribute('tabindex')) {
+    if (!link.getAttribute('tabindex')) {
       link.setAttribute('tabindex', '0');
     }
   });
@@ -142,15 +141,15 @@ function ensureUniqueLandmarks() {
   const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
     for (let i = 1; i < mainElements.length; i++) {
-      mainElements[i].removeAttribute('role');
+      mainElements[i].setAttribute('aria-hidden', 'true');
       mainElements[i].style.display = 'none';
     }
   }
 }
 
 function addLangAttribute() {
-  const html = document.querySelector('html');
-  if (html && !html.hasAttribute('lang')) {
+  const html = document.documentElement;
+  if (html && !html.getAttribute('lang')) {
     html.setAttribute('lang', navigator.language || 'en');
   }
 }
@@ -194,7 +193,7 @@ function addSvgAccessibleNames() {
       newTitle.textContent = `SVG ${index + 1}`;
       svg.insertBefore(newTitle, svg.firstChild);
     }
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -254,7 +253,39 @@ function removeFocusTrap(trap) {
   }
 }
 
-const { renderCSSTransition } = ReactTransitionGroup.CSSTransition;
+function renderCSSTransition(element, options, cb) {
+  const wrapper = document.createElement('div');
+
+  const timeout = options.timeout || 300;
+  const classNames = options.classNames || 'fade';
+
+  ReactDOM.render(
+    React.createElement(
+      CSSTransition,
+      {
+        in: true,
+        timeout: timeout,
+        classNames: classNames,
+        onEnter: () => {
+          if (cb && cb.onEnter) cb.onEnter();
+        },
+        onEntered: () => {
+          if (cb && cb.onEntered) cb.onEntered();
+        },
+        onExit: () => {
+          if (cb && cb.onExit) cb.onExit();
+        },
+        onExited: () => {
+          wrapper.remove();
+          if (cb && cb.onExited) cb.onExited();
+        }
+      },
+      element
+    ),
+    wrapper
+  );
+  return wrapper;
+}
 
 // Export the module functions
 module.exports = {
@@ -271,5 +302,8 @@ module.exports = {
   removeFocusTrap: removeFocusTrap,
   renderCSSTransition: renderCSSTransition,
   implementAccessibility: accessibilityHelpers.implementAccessibility,
-  applyAccessibilityFixes: accessibilityHelpers.applyAccessibilityFixes
+  applyAccessibilityFixes: accessibilityHelpers.applyAccessibilityFixes,
+  // Export accessibilityHelpers and domHelpers for direct access if needed
+  accessibilityHelpers: accessibilityHelpers,
+  domHelpers: domHelpers
 };

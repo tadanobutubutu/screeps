@@ -64,7 +64,7 @@ function addMainLandmark(element) {
 }
 
 // ADD THE FUNCTION TO ENSURE UNIQUE LANDMARKS
-function ensureUniqueLandmarkIds() {
+function ensureUniqueLandmarks() {
   // Ensure landmark elements have unique id's
   const landmarks = document.querySelectorAll('[role="landmark"]');
   let uniqueIdCount = 0;

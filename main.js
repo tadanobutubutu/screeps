@@ -27,7 +27,6 @@ function someNewFunction() {
 export { someNewFunction };
 
 // ADD: Implement the requested accessibility fix based on the insight report
-// Add any updates related to accessibility improvements
 // Assuming that getDocument() returns the HTMLDocument object and the structure is as follows:
 // <!DOCTYPE html>
 // <html lang="DefaultLanguageHere">

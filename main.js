@@ -28,9 +28,11 @@ function fixTableStructureIssues() {
       headers.forEach((headerCell) => {
         const th = document.createElement('th');
         th.textContent = headerCell.textContent;
-        // Copy any scope attribute if present
+        // Preserve scope attribute for accessibility; copy existing if present, else default to col
         if (headerCell.getAttribute('scope')) {
           th.setAttribute('scope', headerCell.getAttribute('scope'));
+        } else {
+          th.setAttribute('scope', 'col');
         }
         headerRow.appendChild(th);
       });
@@ -78,4 +80,4 @@ function fixTableStructureIssues() {
 // Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 // Export the function if it's meant to be used outside of this file
-// export { fixTableStructureIssues };
+export { fixTableStructureIssues };

@@ -10,7 +10,7 @@
 
 // Add lang attribute to HTML element (REACT_015)
 const addLangAttribute = function(html) {
-    if (html && !html.includes('lang=')) {
+    if (html && typeof html === 'string') {
         return html.replace(/<html/, '<html lang="en"');
     }
     return html;
@@ -18,8 +18,9 @@ const addLangAttribute = function(html) {
 
 // Fix table structure issues (REACT_027)
 const fixTableStructureIssues = function(tables) {
-    return tables.map(table => {
-        if (!table.querySelector('thead')) {
+    return Array.from(tables).map(table => {
+        const existingThead = table.querySelector('thead');
+        if (!existingThead) {
             const firstRow = table.querySelector('tr');
             if (firstRow) {
                 const thead = document.createElement('thead');
@@ -34,29 +35,33 @@ const fixTableStructureIssues = function(tables) {
 
 // Add main landmark (REACT_017)
 const addMainLandmark = function(content) {
-    if (content && !content.includes('<main')) {
-        return `<main id="main-content" role="main">${content}</main>`;
+    if (content && typeof content === 'string') {
+        if (!content.includes('<main')) {
+            return `<main id="main-content" tabindex="-1">${content}</main>`;
+        }
+        return content.replace(/<main([^>]*)>/i, '<main id="main-content"$1>');
     }
     return content;
 };
 
 // Add accessible names to SVGs (REACT_041)
 const addSvgAccessibleNames = function(svgs) {
-    return svgs.map((svg, index) => {
+    return Array.from(svgs).map((svg, index) => {
         const existingTitle = svg.querySelector('title');
         if (!existingTitle) {
             const title = document.createElement('title');
             title.textContent = `SVG Icon ${index + 1}`;
             svg.insertBefore(title, svg.firstChild);
         }
+        const titleElement = svg.querySelector('title');
         if (!svg.getAttribute('role')) {
             svg.setAttribute('role', 'img');
         }
-        if (!svg.getAttribute('aria-labelledby')) {
-            const title = svg.querySelector('title');
-            if (title) {
-                const titleId = `svg-title-${index}`;
-                title.id = titleId;
+        if (titleElement) {
+            let titleId = titleElement.id;
+            if (!titleId) {
+                titleId = `svg-title-${index + 1}`;
+                titleElement.id = titleId;
                 svg.setAttribute('aria-labelledby', titleId);
             }
         }
@@ -67,27 +72,29 @@ const addSvgAccessibleNames = function(svgs) {
 // Ensure unique landmarks (REACT_025)
 const ensureUniqueLandmarks = function(landmarks) {
     const seenTypes = {};
-    landmarks.forEach(landmark => {
-        const type = landmark.tagName.toLowerCase();
+    return Array.from(landmarks).map(landmark => {
+        const type = landmark.tagName ? landmark.tagName.toLowerCase() : '';
         const role = landmark.getAttribute('role') || type;
         
         if (seenTypes[role]) {
             if (type === 'nav') {
-                const label = landmark.getAttribute('aria-label');
+                let label = landmark.getAttribute('aria-label');
                 if (!label) {
-                    landmark.setAttribute('aria-label', `Navigation ${Object.keys(seenTypes).filter(k => k.includes('nav')).length + 1}`);
+                    const count = (seenTypes[role + '_count'] || 0) + 1;
+                    seenTypes[role + '_count'] = count;
+                    landmark.setAttribute('aria-label', `Navigation ${count}`);
                 }
             }
         }
         seenTypes[role] = true;
+        return landmark;
     });
-    return landmarks;
 };
 
 // Fix fake link issue (REACT_036)
 const fixFakeLinkIssue = function(elements) {
-    return elements.map(el => {
-        const isFakeLink = el.tagName === 'a' && !el.href && !el.getAttribute('role');
+    return Array.from(elements).map(el => {
+        const isFakeLink = el.tagName && el.tagName.toLowerCase() === 'a' && !el.href && !el.getAttribute('role');
         if (isFakeLink) {
             el.setAttribute('role', 'button');
         }

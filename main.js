@@ -13,7 +13,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
   fixFakeLinks();
   ensureUniqueLandmarks();
   // Add focus-trap related code
-  function focusTrapтонHTMLComponent(element) {
+  function focusTrapotonHTMLComponent(element) {
     const wrapper = document.createElement('div');
     wrapper.style.position = 'fixed';
     wrapper.style.top = 0;
@@ -98,7 +98,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
 
   // Call the new function with focus-trap integration
   function implementAccessibilityWithFocusTrap(component, customLandmarkRole) {
-    focusTrapтонHTMLComponent(component);
+    focusTrapotonHTMLComponent(component);
     implementAccessibility(component);
   }
 

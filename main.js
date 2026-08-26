@@ -5,7 +5,7 @@
 
 /*
 In both files:
-- components/Dashboard.tsx (line 320)
+- ... (line 320)
 - dashboard/components/Dashboard.tsx (line 320)
 
 Change the error state return path from <main> to <section>:
@@ -45,8 +45,8 @@ ReactDOM.render(
 
 // Example of how to update the icons in app/layout.tsx and dashboard/app/layout.tsx
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" font-size="90">🐛</text></svg>',
+  icon: ... ... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y="0.9em" ...
+  apple: ... ... viewBox="0 0 100 100" aria-label="Screeps Dashboard Apple Icon"><title>Screeps Dashboard Apple Icon</title><text y="0.9em" ...
 };
 
 // ... rest of the code in main.js

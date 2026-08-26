@@ -1,7 +1,6 @@
-tsx
 import React from 'react';
 
-const Dashboard = ({ error, copied, errCopyHover, errRetryHover, refreshing, fetchStats, copyErr }) => {
+const Dashboard = ({ error, copied, errCopyHover, errRetryHover, refreshing, fetchStats, copyErr, setErrCopyHover, setErrRetryHover }) => {
   return (
     <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {error ? (

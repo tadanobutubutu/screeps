@@ -4,6 +4,7 @@ const domHelpers = require('./helpers/dom');
 const { FocusTrap } = require('focus-trap');
 const React = require('react');
 const ReactDOM = require('react-dom');
+const ReactTransitionGroup = require('react-transition-group');
 
 // ... (Your existing code)
 
@@ -46,7 +47,7 @@ function implementAccessibilityWithCustomLandmark(customLandmarkRole = 'banner')
   }
 
   // Add react-transition-group related code
-  const CSSTransition = require('react-transition-group').CSSTransition;
+  const CSSTransition = ReactTransitionGroup.CSSTransition;
 
   function renderCSSTransition(element, cb) {
     const wrapper = document.createElement('div');

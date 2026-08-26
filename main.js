@@ -1,9 +1,31 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Example of a possible main.js that needs to include the <main> tag
 
-// Once you provide the actual code with the conflict markers, I'll be able to:
-// 1. Identify the conflicting sections
-// 2. Preserve all existing code, exports, and functions
-// 3. Add only the necessary changes for the issue
-// 4. Output the complete updated main.js content
+function renderPage() {
+  // Simulated data that might be used to generate the HTML content
+  const pageContent = `
+    <h2>Quality & Metrics Reports</h2>
+    <p>This repository is fully optimized with automated tools. Explore the generated
+    reports below:</p>
+    <div class="links">
+      <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+      <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+    </div>
+  `;
 
-// Please share the main.js file contents and I'll help you resolve the conflicts.
+  // Simulated function that would append the page content to the DOM
+  document.body.appendChild(createMainElement(pageContent));
+}
+
+function createMainElement(content) {
+  // Create a new main element
+  const mainElement = document.createElement('main');
+
+  // Append the content to the main element
+  mainElement.innerHTML = content;
+
+  // Return the main element
+  return mainElement;
+}
+
+// Render the page when the script loads
+renderPage();

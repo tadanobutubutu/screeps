@@ -1,20 +1,33 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// main.js - Accessibility fixes applied
 
-// ... (other code in main.js)
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
-// Before:
-// <a id="unrotate" href="#">rotate back</a>
-
-// After:
-// Replace the <a> tag with a <button> element
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
-
-// ... (other code in main.js)
-
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
+// Helper function to rotate back
 function rotateBack() {
   // Your code to rotate back
 }
 
-// ... (other code in main.js)
+// Initialize when DOM is ready
+function initializeApp() {
+  const unrotateBtn = document.getElementById('unrotate');
+  if (unrotateBtn) {
+    unrotateBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      rotateBack();
+    });
+  }
+}
+
+// Run initialization
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  } else {
+    initializeApp();
+  }
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { rotateBack, initializeApp };
+}

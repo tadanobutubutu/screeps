@@ -295,20 +295,23 @@ function getSpawns(room) {
     return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES);
 }
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoist filter predicate to module scope to avoid closure allocations on cache miss.
+function _isNeedingEnergyStructure(s) {
+    return (
+        (s.structureType === STRUCTURE_SPAWN ||
+            s.structureType === STRUCTURE_EXTENSION ||
+            s.structureType === STRUCTURE_TOWER) &&
+        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    );
+}
+
 function getStructuresNeedingEnergy(room) {
     if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
         return room._deliveryTargets;
     }
     return get(
         `need_energy_${room.name}`,
-        () =>
-            room.find(FIND_STRUCTURES, {
-                filter: (s) =>
-                    (s.structureType === STRUCTURE_SPAWN ||
-                        s.structureType === STRUCTURE_EXTENSION ||
-                        s.structureType === STRUCTURE_TOWER) &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-            }),
+        () => room.find(FIND_STRUCTURES, { filter: _isNeedingEnergyStructure }),
         5
     );
 }

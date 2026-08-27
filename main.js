@@ -34,12 +34,18 @@ function ensureUniqueLandmarks() {
 
 // Fix fake link issue
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Button');
+    // Wrap the a tag with a button to give it keyboard focusability and screen reader support
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.innerHTML = link.innerHTML;
+    link.parentNode.replaceChild(button, link);
+    // Set appropriate ARIA attributes for the new button
+    button.setAttribute('role', 'button');
+    button.setAttribute('tabindex', '0');
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', 'Button');
     }
   });
 }

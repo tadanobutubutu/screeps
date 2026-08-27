@@ -56,17 +56,17 @@ function fixFakeLinkIssue(document) {
 
 // Function to fix fake link issues (exclusive for anchors with href="#")
 function fixFakeLinkIssues(document) {
-      const fakeLinks = document.querySelectorAll('[role="link"]');
-      fakeLinks.forEach(link => {
-        if (link.tagName !== 'A') {
-          link.setAttribute('aria-label', 'This link goes to a section within the page');
-        }
-      });
+  const fakeLinks = document.querySelectorAll('[role="link"]');
+  fakeLinks.forEach(link => {
+    if (link.tagName !== 'A') {
+      link.setAttribute('aria-label', 'This link goes to a section within the page');
+    }
+  });
 }
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-      // ... updated landmark issue fix implementation
+  // ... updated landmark issue fix implementation
 }
 
 function addLandmarkRegions(document) {

@@ -244,6 +244,35 @@ function checkLandmarkElements() {
   return results;
 }
 
+function setSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Set role="img" if not present to identify the SVG as an image
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+
+    // Try to find a <title> element within the SVG to use as accessible name
+    const titleElement = svg.querySelector('title');
+    if (titleElement) {
+      // If <title> exists, use its text content for the aria-label
+      const titleText = titleElement.textContent.trim();
+      if (titleText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', titleText);
+      }
+    } else {
+      // If no <title> exists, derive accessible name from alt attribute if available
+      const altText = svg.getAttribute('alt');
+      if (altText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', altText);
+      } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        // Default fallback if no other source of accessible name is available
+        svg.setAttribute('aria-label', 'Graphic');
+      }
+    }
+  });
+}
+
 function renderIndexView() {
   // TODO: Implement renderIndexView functionality
 }
@@ -261,5 +290,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addProperLandmarkRegions,
   checkTableStructure,
-  checkLandmarkElements
+  checkLandmarkElements,
+  setSvgAccessibleNames
 };

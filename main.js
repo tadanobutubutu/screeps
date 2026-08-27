@@ -1,21 +1,3 @@
-html
-<table>
-  <!-- Other table content -->
-  <thead>
-    <tr>
-      <th scope="col"><div>src/constants.js</div></th>
-      <th scope="col"><div>src/managers/roomManager.js</div></th>
-      <th scope="col"><div>src/managers/spawnManager.js</div></th>
-      <!-- More header cells -->
-    </tr>
-  </thead>
-  <!-- Table body -->
-  <tbody>
-    <!-- Table rows with data -->
-  </tbody>
-</table>
-
-```javascript
 // main.js
 
 // ... existing code (preserved) ...
@@ -84,6 +66,18 @@ function addProperLandmarkRegions() {
       body.appendChild(main);
     }
 
+    // Find the "rotate back" link
+    const rotateBackLink = document.getElementById('unrotate');
+    // Replace the link with a button
+    if (rotateBackLink) {
+      const button = document.createElement('button');
+      button.id = 'unrotate';
+      button.textContent = rotateBackLink.textContent;
+      main.appendChild(button);
+      // Remove the original link
+      rotateBackLink.remove();
+    }
+
     return document;
   };
 
@@ -96,6 +90,3 @@ function addProperLandmarkRegions() {
 addProperLandmarkRegions();
 
 // ... existing code (preserved) ...
-```
-
-This file now includes both changes. The `addProperLandmarkRegions()` function has been updated to include the logic from the original file, and the new `wrapPrimaryContentInMain` function has been added to the exports of the file.

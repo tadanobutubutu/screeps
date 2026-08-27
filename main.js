@@ -84,7 +84,34 @@ function addProperAccountManagement() {
   });
 }
 
+/**
+ * Adds ARIA attributes to form controls for better accessibility.
+ * This function focuses on ensuring that form controls have proper labeling and roles.
+ *
+ * @returns {void}
+ */
+function addProperFormAccessibility() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const formControls = document.querySelectorAll('label[for], input[aria-labelledby], select[aria-labelledby], textarea[aria-labelledby]');
+  formControls.forEach((control) => {
+    const forAttribute = control.getAttribute('for');
+    const labeledByAttribute = control.getAttribute('aria-labelledby');
+
+    if (forAttribute && !labeledByAttribute) {
+      const label = document.querySelector(`label[for="${forAttribute}"]`);
+      if (label) {
+        const labelId = label.id;
+        control.setAttribute('aria-labelledby', labelId);
+      }
+    }
+  });
+}
+
 module.exports = {
   addProperLandmarkRegions,
-  addProperAccountManagement
+  addProperAccountManagement,
+  addProperFormAccessibility
 };

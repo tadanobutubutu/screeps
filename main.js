@@ -29,7 +29,7 @@ function fixTableStructure(document) {
     }
 
     if (!existingTbody) {
-      const remainingRows = table.querySelectorAll('tr');
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -172,12 +172,29 @@ function fixImageAltTexts(document) {
 // REACT_037: Google sign-in logic
 function googleSignIn(document) {
   // Check if Google Identity Services is available
-  if (typeof google !== 'undefined' && google.accounts) {
+  if (typeof google !== undefined && google.accounts) {
     google.accounts.id.initialize({
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
   }
+}
+
+// Function to handle credential response from Google Sign-In
+function handleCredentialResponse(response) {
+  // TODO: Implement credential response handling
+  console.log('Credential response received:', response);
+}
+
+// Function to ensure the element has an id
+function ensureElementHasId(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `${idPrefix}-${index + 1}`;
+    }
+  });
+  return document;
 }
 
 // Function to ensure an element has an id with origin/main optimization
@@ -229,7 +246,7 @@ function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
-// Implement function for addressing accessibility issues from insight report
+// Integrated REACT_036 changes and merged accessibility fixes
 function addressAccessibilityIssues(document) {
   document = addLangAttribute(document);
   document = fixTableStructure(document);
@@ -267,7 +284,7 @@ export {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse, // Assuming handleCredentialResponse is a typo and should be fixButtonIdentifiers
+  handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   renderDependencyGraphs,

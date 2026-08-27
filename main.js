@@ -11,10 +11,10 @@
 import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
-function addLangAttribute(document, selector = 'html') {
+function addLangAttribute(document, selector = 'html', lang = 'en') {
   const htmlElement = document.querySelector(selector);
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -139,11 +139,6 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible names to SVGs
-function addAccessibleNamesToSVGs(document) {
-  // ... existing implementation
-}
-
-// Function to add accessible names to SVGs (alias)
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
@@ -309,7 +304,7 @@ function googleSignIn(document) {
 
 function handleCredentialResponse(response) {
   // Decode the JWT token
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const payload = response.credential ? JSON.parse(atob(response.credential.split('.')[1])) : null;
   console.log('User signed in:', payload);
   // Handle the sign-in logic here
 }

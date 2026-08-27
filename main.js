@@ -1,5 +1,3 @@
-// TODO: Create or update the affected functions to be accessible
-
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify

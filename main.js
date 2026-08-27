@@ -56,3 +56,8 @@ module.exports = {
   implementNewFunction,
   renderGraphContent // original export preserves for calling from another file
 };
+
+// Add scope attribute to the <th> elements in the table headers
+document.querySelectorAll('th').forEach(th => {
+  th.setAttribute('scope', 'col');
+});

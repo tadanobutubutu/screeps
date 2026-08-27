@@ -1,32 +1,20 @@
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'polyfill-io/stable';
-import 'some-other-polyfill';
+// ... (Existing code from main.js)
 
-// Function to add lang attribute to the HTML element
-const addLangAttribute = () => {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.lang && navigator.language && navigator.language.length > 2) {
-    htmlElement.lang = navigator.language.substring(0, 2);
-  }
-};
+// New function to implement the accessibility issue from the insight report
+const addressAccessibilityIssue = (insightReport) => {
+  // Extract accessibility issues from the insightReport
+  const { tablesWithCellScopeMissing, elementsWithoutARIA, missingHeaderForColumn } = insightReport;
 
-// New function to fix table structure issues
-const fixTableStructure = (tables) => {
-  if (!tables) {
-    tables = document.querySelectorAll('table');
-  }
-  tables.forEach(table => {
-    // ... (Existing code not related to the new function)
-
-    // New function: checkTableCellScope
-    const checkTableCellScope = (rows, headers) => {
-      const totalColumns = headers.length;
+  // Fix table structure issues (tableCellScopeMissing)
+  if (tablesWithCellScopeMissing.length > 0) {
+    tablesWithCellScopeMissing.forEach((table) => {
+      const rows = table.querySelectorAll('tr');
+      const headers = table.querySelectorAll('th');
 
       rows.forEach((row) => {
         const cells = row.querySelectorAll('td');
 
-        if (cells.length < totalColumns) {
+        if (cells.length < headers.length) {
           throw new Error(`Row ${row.dataset.rowIndex} lacks cells for all columns at table ${table.dataset.tableIndex}`);
         }
 
@@ -36,47 +24,28 @@ const fixTableStructure = (tables) => {
           }
         });
       });
-    };
+    });
+  }
 
-    // Call the new function
-    if (headers.length > 0 && rows.length > 0) {
-      checkTableCellScope(rows, headers);
-    }
-  });
+  // Fix elements without ARIA properties (elementsWithoutARIA)
+  if (elementsWithoutARIA.length > 0) {
+    elementsWithoutARIA.forEach((element) => {
+      element.setAttribute('aria-label', 'Accessible name for the element');
+    });
+  }
+
+  // Fix missing headers for columns (missingHeaderForColumn)
+  if (missingHeaderForColumn.length > 0) {
+    missingHeaderForColumn.forEach((column) => {
+      const header = column.getAttribute('header-for');
+      const targetColumn = document.getElementById(header);
+
+      if (targetColumn) {
+        targetColumn. movesibling(column, 'before');
+      }
+    });
+  }
 };
 
-// New function to add/fix landmark issues
-const addMainLandmark = () => {
-  // ... (Existing code not related to the new function)
-};
-
-// New function to ensure unique landmarks
-const ensureUniqueLandmarks = () => {
-  // ... (Existing code not related to the new function)
-};
-
-// New function to add accessible names to SVGs
-const addSvgAccessibleNames = () => {
-  // ... (Existing code not related to the new function)
-};
-
-// New function to fix fake link issues
-const fixFakeLinkIssue = () => {
-  // ... (Existing code not related to the new function)
-};
-
-// New function to validate the landmarks
-const validateLandmark = () => {
-  // ... (Existing code not related to the new function)
-};
-
-// Export accessibility utilities
-export {
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  validateLandmark
-};
+// Export the new function
+export { addressAccessibilityIssue };

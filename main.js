@@ -5,7 +5,11 @@
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  // ... (existing code)
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', 'Decorative or informative image');
+  if (!svgElement.hasAttribute('focusable')) {
+    svgElement.setAttribute('focusable', 'false');
+  }
 }
 
 /**
@@ -14,7 +18,11 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
-  // ... (existing code)
+  if (!link) return false;
+  const hasText = link.textContent.trim().length > 0;
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasTitle = link.hasAttribute('title');
+  return hasText || hasAriaLabel || hasTitle;
 }
 
 /**
@@ -23,7 +31,11 @@ function isLinkAccessible(link) {
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {
-  // ... (existing code)
+  if (!button) return false;
+  const hasText = button.textContent.trim().length > 0;
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasTitle = button.hasAttribute('title');
+  return hasText || hasAriaLabel || hasTitle;
 }
 
 /**
@@ -32,7 +44,30 @@ function isButtonAccessible(button) {
  * @returns {Object} An object containing accessibility check results
  */
 function checkAccessibility(container = document) {
-  // ... (existing code)
+  const results = {
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] }
+  };
+
+  const links = container.querySelectorAll('a');
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
+    }
+  });
+
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (isButtonAccessible(button)) {
+      results.buttons.accessible.push(button);
+    } else {
+      results.buttons.inaccessible.push(button);
+    }
+  });
+
+  return results;
 }
 
 /**
@@ -41,8 +76,8 @@ function checkAccessibility(container = document) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  const isValidRole = ['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'].includes(role);
-  if (!isValidRole || !element || element.getAttributeNode('role')?.value !== role) return;
+  const isValidRole = ['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'];
+  if (!isValidRole || !element || element.getAttribute('role') !== role) return;
 
   if (element.hasAttribute('aria-label')) return;
 
@@ -85,23 +120,60 @@ function checkLandmarkElement(role, element) {
 }
 
 /**
+ * Wraps the primary content of the page in a <main> element.
+ * This improves accessibility by ensuring a proper main landmark exists.
+ * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
+ */
+function wrapPrimaryContentInMain() {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (mainElement) {
+    // Main element already exists, return it
+    return mainElement;
+  }
+  
+  // Find the body element
+  const body = document.body;
+  
+  if (!body) {
+    return null;
+  }
+  
+  // Create a main element
+  mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  
+  // Move all children of body into the main element
+  while (body.firstChild) {
+    mainElement.appendChild(body.firstChild);
+  }
+  
+  // Append the main element to body
+  body.appendChild(mainElement);
+  
+  return mainElement;
+}
+
+/**
  * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
  * @param {HTMLElement} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing landmark accessibility check results
  */
-function checkLandmarkAccessibility(container = document) {
+function checkLandmarks(container = document) {
   const results = {
     accessibleLandmarks: [],
     inaccessibleLandmarks: []
   };
 
-  const landmarkElements = container.querySelectorAll(`[role=${['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'].join(', ')}]`);
+  const landmarkElements = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="sidebar"], [role="contentinfo"], [role="search"], [role="form"], [role="alert"], [role="application"], [role="complementary"]');
   landmarkElements.forEach(element => {
-    checkLandmarkElement(element.getAttribute('role'), element);
-    if (!element.hasAttribute('aria-label')) {
-      results.inaccessibleLandmarks.push(element);
-    } else {
+    const role = element.getAttribute('role');
+    checkLandmarkElement(role, element);
+    if (element.hasAttribute('aria-label')) {
       results.accessibleLandmarks.push(element);
+    } else {
+      results.inaccessibleLandmarks.push(element);
     }
   });
 
@@ -126,6 +198,8 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   checkAccessibility,
-  renderIndexView,
-  checkLandmarkAccessibility, // New export
+  checkLandmarkElement,
+  checkLandmarks,
+  wrapPrimaryContentInMain,
+  renderIndexView
 };

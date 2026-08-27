@@ -10,16 +10,29 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
 
   // Ensure the dependencyGraph container has a proper ARIA role
-  ensureDependencyGraphAccessibility();
+  const dependencyGraph = document.getElementById('dependencyGraph') ||
+                          document.querySelector('[data-testid="dependency-graph"]') ||
+                          document.querySelector('.dependency-graph');
+  if (dependencyGraph) {
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
 
   // Add proper landmark regions to ensure consistency
   addProperLandmarkRegions();
+
+  // Check table structure for accessibility
+  checkTableStructure();
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -46,7 +59,7 @@ function addressInsightReportIssues(insightReport) {
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
         // Implement logic to ensure unique landmarks if needed
-        ensureUniqueLandmarksFromInsightReport(insightReport);
+        ensureUniqueLandmarks();
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
@@ -78,8 +91,8 @@ function ensureUniqueLandmarks() {
   });
 }
 
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
-  const issues = insightReport.issues || [];
+function addProperLandmarkRegions(insightReport) {
+  const issues = insightReport ? insightReport.issues || [] : [];
   let uniqueLandmarks = {};
 
   issues.forEach(issue => {
@@ -98,11 +111,6 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
     }
   });
 
-  // Check if all landmarks are unique and re-add if necessary
-  ensureUniqueLandmarks();
-}
-
-function addProperLandmarkRegions() {
   // Define the standard landmark roles that should be present
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
@@ -137,8 +145,8 @@ function addProperLandmarkRegions() {
   sections.forEach(section => {
     if (!section.getAttribute('role')) {
       const hasAccessibleName =
-        section.hasAttribute('aria-label') ||
-        section.hasAttribute('aria-labelledby');
+        section.getAttribute('aria-label') ||
+        section.getAttribute('aria-labelledby');
       if (hasAccessibleName) {
         section.setAttribute('role', 'region');
       }
@@ -146,11 +154,11 @@ function addProperLandmarkRegions() {
   });
 }
 
-function ensureDependencyGraphAccessibility() {
+function renderDependencyGraph() {
   // Find the dependencyGraph container element
   const dependencyGraph = document.getElementById('dependencyGraph') ||
-                          document.querySelector('.dependencyGraph') ||
-                          document.querySelector('[data-dependency-graph]');
+                          document.querySelector('[data-testid="dependency-graph"]') ||
+                          document.querySelector('.dependency-graph');
 
   if (dependencyGraph) {
     // Ensure it has a proper ARIA role
@@ -169,24 +177,24 @@ function ensureDependencyGraphAccessibility() {
 function checkTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    if (!table.hasAttribute('role') || table.getAttribute('role') !== 'table') {
+    if (!table.getAttribute('role') || table.getAttribute('role') !== 'table') {
       table.setAttribute('role', 'table');
     }
     const rows = table.querySelectorAll('tr');
     rows.forEach(row => {
-      if (!row.hasAttribute('role') || row.getAttribute('role') !== 'row') {
+      if (!row.getAttribute('role') || row.getAttribute('role') !== 'row') {
         row.setAttribute('role', 'row');
       }
     });
     const headers = table.querySelectorAll('th');
     headers.forEach(header => {
-      if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
+      if (!header.getAttribute('role') || header.getAttribute('role') !== 'columnheader') {
         header.setAttribute('role', 'columnheader');
       }
     });
     const dataCells = table.querySelectorAll('td');
     dataCells.forEach(cell => {
-      if (!cell.hasAttribute('role') || cell.getAttribute('role') !== 'cell') {
+      if (!cell.getAttribute('role') || cell.getAttribute('role') !== 'cell') {
         cell.setAttribute('role', 'cell');
       }
     });
@@ -199,7 +207,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
+  ensureUniqueLandmarks,
   addProperLandmarkRegions,
   checkTableStructure
 };

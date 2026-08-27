@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 export function setDocumentLanguage(lang = 'en') {
   document.documentElement.lang = lang;
 }

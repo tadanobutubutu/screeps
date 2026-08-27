@@ -8,8 +8,6 @@ const { renderController } = require('./renderController');
 // Import the required rendering modules - REQUESTED CHANGE FOR THE OPEN ISSUE
 const { renderContent, renderGraph, renderLandmarks } = require('some-rendering-module');
 
-// TODO: Add these imported modules to the relevant rendering functions
-
 /**
  * Main rendering function that orchestrates all rendering operations
  */

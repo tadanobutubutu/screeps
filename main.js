@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
@@ -32,6 +29,3 @@ function renderIndexView(data, useCustomIndexContent) {
 
 // Export the updated functions
 export { renderDependencyGraph, renderIndexView };
-```
-
-This solution allows both changes to coexist by providing an option to use a custom content module if available. If the custom content modules are not provided, it defaults to the original imports.

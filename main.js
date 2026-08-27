@@ -1,11 +1,36 @@
-const originalMainJs = require('./main.js');
+tsx
+// dashboard/app/layout.tsx
+import React from 'react';
 
-// Re-export the original main module functionality to preserve existing behavior
-module.exports = originalMainJs;
+const Layout = () => {
+  return (
+    <div>
+      <link rel="icon" href={getFavicon()} />
+      {/* ... other components ... */}
+    </div>
+  );
+};
 
-// TODO: Add back any required exports that might have been?
-// Add any missing exports here based on test requirements
+const getFavicon = () => {
+  return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>`;
+};
 
-// Example exports that might be needed (please provide file contents for accurate fix):
-// module.exports.someFunction = someFunction;
-// module.exports.AnotherClass = AnotherClass;
+export default Layout;
+
+// app/layout.tsx
+import React from 'react';
+
+const Layout = () => {
+  return (
+    <div>
+      <link rel="icon" href={getFavicon()} />
+      {/* ... other components ... */}
+    </div>
+  );
+};
+
+const getFavicon = () => {
+  return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>`;
+};
+
+export default Layout;

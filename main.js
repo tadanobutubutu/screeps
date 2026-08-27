@@ -21,10 +21,19 @@ function fixFakeLinks() {
   // This function is to be added as per the issue report.
 }
 
-// Export renderDependencyGraphContent, ensureUniqueLandmarks, and fixFakeLinks functions
+// Add the scope attribute to <th> elements where it's missing
+function addScopeToTableHeaders() {
+  const headers = document.querySelectorAll('th[scope]');
+  headers.forEach(header => {
+    header.setAttribute('scope', header.getAttribute('scope'));
+  });
+}
+
+// Export renderDependencyGraphContent, ensureUniqueLandmarks, fixFakeLinks, and addScopeToTableHeaders functions
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
+  addScopeToTableHeaders,
   renderGraphContent // original export preserves for calling from another file
 };

@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+const App = () => {
+  return (
+    <div id="root">
+      <h1>My Application</h1>
+      {/* Placeholder for table content */}
+      <p>Table content would be rendered here.</p>
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);

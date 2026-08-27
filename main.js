@@ -70,18 +70,23 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'table-structure':
         validateTableAccessibility(issue.element);
+        addressedIssues.push({ type: issue.type, status: 'processed', index });
         break;
       case 'landmark':
         addProperLandmarkRegions();
+        addressedIssues.push({ type: issue.type, status: 'processed', index });
         break;
       case 'landmark-uniqueness':
         validateLandmarkUniqueness();
+        addressedIssues.push({ type: issue.type, status: 'processed', index });
         break;
       case 'svg-accessibility-name':
         setSvgAttributes(issue.element);
+        addressedIssues.push({ type: issue.type, status: 'processed', index });
         break;
       case 'fake-link':
         handleFakeLinks(issue.element);
+        addressedIssues.push({ type: issue.type, status: 'processed', index });
         break;
       // Add more cases as necessary for the conflicting changes
       default:
@@ -201,5 +206,3 @@ function addProperLandmarkRegions() {
 module.exports.resolveConflicts = resolveConflicts;
 module.exports.getSvgAccessibleName = getSvgAccessibleName;
 module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
-```
-This code integrates both changes, preserving the existing code and adding the new functions related to landmark handling. This solves the Git merge conflict for the file `main.js` in the Screeps bot repository.

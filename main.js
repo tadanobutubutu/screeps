@@ -29,21 +29,24 @@ function addSvgAccessibleNames(filePath) {
   // ... existing code ...
 }
 
-function addRoleAndLabelToCheckbox(filePath) {
+function addCheckboxAccessibility(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
 
   const checkboxes = content.match(/<input type="checkbox"/g);
   if (checkboxes) {
     checkboxes.forEach((checkbox) => {
-      updatedContent = updatedContent.replace(
-        checkbox,
-        checkbox.replace('<input', '<input role="checkbox" aria-label="checkbox"')
+      // Fix accessibility: use role="checkbox" with a descriptive aria-label
+      // Avoid redundant role on native checkbox, use aria-label for context
+      const checkboxWithAria = checkbox.replace(
+        /<input type="checkbox"/,
+        '<input type="checkbox" role="checkbox" aria-label="checkbox"'
       );
+      updatedContent = updatedContent.replace(checkbox, checkboxWithAria);
     });
   }
 
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
 }
 
@@ -55,5 +58,5 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addRoleAndLabelToCheckbox,
+  addCheckboxAccessibility
 };

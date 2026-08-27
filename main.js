@@ -7,8 +7,34 @@
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Hypothetical new function to address accessibility issues (focus-trap for keyboard navigation)
+function addFocusTrap() {
+  let focusableElementsString = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  let focusableElements = document.querySelectorAll(focusableElementsString);
+  if (focusableElements.length === 0) return;
+  let firstFocusableElement = focusableElements[0];
+  let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', function(e) {
+    let isTabPressed = e.key === 'Tab';
+
+    if (!isTabPressed) {
+      return;
+    }
+
+    if (e.shiftKey) /* shift + tab */ {
+      if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        e.preventDefault();
+      }
+    } else /* tab */ {
+      if (document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
@@ -78,70 +104,53 @@ function fixTableStructure(filePath) {
   console.log(`Fixed table structure issues in ${filePath}`);
 }
 
+function addMainLandmark(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  content = content.replace(/<main([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('role=')) {
+      return match;
+    }
+    return `<main role="main"${attrs}>`;
+  });
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`Added main landmark in ${filePath}`);
+}
+
 function ensureUniqueLandmarks(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Ensure unique accessible names for landmarks
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  let updatedContent = content;
 
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-    const matches = [];
-
-    let match;
-
-    while ((match = regex.exec(content)) !== null) {
-      const attrs = match[1];
-      if (attrs.includes('id=')) {
-        const idAttr = /id=["']([^"']+)["']/.exec(attrs);
-        if (idAttr) {
-          existingIds.push(idAttr[1]);
-        }
-      }
-      count++;
-    }
-
-    existingIds = Array.from(new Set(existingIds));
-
-    const regexNew = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-
-    let updatedContent = content;
     let index = 0;
-
-    while ((match = regexNew.exec(content)) !== null) {
-      const idAttr = /id=["']([^"']+)["']/.exec(match[1]);
-      const idExists = idAttr && existingIds.includes(idAttr[1]);
-      if (!idExists || (count > 1 && idAttr === existingIds[0])) {
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${landmark}-1"${match[1]}` + updatedContent.substring(match.index + match[0].length);
-      } else {
-        // Generate unique ID based on the landmark type
-        const uniqueId = `${landmark}-${count + 1}`;
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${uniqueId}"${match[1]}` + updatedContent.substring(match.index + match[0].length);
-        count++;
-    }
+    updatedContent = updatedContent.replace(regex, (match, tagName, attrs) => {
+      index++;
+      if (attrs.includes('id=')) {
+        return match;
+      }
+      return `<${landmark}${attrs} id="${landmark}-${index}">`;
+    });
   });
 
-  fs.writeFileSync(filePath, content, 'utf8');
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Ensured unique landmarks in ${filePath}`);
 }
 
 function addSvgAccessibleNames(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Add accessible names to SVGs
-  const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
-
-  let match;
-  let idx = 0;
-
-  while ((match = svgRegex.exec(content)) !== null) {
-    idx = match.index;
-    updatedContent = updatedContent.substring(0, idx + match[0].length) + ` aria-label="SVG image ${svgIndex + 1}"` + updatedContent.substring(idx + match[0].length);
+  content = content.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     svgIndex++;
-  }
-
-  fs.writeFileSync(filePath, updatedContent, 'utf8');
+    if (attrs.includes('aria-label') || attrs.includes('aria-labelledby') || attrs.includes('title')) {
+      return match;
+    }
+    return `<svg${attrs} aria-label="SVG image ${svgIndex}">`;
+  });
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
 
@@ -285,10 +294,6 @@ function addressAccessibilityIssues(reportPath) {
           case 'button_id':
             replaceButtonId(issue.file, issue.newButtonId || 'action-button');
             break;
-          // ... (these cases were here previously)
-          case 'new_issue_type':
-            // Implementation for the new issue type goes here
-            break;
           default:
             console.log(`Unknown issue type: ${issue.type}`);
         }
@@ -299,7 +304,6 @@ function addressAccessibilityIssues(reportPath) {
   console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
 }
 
-// Create a new function called implementAccessibilityFixesFromReport to wrap the addressAccessibilityIssues function
 function implementAccessibilityFixesFromReport(reportPath, buttonIdMap) {
   try {
     // If buttonIdMap is provided, apply button id replacements
@@ -328,7 +332,13 @@ function renderDependencyGraph(graphData, containerId) {
   return graphString;
 }
 
+// Call the new function to apply the focus-trap
+if (typeof document !== 'undefined') {
+  addFocusTrap();
+}
+
 module.exports = {
+  addFocusTrap,
   fixFakeLinkIssue,
   addAriaAttribute,
   addLangAttribute,

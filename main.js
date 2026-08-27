@@ -85,11 +85,14 @@ function addMainLandmark(filePath) {
   // Add main landmark if not present
   if (!content.includes('<main')) {
     // Wrap main content in <main> tag
-    const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    const bodyMatch = content.match(/(<body[^>]*>)([\s\S]*)(<\/body>)/i);
     if (bodyMatch) {
-      const bodyContent = bodyMatch[1];
+      const openingTag = bodyMatch[1];
+      const bodyContent = bodyMatch[2];
+      const closingTag = bodyMatch[3];
       const wrappedContent = `<main role="main">${bodyContent}</main>`;
-      content = content.replace(bodyContent, wrappedContent);
+      const newBody = openingTag + wrappedContent + closingTag;
+      content = content.replace(bodyMatch[0], newBody);
     }
   }
   fs.writeFileSync(filePath, content);

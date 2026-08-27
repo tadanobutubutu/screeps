@@ -10,6 +10,7 @@
 const add = (a, b) => a + b;
 const subtract = (a, b) => a - b;
 
+
 // Other existing code and exports
 const multiply = (a, b) => a * b;
 const divide = (a, b) => a / b;
@@ -21,20 +22,19 @@ export { class1, function1, Object1 };
 // Function to count dependencies
 export function countDependencies() {
   // Get all import statements from the module
-  const importRegex = /^import\s+(?:(?:type\s+)?\{[^}]+\}|[^;'"{]+)\s+from\s+['"][^'"]+['"]/gm;
-  const moduleCode = __filename;
+  const importRegex = /import\s*\{([^}]*)\}\s*from\s*['"][^'"]+['"]/g;
+  const fs = require('fs');
   
   // Read the current file and count named imports
-  const fs = require('fs');
-  const content = fs.readFileSync(moduleCode, 'utf-8');
+  const content = fs.readFileSync(__filename, 'utf-8');
   
   // Match import statements with named imports ( {...} )
-  const importMatches = content.match(/import\s+(?:\{([^}]+)\}|type\s+\{([^}]+)\})/g) || [];
+  const importMatches = content.match(importRegex) || [];
   
   let count = 0;
   importMatches.forEach(match => {
     // Extract the content inside the braces
-    const braceMatch = match.match(/\{([^}]+)\}/);
+    const braceMatch = match.match(/\{([^}]*)\}/);
     if (braceMatch) {
       const imports = braceMatch[1];
       // Split by comma and filter out whitespace, count remaining imports
@@ -78,7 +78,7 @@ export function ... {
       const remainingRows = rows.length > 1 ? ... : [];
       if (remainingRows.length > 0) {
         const tbody = ...
-        ... => ...
+        ... => ...;
         ...
         fixedCount++;
       }

@@ -135,6 +135,37 @@ function hasMissingAriaProperties(element) {
 }
 
 /**
+ * Gets the accessible name for an SVG element.
+ * @param {SVGElement} svgElement - The SVG element to get the accessible name for
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  // Try to get title element
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  // Check for aria-label
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+  // Check for aria-labelledby
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const label = document.getElementById(labelledBy);
+    if (label) {
+      return label.textContent.trim();
+    }
+  }
+  // Fallback to text content
+  if (svgElement.textContent) {
+    return svgElement.textContent.trim();
+  }
+  return null;
+}
+
+/**
  * Adds accessible names to all form elements in the document.
  * @returns {NodeList} NodeList of processed form elements
  */
@@ -171,6 +202,7 @@ globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
 globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
 globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
+globalObject.getSvgAccessibleName = getSvgAccessibleName;
 
 // Exports for all functions
 module.exports = {
@@ -192,5 +224,6 @@ module.exports = {
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
-  hasMissingAriaProperties
+  hasMissingAriaProperties,
+  getSvgAccessibleName
 };

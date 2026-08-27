@@ -2,6 +2,8 @@
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+// REACT_025: Add other accessibility changes as per the insight report
+// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -14,6 +16,8 @@ const a11yStore = {
     this.setupSkipLinks();
     this.checkLandmarkElements();
     this.addSVGAccessibilityProps();
+    this.addFocusVisibilityStyles();
+    this.enhanceDynamicContent();
   },
 
   // Create a live region for screen reader announcements
@@ -233,6 +237,158 @@ const a11yStore = {
   // Preserve existing code
   preserveExistingCode() {
     // Existing code preservation logic
+  },
+
+  // NEW: Add focus visibility styles for keyboard navigation
+  addFocusVisibilityStyles() {
+    // Check if styles already added
+    if (document.getElementById('a11y-focus-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'a11y-focus-styles';
+    style.textContent = `
+      /* High contrast focus indicators for keyboard users */
+      :focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Ensure focus visibility in different contexts */
+      [data-focus-visible]:focus,
+      [data-focus-visible] [tabindex]:focus,
+      [data-focus-visible] button:focus,
+      [data-focus-visible] a:focus {
+        outline: 2px solid #005fcc !important;
+        outline-offset: 2px !important;
+      }
+      
+      /* Reduce motion support */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Add focus-visible polyfill support
+    this.setupFocusVisiblePolyfill();
+  },
+  
+  // NEW: Setup focus-visible polyfill for better focus management
+  setupFocusVisiblePolyfill() {
+    let hadKeyboardEvent = false;
+    const alwaysHide = false;
+    
+    const showRemaining = () => {
+      document.body.classList.remove('user-is-tabbing');
+    };
+    
+    const handleBlur = (e) => {
+      e.target.classList.remove('user-is-tabbing');
+    };
+    
+    const handleKeydown = (e) => {
+      hadKeyboardEvent = true;
+      showRemaining();
+    };
+    
+    const handlePointerDown = (e) => {
+      hadKeyboardEvent = false;
+      showRemaining();
+    };
+    
+    document.addEventListener('keydown', handleKeydown, true);
+    document.addEventListener('mousedown', handlePointerDown, true);
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    document.addEventListener('touchstart', handlePointerDown, true);
+    document.addEventListener('focus', (e) => {
+      if (hadKeyboardEvent) {
+        e.target.classList.add('user-is-tabbing');
+      }
+    }, true);
+  },
+  
+  // NEW: Enhance dynamic content updates for better screen reader support
+  enhanceDynamicContent() {
+    // Observe DOM changes for dynamic content
+    if (!window.MutationObserver) return;
+    
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Add appropriate ARIA attributes to dynamically added content
+              this.applyARIAtoNode(node);
+            }
+          });
+        }
+      });
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  },
+  
+  // NEW: Apply ARIA attributes to dynamically added elements
+  applyARIAtoNode(node) {
+    if (!node || !node.setAttribute) return;
+    
+    // Handle buttons without text content
+    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Button');
+    }
+    
+    // Handle links without text
+    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Link');
+    }
+    
+    // Handle inputs without labels
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName)) {
+      if (!node.getAttribute('aria-label') && !node.getAttribute('id')) {
+        node.setAttribute('aria-label', 'Form field');
+      }
+    }
+    
+    // Handle images without alt text
+    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
+      node.setAttribute('alt', '');
+    }
+    
+    // Process children recursively
+    const children = node.querySelectorAll('button, a, input, select, textarea, img');
+    children.forEach(child => {
+      this.applyARIAtoNode(child);
+    });
+  },
+  
+  // NEW: Validate and improve ARIA usage
+  validateAndImproveARIA() {
+    // Remove duplicate IDs
+    const allElements = document.querySelectorAll('[id]');
+    const idMap = {};
+    
+    allElements.forEach(el => {
+      const id = el.getAttribute('id');
+      if (idMap[id]) {
+        el.removeAttribute('id');
+      } else {
+        idMap[id] = true;
+      }
+    });
+    
+    // Ensure ARIA attributes are properly used
+    document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
+      if (el.getAttribute('tabindex') !== '-1') {
+        el.setAttribute('tabindex', '-1');
+      }
+    });
   }
 };
 

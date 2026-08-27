@@ -1,34 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
-const fs = require('fs');
-
-function fixFakeLinkIssue(filePath) {
-  // ... existing code ...
-}
-
-function addAriaAttribute(filePath) {
-  // ... existing code ...
-}
-
-function addLangAttribute(filePath) {
-  // ... existing code ...
-}
-
-function fixTableStructure(filePath) {
-  // ... existing code ...
-}
-
-function addMainLandmark(filePath) {
-  // ... existing code ...
-}
-
-function ensureUniqueLandmarks(filePath) {
-  // ... existing code ...
-}
-
-function addSvgAccessibleNames(filePath) {
-  // ... existing code ...
-}
-
 function addRoleAndLabelToCheckbox(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
@@ -49,7 +18,9 @@ function addRoleAndLabelToCheckbox(filePath) {
 
 // New function to address accessibility issues
 function addressAccessibilityIssues(filePath) {
-  // Example of a simple check for empty `alt` attribute in images
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
   const images = content.match(/<img [^>]*>/g);
   if (images) {
     images.forEach((image) => {
@@ -63,7 +34,6 @@ function addressAccessibilityIssues(filePath) {
     });
   }
 
-  // Example of adding `aria-label` to buttons
   const buttons = content.match(/<button [^>]*>/g);
   if (buttons) {
     buttons.forEach((button) => {
@@ -74,19 +44,11 @@ function addressAccessibilityIssues(filePath) {
     });
   }
 
-  // Write the updated content back to the file
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Improved accessibility in ${filePath}`);
 }
 
 module.exports = {
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
   addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
 };

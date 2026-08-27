@@ -1,4 +1,3 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
 import { createContext } from 'react';
 import { getLandmarks } from './api';
 import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils'; // Importing the existing functions without renaming

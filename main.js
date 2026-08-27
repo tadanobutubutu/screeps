@@ -9,10 +9,10 @@ function setSvgAccessibilityProps(svgElement) {
   if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
     return;
   }
-  
+
   // Set role attribute
   svgElement.setAttribute('role', 'img');
-  
+
   // Set aria-label if not present
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (!ariaLabel) {
@@ -35,7 +35,7 @@ function isLinkAccessible(link) {
   // Check if link has text content or aria-label
   const hasText = link.textContent.trim().length > 0;
   const hasAriaLabel = link.getAttribute('aria-label');
-  
+
   if (!hasText && !hasAriaLabel) {
     return false;
   }
@@ -51,12 +51,12 @@ function isLinkAccessible(link) {
 function isButtonAccessible(button) {
   // Check if button has type attribute
   const type = button.getAttribute('type');
-  
+
   // Check if button has text content or aria-label
   const hasText = button.textContent.trim().length > 0;
   const hasAriaLabel = button.getAttribute('aria-label');
   const hasAriaLabelledby = button.getAttribute('aria-labelledby');
-  
+
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;
   }
@@ -66,10 +66,10 @@ function isButtonAccessible(button) {
 
 /**
  * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @param {HTMLElement|Document} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing accessibility check results
  */
-function checkAccessibility(container = document) {
+function checkLinkAndButtonAccessibility(container = document) {
   const results = {
     links: {
       accessible: [],
@@ -108,6 +108,7 @@ function checkAccessibility(container = document) {
 }
 
 // Add the new renderIndexView function
+
 /**
  * Renders the index view of the application.
  */
@@ -125,6 +126,7 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
+  checkLinkAndButtonAccessibility,
   checkAccessibility,
   renderIndexView,
 };

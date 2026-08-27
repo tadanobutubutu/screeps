@@ -228,6 +228,11 @@ const a11yStore = {
         // Add more cases as needed
       }
     });
+  },
+
+  // Preserve existing code
+  preserveExistingCode() {
+    // Existing code preservation logic
   }
 };
 
@@ -250,6 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Preserve existing code
 a11yStore.preserveExistingCode();
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
 
 // Export for module usage
 export { a11yStore };

@@ -1,7 +1,6 @@
 // main.js
 
 // TODO: Implement the required changes to improve accessibility
-// Replaced with implementation
 
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
@@ -21,17 +20,14 @@ function improveAccessibility() {
 
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
-  // Placeholder for the new function logic
-  // This function should be implemented based on the specific insights from the report
-  // Example implementation (to be replaced with actual logic):
-  // const insightReport = '...'; // This would be the actual insight report data
   const issues = insightReport.issues || []; // This would parse the report into an array of issues
   issues.forEach(issue => {
-    // Implement logic to address each issue
-    // For example, if the issue is about missing ARIA roles, add them
     const element = document.querySelector(issue.selector); // Find the element with the issue
     if (element) {
-      element.setAttribute('role', 'alert'); // Example: add 'alert' role
+      // Your custom logic to address each issue here
+      // For example, if the issue is about missing ARIA roles, add them
+      element.setAttribute('role', issue.ariaRole || 'alert'); // Example: add 'alert' role based on your inspection report
+      element.setAttribute('aria-label', issue.ariaLabel || ''); // Example: add additional ARIA label based on your inspection report
     }
   });
 }

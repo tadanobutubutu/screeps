@@ -9,11 +9,12 @@ const a11yStore = {
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
     this.setupSkipLinks();
+    this.checkLandmarkElements();
   },
 
   // Create a live region for screen reader announcements
   createLiveRegion() {
-    if (this.liveRegion) return;
+    if (!this.liveRegion) return;
 
     const region = document.createElement('div');
     region.setAttribute('role', 'status');
@@ -155,6 +156,17 @@ const a11yStore = {
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
+  },
+
+  // New function to check landmark elements
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element) => {
+      const landmark = document.querySelector(`[role="${element}"]`);
+      if (landmark && landmark.id === '') {
+        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+      }
+    });
   }
 };
 

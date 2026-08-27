@@ -1,14 +1,1 @@
-import React from 'react';
-
-const MyComponent = ({ content }) => {
-  return (
-    <div>
-      <main>
-        {/* Assuming 'content' is the JSX for the primary content */}
-        {content}
-      </main>
-    </div>
-  );
-};
-
-export default MyComponent;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

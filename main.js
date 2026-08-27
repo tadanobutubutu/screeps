@@ -5,7 +5,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-//
+// - TODO: Import required module(s) - for fixing table structure issues
 
 function addLangAttribute(document) {
   const html = document.documentElement;

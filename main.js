@@ -7,7 +7,7 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 export const addLangAttribute = (htmlElement, lang = 'en') => {
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && typeof htmlElement.setAttribute === 'function') {
     htmlElement.setAttribute('lang', lang);
   }
   return htmlElement;
@@ -20,17 +20,17 @@ export const fixTableStructure = (tableElement) => {
   const thead = tableElement.querySelector('thead') || document.createElement('thead');
   const tbody = tableElement.querySelector('tbody') || document.createElement('tbody');
   
-  if (!tableElement.querySelector('thead')) {
+  if (!tableElement.querySelector('thead') && tableElement.rows && tableElement.rows.length > 0) {
     tableElement.insertBefore(thead, tableElement.firstChild);
   }
-  if (!tableElement.querySelector('tbody')) {
+  if (!tableElement.querySelector('tbody') && tableElement.rows && tableElement.rows.length > 0) {
     tableElement.appendChild(tbody);
   }
   
   // Add scope attributes to header cells
-  const headerCells = thead.querySelectorAll('th');
+  const headerCells = tableElement.querySelectorAll('th');
   headerCells.forEach(cell => {
-    if (!cell.hasAttribute('scope')) {
+    if (!cell.getAttribute('scope')) {
       cell.setAttribute('scope', 'col');
     }
   });
@@ -41,20 +41,20 @@ export const fixTableStructure = (tableElement) => {
 export const addMainLandmark = (containerElement) => {
   if (!containerElement) return containerElement;
   
-  const existingMain = containerElement.querySelector('main');
+  const existingMain = containerElement.querySelector('main, [role="main"]');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.id = 'main-content';
     
     // Move content into main landmark
-    const children = Array.from(containerElement.children);
+    const children = Array.from(containerElement.childNodes);
     children.forEach(child => {
-      if (!['SCRIPT', 'STYLE', 'META', 'LINK'].includes(child.tagName)) {
+      if (!['SCRIPT', 'STYLE', 'META', 'LINK', 'NOSCRIPT'].includes(child.nodeName)) {
         mainElement.appendChild(child);
       }
     });
     
-    containerElement.appendChild(mainElement);
+    containerElement.insertBefore(mainElement, containerElement.firstChild);
   }
   
   // Add skip link for accessibility
@@ -90,7 +90,7 @@ export const ensureUniqueLandmarks = (containerElement) => {
     if (elements.length > 1) {
       // For multiple instances, add descriptive labels
       elements.forEach((el, index) => {
-        if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
           const landmarkName = landmark.charAt(0).toUpperCase() + landmark.slice(1);
           el.setAttribute('aria-label', `${landmarkName} ${index + 1}`);
         }
@@ -111,7 +111,7 @@ export const addSvgAccessibleNames = (svgElements) => {
     const hasTitle = title && title.textContent.trim().length > 0;
     
     if (!hasTitle) {
-      const newTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const newTitle = document.createElement('title');
       newTitle.id = `svg-title-${index + 1}`;
       newTitle.textContent = `Image ${index + 1}`;
       
@@ -126,7 +126,7 @@ export const addSvgAccessibleNames = (svgElements) => {
     }
     
     // Add role if missing
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('role')) {
       svg.setAttribute('role', 'img');
     }
   });
@@ -138,21 +138,21 @@ export const fixFakeLinkIssue = (containerElement) => {
   if (!containerElement) return containerElement;
   
   // Find elements that look like links but aren't
-  const fakeLinks = containerElement.querySelectorAll('[role="link"]:not(a):not([href])');
+  const fakeLinks = containerElement.querySelectorAll('[role="link"]');
   
   fakeLinks.forEach(fakeLink => {
     // Convert to proper button if it's actionable
-    if (!fakeLink.hasAttribute('onclick') && !fakeLink.dataset.action) {
+    if (fakeLink.onclick && !fakeLink.dataset.action) {
       // Remove role="link" as it's not a link
       fakeLink.removeAttribute('role');
     } else {
       // Ensure proper keyboard accessibility
-      if (!fakeLink.hasAttribute('tabindex')) {
+      if (!fakeLink.getAttribute('tabindex')) {
         fakeLink.setAttribute('tabindex', '0');
       }
       
       // Add keyboard event handlers if missing
-      if (!fakeLink.hasAttribute('onkeydown')) {
+      if (!fakeLink.onclick) {
         fakeLink.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -166,10 +166,10 @@ export const fixFakeLinkIssue = (containerElement) => {
   // Also fix divs/spans with onclick that should be buttons
   const clickableDivs = containerElement.querySelectorAll('div[onclick], span[onclick]');
   clickableDivs.forEach(el => {
-    if (!el.hasAttribute('role')) {
+    if (!el.getAttribute('role')) {
       el.setAttribute('role', 'button');
     }
-    if (!el.hasAttribute('tabindex')) {
+    if (!el.getAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
   });
@@ -179,7 +179,7 @@ export const fixFakeLinkIssue = (containerElement) => {
 
 export const initializeAccessibility = (containerElement = document.documentElement) => {
   // Fix lang attribute on HTML element
-  addLangAttribute(document.documentElement);
+  addLangAttribute(containerElement.tagName === 'HTML' ? containerElement : document.documentElement);
   
   // Fix table structures
   const tables = containerElement.querySelectorAll('table');
@@ -190,7 +190,7 @@ export const initializeAccessibility = (containerElement = document.documentElem
   ensureUniqueLandmarks(containerElement);
   
   // Add accessible names to SVGs
-  addSvgAccessibleNames();
+  addSvgAccessibleNames(containerElement.querySelectorAll('svg'));
   
   // Fix fake link issues
   fixFakeLinkIssue(containerElement);

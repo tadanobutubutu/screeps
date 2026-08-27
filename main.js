@@ -11,10 +11,10 @@
 import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
-function addLangAttribute(document, lang = 'en') {
-  const htmlElement = document.querySelector('html');
+function addLangAttribute(document, selector = 'html') {
+  const htmlElement = document.querySelector(selector);
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
+    htmlElement.setAttribute('lang', 'en');
   }
   return document;
 }
@@ -139,6 +139,11 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible names to SVGs
+function addAccessibleNamesToSVGs(document) {
+  // ... existing implementation
+}
+
+// Function to add accessible names to SVGs (alias)
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
@@ -244,6 +249,7 @@ function fixLandmarkIssues(document) {
   });
 }
 
+// Function to add Landmark Regions
 function addLandmarkRegions(document) {
   const landmarks = ['main', 'header', 'footer', 'aside', 'section', 'article'];
   landmarks.forEach(landmark => {
@@ -315,11 +321,13 @@ function fixButtonIdentifiers(document) {
   };
   
   Object.entries(buttonIdMap).forEach(([oldId, newId]) => {
-    const button = document.getElementById(oldId);
-    if (button) {
-      button.id = newId;
-      button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
-    }
+    const elements = document.querySelectorAll(`[id="${oldId}"]`);
+    elements.forEach(element => {
+      element.id = newId;
+      if (!element.getAttribute('aria-label')) {
+        element.setAttribute('aria-label', 'Primary action');
+      }
+    });
   });
   
   function getAccessibleName(button) {
@@ -343,7 +351,7 @@ function addMainLandmarkToIndex(document) {
   }
 }
 
-// Function for addressing accessibility issues from insight report
+// Implement function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(document) {
   // Assuming the insight report provides an object with the issues to be addressed
   const insightReport = {
@@ -367,6 +375,24 @@ function implementAccessibilityFixesFromReport(document) {
   });
 }
 
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(document) {
+  addLangAttribute(document);
+  fixTableStructure(document);
+  addMainLandmark(document);
+  ensureUniqueLandmarks(document);
+  addAccessibleNamesToSVGs(document);
+  fixFakeLinkIssue(document);
+  fixFakeLinkIssues(document);
+  fixLandmarkIssues(document);
+  addLandmarkRegions(document);
+  uniqueLandmarks(document);
+  fixImageAltTexts(document);
+  googleSignIn(document);
+  fixButtonIdentifiers(document);
+  addMainLandmarkToIndex(document);
+}
+
 // Export all functions
 export { 
   addLangAttribute, 
@@ -386,6 +412,7 @@ export {
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   implementAccessibilityFixesFromReport,
+  addressAccessibilityIssues,
   class1, 
   function1, 
   Object1 

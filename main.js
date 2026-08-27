@@ -121,7 +121,8 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  config
+  config,
+  missingExportPlaceholder
 };
 
 // TODO: Address missing export that might have been removed — ADD CODE HERE

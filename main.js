@@ -1,4 +1,3 @@
-// Current state of main.js
 import React from 'react';
 
 function MyComponent() {

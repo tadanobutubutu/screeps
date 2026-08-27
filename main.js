@@ -1,5 +1,5 @@
-Here is the resolved file content:
-
+import { type Metadata } from "next";
+import "./globals.css";
 import { type Metadata } from "next";
 import "./globals.css";
 import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";

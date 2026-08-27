@@ -92,8 +92,8 @@ function ensureUniqueLandmarks(landmarks) {
       return landmark;
     }
     
-    landmarkCounts[role]++;
-    const newLabel = `${role}-${landmarkCounts[role]}`;
+    const count = landmarkCounts[role]++;
+    const newLabel = `${role}-${count}`;
     landmark.setAttribute('aria-label', newLabel);
     landmark.id = landmark.id || newLabel;
     
@@ -106,13 +106,14 @@ function ensureUniqueLandmarks(landmarks) {
  * @param { Document } doc - The document object to operate on
  */
 function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('main, [role="main"], article, #content, .content');
+  const primaryContent = doc.querySelector('[role="main"], article, #content, .content');
   if (!primaryContent) {
     return;
   }
   
-  const main = doc.createElement('main');
+  const main = doc.createElement('div');
   main.className = 'main';
+  main.setAttribute('role', 'main');
   
   if (primaryContent.parentNode) {
     primaryContent.parentNode.insertBefore(main, primaryContent);
@@ -125,8 +126,8 @@ function wrapPrimaryContentInMain(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('header, nav, main, footer, aside, section, article');
-  return ensureUniqueLandmarks(Array.from(landmarks));
+  const landmarks = doc.querySelectorAll('nav, main, footer, aside, section, article');
+  return Array.from(landmarks);
 }
 
 /**
@@ -136,10 +137,10 @@ function addProperLandmarkRegions(doc) {
 function addAriaToFormControls(doc) {
   const inputs = doc.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
-    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
-      const label = input.id ? doc.querySelector(`label[for="${input.id}"]`) : null;
+    if (!input.id && input.type !== 'hidden') {
+      const label = input.id ? doc.getElementById(input.id) : null;
       if (label) {
-        input.setAttribute('aria-labelledby', label.id || `label-${index}`);
+        input.setAttribute('aria-describedby', label.id || `label-${index}`);
       }
     }
   });
@@ -150,9 +151,9 @@ function addAriaToFormControls(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function replaceMyButtonId(doc) {
-  const buttons = doc.querySelectorAll('button[id="myButton"]');
+  const buttons = doc.querySelectorAll('button');
   buttons.forEach((button, index) => {
-    button.id = `accessible-button-${index}`;
+    button.id = button.id || `button-${index}`;
   });
 }
 
@@ -268,5 +269,6 @@ module.exports = {
   ensureUniqueLandmarks,
   createInPageButton,
   createAccessibleLink,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  addMissingExportFunction
 };

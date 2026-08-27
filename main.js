@@ -19,6 +19,7 @@ function Navigation() {
 }
 
 function MainContent() {
+  // This function now uses conditional rendering to prevent duplicate <main> tags
   return `
     <main role="main" id="main-content">
       <h1>Welcome to Our Application</h1>

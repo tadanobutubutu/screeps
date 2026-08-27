@@ -103,6 +103,25 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
+// Vanilla JS DOM utility for wrapping content with <main> element
+// (Preserved from origin/main - runs in browser environment)
+function wrapContentWithMain() {
+  if (typeof document !== 'undefined') {
+    const contentToWrap = document.querySelectorAll('div.container, table#table-rotated');
+
+    contentToWrap.forEach((content) => {
+      const mainElement = document.createElement('main');
+      mainElement.appendChild(content);
+      content.parentNode.replaceChild(mainElement, content);
+    });
+  }
+}
+
+// Call the function to wrap the content with <main> (browser only)
+if (typeof document !== 'undefined') {
+  wrapContentWithMain();
+}
+
 export {
   Document,
   AccessibleLink,

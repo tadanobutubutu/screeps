@@ -11,15 +11,15 @@ import './index.css';
 document.documentElement.lang = 'en';
 
 // Function to check if all <th> elements have the scope attribute
-function checkThScopeAttribute(filePath) {
-  const fileContent = fs.readFileSync(filePath, 'utf8');
-  const thElements = fileContent.match(/<th\b[^>]*>/g);
+function checkThScopeAttribute() {
+  const fileContent = fs.readFileSync(path.join(__dirname, 'docs', 'accessibility.html'), 'utf8');
+  const thElements = fileContent.match(/<th[^>]*>/gi);
   if (!thElements) {
     return true; // No <th> elements found, so no issue
   }
 
   const hasNoScope = thElements.some((th) => {
-    return !th.includes('scope="');
+    return !th.includes('scope=');
   });
 
   return !hasNoScope;
@@ -27,8 +27,8 @@ function checkThScopeAttribute(filePath) {
 
 // Function to test the presence of the scope attribute in all <th> elements
 function testThScopeAttribute() {
-  const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
-  const hasScopeAttribute = checkThScopeAttribute(filePath);
+  const filePath = path.join(__dirname, 'docs', 'accessibility.html');
+  const hasScopeAttribute = checkThScopeAttribute();
 
   if (!hasScopeAttribute) {
     throw new Error('Not all <th> elements have the scope attribute.');

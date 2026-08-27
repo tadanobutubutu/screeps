@@ -1,15 +1,6 @@
 // main.js
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
-
-// Once you provide the actual code with the conflict markers, I'll be able to:
-// 1. Identify the conflicting sections
-// 2. Preserve all existing code, exports, and functions from current main.js
-// 3. Add only the necessary changes for the issue
-// 4. Output the complete updated main.js content
-
-// Please share the main.js file contents and I'll help you resolve the conflicts.
 
 // =====================================================
 // NOTE: To fix the REACT_015 accessibility issue (missing lang attribute on <html>),
@@ -27,10 +18,9 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// TODO: Import required module(s) - for fixing table structure issues
-const { formatTable, parseTableData } = require('./utils/tableUtils');
+// Import required module(s) - for fixing table structure issues
+const { formatTable, parseTableData } = require('./utils/tableHelpers');
 
-app.use(express.static('public'));
 app.use(express.json());
 
 // Routes

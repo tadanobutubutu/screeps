@@ -1,6 +1,13 @@
-// TODO: Replace this placeholder with the actual main.js content containing real conflict markers:
-// <<<<<<< HEAD
-// [your current branch changes]
-// =======
-// [incoming changes from origin/main]
-// >>>>>>> origin/main
+import React from 'react';
+
+const Dashboard = ({ error, success }) => {
+  if (error) {
+    return <main>Error: {error.message}</main>;
+  } else if (success) {
+    return <main>Success: {success.message}</main>;
+  } else {
+    return <main>Welcome to the Dashboard</main>;
+  }
+};
+
+export default Dashboard;

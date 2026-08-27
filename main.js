@@ -25,21 +25,11 @@ function addressInsightReportIssues(insightReport) {
       if (issue.code === 'REACT_015') {
         document.documentElement.lang = 'en'; // Assuming 'en' is the default language
       }
-      // Add landmark roles and fix landmark issues
-      if (issue.code === 'REACT_017') {
-        if (issue.ariaRole) {
-          element.setAttribute('role', issue.ariaRole);
-        }
-      }
       // Add accessible names to 2 SVGs
       if (issue.code === 'REACT_041') {
         if (issue.ariaLabel) {
           element.setAttribute('aria-label', issue.ariaLabel);
         }
-      }
-      // Ensure unique landmarks (2 issues)
-      if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
@@ -73,4 +63,94 @@ function calculateSum(a, b) {
 // ----- END ORIGINAL CODE (unchanged) -----
 
 // TODO: Implement the required changes to improve accessibility
-module.exports = { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum };
+
+// Generalized accessibility functions (merged with original)
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const uniqueElements = [];
+    elements.forEach(el => {
+      const isUnique = !uniqueElements.some(uEl => uEl === el);
+      if (isUnique) {
+        uniqueElements.push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
+function addLandmarkRolesAndFixIssues(issue) {
+  if (issue && issue.ariaRole) {
+    const element = document.querySelector(issue.selector);
+    if (element) {
+      element.setAttribute('role', issue.ariaRole);
+    }
+  }
+}
+
+// Enhanced insight report processing to handle both original and new issues
+function addressInsightReportIssuesEnhanced(insightReport) {
+  const issues = insightReport.issues || [];
+  
+  issues.forEach(issue => {
+    const element = document.querySelector(issue.selector);
+    if (element) {
+      // Original handling
+      if (issue.code === 'REACT_015') {
+        document.documentElement.lang = 'en';
+      }
+      if (issue.code === 'REACT_041' && issue.ariaLabel) {
+        element.setAttribute('aria-label', issue.ariaLabel);
+      }
+      if (issue.code === 'REACT_027') {
+        // Already implemented
+      }
+      
+      // New modular handling
+      if (issue.code === 'REACT_017') {
+        addLandmarkRolesAndFixIssues(issue);
+      }
+    }
+  });
+  
+  // Handle unique landmarks separately (once for all issues)
+  const hasUniqueLandmarkIssue = issues.some(issue => issue.code === 'REACT_025');
+  if (hasUniqueLandmarkIssue) {
+    ensureUniqueLandmarks();
+  }
+}
+
+// Functions to address specific insight report issues (modular approach)
+function ensureUniqueLandmarksFromInsightReport(insightReport) {
+  const issues = insightReport.issues || [];
+  const hasUniqueLandmarkIssue = issues.some(issue => issue.code === 'REACT_025');
+  if (hasUniqueLandmarkIssue) {
+    ensureUniqueLandmarks();
+  }
+}
+
+function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      addLandmarkRolesAndFixIssues(issue);
+    }
+  });
+}
+
+// Export all functions for use elsewhere in the repository
+module.exports = {
+  improveAccessibility,
+  addressInsightReportIssues,
+  addressInsightReportIssuesEnhanced,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  ensureUniqueLandmarks,
+  addLandmarkRolesAndFixIssues,
+  ensureUniqueLandmarksFromInsightReport,
+  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport
+};

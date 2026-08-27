@@ -8,6 +8,9 @@ function generateDependencyGraphData() {
     room.htmlElement.setAttribute('role', 'region');
     // TODO: This is the existing code that needs to be preserved
 
+    // Existing function we are preserving
+    // (Assuming the commented-out code is your existing function)
+
     // New Function ( React_036 )
     function fixFakeLink() {
       // Assuming you are using a routine to check for and validate all links
@@ -53,8 +56,6 @@ function generateDependencyGraphData() {
 
   // Ensure unique landmarks (REACT_025)
   // Known unique landmarks are 'region' and 'article' in this example
-
-  // ... existing room processing code ...
 
   // New Function (REACT_020) to render the dependency graph
   function renderDependencyGraph(graphData) {

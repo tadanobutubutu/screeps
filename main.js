@@ -1,13 +1,11 @@
-Here is the resolved version of the file 'main.js':
-
-```javascript
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 tsx
 import type { Metadata } from "next";
+import { wrapPrimaryContentInMain } from './wrapPrimaryContentInMain';
 
-var SCREEPS_NS = 'mynamespace';
+const SCREEPS_NS = 'mynamespace';
 
 require('@screeps/next');
 
@@ -40,6 +38,8 @@ StructureSpawn.prototype.createCustomCreep =
         }
         return ERR_NOT_ENOUGH_RESOURCES;
     };
+
+wrapPrimaryContentInMain(document); // Added this line from the conflicting file
 
 module.exports.loop = function() {
     var tower = Game.getObjectById('TOWER_ID');
@@ -80,4 +80,4 @@ export const metadata = function getMetadata() {
 };
 ```
 
-In this resolved version, I've merged both files by including the necessary imports and metada properties from the conflicting Next.js code. Additionally, I added the `require('./pages/api/hello.js')();` line to execute any API routes if they exist, keeping the original Screeps bot code intact. I've also added the `SCREEPS_NS` constant tonamespace all generated objects created by RoomController based on the original Screeps code. The code preserves comments and style as much as possible while integrating the logic from both versions.
+In this resolved version, I've merged both files by including the necessary imports and the `wrapPrimaryContentInMain(document);` line from the conflicting file. I've also moved the `wrapPrimaryContentInMain` function import to the top of the file for better organization and easier access. The code preserves comments and style as much as possible while integrating the logic from both versions. The SCREEPS_NS constant is kept for namespacing all generated objects created by RoomController, which is specific to the original Screeps bot code.

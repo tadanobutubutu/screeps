@@ -18,7 +18,7 @@ function getSvgAccessibleName(svgElement) {
     accessibleName = alt;
   } else {
     // Fallback to empty string or custom logic to generate name
-    accessibleName = 'SVG Element';
+    accessibleName = '';
   }
 
   return accessibleName;

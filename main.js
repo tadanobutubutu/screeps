@@ -147,12 +147,189 @@ function addLangAttribute() {
 }
 
 /**
+ * Validates table accessibility by checking for proper headers, captions, and ARIA attributes.
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateTableAccessibility(table) {
+  const results = {
+    isAccessible: true,
+    issues: [],
+    table: table
+  };
+
+  if (!table) {
+    results.isAccessible = false;
+    results.issues.push('Table is null or undefined');
+    return results;
+  }
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing a caption element');
+  }
+
+  // Check for headers (th elements)
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing header cells (th elements)');
+  } else {
+    // Check that headers have scope attribute or are associated with cells via id/headers
+    let hasScopedHeaders = false;
+    headers.forEach(th => {
+      if (th.hasAttribute('scope') || th.hasAttribute('id')) {
+        hasScopedHeaders = true;
+      }
+    });
+    if (!hasScopedHeaders) {
+      results.isAccessible = false;
+      results.issues.push('Table headers are missing scope attributes or IDs');
+    }
+  }
+
+  // Check for proper table structure (tbody, thead, or tfoot)
+  const structuralElements = table.querySelectorAll('thead, tbody, tfoot');
+  if (structuralElements.length === 0) {
+    results.isAccessible = false;
+    results.issues.push('Table is missing proper structural elements (thead, tbody, or tfoot)');
+  }
+
+  return results;
+}
+
+/**
+ * Validates table structure by checking for proper nesting and element types.
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateTableStructure(table) {
+  const results = {
+    isValid: true,
+    issues: [],
+    table: table
+  };
+
+  if (!table) {
+    results.isValid = false;
+    results.issues.push('Table is null or undefined');
+    return results;
+  }
+
+  // Check that table doesn't contain non-table elements directly
+  const allowedChildren = ['CAPTION', 'COLGROUP', 'THEAD', 'TBODY', 'TFOOT', 'TR', 'COL'];
+  const directChildren = Array.from(table.children);
+  
+  directChildren.forEach(child => {
+    if (allowedChildren.indexOf(child.tagName) === -1) {
+      results.isValid = false;
+      results.issues.push('Table contains invalid child element: ' + child.tagName);
+    }
+  });
+
+  // Check that tr elements are inside thead, tbody, or tfoot
+  const trElements = table.querySelectorAll('tr');
+  trElements.forEach(tr => {
+    const parent = tr.parentElement;
+    if (parent && parent.tagName !== 'THEAD' && parent.tagName !== 'TBODY' && parent.tagName !== 'TFOOT' && parent.tagName !== 'TABLE') {
+      results.isValid = false;
+      results.issues.push('tr element is not properly nested in a structural element');
+    }
+  });
+
+  // Check that td/th elements are inside tr
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach(cell => {
+    const parent = cell.parentElement;
+    if (!parent || parent.tagName !== 'TR') {
+      results.isValid = false;
+      results.issues.push('Cell element is not inside a tr element');
+    }
+  });
+
+  return results;
+}
+
+/**
  * Fixes table structure issues in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to fix table issues in
  * @returns {NodeList} NodeList of fixed tables
  */
 function fixTableStructureIssues(container = document) {
-  // (code for fixTableStructureIssues remains the same)
+  if (!container) {
+    return [];
+  }
+
+  const tables = container.querySelectorAll('table');
+  const fixedTables = [];
+
+  tables.forEach(table => {
+    let wasFixed = false;
+
+    // Run validations
+    const accessibilityResult = validateTableAccessibility(table);
+    const structureResult = validateTableStructure(table);
+
+    // Fix: Add caption if missing
+    if (accessibilityResult.issues.indexOf('Table is missing a caption element') !== -1) {
+      const caption = table.ownerDocument.createElement('caption');
+      caption.textContent = 'Data table';
+      table.insertBefore(caption, table.firstChild);
+      wasFixed = true;
+    }
+
+    // Fix: Add scope attribute to headers if missing
+    const headers = table.querySelectorAll('th');
+    if (headers.length > 0) {
+      let needsScope = true;
+      headers.forEach(th => {
+        if (th.hasAttribute('scope') || th.hasAttribute('id')) {
+          needsScope = false;
+        }
+      });
+      if (needsScope) {
+        headers.forEach((th, index) => {
+          // Determine if it's a row or column header based on position
+          const parent = th.parentElement;
+          if (parent && parent.tagName === 'TR') {
+            const isFirstRow = parent === parent.parentElement.firstElementChild;
+            th.setAttribute('scope', isFirstRow ? 'col' : 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        });
+        wasFixed = true;
+      }
+    }
+
+    // Fix: Wrap content in tbody if not present
+    const structuralElements = table.querySelectorAll('thead, tbody, tfoot');
+    if (structuralElements.length === 0) {
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 0) {
+        const tbody = table.ownerDocument.createElement('tbody');
+        const firstRow = rows[0];
+        const parent = firstRow.parentElement;
+        if (parent === table) {
+          // Move rows into tbody
+          rows.forEach(row => {
+            tbody.appendChild(row.cloneNode(true));
+            row.parentNode.removeChild(row);
+          });
+          table.appendChild(tbody);
+          wasFixed = true;
+        }
+      }
+    }
+
+    if (wasFixed) {
+      fixedTables.push(table);
+    }
+  });
+
+  return fixedTables;
 }
 
 /**
@@ -363,6 +540,8 @@ globalObject.getLangAttribute = getLangAttribute;
 globalObject.createInPageButton = createInPageButton;
 globalObject.addLangAttribute = addLangAttribute;
 globalObject.fixTableStructureIssues = fixTableStructureIssues;
+globalObject.validateTableAccessibility = validateTableAccessibility;
+globalObject.validateTableStructure = validateTableStructure;
 globalObject.addMainLandmark = addMainLandmark;
 globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
 globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
@@ -387,6 +566,8 @@ module.exports = {
   createInPageButton,
   addLangAttribute,
   fixTableStructureIssues,
+  validateTableAccessibility,
+  validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,

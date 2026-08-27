@@ -1,7 +1,1 @@
-// Add the function you want to export
-function someFunction() {
-  console.log("This is a test function.");
-}
-
-// Export the function
-module.exports = { someFunction };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

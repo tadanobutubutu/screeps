@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -12,7 +15,24 @@ function replaceMyButtonId() {
   if (button) {
     button.id = 'exampleButton';
     button.removeAttribute('data-temp-accessibility-placeholder');
+    button.classList.remove('my-button');
   }
+}
+
+/**
+ * This function gets the current language attribute
+ * @returns {string} - the current language attribute
+ */
+function getLangAttribute() {
+  return document.documentElement.lang;
+}
+
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+function getFullLangAttribute() {
+  return document.documentElement.getAttribute('lang') || '';
 }
 
 /**
@@ -46,9 +66,22 @@ function addAriaToFormControls() {
   // ... (existing code)
 }
 
+/**
+ * Function to replace `my-button` with actual button id
+ */
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+replaceMyButtonId();
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addAriaToFormControls,
-  replaceMyButtonId
+  replaceMyButtonId,
+  getLangAttribute,
+  getFullLangAttribute
 };
+```
+
+In this resolved file, the changes from both branches were integrated to ensure that the `my-button` element is replaced with a concrete id, the `replaceMyButtonId()` function is called after the proper landmark regions, account management, and aria attributes are added to the document, and the `getLangAttribute()` and `getFullLangAttribute()` functions are included in the exported module.

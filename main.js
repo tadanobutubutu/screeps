@@ -1,165 +1,107 @@
-// main.js
-// Screeps bot entry point
+tsx
+// Assuming the file is located at ...
 
-import { Dashboard } from './components/Dashboard';
+import React, { useState } from 'react';
 
-/**
- * Main game loop for the Screeps bot.
- * Runs every tick.
- */
-export function loop() {
-    // Handle room-level operations
-    handleRooms();
-
-    // Render dashboard UI (if available)
-    if (Dashboard) {
-        Dashboard.render();
-    }
+interface DashboardProps {
+  // Define any props the Dashboard component might receive
 }
 
-/**
- * Process each room controlled by the player.
- */
-function handleRooms() {
-    const username = Game.me ? Game.me.username : '';
+const Dashboard: ... = (props) => {
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
+  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
-    for (const roomName in Game.rooms) {
-        const room = Game.rooms[roomName];
+  const copyErr = () => {
+    // Implement the copy error logic
+    setCopied(true);
+    // Reset copied state after some time
+    setTimeout(() => setCopied(false), 3000);
+  };
 
-        if (room.controller && room.controller.my) {
-            handleRoomLogic(room);
-        }
-    }
-}
+  const fetchStats = (shouldRetry: boolean) => {
+    // Implement the fetch stats logic
+    setRefreshing(true);
+    // Reset refreshing state after some time
+    setTimeout(() => setRefreshing(false), 2000);
+  };
 
-/**
- * Execute room-level logic: spawn management, creeps, construction, etc.
- * @param {Room} room - The room to process.
- */
-function handleRoomLogic(room) {
-    const roomName = room.roomName;
-    const spawn = room.find(FIND_MY_SPAWNS)[0];
+  // Remove the redundant <main> elements and use <section> or <article> for different states
+  return (
+    <html lang="en">
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        {error && (
+          <section
+            role="alert"
+            aria-label="エラーメッセージ詳細"
+            aria-live="polite"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </section>
+        )}
+        <button
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          aria-pressed={copied}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
+        </button>
+        <button
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          aria-disabled={refreshing}
+          aria-busy={refreshing}
+          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
+          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          onFocus={() => setErrRetryHover(true)}
+          onBlur={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: refreshing ? '#999' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+            marginLeft: '0.5rem',
+          }}
+        >
+          <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
+          <span> {refreshing ? '再試行中...' : '再試行'}</span>
+        </button>
+      </div>
+    </html>
+  );
+};
 
-    // Spawn creeps based on roles
-    if (spawn && spawn.isActive()) {
-        manageSpawning(room, spawn);
-    }
-
-    // Run all creep logic
-    runCreeps(roomName);
-}
-
-/**
- * Manage creep spawning based on room needs.
- * @param {Room} room - The room to spawn in.
- * @param {StructureSpawn} spawn - The spawn structure.
- */
-function manageSpawning(room, spawn) {
-    const energyCapacity = room.energyCapacityAvailable;
-    const body = energyCapacity >= 300 ? [WORK, CARRY, MOVE] : [WORK, MOVE];
-    const role = body.includes(CARRY) ? 'harvester' : 'worker';
-
-    if (!spawn.spawning && room.find(FIND_CREEPS, {
-        filter: (c) => c.memory.role === role
-    }).length < 3) {
-        spawn.spawnCreep(body, `${role}_${Game.time}`, {
-            memory: { role: role }
-        });
-    }
-}
-
-/**
- * Run all creeps assigned to a given room.
- * @param {string} roomName - Name of the room.
- */
-function runCreeps(roomName) {
-    const creep = Game.creeps[roomName];
-    if (creep && creep.my) {
-        runCreep(creep);
-    }
-}
-
-/**
- * Run individual creep logic.
- * @param {Creep} creep - The creep to run.
- */
-function runCreep(creep) {
-    const role = creep.memory.role;
-    switch (role) {
-        case 'harvester':
-            runHarvester(creep);
-            break;
-        case 'builder':
-            runBuilder(creep);
-            break;
-        default:
-            runWorker(creep);
-    }
-}
-
-/**
- * Harvester: collects and transfers energy.
- * @param {Creep} creep
- */
-function runHarvester(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-    if (source) {
-        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(source);
-        }
-    }
-
-    if (creep.store.getFreeCapacity() === 0) {
-        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (s) => s.structureType === STRUCTURE_SPAWN &&
-                           s.store.getFreeCapacity(ENERGY) > 0
-        });
-        if (target) {
-            if (creep.transfer(target, ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target);
-            }
-        }
-    }
-}
-
-/**
- * Builder: repairs structures and builds construction sites.
- * @param {Creep} creep
- */
-function runBuilder(creep) {
-    let target = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1)[0];
-    if (!target) {
-        target = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-            filter: (s) => s.hits < s.hitsMax
-        })[0];
-    }
-
-    if (target) {
-        if (creep.build && target.structureType === STRUCTURE_CONSTRUCTION_SITE) {
-            if (creep.build(target) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target);
-            }
-        } else {
-            if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target);
-            }
-        }
-    }
-}
-
-/**
- * Default worker: harvests and upgrades controller.
- * @param {Creep} creep
- */
-function runWorker(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-    if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-    }
-
-    if (creep.store.getFreeCapacity() === 0 && creep.room.controller) {
-        if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller);
-        }
-    }
-}
+export default Dashboard;

@@ -1,6 +1,3 @@
-Here is the resolved main.js file with the merged changes:
-
-```javascript
 /*
 ______________
 Original code...
@@ -37,6 +34,3 @@ ______________
 Updated code...
 ______________
 */
-```
-
-This version of the main.js file keeps both changes and integrates them by adding the `aria-label` attribute to the SVGs in both sections, which makes the SVGs more accessible. The rest of the code remains unchanged.

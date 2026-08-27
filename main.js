@@ -1,9 +1,10 @@
+// This is the missing export for the calculateSum function
+export function calculateSum(a, b) { return a + b; }
+
 /**
  * Landmark Regions Module
  * Implements accessibility landmarks for screen readers and semantic HTML structure
  */
-
-// TODO: Implement function for adding proper landmark regions
 
 /**
  * Creates and appends landmark regions to the document body
@@ -50,8 +51,16 @@ document.addEventListener('click', handleUserInteraction);
 document.addEventListener('keydown', handleUserInteraction);
 
 // Export for module usage
+export {
+  calculateSum,
+  addLandmarkRegions,
+  initializeApp,
+  handleUserInteraction
+};
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    calculateSum,
     addLandmarkRegions,
     initializeApp,
     handleUserInteraction

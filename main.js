@@ -16,3 +16,6 @@ export function renderDependencyGraph(data) {
 export function renderIndexView(data) {
     return indexContent(data);
 }
+
+// TODO found in main.js
+// TODO: Implement validateLandmark(), ... and validateLandmarkStructure() functions here

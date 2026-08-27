@@ -1,4 +1,8 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Import any required dependencies (e.g. external modules or data files)
+import './styles.css';
+import { data } from './data.js';
+
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 

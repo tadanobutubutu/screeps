@@ -1,5 +1,1 @@
-// Before (potentially causing the REACT_036 issue):
-// <a href="#">Go to top</a>
-
-// After:
-// <button aria-label="Go to top" onClick={() => window.scrollTo(0, 0)}>Go to top</button>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

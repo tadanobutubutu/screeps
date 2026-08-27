@@ -6,7 +6,7 @@ function handlePendingFunctionality() {
 }
 
 // Preserve all existing exports, functions, and code
-export { someExportedFunction, anotherExportedFunction, aThirdFunction, SomeClass };
+export { someExportedFunction, anotherExportedFunction, aThirdFunction, SomeClass, handlePendingFunctionality };
 
 // Add the placeholder for the TODO
 // This function should handle the pending functionality

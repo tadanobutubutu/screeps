@@ -7,6 +7,10 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
+import { type Metadata } from "next";
+import "./globals.css";
+import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, renderDependencyGraph, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
+
 function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (!htmlElement.getAttribute('lang')) {
@@ -132,11 +136,6 @@ function handleFakeLinks() {
 }
 
 // Add Next.js integration
-import { type Metadata } from "next";
-import "./globals.css";
-import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
-import { renderDependencyGraph } from "./dependencyGraph";
-
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // Code to address the specific accessibility issue on the element
   // This is a placeholder function and should be replaced with the actual implementation
@@ -206,6 +205,6 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   addressAccessibilityIssue038,
-  getSvgAccessibleName, // This function is duplicated for some reason, removed it from here
+  getSvgAccessibleName,
   renderDependencyGraph,
 };

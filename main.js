@@ -31,3 +31,25 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
+
+// Update SVGs in layout files for accessibility
+const layoutFiles = [
+  'app/layout.tsx',
+  'dashboard/app/layout.tsx'
+];
+
+layoutFiles.forEach((filePath) => {
+  const svgElements = document.querySelectorAll(`${filePath} svg`);
+  svgElements.forEach((svg) => {
+    if (!svg.querySelector('title') && !svg.querySelector('aria-label')) {
+      // If the SVG has a text element but no title or aria-label, add an aria-label attribute
+      const textElements = svg.querySelectorAll('text');
+      if (textElements.length > 0) {
+        svg.setAttribute('aria-label', textElements[0].textContent);
+      } else {
+        // If there is no text element, add aria-hidden="true" to indicate it's decorative
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    }
+  });
+});

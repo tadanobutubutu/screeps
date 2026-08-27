@@ -67,7 +67,10 @@ function renderDependencyGraph() {
   const rotateBackLink = document.getElementById('unrotate');
   if (rotateBackLink) {
     // Remove the anchor element
-    rotateBackLink.parentNode.removeChild(rotateBackLink);
+    const parent = rotateBackLink.parentNode;
+    if (parent) {
+      parent.removeChild(rotateBackLink);
+    }
 
     // Create a new button element
     const rotateBackButton = document.createElement('button');
@@ -80,7 +83,7 @@ function renderDependencyGraph() {
     };
 
     // Append the button to the parent element
-    rotateBackButton.parentNode.appendChild(rotateBackButton);
+    parent.appendChild(rotateBackButton);
   }
 }
 

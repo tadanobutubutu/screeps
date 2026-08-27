@@ -20,9 +20,6 @@ function findAndFixFakeLinks() {
   links.forEach(makeRealLink);
 }
 
-// Call the new function to address the fake link
-findAndFixFakeLinks();
-
 // Function to handle the case where there's only a hash in the URL (origin/main change)
 function handleUrlWithHash() {
   window.onload = function () {
@@ -42,5 +39,18 @@ function addressLinks() {
 
 // Call the combined function to address different link scenarios
 addressLinks();
+
+// Wrap the primary content in <main> to satisfy the REACT_017 rule
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('.container'); // Assuming '.container' is the primary content container
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  }
+}
+
+// Call the function to wrap the primary content in <main>
+wrapPrimaryContentInMain();
 
 // ... (existing code)

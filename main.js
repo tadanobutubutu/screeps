@@ -1,4 +1,7 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
+
+// Import useDependencyGraphContent if it's defined elsewhere
+// const useDependencyGraphContent = require('./useDependencyGraphContent');
 
 // ... (other code in main.js)
 
@@ -18,3 +21,35 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Use useDependencyGraphContent hook to get dependency graph content
+const dependencyGraphContent = useDependencyGraphContent();
+
+// Function to render dependency graph section
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph-container');
+  if (container) {
+    container.innerHTML = dependencyGraphContent;
+  }
+}
+
+// Function to update dependency graph when needed
+function updateDependencyGraph(data) {
+  const updatedContent = useDependencyGraphContent(data);
+  const container = document.getElementById('dependency-graph-container');
+  if (container) {
+    container.innerHTML = updatedContent;
+  }
+}
+
+// Call renderDependencyGraph when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  renderDependencyGraph();
+});
+
+// Export functions if needed for external use
+module.exports = {
+  rotateBack,
+  renderDependencyGraph,
+  updateDependencyGraph
+};

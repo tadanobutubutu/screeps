@@ -404,6 +404,46 @@ if (!document.documentElement.getAttribute('lang')) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
+/**
+ * Wraps the primary content in a <main> element for semantic HTML structure.
+ * This function finds the main content area and wraps it appropriately.
+ * 
+ * @param {Object} context - The React context containing window and document references
+ * @returns {HTMLElement|null} - The created main element or null if no content found
+ */
+function wrapPrimaryContentInMain(context) {
+  if (!context || !context.document) return null;
+  
+  const { document } = context;
+  
+  // Check if a main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  // Find the primary content area (body or main content container)
+  const body = document.body;
+  if (!body || body.children.length === 0) {
+    return null;
+  }
+  
+  // Create a new main element
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  mainElement.id = 'main-content';
+  
+  // Move all body children into the main element
+  while (body.firstChild) {
+    mainElement.appendChild(body.firstChild);
+  }
+  
+  // Append the main element to the body
+  body.appendChild(mainElement);
+  
+  return mainElement;
+}
+
 mainElement.appendChild(document.body.cloneNode(true));
 document.body.parentNode.insertBefore(mainElement, document.body);
 

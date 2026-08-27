@@ -40,6 +40,21 @@ function addSvgAccessibleNames(document) {
   // ... existing implementation
 }
 
+// New function: add accessible names to SVG elements
+function addAccessibleNamesToSVGs(document) {
+  // Add accessible names to SVG elements for screen readers
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
+}
+
 // Function to fix fake link issue (merged fixes)
 function fixFakeLinkIssue(document) {
   fixFakeLinkIssues(document);
@@ -134,6 +149,7 @@ function addressAccessibilityIssues(document) {
   addMainLandmark(document);
   ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
+  addAccessibleNamesToSVGs(document);
   fixFakeLinkIssue(document);
   fixLandmarkIssues(document);
   addLandmarkRegions(document);

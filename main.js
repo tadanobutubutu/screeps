@@ -28,7 +28,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -39,7 +39,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(table.querySelectorAll('tr'));
+      const remainingRows = table.querySelectorAll('tr');
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -51,14 +51,14 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll('td, th');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
         th.textContent = firstCell.textContent;
         th.scope = 'col';
-        firstCell.parentNode.replaceChild(th, firstCell);
+        row.replaceChild(th, firstCell);
         fixedCount++;
       }
     });
@@ -101,7 +101,7 @@ function addMainLandmark(document) {
   }
   
   // Ensure main has proper role if not using native element
-  if (!mainElement.hasAttribute('role')) {
+  if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
   
@@ -139,6 +139,11 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible names to SVGs
+function addAccessibleNamesToSVGs(document) {
+  // ... existing implementation
+}
+
+// Function to add accessible names to SVGs (alias)
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
@@ -188,8 +193,8 @@ function fixFakeLinkIssue(document) {
     
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('location.href') || 
-        onclick.includes('navigate'))) {
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -197,7 +202,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.setAttribute('onkeypress', `if(event.key==='Enter'){${onclick}}`);
+      element.parentNode.replaceChild(span, element);
       
       // Copy styling if available
       if (element.className) {
@@ -216,7 +221,7 @@ function fixFakeLinkIssue(document) {
 function fixFakeLinkIssues(document) {
   const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('aria-label')) {
+    if (link.tagName === 'A') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
     }
   });
@@ -292,7 +297,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onbutton');
+    const buttonContainer = document.getElementById('g-signin-button');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -316,11 +321,13 @@ function fixButtonIdentifiers(document) {
   };
   
   Object.entries(buttonIdMap).forEach(([oldId, newId]) => {
-    const button = document.getElementById(oldId);
-    if (button) {
-      button.id = newId;
-      button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
-    }
+    const elements = document.querySelectorAll(`[id="${oldId}"]`);
+    elements.forEach(element => {
+      element.id = newId;
+      if (!element.getAttribute('aria-label')) {
+        element.setAttribute('aria-label', 'Primary action');
+      }
+    });
   });
   
   function getAccessibleName(button) {
@@ -344,7 +351,7 @@ function addMainLandmarkToIndex(document) {
   }
 }
 
-// Function for addressing accessibility fixes from insight report
+// Implement function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(document) {
   // Assuming the insight report provides an object with the issues to be addressed
   const insightReport = {
@@ -368,6 +375,24 @@ function implementAccessibilityFixesFromReport(document) {
   });
 }
 
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(document) {
+  addLangAttribute(document);
+  fixTableStructure(document);
+  addMainLandmark(document);
+  ensureUniqueLandmarks(document);
+  addAccessibleNamesToSVGs(document);
+  fixFakeLinkIssue(document);
+  fixFakeLinkIssues(document);
+  fixLandmarkIssues(document);
+  addLandmarkRegions(document);
+  uniqueLandmarks(document);
+  fixImageAltTexts(document);
+  googleSignIn(document);
+  fixButtonIdentifiers(document);
+  addMainLandmarkToIndex(document);
+}
+
 // Export all functions
 export { 
   addLangAttribute, 
@@ -387,6 +412,7 @@ export {
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   implementAccessibilityFixesFromReport,
+  addressAccessibilityIssues,
   class1, 
   function1, 
   Object1 

@@ -72,3 +72,10 @@ function setAccessibleHidden(element, isHidden) {
 }
 
 // ----- END ORIGINAL CODE -----
+
+// Make functions accessible globally
+window.trapFocus = trapFocus;
+window.announceToScreenReader = announceToScreenReader;
+window.handleSkipLink = handleSkipLink;
+window.prefersReducedMotion = prefersReducedMotion;
+window.setAccessibleHidden = setAccessibleHidden;

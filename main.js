@@ -98,3 +98,4 @@ document.getElementById('unrotate').addEventListener('click', function() {
     // Assuming some functionality to reverse rotation
     alert('Rotated back!');
 });
+export { initAccessibility as default };

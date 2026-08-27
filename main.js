@@ -33,6 +33,52 @@ function improveAccessibility() {
   checkTableStructure();
 }
 
+function checkLinkAccessibility() {
+  const links = document.querySelectorAll('a');
+  const results = [];
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    const title = link.getAttribute('title');
+    const accessibleName = ariaLabel || text;
+
+    if (!href) {
+      results.push({
+        element: link,
+        issue: 'Link is missing an href attribute'
+      });
+    }
+
+    if (!accessibleName) {
+      results.push({
+        element: link,
+        issue: 'Link is missing an accessible name (text content or aria-label)'
+      });
+    }
+
+    if (href && (href.startsWith('javascript:') || href === '#' || href.toLowerCase() === 'void(0)')) {
+      results.push({
+        element: link,
+        issue: 'Link uses a non-navigable href value'
+      });
+    }
+
+    if (link.querySelector('img')) {
+      const img = link.querySelector('img');
+      if (!img.getAttribute('alt') && !ariaLabel) {
+        results.push({
+          element: link,
+          issue: 'Link contains an image without alt text and no aria-label on the link'
+        });
+      }
+    }
+  });
+
+  return results;
+}
+
 function addressInsightReportIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
@@ -321,5 +367,6 @@ module.exports = {
   checkTableStructure,
   checkLandmarkElements,
   setSvgAccessibleNames,
-  addSvgAccessibilityProps
+  addSvgAccessibilityProps,
+  checkLinkAccessibility
 };

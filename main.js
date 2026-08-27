@@ -502,3 +502,27 @@ module.exports.addLangAttribute = addLangAttribute;
 module.exports.addMainLandmark = addMainLandmark;
 module.exports.fixTableStructure = fixTableStructure;
 module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+
+// New function: add/fix landmark issues (REACT_017)
+function addLandmarkIssues() {
+  // Ensure main landmark exists
+  addMainLandmark();
+  // Add proper landmark regions
+  addProperLandmarkRegions();
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  return { addressed: true };
+}
+
+// New function: add accessible names to SVGs (REACT_041)
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    setSvgAttributes(svg);
+  });
+  return { addressed: true, count: svgs.length };
+}
+
+// Export new functions for testing purposes
+module.exports.addLandmarkIssues = addLandmarkIssues;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;

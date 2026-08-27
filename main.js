@@ -33,4 +33,12 @@ fakeLinks.forEach(link => {
   link.setAttribute('role', 'presentation');
 });
 
+// - REACT_027: Add scope to th elements
+const thElements = document.querySelectorAll('th');
+thElements.forEach(th => {
+  if (!th.hasAttribute('scope')) {
+    th.setAttribute('scope', 'col');
+  }
+});
+
 // existing code...

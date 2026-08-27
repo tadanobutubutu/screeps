@@ -135,6 +135,26 @@ function addSvgAccessibleNames() {
   });
 }
 
+// Fix table header cell scope
+function fixTableHeaderCellScope() {
+  // Implementation for fixing table header cell scope issues goes here.
+  const headers = document.querySelectorAll('th[scope="auto"], th:not([scope])');
+  headers.forEach(header => {
+    // Determine if header is in first row or first column
+    const isFirstRow = header.parentElement.tagName === 'THEAD' || 
+                      (header.parentElement.tagName === 'TBODY' && header.parentElement.firstElementChild === header);
+    const isFirstCol = header.previousElementSibling === null;
+    
+    if (isFirstRow && isFirstCol) {
+      header.setAttribute('scope', 'row');
+    } else if (isFirstRow) {
+      header.setAttribute('scope', 'col');
+    } else if (isFirstCol) {
+      header.setAttribute('scope', 'row');
+    }
+  });
+}
+
 // New function to implement accessibility fixes
 function implementNewFunction() {
   addressAccessibilityIssues();
@@ -142,18 +162,9 @@ function implementNewFunction() {
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
+  fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  // Implementation for fixing table structure issues goes here.
-}
-
-// Fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Implementation for fixing table header cell scope issues goes here.
 }
 
 // Existing code preserved below
@@ -172,7 +183,6 @@ module.exports = {
   fixTableHeaderCellScope,
   implementNewFunction,
   addLangAttribute,
-  fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   main,

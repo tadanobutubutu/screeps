@@ -1,4 +1,16 @@
 // Main game loop - Screeps
+
+// Helper function to get language attribute
+function getLangAttribute(creep) {
+  return creep.memory.lang || 'en';
+}
+
+// Helper function to get full language attribute
+function getFullLangAttribute(creep) {
+  var lang = getLangAttribute(creep);
+  return 'lang-' + lang;
+}
+
 module.exports = {
   loop: function() {
     // Existing game logic

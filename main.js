@@ -160,6 +160,13 @@ function implementNewFunction() {
 // Fix table header cell scope
 function fixTableHeaderCellScope() {
   // Implementation for fixing table header cell scope issues goes here.
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    const scope = header.getAttribute('scope');
+    if (!scope || scope !== 'row' && scope !== 'col') {
+      header.setAttribute('scope', 'row');
+    }
+  });
 }
 
 // Existing code preserved below

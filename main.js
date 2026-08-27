@@ -1,1 +1,24 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Current state of main.js
+import React from 'react';
+
+function MyComponent() {
+  // Old code that needs to be updated
+  <div lang="en">
+    <!-- Content -->
+  </div>
+}
+
+export default MyComponent;
+
+// Conflict markers
+<<<<<<< HEAD
+// Local changes
+<div>
+  <span id="content">Content</span>
+</div>
+=======
+// Commit changes
+<div lang="en">
+  <span id="content">Content</span>
+</div>
+>>>>>>> branch-name

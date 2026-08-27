@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 function improveAccessibility() {
@@ -56,9 +59,37 @@ function addressInsightReportIssues(insightReport) {
 // Existing code that needs to be preserved from previous issue
 // ----- END ORIGINAL CODE (unchanged) -----
 
-// New function to ensure unique landmarks
+// New function for REACT_025 (ensuring unique landmarks) from both changes combined
+function ensureUniqueLandmarksFromInsightReport(insightReport) {
+  const issues = insightReport.issues || [];
+  let uniqueLandmarks = {};
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      const element = document.querySelector(issue.selector);
+
+      // If the landmark role exists, add it to the unique landmarks object
+      if (element && issue.ariaRole) {
+        if (!uniqueLandmarks[issue.ariaRole]) {
+          uniqueLandmarks[issue.ariaRole] = true;
+        } else {
+          // Remove the role if it's not unique
+          element.removeAttribute('role');
+        }
+      }
+      // Add our previous function if this one doesn't find a matching role
+      if (!uniqueLandmarks[issue.ariaRole]) {
+        ensureUniqueLandmarks();
+      }
+    }
+  });
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
+}
+
 function ensureUniqueLandmarks() {
-  // Example logic to ensure unique landmarks
+  // Example logic to ensure unique landmarks from the new function
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
@@ -75,16 +106,6 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// New function for REACT_025 (ensuring unique landmarks)
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
-    }
-  });
-}
-
 module.exports = {
   improveAccessibility,
   addressInsightReportIssues,
@@ -93,3 +114,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarksFromInsightReport
 };
+```
+
+In this resolved file, the new `ensureUniqueLandmarksFromInsightReport` function incorporates both changes. It checks the issues array of the insight report for the 'REACT_025' code. If it finds a matching role, it adds the role to the `uniqueLandmarks` object. If it doesn't find a matching role, it calls the original `ensureUniqueLandmarks` function. Finally, it checks if all landmarks are unique and re-adds the roles if necessary. The original `ensureUniqueLandmarks` function remains unchanged as it provides example logic for ensuring unique landmarks.

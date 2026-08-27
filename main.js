@@ -53,10 +53,10 @@ function isButtonAccessible(button) {
 
 /**
  * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement|Document} [container=document] - The container to check for accessibility
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing accessibility check results
  */
-function checkLinkAndButtonAccessibility(container = document) {
+function checkAccessibility(container = document) {
   const results = {
     links: {
       accessible: [],
@@ -112,6 +112,6 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
-  checkLinkAndButtonAccessibility,
+  checkAccessibility,
   renderIndexView,
 };

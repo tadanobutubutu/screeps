@@ -1,11 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
 // REACT_015: Add lang attribute to HTML element
 export const addLangAttribute = (props) => {
   const { children, ...rest } = props;
@@ -69,6 +61,30 @@ export const fixFakeLinkIssue = (linkContent) => {
     <button type="button" onClick={onClick} {...rest}>
       {children}
     </button>
+  );
+};
+
+// Import dependencyGraphContent and indexContent from the appropriate modules
+import { dependencyGraphContent } from './dependencyGraph';
+import { indexContent } from './index';
+
+// Function that renders the dependency graph view
+export const renderDependencyGraph = () => {
+  return (
+    <div className="dependency-graph-view">
+      <h2>Dependency Graph</h2>
+      {dependencyGraphContent}
+    </div>
+  );
+};
+
+// Function that renders the index view
+export const renderIndexView = () => {
+  return (
+    <div className="index-view">
+      <h2>Index</h2>
+      {indexContent}
+    </div>
   );
 };
 

@@ -47,7 +47,8 @@ function announceToScreenReader(message, priority = 'polite') {
 }
 
 // Skip link handler
-function handleSkipLink(targetId) {
+function handleSkipLink(event) {
+  const targetId = event.target.getAttribute('href').substring(1);
   const target = document.getElementById(targetId);
   if (target) {
     target.setAttribute('tabindex', '-1');

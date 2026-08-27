@@ -43,4 +43,15 @@ function addressLinks() {
 // Call the combined function to address different link scenarios
 addressLinks();
 
+// Fix for REACT_015: Ensure the <html> element has a lang attribute
+// for screen reader accessibility (defaults to "en" if missing)
+function ensureHtmlLangAttribute() {
+  if (document.documentElement && !document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+// Apply the fix to address the missing lang attribute
+ensureHtmlLangAttribute();
+
 // ... (existing code)

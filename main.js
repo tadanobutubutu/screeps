@@ -1,4 +1,3 @@
-tsx
 // Assuming the file is located at ...
 
 import React, { useState } from 'react';
@@ -28,9 +27,8 @@ const Dashboard: ... = (props) => {
     setTimeout(() => setRefreshing(false), 2000);
   };
 
-  // Remove the redundant <main> elements and use <section> or <article> for different states
   return (
-    <html lang="en">
+    <main role="main" aria-label="エラーダッシュボード">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -50,6 +48,7 @@ const Dashboard: ... = (props) => {
           </section>
         )}
         <button
+          type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
           onMouseLeave={() => setErrCopyHover(false)}
@@ -75,6 +74,7 @@ const Dashboard: ... = (props) => {
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button
+          type="button"
           onClick={() => fetchStats(true)}
           disabled={refreshing}
           aria-disabled={refreshing}
@@ -94,13 +94,17 @@ const Dashboard: ... = (props) => {
             cursor: refreshing ? 'not-allowed' : 'pointer',
             opacity: refreshing ? 0.6 : 1,
             marginLeft: '0.5rem',
+            transition: 'all 0.2s ease-in-out',
+            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errRetryHover ? 'brightness(1.1)' : 'none',
           }}
         >
           <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
           <span> {refreshing ? '再試行中...' : '再試行'}</span>
         </button>
       </div>
-    </html>
+    </main>
   );
 };
 

@@ -160,9 +160,23 @@ const addMissingLandmarks = function(content) {
     return content;
 };
 
+// ADD A NEW FUNCTION: REACT_015: ADD LANG ATTRIBUTE TO HTML ELEMENT
+const addLangAttribute = function(content) {
+    if (content && typeof content === 'string') {
+        // If <html> tag exists but lacks a lang attribute, add lang="en"
+        if (/<html[^>]*>/i.test(content) && !/<html[^>]*\slang=/i.test(content)) {
+            return content.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
+        }
+    }
+    return content;
+};
+
 // UPDATED: Render functions using imported modules
 const renderPage = function(content) {
     let result = content;
+
+    // Add lang attribute to the HTML element if needed
+    result = addLangAttribute(result);
 
     // Add props to the rendered dependencies graph if needed
     const dependencyGraph = renderGraph(content, addProperLandmarkRegions, addMissingLandmarks);
@@ -198,7 +212,7 @@ const newFunction2 = function() {
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 
-export function accessibilityReport() {
+function accessibilityReport() {
   return {
     issues: [
       {
@@ -251,6 +265,7 @@ module.exports = {
     toggleRotation,
     setupLandmarkRegions,
     getSvgAccessibleName,
+    addLangAttribute,
     newFunction1,
     newFunction2,
     accessibilityReport

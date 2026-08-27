@@ -356,6 +356,29 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+// Create in-page buttons for navigation
+function createInPageButtons() {
+  // Create a container for the buttons
+  const container = document.createElement('div');
+  container.setAttribute('aria-label', 'In-page navigation');
+
+  // Find all elements with an id attribute to use as anchors
+  const anchorElements = document.querySelectorAll('[id]');
+
+  anchorElements.forEach(element => {
+    const id = element.id;
+    const button = document.createElement('button');
+    button.textContent = id;
+    button.addEventListener('click', () => {
+      element.scrollIntoView({ behavior: 'smooth' });
+    });
+    container.appendChild(button);
+  });
+
+  // Append the container to the body
+  document.body.appendChild(container);
+}
+
 module.exports = {
   improveAccessibility,
   addressInsightReportIssues,
@@ -368,5 +391,6 @@ module.exports = {
   checkLandmarkElements,
   setSvgAccessibleNames,
   addSvgAccessibilityProps,
-  checkLinkAccessibility
+  checkLinkAccessibility,
+  createInPageButtons
 };

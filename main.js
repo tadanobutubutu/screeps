@@ -9,7 +9,9 @@ function addressInsightReportIssues(insightReport) {
 
 // New function to address accessibility issues from insight report
 function ensureUniqueLandmarks() {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
+  // Example implementation from origin/main - adapted for Screeps environment
+  // Note: In a Screeps context, we'd need to adapt this to work with game objects
+  // This is a placeholder that would need actual implementation
 }
 
 // New function to add landmark roles and fix issues
@@ -51,11 +53,11 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Existing code that needs to be preserved from previous issue
-// ----- END ORIGINAL CODE (unchanged) -----
-
-// Example logic to ensure unique landmarks (in case there are no custom functions for this purpose)
+// Example logic to ensure unique landmarks (from origin/main)
+// Note: This function uses DOM APIs and may need adaptation for Screeps environment
 function ensureUniqueLandmarksByExample() {
+  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
+  // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
@@ -81,6 +83,7 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarksFromInsightReport,
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
-  // In case the example logic for ensuring unique landmarks is used, export it too
+  ensureUniqueLandmarks,
+  addLandmarkRolesAndFixIssues,
   ensureUniqueLandmarksByExample
 };

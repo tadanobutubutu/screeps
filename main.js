@@ -1,5 +1,8 @@
 // main.js - Accessibility improvements implementation
 
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
   liveRegion: null,
@@ -204,6 +207,12 @@ const a11yStore = {
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
 mainElement.setAttribute('lang', document.documentElement.lang);
+
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.getAttribute('lang')) {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
 mainElement.appendChild(document.body.cloneNode(true));
 document.body.parentNode.insertBefore(mainElement, document.body);
 

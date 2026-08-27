@@ -107,6 +107,7 @@ function checkAccessibility(container = document) {
   return results;
 }
 
+// Add the new renderIndexView function
 /**
  * Renders the index view of the application.
  */

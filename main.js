@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// Existing code in main.js
+// ... (Preserve all existing code, exports, and functions)
 
 const getAccessibleName = (node) => {
   const ariaLabel = node.getAttribute('aria-label');
@@ -104,6 +105,21 @@ const validateLandmark = () => {
   }
 };
 
+// Function to wrap specific content with main element
+function wrapContentWithMain() {
+  const contentToWrap = document.querySelectorAll('div.container, table#table-rotated');
+
+  contentToWrap.forEach((content) => {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(content);
+    content.parentNode.replaceChild(mainElement, content);
+  });
+}
+
+// Call the function to wrap the content with <main>
+wrapContentWithMain();
+
+// ... (Preserve all existing code, exports, and functions)
 module.exports = {
   getAccessibleName,
   setAccessibleName,
@@ -114,5 +130,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  validateLandmark
+  validateLandmark,
+  wrapContentWithMain
 };

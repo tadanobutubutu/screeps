@@ -18,3 +18,13 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Assuming the `useDependencyGraphContent` function is defined elsewhere in the main.js file or imported from another module,
+// and it should be used where necessary to manipulate the dependency graph content.
+
+// Example usage of `useDependencyGraphContent`:
+// useDependencyGraphContent().then(graphContent => {
+//   // Manipulate graphContent as needed
+// });
+
+// ... (other code in main.js)

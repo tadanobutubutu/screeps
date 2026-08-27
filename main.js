@@ -20,6 +20,10 @@ function isLinkAccessible(link) {
  */
 function renderIndexView() {
   // Implement your code here.
+  // Example of creating a button in-page:
+  const button = document.createElement('button');
+  button.textContent = 'Click Me';
+  document.body.appendChild(button);
 }
 
 // Export the new function

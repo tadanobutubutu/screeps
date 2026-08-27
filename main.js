@@ -1,6 +1,3 @@
-// This appears to be a git merge conflict that needs to be resolved.
-// Resolving the conflict by keeping the relevant content and adding the requested updates.
-
 const dependencyGraphContent = require('./content/dependencyGraphContent');
 const indexContent = require('./content/indexContent');
 

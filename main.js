@@ -102,6 +102,78 @@ function addSVGAccessibilityProps() {
   });
 }
 
+// New function to add proper landmark regions to the document
+function addLandmarkRegions() {
+  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+  const existingLandmarks = new Set();
+
+  // Detect existing landmarks to avoid duplicates
+  landmarkElements.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    elements.forEach(element => {
+      if (element.id) {
+        existingLandmarks.add(element.id);
+      }
+    });
+  });
+
+  // Ensure a <main> landmark exists
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    mainElement.id = `auto-generated-main-${Date.now() * 1000}`;
+    const body = document.body;
+    if (body) {
+      // Move all body children that are not landmarks into the new <main>
+      const children = Array.from(body.children);
+      children.forEach(child => {
+        if (!landmarkElements.includes(child.tagName.toLowerCase())) {
+          mainElement.appendChild(child);
+        }
+      });
+      body.appendChild(mainElement);
+    }
+  }
+
+  // Ensure a <nav> landmark exists
+  if (!document.querySelector('nav')) {
+    const navElement = document.createElement('nav');
+    navElement.id = `auto-generated-nav-${Date.now() * 1000}`;
+    navElement.setAttribute('aria-label', 'Main navigation');
+    const body = document.body;
+    if (body) {
+      body.insertBefore(navElement, body.firstChild);
+    }
+  }
+
+  // Ensure a <header> landmark exists
+  if (!document.querySelector('header')) {
+    const headerElement = document.createElement('header');
+    headerElement.id = `auto-generated-header-${Date.now() * 1000}`;
+    const mainElement = document.querySelector('main');
+    if (mainElement && mainElement.parentNode) {
+      mainElement.parentNode.insertBefore(headerElement, mainElement);
+    } else {
+      const body = document.body;
+      if (body) {
+        body.insertBefore(headerElement, body.firstChild);
+      }
+    }
+  }
+
+  // Ensure a <footer> landmark exists
+  if (!document.querySelector('footer')) {
+    const footerElement = document.createElement('footer');
+    footerElement.id = `auto-generated-footer-${Date.now() * 1000}`;
+    const body = document.body;
+    if (body) {
+      body.appendChild(footerElement);
+    }
+  }
+
+  // Ensure uniqueness of all landmark IDs
+  ensureUniqueLandmarks();
+}
+
 // New function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
@@ -147,6 +219,10 @@ function addressAccessibilityIssues(report) {
         // Existing function to handle missing roles
         // ...
         break;
+      case 'missing-landmark-regions':
+        // Add proper landmark regions to the document
+        addLandmarkRegions();
+        break;
       default:
         // Unknown issue type, log for debugging
         console.warn('Unknown accessibility issue type:', issue.type);
@@ -168,5 +244,6 @@ export {
   a11yStore,
   getSvgAccessibleName,
   checkLandmarkElementsAndAddSVGAccessibility,
+  addLandmarkRegions,
   ...
 };

@@ -12,6 +12,26 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
+// TODO: Implement getLangAttribute() and getFullLangAttribute() functions here
+
+// Function to get the lang attribute from HTML element
+function getLangAttribute(document) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang');
+  }
+  return null;
+}
+
+// Function to get the full lang attribute from HTML element
+function getFullLangAttribute(document) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && htmlElement.hasAttribute('lang')) {
+    return htmlElement.getAttribute('lang');
+  }
+  return 'en'; // default value
+}
+
 // Function to fix table structure issues
 function fixTableStructure(document) {
   const tables = document.querySelectorAll('table');
@@ -146,6 +166,8 @@ function addressAccessibilityIssues(document) {
 // Export all functions
 export {
   addLangAttribute,
+  getLangAttribute,
+  getFullLangAttribute,
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,

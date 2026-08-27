@@ -1,6 +1,6 @@
 function generateDependencyGraphData() {
   // Fix: Add lang attribute to HTML element (REACT_015)
-  document.documentElement.setAttribute('lang', 'en');
+  const langAttr = document.documentElement.getAttribute('lang') || 'en';
 
   // Add function to manage landmarks (REACT_017, REACT_025)
   function manageLandmarks() {
@@ -74,7 +74,7 @@ function generateDependencyGraphData() {
 }
 
 // Preserve existing exports in order
-module.exports.generateDependencyGraphData = generateDependencyGraphData;
+module.exports = generateDependencyGraphData;
 
 module.exports.prototype = {
   // ... existing prototype exports ...

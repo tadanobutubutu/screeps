@@ -58,8 +58,7 @@ function addressInsightReportIssues(insightReport) {
       }
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
-        ensureUniqueLandmarks();
+        ensureUniqueLandmarks(element);
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
@@ -73,11 +72,10 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
-function ensureUniqueLandmarks() {
-  // Example logic to ensure unique landmarks
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+function ensureUniqueLandmarks(element) {
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
     const uniqueElements = [];
     elements.forEach(el => {
       const isUnique = !uniqueElements.some(uEl => uEl === el);

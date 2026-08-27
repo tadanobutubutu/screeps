@@ -1,5 +1,3 @@
-// TODO: Add back any required exports that might have been?
-
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
   const buttons = document.querySelectorAll('button');

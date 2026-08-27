@@ -46,7 +46,7 @@ const fixTableStructure = (tables) => {
 };
 
 // New function to add/fix landmark issues
-const addMainLandmark = () {
+const addMainLandmark = () => {
   // ... (Existing code not related to the new function)
 };
 

@@ -1,3 +1,6 @@
+Looking at the conflict, I can see that the HEAD version contains the actual code changes while `origin/main` only has a request to paste the file content. The conflict is likely due to a merge where someone accidentally included that request in the code. I'll resolve this by keeping all the functional code from HEAD and removing the unrelated request from origin/main.
+
+```javascript
 // main.js
 
 // Import required modules
@@ -138,4 +141,5 @@ export {
     toggleRotation,
     setupLandmarkRegions,
     getSvgAccessibleName,
-};
+}
+```

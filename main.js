@@ -5,7 +5,11 @@ function addressAccessibilityIssues() {
   // TODO: Implement the required changes to improve accessibility
 }
 
-// Existimg code and exports here
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// Existing code and exports here
 // ...
 
 module.exports = {

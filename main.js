@@ -9,3 +9,10 @@ const myButton = document.getElementById('actual-button-id');
 if (myButton) {
   myButton.setAttribute('aria-label', 'Click the button');
 }
+
+// ----- BEGIN NEWLY ADDED CODE FOR ACCESSIBILITY ISSUE REACT_015 -----
+// Adding the lang attribute to the root HTML element
+document.documentElement.setAttribute('lang', 'en');
+// ----- END NEWLY ADDED CODE FOR ACCESSIBILITY ISSUE REACT_015 -----
+
+// ----- END OF FILE -----

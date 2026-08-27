@@ -45,7 +45,18 @@ function fixFakeLinks() {
 
 // Implement the new function as per the issue requirements
 function implementNewFunction() {
-  // YOUR IMPLEMENTATION GOES HERE
+  // Wrap primary content in <main> landmark for accessibility
+  // This addresses REACT_017 - Page has no <main> landmark
+  const mainLandmark = document.querySelector('main');
+  if (!mainLandmark) {
+    // If no main element exists, wrap the primary content
+    const primaryContent = document.querySelector('body > :not(header):not(footer):not(nav)');
+    if (primaryContent) {
+      const mainElement = document.createElement('main');
+      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+      mainElement.appendChild(primaryContent);
+    }
+  }
 }
 
 // Add the new function within the module.exports for calling from another file

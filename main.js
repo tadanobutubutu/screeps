@@ -438,8 +438,3 @@ export { mainElement };
 export { addressAccessibilityIssues };
 export { calculateDiscount };
 export default a11yStore;
-
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };

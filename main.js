@@ -249,4 +249,3 @@ export function fixFakeLinkIssue(html) {
     }
     return match.replace(/<a/, '<a href="#"');
   });
-}

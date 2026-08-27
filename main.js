@@ -1,13 +1,13 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
+// @tsx
+// Assuming the file is located at ...
 
 import React, { useState } from 'react';
 
-interface DashboardProps {
+export interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+export const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);

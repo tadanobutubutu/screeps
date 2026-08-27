@@ -7,6 +7,41 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 //
 
+// Table module for handling table structure issues
+const Table = {
+  addCaption: function(table) {
+    if (!table.caption && table.rows?.length > 0) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      return true;
+    }
+    return false;
+  },
+  
+  checkHeaders: function(table) {
+    const cells = table.querySelectorAll('td');
+    cells.forEach(cell => {
+      if (!cell.getAttribute('headers') && !cell.closest('thead')) {
+        cell.setAttribute('headers', 'row-header');
+        return true;
+      }
+    });
+    return false;
+  }
+};
+
+// Export all accessibility functions including the Table module
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  Table
+};
+
 function addLangAttribute(document) {
   const html = document.documentElement;
   if (!html.hasAttribute('lang')) {
@@ -18,13 +53,12 @@ function addLangAttribute(document) {
 function fixTableStructure(table) {
   if (!table) return false;
   
-  let fixed = false;
-  
   // Ensure tables have proper structure
   if (!table.caption && table.rows?.length > 0) {
     const caption = document.createElement('caption');
     caption.textContent = 'Table';
     table.insertBefore(caption, table.firstChild);
+    Table.addCaption(table);
     fixed = true;
   }
   
@@ -34,6 +68,7 @@ function fixTableStructure(table) {
     if (!cell.getAttribute('headers') && !cell.closest('thead')) {
       // Consider adding scope or headers attributes
       fixed = true;
+      Table.checkHeaders(table);
     }
   });
   

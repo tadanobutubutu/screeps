@@ -141,3 +141,8 @@
 
 **Learning:** Static visual shortcut badges (such as `<kbd>` indicators) should not carry `tabIndex={0}` or `cursor: 'help'` when placed directly adjacent to their target interactive elements (e.g. buttons or inputs). Retaining `tabIndex={0}` on non-interactive badges forces users navigating via keyboard (Tab key) through redundant focus stops before reaching the actual actionable control, violating WCAG 2.1.1 (Keyboard Navigation Efficiency).
 **Action:** Always omit `tabIndex={0}` and `cursor: 'help'` from static `<kbd>` shortcut indicators that sit next to interactive controls.
+
+## 2026-08-27 - Explicit Keyboard Shortcut Declaration via aria-keyshortcuts
+
+**Learning:** Declaring `aria-keyshortcuts="Escape"` on interactive search inputs and clear triggers informs assistive technology users of supported keyboard shortcuts for input clearing and focus management (WCAG 2.1.4 / 2.1.1).
+**Action:** Always include `aria-keyshortcuts` attributes on form inputs and control buttons when custom key handlers (such as Escape or Alt-based shortcuts) are configured.

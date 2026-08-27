@@ -1,5 +1,3 @@
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
@@ -145,8 +143,6 @@ function fixFakeLinkIssue() {
   
   return fixedLinks;
 }
-
-// TODO: ADD NEW FUNCTION HERE
 
 /**
  * Sets accessible names for all form elements in the document.

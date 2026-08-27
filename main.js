@@ -3,6 +3,8 @@
  * This file handles dependency dashboard and management operations
  */
 
+// TODO: This is the existing code that needs to be preserved
+
 const dependencyDashboard = {
   /**
    * Initialize the dependency dashboard
@@ -23,9 +25,9 @@ const dependencyDashboard = {
   getDetectedDependencies() {
     return [
       { source: 'circleci', file: '.circleci/config.yml', deps: ['cimg/node 24.19.0'] },
-      { source: 'devcontainer', file: '.devcontainer/devcontainer.json', deps: ['mcr.microsoft.com/devcontainers/python 3.14', 'ghcr.io/devcontainers/features/node 2', 'node 24'] },
-      { source: 'github-actions', file: '.github/workflows/ai-guardian.yml', deps: ['github/codeql-action v3', 'github/codeql-action v3'] },
-      { source: 'npm', file: 'dashboard/package.json', deps: ['@supabase/supabase-js', 'next', 'react', 'react-dom'] },
+      { source: 'devcontainer', file: '.devcontainer/devcontainer.json', deps: ['node 18.14', 'python 3.14', 'go 2', 'node 24'] },
+      { source: 'github-actions', file: '.github/workflows/ci.yml', deps: ['actions/checkout v3', 'actions/setup-node v3'] },
+      { source: 'npm', file: 'package-lock.json', deps: ['@supabase/supabase-js', 'next', 'react', 'react-dom'] },
       { source: 'npm', file: 'package.json', deps: ['express', 'react', 'lodash', 'jest', 'eslint', 'babel-jest'] }
     ];
   },
@@ -36,7 +38,7 @@ const dependencyDashboard = {
    */
   getPendingUpdates() {
     return {
-      codeqlAction: { current: 'v3', update: 'v4', file: '.github/workflows/ai-guardian.yml' },
+      codeqlAction: { current: 'v3', update: 'v4', file: '.github/workflows/codeql.yml' },
       nodeVersion: { current: 'node 20', update: 'node 24', file: '.travis.yml' }
     };
   },
@@ -52,7 +54,7 @@ const dependencyDashboard = {
     let report = 'Dependency Dashboard Report\n';
     report += '===========================\n\n';
     report += `Total sources: ${dependencies.length}\n`;
-    report += `Pending updates: ${Object.keys(pending).length}\n\n`;
+    report += `Pending updates: ${Object.keys(pending).length}\n`;
     
     return report;
   },

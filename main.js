@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -103,7 +107,7 @@ export const ensureUniqueLandmarks = (containerElement) => {
 
 export const addSvgAccessibleNames = (svgElements) => {
   if (!svgElements || !Array.isArray(svgElements)) {
-    svgElements = document.querySelectorAll('svg');
+    svgElements = Array.from(document.querySelectorAll('svg'));
   }
   
   svgElements.forEach((svg, index) => {
@@ -152,7 +156,8 @@ export const fixFakeLinkIssue = (containerElement) => {
       }
       
       // Add keyboard event handlers if missing
-      if (!fakeLink.hasAttribute('onkeydown')) {
+      if (!fakeLink.hasAttribute('data-keydown-added')) {
+        fakeLink.setAttribute('data-keydown-added', 'true');
         fakeLink.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();

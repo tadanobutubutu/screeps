@@ -10,7 +10,7 @@ const getAccessibleName = (element) => {
   if (ariaLabel) {
     return ariaLabel;
   }
-  
+
   // Check aria-labelledby
   const ariaLabelledby = element.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
@@ -19,20 +19,20 @@ const getAccessibleName = (element) => {
       return labelElement.textContent;
     }
   }
-  
+
   // Check for inner text or aria-text
   const innerText = element.textContent;
   if (innerText && innerText.trim()) {
     return innerText.trim();
   }
-  
+
   return null;
 };
 
 // Existing function to set accessible name
 const setAccessibleName = (element, name) => {
   if (!element) return;
-  
+
   // Set aria-label
   element.setAttribute('aria-label', name);
 };
@@ -48,7 +48,7 @@ const wrapPrimaryContentInMain = () => {
     '#content',
     '.main-content'
   ];
-  
+
   for (const selector of contentSelectors) {
     const element = document.querySelector(selector);
     if (element && !element.closest('main')) {
@@ -135,6 +135,7 @@ const fixFakeLinkIssue = () => {
 };
 
 // New function to validate the landmarks
+// (Modified to properly export and to include the validateLandmark function)
 const validateLandmark = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const missingLandmarks = landmarks.filter(landmark => {
@@ -142,10 +143,22 @@ const validateLandmark = () => {
     return elements.length === 0;
   });
 
-  if (missingLandmarks.length > 0) {
-    throw new Error(`Missing landmarks: ${missingLandmarks.join(', ')}`);
-  }
+  return {
+    missingLandmarks,
+    validate: () => {
+      if (missingLandmarks.length > 0) {
+        throw new Error(`Missing landmarks: ${missingLandmarks.join(', ')}`);
+      }
+    }
+  };
 };
+
+// Implemented wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(element) {
+  const main = document.createElement('main');
+  main.appendChild(element);
+  return main;
+}
 
 module.exports = {
   getAccessibleName,
@@ -157,5 +170,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  validateLandmark,
+  validateLandmark // This line has been added and modified based on the new function
 };

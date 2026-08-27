@@ -269,7 +269,7 @@ export {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse,
+  handleCredentialResponse, // Assuming handleCredentialResponse is a typo and should be fixButtonIdentifiers
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   renderDependencyGraphs,

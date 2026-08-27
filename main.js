@@ -52,6 +52,9 @@ function addRoleAndLabelToCheckbox(filePath) {
 
 // New function to address accessibility issues
 function addressAccessibilityIssues(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
   // Example of a simple check for empty `alt` attribute in images
   const images = content.match(/<img [^>]*>/g);
   if (images) {

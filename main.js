@@ -2,10 +2,68 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
+// Existing function to get accessible name
+const getAccessibleName = (element) => {
+  // Check aria-label first
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check aria-labelledby
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) {
+      return labelElement.textContent;
+    }
+  }
+  
+  // Check for inner text or aria-text
+  const innerText = element.textContent;
+  if (innerText && innerText.trim()) {
+    return innerText.trim();
+  }
+  
+  return null;
+};
+
+// Existing function to set accessible name
+const setAccessibleName = (element, name) => {
+  if (!element) return;
+  
+  // Set aria-label
+  element.setAttribute('aria-label', name);
+};
+
+// Existing function to wrap primary content in main landmark
+const wrapPrimaryContentInMain = () => {
+  // Find primary content elements
+  const contentSelectors = [
+    'article',
+    'main',
+    '[role="main"]',
+    '.content',
+    '#content',
+    '.main-content'
+  ];
+  
+  for (const selector of contentSelectors) {
+    const element = document.querySelector(selector);
+    if (element && !element.closest('main')) {
+      const mainElement = document.createElement('main');
+      element.parentNode.insertBefore(mainElement, element);
+      mainElement.appendChild(element);
+    }
+  }
+};
+
 // New function to add lang attribute to the HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  htmlElement.setAttribute('lang', 'en');
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 };
 
 // New function to fix table structure issues
@@ -43,8 +101,9 @@ const ensureUniqueLandmarks = () => {
     let count = 0;
     existingElements.forEach(element => {
       if (!element.id) {
-        element.setAttribute('id', `${landmark}-${++count}`);
+        element.setAttribute('id', `${landmark}-${count}`);
       }
+      count++;
     });
   });
 };
@@ -53,7 +112,9 @@ const ensureUniqueLandmarks = () => {
 const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    const role = svg.getAttribute('role');
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (!ariaLabel) {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', `SVG Icon ${index + 1}`);
     }
@@ -96,5 +157,4 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   validateLandmark,
-  addLangAttribute, // ADD THIS LINE FOR THE REQUESTED CHANGE
 };

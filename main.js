@@ -47,7 +47,7 @@ export default function StatsPage() {
   return (
     <main>
       {loading && !refreshing && (
-        <div className="loading-container">
+        <div ...
           <p>Loading stats...</p>
         </div>
       )}
@@ -71,9 +71,9 @@ export default function StatsPage() {
           <button
             onClick={copyErr}
             onMouseEnter={() => setErrCopyHover(true)}
-            onMouseLeave={() => setErrCopyHover(false)}
+            onMouseLeave={() => ...
             onFocus={() => setErrCopyHover(true)}
-            onBlur={() => setErrCopyHover(false)}
+            onBlur={() => ...
             aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
             title={copied ? 'コピー済み' : 'エラーをコピー'}
             style={{
@@ -117,15 +117,15 @@ export default function StatsPage() {
           <div className="stats-grid">
             <div className="stat-card">
               <h3>Total Users</h3>
-              <p className="stat-value">{stats.totalUsers}</p>
+              <p ...
             </div>
             <div className="stat-card">
               <h3>Active Sessions</h3>
-              <p className="stat-value">{stats.activeSessions}</p>
+              <p ...
             </div>
             <div className="stat-card">
               <h3>Page Views</h3>
-              <p className="stat-value">{stats.pageViews.toLocaleString()}</p>
+              <p ...
             </div>
           </div>
           <button

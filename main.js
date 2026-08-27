@@ -1,9 +1,12 @@
 // Address accessibility issues from insight report
 
+// TODO: Import required module(s) - for fixing table structure issues
+import { formatTable, sortTable } from './table-utils.js';
+
 // Focus trap for modals/dialogs
 function trapFocus(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
   const firstFocusable = focusableElements[0];
   const lastFocusable = focusableElements[focusableElements.length - 1];
@@ -47,8 +50,9 @@ function announceToScreenReader(message, priority = 'polite') {
 }
 
 // Skip link handler
-function handleSkipLink(targetId) {
-  const target = document.getElementById(targetId);
+function handleSkipLink(event) {
+  const targetId = event.target.getAttribute('href');
+  const target = document.querySelector(targetId.substring(targetId.indexOf('#')));
   if (target) {
     target.setAttribute('tabindex', '-1');
     target.focus();

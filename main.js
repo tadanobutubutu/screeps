@@ -166,6 +166,33 @@ function ensureDependencyGraphAccessibility() {
   }
 }
 
+function checkTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.hasAttribute('role') || table.getAttribute('role') !== 'table') {
+      table.setAttribute('role', 'table');
+    }
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      if (!row.hasAttribute('role') || row.getAttribute('role') !== 'row') {
+        row.setAttribute('role', 'row');
+      }
+    });
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
+        header.setAttribute('role', 'columnheader');
+      }
+    });
+    const dataCells = table.querySelectorAll('td');
+    dataCells.forEach(cell => {
+      if (!cell.hasAttribute('role') || cell.getAttribute('role') !== 'cell') {
+        cell.setAttribute('role', 'cell');
+      }
+    });
+  });
+}
+
 module.exports = {
   improveAccessibility,
   addressInsightReportIssues,
@@ -173,5 +200,6 @@ module.exports = {
   renderIndexView,
   calculateSum,
   ensureUniqueLandmarksFromInsightReport,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  checkTableStructure
 };

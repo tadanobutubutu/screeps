@@ -32,6 +32,8 @@ function generateDependencyGraphData() {
     // New Function
     function newFunction() {
       // Your new function implementation goes here
+      // Example: Log a message to the console
+      console.log('New function has been called.');
     }
 
     // Call the new function

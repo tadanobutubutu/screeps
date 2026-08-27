@@ -1,7 +1,3 @@
-Looking at this conflict, I can see that the HEAD version contains a request for help rather than actual code, while origin/main contains substantial new functionality. The logical resolution is to keep the origin/main version since it contains the actual implementation.
-
-Here's the resolved file:
-
 import { getLandmarks } from './api';
 import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils'; // Importing the existing functions without renaming
 

@@ -24,8 +24,8 @@ function toggleRotation() {
     img.style.transform = `rotate(${rotation}deg)`;
 }
 
-// New function: setupLandmarkRegions
-function setupLandmarkRegions() {
+// New function: createLandmarkRegions
+function createLandmarkRegions() {
     const header = document.createElement('header');
     header.setAttribute('role', 'banner');
     header.setAttribute('aria-label', 'Site header');
@@ -68,13 +68,13 @@ function getSvgAccessibleName(svgElement) {
         return desc.textContent.trim();
     }
     if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label').trim();
+        return svgElement.getAttribute('aria-label');
     }
     return '';
 }
 
 // New event listener for the toggle rotation functionality
-document.querySelector('.toggle-rotation-btn').addEventListener('click', toggleRotation);
+document.addEventListener('keydown', toggleRotation);
 
 // Add accessible names to SVGs (REACT_041)
 const addSvgAccessibleNames = function(svgs) {
@@ -108,7 +108,7 @@ const addProperLandmarkRegions = function(content) {
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/gi.test(result)) {
-            result = result.replace(/<\/body>/i, '<footer></footer></body>');
+            result = result.replace('</body>', '<footer></footer></body>');
         }
 
         return result;
@@ -144,7 +144,7 @@ const addMissingLandmarks = function(content) {
 
         // Add contentinfo landmark (footer) if not present
         if (!/<footer/gi.test(result)) {
-            result = result.replace(/<\/body>/i, '<footer></footer></body>');
+            result = result.replace('</body>', '<footer></footer></body>');
         }
 
         return result;
@@ -196,7 +196,7 @@ module.exports = {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     toggleRotation,
-    setupLandmarkRegions,
+    createLandmarkRegions,
     getSvgAccessibleName,
     newFunction1,
     newFunction2

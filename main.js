@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
@@ -100,11 +99,57 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   ensureUniqueLandmarks();
 }
 
+// Function for adding proper landmark regions to the main content areas
+function addLandmarkRegions() {
+  // Define the standard landmark roles that should be present
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
+  // Map of semantic HTML elements to their corresponding ARIA landmark roles
+  const semanticToLandmark = {
+    'main': 'main',
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  // Ensure proper landmark roles are present on semantic elements
+  landmarkRoles.forEach(role => {
+    const semanticTag = Object.keys(semanticToLandmark).find(
+      key => semanticToLandmark[key] === role
+    );
+    if (semanticTag) {
+      const elements = document.querySelectorAll(semanticTag);
+      elements.forEach(el => {
+        if (!el.getAttribute('role')) {
+          el.setAttribute('role', role);
+        }
+      });
+    }
+  });
+
+  // Add role="region" to sections that have an accessible name (aria-label or aria-labelledby)
+  const sections = document.querySelectorAll('section');
+  sections.forEach(section => {
+    if (!section.getAttribute('role')) {
+      const hasAccessibleName =
+        section.hasAttribute('aria-label') ||
+        section.hasAttribute('aria-labelledby');
+      if (hasAccessibleName) {
+        section.setAttribute('role', 'region');
+      }
+    }
+  });
+}
+
 module.exports = {
   improveAccessibility,
   addressInsightReportIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport
+  ensureUniqueLandmarksFromInsightReport,
+  addLandmarkRegions
 };

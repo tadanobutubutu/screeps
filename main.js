@@ -47,14 +47,14 @@ function validateReactLandmarks(htmlContent) {
  * @param {array} files - Array of objects with 'path' and 'content' properties
  * @returns {array} - Array of validation results
  */
-function checkAllFilesForLandmarks(files) {
+function checkFilesForLandmarks(files) {
     if (!Array.isArray(files)) {
         return [];
     }
     
     return files.map(file => ({
         file: file.path,
-        ...validateReactLandmarks(file.content || file.html || '')
+        ...validateReactLandmarks(file.html || file.content || '')
     }));
 }
 
@@ -160,6 +160,15 @@ function addressAccessibilityIssues(issues, options = {}) {
             value: issue.suggestedAria || null,
           };
           break;
+        case 'react-fake-link':
+        case 'fake-link':
+        case 'hash-link':
+          fix = {
+            action: 'convert-to-button',
+            target: issue.selector || issue.element,
+            value: 'Use <button> for in-page actions so keyboard and screen reader behaviour is right',
+          };
+          break;
         default:
           fix = {
             action: 'manual-review',
@@ -189,7 +198,7 @@ function addressAccessibilityIssues(issues, options = {}) {
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substring(2, 11)}`;
   }
   return element.id;
 }
@@ -204,7 +213,7 @@ function addAriaLabel(element, labelText) {
 module.exports = {
     hasMainLandmark,
     validateReactLandmarks,
-    checkAllFilesForLandmarks,
+    checkFilesForLandmarks,
     addressAccessibilityIssues,
     ensureElementHasId,
     addAriaLabel

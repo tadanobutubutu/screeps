@@ -1,20 +1,9 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+tsx
+// ... (other code)
 
-// ... (other code in main.js)
+// Assuming the icons are defined here
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+};
 
-// Before:
-// <a id="unrotate" href="#">rotate back</a>
-
-// After:
-// Replace the <a> tag with a <button> element
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
-
-// ... (other code in main.js)
-
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-function rotateBack() {
-  // Your code to rotate back
-}
-
-// ... (other code in main.js)
+// ... (other code)

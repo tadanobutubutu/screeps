@@ -6,7 +6,7 @@
 // Standalone function to get the accessible name of an SVG element
 // Uses aria-labelledby first, then falls back to the <title> child element
 function getSvgAccessibleName(svg) {
-  if (!svg || !(svg instanceof SVGElement) && svg.tagName !== 'svg') {
+  if (!svg || !(svg instanceof SVGElement) || svg.tagName !== 'svg') {
     return '';
   }
 

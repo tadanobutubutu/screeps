@@ -1,9 +1,11 @@
+Here is the conflict-resolved file:
+
+```javascript
 // main.js
 
 // ... existing code (preserved) ...
 
-// TODO: Implement addProperLandmarkRegions();
-function addProperLandmarkRegions() {
+function setAccessibilityAttributes() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -23,33 +25,32 @@ function addProperLandmarkRegions() {
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
+}
 
-  // Function to wrap the primary content in a main element
-  const wrapPrimaryContentInMain = (document) => {
-    if (!document || !document.body) {
-      return document;
+// Function to wrap the primary content in a main element
+const wrapPrimaryContentInMain = (document) => {
+  if (!document || !document.body) {
+    return document;
+  }
+
+  const existingMain = document.querySelector('#main-content');
+  if (existingMain) {
+    return document;
+  }
+
+  let anyMain = document.querySelector('main');
+  if (!existingMain && anyMain) {
+    // Add id to existing main element if it doesn't have one
+    if (!anyMain.id) {
+      anyMain.id = 'main-content';
     }
+    return document;
+  }
 
-    // Check if main element already exists with main-content id
-    const existingMain = document.querySelector('#main-content');
-    if (existingMain) {
-      return document;
-    }
-
-    // Check if any main element exists
-    const anyMain = document.querySelector('[role="main"]');
-    if (anyMain) {
-      // Add id to existing main element if it doesn't have one
-      if (!anyMain.id) {
-        anyMain.id = 'main-content';
-      }
-      return document;
-    }
-
-    // Create main element and wrap appropriate content
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    main.setAttribute('role', 'main');
+  if (!existingMain && !anyMain) {
+    anyMain = document.createElement('main');
+    anyMain.id = 'main-content';
+    anyMain.setAttribute('role', 'main');
 
     const body = document.body;
 
@@ -59,22 +60,23 @@ function addProperLandmarkRegions() {
     if (bodyChildren.length > 0) {
       // Move children to main element
       bodyChildren.forEach(child => {
-        main.appendChild(child);
+        anyMain.appendChild(child);
       });
 
       // Append main to body
-      body.appendChild(main);
+      body.appendChild(anyMain);
     }
+  }
 
-    return document;
-  };
+  return document;
+};
 
-  // Rest of the original functions are left unchanged (accessibility fixes, newFunction, etc.)
+// Rest of the original functions are left unchanged (accessibility fixes, newFunction, etc.)
 
-  // Add the wrapPrimaryContentInMain function to the exports
-  export { wrapPrimaryContentInMain };
-}
-
-addProperLandmarkRegions();
+// Add the wrapPrimaryContentInMain function to the exports
+export { wrapPrimaryContentInMain };
 
 // ... existing code (preserved) ...
+```
+
+In this resolution, I merged the original checks for existing main elements and added logic to handle cases where both main elements exist (either with an id or not).

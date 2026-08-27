@@ -71,9 +71,18 @@ function setAccessibilityRole() {
   // If the dependencyGraph div doesn't have an ARIA role, add 'tree' role for proper accessibility.
   const dependencyGraph = document.getElementById('dependencyGraph');
 
-  if (!dependencyGraph.hasAttribute('role')) {
+  if (dependencyGraph && !dependencyGraph.hasAttribute('role')) {
     dependencyGraph.setAttribute('role', 'tree');
   }
+}
+
+// Ensure the dependencyGraph container has a proper ARIA role
+
+// Assuming dependencyGraph is a container element
+const dependencyGraph = document.getElementById('dependencyGraph');
+if (dependencyGraph) {
+  dependencyGraph.setAttribute('role', 'img');
+  dependencyGraph.setAttribute('aria-label', 'Dependency graph showing project dependencies');
 }
 
 // Export all functions for use in other modules
@@ -84,6 +93,7 @@ module.exports = {
   setAccessibilityRole,
   renderGraphContent, // original export preserves for calling from another file
   getLangAttribute,
+  createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,

@@ -24,6 +24,52 @@ function getSvgAccessibleName(svgElement) {
   return accessibleName;
 }
 
+/**
+ * Adds proper landmark regions to the document for accessibility
+ * @param { Document } doc - The document object to add landmark regions to
+ * @returns { Object } An object containing references to the created landmark regions
+ */
+function addProperLandmarkRegions(doc) {
+  const landmarks = {};
+  
+  // Create main landmark
+  const main = doc.createElement('main');
+  main.setAttribute('role', 'main');
+  main.id = 'main-content';
+  landmarks.main = main;
+  
+  // Create navigation landmark
+  const nav = doc.createElement('nav');
+  nav.setAttribute('aria-label', 'Main navigation');
+  nav.id = 'main-nav';
+  landmarks.nav = nav;
+  
+  // Create header/banner landmark
+  const header = doc.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.id = 'site-header';
+  landmarks.header = header;
+  
+  // Create footer/contentinfo landmark
+  const footer = doc.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+  footer.id = 'site-footer';
+  landmarks.footer = footer;
+  
+  // Create search landmark
+  const search = doc.createElement('div');
+  search.setAttribute('role', 'search');
+  search.id = 'search-region';
+  landmarks.search = search;
+  
+  // Create complementary landmark for sidebars
+  const aside = doc.createElement('aside');
+  aside.id = 'sidebar';
+  landmarks.aside = aside;
+  
+  return landmarks;
+}
+
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');

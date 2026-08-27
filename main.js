@@ -5,7 +5,7 @@
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
     return;
   }
   

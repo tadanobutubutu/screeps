@@ -1,84 +1,106 @@
-// Main.js - Application Entry Point
+// Assuming the file is located at ...
 
-const express = require('express');
-const app = express();
-const port = process.env.PORT || 3000;
+import React, { useState } from 'react';
 
-// Sample function that should be preserved
-function getWelcomeMessage() {
-    return 'Welcome to the application';
+interface DashboardProps {
+  // Define any props the Dashboard component might receive
 }
 
-// Add lang attribute to HTML element
-app.use((req, res, next) => {
-    res.setHeader('Content-Language', 'en');
-});
+const Dashboard: React.FC<DashboardProps> = (props) => {
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
+  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
-// Fix table structure issues
-function fixTableStructure() {
-    // Assuming a simple example where the tables have incorrect ids or classes
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table, index) => {
-        table.setAttribute('id', `table-${index}`);
-        table.classList.remove('incorrect-class');
-        table.classList.add('correct-class');
-    });
-}
+  const copyErr = () => {
+    // Implement the copy error logic
+    setCopied(true);
+    // Reset copied state after some time
+    setTimeout(() => setCopied(false), 3000);
+  };
 
-// Add/fix landmark issues
-function addMainLandmark() {
-    // Assuming we need to add a landmark for the main content area
-    const mainContent = document.querySelector('main');
-    if (!mainContent) {
-        const mainElement = document.createElement('main');
-        mainContent = document.body.appendChild(mainElement);
-    }
-    mainContent.setAttribute('role', 'main');
-}
+  const fetchStats = (shouldRetry: boolean) => {
+    // Implement the fetch stats logic
+    setRefreshing(true);
+    // Reset refreshing state after some time
+    setTimeout(() => setRefreshing(false), 2000);
+  };
 
-// Ensure unique landmarks
-function ensureUniqueLandmarks() {
-    // Assuming there are elements with 'role' attributes that need to be unique
-    const landmarks = document.querySelectorAll('[role]');
-    landmarks.forEach((landmark) => {
-        let uniqueId = `landmark-${landmark.getAttribute('role').toLowerCase().replace(/\s+/g, '-')}`;
-        landmark.setAttribute('id', uniqueId);
-        // Assuming the element is not already assigned a unique ID
-        if (!landmark.id) {
-            landmark.id = uniqueId;
-        }
-    });
-}
+  // Remove the redundant <main> elements and use <section> or <article> for different states
+  return (
+    <html lang="en">
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        {error && (
+          <section
+            role="alert"
+            aria-label="エラーメッセージ詳細"
+            aria-live="polite"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </section>
+        )}
+        <button
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          aria-pressed={copied}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
+        </button>
+        <button
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          aria-disabled={refreshing}
+          aria-busy={refreshing}
+          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
+          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          onFocus={() => setErrRetryHover(true)}
+          onBlur={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: refreshing ? '#999' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+            marginLeft: '0.5rem',
+          }}
+        >
+          <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
+          <span> {refreshing ? '再試行中...' : '再試行'}</span>
+        </button>
+      </div>
+    </html>
+  );
+};
 
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg) => {
-        // Assuming SVGs need to have 'aria-label' attributes
-        if (!svg.hasAttribute('aria-label')) {
-            svg.setAttribute('aria-label', 'Descriptive label for SVG');
-        }
-    });
-}
-
-// Fix 1 fake link issue
-function fixFakeLinkIssue() {
-    // Assuming there are elements with 'href' that point to non-existent resources
-    const links = document.querySelectorAll('a[href]');
-    links.forEach((link) => {
-        if (!link.getAttribute('href').startsWith('http')) {
-            // Add some logic to handle or log the issue, e.g.:
-            console.warn('Fake link detected:', link.getAttribute('href'));
-        }
-    });
-}
-
-// Export the app for testing
-module.exports = app;
-
-// Start server if run directly
-if (require.main === module) {
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
-}
+export default Dashboard;

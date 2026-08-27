@@ -15,18 +15,18 @@ import React from 'react';
 // Example component that renders the primary content
 const PrimaryContent = () => {
   return (
-    <div className="primary-content">
+    <div ...
       {/* Your primary content goes here */}
       <h1>Example Title</h1>
       <p>Example paragraph of primary content...</p>
 
       {/* Adding an ARIA Landmark to the primary content for better accessibility */}
-      <div aria-labelledby="primaryContentTitle" role="region">
+      <div ... role="region">
         {/* Render other accessibility-related components as needed */}
       </div>
 
       {/* Create an ID for the main title to be used as an `aria-labelledby` reference */}
-      <h1 id="primaryContentTitle">Example Title</h1>
+      <h1 ... Title</h1>
     </div>
   );
 };
@@ -46,3 +46,4 @@ const MainComponent = () => {
 // TO ADD: Add proper ARIA attributes as needed for additional components or elements (e.g., buttons, forms, etc.)
 
 export default MainComponent;
+export { PrimaryContent };

@@ -2,11 +2,11 @@
 
 // Add the new code to fix the React Table Structure issue
 var updatedDependencyGraphHtml = `
-// Existing HTML content from docs/dependency-graph.html
+// Existing HTML content from ...
 
 <thead>
   <tr>
-    <th scope="col"><div>src/constants.js</div></th>
+    <th ...
     <!-- Other cells with scope attribute -->
   </tr>
   <!-- Other rows with scope attribute -->
@@ -64,7 +64,7 @@ function validateReactLandmarks(htmlContent) {
  * @param {array} files - Array of objects with 'path' and 'content' properties
  * @returns {array} - Array of validation results
  */
-function checkAllFilesForLandmarks(files) {
+function checkMultipleFilesForLandmarkIssues(files) {
     if (!Array.isArray(files)) {
         return [];
     }
@@ -206,7 +206,7 @@ function addressAccessibilityIssues(issues, options = {}) {
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'element-' + Math.random().toString(36).substring(2, 11);
   }
   return element.id;
 }
@@ -242,7 +242,7 @@ module.exports = {
     dependencyGraphHtml: updatedDependencyGraphHtml,
     hasMainLandmark,
     validateReactLandmarks,
-    checkAllFilesForLandmarks,
+    checkMultipleFilesForLandmarkIssues,
     addressAccessibilityIssues,
     ensureElementHasId,
     addAriaLabel,

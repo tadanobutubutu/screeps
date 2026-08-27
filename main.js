@@ -83,9 +83,25 @@ export function initSkipLinks() {
     }
 }
 
+// Set document language for screen readers
+export function setDocumentLanguage(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
+// Get current document language
+export function getDocumentLanguage() {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        return document.documentElement.getAttribute('lang') || '';
+    }
+    return '';
+}
+
 // Initialize accessibility features
 export function initAccessibility() {
     initSkipLinks();
+    setDocumentLanguage('en');
     document.body.classList.add('accessibility-ready');
 }
 

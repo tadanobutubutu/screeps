@@ -149,6 +149,12 @@ const a11yStore = {
   // Utility: Check if user prefers high contrast
   prefersHighContrast() {
     return window.matchMedia('(prefers-contrast: more)').matches;
+  },
+
+  // New function to handle dynamic content updates
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) this.createLiveRegion();
+    this.announce(message, priority);
   }
 };
 

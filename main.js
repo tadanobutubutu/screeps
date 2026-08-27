@@ -9,6 +9,14 @@ function renderDependencyGraphContent(data) {
   document.getElementById('dependencyGraph').innerHTML = data;
 }
 
+// Ensure document language is set for accessibility
+function ensureDocumentLanguage() {
+  // Set the language attribute on the html element for screen readers
+  if (document.documentElement && !document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
@@ -26,5 +34,6 @@ module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
-  renderGraphContent // original export preserves for calling from another file
+  renderGraphContent, // original export preserves for calling from another file
+  ensureDocumentLanguage // export the new function for accessibility fix
 };

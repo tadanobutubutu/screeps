@@ -395,6 +395,19 @@ function fixTableStructure() {
   return results;
 }
 
+/**
+ * Adds scope attribute to all <th> elements that lack it.
+ * This addresses REACT_027: Table structure accessibility.
+ */
+function addScopeToTableHeaders() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
 // New function to validate and fix fake link issues (REACT_036)
 function fixFakeLinkIssue() {
   const potentialFakeLinks = document.querySelectorAll('[role="link"], [onclick], [style*="cursor: pointer"]');
@@ -502,3 +515,4 @@ module.exports.addLangAttribute = addLangAttribute;
 module.exports.addMainLandmark = addMainLandmark;
 module.exports.fixTableStructure = fixTableStructure;
 module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+module.exports.addScopeToTableHeaders = addScopeToTableHeaders;

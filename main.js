@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code
+
+function someExistingFunction() {
+  // Existing function implementation
+}
+
+module.exports = {
+  // Existing exports
+};
+
+// New functions implementation
+function getLangAttribute(el) {
+  return el.getAttribute('lang');
+}
+
+function getFullLangAttribute(el) {
+  return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
+}
+
+// Existing code

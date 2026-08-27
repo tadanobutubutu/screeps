@@ -42,7 +42,7 @@ function wrapPrimaryContentInMain(doc) {
   main.className = 'main';
   main.setAttribute('role', 'main');
   
-  if (primaryContent.parentNode) {
+  if ([PERSON_NAME]) {
     primaryContent.parentNode.insertBefore(main, primaryContent);
     main.appendChild(primaryContent);
   }
@@ -83,6 +83,15 @@ function replaceMyButtonId(doc) {
     button.id = button.id || `button-${index}`;
   });
 }
+
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and [PERSON_NAME]())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+/// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and [PERSON_NAME]())
 
 /**
  * Get the lang attribute from the document

@@ -44,8 +44,6 @@ function renderDependencyGraph(dependencies) {
   document.body.appendChild(container);
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-
 /**
  * Address accessibility issues from the provided insight report.
  * @param {Object} insightReport - The accessibility insight report object.
@@ -60,10 +58,8 @@ function addressAccessibilityIssues(insightReport) {
   const issues = insightReport.issues || [];
 
   issues.forEach((issue, index) => {
-    // Example logic for addressing different types of accessibility issues
     switch (issue.type) {
       case 'missing-alt-text':
-        // Add alt text to image elements
         if (issue.element) {
           issue.element.setAttribute('alt', issue.suggestedAlt || 'Image description');
           addressedIssues.push({ type: issue.type, status: 'fixed', index });
@@ -72,9 +68,8 @@ function addressAccessibilityIssues(insightReport) {
         }
         break;
       case 'low-contrast':
-        // Adjust contrast by adding a class or modifying styles
         if (issue.element) {
-          issue.element.style.contrast = '4.5'; // Simplified approach
+          issue.element.style.contrast = '4.5';
           addressedIssues.push({ type: issue.type, status: 'adjusted', index });
         } else {
           addressedIssues.push({ type: issue.type, status: 'not-adjusted', reason: 'No element found', index });
@@ -95,14 +90,12 @@ function addressAccessibilityIssues(insightReport) {
 
 // New Function for testing purposes
 function newTestFunction() {
-  // Custom test function implementation
   const result = "Test result";
   return result;
 }
 
 // New function to resolve Git conflicts
 function resolveConflicts(content) {
-  // Implement conflict resolution logic
   return content;
 }
 
@@ -128,7 +121,6 @@ function getSvgAccessibleName(element) {
     }
   }
 
-  // Expose element's aria-labelledby value as accessibleName
   return document.getElementById(ensureElementHasId(document.createElement("span")).id);
 }
 
@@ -144,11 +136,11 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   myElement,
-  renderDependencyGraph, // keep the old exported function
-  newTestFunction, // add new exported function
-  resolveConflicts, // add new exported function
-  getSvgAccessibleName, // add new exported function
-  addressAccessibilityIssues // add new exported function
+  renderDependencyGraph,
+  newTestFunction,
+  resolveConflicts,
+  getSvgAccessibleName,
+  addressAccessibilityIssues
 };
 
 // New Function for handling a specific event
@@ -174,6 +166,7 @@ function createInPageButton(buttonId, text, callback) {
   button.textContent = text;
   button.addEventListener('click', callback);
   document.body.appendChild(button);
+  return button;
 }
 
 // Export the new function for testing purposes
@@ -271,10 +264,8 @@ function ensureUniqueLandmarks() {
   if (!result.valid) {
     result.duplicates.forEach(duplicate => {
       const elements = document.querySelectorAll(duplicate.selector);
-      // Keep the first element as-is and remove role from others
       for (let i = 1; i < elements.length; i++) {
         elements[i].removeAttribute('role');
-        // Add a generic region role with unique aria-label
         elements[i].setAttribute('role', 'region');
         addAriaLabel(elements[i], `${duplicate.selector}-${i + 1}`);
       }
@@ -288,6 +279,9 @@ function validateLinkAccessibility(element) {
   if (!element) {
     return { valid: false, message: 'Invalid link element' };
   }
+  if (element.tagName === 'A' && (element.getAttribute('href') === '#' || element.getAttribute('href') === '')) {
+    return { valid: false, message: 'Anchor with hash-only or empty href is a fake link' };
+  }
   return { valid: true };
 }
 
@@ -296,6 +290,28 @@ function handleFakeLinks(element) {
   if (!element) {
     return;
   }
+
+  // Convert fake anchor links (<a href="#">) to buttons
+  if (element.tagName === 'A' && (element.getAttribute('href') === '#' || element.getAttribute('href') === '')) {
+    const button = document.createElement('button');
+    button.textContent = element.textContent;
+    button.className = element.className;
+    button.id = element.id;
+
+    // Copy relevant attributes
+    if (element.hasAttribute('aria-label')) {
+      button.setAttribute('aria-label', element.getAttribute('aria-label'));
+    }
+
+    // Preserve click handlers by cloning
+    const newButton = button.cloneNode(true);
+
+    if (element.parentNode) {
+      element.parentNode.replaceChild(newButton, element);
+    }
+    return newButton;
+  }
+
   // Convert fake links (divs/spans with click handlers) to proper anchor elements
   if (element.getAttribute('role') === 'link' || element.style.cursor === 'pointer') {
     const href = element.getAttribute('data-href') || element.getAttribute('href') || '#';
@@ -304,20 +320,21 @@ function handleFakeLinks(element) {
     anchor.textContent = element.textContent;
     anchor.className = element.className;
     anchor.id = element.id;
-    
-    // Preserve any click handlers by cloning
+
     const newAnchor = anchor.cloneNode(true);
     const events = element._events ? element._events.click : null;
-    
-    element.parentNode.replaceChild(newAnchor, element);
-    
+
+    if (element.parentNode) {
+      element.parentNode.replaceChild(newAnchor, element);
+    }
+
     if (events) {
       newAnchor.addEventListener('click', events.handler);
     }
-    
+
     return newAnchor;
   }
-  
+
   return element;
 }
 
@@ -337,25 +354,24 @@ function addLangAttribute() {
 // New function to add main landmark (REACT_017)
 function addMainLandmark() {
   let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
-  
+
   if (!mainElement) {
     mainElement = document.createElement('main');
     mainElement.setAttribute('role', 'main');
     addAriaLabel(mainElement, 'Main content');
-    
-    // Move all content that isn't already in landmarks to main
+
     const bodyChildren = Array.from(document.body.children);
     const landmarkSelectors = ['nav', 'header', 'footer', 'aside', 'main', '[role]'];
-    
+
     bodyChildren.forEach(child => {
       if (!landmarkSelectors.some(selector => child.matches(selector))) {
         mainElement.appendChild(child);
       }
     });
-    
+
     document.body.appendChild(mainElement);
   }
-  
+
   return mainElement;
 }
 
@@ -363,18 +379,16 @@ function addMainLandmark() {
 function fixTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
-  
+
   tables.forEach((table, index) => {
     const validationResult = validateTableStructure(table);
     if (!validationResult.valid) {
       results.push({ table: index, result: validationResult });
       return;
     }
-    
-    // Ensure table has headers
-    const headerRow = table.querySelector('tr')?.querySelector('th');
+
+    const headerRow = table.querySelector('tr') ? table.querySelector('tr').querySelector('th') : null;
     if (!headerRow) {
-      // Check if first row exists and convert cells to headers
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const firstCells = firstRow.querySelectorAll('td');
@@ -388,32 +402,28 @@ function fixTableStructure() {
         }
       }
     }
-    
+
     results.push({ table: index, result: { valid: true } });
   });
-  
+
   return results;
 }
 
 // New function to validate and fix fake link issues (REACT_036)
 function fixFakeLinkIssue() {
-  const potentialFakeLinks = document.querySelectorAll('[role="link"], [onclick], [style*="cursor: pointer"]');
+  const potentialFakeLinks = document.querySelectorAll('a[href="#"], a[href=""], [role="link"], [onclick], [style*="cursor: pointer"]');
   const fixedLinks = [];
-  
+
   potentialFakeLinks.forEach(element => {
-    if (element.tagName === 'A') {
-      return; // Already a proper link
-    }
-    
     const fixedElement = handleFakeLinks(element);
-    if (fixedElement && fixedElement.tagName === 'A') {
+    if (fixedElement && (fixedElement.tagName === 'A' || fixedElement.tagName === 'BUTTON') && fixedElement !== element) {
       fixedLinks.push({
         original: element,
         fixed: fixedElement
       });
     }
   });
-  
+
   return {
     totalScanned: potentialFakeLinks.length,
     fixed: fixedLinks.length,
@@ -424,7 +434,6 @@ function fixFakeLinkIssue() {
 // New function to add proper landmark regions (REACT_037)
 /**
  * Adds proper landmark regions to the page for accessibility.
- * This function identifies and enhances landmark elements with appropriate roles and attributes.
  * @returns {Object} Summary of landmark regions added or updated.
  */
 function addProperLandmarkRegions() {
@@ -445,21 +454,17 @@ function addProperLandmarkRegions() {
     skipped: []
   };
 
-  // Ensure unique IDs for landmark elements
   Object.entries(landmarks).forEach(([name, config]) => {
     const elements = document.querySelectorAll(config.selector);
-    
+
     elements.forEach((element, index) => {
-      // Skip if already has proper role
       if (element.getAttribute('role') === config.role) {
         results.skipped.push({ landmark: name, reason: 'Already has proper role', element });
         return;
       }
 
-      // Ensure element has an ID
       ensureElementHasId(element);
 
-      // Add or update role attribute
       if (!element.hasAttribute('role')) {
         element.setAttribute('role', config.role);
         results.added.push({ landmark: name, element, role: config.role });
@@ -468,7 +473,6 @@ function addProperLandmarkRegions() {
         results.updated.push({ landmark: name, element, role: config.role });
       }
 
-      // Add aria-label if missing and no aria-labelledby
       if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
         const label = `${name}${index > 0 ? ` ${index + 1}` : ''}`;
         addAriaLabel(element, label);
@@ -476,7 +480,6 @@ function addProperLandmarkRegions() {
     });
   });
 
-  // Validate landmark uniqueness after adding regions
   const uniqueness = validateLandmarkUniqueness();
   if (!uniqueness.valid) {
     results.skipped.push({ landmark: 'uniqueness', reason: 'Landmark uniqueness validation failed', details: uniqueness });

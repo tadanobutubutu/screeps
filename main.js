@@ -18,7 +18,17 @@ const modules = {
   constants: ['constants.js']
 };
 
-// Export for external use
+// Original main.js content preserved
+function init() {
+  console.log('Initializing Screeps bot...');
+}
+
+function loop() {
+  // Main game loop
+  console.log('Game tick');
+}
+
+// Export all functionality
 module.exports = {
   modules,
   generateDependencyTable: () => {
@@ -32,17 +42,7 @@ module.exports = {
     
     html += '</tbody>\n</table>';
     return html;
-  }
+  },
+  init,
+  loop
 };
-
-// Original main.js content preserved
-function init() {
-  console.log('Initializing Screeps bot...');
-}
-
-function loop() {
-  // Main game loop
-  console.log('Game tick');
-}
-
-module.exports = { init, loop };

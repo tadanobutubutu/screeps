@@ -1,4 +1,7 @@
 // ADD THE NEW FUNCTION HERE
+function countDependencies(doc) {
+  return 0;
+}
 
 /**
  * Address accessibility issues from the insight report
@@ -87,7 +90,7 @@ function wrapPrimaryContentInMain(doc) {
   main.setAttribute('role', 'main');
   
   if (primaryContent) {
-    primaryContent.parentNode.insertBefore(main, primaryContent);
+    parentContent.parentNode.insertBefore(main, primaryContent);
     main.appendChild(primaryContent);
   }
 }
@@ -325,5 +328,6 @@ module.exports = {
   createAccessibleLink,
   getSvgAccessibleName,
   addFixLandmarkIssues,
-  fixFakeLinkIssues
+  fixFakeLinkIssues,
+  countDependencies
 };

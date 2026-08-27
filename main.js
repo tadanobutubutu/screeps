@@ -13,12 +13,22 @@ function renderDependencyGraphContent(data) {
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
   // This function is to be added as per the issue report.
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach((main, index) => {
+    main.setAttribute('id', `main-${index}`);
+  });
 }
 
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // This function is to be added as per the issue report.
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+    });
+  });
 }
 
 // Update the original export function to include the new method and keep the old one for calling from another file
@@ -31,3 +41,17 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
+
+// Wrap the primary content in <main> as per the issue report
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.querySelector('#primary-content');
+  if (primaryContent) {
+    const mainElement = document.createElement('main');
+    mainElement.id = 'main';
+    mainElement.appendChild(primaryContent);
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  }
+}
+
+// Call the function to wrap the primary content in a <main> element
+wrapPrimaryContentInMain();

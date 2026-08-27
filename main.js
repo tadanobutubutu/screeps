@@ -1,3 +1,6 @@
+// TODO: Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
 // Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
@@ -104,6 +107,8 @@ function wrapPrimaryContentInMain(context) {
   
   // Create a new main element
   const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  mainElement.id = 'main-content';
   
   // Move all body children into the main element
   while (body.firstChild) {

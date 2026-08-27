@@ -44,7 +44,7 @@ const addMainLandmark = () => {
   if (!mainElement) {
     mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main');
-    const body = document.querySelector('body');
+    const body = document.body;
     if (body && body.firstChild) {
       body.insertBefore(mainElement, body.firstChild);
     } else if (body) {
@@ -59,11 +59,11 @@ const addMainLandmark = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const existingElements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const existingElements = document.querySelectorAll(`[role="${landmark}"]`);
     let count = 0;
     existingElements.forEach(element => {
       if (!element.id) {
-        element.setAttribute('id', `${landmark}-${count++}`);
+        element.setAttribute('id', `${landmark}-${++count}`);
       }
     });
   });
@@ -71,9 +71,10 @@ const ensureUniqueLandmarks = () => {
 
 // New function to add accessible names to SVGs
 const addSvgAccessibleNames = () => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', `SVG Icon ${index + 1}`);
     }
   });
@@ -95,7 +96,7 @@ const fixFakeLinkIssue = () => {
 const validateLandmark = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const missingLandmarks = landmarks.filter(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
     return elements.length === 0;
   });
 

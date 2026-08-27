@@ -37,6 +37,3 @@ ______________
 Updated code...
 ______________
 */
-```
-
-The resolved `main.js` file keeps and integrates both changes, adding the `aria-label` attribute to the SVGs in both sections. The updated `icons` object now includes the `aria-label` attribute for the SVG, and the `initDependencyGraph` function is left intact. The rest of the code remains as it was originally.

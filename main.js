@@ -1,11 +1,7 @@
-Here is the resolved file content:
-
-```javascript
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'polyfill-io/stable';
 import 'polyfill-webextensions-api/location';
-import 'polyfill- foss/all'; // import polyfill for IE11
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
@@ -15,6 +11,74 @@ const addLangAttribute = () => {
   if (!htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
+};
+
+// Existing function to get accessible name
+const getAccessibleName = (element) => {
+  if (!element) return null;
+
+  // Check aria-label first
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  // Check aria-labelledby
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement) return referencedElement.textContent;
+  }
+
+  // Check for visible text content
+  const text = element.textContent?.trim();
+  if (text) return text;
+
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+
+  return null;
+};
+
+// Existing function to set accessible name
+const setAccessibleName = (element, name) => {
+  if (!element || !name) return;
+
+  // Clear any existing labeledby
+  if (element.hasAttribute('aria-labelledby')) {
+    element.removeAttribute('aria-labelledby');
+  }
+
+  // Set aria-label
+  element.setAttribute('aria-label', name);
+};
+
+// Existing function to wrap primary content in main landmark
+const wrapPrimaryContentInMain = () => {
+  // Check if main element already exists
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    // Find the body or first significant content
+    const body = document.body;
+    if (!body) return;
+
+    // Look for common content containers
+    let contentElement = body.querySelector('[role="main"]') ||
+                         body.querySelector('.content') ||
+                         body.querySelector('#content') ||
+                         body.firstElementChild;
+
+    if (contentElement && contentElement.tagName !== 'MAIN') {
+      mainElement = document.createElement('main');
+      mainElement.setAttribute('id', 'main-content');
+
+      // Wrap the content element
+      contentElement.parentNode.insertBefore(mainElement, contentElement);
+      mainElement.appendChild(contentElement);
+    }
+  }
+
+  return mainElement;
 };
 
 // New function to fix table structure issues
@@ -184,6 +248,9 @@ const addCustomValidation = () => {
 
 // Export all functions
 module.exports = {
+  getAccessibleName,
+  setAccessibleName,
+  wrapPrimaryContentInMain,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,
@@ -191,11 +258,5 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   validateLandmark,
-  addCustomValidation,
-  wrapPrimaryContentInMain,
-  getAccessibleName,
-  setAccessibleName
+  addCustomValidation
 };
-```
-
-This file includes changes to address accessibility concerns and merges the changes from the respective branches.

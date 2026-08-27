@@ -1,4 +1,3 @@
-// Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
 // Update the renderDependencyGraph function
@@ -60,12 +59,9 @@ exports.addressAccessibilityIssueForSpecificElement = addressAccessibilityIssueF
 
 // Preserve the existing exports
 module.exports = {
-  // ... (All other exports from the current main.js)
   renderDependencyGraph,
-  newFunction,
   addressAccessibilityIssue038,
   totalDependencies,
   addressAccessibilityIssues,
-  // Add the new export (addressAccessibilityIssueForSpecificElement)
   addressAccessibilityIssueForSpecificElement
 };

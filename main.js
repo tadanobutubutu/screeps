@@ -132,7 +132,7 @@ function addressAccessibilityIssues(issues, options = {}) {
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `a11y-${Math.random().toString(36).substring(2, 9)}`;
   }
   return element.id;
 }

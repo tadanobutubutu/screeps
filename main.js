@@ -36,7 +36,7 @@ function Sidebar() {
 
 function MainContent() {
   return (
-    <div className="main-content">
+    <main className="main-content">
       <section>
         <h2>Welcome</h2>
         <p>This is the main content area of the application.</p>
@@ -45,7 +45,7 @@ function MainContent() {
         <h2>Features</h2>
         <p>Discover our amazing features.</p>
       </section>
-    </div>
+    </main>
   );
 }
 

@@ -18,7 +18,7 @@ function createReactContext() {
     renderToString: (component) => ReactDOMServer.renderToString(component)
   };
 
-  const mockDocument = new window.Document();
+  const mockDocument = window.document;
   const body = mockDocument.body;
   body.innerHTML = "<div id='root'></div>";
   const rootElement = body.querySelector('#root');
@@ -104,6 +104,7 @@ function wrapPrimaryContentInMain(context) {
   
   // Create a new main element
   const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
   
   // Move all body children into the main element
   while (body.firstChild) {

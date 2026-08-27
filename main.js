@@ -8,7 +8,7 @@
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
-import { createElement, findDOMNode } from 'react';
+import { createElement } from 'react';
 
 // Helper function to get document reference
 function getDocument() {
@@ -181,8 +181,9 @@ function handleErrorState(errorElement, container, trigger = false) {
   }
   
   if (container) {
-    const errorContainer = doc.createElement(container);
-    errorContainer.setAttribute('id', `error-container-${uuidv4()}`);
+    const errorContainer = doc.createElement('div');
+    errorContainer.setAttribute('class', 'error-container');
+    errorContainer.setAttribute('role', 'alert');
     errorContainer.appendChild(errorSection);
     container.appendChild(errorContainer);
   } else {
@@ -202,6 +203,15 @@ function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }
 
+// Function to trigger accessibility mode
+function triggerAccessibilityMode() {
+  const doc = getDocument();
+  if (doc) {
+    doc.body.classList.add('accessibility-mode');
+    doc.body.setAttribute('data-accessibility', 'enabled');
+  }
+}
+
 // Export the existing handleErrorState function
 export { handleErrorState };
 
@@ -218,3 +228,6 @@ export {
   fixFakeLinkIssue,
   triggerAccessibilityMode 
 };
+
+// Export updateAriaAttributes
+export { updateAriaAttributes };

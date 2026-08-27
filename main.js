@@ -1,10 +1,21 @@
+// TODO: Add back any required exports that might have been?
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
+  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+    return;
+  }
+  
+  // Set role attribute
   svgElement.setAttribute('role', 'img');
-  svgElement.setAttribute('aria-label', svgElement.getAttribute('alt') || 'SVG Image');
+  
+  // Set aria-label if not present
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (!ariaLabel) {
+    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || svgElement.getAttribute('alt') || 'SVG Image');
+  }
 }
 
 /**

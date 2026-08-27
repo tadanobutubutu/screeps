@@ -129,6 +129,15 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
+// Main.jsx - React component for the main landmark
+const Main = ({ children }) => {
+  return (
+    <main>{children}</main>
+  );
+};
+
+export default Main;
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,

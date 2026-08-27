@@ -92,7 +92,7 @@ const a11yStore = {
   },
 
   // Setup keyboard navigation for interactive elements
-  setupKeyboardNavigation(e) {
+  setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
       if (e.key === 'Enter' || e.key === ' ') {
@@ -280,3 +280,70 @@ const a11yStore = {
         case 'missing-alt':
           document.querySelectorAll('img').forEach(img => {
             if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', 'Image description');
+            }
+          });
+          break;
+        default:
+          console.warn('Unknown accessibility issue type:', issue.type);
+      }
+    });
+  },
+
+  // Add focus visibility styles
+  addFocusVisibilityStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      :focus {
+        outline: 2px solid #005fcc;
+        outline-offset: 2px;
+      }
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+      :focus-visible {
+        outline: 2px solid #005fcc;
+        outline-offset: 2px;
+      }
+    `;
+    document.head.appendChild(style);
+  },
+
+  // Setup focus-visible polyfill
+  setupFocusVisiblePolyfill() {
+    if (!('focusVisible' in document)) {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          document.body.classList.add('keyboard-nav');
+        }
+      });
+      document.addEventListener('mousedown', () => {
+        document.body.classList.remove('keyboard-nav');
+      });
+    }
+  },
+
+  // Enhance dynamic content with accessibility attributes
+  enhanceDynamicContent() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.tagName === 'SVG') {
+              this.addSVGAccessibilityProps();
+            }
+            if (node.querySelectorAll) {
+              const svgs = node.querySelectorAll('svg');
+              svgs.forEach(svg => this.addSVGAccessibilityProps());
+            }
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+};
+
+export function example() {
+  return "example";
+}

@@ -1,3 +1,4 @@
+// TODO: Address accessibility issues from insight report:
 // TODO: Address any missing required exports
 // REACT_015: Add lang attribute
 

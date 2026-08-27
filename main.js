@@ -1,9 +1,9 @@
-// Address accessibility issues from insight report
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Other imports...
+// Address accessibility issues from insight report
+
+import { createInPageButton } from './components/inPageButton'; // Assuming createInPageButton is a module
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
@@ -12,24 +12,6 @@ const getLangAttribute = () => {
 
 // Function to get SVG accessible name
 const getSvgAccessibleName = (svgElement) => {
-  // ... existing function code ...
-};
-
-// Function to create an in-page button with fake link handling
-const createInPageButton = (options = {}) => {
-  // ... existing function code ...
-};
-
-// React component for in-page button
-const InPageButton = ({
-  id,
-  label,
-  onClick,
-  className,
-  ariaLabel,
-  type = 'button',
-  disabled = false
-}) => {
   // ... existing function code ...
 };
 
@@ -167,11 +149,6 @@ const Root = () => {
     // Logic to rotate back
   };
 
-  // New function for example purposes
-  const newFunction = () => {
-    // Logic for the new function
-  };
-
   // Get the language attribute for the html element
   const lang = getLangAttribute();
 
@@ -208,7 +185,7 @@ const Root = () => {
           onClick={handleRotateBack}
         />
         {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
+        {/* Assuming InPageButton is now used for in-page actions */}
       </main>
     </html>
   );

@@ -1,4 +1,4 @@
-// Assuming the file is located at ...
+// Assuming the file is located at components/Dashboard.tsx
 
 import React, { useState } from 'react';
 

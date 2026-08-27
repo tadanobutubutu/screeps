@@ -1,42 +1,31 @@
-// TODO: Implement functions to ensure unique landmarks here
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
 
 /**
- * Ensure unique landmark IDs
- * @param { Object } landmarks - The existing landmark regions object
- * @returns { Object } The updated landmarks object with unique IDs
+ * Wrap primary content in main div
+ * @param { Document } doc - The document object to operate on
  */
-function ensureUniqueLandmarks(landmarks) {
-  const ids = Object.values(landmarks).map(item => item.id);
-  const uniqueIds = new Set(ids);
-  const updatedIds = uniqueIds.values();
+function wrapPrimaryContentInMain(doc) {
+  const primaryContent = doc.querySelector('.primary-content');
+  const main = doc.createElement('div');
+  main.className = 'main';
 
-  let updatedLandmarks = {};
-  for (const landmark of Object.values(landmarks)) {
-    updatedLandmarks[landmark.id || `landmark-${updatedIds.next().value}`] = landmark;
+  if (primaryContent.parentNode) {
+    primaryContent.parentNode.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
   }
-
-  return updatedLandmarks;
 }
 
-/**
- * Implement functions to ensure unique landmarks here
- * @param { Document } doc - The document object to add landmark regions to
- * @returns { Object } An object containing references to the created and updated landmark regions
- */
+// ADD THE NEW FUNCTION HERE
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
   return ensureUniqueLandmarks(landmarks);
 }
 
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
+// ... (The rest of the existing functions and exports remain unchanged)
 
-// ADD THE NEW FUNCTION HERE
+// ADD THE NEW FUNCTION TO THE EXPORTS
 const { addMissingExportFunction } = require('./missingExportFile');
 
-// Continue to export all existing functions
 module.exports = {
   addProperLandmarkRegions,
   addAndEnsureUniqueLandmarkRegions,
@@ -48,6 +37,7 @@ module.exports = {
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
+  wrapPrimaryContentInMain, // Add the new function to the exports
   addMissingExportFunction, // Add the new function to the exports
   getSvgAccessibleName
 };

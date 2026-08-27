@@ -66,7 +66,7 @@ export function checkAccessibilityCompliance(element) {
     });
     
     // Check for form inputs without labels
-    const inputs = element.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])');
+    const inputs = element.querySelectorAll('input:not("hidden"):not("submit"):not("button"):not("reset"):not("image")');
     inputs.forEach((input, index) => {
         const hasLabel = input.getAttribute('aria-label') || 
                          input.getAttribute('aria-labelledby') ||
@@ -156,4 +156,4 @@ export default {
     checkAccessibilityCompliance,
     getAccessibilityReport,
     config
-};
+}

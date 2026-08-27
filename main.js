@@ -20,9 +20,6 @@ function findAndFixFakeLinks() {
   links.forEach(makeRealLink);
 }
 
-// Call the new function to address the fake link
-findAndFixFakeLinks();
-
 // Function to handle the case where there's only a hash in the URL (origin/main change)
 function handleUrlWithHash() {
   window.onload = function () {
@@ -42,5 +39,18 @@ function addressLinks() {
 
 // Call the combined function to address different link scenarios
 addressLinks();
+
+// Function to update SVGs with accessible names
+function updateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title') && !svg.querySelector('aria-hidden')) {
+      svg.setAttribute('aria-label', 'Decorative image');
+    }
+  });
+}
+
+// Call the function to update SVGs with accessible names
+updateSvgAccessibility();
 
 // ... (existing code)

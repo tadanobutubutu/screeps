@@ -201,6 +201,53 @@ function checkTableStructure() {
   });
 }
 
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const results = [];
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const semanticLandmarks = {
+    'main': document.querySelector('main'),
+    'nav': document.querySelector('nav'),
+    'search': document.querySelector('search'),
+    'footer': document.querySelector('footer'),
+    'aside': document.querySelector('aside'),
+    'header': document.querySelector('header')
+  };
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((element, index) => {
+      const hasAccessibleName = 
+        element.getAttribute('aria-label') ||
+        element.getAttribute('aria-labelledby') ||
+        element.textContent.trim();
+      
+      if (!hasAccessibleName && role !== 'main') {
+        results.push({
+          element: element,
+          role: role,
+          issue: `Landmark role "${role}" is missing an accessible name`
+        });
+      }
+
+      if (role === 'region') {
+        const hasLabel = 
+          element.getAttribute('aria-label') ||
+          element.getAttribute('aria-labelledby');
+        if (!hasLabel) {
+          results.push({
+            element: element,
+            role: role,
+            issue: 'Region landmark requires an accessible name (aria-label or aria-labelledby)'
+          });
+        }
+      }
+    });
+  });
+
+  return results;
+}
+
 function renderIndexView() {
   // TODO: Implement renderIndexView functionality
 }
@@ -217,5 +264,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarks,
   addProperLandmarkRegions,
-  checkTableStructure
+  checkTableStructure,
+  checkLandmarkElements
 };

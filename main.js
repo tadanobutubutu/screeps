@@ -526,6 +526,100 @@ function addA11yAttributesToInteractiveElements() {
   // (existing code for addA11yAttributesToInteractiveElements remains the same)
 }
 
+/**
+ * Adds accessible names to SVG elements that need them.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ * @returns {Array} Array of SVG elements with accessible names added
+ */
+function addSvgAccessibleNames(container = document) {
+  const results = [];
+  const svgs = container.querySelectorAll('svg');
+  
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      if (!svg.querySelector('title')) {
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = 'SVG image';
+        svg.insertBefore(title, svg.firstChild);
+        results.push(svg);
+      } else if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+        svg.setAttribute('aria-label', 'SVG image');
+        results.push(svg);
+      }
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Ensures landmarks have unique roles to avoid redundancy.
+ * @param {HTMLElement} container - The container to check for landmarks
+ * @returns {Array} Array of landmark elements processed
+ */
+function ensureUniqueLandmarks(container = document) {
+  const results = [];
+  const landmarks = container.querySelectorAll('[role]');
+  const rolesFound = new Set();
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (rolesFound.has(role)) {
+      const uniqueId = 'landmark-' + Math.random().toString(36).substr(2, 9);
+      landmark.setAttribute('aria-label', role + ' ' + uniqueId);
+      results.push(landmark);
+    } else {
+      rolesFound.add(role);
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Fixes fake link accessibility issues.
+ * @param {HTMLElement} container - The container to check for fake links
+ * @returns {Array} Array of fake link elements fixed
+ */
+function fixFakeLinkIssue(container = document) {
+  const results = [];
+  const fakeLinks = container.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+      results.push(link);
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Adds main landmark element if missing.
+ * @param {HTMLElement} container - The container to check for main landmark
+ * @returns {HTMLElement|null} The main element added or null if not needed
+ */
+function addMainLandmark(container = document) {
+  if (!container.querySelector('main')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.setAttribute('aria-label', 'Main content');
+    
+    const firstChild = container.firstElementChild;
+    if (firstChild) {
+      container.insertBefore(main, firstChild);
+    } else {
+      container.appendChild(main);
+    }
+    
+    return main;
+  }
+  
+  return null;
+}
+
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;

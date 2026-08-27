@@ -829,6 +829,7 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
+                                aria-keyshortcuts="Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
@@ -855,8 +856,9 @@ export default function Dashboard() {
                             {roomQuery && (
                                 <button
                                     onClick={() => setRoomQuery('')}
-                                    aria-label="検索キーワードをクリア"
-                                    title="検索をクリア"
+                                    aria-label="検索キーワードをクリア (Escape)"
+                                    aria-keyshortcuts="Escape"
+                                    title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
                                         right: '4px',
@@ -1016,8 +1018,17 @@ export default function Dashboard() {
                 >
                     <summary
                         className="interactive-hint"
-                        title="生データを JSON 形式で表示/非表示にします"
-                        aria-label="生データを JSON 形式で表示/非表示にします"
+                        aria-expanded={detailsOpen}
+                        title={
+                            detailsOpen
+                                ? '生データを非表示にします (Alt + D)'
+                                : '生データを表示します (Alt + D)'
+                        }
+                        aria-label={
+                            detailsOpen
+                                ? '生データを非表示にします (Alt + D)'
+                                : '生データを表示します (Alt + D)'
+                        }
                         style={{
                             color: '#4a5568',
                             padding: '0.2rem 0',

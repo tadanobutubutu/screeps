@@ -161,7 +161,7 @@ const a11yStore = {
       );
 
       const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
+const lastElement = focusableElements[focusableElements.length - 1];
 
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
@@ -393,7 +393,47 @@ const a11yStore = {
   }
 };
 
+// Ensure unique IDs for elements missing them and add aria-labels
+function ensureElementIdAndLabel() {
+  const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"]');
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `elem-${index}-${Date.now()}`;
+    }
+
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const accessibleText = element.textContent.trim() ||
+                             element.getAttribute('title') ||
+                             element.getAttribute('value') ||
+                             (element.placeholder ? `Placeholder: ${element.placeholder}` : 'Interactive element');
+
+      if (accessibleText) {
+        element.setAttribute('aria-label', accessibleText);
+      }
+    }
+  });
+}
+
+// Render dependency graphs (placeholder implementation)
+function renderDependencyGraphs(containerId = 'dependency-graph') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '200');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency Graph Visualization');
+
+  const title = document.createElementNS(svgNS, 'title');
+  title.textContent = 'Dependency Graph Visualization';
+  svg.appendChild(title);
+
+  container.appendChild(svg);
+}
+
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { a11yStore, getSvgAccessibleName };
+  module.exports = { a11yStore, getSvgAccessibleName, ensureElementIdAndLabel, renderDependencyGraphs };
 }

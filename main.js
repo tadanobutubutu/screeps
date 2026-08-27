@@ -1,12 +1,1 @@
-const config = require('./config');
-const { initializeApp } = require('./utils');
-
-console.log('Application starting...');
-
-// Initialize the application
-const app = initializeApp(config);
-
-// TODO: Add implementation details
-
-// Export the app instance
-module.exports = { app };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

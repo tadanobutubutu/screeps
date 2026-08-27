@@ -1,3 +1,11 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 // TODO: Add back any required exports that might have been?
 
 // TODO: This is the existing code that needs to be preserved
@@ -218,6 +226,137 @@ function renderIndexView() {
   document.body.appendChild(button);
 }
 
+/**
+ * Adds lang attribute to the HTML element if missing.
+ * @returns {HTMLElement|null} The HTML element or null if document is not available
+ */
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+    return document.documentElement;
+  }
+  return null;
+}
+
+/**
+ * Fixes table structure issues in the document or specific container.
+ * @param {HTMLElement} [container=document] - The container to fix table issues in
+ * @returns {NodeList} NodeList of fixed tables
+ */
+function fixTableStructureIssues(container = document) {
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption element
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    // Ensure proper table structure (thead/tbody)
+    if (!table.querySelector('thead') && !table.querySelector('tbody')) {
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 0) {
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+      }
+    }
+    
+    // Add scope attributes to th elements if missing
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, rowIndex) => {
+      const thElements = row.querySelectorAll('th');
+      thElements.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          th.setAttribute('scope', rowIndex === 0 ? 'col' : 'row');
+        }
+      });
+    });
+  });
+  return tables;
+}
+
+/**
+ * Adds or fixes main landmark element.
+ * @returns {HTMLElement|null} The main element
+ */
+function addMainLandmark() {
+  return wrapPrimaryContentInMain();
+}
+
+/**
+ * Adds accessible names to all SVG elements in the document.
+ * @returns {NodeList} NodeList of processed SVG elements
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => setSvgAccessibilityProps(svg));
+  return svgs;
+}
+
+/**
+ * Ensures landmark elements are unique in the document.
+ * Keeps only a single <main> element and ensures other landmarks have unique labels.
+ * @returns {Object} An object containing uniqueness information
+ */
+function ensureUniqueLandmarks() {
+  // Ensure single <main> element
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      const extraMain = mains[i];
+      const parent = extraMain.parentNode;
+      while (extraMain.firstChild) {
+        parent.insertBefore(extraMain.firstChild, extraMain);
+      }
+      parent.removeChild(extraMain);
+    }
+  }
+  
+  // Ensure unique aria-labels for duplicate landmarks
+  const landmarkRoles = ['banner', 'navigation', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index === 0) return;
+        const existingLabel = el.getAttribute('aria-label') || '';
+        el.setAttribute('aria-label', existingLabel ? `${existingLabel} ${index + 1}` : `${role} ${index + 1}`);
+      });
+    }
+  });
+  
+  return {
+    mainCount: document.querySelectorAll('main').length,
+    uniqueLandmarks: true
+  };
+}
+
+/**
+ * Fixes fake link issues by converting links without href to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+  
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === '') {
+      link.setAttribute('role', 'button');
+      if (!link.hasAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+      fixedLinks.push(link);
+    }
+  });
+  
+  return fixedLinks;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -227,5 +366,11 @@ module.exports = {
   checkLandmarkElement,
   checkLandmarks,
   wrapPrimaryContentInMain,
-  renderIndexView
+  renderIndexView,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

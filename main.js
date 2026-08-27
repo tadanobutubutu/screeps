@@ -1,13 +1,10 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -35,8 +32,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
           <section
-            tabIndex={0}
-            aria-label="エラーメッセージ詳細"
+            tabIndex={-1}
+            role="alert"
+            aria-label="エラーメッセージ"
             style={{
               color: '#c53030',
               backgroundColor: '#fff5f5',
@@ -49,6 +47,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           </section>
         )}
         <button
+          type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
           onMouseLeave={() => setErrCopyHover(false)}
@@ -72,10 +71,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
         </button>
         <button
+          type="button"
           onClick={() => fetchStats(true)}
           disabled={refreshing}
+          aria-disabled={refreshing}
+          aria-busy={refreshing}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
+          aria-label={refreshing ? '再試行中' : '再試行'}
         >
           {refreshing ? 'リフレッシュ中...' : '再試行'}
         </button>

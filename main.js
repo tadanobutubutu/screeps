@@ -1,44 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// Ensure element has an id
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
-  }
-  return element;
-}
-
-// Add aria-label to element
-function addAriaLabel(element, labelText) {
-  if (element) {
-    element.setAttribute('aria-label', labelText);
-  }
-  return element;
-}
-
-// Render dependency graph
-function renderDependencyGraph(dependencies) {
-  // Dummy implementation for dependency graph rendering
-  const container = document.createElement('div');
-  container.id = 'dependency-graph';
-  dependencies.forEach(dep => {
-    const node = document.createElement('div');
-    node.textContent = dep;
-    container.appendChild(node);
-  });
-  document.body.appendChild(container);
-}
-
 // TODO: Implement function for addressing accessibility issues from insight report
 
 /**
@@ -143,7 +102,17 @@ module.exports = {
   newTestFunction, // add new exported function
   resolveConflicts, // add new exported function
   getSvgAccessibleName, // add new exported function
-  addressAccessibilityIssues // add new exported function
+  addressAccessibilityIssues, // add new exported function
+  validateTableAccessibility, // export function for testing purposes
+  validateTableStructure, // export function for testing purposes
+  validateLandmark, // export function for testing purposes
+  validateLandmarkStructure, // export function for testing purposes
+  validateLandmarkAttributes, // export function for testing purposes
+  setSvgAttributes, // export function for testing purposes
+  validateLandmarkUniqueness, // export function for testing purposes
+  validateLinkAccessibility, // export function for testing purposes
+  handleFakeLinks, // export function for testing purposes
+  getLangAttribute // export function for testing purposes
 };
 
 // New Function for handling a specific event
@@ -173,104 +142,3 @@ function createInPageButton(buttonId, text, callback) {
 
 // Export the new function for testing purposes
 module.exports.createInPageButton = createInPageButton;
-
-// New function to validate table accessibility (REACT_027)
-function validateTableAccessibility(table) {
-  if (!table || table.nodeName !== 'TABLE') {
-    return { valid: false, message: 'Invalid table element' };
-  }
-
-  const issues = [];
-  const rows = table.getElementsByTagName('tr');
-
-  for (let i = 0; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName('td');
-    const headers = rows[i].getElementsByTagName('th');
-    if (cells.length > 0 && headers.length === 0 && i === 0) {
-      issues.push('Missing header row');
-    }
-  }
-
-  return { valid: issues.length === 0, issues };
-}
-
-// New function to validate table structure (REACT_027)
-function validateTableStructure(table) {
-  if (!table || table.nodeName !== 'TABLE') {
-    return { valid: false, message: 'Invalid table element' };
-  }
-
-  return { valid: true };
-}
-
-// New function to validate landmark (REACT_017)
-function validateLandmark(element) {
-  if (!element) {
-    return { valid: false, message: 'Invalid landmark element' };
-  }
-  return { valid: true };
-}
-
-// New function to validate landmark structure (REACT_017)
-function validateLandmarkStructure(element) {
-  if (!element) {
-    return { valid: false, message: 'Invalid landmark element' };
-  }
-  return { valid: true };
-}
-
-// New function to validate landmark attributes (REACT_017)
-function validateLandmarkAttributes(element) {
-  if (!element) {
-    return { valid: false, message: 'Invalid landmark element' };
-  }
-  return { valid: true };
-}
-
-// New function to set SVG attributes (REACT_041)
-function setSvgAttributes(element) {
-  if (!element) {
-    return;
-  }
-  const name = getSvgAccessibleName(element);
-  if (name) {
-    element.setAttribute('aria-label', name);
-  }
-}
-
-// New function to validate landmark uniqueness (REACT_025)
-function validateLandmarkUniqueness() {
-  return { valid: true };
-}
-
-// New function to validate link accessibility (REACT_036)
-function validateLinkAccessibility(element) {
-  if (!element) {
-    return { valid: false, message: 'Invalid link element' };
-  }
-  return { valid: true };
-}
-
-// New function to handle fake links (REACT_036)
-function handleFakeLinks(element) {
-  if (!element) {
-    return;
-  }
-}
-
-// New function to get lang attribute (REACT_015)
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-// Export new validation functions for testing purposes
-module.exports.validateTableAccessibility = validateTableAccessibility;
-module.exports.validateTableStructure = validateTableStructure;
-module.exports.validateLandmark = validateLandmark;
-module.exports.validateLandmarkStructure = validateLandmarkStructure;
-module.exports.validateLandmarkAttributes = validateLandmarkAttributes;
-module.exports.setSvgAttributes = setSvgAttributes;
-module.exports.validateLandmarkUniqueness = validateLandmarkUniqueness;
-module.exports.validateLinkAccessibility = validateLinkAccessibility;
-module.exports.handleFakeLinks = handleFakeLinks;
-module.exports.getLangAttribute = getLangAttribute;

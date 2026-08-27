@@ -1,6 +1,6 @@
-Import { type Metadata } from "next";
+import { type Metadata } from "next";
 import "./globals.css";
-import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038 } from "./accessibility";
+import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
@@ -24,6 +24,7 @@ export default function RootLayout({
   addSvgAccessibleNames();
 
   // Implement the renderIndexView method here
+  renderIndexView();
 
   return (
     <html lang="en">
@@ -40,21 +41,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-setSvgAccessibilityProps;
-isLinkAccessible;
-isButtonAccessible;
-checkAccessibility;
-checkLandmarkElement;
-checkLandmarks;
-wrapPrimaryContentInMain;
-renderIndexView;
-addLangAttribute;
-fixTableStructureIssues;
-addMainLandmark;
-addSvgAccessibleNames;
-ensureUniqueLandmarks;
-fixFakeLinkIssue;
-setFormElementAccessibleNames;
-
-renderDependencyGraph();

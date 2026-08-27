@@ -10,7 +10,7 @@ function Navigation() {
       <a href="#">Home</a>
       <a href="#">About</a>
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <a href="#contact">Contact</a>
     </div>
   );
 }
@@ -70,7 +70,7 @@ function AppLayout() {
 
 function AccessibilityWrapper({ children }) {
   return (
-    <div role="application" aria-label="main application">
+    <div role="application" aria-label="main application" lang="en">
       {children}
     </div>
   );

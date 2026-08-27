@@ -1,3 +1,6 @@
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
+
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
 import { class1, function1, Object1 } from './path/to/module';
 import dependencyGraphContent from './content/dependencyGraphContent.js';

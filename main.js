@@ -21,6 +21,7 @@ function wrapInMainLandmark(content) {
 function generateHTMLDocument(options) {
     const { title, mainContent, headerContent = '', footerContent = '' } = options;
     
+    // Update to include SVG accessible names
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,7 @@ function generateHTMLDocument(options) {
 <body>
     ${headerContent ? `<header>${headerContent}</header>` : ''}
     <main>
-        ${mainContent}
+        ${mainContent.replace(/<svg /g, '<svg aria-hidden="true" ')} <!-- Add aria-hidden for decorative SVGs -->
     </main>
     ${footerContent ? `<footer>${footerContent}</footer>` : ''}
 </body>

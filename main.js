@@ -71,9 +71,9 @@ const ensureUniqueLandmarks = () => {
 
 // New function to add accessible names to SVGs
 const addSvgAccessibleNames = () => {
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('role')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', `SVG Icon ${index + 1}`);
     }

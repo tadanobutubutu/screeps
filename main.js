@@ -16,6 +16,7 @@ function handleErrorState(errorElement, container, trigger = false) {
 
   // Wrap the error in a <section> and container element (if provided)
   const errorSection = getDocument().createElement('section');
+  errorSection.setAttribute('role', 'alert'); // Add role attribute for accessibility
   if (container) {
     const errorContainer = getDocument().createElement(container);
     errorContainer.appendChild(errorSection);

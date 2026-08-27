@@ -1,15 +1,29 @@
-// Address accessibility issues from insight report:
+// Address accessibility issues from insight report
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
+// TODO: This is the existing code that needs to be preserved
 
 // Import the required module
 const { someFunction } = require('./module');
+
+// New function to implement accessibility fixes
+function implementNewFunction() {
+  addressAccessibilityIssues();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
+}
 
 // Address accessibility issues from insight report
 function addressAccessibilityIssues() {
@@ -54,7 +68,7 @@ function fixFakeLinks() {
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
   const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
-  
+
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
@@ -98,6 +112,32 @@ function fixTableStructureIssues() {
   });
 }
 
+// Fix table header cell scope
+function fixTableHeaderCellScope() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope')) {
+        // Check if cell is in thead
+        const thead = table.querySelector('thead');
+        if (thead && thead.contains(cell)) {
+          cell.setAttribute('scope', 'col');
+        } else {
+          // Check if it's the first cell in its row
+          const row = cell.parentElement;
+          if (row && row.children[0] === cell) {
+            cell.setAttribute('scope', 'row');
+          } else {
+            // Default to column scope
+            cell.setAttribute('scope', 'col');
+          }
+        }
+      }
+    });
+  });
+}
+
 // Add main landmark
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
@@ -131,34 +171,6 @@ function addSvgAccessibleNames() {
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
-    }
-  });
-}
-
-// New function to implement accessibility fixes
-function implementNewFunction() {
-  addressAccessibilityIssues();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-}
-
-// Fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Implementation for fixing table header cell scope issues goes here.
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.querySelectorAll('th, td')).indexOf(th);
-    
-    if (rowIndex === 0) {
-      th.setAttribute('scope', 'col');
-    } else if (cellIndex === 0) {
-      th.setAttribute('scope', 'row');
     }
   });
 }

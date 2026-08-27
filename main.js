@@ -15,5 +15,3 @@ export function run(code) {
     console.error(`Error while running code: ${error}`);
   }
 }
-
-//... (Put the rest of the original contents here. Ensure that the functions 'onApiInit' and 'run' are preserved as is)

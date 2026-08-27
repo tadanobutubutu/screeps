@@ -17,3 +17,19 @@ module.exports = {
 
 // Existing code preserved below
 main();
+
+// Add the new function to replace the anchor with a button
+function replaceAnchorWithButton() {
+  const anchor = document.getElementById('unrotate');
+  if (anchor) {
+    const button = document.createElement('button');
+    button.textContent = anchor.textContent;
+    anchor.parentNode.replaceChild(button, anchor);
+    button.addEventListener('click', () => {
+      // You might want to add some logic here if this button is meant to trigger an action.
+    });
+  }
+}
+
+// Call the function to replace the anchor with a button when the script loads
+replaceAnchorWithButton();

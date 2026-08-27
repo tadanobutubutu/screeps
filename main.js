@@ -14,16 +14,36 @@ function addProperLandmarkRegions() {
   }
 
   // Add main landmark
-  const main = document.querySelector('main') || document.querySelector('[role="main"]');
-  if (main && !main.hasAttribute('role')) {
+  const main = document.querySelector('main') || document.getElementsByTagName('main')[0];
+  if (main && !main.getAttribute('role')) {
     main.setAttribute('role', 'main');
   }
 
   // Add navigation landmarks with proper labeling
   const navElements = document.querySelectorAll('nav');
   navElements.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label')) {
+    if (!nav.getAttribute('aria-label')) {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+    }
+  });
+
+  // Ensure header has proper landmark if not already defined
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('role') && !document.querySelector('[role="banner"]')) {
+    header.setAttribute('role', 'banner');
+  }
+
+  // Ensure footer has proper landmark if not already defined
+  const footer = document.querySelector('footer');
+  if (footer && !footer.getAttribute('role') && !document.querySelector('[role="contentinfo"]')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Add complementary landmark to aside elements
+  const asideElements = document.querySelectorAll('aside');
+  asideElements.forEach((aside) => {
+    if (!aside.getAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
     }
   });
 }
@@ -40,18 +60,26 @@ function addProperAccountManagement() {
     return;
   }
 
-  const formElements = document.querySelectorAll('input:not([type="hidden"]), textarea');
+  const formElements = document.querySelectorAll('input, select, textarea');
   formElements.forEach((el) => {
-    if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
       el.setAttribute('aria-label', 'Enter your information');
     }
   });
 
   // Add aria-expanded to collapsible menus based on your implementation
-  const collapsibleMenus = document.querySelectorAll('[data-toggle="collapse"], [aria-controls]');
+  const collapsibleMenus = document.querySelectorAll('[aria-controls]');
   collapsibleMenus.forEach((menu) => {
-    if (!menu.hasAttribute('aria-expanded')) {
+    if (!menu.getAttribute('aria-expanded')) {
       menu.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Add aria-haspopup for elements with dropdown content
+  const hasPopupElements = document.querySelectorAll('[data-has-popup], [aria-haspopup]');
+  hasPopupElements.forEach((el) => {
+    if (!el.getAttribute('aria-haspopup')) {
+      el.setAttribute('aria-haspopup', 'true');
     }
   });
 }

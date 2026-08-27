@@ -1,5 +1,19 @@
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+document.documentElement.lang = 'en';
+
+reportWebVitals();
 
 const VERSION = '1.0.0';
 
@@ -21,7 +35,7 @@ function getVersion() {
   return VERSION;
 }
 
-module.exports = {
+export {
   VERSION,
   CONFIG,
   initialize,
@@ -29,7 +43,7 @@ module.exports = {
   getVersion
 };
 
-module.exports.default = {
+export default {
   VERSION,
   CONFIG,
   initialize,

@@ -1,4 +1,3 @@
-tsx
 // dashboard/components/Dashboard.tsx
 import React, { useState } from 'react';
 

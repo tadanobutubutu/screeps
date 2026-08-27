@@ -1,10 +1,23 @@
+Here is the resolved version of the 'main.js' file:
+
+```javascript
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
+  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+    return;
+  }
+
+  // Set role attribute
   svgElement.setAttribute('role', 'img');
-  svgElement.setAttribute('aria-label', svgElement.getAttribute('alt') || 'SVG Image');
+
+  // Set aria-label if not present
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (!ariaLabel) {
+    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || svgElement.getAttribute('alt') || 'SVG Image');
+  }
 }
 
 /**
@@ -22,7 +35,7 @@ function isLinkAccessible(link) {
   // Check if link has text content or aria-label
   const hasText = link.textContent.trim().length > 0;
   const hasAriaLabel = link.getAttribute('aria-label');
-  
+
   if (!hasText && !hasAriaLabel) {
     return false;
   }
@@ -38,12 +51,12 @@ function isLinkAccessible(link) {
 function isButtonAccessible(button) {
   // Check if button has type attribute
   const type = button.getAttribute('type');
-  
-  // Check if button has text content or aria-label
+
+  // Check if button has text content or aria-label or aria-labelledby
   const hasText = button.textContent.trim().length > 0;
   const hasAriaLabel = button.getAttribute('aria-label');
   const hasAriaLabelledby = button.getAttribute('aria-labelledby');
-  
+
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;
   }
@@ -56,7 +69,7 @@ function isButtonAccessible(button) {
  * @param {HTMLElement|Document} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing accessibility check results
  */
-function checkLinkAndButtonAccessibility(container = document) {
+function checkAccessibility(container = document) {
   const results = {
     links: {
       accessible: [],
@@ -104,7 +117,9 @@ function renderIndexView() {
   // Example of creating a button in-page:
   const button = document.createElement('button');
   button.textContent = 'Click Me';
-  // ...
+
+  // Append the button to the body or another element as needed
+  document.body.appendChild(button);
 }
 
 // Exports for all functions
@@ -112,6 +127,9 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
-  checkLinkAndButtonAccessibility,
+  checkAccessibility,
   renderIndexView,
 };
+```
+
+In this resolved file, I merged both versions of the code, keeping both changes if they added new functionalities or improved existing ones. The changes made to the `setSvgAccessibilityProps` and `checkAccessibility` functions were integrated, as they didn't conflict and both versions had useful improvements. The new `renderIndexView` function was also merged from the newer version of the code.

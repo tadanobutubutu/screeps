@@ -25,5 +25,10 @@ module.exports = {
         delete Memory.creeps[name];
       }
     }
+    
+    // Conditional rendering logic for Dashboard component
+    // Assuming the Dashboard component is conditionally rendered based on some state
+    // This is a placeholder for the conditional rendering logic, which should be handled within the component itself
+    // and not in the main.js file.
   }
 };

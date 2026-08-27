@@ -191,57 +191,45 @@ const a11yStore = {
     });
   },
 
-  // New function to preserve existing code
-  preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // (This comment remains as-is)
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+  // New function to address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+    report.forEach(issue => {
+      // Handle each issue type
+      switch (issue.type) {
+        case 'missing-lang':
+          if (!document.documentElement.getAttribute('lang')) {
+            document.documentElement.setAttribute('lang', 'en');
+          }
+          break;
+        case 'missing-skip-link':
+          if (!document.querySelector('.skip-link')) {
+            const skipLink = document.createElement('a');
+            skipLink.className = 'skip-link';
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            document.body.insertBefore(skipLink, document.body.firstChild);
+          }
+          break;
+        case 'missing-alt':
+          document.querySelectorAll('img').forEach(img => {
+            if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', 'Image description');
+            }
+          });
+          break;
+        case 'missing-label':
+          document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+              el.setAttribute('aria-label', 'Form field');
+            }
+          });
+          break;
+        // Add more cases as needed
+      }
+    });
   }
 };
-
-// New function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  report.forEach(issue => {
-    // Handle each issue type
-    switch (issue.type) {
-      case 'missing-lang':
-        if (!document.documentElement.getAttribute('lang')) {
-          document.documentElement.setAttribute('lang', 'en');
-        }
-        break;
-      case 'missing-skip-link':
-        if (!document.querySelector('.skip-link')) {
-          const skipLink = document.createElement('a');
-          skipLink.className = 'skip-link';
-          skipLink.href = '#main-content';
-          skipLink.textContent = 'Skip to main content';
-          document.body.insertBefore(skipLink, document.body.firstChild);
-        }
-        break;
-      case 'missing-alt':
-        document.querySelectorAll('img').forEach(img => {
-          if (!img.getAttribute('alt')) {
-            img.setAttribute('alt', 'Image description');
-          }
-        });
-        break;
-      case 'missing-label':
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-          if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
-            el.setAttribute('aria-label', 'Form field');
-          }
-        });
-        break;
-      // Add more cases as needed
-    }
-  });
-}
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
@@ -259,6 +247,9 @@ document.body.parentNode.insertBefore(mainElement, document.body);
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
+
+// Preserve existing code
+a11yStore.preserveExistingCode();
 
 // Export for module usage
 export { a11yStore };

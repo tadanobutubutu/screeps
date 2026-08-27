@@ -79,6 +79,44 @@ function checkLinkAccessibility() {
   return results;
 }
 
+function checkButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  const results = [];
+
+  buttons.forEach(button => {
+    const text = button.textContent.trim();
+    const ariaLabel = button.getAttribute('aria-label');
+    const title = button.getAttribute('title');
+    const accessibleName = ariaLabel || title || text;
+
+    if (!accessibleName) {
+      results.push({
+        element: button,
+        issue: 'Button is missing an accessible name (text content, aria-label, or title)'
+      });
+    }
+
+    // Check if button type is specified
+    const type = button.getAttribute('type');
+    if (!type) {
+      results.push({
+        element: button,
+        issue: 'Button is missing a type attribute'
+      });
+    }
+
+    // Check for empty text content and no aria-label
+    if (!text && !ariaLabel && !title) {
+      results.push({
+        element: button,
+        issue: 'Button has no text content and no accessible name'
+      });
+    }
+  });
+
+  return results;
+}
+
 function addressInsightReportIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
@@ -172,6 +210,7 @@ function addProperLandmarkRegions(insightReport) {
     const semanticTag = Object.keys(semanticToLandmark).find(
       key => semanticToLandmark[key] === role
     );
+
     if (semanticTag) {
       const elements = document.querySelectorAll(semanticTag);
       elements.forEach(el => {
@@ -389,5 +428,6 @@ module.exports = {
   setSvgAccessibleNames,
   addSvgAccessibilityProps,
   checkLinkAccessibility,
+  checkButtonAccessibility,
   createInPageButtons
 };

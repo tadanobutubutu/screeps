@@ -1,25 +1,64 @@
-// Assuming the HTML content is included in a component or similar file that is imported into main.js
+import { type Metadata } from "next";
+import "./globals.css";
+import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
+import { renderDependencyGraph } from "./dependencyGraph";
 
-// Before change:
-// <a id="unrotate" href="#">rotate back</a>
+const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+  // Code to address the specific accessibility issue on the element
+  // This is a placeholder function and should be replaced with the actual implementation
+  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+};
 
-// After change:
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+export const metadata: Metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
 
-// The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  addLangAttribute();
+  addMainLandmark();
+  addSvgAccessibleNames();
 
-// Here's an example of how the rotateBack function might be defined:
-function rotateBack() {
-  // Logic to rotate back
-  // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
+  // Implement the renderIndexView method here
+  renderIndexView();
+
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
+        {checkAccessibility().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+        {checkLandmarks().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
 
-// Now, let's assume the component file is named MyComponent.js and is imported into main.js:
-import MyComponent from './MyComponent';
-
-// main.js
-// ...
-// render(<MyComponent />, document.getElementById('app'));
-// ...
+// Alternative HTML rendering implementation (from origin/main)
+// Uncomment to use this instead of RootLayout
+/*
+export default function RootLayoutHTML() {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
+        {checkAccessibility().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+        {checkLandmarks().issues.map((issue, index) => (
+          <div key={index}>{issue.message}</div>
+        ))}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+*/

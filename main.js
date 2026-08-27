@@ -7,6 +7,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+// Updated to include the scope attribute for accessibility
+const renderTableHeadersWithScope = (headerContent) => {
+  return <th scope="col">{headerContent}</th>;
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

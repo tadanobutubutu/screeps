@@ -12,10 +12,7 @@
 const defaultInsightReport = { issues: [] };
 addressAccessibilityIssues(defaultInsightReport);
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// Ensure element has an id
+// Functions to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
     element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
@@ -106,7 +103,7 @@ function resolveConflicts(content) {
   return content;
 }
 
-// New Function to get SVG accessible name
+// New function to get SVG accessible name
 function getSvgAccessibleName(element) {
   if (!element.getAttributeNS(null, "aria-labelledby")) {
     let labelText = "";
@@ -465,40 +462,4 @@ function addProperLandmarkRegions() {
         results.added.push({ landmark: name, element, role: config.role });
       } else {
         element.setAttribute('role', config.role);
-        results.updated.push({ landmark: name, element, role: config.role });
-      }
-
-      // Add aria-label if missing and no aria-labelledby
-      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-        const label = `${name}${index > 0 ? ` ${index + 1}` : ''}`;
-        addAriaLabel(element, label);
-      }
-    });
-  });
-
-  // Validate landmark uniqueness after adding regions
-  const uniqueness = validateLandmarkUniqueness();
-  if (!uniqueness.valid) {
-    results.skipped.push({ landmark: 'uniqueness', reason: 'Landmark uniqueness validation failed', details: uniqueness });
-  }
-
-  return results;
-}
-
-// Export new validation functions for testing purposes
-module.exports.validateTableAccessibility = validateTableAccessibility;
-module.exports.validateTableStructure = validateTableStructure;
-module.exports.validateLandmark = validateLandmark;
-module.exports.validateLandmarkStructure = validateLandmarkStructure;
-module.exports.validateLandmarkAttributes = validateLandmarkAttributes;
-module.exports.setSvgAttributes = setSvgAttributes;
-module.exports.validateLandmarkUniqueness = validateLandmarkUniqueness;
-module.exports.validateLinkAccessibility = validateLinkAccessibility;
-module.exports.handleFakeLinks = handleFakeLinks;
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-module.exports.addLangAttribute = addLangAttribute;
-module.exports.addMainLandmark = addMainLandmark;
-module.exports.fixTableStructure = fixTableStructure;
-module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+        results.updated.push({ landmark: name, element, role:

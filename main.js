@@ -5,7 +5,7 @@ interface DashboardProps {
   // Define any props your component might need
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);

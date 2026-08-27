@@ -1,4 +1,4 @@
-// This is just an example. The actual HTML content should be updated directly in the affected HTML files.
+// TODO: Address accessibility issues from insight report: in main.js
 
 const tableContent = `
   <table>
@@ -20,4 +20,14 @@ const tableContent = `
   </table>
 `;
 
-document.getElementById('table-container').innerHTML = tableContent;
+export const renderTable = (containerId) => {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = tableContent;
+  }
+};
+
+export const submitButton = document.getElementById('submit-btn');
+export const resetButton = document.getElementById('reset-btn');
+
+document.querySelector('#app').innerHTML = tableContent;

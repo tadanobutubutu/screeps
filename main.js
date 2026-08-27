@@ -9,9 +9,7 @@
 // Added functions:
 
 function addLangAttribute(htmlElement) {
-  // Implement code to add the 'lang' attribute to the provided HTML element
-  // For example, add lang attribute to index.html like this:
-  // document.querySelector('html').setAttribute('lang', 'en');
+  document.querySelector('html').setAttribute('lang', 'en');
 }
 
 function fixTableStructureIssues() {

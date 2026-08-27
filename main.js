@@ -54,3 +54,6 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
   window.addProperLandmarkRegions = addProperLandmarkRegions;
 }
+
+// Add lang attribute to the root element of the document
+document.documentElement.setAttribute('lang', 'en');

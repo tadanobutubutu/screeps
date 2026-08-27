@@ -149,12 +149,17 @@ function _getTargetCounts(room, rcl) {
     }
 
     // 侵入者がいる場合はディフェンダーを追加
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to count attackers, avoiding array filter allocation.
     const enemies = cache.getEnemies(room);
-    const attackers = enemies.filter(
-        (e) => e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0
-    );
-    if (attackers.length > 0) {
-        result[ROLES.DEFENDER] = Math.max(result[ROLES.DEFENDER] || 0, attackers.length);
+    let attackerCount = 0;
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
+            attackerCount++;
+        }
+    }
+    if (attackerCount > 0) {
+        result[ROLES.DEFENDER] = Math.max(result[ROLES.DEFENDER] || 0, attackerCount);
     }
 
     // 緊急モード: クリープが0の場合は最低限のハーベスターを確保

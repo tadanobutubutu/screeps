@@ -69,9 +69,13 @@ function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
 }
 
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // Existing code that needs to be preserved from previous issue
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // TODO: This is the existing code that needs to be preserved
 // ----- END ORIGINAL CODE -----
 
-module.exports = { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView };
+module.exports = { improveAccessibility, addressInsightReportIssues, renderDependencyGraph, renderIndexView, calculateSum };

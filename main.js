@@ -111,6 +111,32 @@ function fixTableStructureIssues() {
   });
 }
 
+// Fix table header cell scope
+function fixTableHeaderCellScope() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope')) {
+        // Check if cell is in thead
+        const thead = table.querySelector('thead');
+        if (thead && thead.contains(cell)) {
+          cell.setAttribute('scope', 'col');
+        } else {
+          // Check if it's the first cell in its row
+          const row = cell.parentElement;
+          if (row && row.children[0] === cell) {
+            cell.setAttribute('scope', 'row');
+          } else {
+            // Default to column scope
+            cell.setAttribute('scope', 'col');
+          }
+        }
+      }
+    });
+  });
+}
+
 // Add main landmark
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
@@ -148,16 +174,16 @@ function addSvgAccessibleNames() {
   });
 }
 
-// Fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Implementation for fixing table header cell scope issues goes here.
-  const tableHeaders = document.querySelectorAll('th');
-  tableHeaders.forEach(header => {
-    const scope = header.getAttribute('scope');
-    if (!scope || scope !== 'row' && scope !== 'col') {
-      header.setAttribute('scope', 'row');
-    }
-  });
+// New function to implement accessibility fixes
+function implementNewFunction() {
+  addressAccessibilityIssues();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+  addSvgAccessibleNames();
 }
 
 // Existing code preserved below

@@ -1,10 +1,1 @@
-// Entry point for the application
-// The lang="en" attribute should be added to the HTML file's <html> tag
-
-const main = {
-  init: function() {
-    return true;
-  }
-};
-
-module.exports = main;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

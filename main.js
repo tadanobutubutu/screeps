@@ -9,11 +9,6 @@ export function existingFunction2() {
   // existing implementation
 }
 
-// Add the new function here (given name: myNewFunction)
-function myNewFunction() {
-  // New function implementation
-}
-
 // To make it testable, you may export the new function
 export function myNewFunction() {
   // New function implementation

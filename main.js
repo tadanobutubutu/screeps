@@ -17,7 +17,7 @@ function Main() {
           <circle cx="50" cy="50" r="30" />
         </svg>
       </section>
-      <nav role="navigation">
+      <nav role="navigation" aria-label="main navigation">
         <a href="/about">About</a>
       </nav>
     </main>
@@ -46,16 +46,18 @@ function AccessibleSVG({ viewBox, children, label }) {
 export default function App() {
   return (
     // Add lang attribute to the root element
-    <div lang="en">
-      <Header />
-      <Main />
-      {/* Example usage of new functions */}
-      <LandmarkContainer>
-        <section role="region" aria-label="additional content">
-          {/* Additional UI */}
-        </section>
-      </LandmarkContainer>
-      <AccessibleSVG viewBox="0 0 50 50" label="Button SVG" />
-    </div>
+    <html lang="en">
+      <body>
+        <Header />
+        <Main />
+        {/* Example usage of new functions */}
+        <LandmarkContainer>
+          <section role="region" aria-label="additional content">
+            {/* Additional UI */}
+          </section>
+        </LandmarkContainer>
+        <AccessibleSVG viewBox="0 0 50 50" label="Button SVG" />
+      </body>
+    </html>
   );
 }

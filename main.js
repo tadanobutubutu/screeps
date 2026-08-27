@@ -19,7 +19,7 @@ function improveAccessibility() {
   ensureDependencyGraphAccessibility();
 
   // Add proper landmark regions to ensure consistency
-  addLandmarkRegions();
+  addProperLandmarkRegions();
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -102,7 +102,7 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   ensureUniqueLandmarks();
 }
 
-function addLandmarkRegions() {
+function addProperLandmarkRegions() {
   // Define the standard landmark roles that should be present
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 

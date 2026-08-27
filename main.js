@@ -1,4 +1,32 @@
 /**
+ * Gets the accessible name for an SVG element.
+ * @param {SVGElement} svgElement - The SVG element to get the accessible name for
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+  
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const label = document.getElementById(labelledBy);
+    if (label) {
+      return label.textContent.trim();
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
@@ -303,37 +331,6 @@ function hasMissingAriaProperties(element) {
   const requiredAriaProps = ['role', 'aria-label', 'aria-labelledby', 'tabindex'];
 
   return !requiredAriaProps.every(prop => element.hasAttribute(prop));
-}
-
-/**
- * Gets the accessible name for an SVG element.
- * @param {SVGElement} svgElement - The SVG element to get the accessible name for
- * @returns {string|null} The accessible name or null if not found
- */
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
-  // Try to get title element
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  // Check for aria-label
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
-  }
-  // Check for aria-labelledby
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const label = document.getElementById(labelledBy);
-    if (label) {
-      return label.textContent.trim();
-    }
-  }
-  // Fallback to text content
-  if (svgElement.textContent) {
-    return svgElement.textContent.trim();
-  }
-  return null;
 }
 
 /**

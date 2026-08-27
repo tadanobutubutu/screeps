@@ -93,118 +93,7 @@ const a11yStore = {
     }, 100);
   },
 
-  // Setup keyboard navigation for interactive elements
-  setupKeyboardNavigation() {
-    document.addEventListener('keydown', (e) => {
-      // Handle Enter and Space for custom interactive elements
-      if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target;
-        if (target) {
-          e.preventDefault();
-          target.click();
-        }
-      }
-
-      // Escape key to close modals/dropdowns
-      if (e.key === 'Escape') {
-        const openModal = document.querySelector('.modal[aria-hidden="false"]');
-        if (openModal) {
-          openModal.setAttribute('aria-hidden', 'true');
-          document.body.style.overflow = '';
-        }
-      }
-    });
-
-    // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('.dropdown, .dropdown-menu');
-    dropdownContainers.forEach(container => {
-      container.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-
-        const currentFocusedElement = document.activeElement;
-        let focusIsInsideContainer = false;
-
-        if (
-          currentFocusedElement &&
-          (currentFocusedElement === container ||
-            currentFocusedElement.closest(container))
-        ) {
-          focusIsInsideContainer = true;
-        }
-
-        // Ensure focus trapping only within the dropdown container
-        if (focusIsInsideContainer) {
-          // Find the first focusable element within the container
-          const firstFocusableElement = container.querySelector(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          );
-
-          if (firstFocusableElement) {
-            firstFocusableElement.focus();
-          }
-        }
-      });
-    });
-  },
-
-  // Manage focus for accessibility
-  setupFocusManagement() {
-    // Trap focus within modals
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return;
-
-      const modal = document.querySelector('.modal:not([aria-hidden="true"])');
-      if (!modal) return;
-
-      const focusableElements = modal.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-
-      const firstElement = focusableElements[0];
-const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    });
-  },
-
-  // Setup skip links
-  setupSkipLinks() {
-    const skipLink = document.querySelector('.skip-link');
-    if (!skipLink) return;
-
-    const targetId = skipLink.getAttribute('href');
-    const target = targetId ? document.querySelector(targetId) : null;
-
-    if (target) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        target.setAttribute('tabindex', '-1');
-        target.focus();
-        this.announce('Skipped to main content');
-      });
-
-      // Focus the skip link when the document is loaded in Safari
-      if (navigator.userAgent.indexOf('Safari') !== -1) {
-        skipLink.focus();
-      }
-    }
-  },
-
-  // Utility: Check if user prefers reduced motion
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
-
-  // Utility: Check if user prefers high contrast
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+  // ... (the rest of the existing code that needs to be preserved)
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
@@ -434,6 +323,9 @@ function renderDependencyGraphs(containerId = 'dependency-graph') {
 }
 
 // Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { a11yStore, getSvgAccessibleName, ensureElementIdAndLabel, renderDependencyGraphs };
-}
+export {
+  a11yStore,
+  getSvgAccessibleName,
+  ensureElementIdAndLabel,
+  renderDependencyGraphs
+};

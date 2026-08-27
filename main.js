@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -28,7 +30,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -39,7 +41,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(table.querySelectorAll('tr'));
+      const remainingRows = table.querySelectorAll('tr');
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -51,14 +53,14 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll('td, th');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
         th.textContent = firstCell.textContent;
         th.scope = 'col';
-        firstCell.parentNode.replaceChild(th, firstCell);
+        row.replaceChild(th, firstCell);
         fixedCount++;
       }
     });
@@ -101,7 +103,7 @@ function addMainLandmark(document) {
   }
   
   // Ensure main has proper role if not using native element
-  if (!mainElement.hasAttribute('role')) {
+  if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
   
@@ -188,8 +190,8 @@ function fixFakeLinkIssue(document) {
     
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('location.href') || 
-        onclick.includes('navigate'))) {
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -197,7 +199,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.setAttribute('onkeypress', `if(event.key==='Enter'){${onclick}}`);
+      span.addEventListener('click', element.onclick);
       
       // Copy styling if available
       if (element.className) {
@@ -214,9 +216,9 @@ function fixFakeLinkIssue(document) {
 
 // HEAD version: simpler fake link fix for anchors with href="#"
 function fixFakeLinkIssues(document) {
-  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(link => {
-    if (!link.getAttribute('aria-label')) {
+    if (link.getAttribute('href') === '#') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
     }
   });
@@ -249,144 +251,4 @@ function addLandmarkRegions(document) {
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(landmark);
     elements.forEach(element => {
-      if (!element.getAttribute('role')) {
-        element.setAttribute('role', 'landmark');
-      }
-    });
-  });
-}
-
-// REACT_025: Ensure unique landmarks (HEAD approach - by role)
-function uniqueLandmarks(document) {
-  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      let index = 1;
-      elements.forEach((el) => {
-        if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role} ${index}`);
-        }
-        index++;
-      });
-    }
-  });
-}
-
-// Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
-  const images = document.querySelectorAll('img');
-  images.forEach((img) => {
-    if (!img.getAttribute('alt')) {
-      img.setAttribute('alt', 'Image description');
-    }
-  });
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn(document) {
-  // Check if Google Identity Services is available
-  if (typeof google !== 'undefined' && google.accounts) {
-    google.accounts.id.initialize({
-      client_id: 'YOUR_CLIENT_ID',
-      callback: handleCredentialResponse
-    });
-    const buttonContainer = document.getElementById('g_id_onbutton');
-    if (buttonContainer) {
-      google.accounts.id.renderButton(
-        buttonContainer,
-        { theme: 'outline', size: 'large' }
-      );
-    }
-  }
-}
-
-function handleCredentialResponse(response) {
-  // Decode the JWT token
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-  console.log('User signed in:', payload);
-  // Handle the sign-in logic here
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers(document) {
-  const buttonIdMap = {
-    'my-button': 'primary-action-btn'
-  };
-  
-  Object.entries(buttonIdMap).forEach(([oldId, newId]) => {
-    const button = document.getElementById(oldId);
-    if (button) {
-      button.id = newId;
-      button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
-    }
-  });
-  
-  function getAccessibleName(button) {
-    return button.getAttribute('aria-label') || 
-           button.getAttribute('aria-labelledby') ||
-           button.textContent?.trim() ||
-           button.value;
-  }
-}
-
-// Add the fix for REACT_017: Add <main> landmark to docs/index.html
-function addMainLandmarkToIndex(document) {
-  const indexContent = document.querySelector('#content');
-  if (indexContent) {
-    const mainElement = document.createElement('main');
-    mainElement.appendChild(indexContent);
-    const container = document.createElement('div');
-    container.classList.add('container');
-    mainElement.appendChild(container);
-    document.body.appendChild(mainElement);
-  }
-}
-
-// TODO: Implement function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(document) {
-  // Assuming the insight report provides an object with the issues to be addressed
-  const insightReport = {
-    'REACT_015': () => addLangAttribute(document),
-    'REACT_041': () => addSvgAccessibleNames(document),
-    'REACT_036': () => { fixFakeLinkIssue(document); fixFakeLinkIssues(document); },
-    'REACT_017': () => { fixLandmarkIssues(document); addLandmarkRegions(document); addMainLandmark(document); },
-    'REACT_027': () => fixTableStructure(document),
-    'REACT_025': () => { ensureUniqueLandmarks(document); uniqueLandmarks(document); },
-    'REACT_037': () => googleSignIn(document),
-    'REACT_040': () => fixButtonIdentifiers(document),
-    // Additional fixes
-    'IMAGE_ALT': () => fixImageAltTexts(document),
-    'INDEX_MAIN': () => addMainLandmarkToIndex(document),
-  };
-
-  Object.values(insightReport).forEach((functionToCall) => {
-    if (typeof functionToCall === 'function') {
-      functionToCall();
-    }
-  });
-}
-
-// Export all functions
-export { 
-  addLangAttribute, 
-  fixTableStructure, 
-  addMainLandmark, 
-  ensureUniqueLandmarks, 
-  addSvgAccessibleNames, 
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  handleCredentialResponse,
-  fixButtonIdentifiers,
-  addMainLandmarkToIndex,
-  implementAccessibilityFixesFromReport,
-  class1, 
-  function1, 
-  Object1 
-};
+      if (!

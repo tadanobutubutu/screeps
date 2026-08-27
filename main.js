@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 
 function Navigation() {
   return (
@@ -10,7 +10,7 @@ function Navigation() {
       <a href="#">Home</a>
       <a href="#">About</a>
       <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <a ...
     </div>
   );
 }
@@ -70,7 +70,7 @@ function AppLayout() {
 
 function AccessibilityWrapper({ children }) {
   return (
-    <div role="application" aria-label="main application">
+    <div role="application" aria-label="main application" tabIndex={0}>
       {children}
     </div>
   );
@@ -86,10 +86,10 @@ function Root() {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(<Root />);
 
 // If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
+// to log results (for example: ...
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

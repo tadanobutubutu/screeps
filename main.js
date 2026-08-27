@@ -9,29 +9,33 @@
 // Added functions:
 
 function addLangAttribute(htmlElement) {
-  // Implement code to add the 'lang' attribute to the provided HTML element
-  // For example, add lang attribute to index.html like this:
-  // document.querySelector('html').setAttribute('lang', 'en');
+  if (htmlElement.tagName === 'HTML') {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
-function fixTableStructureIssues() {
-  // Implement code to fix the 26 table structure issues
+function fixTableStructureIssues(table) {
+  // Your implementation for fixing table structure issues
 }
 
-function addMainLandmark() {
-  // Implement code to add the main landmark
+function addMainLandmark(htmlElement) {
+  // Your implementation for adding the main landmark
+  if (htmlElement.tagName === 'HTML') {
+    htmlElement.setAttribute('role', 'main');
+  }
 }
 
-function addSvgAccessibleNames() {
-  // Implement code to add accessible names to 2 SVGs
+function addSvgAccessibleNames(svg, title) {
+  // Your implementation for adding accessible names to SVGs
+  svg.setAttribute('aria-labelledby', title);
 }
 
-function ensureUniqueLandmarks() {
-  // Implement code to ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  // Your implementation to ensure unique landmarks
 }
 
-function fixFakeLinkIssue() {
-  // Implement code to fix the fake link issue
+function fixFakeLinkIssue(linkElement) {
+  // Your implementation to fix the fake link issue
 }
 
 // Ensure existing code and exports are preserved.

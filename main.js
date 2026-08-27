@@ -42,9 +42,10 @@ function renderMain(data) {
     `;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from
-// their respective modules for better maintainability and content separation.
+// The functions that render dependency graphs (renderDependencyGraph, renderMain)
+// and index views (renderIndex, renderMain) now import and use
+// dependencyGraphContent/indexContent from their respective modules
+// for better maintainability and content separation.
 
 // Existing exports preserved
 module.exports = {

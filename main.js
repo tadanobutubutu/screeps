@@ -1,6 +1,3 @@
-Here is the resolved file content. I kept and integrated both changes, added type annotations for TypeScript compatibility, and improved some comments for clarity:
-
-```javascript
 // Imported and used dependencyGraphContent and indexContent in the relevant rendering functions.
 // Added type annotations for TypeScript and a fix for React 15.
 
@@ -257,4 +254,3 @@ root.render(
     <App />
   </React.StrictMode>
 );
-```

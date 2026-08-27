@@ -1,3 +1,6 @@
+Here is the resolved version of the `main.js` file, addressing both changes and maintaining all the functionality:
+
+```javascript
 // Please provide the actual main.js content so I can fix the REACT_036 issue.
 // The issue mentions a line like:
 //   <a id="unrotate" href="#">rotate back</a>
@@ -46,8 +49,17 @@ function addRoleAndLabelToCheckbox(filePath) {
     });
   }
 
+  // Convert link to a button element
+  const links = content.match(/<a [^>]*id="unrotate" [^>]*>/);
+  if (links && links.length) {
+    updatedContent = updatedContent.replace(
+      links[0],
+      links[0].replace('<a', '<button id="unrotate" type="button">')
+    );
+  }
+
   fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
+  console.log(`Added role and label to checkboxes and converted the link to a button for better accessibility in ${filePath}`);
 }
 
 // New function to address accessibility issues
@@ -102,3 +114,4 @@ module.exports = {
   addressAccessibilityIssues,
   setLanguage,
 };
+```

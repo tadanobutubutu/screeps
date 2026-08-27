@@ -1,4 +1,4 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 
@@ -18,3 +18,8 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Export the rotateBack function for use by the button onclick handler
+export function rotateBack() {
+  // Your code to rotate back
+}

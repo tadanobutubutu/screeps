@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function validateLandmarkStructure(landmark) {
+  // Implement your validation logic here
+  // For example, let's assume we check if each landmark has a name and coordinates:
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+}

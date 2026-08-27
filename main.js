@@ -14,7 +14,7 @@ import { class1, function1, Object1 } from './path/to/module';
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
   return document;
@@ -30,7 +30,7 @@ function fixTableStructure(document) {
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
-
+    
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
@@ -40,7 +40,7 @@ function fixTableStructure(document) {
     }
 
     if (!existingTbody) {
-      const remainingRows = table.querySelectorAll('tr');
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -48,7 +48,7 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     }
-
+    
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
@@ -63,7 +63,7 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     });
-
+    
     // Additional HEAD logic: ensure scope on header cells
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
@@ -80,32 +80,32 @@ function fixTableStructure(document) {
 // Function to add/main landmark
 function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
-
+  
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-
+    
     // Move first significant content child to main
     const children = Array.from(body.children);
     for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
           child.tagName !== 'LINK' && child.tagName !== 'META') {
         main.appendChild(child);
         break;
       }
     }
-
+    
     body.insertBefore(main, body.firstChild);
     mainElement = main;
   }
-
+  
   // Ensure main has proper role if not using native element
   if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
-
+  
   return mainElement;
 }
 
@@ -191,23 +191,33 @@ function fixFakeLinkIssue(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
 
   clickableElements.forEach(element => {
-    // Resolved logic
     const tagName = element.tagName.toLowerCase();
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
 
     // Check if it's a fake link (clickable but not a real anchor)
-    if (!isAnchor && !hasHref && onclick.includes('window.location') ||
-        onclick.includes('document.location') ||
-        onclick.includes("location.href")) {
-
+    if (!isAnchor && (onclick.includes('window.location') || 
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
+      
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
+      span.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          element.click();
+        }
+      });
+      
+      // Copy styling if available
+      if (element.className) {
+        span.className = element.className;
+      }
+      
       element.parentNode.replaceChild(span, element);
       count++;
     }

@@ -181,6 +181,16 @@ function addressAccessibilityIssues() {
   // Additional accessibility issue handling can be added here
 }
 
+// Create the new placeholder functions for accessibility handling
+const newAccessibilityFunction = () => {
+  return 'new accessibility function';
+};
+
+// Export the old function to address accessibility issues
+function addressOldAccessibilityIssues() {
+  return 'addressing old issues';
+}
+
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
@@ -360,17 +370,26 @@ function addA11yAttributesToInteractiveElements() {
   return interactiveElements;
 }
 
-// Create the new placeholder functions for accessibility handling
-const newAccessibilityFunction = () => {
-  return 'new accessibility function';
-};
+// Make functions accessible globally for browser usage
+const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
+globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
+globalObject.isLinkAccessible = isLinkAccessible;
+globalObject.isButtonAccessible = isButtonAccessible;
+globalObject.checkAccessibility = checkAccessibility;
+globalObject.checkLandmarkElement = checkLandmarkElement;
+globalObject.checkLandmarks = checkLandmarks;
+globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+globalObject.renderIndexView = renderIndexView;
+globalObject.addLangAttribute = addLangAttribute;
+globalObject.fixTableStructureIssues = fixTableStructureIssues;
+globalObject.addMainLandmark = addMainLandmark;
+globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
+globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
+globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
+globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
+globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
 
-// Export the old function to address accessibility issues
-function addressOldAccessibilityIssues() {
-  return 'addressing old issues';
-}
-
-// Preserve the existing exports
+// Exports for all functions
 module.exports = {
   renderDependencyGraph,
   newFunction,

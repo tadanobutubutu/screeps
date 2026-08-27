@@ -17,30 +17,9 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-// Add/fix 4 landmark issues
-import React from 'react';
+// TODO: Add any functions to fix the 4 landmark issues
 
-const Header = () => {
-  // ...
-
-  return (
-    <header id="main-header" role="banner">
-      {/* ... */}
-    </header>
-  );
-};
-
-const Footer = () => {
-  // ...
-
-  return (
-    <footer id="main-footer" role="contentinfo">
-      {/* ... */}
-    </footer>
-  );
-};
-
-// Add accessible names to 2 SVGs
+// TODO: Add functions to provide accessible names to 2 SVGs
 import React from 'react';
 import logo from './logo.svg';
 
@@ -52,7 +31,7 @@ const Logo = () => (
   />
 );
 
-// Ensure unique landmarks (2 issues)
+// TODO: Ensure unique landmarks (2 issues)
 import React from 'react';
 
 const Navbar = () => {
@@ -65,7 +44,7 @@ const Navbar = () => {
   );
 };
 
-// Fix 1 fake link issue
+// TODO: Fix 1 fake link issue
 import React from 'react';
 
 const LinkToHome = () => (
@@ -74,5 +53,5 @@ const LinkToHome = () => (
   </a>
 );
 
-// Export updated components and functions
-export { Header, Footer, Logo, Navbar, LinkToHome };
+// EXPORT THE UPDATED COMPONENTS AND FUNCTIONS
+export { App, Header, Footer, Logo, Navbar, LinkToHome };

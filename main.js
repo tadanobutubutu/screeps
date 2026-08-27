@@ -12,7 +12,19 @@ const getLangAttribute = () => {
 
 // Function to get SVG accessible name
 const getSvgAccessibleName = (svgElement) => {
-  // ... existing function code ...
+  if (!svgElement) return null;
+
+  // Check aria-label attribute first
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+
+  // Check for title child element
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent;
+  }
+
+  return null;
 };
 
 // Function to create an in-page button with fake link handling
@@ -30,7 +42,7 @@ const InPageButton = ({
   type = 'button',
   disabled = false
 }) => {
-  // ... existing function code ...
+  // ... existing component code ...
 };
 
 // Function to validate table accessibility
@@ -41,10 +53,10 @@ const validateTableAccessibility = () => {
     return { errors };
   }
 
-  const tables = document.querySelectorAll('table');
+  const tables = ...
   tables.forEach((table, index) => {
     // Check if table has proper headers
-    const headers = table.querySelectorAll('th');
+    const headers = ...
     const hasHeaders = headers.length > 0;
 
     if (!hasHeaders) {
@@ -57,7 +69,7 @@ const validateTableAccessibility = () => {
 
     // Check for scope attribute on headers
     headers.forEach((header) => {
-      if (!header.hasAttribute('scope')) {
+      if ... {
         errors.push({
           message: `Table header missing scope attribute`,
           line: 0,
@@ -67,8 +79,8 @@ const validateTableAccessibility = () => {
     });
 
     // Check for caption or summary
-    const caption = table.querySelector('caption');
-    const summary = table.getAttribute('summary');
+    const caption = ...
+    const summary = ...
     if (!caption && !summary) {
       errors.push({
         message: `Table ${index + 1} is missing a caption or summary`,
@@ -90,7 +102,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = ... [role="main"]');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -106,8 +118,8 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for header/nav landmarks
-  const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  const navElements = ...
+  const headerElements = ... [role="banner"]');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -118,7 +130,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  const footerElements = ... [role="contentinfo"]');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -139,12 +151,12 @@ const validateTableStructure = () => {
   const errors = [];
 
   // Example structure check
-  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
+  const tables = typeof document !== 'undefined' ? ... : [];
   if (tables.length > 0) {
     tables.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
+      const rows = ...
       rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
+        const cells = ... th');
         cells.forEach((cell) => {
           if (!cell.textContent || cell.textContent.trim() === '') {
             errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
@@ -183,12 +195,12 @@ const Root = () => {
 
   // Validate table accessibility and check for unique landmarks (2 issues)
   const tableAccessibilityError = validateTableAccessibility();
-  if (tableAccessibilityError.errors.length > 0) {
+  if ... > 0) {
     console.error(tableAccessibilityError.errors);
   }
 
-  const uniqueLandmarkError = validateLandmarkStructure();
-  if (uniqueLandmarkError.errors.length > 0) {
+  const uniqueLandmarkError = ...
+  if ... > 0) {
     console.error(uniqueLandmarkError.errors);
   }
 
@@ -205,7 +217,7 @@ const Root = () => {
         <InPageButton
           id="unrotate"
           label="Rotate back"
-          onClick={handleRotateBack}
+          ...
         />
         {/* Example usage of new function */}
         <InPageButton onClick={newFunction} label="New Function" />
@@ -226,4 +238,4 @@ export {
   validateTableStructure
 };
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+ReactDOM.render(<Root />, ...

@@ -37,10 +37,6 @@ function getSvgAccessibleName() {
   // Implementation of getSvgAccessibleName
 }
 
-function createSvgAccessibilityProps() {
-  // Implementation of createSvgAccessibilityProps
-}
-
 // Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
   // Implementation of ensureUniqueLandmarks

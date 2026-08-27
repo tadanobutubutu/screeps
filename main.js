@@ -14,7 +14,7 @@ function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }
 
-// Export the newly implemented handleAccessibilityError function
+// Export the handleAccessibilityError function
 export { handleAccessibilityError };
 
 // ADD: Implement the requested new function as requested in the issue body
@@ -45,3 +45,5 @@ function highlightAccessibilityError(errorElement) {
 
 // Add the highlightAccessibilityError function to the exports as well
 export { highlightAccessibilityError };
+
+// TODO: Address any additional accessibility issues identified in the insight report

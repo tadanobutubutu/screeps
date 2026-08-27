@@ -125,12 +125,6 @@ function addMainLandmark(document) {
   return mainElement;
 }
 
-// Function to handle credential response from Google Sign-In
-function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
-  console.log('Credential response received:', response);
-}
-
 // Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
   const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];

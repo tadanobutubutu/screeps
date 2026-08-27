@@ -9,12 +9,15 @@
 // Replace the <a> tag with a <button> element
 // <button id="unrotate" onclick="rotateBack()">rotate back</button>
 
-// ... (other code in main.js)
-
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 function rotateBack() {
   // Your code to rotate back
+}
+
+// TODO: Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain() {
+  // Your code to wrap the primary content in the main element
 }
 
 // ... (other code in main.js)

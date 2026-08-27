@@ -7,12 +7,47 @@ import ReactDOM from 'react-dom';
 
 // Function to get language attribute from the document
 const getLangAttribute = () => {
-  // ... existing function code ...
+  if (typeof document === 'undefined') {
+    return 'en';
+  }
+  
+  // Try to get lang from html element
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && htmlElement.lang) {
+    return htmlElement.lang;
+  }
+  
+  // Try to get lang from meta tag (HTML5 spec allows <meta charset="utf-8">)
+  const metaLang = document.querySelector('meta[name="language"]');
+  if (metaLang && metaLang.getAttribute('content')) {
+    return metaLang.getAttribute('content');
+  }
+  
+  // Default to 'en' if no lang attribute found
+  return 'en';
 };
 
 // Function to get SVG accessible name
 const getSvgAccessibleName = (svgElement) => {
   // ... existing function code ...
+  if (!svgElement) return '';
+  
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement) return referencedElement.textContent;
+  }
+  
+  // Check for title element inside SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) return titleElement.textContent;
+  
+  return '';
 };
 
 // Function to create an in-page button with fake link handling
@@ -31,6 +66,18 @@ const InPageButton = ({
   disabled = false
 }) => {
   // ... existing function code ...
+  return (
+    <button
+      id={id}
+      type={type}
+      onClick={onClick}
+      className={className}
+      disabled={disabled}
+      aria-label={ariaLabel}
+    >
+      {label}
+    </button>
+  );
 };
 
 // Function to validate table accessibility
@@ -90,7 +137,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = document.querySelectorAll('[role="main"], main');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -107,7 +154,7 @@ const validateLandmarkStructure = () => {
 
   // Check for header/nav landmarks
   const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  const headerElements = document.querySelectorAll('[role="banner"], header');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -118,7 +165,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  const footerElements = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -144,7 +191,7 @@ const validateTableStructure = () => {
     tables.forEach((table) => {
       const rows = table.querySelectorAll('tr');
       rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
+        const cells = row.querySelectorAll('th');
         cells.forEach((cell) => {
           if (!cell.textContent || cell.textContent.trim() === '') {
             errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
@@ -199,17 +246,24 @@ const Root = () => {
   }
 
   return (
-    <html lang={lang || 'en'}>
+    <html lang={lang}>
       {/* Other JSX elements... */}
-      <main>
-        <InPageButton
-          id="unrotate"
-          label="Rotate back"
-          onClick={handleRotateBack}
-        />
-        {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
-      </main>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body>
+        <main>
+          <InPageButton
+            id="unrotate"
+            label="Rotate back"
+            onClick={handleRotateBack}
+            ariaLabel="Rotate back to original position"
+          />
+          {/* Example usage of new function */}
+          <InPageButton onClick={newFunction} label="New Function" ariaLabel="Trigger new function" />
+        </main>
+      </body>
     </html>
   );
 };

@@ -1,1 +1,14 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing functions, exports and code remain unchanged
+
+function existingFunction() {
+  // Existing function code
+}
+
+exports.existingFunction = existingFunction;
+
+// Add the new function
+function newFunction() {
+  // New function code
+}
+
+exports.newFunction = newFunction;

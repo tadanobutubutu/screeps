@@ -1016,8 +1016,17 @@ export default function Dashboard() {
                 >
                     <summary
                         className="interactive-hint"
-                        title="生データを JSON 形式で表示/非表示にします"
-                        aria-label="生データを JSON 形式で表示/非表示にします"
+                        aria-expanded={detailsOpen}
+                        title={
+                            detailsOpen
+                                ? '生データを非表示にします (Alt + D)'
+                                : '生データを表示します (Alt + D)'
+                        }
+                        aria-label={
+                            detailsOpen
+                                ? '生データを非表示にします (Alt + D)'
+                                : '生データを表示します (Alt + D)'
+                        }
                         style={{
                             color: '#4a5568',
                             padding: '0.2rem 0',

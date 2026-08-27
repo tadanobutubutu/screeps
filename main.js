@@ -8,7 +8,7 @@
 // (Added functions for REACT_017 and new REACT_025)
 
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
@@ -84,11 +84,14 @@ function addMainLandmark(filePath) {
   // Add main landmark if not present
   if (!content.includes('<main')) {
     // Wrap main content in <main> tag
-    const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    const bodyMatch = content.match(/(<body[^>]*>)([\s\S]*)(<\/body>)/i);
     if (bodyMatch) {
-      const bodyContent = bodyMatch[1];
+      const openingTag = bodyMatch[1];
+      const bodyContent = bodyMatch[2];
+      const closingTag = bodyMatch[3];
       const wrappedContent = `<main role="main">${bodyContent}</main>`;
-      content = content.replace(bodyContent, wrappedContent);
+      const newBody = openingTag + wrappedContent + closingTag;
+      content = content.replace(bodyMatch[0], newBody);
     }
   }
   fs.writeFileSync(filePath, content);
@@ -151,7 +154,7 @@ function addAltAttribute(filePath) {
     if (attrs.includes('alt=')) {
       return match;
     }
-    return `<img alt="Description of image"${attrs}`;
+    return `<img alt="Description of image"${attrs}>`;
   });
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
@@ -164,10 +167,86 @@ function replaceButtonId(filePath, newButtonId) {
 
   // Replace my-button with the actual button id
   const buttonIdRegex = /id=["']my-button["']/gi;
-  let match;
 
   // Replace id attributes
-  return `id="${newButtonId}"`;
+  const updatedContent = content.replace(buttonIdRegex, (match) => {
+    countReplacements++;
+    return `id="${newButtonId}"`;
+  });
+
+  // Also replace any references in aria-controls, aria-labelledby, etc.
+  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
+  const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
+    countReplacements++;
+    return `${attr}="${newButtonId}"`;
+  });
+
+  // Replace data attributes if any
+  const dataRefRegex = /data-target=["']my-button["']/gi;
+  const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
+    countReplacements++;
+    return `data-target="${newButtonId}"`;
+  });
+
+  fs.writeFileSync(filePath, finalFinalContent);
+  console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${countReplacements} replacement(s) made)`);
+
+  return countReplacements;
+}
+
+function fixSvgDataUriAccessibility(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  
+  // Fix SVG data URIs in icons configuration (favicons)
+  // Pattern matches data:image/svg+xml,<svg...> strings
+  const dataUriRegex = /(icons:\s*\{[^}]*icon:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  
+  let updatedContent = content.replace(dataUriRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    // Check if SVG already has a title or aria-label
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    let newSvgContent = svgContent;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // Add aria-hidden="true" for decorative favicon SVGs
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      // SVG has title but no explicit accessible name on SVG element
+      // Add role="img" to ensure title is used as accessible name
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${newSvgContent}</svg>${suffix}`;
+  });
+  
+  // Also handle apple touch icon if present
+  const appleIconRegex = /(apple:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  updatedContent = updatedContent.replace(appleIconRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
+    const hasTitle = svgContent.includes('<title>');
+    const hasAriaLabel = svgAttrs.includes('aria-label');
+    const hasAriaHidden = svgAttrs.includes('aria-hidden');
+    
+    let newSvgAttrs = svgAttrs;
+    
+    if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+    } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
+      newSvgAttrs = ` role="img"${svgAttrs}`;
+    }
+    
+    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${svgContent}</svg>${suffix}`;
+  });
+  
+  if (updatedContent !== content) {
+    fs.writeFileSync(filePath, updatedContent);
+    console.log(`Fixed SVG data URI accessibility in ${filePath}`);
+  }
+  
+  return updatedContent !== content;
 }
 
 function addressAccessibilityIssues(reportPath) {

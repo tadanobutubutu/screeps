@@ -48,7 +48,9 @@ function getSvgAccessibleName(svg) {
 
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
-// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {

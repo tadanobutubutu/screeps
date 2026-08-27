@@ -1,21 +1,3 @@
-html
-<table>
-  <!-- Other table content -->
-  <thead>
-    <tr>
-      <th scope="col"><div>src/constants.js</div></th>
-      <th scope="col"><div>src/managers/roomManager.js</div></th>
-      <th scope="col"><div>src/managers/spawnManager.js</div></th>
-      <!-- More header cells -->
-    </tr>
-  </thead>
-  <!-- Table body -->
-  <tbody>
-    <!-- Table rows with data -->
-  </tbody>
-</table>
-
-```javascript
 // main.js
 
 // ... existing code (preserved) ...
@@ -42,60 +24,72 @@ function addProperLandmarkRegions() {
     footer.setAttribute('role', 'contentinfo');
   }
 
-  // Function to wrap the primary content in a main element
-  const wrapPrimaryContentInMain = (document) => {
-    if (!document || !document.body) {
-      return document;
+  // Function to ensure all SVG elements have accessible names
+  const ensureSvgAccessibleNames = () => {
+    if (typeof document === 'undefined' || !document.body) {
+      return;
     }
 
-    // Check if main element already exists with main-content id
-    const existingMain = document.querySelector('#main-content');
-    if (existingMain) {
-      return document;
-    }
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      // Check if SVG is hidden
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                       svg.getAttribute('hidden') !== null ||
+                       svg.style.display === 'none' ||
+                       svg.style.visibility === 'hidden';
 
-    // Check if any main element exists
-    const anyMain = document.querySelector('[role="main"]');
-    if (anyMain) {
-      // Add id to existing main element if it doesn't have one
-      if (!anyMain.id) {
-        anyMain.id = 'main-content';
+      if (isHidden) {
+        return;
       }
-      return document;
-    }
 
-    // Create main element and wrap appropriate content
-    const main = document.createElement('main');
-    main.id = 'main-content';
-    main.setAttribute('role', 'main');
+      // Check for existing accessible name
+      const hasAriaLabel = svg.getAttribute('aria-label');
+      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
+      const hasTitle = svg.querySelector('title');
+      const hasDesc = svg.querySelector('desc');
 
-    const body = document.body;
+      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+        return;
+      }
 
-    // Get all direct children of body
-    const bodyChildren = Array.from(body.childNodes).filter(node => node.nodeType === 1);
+      // Determine if decorative - SVGs used for favicons/decorative purposes
+      const isFavicon = svg.closest('link') !== null ||
+                        (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
+                        svg.getAttribute('data-favicon') === 'true';
 
-    if (bodyChildren.length > 0) {
-      // Move children to main element
-      bodyChildren.forEach(child => {
-        main.appendChild(child);
-      });
-
-      // Append main to body
-      body.appendChild(main);
-    }
-
-    return document;
+      if (isFavicon) {
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+      } else {
+        // Add a generic title for non-decorative SVGs
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = 'Icon';
+        svg.insertBefore(title, svg.firstChild);
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'Icon');
+      }
+    });
   };
 
-  // Rest of the original functions are left unchanged (accessibility fixes, newFunction, etc.)
+  ensureSvgAccessibleNames();
 
-  // Add the wrapPrimaryContentInMain function to the exports
-  export { wrapPrimaryContentInMain };
+  // Run again after DOM mutations
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver(() => {
+      ensureSvgAccessibleNames();
+    });
+
+    if (document.body) {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['aria-hidden', 'aria-label', 'aria-labelledby']
+      });
+    }
+  }
 }
 
 addProperLandmarkRegions();
 
 // ... existing code (preserved) ...
-```
-
-This file now includes both changes. The `addProperLandmarkRegions()` function has been updated to include the logic from the original file, and the new `wrapPrimaryContentInMain` function has been added to the exports of the file.

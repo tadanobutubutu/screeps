@@ -50,11 +50,22 @@ function implementNewFunction() {
   ensureUniqueLandmarks();
 }
 
+// Add scope attribute to th elements for accessibility
+function addScopeToTableHeaders() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
 // Export the module functions
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
   implementNewFunction,
+  addScopeToTableHeaders,
   renderGraphContent
 };

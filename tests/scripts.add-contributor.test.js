@@ -119,6 +119,18 @@ describe('add-contributor', () => {
             const result = await promise;
             expect(result).toEqual(mockUser);
         });
+
+        it('should throw error on invalid/malicious username attempting path traversal', async () => {
+            await expect(script.getUserInfo('../admin')).rejects.toThrow(
+                'Invalid GitHub username for API request: ../admin'
+            );
+            await expect(script.getUserInfo('user/extra')).rejects.toThrow(
+                'Invalid GitHub username for API request: user/extra'
+            );
+            await expect(script.getUserInfo('user;cat /etc/passwd')).rejects.toThrow(
+                'Invalid GitHub username for API request: user;cat /etc/passwd'
+            );
+        });
     });
 
     describe('getAllContributorsConfig', () => {
@@ -220,6 +232,12 @@ describe('add-contributor', () => {
             require('child_process').execFileSync.mockImplementation(() => { throw new Error('Git failed'); });
             script.commitAndPush('testuser');
             expect(console.warn).toHaveBeenCalledWith('⚠️  Failed to commit/push:', 'Git failed');
+        });
+
+        it('should reject invalid username for commit', () => {
+            script.commitAndPush('../malicious');
+            expect(console.warn).toHaveBeenCalledWith('⚠️  Invalid username for commit: ../malicious');
+            expect(require('child_process').execFileSync).not.toHaveBeenCalled();
         });
     });
 

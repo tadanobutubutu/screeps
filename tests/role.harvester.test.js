@@ -1,3 +1,8 @@
+
+jest.mock('system.adaptive', () => ({
+    isEnabled: jest.fn().mockReturnValue(true),
+}));
+
 /**
  * role.harvester.js のユニットテスト
  */

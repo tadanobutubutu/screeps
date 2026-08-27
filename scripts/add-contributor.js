@@ -53,8 +53,11 @@ async function githubRequest(endpoint, options = {}) {
  * Issue 作成者の情報を取得
  */
 async function getUserInfo(username) {
+    if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9-]+$/.test(username)) {
+        throw new Error(`Invalid GitHub username for API request: ${username}`);
+    }
     console.log(`👤 Fetching user info for: ${username}`);
-    const user = await githubRequest(`/users/${username}`);
+    const user = await githubRequest(`/users/${encodeURIComponent(username)}`);
     return user;
 }
 
@@ -125,6 +128,10 @@ function updateReadme() {
  * 変更をコミット・プッシュ
  */
 function commitAndPush(username) {
+    if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9-]+$/.test(username)) {
+        console.warn(`⚠️  Invalid username for commit: ${username}`);
+        return;
+    }
     try {
         console.log('📤 Committing changes...');
         execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });

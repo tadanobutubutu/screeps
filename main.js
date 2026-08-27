@@ -11,8 +11,10 @@ function renderDependencyGraphContent(data) {
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks goes here.
-  // This function is to be added as per the issue report.
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    mainElements[1].remove();
+  }
 }
 
 // Fix fake link issue

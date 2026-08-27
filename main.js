@@ -1,4 +1,5 @@
-// TODO: Address accessibility issues from insight report
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
 /**
@@ -60,7 +61,16 @@ function handleRotateBack() {
     }
 }
 
-// (Existing code for rotateDependencyGraph and init functions)
+/**
+ * Rotates the dependency graph by the specified degrees.
+ * @param {number} degrees - The rotation angle in degrees.
+ */
+function rotateDependencyGraph(degrees) {
+    const graphElement = document.getElementById('dependency-graph');
+    if (graphElement) {
+        graphElement.style.transform = `rotate(${degrees}deg)`;
+    }
+}
 
 /**
  * Initializes the dependency graph controller.

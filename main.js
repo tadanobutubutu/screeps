@@ -109,7 +109,7 @@ const addSvgAccessibleNames = () => {
     const ariaLabel = svg.getAttribute('aria-label') ||
                       svg.getAttribute('aria-labelledby') ||
                       svg.getAttribute('title') ||
-                      svg.getAttribute('desc') ? svg.getAttribute('desc') : null);
+                      svg.getAttribute('desc') ? svg.getAttribute('desc') : null;
 
     if (!ariaLabel) {
       svg.setAttribute('aria-label', 'SVG Icon ' + (index + 1));
@@ -131,18 +131,16 @@ const fixFakeLinkIssue = () => {
   });
 };
 
-// New function to validate the landmarks
+// Validate the landmarks
 const validateLandmark = () => {
   const landmarks = document.querySelectorAll('[role]');
   
-  landmarks.forEach(landmark => {
-    const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'complementary'];
-    const role = landmark.getAttribute('role');
-    
-    if (role && !validRoles.includes(role)) {
-      console.warn(`Invalid landmark role: ${role}`);
-    }
-  });
+  const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const role = landmark.getAttribute('role');
+  
+  if (role && !validRoles.includes(role)) {
+    console.warn(`Invalid landmark role: ${role}`);
+  }
 };
 
 // Export accessibility utilities

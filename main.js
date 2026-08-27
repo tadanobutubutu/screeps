@@ -247,44 +247,41 @@ function checkTableStructure() {
 function checkLandmarkElements() {
   const results = [];
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const semanticLandmarks = {
-    'main': document.querySelector('main'),
-    'nav': document.querySelector('nav'),
-    'search': document.querySelector('search'),
-    'footer': document.querySelector('footer'),
-    'aside': document.querySelector('aside'),
-    'header': document.querySelector('header')
+  
+  // Mapping of semantic HTML tags to their landmark roles
+  const semanticToLandmark = {
+    'main': 'main',
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
   };
 
+  // Check each landmark role
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    elements.forEach((element, index) => {
-      const hasAccessibleName = 
-        element.getAttribute('aria-label') ||
-        element.getAttribute('aria-labelledby') ||
-        element.textContent.trim();
-      
-      if (!hasAccessibleName && role !== 'main') {
-        results.push({
-          element: element,
-          role: role,
-          issue: `Landmark role "${role}" is missing an accessible name`
-        });
-      }
-
-      if (role === 'region') {
-        const hasLabel = 
-          element.getAttribute('aria-label') ||
-          element.getAttribute('aria-labelledby');
-        if (!hasLabel) {
+    const semanticTag = Object.keys(semanticToLandmark).find(
+      key => semanticToLandmark[key] === role
+    );
+    
+    if (semanticTag) {
+      const elements = document.querySelectorAll(semanticTag);
+      elements.forEach(el => {
+        const hasAccessibleName = 
+          el.getAttribute('aria-label') ||
+          el.getAttribute('aria-labelledby') ||
+          (el.textContent.trim());
+        
+        if (!hasAccessibleName && role !== 'main') {
           results.push({
-            element: element,
+            element: el,
             role: role,
-            issue: 'Region landmark requires an accessible name (aria-label or aria-labelledby)'
+            issue: `Landmark role "${role}" is missing an accessible name`
           });
         }
-      }
-    });
+      });
+    }
   });
 
   return results;

@@ -1,4 +1,4 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 
@@ -18,3 +18,26 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+function wrapPrimaryContentInMain(content) {
+  // Create a main element
+  const mainElement = document.createElement('main');
+  
+  // If content is provided as a string (HTML), set it as innerHTML
+  if (typeof content === 'string') {
+    mainElement.innerHTML = content;
+  }
+  // If content is a DOM element, append it to the main element
+  else if (content instanceof HTMLElement) {
+    mainElement.appendChild(content);
+  }
+  // If content is a selector string, find the element and wrap it
+  else if (typeof content === 'function') {
+    const selectedContent = content();
+    if (selectedContent) {
+      mainElement.appendChild(selectedContent);
+    }
+  }
+  
+  return mainElement;
+}

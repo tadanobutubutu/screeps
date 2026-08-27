@@ -75,14 +75,29 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// New function for REACT_025 (ensuring unique landmarks)
+// Updated function for REACT_025 (ensuring unique landmarks)
 function ensureUniqueLandmarksFromInsightReport(insightReport) {
   const issues = insightReport.issues || [];
+  let uniqueLandmarks = {};
+
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
+      const element = document.querySelector(issue.selector);
+
+      // If the landmark role exists, add it to the unique landmarks object
+      if (element && issue.ariaRole) {
+        if (!uniqueLandmarks[issue.ariaRole]) {
+          uniqueLandmarks[issue.ariaRole] = true;
+        } else {
+          // Remove the role if it's not unique
+          element.removeAttribute('role');
+        }
+      }
     }
   });
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
 }
 
 module.exports = {

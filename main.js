@@ -1,4 +1,4 @@
-// Assuming this is part of the `main.js` that handles rendering the HTML content for `dependency-graph.html`
+// TODO: Create or update the affected functions to be accessible
 export function renderDependencyGraphPage() {
   const content = `
     <html>

@@ -6,12 +6,30 @@ function rotateBack() {
 // Assuming the button click is handled by JavaScript, here's how it might look:
 document.getElementById('unrotate').addEventListener('click', rotateBack);
 
+// - REACT_017: Add/fix 4 landmark issues
+const landmarks = document.querySelectorAll('.landmark');
+landmarks.forEach((landmark, index) => {
+  // Assuming you know which ARIA roles are correct for your landmarks
+  landmark.setAttribute('role', 'landmark');
+  landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+});
+
 // main.js
 
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
+  }
+
+  // - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+  const landmark1 = document.getElementById('landmark1');
+  const landmark2 = document.getElementById('landmark2');
+  if (landmark1) {
+    landmark1.setAttribute('id', 'unique-landmark-1');
+  }
+  if (landmark2) {
+    landmark2.setAttribute('id', 'unique-landmark-2');
   }
 
   const nav = document.querySelector('nav');

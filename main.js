@@ -1,73 +1,31 @@
-// TODO: Implement getSvgAccessibleName() function here
+// TODO: Implement functions to ensure unique landmarks here
 
 /**
- * Get the accessible name of an SVG element
- * @param { SVGElement } svgElement - The SVG element for which to get the accessible name
- * @returns { string } The accessible name of the SVG element
+ * Ensure unique landmark IDs
+ * @param { Object } landmarks - The existing landmark regions object
+ * @returns { Object } The updated landmarks object with unique IDs
  */
-function getSvgAccessibleName(svgElement) {
-  // Implement the logic to determine the accessible name of the SVG element
-  // For instance, it could be the title attribute, a combination of title and alt attributes, or custom logic
-  let accessibleName = '';
-  const title = svgElement.getAttribute('title');
-  const alt = svgElement.getAttribute('alt');
-  
-  if (title) {
-    accessibleName = title;
-  } else if (alt) {
-    accessibleName = alt;
-  } else {
-    // Fallback to empty string or custom logic to generate name
-    accessibleName = '';
+function ensureUniqueLandmarks(landmarks) {
+  const ids = Object.values(landmarks).map(item => item.id);
+  const uniqueIds = new Set(ids);
+  const updatedIds = uniqueIds.values();
+
+  let updatedLandmarks = {};
+  for (const landmark of Object.values(landmarks)) {
+    updatedLandmarks[landmark.id || `landmark-${updatedIds.next().value}`] = landmark;
   }
 
-  return accessibleName;
+  return updatedLandmarks;
 }
 
 /**
- * Adds proper landmark regions to the document for accessibility
+ * Implement functions to ensure unique landmarks here
  * @param { Document } doc - The document object to add landmark regions to
- * @returns { Object } An object containing references to the created landmark regions
+ * @returns { Object } An object containing references to the created and updated landmark regions
  */
-function addProperLandmarkRegions(doc) {
-  const landmarks = {};
-  
-  // Create main landmark
-  const main = doc.createElement('main');
-  main.setAttribute('role', 'main');
-  main.id = 'main-content';
-  landmarks.main = main;
-  
-  // Create navigation landmark
-  const nav = doc.createElement('nav');
-  nav.setAttribute('aria-label', 'Main navigation');
-  nav.id = 'main-nav';
-  landmarks.nav = nav;
-  
-  // Create header/banner landmark
-  const header = doc.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.id = 'site-header';
-  landmarks.header = header;
-  
-  // Create footer/contentinfo landmark
-  const footer = doc.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = 'site-footer';
-  landmarks.footer = footer;
-  
-  // Create search landmark
-  const search = doc.createElement('div');
-  search.setAttribute('role', 'search');
-  search.id = 'search-region';
-  landmarks.search = search;
-  
-  // Create complementary landmark for sidebars
-  const aside = doc.createElement('aside');
-  aside.id = 'sidebar';
-  landmarks.aside = aside;
-  
-  return landmarks;
+function addAndEnsureUniqueLandmarkRegions(doc) {
+  const landmarks = addProperLandmarkRegions(doc);
+  return ensureUniqueLandmarks(landmarks);
 }
 
 // TODO: Add back any required exports that might have been removed
@@ -78,7 +36,7 @@ function addProperLandmarkRegions(doc) {
 // Continue to export all existing functions
 module.exports = {
   addProperLandmarkRegions,
-  addProperAccountManagement,
+  addAndEnsureUniqueLandmarkRegions, // Add the new function to the exports
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
@@ -87,5 +45,5 @@ module.exports = {
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
-  getSvgAccessibleName // Add the new function to the exports
+  getSvgAccessibleName
 };

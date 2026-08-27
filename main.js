@@ -1,3 +1,4 @@
+// TODO: Add back any required exports that might have been?
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 function improveAccessibility() {
   // Add ARIA labels to buttons without them

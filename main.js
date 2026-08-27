@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
@@ -101,6 +98,32 @@ function fixTableStructureIssues() {
   });
 }
 
+// Fix table header cell scope
+function fixTableHeaderCellScope() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope')) {
+        // Check if cell is in thead
+        const thead = table.querySelector('thead');
+        if (thead && thead.contains(cell)) {
+          cell.setAttribute('scope', 'col');
+        } else {
+          // Check if it's the first cell in its row
+          const row = cell.parentElement;
+          if (row && row.children[0] === cell) {
+            cell.setAttribute('scope', 'row');
+          } else {
+            // Default to column scope
+            cell.setAttribute('scope', 'col');
+          }
+        }
+      }
+    });
+  });
+}
+
 // Add main landmark
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
@@ -145,18 +168,9 @@ function implementNewFunction() {
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
+  fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  // Implementation for fixing table structure issues goes here.
-}
-
-// Fix table header cell scope
-function fixTableHeaderCellScope() {
-  // Implementation for fixing table header cell scope issues goes here.
 }
 
 // Existing code preserved below
@@ -184,6 +198,3 @@ module.exports = {
 
 // Existing code preserved below
 main();
-```
-
-I moved the added functions `fixTableStructureIssues` and `fixTableHeaderCellScope` to remain consistent with the rest of the exported functions, keeping them separate from the `implementNewFunction` for better modularity. The other changes were made to preserve both sets of additions and eliminate conflict markers.

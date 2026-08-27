@@ -94,8 +94,6 @@ function checkAccessibility(container = document) {
   return results;
 }
 
-// Add the new renderIndexView function
-
 /**
  * Renders the index view of the application.
  */
@@ -104,7 +102,8 @@ function renderIndexView() {
   // Example of creating a button in-page:
   const button = document.createElement('button');
   button.textContent = 'Click Me';
-  // ...
+  // Append the button to the body or another element as needed
+  document.body.appendChild(button);
 }
 
 // Exports for all functions

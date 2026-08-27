@@ -1,6 +1,7 @@
 // TODO: Address accessibility issues from insight report:
 // ... existing comment block
 
+
 import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
@@ -19,12 +20,13 @@ function fixTableStructure(document) {
 
   tables.forEach((table) => {
     // ... existing table structure fix implementation
+    fixedCount++;
   });
 
   return fixedCount;
 }
 
-// Function to add/main landmark
+// Function to add/fix/main landmark
 function addMainLandmark(document) {
   // ... existing main landmark implementation
 }
@@ -42,13 +44,14 @@ function addSvgAccessibleNames(document) {
 
 // Function to fix fake link issue (merged fixes)
 function fixFakeLinkIssue(document) {
-  fixFakeLinkIssues(document);
+  // ... updated fake link fix implementation
   let count = 0;
 
-  const clickableElements = document.querySelectorAll('[onclick]');
+  const clickableElements = document.querySelectorAll('[onclick], [role="button"]');
 
   clickableElements.forEach(element => {
     // ... updated fake link fix implementation
+    count++;
   });
 
   return count;
@@ -56,17 +59,17 @@ function fixFakeLinkIssue(document) {
 
 // Function to fix fake link issues (exclusive for anchors with href="#")
 function fixFakeLinkIssues(document) {
-      const fakeLinks = document.querySelectorAll('[role="link"]');
-      fakeLinks.forEach(link => {
-        if (link.tagName !== 'A') {
-          link.setAttribute('aria-label', 'This link goes to a section within the page');
-        }
-      });
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (link.tagName !== 'A') {
+      link.setAttribute('aria-label', 'This link goes to a section within the page');
+    }
+  });
 }
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-      // ... updated landmark issue fix implementation
+  // ... updated landmark issue fix implementation
 }
 
 function addLandmarkRegions(document) {
@@ -122,25 +125,29 @@ function fixButtonIdentifiers(document) {
   });
 }
 
-// Function to add the main landmark to docs/index.html
+// Function to add the main landmark to docs/index. html
 function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(document) {
+  // Call all accessibility fix functions
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
   ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
+  addAccessibleNamesToSVGs(document);
   fixFakeLinkIssue(document);
+  fixFakeLinkIssues(document);
   fixLandmarkIssues(document);
   addLandmarkRegions(document);
   uniqueLandmarks(document);
   fixImageAltTexts(document);
   googleSignIn(document);
   fixButtonIdentifiers(document);
+  addMainLandmarkToIndex(document);
 }
 
 // Export all functions

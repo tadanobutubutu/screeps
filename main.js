@@ -1,1 +1,23 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Main application JavaScript file
+
+// Rotate functionality
+function setupRotateBack() {
+  const unrotateLink = document.getElementById('unrotate');
+  if (unrotateLink) {
+    unrotateLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Reset rotation
+      document.querySelector('.rotated-content').style.transform = 'rotate(0deg)';
+    });
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  setupRotateBack();
+});
+
+// Export for testing
+module.exports = {
+  setupRotateBack
+};

@@ -173,5 +173,5 @@ module.exports = {
   renderIndexView,
   calculateSum,
   ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRegions
+  addProperLandmarkRegions
 };

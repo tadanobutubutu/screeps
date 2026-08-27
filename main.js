@@ -64,10 +64,10 @@ function renderDependencyGraph() {
   // ... (existing code to render the dependency graph)
 
   // Replace the anchor with a button
-  const rotateBackLink = document.getElementById('unrotate');
+  const rotateBackLink = ...
   if (rotateBackLink) {
     // Remove the anchor element
-    rotateBackLink.parentNode.removeChild(rotateBackLink);
+    ...
 
     // Create a new button element
     const rotateBackButton = document.createElement('button');
@@ -80,12 +80,16 @@ function renderDependencyGraph() {
     };
 
     // Append the button to the parent element
-    rotateBackButton.parentNode.appendChild(rotateBackButton);
+    ...
   }
 }
 
 // ... (other code)
 
 export default function Main() {
-  return <div>Please provide the actual main.js content to fix the accessibility issues.</div>;
+  return (
+    <main role="main">
+      <div>Please provide the actual main.js content to fix the accessibility issues.</div>
+    </main>
+  );
 }

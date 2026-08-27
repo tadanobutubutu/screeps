@@ -61,6 +61,18 @@ const fixFakeLinkIssue = () => {
   });
 };
 
+// New function to validate the landmarks
+const validateLandmark = () => {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const missingLandmarks = landmarks.filter(landmark => {
+    return !document.getElementById(landmark);
+  });
+
+  if (missingLandmarks.length > 0) {
+    throw new Error(`Missing landmarks: ${missingLandmarks.join(', ')}`);
+  }
+};
+
 module.exports = {
   getAccessibleName,
   setAccessibleName,
@@ -70,5 +82,6 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  validateLandmark
 };

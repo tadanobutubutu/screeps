@@ -1,4 +1,4 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
 
 // ... (other code in main.js)
 
@@ -7,7 +7,7 @@
 
 // After:
 // Replace the <a> tag with a <button> element
-// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
 
 // ... (other code in main.js)
 
@@ -18,3 +18,7 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Additional accessibility-related code changes:
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values

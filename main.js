@@ -13,7 +13,7 @@ import { class1, function1, Object1 } from './path/to/module';
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', lang);
   }
   return document;
@@ -28,7 +28,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = Array.from(table.querySelectorAll('tr'));
+    const rows = table.querySelectorAll('tr');
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -39,7 +39,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = Array.from(table.querySelectorAll('tr'));
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -51,14 +51,14 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
+      const cells = row.querySelectorAll('td, th');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
         th.textContent = firstCell.textContent;
         th.scope = 'col';
-        firstCell.parentNode.replaceChild(th, firstCell);
+        row.replaceChild(th, firstCell);
         fixedCount++;
       }
     });
@@ -66,7 +66,7 @@ function fixTableStructure(document) {
     // Additional HEAD logic: ensure scope on header cells
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         th.setAttribute('scope', 'col');
         fixedCount++;
       }
@@ -101,7 +101,7 @@ function addMainLandmark(document) {
   }
   
   // Ensure main has proper role if not using native element
-  if (!mainElement.hasAttribute('role')) {
+  if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
   
@@ -188,8 +188,8 @@ function fixFakeLinkIssue(document) {
     
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('location.href') || 
-        onclick.includes('navigate'))) {
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -197,7 +197,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.setAttribute('onkeypress', `if(event.key==='Enter'){${onclick}}`);
+      span.addEventListener('click', element.onclick);
       
       // Copy styling if available
       if (element.className) {
@@ -214,7 +214,7 @@ function fixFakeLinkIssue(document) {
 
 // HEAD version: simpler fake link fix for anchors with href="#"
 function fixFakeLinkIssues(document) {
-  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
@@ -291,7 +291,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onbutton');
+    const buttonContainer = document.querySelector('#google-signin-button');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -321,72 +321,3 @@ function fixButtonIdentifiers(document) {
       button.setAttribute('aria-label', button.getAttribute('aria-label') || 'Primary action');
     }
   });
-  
-  function getAccessibleName(button) {
-    return button.getAttribute('aria-label') || 
-           button.getAttribute('aria-labelledby') ||
-           button.textContent?.trim() ||
-           button.value;
-  }
-}
-
-// Add the fix for REACT_017: Add <main> landmark to docs/index.html
-function addMainLandmarkToIndex(document) {
-  const indexContent = document.querySelector('#content');
-  if (indexContent) {
-    const mainElement = document.createElement('main');
-    mainElement.appendChild(indexContent);
-    const container = document.createElement('div');
-    container.classList.add('container');
-    mainElement.appendChild(container);
-    document.body.appendChild(mainElement);
-  }
-}
-
-// TODO: Implement function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport(document) {
-  // Assuming the insight report provides an object with the issues to be addressed
-  const insightReport = {
-    'REACT_015': () => addLangAttribute(document),
-    'REACT_041': () => addSvgAccessibleNames(document),
-    'REACT_036': () => { fixFakeLinkIssue(document); fixFakeLinkIssues(document); },
-    'REACT_017': () => { fixLandmarkIssues(document); addLandmarkRegions(document); addMainLandmark(document); },
-    'REACT_027': () => fixTableStructure(document),
-    'REACT_025': () => { ensureUniqueLandmarks(document); uniqueLandmarks(document); },
-    'REACT_037': () => googleSignIn(document),
-    'REACT_040': () => fixButtonIdentifiers(document),
-    // Additional fixes
-    'IMAGE_ALT': () => fixImageAltTexts(document),
-    'INDEX_MAIN': () => addMainLandmarkToIndex(document),
-  };
-
-  Object.values(insightReport).forEach((functionToCall) => {
-    if (typeof functionToCall === 'function') {
-      functionToCall();
-    }
-  });
-}
-
-// Export all functions
-export { 
-  addLangAttribute, 
-  fixTableStructure, 
-  addMainLandmark, 
-  ensureUniqueLandmarks, 
-  addSvgAccessibleNames, 
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  handleCredentialResponse,
-  fixButtonIdentifiers,
-  addMainLandmarkToIndex,
-  implementAccessibilityFixesFromReport,
-  class1, 
-  function1, 
-  Object1 
-};

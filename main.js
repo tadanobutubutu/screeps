@@ -1,4 +1,3 @@
-// Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import JSDOM from "jsdom";
@@ -6,8 +5,6 @@ import JSDOM from "jsdom";
 // Import content modules for dependency graphs and index views
 import { dependencyGraphContent } from "./dependencyGraphContent";
 import { indexContent } from "./indexContent";
-
-// ... (Pre-existing code)
 
 // Add the following helper function at the end of the main.js file to create a mock React context
 function createReactContext() {
@@ -32,9 +29,6 @@ function createReactContext() {
   };
 }
 
-// Find the appropriate spot inside the addAriaLabelledbyIfNeeded function
-// and integrate the required imports and new logic:
-
 function addAriaLabelledbyIfNeeded(elem) {
   if (!elem) return;
 
@@ -58,9 +52,6 @@ function addAriaLabelledbyIfNeeded(elem) {
   // ... (Pre-existing logic)
 }
 
-// Modify the initAriaLabels function to have the context setup as a property,
-// and use that context to render React components:
-
 function initAriaLabels() {
   const elements = [];
   elements.forEach((elem) => {
@@ -78,13 +69,6 @@ function initAriaLabels() {
   });
 }
 
-/**
- * Wraps the primary content in a <main> element for semantic HTML structure.
- * This function finds the main content area and wraps it appropriately.
- * 
- * @param {Object} context - The React context containing window and document references
- * @returns {HTMLElement|null} - The created main element or null if no content found
- */
 function wrapPrimaryContentInMain(context) {
   if (!context || !context.document) return null;
   
@@ -116,36 +100,16 @@ function wrapPrimaryContentInMain(context) {
   return mainElement;
 }
 
-/**
- * Renders a dependency graph view using the dependencyGraphContent module.
- * 
- * @param {Object} context - The React context containing window and document references
- * @param {Object} options - Optional configuration for the dependency graph
- * @returns {string} - The rendered HTML string of the dependency graph
- */
 function renderDependencyGraph(context, options = {}) {
   const graphContent = dependencyGraphContent({ context, ...options });
   return ReactDOMServer.renderToString(graphContent);
 }
 
-/**
- * Renders an index view using the indexContent module.
- * 
- * @param {Object} context - The React context containing window and document references
- * @param {Object} options - Optional configuration for the index view
- * @returns {string} - The rendered HTML string of the index view
- */
 function renderIndexView(context, options = {}) {
   const index = indexContent({ context, ...options });
   return ReactDOMServer.renderToString(index);
 }
 
-/**
- * Updates the DOM element with the appropriate content based on its data-type attribute.
- * 
- * @param {HTMLElement} elem - The DOM element to update
- * @param {Object} context - The React context containing window and document references
- */
 function updateElementContent(elem, context) {
   if (!elem || !context) return;
   

@@ -17,6 +17,8 @@ module.exports = {
   existingFunction1,
   existingFunction2,
   // ... add other existing functions here if not already exported
+  newFunction1,
+  newFunction2,
 };
 
 // Add new functions as module.exports

@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
 // Add these imports at the top of main.js
 import React from "react";
 import ReactDOMServer from "react-dom/server";

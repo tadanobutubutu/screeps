@@ -1,5 +1,3 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
-
 // Import the required module
 const { someFunction } = require('./someModule');
 

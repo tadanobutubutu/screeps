@@ -1,9 +1,6 @@
-Here is the resolved file content:
-
-```javascript
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = document.querySelector('[data-dependency-graph]');
 if (dependencyGraph) {
   dependencyGraph.setAttribute('role', 'tree');
   dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -12,7 +9,7 @@ if (dependencyGraph) {
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
-  const container = document.getElementById('dependencyGraph');
+  const container = document.querySelector('[data-dependency-graph]');
   if (container) {
     container.innerHTML = data;
   }
@@ -21,7 +18,7 @@ function renderDependencyGraphContent(data) {
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -35,7 +32,7 @@ function ensureUniqueLandmarks() {
 
 // Fix fake link issue
 function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
+  const fakeLinks = document.querySelectorAll('div[role="link"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
@@ -61,4 +58,3 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
-```

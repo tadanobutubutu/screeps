@@ -167,7 +167,6 @@ function replaceButtonId(filePath, newButtonId) {
   let match;
 
   // Replace id attributes
-  let countReplacements = 0;
   const updatedContent = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
     return `id="${newButtonId}"`;

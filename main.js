@@ -8,7 +8,7 @@
 // (Added functions for REACT_017 and new REACT_025)
 
 // TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');

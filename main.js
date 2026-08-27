@@ -1,34 +1,42 @@
 // TODO: add the new functions or changes requested in the issue
-// Here is the implementation for setting accessible names to SVGs
+// Here is the implementation for checking link accessibility
 
 /**
- * Sets accessibility attributes on an SVG element.
- * @param {SVGElement} svgElement - The SVG element to update
- * @param {Object} accessibilityProps - Object containing accessibility properties
- * @param {string} [accessibilityProps.role='img'] - The ARIA role for the SVG
- * @param {string} [accessibilityProps['aria-label']] - The accessible name for the SVG
- * @param {string} [accessibilityProps['aria-labelledby']] - ID reference to label element
- * @param {string} [accessibilityProps['aria-describedby']] - ID reference to description element
- * @param {string} [accessibilityProps.tabindex] - Tab order of the element
- * @throws {Error} If svgElement or accessibilityProps are not provided
+ * Checks if a link has appropriate accessibility attributes.
+ * @param {HTMLElement} link - The link element to check
+ * @returns {boolean} True if the link is accessible, false otherwise
  */
-function setSvgAccessibilityProps(svgElement, accessibilityProps) {
-  if (!svgElement || !accessibilityProps) {
-    throw new Error('Invalid arguments: svgElement and accessibilityProps are required.');
+function isLinkAccessible(link) {
+  if (!(link instanceof HTMLAnchorElement)) {
+    return false; // Ensure the element is a valid anchor element
   }
 
-  if (typeof svgElement.setAttribute !== 'function') {
-    throw new Error('Invalid svgElement: must be an SVG element with setAttribute method.');
+  // Check for the presence of `href` attribute
+  if (!link.hasAttribute('href')) {
+    return false;
   }
 
-  for (const [key, value] of Object.entries(accessibilityProps)) {
-    if (value !== null && value !== undefined) {
-      svgElement.setAttribute(key, value);
+  // Check for the presence of `aria-label` or `title` attribute
+  if (!link.hasAttribute('aria-label') && !link.hasAttribute('title')) {
+    return false;
+  }
+
+  // Check if the `href` is a valid URL
+  try {
+    const url = new URL(link.getAttribute('href'));
+    if (!url.href.startsWith('http') && !url.href.startsWith('https')) {
+      return false; // Links should ideally be to HTTP or HTTPS URLs
     }
+  } catch (e) {
+    return false; // Invalid URL
   }
+
+  // If all checks pass, the link is accessible
+  return true;
 }
 
 // Export the new function
 module.exports = {
   setSvgAccessibilityProps,
+  isLinkAccessible,
 };

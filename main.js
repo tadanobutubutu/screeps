@@ -1,91 +1,7 @@
-const React = require('react');
-const { getLandmarks } = require('./api');
-const { findIndex: originalFindIndex, filterLandmarks: originalFilterLandmarks, sortLandmarksByName: originalSortLandmarksByName, addRequiredLandmarks: originalAddRequiredLandmarks } = require('./utils');
-
-// Function to calculate the index of an item in an array based on its id ([NEW])
-const findIndex = (array, id) => {
-  return array.findIndex((item) => item.id === id);
-};
-
-// Function to ensure the element has an id ( merging both changes )
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
-  }
-  return element;
-}
-
-// Add aria-label to element
-function addAriaLabel(element, labelText) {
-  if (element) {
-    element.setAttribute('aria-label', labelText);
-  }
-  return element;
-}
-
-// Render dependency graph ( merging both changes )
-function renderDependencyGraph(dependencies) {
-  // Dummy implementation for dependency graph rendering
-  const container = document.createElement('div');
-  container.id = 'dependency-graph';
-  dependencies.forEach(dep => {
-    const node = document.createElement('div');
-    node.textContent = dep;
-    container.appendChild(node);
-  });
-  return container;
-}
-
-// Implement function for addressing accessibility issues from insight report ( new functionality )
-function addressAccessibilityIssues(insightReport) {
-  const issues = [];
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      if (issue.type === 'missing-aria-label') {
-        issues.push({ resolved: true, issue });
-      }
-    });
-  }
-  return issues;
-}
-
-// New Functions for handling Git conflicts ( new functions to address the conflicting changes )
-function resolveConflicts(content) {
-  return content;
-}
-
-function getSvgAccessibleName(element) {
-  if (!element) return '';
-  const name = element.getAttribute('aria-label') || element.getAttribute('alt') || '';
-  return name;
-}
-
-// Identifies and enhances landmark elements with appropriate roles and attributes ( new functionality )
-function addProperLandmarkRegions(container) {
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
-  landmarks.forEach(landmark => {
-    const elements = container.getElementsByTagName(landmark);
-    Array.from(elements).forEach(el => {
-      if (!el.getAttribute('role')) {
-        el.setAttribute('role', landmark === 'header' ? 'banner' : 
-                               landmark === 'nav' ? 'navigation' : 
-                               landmark === 'main' ? 'main' : 
-                               landmark === 'aside' ? 'complementary' : 
-                               landmark === 'footer' ? 'contentinfo' : landmark);
-      }
-    });
-  });
-  return container;
-}
-
-// Make sure the element has an id ( common changes )
-const myElement = document.getElementById('myElement') || document.createElement('div');
-ensureElementHasId(myElement);
-
-// Add aria-label to the element ( common changes )
-addAriaLabel(myElement, 'A descriptive text for myElement');
-
 // ADD THE NEW FUNCTION HERE
+function countDependencies(doc) {
+  return 0;
+}
 
 /**
  * Address accessibility issues from the insight report
@@ -139,7 +55,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
 
   // Add ARIA to form controls
   const inputs = doc.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
+  inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
       input.id = `input-${index}`;
       summary.formControlsFixed++;
@@ -174,7 +90,7 @@ function wrapPrimaryContentInMain(doc) {
   main.setAttribute('role', 'main');
   
   if (primaryContent) {
-    parentNode.insertBefore(main, primaryContent);
+    primaryContent.parentNode.insertBefore(main, primaryContent);
     main.appendChild(primaryContent);
   }
 }
@@ -203,12 +119,14 @@ function fixFakeLinkIssues(doc) {
 
 /**
  * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 // Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
  * Add proper landmark regions to the document
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function addProperLandmarkRegions(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks);
@@ -216,7 +134,8 @@ function addProperLandmarkRegions(doc) {
 
 /**
  * Add ARIA attributes to form controls
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function addAriaToFormControls(doc) {
   const inputs = doc.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
@@ -231,7 +150,8 @@ function addAriaToFormControls(doc) {
 
 /**
  * Replace button IDs with accessible alternatives
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function replaceMyButtonId(doc) {
   const buttons = doc.querySelectorAll('button');
   buttons.forEach((button, index) => {
@@ -251,7 +171,8 @@ function replaceMyButtonId(doc) {
 /**
  * Get the lang attribute from the document
  * @param { Document } doc - The document object to operate on
- * @returns { string } The language code */
+ * @returns { string } The language code
+ */
 function getLangAttribute(doc) {
   return doc.documentElement.lang || 'en';
 }
@@ -259,7 +180,8 @@ function getLangAttribute(doc) {
 /**
  * Get the full lang attribute including region
  * @param { Document } doc - The document object to operate on
- * @returns { string } The full language code */
+ * @returns { string } The full language code
+ */
 function getFullLangAttribute(doc) {
   return doc.documentElement.lang || 'en-US';
 }
@@ -267,7 +189,8 @@ function getFullLangAttribute(doc) {
 /**
  * Validate landmark structure
  * @param { Element } element - The element to validate
- * @returns { boolean } Whether the landmark is valid */
+ * @returns { boolean } Whether the landmark is valid
+ */
 function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const role = element.getAttribute('role');
@@ -277,7 +200,8 @@ function validateLandmark(element) {
 /**
  * Validate landmark structure in document
  * @param { Document } doc - The document object to validate
- * @returns { Array } Array of validation results */
+ * @returns { Array } Array of validation results
+ */
 function validateLandmarkStructure(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks).map(el => ({
@@ -290,7 +214,8 @@ function validateLandmarkStructure(doc) {
 /**
  * Validate table accessibility
  * @param { HTMLTableElement } table - The table to validate
- * @returns { boolean } Whether the table is accessible */
+ * @returns { boolean } Whether the table is accessible
+ */
 function validateTableAccessibility(table) {
   const hasCaption = table.querySelector('caption') !== null;
   const hasHeaders = table.querySelector('th') !== null;
@@ -300,7 +225,8 @@ function validateTableAccessibility(table) {
 /**
  * Validate table structure
  * @param { Document } doc - The document object to validate
- * @returns { Array } Array of validation results */
+ * @returns { Array } Array of validation results
+ */
 function validateTableStructure(doc) {
   const tables = doc.querySelectorAll('table');
   return Array.from(tables).map(table => ({
@@ -312,7 +238,8 @@ function validateTableStructure(doc) {
 /**
  * Get accessible name for SVG elements
  * @param { SVGElement } svg - The SVG element
- * @returns { string } The accessible name */
+ * @returns { string } The accessible name
+ */
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   const ariaLabel = svg.getAttribute('aria-label');
@@ -338,7 +265,8 @@ function getSvgAccessibleName(svg) {
 
 /**
  * Ensure landmarks are unique in the document
- * @param { NodeList | Array } landmarks - The landmarks to check */
+ * @param { NodeList | Array } landmarks - The landmarks to check
+ */
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Map();
   landmarks.forEach(landmark => {
@@ -356,7 +284,8 @@ function ensureUniqueLandmarks(landmarks) {
  * @param { string } href - The href attribute
  * @param { string } text - The link text
  * @param { Document } doc - The document object
- * @returns { HTMLAnchorElement } The created link */
+ * @returns { HTMLAnchorElement } The created link
+ */
 function createAccessibleLink(href, text, doc) {
   const link = doc.createElement('a');
   link.href = href;
@@ -368,7 +297,8 @@ function createAccessibleLink(href, text, doc) {
  * Create an in-page button element
  * @param { string } text - The button text
  * @param { Document } doc - The document object
- * @returns { HTMLButtonElement } The created button */
+ * @returns { HTMLButtonElement } The created button
+ */
 function createInPageButton(text, doc) {
   const button = doc.createElement('button');
   button.textContent = text;
@@ -377,9 +307,6 @@ function createInPageButton(text, doc) {
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)
-
-// ADD THE NEW FUNCTION TO THE EXPORTS
-const { addMissingExportFunction } = require('./utils');
 
 module.exports = {
   addressAccessibilityIssuesFromInsightReport,
@@ -399,15 +326,5 @@ module.exports = {
   getSvgAccessibleName,
   addFixLandmarkIssues,
   fixFakeLinkIssues,
-  // Exports from the right side
-  findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  resolveConflicts
+  countDependencies
 };
-}

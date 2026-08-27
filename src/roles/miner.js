@@ -124,7 +124,9 @@ function _getAssignedSource(creep) {
 function _findBestSource(sources, minerCounts) {
     let bestSource = null;
     let minCount = Infinity;
-    for (const src of sources) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid iterator allocation and Symbol.iterator dispatch.
+    for (let i = 0; i < sources.length; i++) {
+        const src = sources[i];
         const count =
             Object.prototype.hasOwnProperty.call(minerCounts, src.id) && cache.isSafeKey(src.id)
                 ? minerCounts[src.id]

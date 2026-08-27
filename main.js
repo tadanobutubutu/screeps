@@ -26,7 +26,12 @@ app.post('/api/table/generate', (req, res) => {
     try {
         const tableData = req.body.data;
         const formattedTable = formatTable(tableData);
-        res.json({ success: true, table: formattedTable });
+        // Adding table structure fix here
+        const structuredTable = {
+            __html: formattedTable,
+            tagName: 'table'
+        };
+        res.json({ success: true, table: structuredTable });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

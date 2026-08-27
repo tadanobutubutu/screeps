@@ -15,4 +15,5 @@ function wrapPrimaryContentInMain(container) {
 
 module.exports = {
   // Existing exports (preserved unchanged)
+  wrapPrimaryContentInMain,
 };

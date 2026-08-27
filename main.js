@@ -3,23 +3,23 @@
 // New function to implement the accessibility issue from the insight report
 const addressAccessibilityIssue = (insightReport) => {
   // Extract accessibility issues from the insightReport
-  const { tablesWithCellScopeMissing, elementsWithoutARIA, missingHeaderForColumn } = insightReport;
+  const { elementsWithoutARIA = [], missingHeaderForColumn = [], tableStructureIssues = [] } = insightReport;
 
-  // Fix table structure issues (tableCellScopeMissing)
-  if (tablesWithCellScopeMissing.length > 0) {
-    tablesWithCellScopeMissing.forEach((table) => {
-      const rows = table.querySelectorAll('tr');
-      const headers = table.querySelectorAll('th');
+  // Fix table structure issues
+  if (tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach((issue) => {
+      const rows = issue.rows;
+      const headers = issue.headers;
 
       rows.forEach((row) => {
-        const cells = row.querySelectorAll('td');
+        const cells = Array.from(row.cells);
 
         if (cells.length < headers.length) {
-          throw new Error(`Row ${row.dataset.rowIndex} lacks cells for all columns at table ${table.dataset.tableIndex}`);
+          throw new Error(`Row ${row.dataset.rowIndex} lacks cells for all columns at table ${issue.table.dataset.tableIndex}`);
         }
 
         cells.forEach((cell, columnIndex) => {
-          if (!cell.getAttribute('scope') && headers[columnIndex].getAttribute('scope') === 'col') {
+          if (headers[columnIndex] && headers[columnIndex].tagName === 'TH' && cell.tagName === 'TD') {
             cell.setAttribute('scope', 'col');
           }
         });
@@ -34,17 +34,24 @@ const addressAccessibilityIssue = (insightReport) => {
     });
   }
 
-  // Fix missing headers for columns (missingHeaderForColumn)
+  // Fix missing headers for columns
   if (missingHeaderForColumn.length > 0) {
-    missingHeaderForColumn.forEach((column) => {
-      const header = column.getAttribute('header-for');
-      const targetColumn = document.getElementById(header);
+    missingHeaderForColumn.forEach((issue) => {
+      const header = document.createElement('th');
+      header.textContent = issue.columnName;
+      const targetColumn = issue.column;
 
-      if (targetColumn) {
-        targetColumn. movesibling(column, 'before');
+      if (targetColumn && targetColumn.parentNode) {
+        targetColumn.parentNode.insertBefore(header, targetColumn);
       }
     });
   }
+  
+  return {
+    tablesProcessed: tableStructureIssues.length,
+    elementsProcessed: elementsWithoutARIA.length,
+    columnsProcessed: missingHeaderForColumn.length
+  };
 };
 
 // Export the new function

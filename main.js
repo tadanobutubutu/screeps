@@ -60,6 +60,15 @@ function handleRotateBack() {
     }
 }
 
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
+function addLangToHTML() {
+    const html = document.documentElement;
+    if (html.lang === undefined) {
+        html.lang = 'en'; // Set the language of your preference here
+    }
+}
+
 // (Existing code for rotateDependencyGraph and init functions)
 
 /**
@@ -69,6 +78,7 @@ function handleRotateBack() {
 function init() {
     fixFakeLink();
     addLangAttribute(); // Added to address REACT_015
+    addLangToHTML();   // New function to add lang attribute
 }
 
 // Auto-initialize when DOM is ready
@@ -87,6 +97,7 @@ if (typeof module !== 'undefined' && module.exports) {
         handleRotateBack,
         rotateDependencyGraph,
         init,
-        config
+        config,
+        addLangToHTML
     };
 }

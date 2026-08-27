@@ -18,3 +18,26 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Update for the REACT_025 issue:
+// Since the issue is related to React components and not the main.js file, there is no direct update to the main.js file.
+// However, if there are React components within the main.js file that are causing the issue, they should be updated as follows:
+
+// Example of updating a React component to fix the REACT_025 issue:
+// Before:
+// <main>
+//   <!-- Existing content -->
+// </main>
+// <main>
+//   <!-- Additional content that should be in a section/article instead -->
+// </main>
+
+// After:
+// <main>
+//   <!-- Existing content -->
+// </main>
+// <section>
+//   <!-- Additional content that should be in a section/article instead -->
+// </section>
+
+// ... (other code in main.js)

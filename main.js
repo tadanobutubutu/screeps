@@ -48,7 +48,9 @@ const wrapPrimaryContentInMain = (document) => {
   const body = document.body;
 
   // Get all direct children of body
-  const bodyChildren = Array.from(body.childNodes);
+  const bodyChildren = Array.from(body.childNodes).filter(
+    (child) => child.nodeType === Node.ELEMENT_NODE
+  );
 
   if (bodyChildren.length > 0) {
     // Move children to main element
@@ -68,7 +70,7 @@ const addSkipLink = (document) => {
     return document;
   }
 
-  const existingSkipLink = document.getElementById('skip-link');
+  const existingSkipLink = document.querySelector('#skip-link');
   if (existingSkipLink) {
     return document;
   }
@@ -95,10 +97,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body) {
+  if (document.body.firstChild) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
+    document.body.appendChild(skipLink);
   }
 
   return document;
@@ -109,13 +111,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.hasAttribute('aria-labelledby')) {
+  if (node.getAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
     const labelledElement = document.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
-  if (node.hasAttribute('aria-label')) {
+  if (node.getAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
@@ -167,7 +169,7 @@ const addProperLandmarkRegions = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('*')).map((el) => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map((el) => el.id);
         let id = `${role}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -241,10 +243,10 @@ const addMainLandmark = (document) => {
 };
 
 const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -261,11 +263,11 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
+    const elements = document.querySelectorAll(`[role="${role}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('*')).map((el) => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map((el) => el.id);
         let id = `${role}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;

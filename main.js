@@ -126,7 +126,7 @@ function ensureUniqueLandmarks() {
             section.setAttribute('aria-label', 'Additional content section');
             
             // Wrap the extra main content in a section
-            extraMain.parentNode.insertBefore(section, extraMain);
+            section.appendChild(extraMain);
             while (extraMain.firstChild) {
                 section.appendChild(extraMain.firstChild);
             }
@@ -174,7 +174,7 @@ export { ensureUniqueLandmarks };
 
 // REACT_036: Fix fake link issues
 function fixFakeLinks() {
-    // Find links with href="#" or href="javascript:void(0)" or empty href
+    // Find links with href="#" or ... or empty href
     const fakeLinkSelectors = [
         'a[href="#"]',
         'a[href="javascript:void(0)"]',
@@ -194,7 +194,7 @@ function fixFakeLinks() {
                                  link.classList.contains('button') ||
                                  link.tagName === 'BUTTON';
             
-            if (isButtonLike || link.textContent.toLowerCase().includes('click')) {
+            if (isButtonLike || link.classList.contains('button-like')) {
                 // Convert to button
                 const button = document.createElement('button');
                 button.innerHTML = link.innerHTML;
@@ -217,7 +217,7 @@ function fixFakeLinks() {
             } else {
                 // Make it accessible - add proper attributes
                 link.setAttribute('href', '#main-content');
-                link.setAttribute('aria-disabled', 'true');
+                link.setAttribute('aria-label', 'true');
                 results.skipped.push('Updated fake link with accessibility attributes');
             }
         });
@@ -231,8 +231,8 @@ function fixFakeLinks() {
 export { fixFakeLinks };
 
 // Main function to address all accessibility issues from insight report
-function addressInsightReportAccessibilityIssues(options = {}) {
-    const lang = options.lang || 'en';
+function addressAccessibilityIssues(insightReport = {}) {
+    const lang = insightReport.lang || 'en';
     const results = {
         lang: null,
         landmarks: null,
@@ -257,4 +257,4 @@ function addressInsightReportAccessibilityIssues(options = {}) {
 }
 
 // Export the main accessibility function
-export { addressInsightReportAccessibilityIssues };
+export { addressAccessibilityIssues };

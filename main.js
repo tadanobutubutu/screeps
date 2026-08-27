@@ -273,6 +273,35 @@ function setSvgAccessibleNames() {
   });
 }
 
+// TODO: Implement this function for adding SVG accessibility props
+function addSvgAccessibilityProps() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Ensure SVG has role="img" for screen readers
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+
+    // Use <title> content if available
+    const titleElement = svg.querySelector('title');
+    if (titleElement) {
+      const titleText = titleElement.textContent.trim();
+      if (titleText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', titleText);
+      }
+    } else {
+      // Fallback to alt attribute
+      const altText = svg.getAttribute('alt');
+      if (altText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', altText);
+      } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        // Final fallback
+        svg.setAttribute('aria-label', 'Graphic');
+      }
+    }
+  });
+}
+
 function renderIndexView() {
   // TODO: Implement renderIndexView functionality
 }
@@ -291,5 +320,6 @@ module.exports = {
   addProperLandmarkRegions,
   checkTableStructure,
   checkLandmarkElements,
-  setSvgAccessibleNames
+  setSvgAccessibleNames,
+  addSvgAccessibilityProps
 };

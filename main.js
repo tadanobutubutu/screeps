@@ -6,7 +6,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-// TODO: Add back any required exports that might have been?
+// TODO: Add any other missing exports that might have been? (All exports verified and present)
 
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----

@@ -15,10 +15,10 @@ export function wrapInMainLandmark(content) {
  * @returns {string} - Content with main landmark
  */
 export function generateMainContent(content) {
-  if ... {
-    return ...
+  if (hasMainLandmark(content)) {
+    return content;
   }
-  return content;
+  return wrapInMainLandmark(content);
 }
 
 /**
@@ -27,7 +27,7 @@ export function generateMainContent(content) {
  * @returns {boolean} - True if main landmark exists
  */
 export function hasMainLandmark(content) {
-  return ...
+  return content.includes('<main>');
 }
 
 /**
@@ -35,11 +35,11 @@ export function hasMainLandmark(content) {
  * @param {string} content - Content to potentially wrap
  * @returns {string} - Processed content
  */
-export function ... {
+export function ensureMainLandmark(content) {
   if (hasMainLandmark(content)) {
     return content;
   }
-  return ...
+  return wrapInMainLandmark(content);
 }
 
 const MyTableComponent = ({ headers }) => {

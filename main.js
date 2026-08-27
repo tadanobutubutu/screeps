@@ -1,3 +1,5 @@
+// TODO: Create or update the affected functions to be accessible
+
 /**
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
@@ -176,6 +178,25 @@ function addA11yAttributesToInteractiveElements() {
   });
   return interactiveElements;
 }
+
+// Make functions accessible globally for browser usage
+const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
+globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
+globalObject.isLinkAccessible = isLinkAccessible;
+globalObject.isButtonAccessible = isButtonAccessible;
+globalObject.checkAccessibility = checkAccessibility;
+globalObject.checkLandmarkElement = checkLandmarkElement;
+globalObject.checkLandmarks = checkLandmarks;
+globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+globalObject.renderIndexView = renderIndexView;
+globalObject.addLangAttribute = addLangAttribute;
+globalObject.fixTableStructureIssues = fixTableStructureIssues;
+globalObject.addMainLandmark = addMainLandmark;
+globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
+globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
+globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
+globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
+globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
 
 // Exports for all functions
 module.exports = {

@@ -1,6 +1,19 @@
-// main.js - No changes needed; the issue is in docs/dependency-graph.html
-// The fix should be applied to the HTML file, not this JavaScript file.
-// TODO: Add back any required exports that might have been?
+// main.js
+
+// Function to get user data
+function getUserData(userId) {
+  return { id: userId, name: 'Test User' };
+}
+
+// Function to calculate sum
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// Function to format date
+function formatDate(date) {
+  return new Date(date).toISOString();
+}
 
 /**
  * Sets accessibility properties on SVG elements.
@@ -32,27 +45,6 @@ function isLinkAccessibility(link) {
   const hasAriaLabel = link.getAttribute('aria-label');
 
   if (!hasText && !hasAriaLabel) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
- * @returns {boolean} True if the button is accessible, false otherwise
- */
-function isButtonAccessible(button) {
-  // Check if button has type attribute
-  const type = button.getAttribute('type');
-
-  // Check if button has text content or aria-label
-  const hasText = button.textContent.trim().length > 0;
-  const hasAriaLabel = button.getAttribute('aria-label');
-  const hasAriaLabelledby = button.getAttribute('aria-labelledby');
-
-  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;
   }
 
@@ -101,8 +93,6 @@ function checkLinkAndButtonAccessibility(container = document) {
 
   return results;
 }
-
-// Add the new renderIndexView function
 
 /**
  * Renders the index view of the application.

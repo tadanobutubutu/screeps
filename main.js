@@ -93,7 +93,7 @@ function fixTableStructure(document) {
   return fixedCount;
 }
 
-// Function to add/main landmark
+// Function to add/fix main landmark
 function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
   
@@ -226,16 +226,14 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
-// HEAD version: simpler fake link fix for anchors with href="#"
+// Function to fix fake link issues (combined: anchors with href="#" and role="link")
 function fixFakeLinkIssues(document) {
   const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   let count = 0;
   
   fakeLinks.forEach(link => {
-    if (link.tagName === 'A') {
-      link.setAttribute('aria-label', 'This link goes to a section within the page');
-      count++;
-    }
+    link.setAttribute('aria-label', 'This link goes to a section within the page');
+    count++;
   });
   
   return count;
@@ -276,7 +274,7 @@ function addLandmarkRegions(document) {
   });
 }
 
-// REACT_025: Ensure unique landmarks (HEAD approach - by role)
+// REACT_025: Ensure unique landmarks
 function uniqueLandmarks(document) {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
@@ -321,6 +319,7 @@ function googleSignIn(document) {
   }
 }
 
+// Function to handle credential response
 function handleCredentialResponse(response) {
   // Decode the JWT token
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -365,6 +364,17 @@ function addMainLandmarkToIndex(document) {
   }
 }
 
+// Function to ensure an element has an id
+function ensureElementHasId(document, selector, idPrefix = 'element') {
+  const elements = document.querySelectorAll(selector);
+  elements.forEach((element, index) => {
+    if (!element.id) {
+      element.id = `${idPrefix}-${index + 1}`;
+    }
+  });
+  return document;
+}
+
 // Implement function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(document) {
   // Assuming the insight report provides an object with the issues to be addressed
@@ -391,10 +401,12 @@ function implementAccessibilityFixesFromReport(document) {
 
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(document) {
+  // Call all accessibility fix functions
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
   ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
   addAccessibleNamesToSVGs(document);
   fixFakeLinkIssue(document);
   fixFakeLinkIssues(document);
@@ -406,6 +418,12 @@ function addressAccessibilityIssues(document) {
   fixButtonIdentifiers(document);
   addMainLandmarkToIndex(document);
   implementAccessibilityFixesFromReport(document);
+
+  // Call new functions
+  document = ensureElementHasId(document);
+  document = renderDependencyGraphs(document);
+  document = ensureDependencyGraphAriaRole(document);
+  return document;
 }
 
 // Add the requested function for addressing pending accessibility functionality

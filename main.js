@@ -53,6 +53,24 @@ function getLangAttribute() {
   }
 }
 
+// New function to create a language toggle button in the page
+function createInPageButton() {
+  const btn = document.createElement('button');
+  btn.id = 'lang-toggle';
+  btn.textContent = 'Change language';
+  btn.style.position = 'fixed';
+  btn.style.bottom = '20px';
+  btn.style.right = '20px';
+  btn.style.zIndex = 1000;
+  document.body.appendChild(btn);
+  btn.addEventListener('click', () => {
+    const currentLang = document.documentElement.lang || 'en';
+    const newLang = currentLang === 'en' ? 'es' : 'en';
+    document.documentElement.lang = newLang;
+    btn.textContent = `Change language (${newLang})`;
+  });
+}
+
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
@@ -96,8 +114,8 @@ function addSVGAccessibilityProps() {
 
     const descriptionElement = document.createElement('desc');
     descriptionElement.id = descriptionId;
-    descriptionElement.textContent = titleText;
     descriptionElement.className = 'sr-only';
+    descriptionElement.textContent = titleText;
     svg.appendChild(descriptionElement);
   });
 }
@@ -245,5 +263,7 @@ export {
   getSvgAccessibleName,
   checkLandmarkElementsAndAddSVGAccessibility,
   addLandmarkRegions,
-  ...
+  // ... other exports
 };
+// Call to create the language toggle button
+createInPageButton();

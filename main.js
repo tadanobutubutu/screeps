@@ -1,5 +1,3 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
-
 // Import the required module
 const { someFunction } = require('./someModule');
 
@@ -20,6 +18,24 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
+}
+
+// New function to address accessibility issues from insight report
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const uniqueElements = [];
+    elements.forEach(el => {
+      const isUnique = !uniqueElements.some(uEl => uEl === el);
+      if (isUnique) {
+        uniqueElements.push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
 }
 
 // Render dependency graph content
@@ -121,7 +137,7 @@ function addMainLandmark() {
         main.appendChild(content.firstChild);
       }
     }
-  });
+  }
 }
 
 // Functions to address specific insight report issues
@@ -198,13 +214,8 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarksFromInsightReport,
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
-  fixFakeLinks,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addSvgAccessibleNames,
   implementNewFunction,
   main,
   newFunction,
   someFunction
 };
-```

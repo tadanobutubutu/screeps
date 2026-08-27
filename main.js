@@ -17,7 +17,7 @@ function calculateSum(a, b) {
 
 // Function to format date
 function formatDate(date) {
-  return new Date(date).toISOString();
+  return new Date(date).toLocaleDateString();
 }
 
 // Export all functions to make them accessible

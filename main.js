@@ -30,7 +30,7 @@ const InPageButton = ({
   type = 'button',
   disabled = false
 }) => {
-  // ... existing function code ...
+  // ... existing component code ...
 };
 
 // Function to validate table accessibility
@@ -90,7 +90,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = document.querySelectorAll('[role="main"], main');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -107,7 +107,7 @@ const validateLandmarkStructure = () => {
 
   // Check for header/nav landmarks
   const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  const headerElements = document.querySelectorAll('[role="banner"]');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -118,7 +118,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  const footerElements = document.querySelectorAll('[role="contentinfo"]');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -158,7 +158,7 @@ const validateTableStructure = () => {
 };
 
 // React component for the Root component
-const Root = () => {
+const Root = ({ hasError, errorMessage }) => {
   // Other component code...
 
   // ... Keep existing code here
@@ -202,13 +202,22 @@ const Root = () => {
     <html lang={lang || 'en'}>
       {/* Other JSX elements... */}
       <main>
-        <InPageButton
-          id="unrotate"
-          label="Rotate back"
-          onClick={handleRotateBack}
-        />
-        {/* Example usage of new function */}
-        <InPageButton onClick={newFunction} label="New Function" />
+        {hasError ? (
+          <div className="error-state" role="alert">
+            <p>{errorMessage || 'An error occurred'}</p>
+          </div>
+        ) : (
+          <>
+            <InPageButton
+              id="unrotate"
+              label="Rotate back"
+              onClick={handleRotateBack}
+              type="button"
+            />
+            {/* Example usage of new function */}
+            <InPageButton onClick={newFunction} label="New Function" />
+          </>
+        )}
       </main>
     </html>
   );

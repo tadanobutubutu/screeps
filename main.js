@@ -1,20 +1,11 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
-
 import { class1, function1, Object1 } from './path/to/module';
 
-// Function to add lang attribute to HTML element
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
+
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
   }
   return document;
@@ -59,7 +50,7 @@ function fixTableStructure(document) {
         const th = document.createElement('th');
         th.textContent = firstCell.textContent;
         th.scope = 'col';
-        row.replaceChild(th, firstCell);
+        row.insertBefore(th, firstCell);
         fixedCount++;
       }
     });
@@ -115,8 +106,13 @@ function ensureUniqueLandmarks(document) {
   // ... existing unique landmarks implementation for origin/main
 }
 
-// Function to add accessible name to SVG
+// Function to add accessible names to SVGs
 function addSvgAccessibleNames(document) {
+  // ... existing implementation
+}
+
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGs(document) {
   // ... existing implementation
 }
 
@@ -144,11 +140,7 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          element.click();
-        }
-      });
+      span.addEventListener('click', element.onclick);
       
       // Copy styling if available
       if (element.className) {
@@ -220,12 +212,6 @@ function googleSignIn(document) {
   }
 }
 
-// Function to handle credential response from Google Sign-In
-function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
-  console.log('Credential response received:', response);
-}
-
 // Function to ensure the element has an id
 function ensureElementHasId(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
@@ -233,15 +219,6 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
     if (!element.id) {
       element.id = `${idPrefix}-${index + 1}`;
     }
-  });
-  return document;
-}
-
-// Function to ensure an element has an id with origin/main optimization
-function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
-  const elements = document.querySelectorAll(selector);
-  elements.forEach((element) => {
-    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
   });
   return document;
 }
@@ -287,11 +264,6 @@ function renderDependencyGraphs(document) {
     graphContainer.appendChild(svg);
   }
   return document;
-}
-
-// Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
-  // ... existing implementation
 }
 
 // REACT_040: Replace my-button with actual button id for accessibility
@@ -374,7 +346,6 @@ export {
   ensureDependencyGraphAriaRole,
   addressAccessibilityIssues,
   ensureElementHasId,
-  ensureElementHasIdOrigin,
   addAriaLabel,
   class1,
   function1,

@@ -8,29 +8,22 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+  const focusable = document.querySelectorAll('a, button, input, select, textarea');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
 
   // Ensure the dependencyGraph container has a proper ARIA role
-  const dependencyGraph = document.getElementById('dependencyGraph') ||
-                          document.querySelector('[data-testid="dependency-graph"]') ||
-                          document.querySelector('.dependency-graph');
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
   if (dependencyGraph) {
-    if (!dependencyGraph.getAttribute('role')) {
-      dependencyGraph.setAttribute('role', 'region');
-    }
-    if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
+}
 
-  // Add proper landmark regions to ensure consistency
-  addProperLandmarkRegions();
-
-  // Check table structure for accessibility
-  checkTableStructure();
+function addressAccessibilityIssues() {
+  improveAccessibility();
+  addressInsightReportIssues();
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -56,11 +49,11 @@ function addressInsightReportIssues(insightReport) {
       }
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
-        ensureUniqueLandmarks(element);
+        ensureUniqueLandmarksFromInsightReport(insightReport);
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
+        fixFakeLinks();
       }
       // Add scope="col" or scope="row" to <th> elements (already implemented)
       if (issue.code === 'REACT_027') {
@@ -70,25 +63,8 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
-function ensureUniqueLandmarks(element) {
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        el.removeAttribute('role');
-      }
-    });
-  });
-}
-
-function addProperLandmarkRegions(insightReport) {
-  const issues = insightReport ? insightReport.issues || [] : [];
+function ensureUniqueLandmarksFromInsightReport(insightReport) {
+  const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
 
   issues.forEach(issue => {
@@ -107,45 +83,102 @@ function addProperLandmarkRegions(insightReport) {
     }
   });
 
-  // Define the standard landmark roles that should be present
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
+}
 
-  // Map of semantic HTML elements to their corresponding ARIA landmark roles
-  const semanticToLandmark = {
-    'main': 'main',
-    'nav': 'navigation',
-    'search': 'search',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  };
+function fixFakeLinks() {
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
 
-  // Ensure proper landmark roles are present on semantic elements
-  landmarkRoles.forEach(role => {
-    const semanticTag = Object.keys(semanticToLandmark).find(
-      key => semanticToLandmark[key] === role
-    );
-    if (semanticTag) {
-      const elements = document.querySelectorAll(semanticTag);
-      elements.forEach(el => {
-        if (!el.getAttribute('role')) {
-          el.setAttribute('role', role);
-        }
-      });
+  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Button');
     }
   });
+}
 
-  // Add role="region" to sections that have an accessible name (aria-label or aria-labelledby)
-  const sections = document.querySelectorAll('section');
-  sections.forEach(section => {
-    if (!section.getAttribute('role')) {
-      const hasAccessibleName =
-        section.getAttribute('aria-label') ||
-        section.getAttribute('aria-labelledby');
-      if (hasAccessibleName) {
-        section.setAttribute('role', 'region');
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper structure
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const tbody = table.querySelector('tbody');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, tbody || firstRow);
       }
+    }
+  });
+}
+
+function fixTableHeaderCellScope() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope')) {
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        let isHeaderRow = true;
+
+        rows.forEach(row => {
+          const rowCells = row.querySelectorAll('td, th');
+          if (rowCells[cellIndex] !== cell) {
+            isHeaderRow = false;
+          }
+        });
+
+        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+      }
+    });
+  });
+}
+
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach(main => {
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+  });
+  // If no main element exists, create one for the main content
+  if (mainElements.length === 0) {
+    const content = document.querySelector('#content, .content, [role="main"]');
+    if (content) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      while (content.firstChild) {
+        main.appendChild(content.firstChild);
+      }
+      content.appendChild(main);
+    }
+  }
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${index}`;
+      title.setAttribute('id', titleId);
+      svg.setAttribute('aria-labelledby', titleId);
+    } else {
+      const title = document.createElement('title');
+      title.textContent = `SVG graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
     }
   });
 }
@@ -197,7 +230,6 @@ function checkTableStructure() {
   });
 }
 
-// TODO: Implement this function for checking landmark elements
 function checkLandmarkElements() {
   const results = [];
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -213,11 +245,11 @@ function checkLandmarkElements() {
   landmarkRoles.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     elements.forEach((element, index) => {
-      const hasAccessibleName = 
+      const hasAccessibleName =
         element.getAttribute('aria-label') ||
         element.getAttribute('aria-labelledby') ||
         element.textContent.trim();
-      
+
       if (!hasAccessibleName && role !== 'main') {
         results.push({
           element: element,
@@ -227,7 +259,7 @@ function checkLandmarkElements() {
       }
 
       if (role === 'region') {
-        const hasLabel = 
+        const hasLabel =
           element.getAttribute('aria-label') ||
           element.getAttribute('aria-labelledby');
         if (!hasLabel) {
@@ -252,21 +284,20 @@ function setSvgAccessibleNames() {
       svg.setAttribute('role', 'img');
     }
 
-    // Try to find a <title> element within the SVG to use as accessible name
+    // Use <title> content if available
     const titleElement = svg.querySelector('title');
     if (titleElement) {
-      // If <title> exists, use its text content for the aria-label
       const titleText = titleElement.textContent.trim();
       if (titleText && !svg.getAttribute('aria-label')) {
         svg.setAttribute('aria-label', titleText);
       }
     } else {
-      // If no <title> exists, derive accessible name from alt attribute if available
+      // Fallback to alt attribute
       const altText = svg.getAttribute('alt');
       if (altText && !svg.getAttribute('aria-label')) {
         svg.setAttribute('aria-label', altText);
       } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-        // Default fallback if no other source of accessible name is available
+        // Final fallback
         svg.setAttribute('aria-label', 'Graphic');
       }
     }
@@ -287,8 +318,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarks,
-  addProperLandmarkRegions,
   checkTableStructure,
   checkLandmarkElements,
   setSvgAccessibleNames

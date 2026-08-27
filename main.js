@@ -6,37 +6,37 @@ import reportWebVitals from './reportWebVitals';
 
 function Navigation() {
   return (
-    <div className="navigation">
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
-    </div>
+    <nav className="navigation" role="navigation">
+      <a href="#" aria-label="Home">Home</a>
+      <a href="#" aria-label="About">About</a>
+      <a href="#" aria-label="Click me" onClick={() => console.log('clicked')}>Click me</a>
+      <a href="https://example.com" aria-label="External link">External</a>
+    </nav>
   );
 }
 
 function Header() {
   return (
-    <div className="header">
+    <header className="header" role="banner">
       <h1>My Application</h1>
       <Navigation />
-    </div>
+    </header>
   );
 }
 
 function Sidebar() {
   return (
-    <div className="sidebar">
+    <aside className="sidebar" role="complementary">
       <h2>Related Links</h2>
-      <a href="#section1">Section 1</a>
-      <a href="#section2">Section 2</a>
-    </div>
+      <a href="#section1" aria-label="Section 1">Section 1</a>
+      <a href="#section2" aria-label="Section 2">Section 2</a>
+    </aside>
   );
 }
 
 function MainContent() {
   return (
-    <div className="main-content">
+    <main className="main-content" role="main">
       <section>
         <h2>Welcome</h2>
         <p>This is the main content area of the application.</p>
@@ -45,21 +45,21 @@ function MainContent() {
         <h2>Features</h2>
         <p>Discover our amazing features.</p>
       </section>
-    </div>
+    </main>
   );
 }
 
 function Footer() {
   return (
-    <div className="footer">
+    <footer className="footer" role="contentinfo">
       <p>&copy; 2024 My Application. All rights reserved.</p>
-    </div>
+    </footer>
   );
 }
 
 function AppLayout() {
   return (
-    <div className="app-layout">
+    <div className="app-layout" role="document">
       <Header />
       <MainContent />
       <Sidebar />

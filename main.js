@@ -110,5 +110,3 @@ export function processData(data) {
 export function validate(input) {
   return input !== null && input !== undefined;
 }
-
-export { AccessibleTable, AccessibleIcon, Navigation, AccessiblePage };

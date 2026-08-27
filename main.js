@@ -253,5 +253,9 @@ module.exports = {
     getSvgAccessibleName,
     newFunction1,
     newFunction2,
-    accessibilityReport
+    accessibilityReport,
+    // Add back required exports from 'some-rendering-module'
+    renderContent,
+    renderGraph,
+    renderLandmarks
 };

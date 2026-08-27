@@ -1,8 +1,8 @@
 // Main module for the application
 // Contains core functionality and accessibility issue resolution
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 
 /**
  * Addresses accessibility issues identified in an insight report.
@@ -132,7 +132,9 @@ function addressAccessibilityIssues(issues, options = {}) {
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 9000) + 1000;
+    element.id = `element-${timestamp}-${random}`;
   }
   return element.id;
 }

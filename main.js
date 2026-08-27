@@ -1,3 +1,8 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'polyfill-io/stable';
+import 'polyfill-webextensions-api/location';
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -12,8 +17,8 @@
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 // TODO: Add back any required exports that might have been?
 // (This comment remains as-is)
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+ // ----- BEGIN ORIGINAL CODE (unchanged) -----
+ // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 // New function to import polyfill for IE11
 import 'core-js/stable';
@@ -274,6 +279,3 @@ module.exports = {
   validateLandmark,
   addCustomValidation
 };
-// New imports below
-import 'polyfill-io/stable';
-import 'polyfill-webextensions-api/location';

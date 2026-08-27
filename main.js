@@ -11,6 +11,7 @@ function handleErrorState(errorElement, container, trigger = false) {
   // Wrap the error in a <section> and container element (if provided)
   const errorSection = createElement('section', {
     'aria-live': 'polite', // Add ARIA live region
+    'tabIndex': 0, // Add tabindex attribute for focusability
   });
   errorSection.appendChild(errorElement);
 
@@ -38,6 +39,24 @@ function getButtonWithId() {
   return getDocument().querySelector('#buttonWithId');
 }
 
+// Add a new function to toggle focus on the specified button
+function setButtonFocus(button, focus = true) {
+  if (button && focus) {
+    button.focus();
+  }
+}
+
+// Add a new function to check if an element is focusable
+function isFocusable(element) {
+  return (
+    element.type === 'button' ||
+    element.type === ' checkbox' ||
+    element.type === ' radio' ||
+    element.hasAttribute &&
+    element.hasAttribute('tabindex')
+  );
+}
+
 // Exit the existing handleErrorState function
 export { handleErrorState };
 
@@ -46,3 +65,9 @@ export { handleAccessibilityError };
 
 // Export the new getButtonWithId function to get the button with the specified ID
 export { getButtonWithId };
+
+// Export the new setButtonFocus function to set focus on the specified button
+export { setButtonFocus };
+
+// Export the new isFocusable function to check if an element is focusable
+export { isFocusable };

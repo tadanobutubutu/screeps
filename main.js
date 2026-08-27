@@ -55,7 +55,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
 
   // Add ARIA to form controls
   const inputs = doc.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
+  inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
       input.id = `input-${index}`;
       summary.formControlsFixed++;
@@ -90,7 +90,7 @@ function wrapPrimaryContentInMain(doc) {
   main.setAttribute('role', 'main');
   
   if (primaryContent) {
-    parentContent.parentNode.insertBefore(main, primaryContent);
+    primaryContent.parentNode.insertBefore(main, primaryContent);
     main.appendChild(primaryContent);
   }
 }
@@ -307,9 +307,6 @@ function createInPageButton(text, doc) {
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)
-
-// ADD THE NEW FUNCTION TO THE EXPORTS
-const { addMissingExportFunction } = require('./utils');
 
 module.exports = {
   addressAccessibilityIssuesFromInsightReport,

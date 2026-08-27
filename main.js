@@ -1,5 +1,4 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
+// Assuming the file is located at ...
 
 import React, { useState } from 'react';
 
@@ -84,4 +83,5 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   );
 };
 
+export { Dashboard };
 export default Dashboard;

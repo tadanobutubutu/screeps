@@ -1,12 +1,12 @@
 // main.js - JavaScript file for the project
 
 /**
- * Wraps the given content in a main landmark element
+ * Wraps the given content in an article landmark element
  * @param {string} content - The HTML content to wrap
- * @returns {string} - The content wrapped in a <main> element
+ * @returns {string} - The content wrapped in an <article> element
  */
 function wrapInMainLandmark(content) {
-    return `<main>${content}</main>`;
+    return `<article>${content}</article>`;
 }
 
 /**

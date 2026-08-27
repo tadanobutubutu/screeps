@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views to import and use dependencyGraphContent/indexContent from the
 // appropriate modules.
@@ -30,8 +27,15 @@ function renderIndexView(data, useCustomIndexContent) {
     return require('./index').default(data); // Otherwise, use the default export from './index.js'
 }
 
-// Export the updated functions
-export { renderDependencyGraph, renderIndexView };
-```
+// Function to count dependencies
+function countDependencies(data) {
+    if (!data) return 0;
+    if (Array.isArray(data)) return data.length;
+    if (data.dependencies && Array.isArray(data.dependencies)) {
+        return data.dependencies.length;
+    }
+    return 0;
+}
 
-This solution allows both changes to coexist by providing an option to use a custom content module if available. If the custom content modules are not provided, it defaults to the original imports.
+// Export the updated functions
+export { renderDependencyGraph, renderIndexView, countDependencies };

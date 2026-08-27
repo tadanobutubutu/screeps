@@ -151,7 +151,7 @@ function addAltAttribute(filePath) {
     if (attrs.includes('alt=')) {
       return match;
     }
-    return `<img alt="Description of image"${attrs}`;
+    return `<img alt="Description of image"${attrs}>`;
   });
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
@@ -164,10 +164,8 @@ function replaceButtonId(filePath, newButtonId) {
 
   // Replace my-button with the actual button id
   const buttonIdRegex = /id=["']my-button["']/gi;
-  let match;
 
   // Replace id attributes
-  let countReplacements = 0;
   const updatedContent = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
     return `id="${newButtonId}"`;

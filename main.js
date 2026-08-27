@@ -5,7 +5,7 @@ if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', initApp);
 }
 
-// Import required modules for the React application (non- conflict part)
+// Import required modules for the React application
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -13,7 +13,7 @@ import './index.css';
 // Initialize application
 function initApp() {
     let root;
-    if ( typeof document !== 'undefined' ) {
+    if (typeof document !== 'undefined') {
         console.log('Application initialized');
 
         // Check if main landmark exists for accessibility
@@ -24,10 +24,14 @@ function initApp() {
 
         // Create React Root for the application
         root = ReactDOM.createRoot(document.getElementById('root'));
+
+        // Initialize navigation and table handlers
+        initNavigation();
+        initTableHandlers();
     } else {
         // For testing and server-side rendering purpose, initialize the application and configuration
         root = { render: function(component) {
-            this._component=component;
+            this._component = component;
         } };
         const initialize = () => {
             console.log('Application initialized');
@@ -69,7 +73,7 @@ function initApp() {
     };
 }
 
-// Navigation initialization (conflict part integrated from Node.js version)
+// Navigation initialization
 function initNavigation() {
     const nav = document.querySelector('nav');
     if (nav) {
@@ -77,12 +81,10 @@ function initNavigation() {
     }
 }
 
-// Table handlers initialization (conflict part integrated from Node.js version)
+// Table handlers initialization
 function initTableHandlers() {
     const table = document.getElementById('table-rotated');
     if (table) {
         console.log('Table handlers initialized');
     }
 }
-```
-In this solution, I attempted to resolve the Git merge conflict by integrating both sets of changes. I added the React part to the dom-ready initialization, and for testing purposes, I also included an additional initApp implementation for non-DOM environments. I made sure to keep both sets of initialization functions (`initApp`, `initNavigation`, and `initTableHandlers`) intact and separated. The code also includes functions to retrieve the application version and configuration, which were added in the conflicting parts.

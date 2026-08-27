@@ -7,7 +7,7 @@ import 'some-other-polyfill';
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
   if (!htmlElement.lang && navigator.language && navigator.language.length > 2) {
-    htmlElement.lang = navigator.language.slice(0, 2);
+    htmlElement.lang = navigator.language.substring(0, 2);
   }
 };
 
@@ -42,7 +42,7 @@ const fixTableStructure = (tables) => {
 
 // New function to add/fix landmark issues
 const addMainLandmark = () => {
-  let mainElement = document.querySelector('[role="main"]');
+  let mainElement = document.querySelector('main');
 
   if (!mainElement) {
     mainElement = document.createElement('main');
@@ -109,7 +109,7 @@ const addSvgAccessibleNames = () => {
     const ariaLabel = svg.getAttribute('aria-label') ||
                       svg.getAttribute('aria-labelledby') ||
                       svg.getAttribute('title') ||
-                      svg.querySelector('title') ? svg.querySelector('title').textContent : null);
+                      svg.getAttribute('desc') ? svg.getAttribute('desc') : null);
 
     if (!ariaLabel) {
       svg.setAttribute('aria-label', 'SVG Icon ' + (index + 1));
@@ -132,4 +132,26 @@ const fixFakeLinkIssue = () => {
 };
 
 // New function to validate the landmarks
-const validateLandmark = () =>
+const validateLandmark = () => {
+  const landmarks = document.querySelectorAll('[role]');
+  
+  landmarks.forEach(landmark => {
+    const validRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'banner', 'complementary'];
+    const role = landmark.getAttribute('role');
+    
+    if (role && !validRoles.includes(role)) {
+      console.warn(`Invalid landmark role: ${role}`);
+    }
+  });
+};
+
+// Export accessibility utilities
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  validateLandmark
+};

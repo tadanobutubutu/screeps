@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for module usage
 export { a11yStore };
+export { mainElement };
 export default a11yStore;
 
 // Import and export additional functions if needed (placeholder for actual modules)

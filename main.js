@@ -3,13 +3,12 @@ import React from 'react';
 
 function MyComponent() {
   // Old code that needs to be updated
-  <div lang="en">
-    {/* Content */}
-  </div>
+  return (
+    <div lang="en">
+      {/* Content */}
+      <span id="content">Content</span>
+    </div>
+  );
 }
 
 export default MyComponent;
-
-<div lang="en">
-  <span id="content">Content</span>
-</div>

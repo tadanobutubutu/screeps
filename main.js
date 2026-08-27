@@ -1,9 +1,12 @@
+Here is the resolved `main.js` file:
+
+```javascript
 // main.js
 
 // ... existing code (preserved) ...
 
 // TODO: Implement addProperLandmarkRegions();
-function addProperLandmarkRegions() {
+function addProperLandlandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -71,12 +74,19 @@ function addProperLandmarkRegions() {
     });
   };
 
+  // Function to handle updating accessible SVG names when DOM mutates
+  const updateAccessibleSvgNames = () => {
+    setTimeout(() => {
+      ensureSvgAccessibleNames();
+    }, 0);
+  };
+
   ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      ensureSvgAccessibleNames();
+      updateAccessibleSvgNames();
     });
 
     if (document.body) {
@@ -90,6 +100,9 @@ function addProperLandmarkRegions() {
   }
 }
 
-addProperLandmarkRegions();
+addProperLandlandmarkRegions();
 
 // ... existing code (preserved) ...
+```
+
+In this solution, I've integrated both sets of changes since they were contributing features. I've added a separate function called `updateAccessibleSvgNames` to handle the DOM mutations and call it after the initial `ensureSvgAccessibleNames` function. These changes ensure that the SVG elements are made accessible and that their accessibility is preserved when there are changes in the DOM.

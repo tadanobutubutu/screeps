@@ -387,6 +387,66 @@ function fixFakeLinkIssue() {
   });
 }
 
+// NEW: Render dependency graph using imported content module
+function renderDependencyGraph(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return null;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create graph container
+  const graphDiv = document.createElement('div');
+  graphDiv.className = 'dependency-graph';
+  graphDiv.setAttribute('role', 'img');
+  graphDiv.setAttribute('aria-label', options.ariaLabel || 'Dependency graph');
+
+  // Use imported content to populate the graph
+  const content = dependencyGraphContent(options);
+  graphDiv.innerHTML = content;
+
+  container.appendChild(graphDiv);
+  return graphDiv;
+}
+
+// NEW: Render index view using imported content module
+function renderIndexView(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return null;
+  }
+
+  // Clear container
+  container.innerHTML = '';
+
+  // Create index container
+  const indexDiv = document.createElement('div');
+  indexDiv.className = 'index-view';
+  indexDiv.setAttribute('role', 'main');
+  indexDiv.setAttribute('aria-label', options.ariaLabel || 'Index view');
+
+  // Use imported content to populate the index
+  const content = indexContent(options);
+  indexDiv.innerHTML = content;
+
+  container.appendChild(indexDiv);
+  return indexDiv;
+}
+
+// NEW: Get dependency graph content as string for dynamic rendering
+function getDependencyGraphContent(options = {}) {
+  return dependencyGraphContent(options);
+}
+
+// NEW: Get index view content as string for dynamic rendering
+function getIndexContent(options = {}) {
+  return indexContent(options);
+}
+
 // Export functions for use in other modules and tests
 export {
   getLangAttribute,
@@ -412,6 +472,10 @@ export {
   addMainLandmarkIfMissing,
   addLandmarkRegions,
   fixFakeLinkIssue,
+  renderDependencyGraph,
+  renderIndexView,
+  getDependencyGraphContent,
+  getIndexContent,
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or

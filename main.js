@@ -79,8 +79,3 @@ function addressAccessibilityIssuesFromInsightReport() {
 export function someExistingFunction() {
   // Existing function implementation
 }
-
-// New export if needed (if any of the new functions are meant to be exported)
-// export function newExportedFunction() {
-//   // New function implementation
-// }

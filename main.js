@@ -22,10 +22,6 @@ import 'polyfill-webextensions-api/location';
  // ----- BEGIN ORIGINAL CODE (unchanged) -----
  // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
-// New function to import polyfill for IE11
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-
 // Existing function to get accessible name
 const getAccessibleName = (element) => {
   if (!element) return null;

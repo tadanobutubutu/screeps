@@ -1,9 +1,13 @@
 // main.js - Accessibility improvements implementation
 
+<<<<<<< HEAD
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
+=======
+// TODO: Address accessibility issues from insight report — FIXED
+>>>>>>> origin/main
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -421,25 +425,7 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
-// Standalone function to calculate discount
-function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || typeof discount !== 'number') {
-    return 0;
-  }
-  if (price < 0 || discount < 0 || discount > 100) {
-    return 0;
-  }
-  return Math.round((price * (1 - discount / 100)) * 100) / 100;
-}
-
 // Export for module usage
 export { a11yStore };
 export { mainElement };
 export { addressAccessibilityIssues };
-export { calculateDiscount };
-export default a11yStore;
-
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };

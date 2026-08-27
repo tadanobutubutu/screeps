@@ -30,7 +30,7 @@ const InPageButton = ({
   type = 'button',
   disabled = false
 }) => {
-  // ... existing function code ...
+  // ... existing component code ...
 };
 
 // Function to validate table accessibility
@@ -41,7 +41,7 @@ const validateTableAccessibility = () => {
     return { errors };
   }
 
-  const tables = document.querySelectorAll('table');
+  const tables = typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
   tables.forEach((table, index) => {
     // Check if table has proper headers
     const headers = table.querySelectorAll('th');
@@ -90,7 +90,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for main landmark (should have exactly one)
-  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length === 0) {
     errors.push({
       message: 'Page is missing a main landmark',
@@ -107,7 +107,7 @@ const validateLandmarkStructure = () => {
 
   // Check for header/nav landmarks
   const navElements = document.querySelectorAll('nav');
-  const headerElements = document.querySelectorAll('header, [role="banner"]');
+  const headerElements = document.querySelectorAll('header');
 
   if (headerElements.length > 1) {
     errors.push({
@@ -118,7 +118,7 @@ const validateLandmarkStructure = () => {
   }
 
   // Check for footer landmark
-  const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  const footerElements = document.querySelectorAll('footer');
   if (footerElements.length > 1) {
     errors.push({
       message: `Page has ${footerElements.length} footer landmarks. Should have at most one.`,
@@ -144,7 +144,7 @@ const validateTableStructure = () => {
     tables.forEach((table) => {
       const rows = table.querySelectorAll('tr');
       rows.forEach((row) => {
-        const cells = row.querySelectorAll('td, th');
+        const cells = row.querySelectorAll('th, td');
         cells.forEach((cell) => {
           if (!cell.textContent || cell.textContent.trim() === '') {
             errors.push({ message: 'Empty table cell found', line: 0, column: 0 });
@@ -183,12 +183,12 @@ const Root = () => {
 
   // Validate table accessibility and check for unique landmarks (2 issues)
   const tableAccessibilityError = validateTableAccessibility();
-  if (tableAccessibilityError.errors.length > 0) {
+  if (tableAccessibilityError.errors && tableAccessibilityError.errors.length > 0) {
     console.error(tableAccessibilityError.errors);
   }
 
   const uniqueLandmarkError = validateLandmarkStructure();
-  if (uniqueLandmarkError.errors.length > 0) {
+  if (uniqueLandmarkError.errors && uniqueLandmarkError.errors.length > 0) {
     console.error(uniqueLandmarkError.errors);
   }
 
@@ -206,6 +206,8 @@ const Root = () => {
           id="unrotate"
           label="Rotate back"
           onClick={handleRotateBack}
+          className="rotate-button"
+          ariaLabel="Rotate table back to original position"
         />
         {/* Example usage of new function */}
         <InPageButton onClick={newFunction} label="New Function" />

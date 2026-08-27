@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App'; // Assuming the App component is in the same directory
+
 // Main application logic
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,6 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
 
 // Export any existing functions
 export function someExistingFunction() {

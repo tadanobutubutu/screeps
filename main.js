@@ -22,15 +22,15 @@ function renderAll() {
 
 function toggleRotation() {
     if (!img) {
-        img = document.querySelector('.toggle-rotation-btn');
+        img = document.querySelector('.rotatable-image') || document.getElementById('rotatable-image');
         if (!img) return;
     }
     rotation += rotation === 360 ? -360 : 90;
     img.style.transform = `rotate(${rotation}deg)`;
 }
 
-// New function: setupLandmarkRegions
-function setupLandmarkRegions() {
+// New function: Create landmark regions for accessibility
+function createLandmarkRegions() {
     const header = document.createElement('header');
     header.setAttribute('role', 'banner');
     header.setAttribute('aria-label', 'Site header');
@@ -72,14 +72,15 @@ function getSvgAccessibleName(svgElement) {
     if (desc) {
         return desc.textContent.trim();
     }
-    if (svgElement.hasAttribute('aria-label')) {
-        return svgElement.getAttribute('aria-label').trim();
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel;
     }
     return '';
 }
 
 // New event listener for the toggle rotation functionality
-const toggleRotationBtn = document.querySelector('.toggle-rotation-btn');
+const toggleRotationBtn = document.getElementById('toggle-rotation-btn');
 if (toggleRotationBtn) {
     toggleRotationBtn.addEventListener('click', toggleRotation);
 }
@@ -249,7 +250,7 @@ module.exports = {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     toggleRotation,
-    setupLandmarkRegions,
+    createLandmarkRegions,
     getSvgAccessibleName,
     newFunction1,
     newFunction2,

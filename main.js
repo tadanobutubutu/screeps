@@ -1,5 +1,11 @@
-x
 import React from 'react';
+
+// New function to wrap the MyTable component with the lang attribute
+const AccessibleMyTable = ({ language, children }) => (
+  <html lang={language}>
+    {children}
+  </html>
+);
 
 const MyTable = () => {
   return (
@@ -18,4 +24,8 @@ const MyTable = () => {
   );
 };
 
-export default MyTable;
+export default (geometry) => (
+  <AccessibleMyTable language="en">
+    <MyTable />
+  </AccessibleMyTable>
+);

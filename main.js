@@ -1,5 +1,3 @@
-// main.js
-
 // Some existing configuration or setup
 // Configuration
 const config = {
@@ -26,11 +24,18 @@ function processData(data) {
   if (!data) {
     throw new Error('Data is required');
   }
-  return {
-    processed: true,
-    timestamp: Date.now(),
-    payload: data
-  };
+  if (Array.isArray(data)) {
+    return data.map(item => ({
+      ...item,
+      processed: true
+    }));
+  } else {
+    return {
+      processed: true,
+      timestamp: Date.now(),
+      payload: data
+    };
+  }
 }
 
 function fetchUser(userId) {
@@ -60,16 +65,6 @@ function clearCache() {
 function initialize() {
   console.log('Application initialized');
   return true;
-}
-
-function processData(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
 }
 
 function validateInput(input) {

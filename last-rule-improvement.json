@@ -3,7 +3,8 @@
     "utils.logging.js"
   ],
   "rules": [
-    "Remove console.log"
-  ],
-  "timestamp": "2026-08-27T19:21:20.023Z"
+    // Prioritize the most recent timestamp, as it likely contains the latest improvement.
+    "Remove console.log",
+    "2026-08-27T19:21:20.023Z"
+  ]
 }

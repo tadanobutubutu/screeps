@@ -1,4 +1,3 @@
-tsx
 // app/layout.tsx
 import React from 'react';
 
@@ -7,12 +6,12 @@ const Layout = ({ children }) => {
     <div>
       {/* Existing code */}
       <svg
-        xmlns="http://www.w3.org/2000/svg"
+        ...
         viewBox="0 0 100 100"
         aria-label="Screeps Dashboard Icon"
       >
         <title>Screeps Dashboard</title>
-        <text y="0.9em" fontSize="90">🐛</text>
+        <text y="0.9em" ...
       </svg>
       {children}
     </div>
@@ -29,12 +28,12 @@ const DashboardLayout = ({ children }) => {
     <div>
       {/* Existing code */}
       <svg
-        xmlns="http://www.w3.org/2000/svg"
+        ...
         viewBox="0 0 100 100"
         aria-label="Screeps Dashboard Icon"
       >
         <title>Screeps Dashboard</title>
-        <text y="0.9em" fontSize="90">🐛</text>
+        <text y="0.9em" ...
       </svg>
       {children}
     </div>

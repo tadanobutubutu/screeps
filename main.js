@@ -1,9 +1,9 @@
 // Address accessibility issues from insight report
 
 // Focus trap for modals/dialogs
-function trapFocus(element) {
+export function trapFocus(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
   const firstFocusable = focusableElements[0];
   const lastFocusable = focusableElements[focusableElements.length - 1];
@@ -29,7 +29,7 @@ function trapFocus(element) {
 }
 
 // Announce content to screen readers
-function announceToScreenReader(message, priority = 'polite') {
+export function announceToScreenReader(message, priority = 'polite') {
   let announcer = document.getElementById('sr-announcer');
   if (!announcer) {
     announcer = document.createElement('div');
@@ -47,7 +47,8 @@ function announceToScreenReader(message, priority = 'polite') {
 }
 
 // Skip link handler
-function handleSkipLink(targetId) {
+export function handleSkipLink(event) {
+  const targetId = event.target.getAttribute('href').substring(1);
   const target = document.getElementById(targetId);
   if (target) {
     target.setAttribute('tabindex', '-1');
@@ -56,12 +57,12 @@ function handleSkipLink(targetId) {
 }
 
 // Check if user prefers reduced motion
-function prefersReducedMotion() {
+export function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 // Accessible hide/show toggle
-function setAccessibleHidden(element, isHidden) {
+export function setAccessibleHidden(element, isHidden) {
   if (isHidden) {
     element.setAttribute('aria-hidden', 'true');
     element.setAttribute('hidden', '');
@@ -70,5 +71,3 @@ function setAccessibleHidden(element, isHidden) {
     element.removeAttribute('hidden');
   }
 }
-
-// ----- END ORIGINAL CODE -----

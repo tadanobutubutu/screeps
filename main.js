@@ -2,14 +2,13 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateUniqueLandmarks(), and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by validateLinkAccessibility(), createInPageButton(), validateLinkOrButton(), and personName())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 
 // Initialize accessibility features
-const defaultInsightReport = { issues: [] };
-addressAccessibilityIssues(defaultInsightReport);
+const accessibilityState = { issues: [] };
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
@@ -17,7 +16,7 @@ addressAccessibilityIssues(defaultInsightReport);
 // Ensure element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
+    element.id = 'auto-generated-id-' + Math.random().toString(36).substring(2, 9);
   }
   return element;
 }
@@ -35,12 +34,12 @@ function renderDependencyGraph(dependencies) {
   // Dummy implementation for dependency graph rendering
   const container = document.createElement('div');
   container.id = 'dependency-graph';
-  dependencies.forEach(dep => {
+  dependencies.forEach(function(dep) {
     const node = document.createElement('div');
     node.textContent = dep;
     container.appendChild(node);
   });
-  document.body.appendChild(container);
+  return container;
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
@@ -55,39 +54,39 @@ function addressAccessibilityIssues(insightReport) {
     return { addressed: false, message: 'Invalid insight report provided.' };
   }
 
-  const addressedIssues = [];
-  const issues = insightReport.issues || [];
+  var addressedIssues = [];
+  var issues = insightReport.issues || [];
 
-  issues.forEach((issue, index) => {
+  issues.forEach(function(issue, index) {
     // Example logic for addressing different types of accessibility issues
     switch (issue.type) {
       case 'missing-alt-text':
         // Add alt text to image elements
         if (issue.element) {
           issue.element.setAttribute('alt', issue.suggestedAlt || 'Image description');
-          addressedIssues.push({ type: issue.type, status: 'fixed', index });
+          addressedIssues.push({ type: issue.type, status: 'fixed', index: index });
         } else {
-          addressedIssues.push({ type: issue.type, status: 'not-fixed', reason: 'No element found', index });
+          addressedIssues.push({ type: issue.type, status: 'not-fixed', reason: 'No element found', index: index });
         }
         break;
       case 'low-contrast':
         // Adjust contrast by adding a class or modifying styles
         if (issue.element) {
           issue.element.style.contrast = '4.5'; // Simplified approach
-          addressedIssues.push({ type: issue.type, status: 'adjusted', index });
+          addressedIssues.push({ type: issue.type, status: 'adjusted', index: index });
         } else {
-          addressedIssues.push({ type: issue.type, status: 'not-adjusted', reason: 'No element found', index });
+          addressedIssues.push({ type: issue.type, status: 'not-adjusted', reason: 'No element found', index: index });
         }
         break;
       default:
-        addressedIssues.push({ type: issue.type, status: 'skipped', index });
+        addressedIssues.push({ type: issue.type, status: 'skipped', index: index });
     }
   });
 
   return {
     addressed: true,
     totalIssues: issues.length,
-    addressedCount: addressedIssues.filter(a => a.status !== 'not-fixed' && a.status !== 'not-adjusted').length,
+    addressedCount: addressedIssues.filter(function(a) { return a.status !== 'not-fixed' && a.status !== 'skipped'; }).length,
     details: addressedIssues
   };
 }
@@ -95,7 +94,7 @@ function addressAccessibilityIssues(insightReport) {
 // New Function for testing purposes
 function newTestFunction() {
   // Custom test function implementation
-  const result = "Test result";
+  var result = "Test result";
   return result;
 }
 
@@ -108,31 +107,32 @@ function resolveConflicts(content) {
 // New Function to get SVG accessible name
 function getSvgAccessibleName(element) {
   if (!element.getAttributeNS(null, "aria-labelledby")) {
-    let labelText = "";
+    var labelText = "";
 
     if (element.nodeName === "svg") {
-      const titles = element.getElementsByTagName("title");
+      var titles = element.getElementsByTagName("title");
       if (titles.length > 0) labelText = titles[0].textContent;
 
-      const descs = element.getElementsByTagName("desc");
-      if (descs.length > 0) labelText = descs[0].textContent;
+      if (!labelText) {
+        var descs = element.getElementsByTagName("desc");
+        if (descs.length > 0) labelText = descs[0].textContent;
+      }
     } else {
       labelText = element.getAttributeNS(null, "aria-label");
     }
 
     if (labelText) {
-      const id = ensureElementHasId(document.createElement("span"));
-      document.getElementById("myElement").appendChild(document.createTextNode(labelText));
+      var id = "svg-label-" + Math.random().toString(36).substring(2, 9);
       element.setAttribute("aria-labelledby", id);
     }
   }
 
   // Expose element's aria-labelledby value as accessibleName
-  return document.getElementById(ensureElementHasId(document.createElement("span")).id);
+  return element.getAttributeNS(null, "aria-labelledby") || "";
 }
 
 // Ensure element has an id
-const myElement = document.getElementById('myElement') || document.createElement('div');
+var myElement = document.getElementById('myElement') || document.createElement('div');
 ensureElementHasId(myElement);
 
 // Add aria-label to the element
@@ -140,14 +140,14 @@ addAriaLabel(myElement, 'A descriptive text for myElement');
 
 // Export for testing purposes
 module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  myElement,
-  renderDependencyGraph, // keep the old exported function
-  newTestFunction, // add new exported function
-  resolveConflicts, // add new exported function
-  getSvgAccessibleName, // add new exported function
-  addressAccessibilityIssues // add new exported function
+  ensureElementHasId: ensureElementHasId,
+  addAriaLabel: addAriaLabel,
+  myElement: myElement,
+  renderDependencyGraph: renderDependencyGraph,
+  newTestFunction: newTestFunction,
+  resolveConflicts: resolveConflicts,
+  getSvgAccessibleName: getSvgAccessibleName,
+  addressAccessibilityIssues: addressAccessibilityIssues
 };
 
 // New Function for handling a specific event
@@ -168,11 +168,13 @@ module.exports.saveSettings = saveSettings;
 
 // New function to create an in-page button
 function createInPageButton(buttonId, text, callback) {
-  const button = document.createElement('button');
+  var button = document.createElement('button');
   button.id = buttonId;
   button.textContent = text;
-  button.addEventListener('click', callback);
-  document.body.appendChild(button);
+  if (callback) {
+    button.addEventListener('click', callback);
+  }
+  return button;
 }
 
 // Export the new function for testing purposes
@@ -184,18 +186,18 @@ function validateTableAccessibility(table) {
     return { valid: false, message: 'Invalid table element' };
   }
 
-  const issues = [];
-  const rows = table.getElementsByTagName('tr');
+  var issues = [];
+  var rows = table.getElementsByTagName('tr');
 
-  for (let i = 0; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName('td');
-    const headers = rows[i].getElementsByTagName('th');
+  for (var i = 0; i < rows.length; i++) {
+    var cells = rows[i].getElementsByTagName('td');
+    var headers = rows[i].getElementsByTagName('th');
     if (cells.length > 0 && headers.length === 0 && i === 0) {
       issues.push('Missing header row');
     }
   }
 
-  return { valid: issues.length === 0, issues };
+  return { valid: issues.length === 0, issues: issues };
 }
 
 // New function to validate table structure (REACT_027)
@@ -224,12 +226,12 @@ function validateLandmarkStructure(element) {
 }
 
 // New function to validate unique landmarks (REACT_017, REACT_025)
-function validateUniqueLandmarks() {
-  const landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', '[role="search"]', 'form', '[role="contentinfo"]', '[role="banner"]', '[role="complementary"]', '[role="region"]'];
-  const duplicateLandmarks = [];
+function validateUniqueLandmarks(document) {
+  var landmarkSelectors = ['main', 'nav', 'header', 'footer', 'aside', '[role="search"]', 'form', '[role="contentinfo"]', '[role="banner"]', '[role="region"]'];
+  var duplicateLandmarks = [];
 
-  landmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
+  landmarkSelectors.forEach(function(selector) {
+    var elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       duplicateLandmarks.push({
         selector: selector,
@@ -246,17 +248,17 @@ function validateUniqueLandmarks() {
 }
 
 // New function to create SVG accessibility props (REACT_041)
-function createSvgAccessibilityProps(element) {
-  const props = {};
+function getSvgAccessibleProps(element) {
+  var props = {};
   if (!element) {
     return props;
   }
   
-  const accessibleName = getSvgAccessibleName(element);
+  var accessibleName = getSvgAccessibleName(element);
   if (accessibleName) {
     props['aria-labelledby'] = accessibleName;
   } else {
-    const ariaLabel = element.getAttributeNS(null, 'aria-label');
+    var ariaLabel = element.getAttributeNS(null, 'aria-label');
     if (ariaLabel) {
       props['aria-label'] = ariaLabel;
     }
@@ -271,7 +273,7 @@ function validateLinkOrButton(element) {
     return { valid: false, message: 'Invalid element' };
   }
   
-  const tagName = element.tagName ? element.tagName.toUpperCase() : '';
+  var tagName = element.tagName ? element.tagName.toUpperCase() : '';
   
   if (tagName === 'A') {
     return { valid: true, type: 'link' };
@@ -281,7 +283,7 @@ function validateLinkOrButton(element) {
     return { valid: true, type: 'button' };
   }
   
-  const role = element.getAttribute ? element.getAttribute('role') : null;
+  var role = element.getAttribute ? element.getAttribute('role') : null;
   if (role === 'link' || role === 'button') {
     return { valid: true, type: role };
   }
@@ -301,6 +303,6 @@ module.exports.validateTableStructure = validateTableStructure;
 module.exports.validateLandmark = validateLandmark;
 module.exports.validateLandmarkStructure = validateLandmarkStructure;
 module.exports.validateUniqueLandmarks = validateUniqueLandmarks;
-module.exports.createSvgAccessibilityProps = createSvgAccessibilityProps;
+module.exports.getSvgAccessibleProps = getSvgAccessibleProps;
 module.exports.validateLinkOrButton = validateLinkOrButton;
 module.exports.personName = personName;

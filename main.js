@@ -280,3 +280,20 @@ const a11yStore = {
         case 'missing-alt':
           document.querySelectorAll('img').forEach(img => {
             if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', '');
+            }
+          });
+          break;
+        default:
+          break;
+      }
+    });
+  }
+};
+
+// TODO: Address any missing required exports
+export function example() {
+  return "example";
+}
+
+export { getSvgAccessibleName, a11yStore };

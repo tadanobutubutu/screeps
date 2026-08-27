@@ -12,6 +12,7 @@ function replaceMyButtonId() {
   if (button) {
     button.id = 'exampleButton';
     button.removeAttribute('data-temp-accessibility-placeholder');
+    button.classList.remove('my-button');
   }
 }
 
@@ -61,6 +62,14 @@ function addProperAccountManagement() {
 function addAriaToFormControls() {
   // ... (existing code)
 }
+
+/**
+ * Function to replace `my-button` with actual button id
+ */
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+replaceMyButtonId();
 
 module.exports = {
   addProperLandmarkRegions,

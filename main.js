@@ -1,8 +1,9 @@
-// Add lang attribute to html element
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
+import logo from './logo.svg';
 
+// Add lang attribute to html element
 ReactDOM.render(
   <React.StrictMode>
     <html lang="en">
@@ -18,8 +19,6 @@ ReactDOM.render(
 );
 
 // Add/fix 4 landmark issues
-import React from 'react';
-
 const Header = () => {
   // ...
   return (
@@ -39,9 +38,6 @@ const Footer = () => {
 };
 
 // Add accessible names to 2 SVGs
-import React from 'react';
-import logo from './logo.svg';
-
 const Logo = () => (
   <img
     src={logo}
@@ -51,8 +47,6 @@ const Logo = () => (
 );
 
 // Ensure unique landmarks (2 issues)
-import React from 'react';
-
 const Navbar = () => {
   // ...
   return (
@@ -63,8 +57,6 @@ const Navbar = () => {
 };
 
 // Fix 1 fake link issue
-import React from 'react';
-
 const LinkToHome = () => (
   <a href="#" onClick={() => window.location.href = '/'}>
     Home

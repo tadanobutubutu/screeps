@@ -3,7 +3,7 @@
 // Focus trap for modals/dialogs
 function trapFocus(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
   const firstFocusable = focusableElements[0];
   const lastFocusable = focusableElements[focusableElements.length - 1];
@@ -47,7 +47,8 @@ function announceToScreenReader(message, priority = 'polite') {
 }
 
 // Skip link handler
-function handleSkipLink(targetId) {
+function handleSkipLink(event) {
+  const targetId = event.currentTarget.getAttribute('href').substring(1);
   const target = document.getElementById(targetId);
   if (target) {
     target.setAttribute('tabindex', '-1');
@@ -70,5 +71,3 @@ function setAccessibleHidden(element, isHidden) {
     element.removeAttribute('hidden');
   }
 }
-
-// ----- END ORIGINAL CODE -----

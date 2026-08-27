@@ -15,7 +15,7 @@
  * space/enter activation, and screen reader semantics.
  */
 
-/**
+ /**
  * Configuration for the dependency graph controller.
  */
 const config = {
@@ -110,3 +110,5 @@ if (typeof module !== 'undefined' && module.exports) {
         handleLanguageDetect // Added to address REACT_015
     };
 }
+=======
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -11,7 +11,7 @@ function replaceMyButtonId() {
   const button = document.querySelector('.my-button');
   if (button) {
     button.id = 'exampleButton';
-    button.classList.remove('my-button');
+    button.removeAttribute('data-temp-accessibility-placeholder');
   }
 }
 
@@ -42,21 +42,13 @@ function addProperAccountManagement() {
  *
  * @returns {void}
  */
-function addProperFormAccessibility() {
+function addAriaToFormControls() {
   // ... (existing code)
 }
-
-/**
- * Function to replace `my-button` with actual button id
- */
-addProperLandmarkRegions();
-addProperAccountManagement();
-addProperFormAccessibility();
-replaceMyButtonId();
 
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
-  addProperFormAccessibility,
+  addAriaToFormControls,
   replaceMyButtonId
 };

@@ -69,7 +69,7 @@ function FakeLinkFixed() {
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and validateSvgAccessibility())
 /// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
@@ -97,6 +97,24 @@ function getSvgAccessibleName(svgElement) {
   return svgElement.getAttribute('aria-label') || svgElement.querySelector('title')?.textContent || '';
 }
 
+function validateSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"]):not([aria-hidden="false"] [role="img"])');
+  let accessibleSvgCount = 0;
+  let inaccessibleSvgCount = 0;
+  
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      accessibleSvgCount++;
+    } else {
+      inaccessibleSvgCount++;
+      console.warn('SVG accessibility issue: SVG has no accessible name and is not hidden:', svg.outerHTML.substring(0, 100));
+    }
+  });
+  
+  return { accessibleSvgCount, inaccessibleSvgCount };
+}
+
 function createInPageButton(text, onClick) {
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -120,6 +138,7 @@ function addLangAttribute() {
 function render() {
   addLangAttribute();
   validateLandmarkStructure();
+  validateSvgAccessibility();
   
   root.innerHTML = `
     <div class="app">
@@ -158,4 +177,4 @@ function exportData() {
 render();
 
 // Export functions for testing
-export { render, handleAction, handleFakeLinkAction, exportData, addLangAttribute, getLangAttribute, getFullLangAttribute, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, createAccessibleLink };
+export { render, handleAction, handleFakeLinkAction, exportData, addLangAttribute, getLangAttribute, getFullLangAttribute, validateLandmarkStructure, getSvgAccessibleName, validateSvgAccessibility, createInPageButton, createAccessibleLink };

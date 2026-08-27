@@ -1,4 +1,4 @@
-// main.js - Fixed accessibility issues
+// main.js - Fixed accessibility issues + Added required exports for the module
 
 import React from 'react';
 
@@ -83,4 +83,32 @@ export function AccessiblePage({ children }) {
   );
 }
 
-export default AccessiblePage;
+// Core functionality
+export function getVersion() {
+  return '1.0.0';
+}
+
+export function initialize(config) {
+  return {
+    status: 'initialized',
+    config: config
+  };
+}
+
+// Utility functions
+export function processData(data) {
+  if (!data) {
+    throw new Error('Data is required');
+  }
+  return {
+    processed: true,
+    data: data
+  };
+}
+
+// Validation helpers
+export function validate(input) {
+  return input !== null && input !== undefined;
+}
+
+export { AccessibleTable, AccessibleIcon, Navigation, AccessiblePage };

@@ -22,25 +22,36 @@ const addLangAttribute = () => {
 const fixTableStructure = () => {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    table.setAttribute('role', 'table');
+    if (!table.getAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
   });
 };
 
 // New function to add/fix landmark issues
 const addMainLandmark = () => {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('id', 'main');
-  document.body.insertBefore(mainElement, document.body.firstChild);
+  let mainElement = document.querySelector('main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main');
+    document.body.insertBefore(mainElement, document.body.firstChild);
+  } else if (!mainElement.id) {
+    mainElement.setAttribute('id', 'main');
+  }
 };
 
 // New function to ensure unique landmarks
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const existingElement = document.getElementById(landmark);
-    if (existingElement) {
-      existingElement.setAttribute('id', `${landmark}-unique`);
-    }
+    const existingElements = document.querySelectorAll(`[role="${landmark}"]`);
+    let count = 0;
+    existingElements.forEach(element => {
+      if (!element.id) {
+        element.setAttribute('id', `${landmark}-${count}`);
+        count++;
+      }
+    });
   });
 };
 
@@ -48,16 +59,22 @@ const ensureUniqueLandmarks = () => {
 const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    setAccessibleName({ svg }, 'Descriptive text for the SVG');
+    const parent = svg.parentElement;
+    if (parent) {
+      setAccessibleName({ svg }, 'Descriptive text for the SVG');
+    }
   });
 };
 
 // New function to fix fake link issues
 const fixFakeLinkIssue = () => {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
-    link.setAttribute('role', 'presentation');
-    link.style.display = 'none';
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === '') {
+      link.setAttribute('role', 'presentation');
+      link.style.display = 'none';
+    }
   });
 };
 
@@ -65,7 +82,8 @@ const fixFakeLinkIssue = () => {
 const validateLandmark = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const missingLandmarks = landmarks.filter(landmark => {
-    return !document.getElementById(landmark);
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    return elements.length === 0;
   });
 
   if (missingLandmarks.length > 0) {

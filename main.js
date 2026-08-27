@@ -13,6 +13,9 @@ function improveAccessibility() {
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
+  
+  // Ensure the dependencyGraph container has a proper ARIA role
+  ensureDependencyGraphAccessibility();
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -142,6 +145,27 @@ function addLandmarkRegions() {
       }
     }
   });
+}
+
+// New function to ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAccessibility() {
+  // Find the dependencyGraph container element
+  const dependencyGraph = document.getElementById('dependencyGraph') || 
+                          document.querySelector('.dependencyGraph') ||
+                          document.querySelector('[data-dependency-graph]');
+  
+  if (dependencyGraph) {
+    // Ensure it has a proper ARIA role
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    
+    // Add accessible name if not present
+    if (!dependencyGraph.getAttribute('aria-label') && 
+        !dependencyGraph.getAttribute('aria-labelledby')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
 }
 
 module.exports = {

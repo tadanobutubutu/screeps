@@ -1,9 +1,9 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Replace this placeholder with the actual main.js content containing real conflict markers:
 
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'generated-id-' + Math.random().toString(36).substr(2, 9);
   }
   return element.id;
 }
@@ -28,8 +28,9 @@ function renderDependencyGraph() {
 }
 
 // make sure the element has an id
-const myElement = document.getElementById('myElement') || document.createElement('div');
-ensureElementHasId(myElement);
+const myElement = typeof document !== 'undefined' 
+  ? document.getElementById('myElement') 
+  : { id: 'default-id', setAttribute: function() {} };
 
 // add aria-label to the element
 addAriaLabel(myElement, 'A descriptive text for myElement');
@@ -41,18 +42,20 @@ function newTestFunction() {
   return result;
 }
 
-// Real conflict markers
-function parseGitConflictMarkers(content) {
+// Real conflict markers detection
+function detectConflictMarkers(content) {
   const lines = content.split('\n');
   const conflicts = [];
   let inConflict = false;
   let currentConflict = null;
+  let inHead = false;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
     if (line.startsWith('<<<<<<<')) {
       inConflict = true;
+      inHead = true;
       currentConflict = {
         start: i,
         head: [],
@@ -60,17 +63,20 @@ function parseGitConflictMarkers(content) {
         end: -1,
         resolved: null
       };
-    } else if (line.startsWith('=======')) {
-      inConflict = false;
-      conflicts.push(currentConflict);
-      currentConflict.remote = [];
-    } else if (line.startsWith('>>>>>>>')) {
+    } else if (line.startsWith('=======') && inConflict) {
+      inHead = false;
+    } else if (line.startsWith('>>>>>>>') && inConflict) {
       currentConflict.end = i;
+      conflicts.push(currentConflict);
       inConflict = false;
-    } else if (inConflict && currentConflict.head.length >= 0) {
-      currentConflict.head.push(line);
-    } else if (!inConflict && currentConflict && currentConflict.remote !== null) {
-      currentConflict.remote.push(line);
+      inHead = false;
+      currentConflict = null;
+    } else if (inConflict) {
+      if (inHead) {
+        currentConflict.head.push(line);
+      } else {
+        currentConflict.remote.push(line);
+      }
     }
   }
   
@@ -78,13 +84,31 @@ function parseGitConflictMarkers(content) {
 }
 
 function resolveConflicts(content) {
-  const conflicts = this.parseGitConflictMarkers(content);
-  // Implement conflict resolution logic
-  return content;
+  const conflicts = detectConflictMarkers(content);
+  if (conflicts.length === 0) {
+    return content;
+  }
+  
+  let result = content;
+  // Process conflicts in reverse order to maintain correct indices
+  for (let i = conflicts.length - 1; i >= 0; i--) {
+    const conflict = conflicts[i];
+    const lines = result.split('\n');
+    
+    // Extract the before, head content, and after
+    const before = lines.slice(0, conflict.start).join('\n');
+    const head = conflict.head.join('\n');
+    const after = lines.slice(conflict.end + 1).join('\n');
+    
+    result = before + head + after;
+  }
+  
+  return result;
 }
 
 function detectConflicts(content) {
-  return this.parseGitConflictMarkers(content).length > 0;
+  const conflicts = detectConflictMarkers(content);
+  return conflicts.length > 0;
 }
 
 // Export for testing purposes
@@ -92,9 +116,9 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   myElement,
-  renderDependencyGraph, // keep the old exported function
-  newTestFunction, // add new exported function
-  parseGitConflictMarkers,
+  renderDependencyGraph,
+  newTestFunction,
+  detectConflictMarkers,
   resolveConflicts,
   detectConflicts
 };

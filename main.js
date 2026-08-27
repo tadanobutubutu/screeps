@@ -5,18 +5,7 @@
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
-    return;
-  }
-  
-  // Set role attribute
-  svgElement.setAttribute('role', 'img');
-  
-  // Set aria-label if not present
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (!ariaLabel) {
-    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || 'SVG Image');
-  }
+  // ... (existing code)
 }
 
 /**
@@ -25,21 +14,7 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
-  // Check if link has proper href
-  const href = link.getAttribute('href');
-  if (!href || href === '#' || href === '') {
-    return false;
-  }
-
-  // Check if link has text content or aria-label
-  const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.getAttribute('aria-label');
-  
-  if (!hasText && !hasAriaLabel) {
-    return false;
-  }
-
-  return true;
+  // ... (existing code)
 }
 
 /**
@@ -48,19 +23,7 @@ function isLinkAccessible(link) {
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {
-  // Check if button has type attribute
-  const type = button.getAttribute('type');
-  
-  // Check if button has text content or aria-label
-  const hasText = button.textContent.trim().length > 0;
-  const hasAriaLabel = button.getAttribute('aria-label');
-  const hasAriaLabelledby = button.getAttribute('aria-labelledby');
-  
-  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-    return false;
-  }
-
-  return true;
+  // ... (existing code)
 }
 
 /**
@@ -69,37 +32,76 @@ function isButtonAccessible(button) {
  * @returns {Object} An object containing accessibility check results
  */
 function checkAccessibility(container = document) {
+  // ... (existing code)
+}
+
+/**
+ * Checks if a landmark element has appropriate accessibility attributes.
+ * @param {string} role - The landmark role to check
+ * @param {HTMLElement} element - The element to check
+ */
+function checkLandmarkElement(role, element) {
+  const isValidRole = ['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'].includes(role);
+  if (!isValidRole || !element || element.getAttributeNode('role')?.value !== role) return;
+
+  if (element.hasAttribute('aria-label')) return;
+
+  let ariaLabel = '';
+  switch (role) {
+    case 'banner':
+      ariaLabel = 'Main banner';
+      break;
+    case 'navigation':
+      ariaLabel = 'Main site navigation';
+      break;
+    case 'main':
+      ariaLabel = 'Main content area';
+      break;
+    case 'sidebar':
+      ariaLabel = 'Sidebar';
+      break;
+    case 'contentinfo':
+      ariaLabel = 'Additional page content and information';
+      break;
+    case 'search':
+      ariaLabel = 'Search field';
+      break;
+    case 'form':
+      ariaLabel = 'Form';
+      break;
+    case 'alert':
+      ariaLabel = 'Alert';
+      break;
+    case 'application':
+      ariaLabel = 'Main application';
+      break;
+    case 'complementary':
+      ariaLabel = 'Complementary content';
+      break;
+    default:
+      ariaLabel = role;
+  }
+  element.setAttribute('aria-label', ariaLabel);
+}
+
+/**
+ * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @returns {Object} An object containing landmark accessibility check results
+ */
+function checkLandmarkAccessibility(container = document) {
   const results = {
-    links: {
-      accessible: [],
-      inaccessible: []
-    },
-    buttons: {
-      accessible: [],
-      inaccessible: []
-    },
-    isFullyAccessible: true
+    accessibleLandmarks: [],
+    inaccessibleLandmarks: []
   };
 
-  // Check all links in the container
-  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
-  links.forEach(link => {
-    if (isLinkAccessible(link)) {
-      results.links.accessible.push(link);
+  const landmarkElements = container.querySelectorAll(`[role=${['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'].join(', ')}]`);
+  landmarkElements.forEach(element => {
+    checkLandmarkElement(element.getAttribute('role'), element);
+    if (!element.hasAttribute('aria-label')) {
+      results.inaccessibleLandmarks.push(element);
     } else {
-      results.links.inaccessible.push(link);
-      results.isFullyAccessible = false;
-    }
-  });
-
-  // Check all buttons in the container
-  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
-  buttons.forEach(button => {
-    if (isButtonAccessible(button)) {
-      results.buttons.accessible.push(button);
-    } else {
-      results.buttons.inaccessible.push(button);
-      results.isFullyAccessible = false;
+      results.accessibleLandmarks.push(element);
     }
   });
 
@@ -125,4 +127,5 @@ module.exports = {
   isButtonAccessible,
   checkAccessibility,
   renderIndexView,
+  checkLandmarkAccessibility, // New export
 };

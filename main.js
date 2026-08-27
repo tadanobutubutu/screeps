@@ -1,11 +1,6 @@
-// Current state of main.js
-import React from 'react';
+const fs = require('fs');
+const path = require('path');
 
-function MyComponent() {
-  // Old code that needs to be updated
-  <div lang="en">
-    <span id="content">Content</span>
-  </div>
-}
-
-export default MyComponent;
+const htmlPath = path.join(__dirname, 'index.html');
+const content = fs.readFileSync(htmlPath, 'utf8');
+console.log(content);

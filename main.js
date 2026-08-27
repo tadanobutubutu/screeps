@@ -16,6 +16,9 @@ function improveAccessibility() {
   
   // Ensure the dependencyGraph container has a proper ARIA role
   ensureDependencyGraphAccessibility();
+
+  // Add proper landmark regions to ensure consistency
+  addLandmarkRegions();
 }
 
 function addressInsightReportIssues(insightReport) {

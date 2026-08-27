@@ -6,7 +6,7 @@ const { renderStructure } = require('./renderStructure');
 const { renderController } = require('./renderController');
 
 // Import the required rendering modules - REQUESTED CHANGE FOR THE OPEN ISSUE
-const { renderContent, renderGraph, renderLandmarks } = require('some-rendering-module');
+const { renderContent, renderGraph, renderLandmarks, dependencyGraphContent } = require('some-rendering-module');
 
 let rotation = 0;
 let img = null;
@@ -253,5 +253,6 @@ module.exports = {
     getSvgAccessibleName,
     newFunction1,
     newFunction2,
-    accessibilityReport
+    accessibilityReport,
+    dependencyGraphContent
 };

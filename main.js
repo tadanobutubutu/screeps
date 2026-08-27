@@ -145,6 +145,34 @@ const addMainLandmark = (document) => {
   return document;
 };
 
+// ADD THE FOLLOWING FUNCTION TO ADD LANDMARKS TO PAGE
+const addLandmarks = (document) => {
+  const landingPage = document.querySelector('[data-js="landing-page"]');
+  if (landingPage) {
+    const banner = landingPage.querySelector('[data-js="landing-page-banner"]');
+    if (banner) {
+      banner.setAttribute('role', 'banner');
+    }
+
+    const navMenu = landingPage.querySelector('nav');
+    if (navMenu) {
+      navMenu.setAttribute('role', 'navigation');
+    }
+
+    const contentInfo = landingPage.querySelector('[data-js="landing-page-content-info"]');
+    if (contentInfo) {
+      contentInfo.setAttribute('role', 'contentinfo');
+    }
+  }
+
+  const footer = document.querySelector('footer');
+  if (footer) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  return document;
+};
+
 const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
@@ -225,6 +253,7 @@ const addressAccessibilityIssues = (document) => {
   addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
   fixFakeLinkIssue(document);
+  addLandmarks(document); // ADD LANDMARK FUNCTION HERE
   return document;
 };
 

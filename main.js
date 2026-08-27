@@ -1,15 +1,1 @@
-// Original code...
-// Exported code...
-
-// New accessibility-related changes...
-function newAccessibilityFunction() {
-    // Code to address accessibility issues...
-}
-
-// If this function needs to be exported, place it here.
-export { newAccessibilityFunction };
-
-// Remove or comment out the TODO comment
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-
-// The rest of the code...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

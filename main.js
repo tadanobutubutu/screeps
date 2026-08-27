@@ -33,10 +33,13 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 
+// ADD THE NEW FUNCTION HERE
+const { addMissingExportFunction } = require('./missingExportFile');
+
 // Continue to export all existing functions
 module.exports = {
   addProperLandmarkRegions,
-  addAndEnsureUniqueLandmarkRegions, // Add the new function to the exports
+  addAndEnsureUniqueLandmarkRegions,
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
@@ -45,5 +48,6 @@ module.exports = {
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
+  addMissingExportFunction, // Add the new function to the exports
   getSvgAccessibleName
 };

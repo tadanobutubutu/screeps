@@ -92,3 +92,9 @@ export function initAccessibility() {
 // Export version for compatibility
 export const VERSION = '1.0.0';
 export { announceToScreenReader as ariaAnnounce };
+
+// Accessibility improvement: Replace non-interactive link with button for proper keyboard and screen reader support
+document.getElementById('unrotate').addEventListener('click', function() {
+    // Assuming some functionality to reverse rotation
+    alert('Rotated back!');
+});

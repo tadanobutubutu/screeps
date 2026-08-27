@@ -200,6 +200,88 @@ function addAriaLabel(element, labelText) {
   return element;
 }
 
+/**
+ * Addresses accessibility issues from an insight report.
+ * Handles specific REACT_* issue types.
+ * @param {Array<Object>} issues - Array of issue objects from the insight report.
+ * @returns {Object} An object containing the fixes for each issue.
+ */
+function addressInsightAccessibilityIssues(issues) {
+  const fixes = [];
+
+  for (const issue of issues) {
+    if (!issue || typeof issue !== 'object' || !issue.type) {
+      fixes.push({
+        type: issue ? issue.type : 'unknown',
+        action: 'invalid-issue',
+        target: null,
+        value: 'Invalid issue format or missing type',
+      });
+      continue;
+    }
+
+    switch (issue.type) {
+      case 'REACT_015':
+        fixes.push({
+          type: issue.type,
+          action: 'add-lang-attribute',
+          target: 'html',
+          value: issue.suggestedLang || 'en',
+        });
+        break;
+      case 'REACT_017':
+        fixes.push({
+          type: issue.type,
+          action: 'add-landmark',
+          target: issue.selector || 'main',
+          value: issue.suggestedRole || 'main',
+        });
+        break;
+      case 'REACT_041':
+        fixes.push({
+          type: issue.type,
+          action: 'add-accessible-name',
+          target: issue.selector,
+          value: issue.suggestedName || 'SVG',
+        });
+        break;
+      case 'REACT_025':
+        fixes.push({
+          type: issue.type,
+          action: 'ensure-unique-landmark',
+          target: issue.selector,
+          value: issue.suggestedId || null,
+        });
+        break;
+      case 'REACT_036':
+        fixes.push({
+          type: issue.type,
+          action: 'fix-fake-link',
+          target: issue.selector,
+          value: issue.suggestedHref || '#',
+        });
+        break;
+      case 'REACT_027':
+        fixes.push({
+          type: issue.type,
+          action: 'add-scope',
+          target: issue.selector,
+          value: issue.scope || 'col',
+        });
+        break;
+      default:
+        fixes.push({
+          type: issue.type,
+          action: 'manual-review',
+          target: issue.selector,
+          value: issue.description || 'Manual review required',
+        });
+    }
+  }
+
+  return { fixes };
+}
+
 // Preserve existing exports if any
 module.exports = {
     hasMainLandmark,
@@ -207,5 +289,6 @@ module.exports = {
     checkAllFilesForLandmarks,
     addressAccessibilityIssues,
     ensureElementHasId,
-    addAriaLabel
+    addAriaLabel,
+    addressInsightAccessibilityIssues
 };

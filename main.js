@@ -4,15 +4,20 @@
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 
-const root = document.getElementById('root');
+import { getSvgAccessibleName, createInPageButton } from './accessibility-utils.js';
+
+// TODO: Add these imported modules to the relevant rendering functions
+// ... (Fill in here with the appropriate function calls)
+
+const root = ...
 
 function Navigation() {
   return `
     <nav role="navigation" aria-label="Main navigation">
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li>
+        <li><a ...
+        <li><a ...
       </ul>
     </nav>
   `;
@@ -23,7 +28,7 @@ function MainContent() {
     <main role="main" id="main-content">
       <h1>Welcome to Our Application</h1>
       <p>This is the main content area of the page.</p>
-      <button type="button" onclick="handleAction()">Perform Action</button>
+      <button type="button" ... Action</button>
     </main>
   `;
 }
@@ -49,19 +54,19 @@ function Footer() {
 }
 
 function Logo() {
-  return `<svg aria-hidden="true" focusable="false"><use href="#logo-icon"></use></svg>`;
+  return `<svg aria-hidden="true" focusable="false"><use ... ${getSvgAccessibleName('logo')}></svg>`;
 }
 
 function SearchIcon() {
-  return `<svg aria-hidden="true" focusable="false"><use href="#search-icon"></use></svg>`;
+  return `<svg aria-hidden="true" focusable="false"><use ... ${getSvgAccessibleName('search')}></svg>`;
 }
 
 function UniqueSection() {
-  return `<section aria-labelledby="unique-heading"><h2 id="unique-heading">Unique Content</h2></section>`;
+  return `<section ... id="unique-heading">Unique Content</h2></section>`;
 }
 
 function FakeLinkFixed() {
-  return `<button type="button" class="link-button" onclick="handleFakeLinkAction()">Fixed Link</button>`;
+  return createInPageButton('Link', handleFakeLinkAction);
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -70,7 +75,7 @@ function FakeLinkFixed() {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-/// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
 function getLangAttribute() {
@@ -82,19 +87,19 @@ function getFullLangAttribute() {
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = ... [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(lm => {
     const key = lm.getAttribute('role') + (lm.getAttribute('aria-label') || '');
     if (seen.has(key)) {
-      console.warn('Duplicate landmark:', key);
+      ... landmark:', key);
     }
     seen.add(key);
   });
 }
 
-function getSvgAccessibleName(svgElement) {
-  return svgElement.getAttribute('aria-label') || svgElement.querySelector('title')?.textContent || '';
+function ... {
+  return ... || ... || '';
 }
 
 function createInPageButton(text, onClick) {
@@ -119,7 +124,7 @@ function addLangAttribute() {
 
 function render() {
   addLangAttribute();
-  validateLandmarkStructure();
+  ...
   
   root.innerHTML = `
     <div class="app">

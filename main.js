@@ -36,6 +36,20 @@ addRoleToHeader(header);
 addRoleToMain(main);
 addRoleToFooter(footer);
 
-// ... (other exports, functions, or code go here)
+// REACT_037: ADD PROPER LANDMARK REGIONS
+function addLandmarkRegions() {
+  const regions = document.querySelectorAll('.landmark-region');
+  regions.forEach(region => {
+    if (region) {
+      const landmarkRole = region.getAttribute('data-landmark');
+      if (landmarkRole) {
+        region.setAttribute('role', landmarkRole);
+      }
+    }
+  });
+}
 
-// Don't forget to include Jest test cases to ensure the new landmark roles are added correctly.
+// Call the function to add landmark roles to regions
+addLandmarkRegions();
+
+// ... (other exports, functions, or code go here)

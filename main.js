@@ -67,8 +67,6 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Other existing functions, exports, and code …
-
 // New function to add SVG accessibility props
 function addSVGAccessibilityProps() {
   const svgElements = document.querySelectorAll('svg');

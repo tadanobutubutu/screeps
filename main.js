@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 // main.js - Accessibility improvements implementation
 
 // Standalone function to get the accessible name of an SVG element
@@ -42,10 +45,6 @@ function getSvgAccessibleName(svg) {
 
   return '';
 }
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
 
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report

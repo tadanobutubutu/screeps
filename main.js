@@ -6,7 +6,7 @@ const { renderStructure } = require('./renderStructure');
 const { renderController } = require('./renderController');
 
 // Import the required rendering modules - REQUESTED CHANGE FOR THE OPEN ISSUE
-const { renderContent, renderGraph, renderLandmarks } = require('some-rendering-module');
+const { renderContent, renderGraph, renderLandmarks, dependencyGraphContent } = require('some-rendering-module');
 
 // TODO: Add these imported modules to the relevant rendering functions
 

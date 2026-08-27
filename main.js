@@ -180,6 +180,18 @@ function addAltAttribute(filePath) {
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
+// New function to focus the first focusable element when called
+function addFocus() {
+  const focusableElements = document.querySelectorAll(':focus, a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed');
+  if (focusableElements.length > 0) {
+    focusableElements[0].focus();
+  }
+}
+
+// Add the new function as a global and call it on DOMContentLoaded
+window.addFocus = addFocus;
+document.addEventListener('DOMContentLoaded', addFocus);
+
 function replaceButtonId(filePath, newButtonId) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
@@ -213,13 +225,6 @@ function replaceButtonId(filePath, newButtonId) {
   return replacementCount;
 }
 
-// New function to replace button ids in files according to the provided buttonIdMap
-function replaceButtonIdsInFiles(filePaths, buttonIdMap) {
-  for (const filePath of filePaths) {
-    replaceButtonId(filePath, buttonIdMap[filePath] || 'action-button');
-  }
-}
-
 // ... (the existing code and functions below this point were not part of the request)
 
 module.exports = {
@@ -232,6 +237,6 @@ module.exports = {
   addSvgAccessibleNames,
   addAltAttribute,
   replaceButtonId,
-  replaceButtonIdsInFiles,
+  addFocus, // Added this export
   // ... (the same exports below this point were not part of the request)
 };

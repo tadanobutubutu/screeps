@@ -1,103 +1,30 @@
 // ADD THE NEW FUNCTION HERE
-function createInPageButton(buttonText, targetId, options = {}) {
-  const button = document.createElement('button');
-  button.textContent = buttonText || 'Navigate';
-  button.type = 'button';
-  
-  if (targetId) {
-    button.setAttribute('data-target-id', targetId);
-    button.addEventListener('click', () => {
-      const target = document.getElementById(targetId);
-      if (target) {
-        target.focus();
-        target.scrollIntoView({ behavior: options.smooth ? 'smooth' : 'auto' });
-      }
-    });
+function addLangAttributeToHtmlElement(doc) {
+  const htmlElement = doc.querySelector('html');
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', getLangAttribute(doc));
   }
-  
-  if (options.className) {
-    button.className = options.className;
-  }
-  
-  if (options.id) {
-    button.id = options.id;
-  }
-  
-  if (options.ariaLabel) {
-    button.setAttribute('aria-label', options.ariaLabel);
-  }
-  
-  return button;
 }
 
 /**
- * Create an accessible link element
- * @param { string } href - The URL the link points to
- * @param { string } linkText - The text content of the link
- * @param { Object } options - Optional configuration
- * @returns { HTMLAnchorElement } The created link element
+ * Add/fix landmark issues
+ * @param { Document } doc - The document object to operate on
  */
-function createAccessibleLink(href, linkText, options = {}) {
-  const link = document.createElement('a');
-  link.href = href || '#';
-  link.textContent = linkText || '';
-  
-  if (options.id) {
-    link.id = options.id;
-  }
-  
-  if (options.className) {
-    link.className = options.className;
-  }
-  
-  if (options.target) {
-    link.target = options.target;
-    if (options.target === '_blank') {
-      link.rel = 'noopener noreferrer';
-    }
-  }
-  
-  if (options.ariaLabel) {
-    link.setAttribute('aria-label', options.ariaLabel);
-  }
-  
-  if (options.title) {
-    link.title = options.title;
-  }
-  
-  if (options.role) {
-    link.setAttribute('role', options.role);
-  }
-  
-  if (options.tabIndex !== undefined) {
-    link.tabIndex = options.tabIndex;
-  }
-  
-  return link;
+function addFixLandmarkIssues(doc) {
+  const landmarks = addProperLandmarkRegions(doc);
+  ensureUniqueLandmarks(landmarks);
 }
 
 /**
- * Ensure landmarks are unique by adding incrementing suffixes to duplicates
- * @param { Array } landmarks - Array of landmark elements
- * @returns { Array } Array of landmarks with unique identifiers
+ * Fix fake link issues
+ * @param { Document } doc - The document object to operate on
  */
-function ensureUniqueLandmarks(landmarks) {
-  const landmarkCounts = {};
-  
-  return landmarks.map(landmark => {
-    const role = landmark.getAttribute('role') || 'section';
-    
-    if (!landmarkCounts[role]) {
-      landmarkCounts[role] = 1;
-      return landmark;
+function fixFakeLinkIssues(doc) {
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.href || link.href === '#') {
+      link.setAttribute('role', 'presentation');
     }
-    
-    const count = landmarkCounts[role]++;
-    const newLabel = `${role}-${count}`;
-    landmark.setAttribute('aria-label', newLabel);
-    landmark.id = landmark.id || newLabel;
-    
-    return landmark;
   });
 }
 
@@ -270,5 +197,8 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   getSvgAccessibleName,
-  addMissingExportFunction
+  addMissingExportFunction,
+  addLangAttributeToHtmlElement,
+  addFixLandmarkIssues,
+  fixFakeLinkIssues
 };

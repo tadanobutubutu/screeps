@@ -64,21 +64,23 @@ function checkLandmarks(container = document) {
  * Renders the index view of the application.
  */
 function renderIndexView() {
-  // Implement your code here.
-  // Example of creating a button in-page:
-  const button = document.createElement('button');
-  button.textContent = 'Click Me';
-  // Append the button to the body or another element as needed
-  document.body.appendChild(button);
+  // Initialize language attribute
+  getLangAttribute();
+  // Create in-page button for language toggle
+  createInPageButton();
 }
 
 /**
  * Gets the lang attribute value from the document's HTML element.
- * @returns {string|null} The lang attribute value or null if not available
+ * If missing, sets it to 'en' and returns the value.
+ * @returns {string|null} The lang attribute value or null if document is not available
  */
 function getLangAttribute() {
   if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || null;
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+    return document.documentElement.lang;
   }
   return null;
 }
@@ -92,6 +94,10 @@ function createInPageButton() {
     const button = document.createElement('button');
     button.textContent = 'Toggle Language';
     button.setAttribute('aria-label', 'Toggle Language');
+    button.addEventListener('click', () => {
+      const currentLang = document.documentElement.lang;
+      document.documentElement.lang = (currentLang === 'en') ? 'fr' : 'en';
+    });
     document.body.appendChild(button);
     return button;
   }
@@ -335,7 +341,7 @@ function getSvgAccessibleName(svgElement) {
  * @returns {NodeList} NodeList of processed form elements
  */
 function setFormElementAccessibleNames() {
-  // (exisitng code for setFormElementAccessibleNames remains the same)
+  // (existing code for setFormElementAccessibleNames remains the same)
 }
 
 /**
@@ -343,7 +349,7 @@ function setFormElementAccessibleNames() {
  * @returns {Array} Array of elements with added attributes
  */
 function addA11yAttributesToInteractiveElements() {
-  // (exisitng code for addA11yAttributesToInteractiveElements remains the same)
+  // (existing code for addA11yAttributesToInteractiveElements remains the same)
 }
 
 // Make functions accessible globally for browser usage

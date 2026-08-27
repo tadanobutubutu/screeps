@@ -267,6 +267,32 @@ const addCustomValidation = () => {
   return true;
 };
 
+// Initialize accessibility fixes on module load
+const initializeAccessibilityFixes = () => {
+  try {
+    // Address REACT_015: Add lang attribute
+    addLangAttribute();
+    
+    // Apply other accessibility fixes
+    fixTableStructure();
+    addMainLandmark();
+    ensureUniqueLandmarks();
+    addSvgAccessibleNames();
+    fixFakeLinkIssue();
+    
+    // Validate landmarks
+    validateLandmark();
+    
+    // Run custom validation
+    addCustomValidation();
+  } catch (error) {
+    console.error('Error applying accessibility fixes:', error);
+  }
+};
+
+// Execute accessibility fixes
+initializeAccessibilityFixes();
+
 // Export all functions
 module.exports = {
   getAccessibleName,

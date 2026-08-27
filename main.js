@@ -20,4 +20,12 @@ function renderIndexView() {
     // ... use indexContent ...
 }
 
+// New function to add lang attribute to HTML element
+function addLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', 'en'); // Set the appropriate language code
+    }
+}
+
 // Rest of the main.js file

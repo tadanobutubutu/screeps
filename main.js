@@ -17,6 +17,8 @@ function addAriaLabel(element, label) {
   return element;
 }
 
+const dependencyGraphContent = require('./dependencyGraph');
+
 // Update the renderDependencyGraph function
 const renderDependencyGraph = (dependencies) => {
   const renderer = new DependencyGraphRenderer();
@@ -30,7 +32,6 @@ const newFunction = require('./accessibilityFunctions').newFunction;
 const addressAccessibilityIssueForSpecificElement = require('./accessibilityFunctions').addressAccessibilityIssueForSpecificElement;
 const totalDependencies = require('./accessibilityFunctions').totalDependencies;
 const addressOldAccessibilityIssues = require('./accessibilityFunctions').addressOldAccessibilityIssues;
-const dependencyGraphContent = require('./dependencyGraph');
 
 // Implement the requested functions for addressing new accessibility issues
 
@@ -205,7 +206,7 @@ function isLinkAccessible(link) {
 
 /**
  * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button to check
+ * @param {HTMLElement} button - The button element to check
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {

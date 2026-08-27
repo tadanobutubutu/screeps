@@ -1,5 +1,4 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
+// Assuming the file is located at ...
 
 import React, { useState } from 'react';
 
@@ -28,9 +27,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     setTimeout(() => setRefreshing(false), 2000);
   };
 
-  // Remove the redundant <main> elements and use <section> or <article> for different states
   return (
-    <html lang="en">
+    <main role="main" aria-label="エラーダッシュボード">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -49,6 +47,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           </section>
         )}
         <button
+          type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
           onMouseLeave={() => setErrCopyHover(false)}
@@ -72,15 +71,26 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
         </button>
         <button
+          type="button"
           onClick={() => fetchStats(true)}
           disabled={refreshing}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
+          aria-label="再試行"
+          aria-busy={refreshing}
+          style={{
+            backgroundColor: refreshing ? '#999' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+          }}
         >
           {refreshing ? 'リフレッシュ中...' : '再試行'}
         </button>
       </div>
-    </html>
+    </main>
   );
 };
 

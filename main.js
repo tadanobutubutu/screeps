@@ -11,7 +11,7 @@ export function getAccessibleName(element) {
 
 export function setAccessibleDescription(element, description) {
     if (!element) return;
-    element.setAttribute('aria-describedby', description);
+    element.setAttribute('aria-description', description);
 }
 
 export function announceToScreenReader(message, priority = 'polite') {
@@ -58,7 +58,7 @@ export function trapFocus(element) {
 // Check color contrast compliance
 export function meetsContrastRequirements(foreground, background, level = 'AA') {
     const getLuminance = (color) => {
-        const rgb = color.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+        const rgb = color.match(/[A-Fa-f0-9]{2}/g).map(x => parseInt(x, 16) / 255);
         const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
@@ -70,11 +70,11 @@ export function meetsContrastRequirements(foreground, background, level = 'AA') 
 
 // Skip link functionality
 export function initSkipLinks() {
-    const skipLink = document.querySelector('[href="#main-content"]');
+    const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
         skipLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const target = document.getElementById('main-content') || document.querySelector('main');
+            const target = document.getElementById(skipLink.getAttribute('href')?.slice(1)) || document.querySelector('main');
             if (target) {
                 target.setAttribute('tabindex', '-1');
                 target.focus();
@@ -83,10 +83,20 @@ export function initSkipLinks() {
     }
 }
 
+// Validate and ensure main landmark exists for accessibility
+export function validateMainLandmark() {
+    const main = document.querySelector('main');
+    if (!main) {
+        console.warn('Accessibility Warning: Page is missing <main> landmark. Add a <main> element to wrap the primary content for keyboard and screen reader users.');
+        return false;
+    }
+    return true;
+}
+
 // Initialize accessibility features
 export function initAccessibility() {
     initSkipLinks();
-    document.body.classList.add('accessibility-ready');
+    validateMainLandmark();
 }
 
 // Export version for compatibility

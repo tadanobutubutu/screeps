@@ -1,5 +1,3 @@
-// TODO: Create or update the affected functions to be accessible
-
 import React from 'react';
 
 /**

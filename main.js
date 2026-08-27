@@ -1,3 +1,9 @@
+Here is the resolved file content:
+
+```javascript
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
+
 // Main entry point for the extension
 (function() {
   'use strict';
@@ -66,11 +72,24 @@
     document.body.appendChild(button);
   }
 
-  // Initialize when DOM is ready
+  // Address the imported accessibility issue handling
+  const addressAccessibilityIssue038 = require('./accessibility').addressAccessibilityIssue038;
+
+  // Initialize the in-page button and address accessibility issue when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initInPageButton);
+    document.addEventListener('DOMContentLoaded', () => {
+      initInPageButton();
+      addressAccessibilityIssue038(document.getElementById(CONFIG.buttonId), {
+        element: CONFIG.buttonId,
+        text: CONFIG.buttonText
+      });
+    });
   } else {
     initInPageButton();
+    addressAccessibilityIssue038(document.getElementById(CONFIG.buttonId), {
+      element: CONFIG.buttonId,
+      text: CONFIG.buttonText
+    });
   }
 
   // Export for testing (if in Node environment)
@@ -78,3 +97,6 @@
     module.exports = { createInPageButton, initInPageButton, CONFIG };
   }
 })();
+```
+
+This resolved file brings together both changes from the two branches. It includes the in-page button feature from the first branch and addresses the accessibility issue from the second branch. The resolved file also incorporates the imported accessibility handling functions from the second branch as requested.

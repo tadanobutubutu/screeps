@@ -34,12 +34,11 @@ function ensureUniqueLandmarks() {
 // Fix fake link issue
 function fixFakeLinks() {
   const fakeLinks = document.querySelectorAll('span[role="link"], div[role="link"]');
+
   fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Button');
-    }
+    const button = document.createElement('button');
+    button.innerHTML = link.innerHTML;
+    link.parentNode.replaceChild(button, link);
   });
 }
 

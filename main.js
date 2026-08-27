@@ -1,26 +1,5 @@
-// main.js
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// TODO: Import required module(s) - for fixing table structure issues
-const { formatTable, parseTableData } = require('./utils/tableUtils');
-
-app.use(express.static('public'));
-app.use(express.json());
-
-// Routes
-app.get('/api/data', (req, res) => {
-    const data = [
-        { id: 1, name: 'Item 1', value: 100 },
-        { id: 2, name: 'Item 2', value: 200 },
-        { id: 3, name: 'Item 3', value: 300 }
-    ];
-    res.json(data);
-});
+const dependencyGraphContent = require('./modules/dependencyGraph.js').dependencyGraphContent;
+const indexContent = require('./modules/indexView.js').indexContent;
 
 app.post('/api/table/generate', (req, res) => {
     try {
@@ -37,12 +16,46 @@ app.post('/api/table/generate', (req, res) => {
     }
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+function renderDependencyGraph(containerId, dependencies) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+  const graphHtml = dependencyGraphContent(dependencies);
+  container.innerHTML = graphHtml;
+  return container;
+}
 
-module.exports = app;
+function renderIndexView(containerId, files) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
+
+  const indexHtml = indexContent(files);
+  container.innerHTML = indexHtml;
+  return container;
+}
+
+function initializeApp() {
+  console.log('Application initialized');
+}
+
+function getAppVersion() {
+  return '1.0.0';
+}
+
+// Main entry point
+function main() {
+  // Implement main functionality here...
+  console.log('Running main entry point');
+}
+
+exports.renderDependencyGraph = renderDependencyGraph;
+exports.renderIndexView = renderIndexView;
+exports.initializeApp = initializeApp;
+exports.getAppVersion = getAppVersion;
+exports.main = main;

@@ -7,8 +7,33 @@
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Hypothetical new function to address accessibility issues (focus-trap for keyboard navigation)
+function addFocusTrap() {
+  let focusableElementsString = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  let focusableElements = document.querySelectorAll(focusableElementsString);
+  let firstFocusableElement = focusableElements[0];
+  let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', function(e) {
+    let isTabPressed = e.key === 'Tab';
+
+    if (!isTabPressed) {
+      return;
+    }
+
+    if (e.shiftKey) /* shift + tab */ {
+      if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        e.preventDefault();
+      }
+    } else /* tab */ {
+      if (document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
@@ -78,6 +103,18 @@ function fixTableStructure(filePath) {
   console.log(`Fixed table structure issues in ${filePath}`);
 }
 
+function addMainLandmark(filePath) {
+  const fs = require('fs');
+  let content = fs.readFileSync(filePath, 'utf8');
+  if (!/<main[\s>]/i.test(content)) {
+    content = content.replace(/(<body[^>]*>)([\s\S]*?)(<\/body>)/i, (match, open, inner, close) => {
+      return open + '\n<main role="main">' + inner + '</main>\n' + close;
+    });
+  }
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`Added main landmark in ${filePath}`);
+}
+
 function ensureUniqueLandmarks(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
@@ -86,13 +123,13 @@ function ensureUniqueLandmarks(filePath) {
 
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-    const matches = [];
-
+    let existingIds = [];
+    let count = 0;
     let match;
 
     while ((match = regex.exec(content)) !== null) {
-      const attrs = match[1];
-      if (attrs.includes('id=')) {
+      const attrs = match[2];
+      if (attrs && attrs.includes('id=')) {
         const idAttr = /id=["']([^"']+)["']/.exec(attrs);
         if (idAttr) {
           existingIds.push(idAttr[1]);
@@ -104,21 +141,23 @@ function ensureUniqueLandmarks(filePath) {
     existingIds = Array.from(new Set(existingIds));
 
     const regexNew = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-
     let updatedContent = content;
-    let index = 0;
 
     while ((match = regexNew.exec(content)) !== null) {
-      const idAttr = /id=["']([^"']+)["']/.exec(match[1]);
+      const attrs = match[2];
+      const idAttr = attrs ? /id=["']([^"']+)["']/.exec(attrs) : null;
       const idExists = idAttr && existingIds.includes(idAttr[1]);
-      if (!idExists || (count > 1 && idAttr === existingIds[0])) {
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${landmark}-1"${match[1]}` + updatedContent.substring(match.index + match[0].length);
+      if (!idExists || (count > 1 && idAttr && idAttr[1] === existingIds[0])) {
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${landmark}-1"${attrs}` + updatedContent.substring(match.index + match[0].length);
       } else {
         // Generate unique ID based on the landmark type
         const uniqueId = `${landmark}-${count + 1}`;
-        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${uniqueId}"${match[1]}` + updatedContent.substring(match.index + match[0].length);
+        updatedContent = updatedContent.substring(0, match.index) + `<${landmark} id="${uniqueId}"${attrs}` + updatedContent.substring(match.index + match[0].length);
         count++;
+      }
     }
+
+    content = updatedContent;
   });
 
   fs.writeFileSync(filePath, content, 'utf8');
@@ -129,18 +168,11 @@ function addSvgAccessibleNames(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add accessible names to SVGs
-  const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
-
-  let match;
-  let idx = 0;
-
-  while ((match = svgRegex.exec(content)) !== null) {
-    idx = match.index;
-    updatedContent = updatedContent.substring(0, idx + match[0].length) + ` aria-label="SVG image ${svgIndex + 1}"` + updatedContent.substring(idx + match[0].length);
+  const updatedContent = content.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     svgIndex++;
-  }
-
+    return `<svg${attrs} aria-label="SVG image ${svgIndex}"`;
+  });
   fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
@@ -328,7 +360,11 @@ function renderDependencyGraph(graphData, containerId) {
   return graphString;
 }
 
+// Apply focus-trap for keyboard navigation
+addFocusTrap();
+
 module.exports = {
+  addFocusTrap,
   fixFakeLinkIssue,
   addAriaAttribute,
   addLangAttribute,

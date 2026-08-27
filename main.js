@@ -501,4 +501,4 @@ module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.addMainLandmark = addMainLandmark;
 module.exports.fixTableStructure = fixTableStructure;
-module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+module.exports.fixFake

@@ -15,16 +15,17 @@ function handleErrorState(errorElement, container, trigger = false) {
   errorSection.appendChild(errorElement);
 
   if (container) {
-    const errorContainer = getDocument().createElement(container);
+    const errorContainer = getDocument().createElement('div');
+    errorContainer.className = container;
     errorContainer.appendChild(errorSection);
-    container.appendChild(errorContainer);
+    htmlElement.appendChild(errorContainer);
   } else {
-    getDocument().body.appendChild(errorSection);
+    htmlElement.appendChild(errorSection);
   }
 
   // If trigger is true, trigger the accessibility mode
   if (trigger) {
-    triggerAccessibilityMode();
+    htmlElement.classList.add('accessibility-mode');
   }
 }
 
@@ -34,8 +35,22 @@ function handleAccessibilityError(errorElement, container) {
 }
 
 // Get the button with the specified ID
-function getButtonWithId() {
-  return getDocument().querySelector('#buttonWithId');
+function getButtonWithId(buttonId) {
+  return getDocument().getElementById(buttonId);
+}
+
+// Helper function to get the document object (allows for testing with JSDOM)
+function getDocument() {
+  return global.document;
+}
+
+// Helper function to create an element with attributes
+function createElement(tagName, attributes = {}) {
+  const element = getDocument().createElement(tagName);
+  Object.keys(attributes).forEach(key => {
+    element.setAttribute(key, attributes[key]);
+  });
+  return element;
 }
 
 // Exit the existing handleErrorState function

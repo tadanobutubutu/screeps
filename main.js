@@ -6,7 +6,7 @@ function handlePendingFunctionality() {
 }
 
 // Preserve all existing exports, functions, and code
-export { someExportedFunction, anotherExportedFunction, aThirdFunction, SomeClass };
+export { someExportedFunction, anotherExportedFunction, aThirdFunction, SomeClass, handlePendingFunctionality };
 
 // Replace the placeholder with the new function
 const handlePendingFunctionalityPlaceholder = handlePendingFunctionality;

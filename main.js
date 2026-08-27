@@ -375,48 +375,4 @@ globalObject.checkLandmarkElement = checkLandmarkElement;
 globalObject.checkLandmarks = checkLandmarks;
 globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 globalObject.renderIndexView = renderIndexView;
-globalObject.addLangAttribute = addLangAttribute;
-globalObject.fixTableStructureIssues = fixTableStructureIssues;
-globalObject.addMainLandmark = addMainLandmark;
-globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
-globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
-globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
-globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
-globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
-
-// Export all functions including those from HEAD and origin/main
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  DependencyGraphRenderer,
-  addressAccessibilityIssue038,
-  newFunction,
-  totalDependencies,
-  addressAccessibilityIssueForSpecificElement,
-  addressOldAccessibilityIssues,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  addressAccessibilityIssues,
-  newAccessibilityFunction,
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  renderIndexView,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements,
-};
+globalObject

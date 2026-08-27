@@ -4,7 +4,7 @@
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_025: Ensure unique landmarks (DONE: validateLandmarkUniqueness)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -36,10 +36,10 @@ function renderDependencyGraph(dependencies) {
     node.textContent = dep;
     container.appendChild(node);
   });
-  document.body.appendChild(container);
+  return container;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Implementation for addressing accessibility issues from insight report
 
 /**
  * Address accessibility issues from the provided insight report.
@@ -117,14 +117,14 @@ function getSvgAccessibleName(element) {
     }
 
     if (labelText) {
-      const id = ensureElementHasId(document.createElement("span"));
-      document.getElementById("myElement").appendChild(document.createTextNode(labelText));
-      element.setAttribute("aria-labelledby", id);
+      const id = 'svg-label-' + Math.random().toString(36).substr(2, 9);
+      element.setAttributeNS(null, "id", id);
+      element.setAttributeNS(null, "aria-labelledby", id);
     }
   }
 
   // Expose element's aria-labelledby value as accessibleName
-  return document.getElementById(ensureElementHasId(document.createElement("span")).id);
+  return element.getAttributeNS(null, "aria-labelledby") || null;
 }
 
 // Make sure the element has an id
@@ -167,8 +167,8 @@ function createInPageButton(buttonId, text, callback) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = text;
-  button.addEventListener('click', callback);
-  document.body.appendChild(button);
+  if (callback) button.addEventListener('click', callback);
+  return button;
 }
 
 // Export the new function for testing purposes
@@ -181,11 +181,11 @@ function validateTableAccessibility(table) {
   }
 
   const issues = [];
-  const rows = table.getElementsByTagName('tr');
+  const rows = table.rows;
 
   for (let i = 0; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName('td');
-    const headers = rows[i].getElementsByTagName('th');
+    const cells = rows[i].cells;
+    const headers = Array.from(cells).filter(cell => cell.tagName === 'TH');
     if (cells.length > 0 && headers.length === 0 && i === 0) {
       issues.push('Missing header row');
     }
@@ -239,8 +239,13 @@ function setSvgAttributes(element) {
 }
 
 // New function to validate landmark uniqueness (REACT_025)
-function validateLandmarkUniqueness() {
-  return { valid: true };
+function validateLandmarkUniqueness(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) {
+    return { valid: false, message: 'Invalid landmarks array' };
+  }
+  const roles = landmarks.map(l => l.getAttribute('role'));
+  const uniqueRoles = new Set(roles);
+  return { valid: roles.length === uniqueRoles.size };
 }
 
 // New function to validate link accessibility (REACT_036)

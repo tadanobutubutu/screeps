@@ -36,9 +36,24 @@ function addressAccessibilityInsightReport() {
   });
 }
 
-// Existing code that needs to be preserved from previous issue
+// Existing code preserved below
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // TODO: This is the existing code that needs to be preserved
 // ----- END ORIGINAL CODE -----
+
+function replaceAnchorWithButton() {
+  const anchor = document.getElementById('unrotate');
+  if (anchor) {
+    const button = document.createElement('button');
+    button.textContent = anchor.textContent;
+    anchor.parentNode.replaceChild(button, anchor);
+    button.addEventListener('click', () => {
+      // You might want to add some logic here if this button is meant to trigger an action.
+    });
+  }
+}
+
+// Call the function to replace the anchor with a button when the script loads
+replaceAnchorWithButton();
 
 module.exports = { improveAccessibility, addressAccessibilityInsightReport };

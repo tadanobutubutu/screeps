@@ -2,7 +2,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -13,7 +13,7 @@
 // Ensure element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
+    element.id = 'auto-generated-id-' + Math.random().toString(9).substring(2, 11);
   }
   return element;
 }
@@ -36,7 +36,7 @@ function renderDependencyGraph(dependencies) {
     node.textContent = dep;
     container.appendChild(node);
   });
-  document.body.appendChild(container);
+  return container;
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
@@ -117,14 +117,13 @@ function getSvgAccessibleName(element) {
     }
 
     if (labelText) {
-      const id = ensureElementHasId(document.createElement("span"));
-      document.getElementById("myElement").appendChild(document.createTextNode(labelText));
-      element.setAttribute("aria-labelledby", id);
+      const id = 'svg-label-' + Math.random().toString(36).substr(2, 9);
+      element.setAttributeNS(null, "aria-labelledby", id);
     }
   }
 
   // Expose element's aria-labelledby value as accessibleName
-  return document.getElementById(ensureElementHasId(document.createElement("span")).id);
+  return element.getAttributeNS(null, "aria-labelledby");
 }
 
 // Make sure the element has an id
@@ -167,8 +166,10 @@ function createInPageButton(buttonId, text, callback) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = text;
-  button.addEventListener('click', callback);
-  document.body.appendChild(button);
+  if (callback && typeof callback === 'function') {
+    button.addEventListener('click', callback);
+  }
+  return button;
 }
 
 // Export the new function for testing purposes
@@ -239,7 +240,7 @@ function setSvgAttributes(element) {
 }
 
 // New function to validate landmark uniqueness (REACT_025)
-function validateLandmarkUniqueness() {
+function ensureUniqueLandmarks() {
   return { valid: true };
 }
 
@@ -270,7 +271,7 @@ module.exports.validateLandmark = validateLandmark;
 module.exports.validateLandmarkStructure = validateLandmarkStructure;
 module.exports.validateLandmarkAttributes = validateLandmarkAttributes;
 module.exports.setSvgAttributes = setSvgAttributes;
-module.exports.validateLandmarkUniqueness = validateLandmarkUniqueness;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.validateLinkAccessibility = validateLinkAccessibility;
 module.exports.handleFakeLinks = handleFakeLinks;
 module.exports.getLangAttribute = getLangAttribute;

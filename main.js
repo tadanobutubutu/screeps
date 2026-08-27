@@ -2,8 +2,8 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
@@ -13,7 +13,6 @@ const subtract = (a, b) => a - b;
 // Other existing code and exports
 const multiply = (a, b) => a * b;
 const divide = (a, b) => a / b;
-
 
 // Export imported values (if needed)
 export { class1, function1, Object1 };
@@ -47,52 +46,49 @@ export function countDependencies() {
 }
 
 // Function to add lang attribute to HTML element
-export function ... lang = 'en') {
-  const htmlElement = document.documentElement;
-  if (htmlElement && ... {
-    ... lang);
+export function langAttribute(htmlElement, lang = 'en') {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
   }
-  return document;
+  return htmlElement;
 }
 
 // Function to fix table structure issues
-export function ... {
-  const tables = ...
+export function validateTableAccessibility(tables) {
   let fixedCount = 0;
-
   tables.forEach((table) => {
     // Ensure tables have proper structure with thead and tbody
-    const existingThead = ...
-    const existingTbody = ...
-    const rows = ...
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
 
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
-      ...
+      thead.appendChild(firstRow);
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? ... : [];
+      const remainingRows = rows.length > 1 ? rows.slice(1) : [];
       if (remainingRows.length > 0) {
-        const tbody = ...
-        ... => ...
-        ...
+        const tbody = document.createElement('tbody');
+        tbody.appendChild(...remainingRows);
+        table.appendChild(tbody);
         fixedCount++;
       }
     }
 
     // Ensure proper header cells (th) are used
-    const allRows = ...
+    const allRows = [...table.querySelectorAll('tr')];
     allRows.forEach(row => {
-      const cells = ... td');
+      const cells = [...row.querySelectorAll('td')];
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         if (firstCell.tagName !== 'TH') {
-          const th = ...
+          const th = document.createElement('TH');
           th.textContent = firstCell.textContent;
           th.scope = 'col';
           row.insertBefore(th, firstCell);
@@ -103,30 +99,29 @@ export function ... {
     });
 
     // Additional HEAD logic: ensure scope on header cells
-    const headerCells = ...
+    const headerCells = [...table.querySelectorAll('th')];
     headerCells.forEach(th => {
-      if ... {
+      if (th.hasAttribute('scope') && th.getAttribute('scope') !== 'col') {
         th.setAttribute('scope', 'col');
         fixedCount++;
       }
     });
   });
-
   return fixedCount;
 }
 
 // Function to add main landmark
 export function addMainLandmark(document) {
-  let mainElement = ...
-
+  let mainElement = document.querySelector('main');
+  
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
-    const main = ...
+    const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
 
     // Move first significant content child to main
-    const children = ...
+    const children = [...body.children];
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
@@ -135,7 +130,9 @@ export function addMainLandmark(document) {
       }
     }
 
-    ... body.firstChild);
+    if (body.firstChild) {
+      body.insertBefore(main, body.firstChild);
+    }
     mainElement = main;
   }
 
@@ -148,15 +145,15 @@ export function addMainLandmark(document) {
 }
 
 // Function to ensure unique landmarks (origin/main approach)
-export function ... {
-  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
+export function ensureUniqueLandmarks(document, landmarkTypes) {
   const usedLabels = {};
-
-  ... => {
-    const landmarks = ...
+  landmarkTypes.forEach(type => {
+    const landmarks = [...document.querySelectorAll(type)];
     landmarks.forEach((landmark, index) => {
-      const existingLabel = ... ||
-                           ...
+      const existingLabel = landmark.getAttribute('id') ||
+                           landmark.getAttribute('aria-label') ||
+                           landmark.getAttribute('title') ||
+                           landmark.textContent;
 
       if (landmarks.length > 1) {
         let label = existingLabel || `${type}-${index + 1}`;
@@ -171,21 +168,19 @@ export function ... {
         }
         usedLabels[type].add(label);
 
-        ... label);
+        landmark.setAttribute('id', label);
       }
     });
   });
 }
 
 // Function to add accessible name to SVGs
-export function ... {
-  const svgs = ...
+export function addAccessibleNameToSVGs(svgs) {
   let count = 0;
-
   svgs.forEach((svg, index) => {
-    const hasAccessibleName = ... ||
-                              ... ||
-                              ...
+    const hasAccessibleName = svg.querySelector('title') ||
+                              svg.getAttribute('aria-label') ||
+                              svg.textContent;
 
     if (!hasAccessibleName) {
       const title = document.createElement('title');
@@ -196,10 +191,10 @@ export function ... {
       if (svg.firstChild) {
         svg.insertBefore(title, svg.firstChild);
       } else {
-        ...
+        svg.appendChild(title);
       }
 
-      ... title.id);
+      svg.setAttribute('aria-labelledby', title.id);
       count++;
     }
   });
@@ -210,11 +205,9 @@ export function ... {
 // Function addressing new accessibility issue from the insight report
 function addressAccessibilityIssues(document) {
   // Apply all accessibility fixes
-  ...
-  ...
-  addMainLandmark(document);
-  ...
-  ...
+  // ...
+  // addMainLandmark(document);
+  // ...
   // Additional new accessibility fixes can be added here
 }
 

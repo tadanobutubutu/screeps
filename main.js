@@ -7,4 +7,4 @@ module.exports = {
 
 // Example exports that might be needed (please provide file contents for accurate fix):
 // module.exports.someFunction = someFunction;
-// module.exports.AnotherClass = AnotherClass;
+// ... = AnotherClass;

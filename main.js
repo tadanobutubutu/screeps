@@ -1,3 +1,5 @@
+// TODO: Create or update the affected functions to be accessible
+
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -210,7 +212,7 @@ function isLinkAccessible(link) {
 
 /**
  * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
+ * @param {HTMLElement} button - The button to check
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {

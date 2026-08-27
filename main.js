@@ -1,6 +1,3 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
@@ -84,4 +81,5 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   );
 };
 
+export { copyErr, fetchStats };
 export default Dashboard;

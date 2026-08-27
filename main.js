@@ -13,9 +13,9 @@ import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = ...
-  if (htmlElement && ... {
-    ... lang);
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -26,7 +26,52 @@ function fixTableStructure(document) {
   let fixedCount = 0;
 
   tables.forEach((table) => {
-    // ... existing table structure fix implementation
+    // Ensure tables have proper structure with thead and tbody
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
+    if (rows.length > 0 && !existingThead) {
+      const firstRow = rows[0];
+      const thead = document.createElement('thead');
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, table.firstChild);
+      fixedCount++;
+    }
+    
+    if (!existingTbody) {
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
+      if (remainingRows.length > 0) {
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
+    
+    // Ensure proper header cells (th) are used
+    const allRows = table.querySelectorAll('tr');
+    allRows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      // Check if first cell should be a header
+      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+        const firstCell = cells[0];
+        const th = document.createElement('th');
+        th.textContent = firstCell.textContent;
+        th.scope = 'col';
+        row.replaceChild(th, firstCell);
+        fixedCount++;
+      }
+    });
+    
+    // Additional HEAD logic: ensure scope on header cells
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+        fixedCount++;
+      }
+    });
   });
 
   return fixedCount;
@@ -34,7 +79,34 @@ function fixTableStructure(document) {
 
 // Function to add/main landmark
 function addMainLandmark(document) {
-  // ... existing main landmark implementation
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // Find the main content area and wrap it or create main element
+    const body = document.body;
+    const main = document.createElement('main');
+    main.setAttribute('id', 'main-content');
+    
+    // Move first significant content child to main
+    const children = Array.from(body.children);
+    for (const child of children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+          child.tagName !== 'LINK' && child.tagName !== 'META') {
+        main.appendChild(child);
+        break;
+      }
+    }
+    
+    body.insertBefore(main, body.firstChild);
+    mainElement = main;
+  }
+  
+  // Ensure main has proper role if not using native element
+  if (mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  return mainElement;
 }
 
 // Function to ensure unique landmarks (combined approach)
@@ -43,9 +115,33 @@ function ensureUniqueLandmarks(document) {
   // ... existing unique landmarks implementation for origin/main
 }
 
-// Function to add accessible names to SVGs
+// Function to add accessible name to SVG
 function addSvgAccessibleNames(document) {
-  // ... existing implementation
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
+}
+
+// Function to add accessible names to SVG elements
+function addAccessibleNamesToSVGs(document) {
+  // Add accessible names to SVG elements for screen readers
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
 }
 
 // Function to fix fake link issue (merged fixes)
@@ -56,20 +152,59 @@ function fixFakeLinkIssue(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
 
   clickableElements.forEach(element => {
-    // ... updated fake link fix implementation
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    const hasHref = element.hasAttribute('href');
+    const onclick = element.getAttribute('onclick') || '';
+    
+    // Check if it's a fake link (clickable but not a real anchor)
+    if (!isAnchor && (onclick.includes('window.location') || 
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
+      
+      // Convert to proper anchor or add proper accessibility
+      const span = document.createElement('span');
+      span.textContent = element.textContent;
+      span.setAttribute('role', 'link');
+      span.setAttribute('tabindex', '0');
+      span.setAttribute('onclick', onclick);
+      span.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          element.click();
+        }
+      });
+      
+      // Copy styling if available
+      if (element.className) {
+        span.className = element.className;
+      }
+      
+      element.parentNode.replaceChild(span, element);
+      count++;
+    }
   });
 
   return count;
 }
 
-// Function to fix fake link issues (exclusive for anchors with href="#")
+// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
 function fixFakeLinkIssues(document) {
-  const fakeLinks = document.querySelectorAll('[role="link"]');
-  fakeLinks.forEach(link => {
+  // Fix non-anchor elements with role="link"
+  const roleLinks = document.querySelectorAll('[role="link"]');
+  roleLinks.forEach(link => {
     if (link.tagName !== 'A') {
       link.setAttribute('aria-label', 'This link goes to a section within the page');
     }
   });
+
+  // Fix anchors with href="#" by converting them to accessible buttons
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+
+  return document;
 }
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
@@ -81,9 +216,21 @@ function addLandmarkRegions(document) {
   // ... existing implementation
 }
 
-// REACT_025: Ensure unique landmarks (compromised implementation)
+// REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
-  // ... compromised unique landmarks implementation
+  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role}-${index}`);
+        }
+        index++;
+      });
+    }
+  });
 }
 
 // Address accessibility issues from insight report for image alt texts
@@ -109,6 +256,12 @@ function googleSignIn(document) {
   }
 }
 
+// Function to handle credential response from Google Sign-In
+function handleCredentialResponse(response) {
+  // TODO: Implement credential response handling
+  console.log('Credential response received:', response);
+}
+
 // Function to ensure the element has an id
 function ensureElementHasId(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
@@ -124,7 +277,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
-    element.id = `${idPrefix}-${element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
+    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
   });
   return document;
 }
@@ -173,47 +326,18 @@ function renderDependencyGraphs(document) {
 }
 
 // Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
-  // ... existing implementation
-}
-
-// Function to fix fake link issue (origin/main approach - more robust)
-function fixFakeLinkIssue(document) {
-  // ... existing implementation
-}
-
-// HEAD version: simpler fake link fix for anchors with href="#"
-function fixFakeLinkIssues(document) {
-  // ... existing implementation
-}
-
-// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
-  // ... existing implementation
-}
-
-function addLandmarkRegions(document) {
-  // ... existing implementation
-}
-
-// REACT_025: Ensure unique landmarks (HEAD approach - by role)
-function uniqueLandmarks(document) {
-  // ... existing implementation
-}
-
-// Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
-  // ... existing implementation
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn(document) {
-  // ... existing implementation
+function addAccessibleNamesToSVGsAlias(document) {
+  return addAccessibleNamesToSVGs(document);
 }
 
 // REACT_040: Replace my-button with actual button id for accessibility
 function fixButtonIdentifiers(document) {
-  // ... existing implementation
+  const buttons = document.querySelectorAll('[id^="my-button"]');
+  buttons.forEach(button => {
+    const newId = button.id.replace('my-button', 'btn-' + button.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
+    button.id = newId;
+  });
+  return document;
 }
 
 // REACT_042: Ensure dependencyGraph container has a proper ARIA role
@@ -241,18 +365,31 @@ function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
-// Implement function for addressing accessibility issues from insight report
+// Integrated REACT_036 changes and merged accessibility fixes
 function addressAccessibilityIssues(document) {
-  // ... existing implementation with merged changes
-  
-  // Add the dependencyGraph ARIA role fix
   document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  document = fixFakeLinkIssues(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = fixButtonIdentifiers(document);
+  document = addMainLandmarkToIndex(document);
   document = ensureElementHasId(document);
   document = renderDependencyGraphs(document);
   document = ensureDependencyGraphAriaRole(document);
-  
   return document;
 }
+
+// Placeholder functions for imports
+function handleCredentialResponse() { return null; }
 
 // Export all functions
 export {
@@ -269,13 +406,14 @@ export {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse, // Assuming handleCredentialResponse is a typo and should be fixButtonIdentifiers
+  handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   renderDependencyGraphs,
   ensureDependencyGraphAriaRole,
   addressAccessibilityIssues,
   ensureElementHasId,
+  ensureElementHasIdOrigin,
   addAriaLabel,
   class1,
   function1,

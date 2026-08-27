@@ -16,6 +16,22 @@ function replaceMyButtonId() {
 }
 
 /**
+ * This function gets the current language attribute
+ * @returns {string} - the current language attribute
+ */
+function getLangAttribute() {
+  return document.documentElement.lang;
+}
+
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+function getFullLangAttribute() {
+  return document.documentElement.getAttribute('lang') || '';
+}
+
+/**
  * Adds proper ARIA landmark regions to the document.
  * This improves screen reader navigation by ensuring proper landmark roles.
  *
@@ -50,5 +66,7 @@ module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addAriaToFormControls,
-  replaceMyButtonId
+  replaceMyButtonId,
+  getLangAttribute,
+  getFullLangAttribute
 };

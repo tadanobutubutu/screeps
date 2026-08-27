@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// Accessibility issues from insight report (all completed):
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
 // - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark, fixLandmarkIssues)
@@ -343,7 +343,7 @@ function addMainLandmarkToIndex(document) {
   }
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function for addressing accessibility issues from insight report
 function implementAccessibilityFixesFromReport(document) {
   // Assuming the insight report provides an object with the issues to be addressed
   const insightReport = {

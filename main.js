@@ -73,6 +73,32 @@ function renderIndexView() {
 }
 
 /**
+ * Gets the lang attribute value from the document's HTML element.
+ * @returns {string|null} The lang attribute value or null if not available
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || null;
+  }
+  return null;
+}
+
+/**
+ * Creates an in-page button to toggle language settings.
+ * @returns {HTMLButtonElement|null} The created button element or null if document is not available
+ */
+function createInPageButton() {
+  if (typeof document !== 'undefined' && document.body) {
+    const button = document.createElement('button');
+    button.textContent = 'Toggle Language';
+    button.setAttribute('aria-label', 'Toggle Language');
+    document.body.appendChild(button);
+    return button;
+  }
+  return null;
+}
+
+/**
  * Adds lang attribute to the HTML element if missing.
  * @returns {HTMLElement|null} The HTML element or null if document is not available
  */
@@ -134,6 +160,8 @@ globalObject.checkLandmarkElement = checkLandmarkElement;
 globalObject.checkLandmarks = checkLandmarks;
 globalObject.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 globalObject.renderIndexView = renderIndexView;
+globalObject.getLangAttribute = getLangAttribute;
+globalObject.createInPageButton = createInPageButton;
 globalObject.addLangAttribute = addLangAttribute;
 globalObject.fixTableStructureIssues = fixTableStructureIssues;
 globalObject.addMainLandmark = addMainLandmark;
@@ -154,6 +182,8 @@ module.exports = {
   checkLandmarks,
   wrapPrimaryContentInMain,
   renderIndexView,
+  getLangAttribute,
+  createInPageButton,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,

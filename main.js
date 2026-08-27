@@ -16,5 +16,7 @@ module.exports = {
   // Existing exports, keep the same order
   ...existingExports,
   functionA,
-  functionB
+  functionB,
+  myFunction,
+  newFunction
 };

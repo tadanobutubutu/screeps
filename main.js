@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -97,6 +94,3 @@ const dependencyGraphContent = require('./dependencyGraph');
     module.exports = { createInPageButton, initInPageButton, CONFIG };
   }
 })();
-```
-
-This resolved file brings together both changes from the two branches. It includes the in-page button feature from the first branch and addresses the accessibility issue from the second branch. The resolved file also incorporates the imported accessibility handling functions from the second branch as requested.

@@ -4,7 +4,6 @@
 document.documentElement.setAttribute('lang', 'en');
 
 // - REACT_017: Add/fix 4 landmark issues
-// Assuming landmarks are represented by ARIA roles, you might add or correct them like this:
 const landmarks = document.querySelectorAll('.landmark');
 landmarks.forEach((landmark, index) => {
   // Assuming you know which ARIA roles are correct for your landmarks

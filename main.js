@@ -13,10 +13,18 @@ const renderDependencyGraph = (dependencyGraph, container) => {
   // Implement rendering logic for dependencyGraph here
 };
 
+// Function to wrap the primary content in a <main> element
+const wrapContentInMain = (content) => {
+  const mainElement = document.createElement('main');
+  mainElement.appendChild(content);
+  return mainElement;
+};
+
 // Existing exports should stay the same
 module.exports = {
   addId,
   addAriaLabel,
   renderDependencyGraph,
+  wrapContentInMain,
   // Other existing exports...
 };

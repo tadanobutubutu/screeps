@@ -182,6 +182,17 @@ const newFunction2 = function() {
     // Implementation for newFunction2
 };
 
+// Function to count dependencies in the content
+function countDependencies(content) {
+    if (!content || typeof content !== 'string') {
+        return 0;
+    }
+    
+    // Count anchor tags (<a>) as indicators of dependencies/links
+    const anchorTags = content.match(/<a[^>]*>/gi);
+    return anchorTags ? anchorTags.length : 0;
+}
+
 // Export all functions
 module.exports = {
     renderAll,
@@ -199,5 +210,6 @@ module.exports = {
     setupLandmarkRegions,
     getSvgAccessibleName,
     newFunction1,
-    newFunction2
+    newFunction2,
+    countDependencies
 };

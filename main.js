@@ -163,6 +163,20 @@ function setFormElementAccessibleNames() {
   return formElements;
 }
 
+/**
+ * Adds a11y attributes to interactive elements to ensure they are keyboard accessible.
+ * @returns {Array} Array of elements with added attributes
+ */
+function addA11yAttributesToInteractiveElements() {
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  });
+  return interactiveElements;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -179,5 +193,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  setFormElementAccessibleNames
+  setFormElementAccessibleNames,
+  addA11yAttributesToInteractiveElements
 };

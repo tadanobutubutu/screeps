@@ -7,8 +7,13 @@
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// Import utility functions from utils module
+const { 
+  findIndex: originalFindIndex, 
+  filterLandmarks: originalFilterLandmarks, 
+  sortLandmarksByName: originalSortLandmarksByName,
+  addRequiredLandmarks: originalAddRequiredLandmarks 
+} = require('./utils');
 
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
@@ -330,6 +335,12 @@ function renderDependencyGraph(graphData, containerId) {
   return graphString;
 }
 
+// Utility wrapper functions using imported originals
+const findIndex = (arr, predicate) => originalFindIndex(arr, predicate);
+const filterLandmarks = (landmarks) => originalFilterLandmarks(landmarks);
+const sortLandmarksByName = () => originalSortLandmarksByName();
+const addRequiredLandmarks = () => originalAddRequiredLandmarks();
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -343,5 +354,12 @@ module.exports = {
   addressAccessibilityIssues,
   implementAccessibilityFixesFromReport,
   renderDependencyGraph,
-  fixSvgDataUriAccessibility
+  fixSvgDataUriAccessibility,
+  findIndex,
+  filterLandmarks,
+  sortLandmarksByName,
+  addRequiredLandmarks,
+  originalFilterLandmarks,
+  originalSortLandmarksByName,
+  originalAddRequiredLandmarks
 };

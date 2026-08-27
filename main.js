@@ -10,17 +10,45 @@
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
+function addFocusTrap() {
+  let focusableElementsString = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  let focusableElements = document.querySelectorAll(focusableElementsString);
+  if (focusableElements.length === 0) return;
+  let firstFocusableElement = focusableElements[0];
+  let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+  document.addEventListener('keydown', function(e) {
+    let isTabPressed = e.key === 'Tab';
+
+    if (!isTabPressed) {
+      return;
+    }
+
+    if (e.shiftKey) /* shift + tab */ {
+      if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        e.preventDefault();
+      }
+    } else /* tab */ {
+      if (document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
 function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  content = content.replace(/<a([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
-    if (attrs.includes('href')) {
+  content = content.replace(/<a([^>]*)>(.*?)<\/a>/gi, (match, attrs, inner) => {
+    if (attrs.includes('href=')) {
       return match;
     }
     return `<button${attrs}>${inner}</button>`;
   });
-  fs.writeFileSync(filePath, content);
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Fixed fake link issues in ${filePath}`);
 }
 
@@ -28,7 +56,7 @@ function addAriaAttribute(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Implementation details omitted for brevity
-  fs.writeFileSync(filePath, content);
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Added ARIA attributes in ${filePath}`);
 }
 
@@ -43,7 +71,7 @@ function addLangAttribute(filePath) {
     }
     return `<html${attrs} lang="en">`;
   });
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added lang attribute to HTML element in ${filePath}`);
 }
 
@@ -51,30 +79,30 @@ function fixTableStructure(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix table structure: ensure tables have proper thead/tbody
-  const tableRegex = /<table\b([^>]*)>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table([^>]*)>([\s\S]*?)<\/table>/gi;
   const updatedContent = content.replace(tableRegex, (match, attrs, inner) => {
     let fixed = inner;
     // Fix th elements to have scope attribute
-    fixed = fixed.replace(/<th\b([^>]*)>/gi, (thMatch, thAttrs) => {
-      if (thAttrs.match(/scope=/i)) {
+    fixed = fixed.replace(/<th([^>]*)>/gi, (thMatch, thAttrs) => {
+      if (thAttrs.includes('scope=')) {
         return thMatch;
       }
       return '<th scope="col"' + thAttrs + '>';
     });
     // Add thead if not present
-    if (!fixed.includes('<thead')) {
-      fixed = fixed.replace(/(<tr\b[^>]*>[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
+    if (!/<thead[\s>]/i.test(fixed)) {
+      fixed = fixed.replace(/(<tr[\s>][\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
     }
     // Add tbody if not present
-    if (!fixed.includes('<tbody')) {
+    if (!/<tbody[\s>]/i.test(fixed)) {
       const theadEnd = fixed.indexOf('</thead>');
       if (theadEnd !== -1) {
         fixed = fixed.substring(0, theadEnd + 8) + '<tbody>' + fixed.substring(theadEnd + 8) + '</tbody>';
       }
     }
-    return `<table${attrs}>${fixed}</table>`;
+    return '<table' + attrs + '>' + fixed + '</table>';
   });
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Fixed table structure issues in ${filePath}`);
 }
 
@@ -91,43 +119,36 @@ function addMainLandmark(filePath) {
       content = content.replace(bodyContent, wrappedContent);
     }
   }
-  fs.writeFileSync(filePath, content);
+  // Ensure existing <main> tags have role="main"
+  content = content.replace(/<main([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('role=')) {
+      return match;
+    }
+    return `<main role="main"${attrs}>`;
+  });
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Added main landmark in ${filePath}`);
 }
 
 function ensureUniqueLandmarks(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
-  // Ensure unique accessible names for landmarks
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  let updatedContent = content;
 
   landmarks.forEach(landmark => {
     const regex = new RegExp(`<(${landmark})([^>]*)>`, 'gi');
-    const matches = [];
-    let match;
-
-    while ((match = regex.exec(content)) !== null) {
-      matches.push({
-        index: match.index,
-        fullMatch: match[0],
-        tag: match[1],
-        attrs: match[2]
-      });
-    }
-
-    if (matches.length > 1) {
-      // Apply replacements from last to first so indices remain valid
-      for (let i = matches.length - 1; i >= 0; i--) {
-        const m = matches[i];
-        let attrs = m.attrs.replace(/\s*id=["'][^"']*["']/gi, '');
-        const newId = `${landmark}-${i + 1}`;
-        const replacement = `<${m.tag}${attrs ? ' ' + attrs.trim() : ''} id="${newId}">`;
-        content = content.substring(0, m.index) + replacement + content.substring(m.index + m.fullMatch.length);
+    let index = 0;
+    updatedContent = updatedContent.replace(regex, (match, tagName, attrs) => {
+      index++;
+      if (attrs.includes('id=')) {
+        return match;
       }
-    }
+      return `<${landmark}${attrs} id="${landmark}-${index}">`;
+    });
   });
 
-  fs.writeFileSync(filePath, content);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Ensured unique landmarks in ${filePath}`);
 }
 
@@ -135,12 +156,15 @@ function addSvgAccessibleNames(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add accessible names to SVGs
-  const svgRegex = /<svg([^>]*)>/gi;
   let svgIndex = 0;
-  const updatedContent = content.replace(svgRegex, (match, attrs) => {
-    return `<svg${attrs} role="img" aria-label="SVG image ${svgIndex++}">`;
+  content = content.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+    svgIndex++;
+    if (attrs.includes('aria-label') || attrs.includes('aria-labelledby') || attrs.includes('title')) {
+      return match;
+    }
+    return `<svg${attrs} role="img" aria-label="SVG image ${svgIndex}">`;
   });
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Added accessible names to SVGs in ${filePath}`);
 }
 
@@ -151,9 +175,9 @@ function addAltAttribute(filePath) {
     if (attrs.includes('alt=')) {
       return match;
     }
-    return `<img alt="Description of image"${attrs}`;
+    return `<img${attrs} alt="Description of image">`;
   });
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added alt attribute to images for better accessibility in ${filePath}`);
 }
 
@@ -164,31 +188,27 @@ function replaceButtonId(filePath, newButtonId) {
 
   // Replace my-button with the actual button id
   const buttonIdRegex = /id=["']my-button["']/gi;
-  let match;
-
-  // Replace id attributes
   content = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
     return `id="${newButtonId}"`;
   });
 
   // Also replace any references in aria-controls, aria-labelledby, etc.
-  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
-  content = content.replace(ariaRefRegex, (match, attr) => {
+  const ariaRefRegex = /(?:aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
+  content = content.replace(ariaRefRegex, (match) => {
     countReplacements++;
-    return `${attr}="${newButtonId}"`;
+    return match.replace(/my-button/g, newButtonId);
   });
 
   // Replace data attributes if any
-  const dataRefRegex = /data-target=["']my-button["']/gi;
-  content = content.replace(dataRefRegex, (match, attr) => {
+  const dataRefRegex = /(?:data-target|data-for)=["']my-button["']/gi;
+  content = content.replace(dataRefRegex, (match) => {
     countReplacements++;
-    return `data-target="${newButtonId}"`;
+    return match.replace(/my-button/g, newButtonId);
   });
 
-  fs.writeFileSync(filePath, content);
+  fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${countReplacements} replacement(s) made)`);
-
   return countReplacements;
 }
 
@@ -285,10 +305,6 @@ function addressAccessibilityIssues(reportPath) {
           case 'button_id':
             replaceButtonId(issue.file, issue.newButtonId || 'action-button');
             break;
-          // ... (these cases were here previously)
-          case 'new_issue_type':
-            // Implementation for the new issue type goes here
-            break;
           default:
             console.log(`Unknown issue type: ${issue.type}`);
         }
@@ -330,7 +346,13 @@ function renderDependencyGraph(graphData, containerId) {
   return graphString;
 }
 
+// Call the new function to apply the focus-trap
+if (typeof document !== 'undefined') {
+  addFocusTrap();
+}
+
 module.exports = {
+  addFocusTrap,
   fixFakeLinkIssue,
   addAriaAttribute,
   addLangAttribute,

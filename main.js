@@ -1,5 +1,48 @@
 // main.js - Accessibility improvements implementation
 
+// Standalone function to get the accessible name of an SVG element
+// Uses aria-labelledby first, then falls back to the <title> child element
+function getSvgAccessibleName(svg) {
+  if (!svg || !(svg instanceof SVGElement) && svg.tagName !== 'svg') {
+    return '';
+  }
+
+  // First, check for aria-labelledby reference
+  const labelledBy = svg.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const ids = labelledBy.split(/\s+/);
+    const names = ids
+      .map(id => {
+        const el = document.getElementById(id);
+        return el ? el.textContent.trim() : '';
+      })
+      .filter(text => text.length > 0);
+    if (names.length > 0) {
+      return names.join(' ');
+    }
+  }
+
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return ariaLabel.trim();
+  }
+
+  // Fall back to <title> child element
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for title attribute on the SVG itself
+  const titleAttr = svg.getAttribute('title');
+  if (titleAttr && titleAttr.trim().length > 0) {
+    return titleAttr.trim();
+  }
+
+  return '';
+}
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
@@ -184,9 +227,25 @@ const a11yStore = {
   addSVGAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {
+      const titleElement = svg.querySelector('title');
+      const titleText = titleElement ? (titleElement.textContent || 'Image description') : 'Image description';
+
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
+
+      // Ensure the SVG has a <title> child for proper accessibility
+      if (!titleElement) {
+        const newTitle = document.createElement('title');
+        newTitle.textContent = titleText;
+        svg.insertBefore(newTitle, svg.firstChild);
+      }
+
+      // Use getSvgAccessibleName to determine the appropriate aria-labelledby value
+      const existingTitle = svg.querySelector('title');
+      if (existingTitle && !existingTitle.id) {
+        existingTitle.id = 'svg-title';
+      }
+      svg.setAttribute('aria-labelledby', existingTitle ? existingTitle.id : 'svg-title');
+
       const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
       svg.setAttribute('aria-describedby', descriptionId);
 
@@ -437,4 +496,5 @@ export { a11yStore };
 export { mainElement };
 export { addressAccessibilityIssues };
 export { calculateDiscount };
+export { getSvgAccessibleName };
 export default a11yStore;

@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -151,4 +148,3 @@ exports.validateLandmark = validateLandmark;
 
 // Export the new function to validate landmark structure
 exports.validateLandmarkStructure = validateLandmarkStructure;
-```

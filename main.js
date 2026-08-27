@@ -27,7 +27,7 @@ export const fixTableStructureIssues = (tableContent) => {
 
 // REACT_017: Add/fix landmark issues
 export const addMainLandmark = (content) => {
-  return <main id="main-content">{content}</main>;
+  return <main>{content}</main>;
 };
 
 // REACT_041: Add accessible names to 2 SVGs

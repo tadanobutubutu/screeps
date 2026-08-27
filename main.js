@@ -1,7 +1,1 @@
-// ... existing code, exports, and functions omitted for brevity ...
-
-// Your conflicts are likely in and around the commented region below
-// TODO: Address accessibility issues from insight report:
-// - ADD YOUR CHANGES HERE (preserve this comment)
-
-// ... existing code, exports, and functions omitted for brevity ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

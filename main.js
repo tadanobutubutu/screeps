@@ -3,16 +3,56 @@
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Existing main.js code...
+// Existing main.js content
 
-// Adding lang attribute to the root HTML element
-const rootEl = document.querySelector('#root');
-rootEl.setAttribute('lang', 'en');
+function addLangAttribute(el) {
+  const target = el || document.querySelector('#root');
+  if (target) {
+    target.setAttribute('lang', 'en');
+  }
+}
 
-// Example of additional accessibility changes: Adding `aria-label` to a button
-document.querySelector('button').setAttribute('aria-label', 'Click me');
+function addScopeToTableHeaders(headers) {
+  // ...
+}
 
-// Exporting the same modules and functions as before
+function fixFakeLinks(links, baseUrl) {
+  // ...
+}
+
+function wrapPrimaryContentInMain(content) {
+  // ...
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // ...
+}
+
+function addAccessibleSVGs(svgs) {
+  // ...
+}
+
+// New function to handle REACT_025: Add any additional accessibility changes as per the insight report
+function handleAdditionalAccessibilityChanges() {
+  // Add any additional accessibility changes here based on the insight report
+  // Example: Adding `aria-label` to a button
+  const btn = document.querySelector('button');
+  if (btn) {
+    btn.setAttribute('aria-label', 'Click me');
+  }
+}
+
+// Apply accessibility changes
+addLangAttribute();
+handleAdditionalAccessibilityChanges();
+
+// Exports
 module.exports = {
-  // ... existing exports ...
+  addLangAttribute,
+  addScopeToTableHeaders,
+  fixFakeLinks,
+  wrapPrimaryContentInMain,
+  ensureUniqueLandmarks,
+  addAccessibleSVGs,
+  handleAdditionalAccessibilityChanges,
 };

@@ -13,12 +13,22 @@ function renderDependencyGraphContent(data) {
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
   // This function is to be added as per the issue report.
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Remove duplicate <main> elements, keeping the first one.
+    mainElements.forEach((el, index) => {
+      if (index > 0) {
+        el.remove();
+      }
+    });
+  }
 }
 
 // Fix fake link issue
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // This function is to be added as per the issue report.
+  // Implementation would go here.
 }
 
 // Update the original export function to include the new method and keep the old one for calling from another file

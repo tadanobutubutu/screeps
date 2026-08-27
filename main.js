@@ -167,27 +167,26 @@ function replaceButtonId(filePath, newButtonId) {
   let match;
 
   // Replace id attributes
-  let countReplacements = 0;
-  const updatedContent = content.replace(buttonIdRegex, (match) => {
+  content = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
     return `id="${newButtonId}"`;
   });
 
   // Also replace any references in aria-controls, aria-labelledby, etc.
   const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
-  const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
+  content = content.replace(ariaRefRegex, (match, attr) => {
     countReplacements++;
     return `${attr}="${newButtonId}"`;
   });
 
   // Replace data attributes if any
   const dataRefRegex = /data-target=["']my-button["']/gi;
-  const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
+  content = content.replace(dataRefRegex, (match, attr) => {
     countReplacements++;
     return `data-target="${newButtonId}"`;
   });
 
-  fs.writeFileSync(filePath, finalFinalContent);
+  fs.writeFileSync(filePath, content);
   console.log(`Replaced 'my-button' with '${newButtonId}' in ${filePath} (${countReplacements} replacement(s) made)`);
 
   return countReplacements;

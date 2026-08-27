@@ -20,7 +20,7 @@ function wrapPrimaryContentInMain(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function addFixLandmarkIssues(doc) {
-  const landmarks = doc.querySelectorAll('header, main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   ensureUniqueLandmarks(landmarks);
 }
 
@@ -41,28 +41,14 @@ function fixFakeLinkIssues(doc) {
  * Wrap primary content in main div
  * @param { Document } doc - The document object to operate on
  */
-function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('article, #content, .content');
-  if (!primaryContent) {
-    return;
-  }
-  
-  const main = doc.createElement('div');
-  main.className = 'main';
-  main.setAttribute('role', 'main');
-  
-  if (primaryContent) {
-    primaryContent.parentNode.insertBefore(main, primaryContent);
-    main.appendChild(primaryContent);
-  }
-}
+// Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
  * Add proper landmark regions to the document
  * @param { Document } doc - The document object to operate on
  */
 function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('header, main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks);
 }
 
@@ -137,7 +123,7 @@ function validateLandmark(element) {
  * @returns { Array } Array of validation results
  */
 function validateLandmarkStructure(doc) {
-  const landmarks = doc.querySelectorAll('header, main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks).map(el => ({
     element: el,
     valid: validateLandmark(el),
@@ -151,8 +137,8 @@ function validateLandmarkStructure(doc) {
  * @returns { boolean } Whether the table is accessible
  */
 function validateTableAccessibility(table) {
-  const hasCaption = table.querySelector('caption');
-  const hasHeaders = table.querySelector('th');
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelector('th') !== null;
   return hasCaption && hasHeaders;
 }
 
@@ -188,11 +174,54 @@ function getSvgAccessibleName(svg) {
   }
   
   if (describedBy) {
-    const describedElement = svg.ownerDocument.getElementById(describedBy);
+    const describedElement = document.getElementById(describedBy);
     return describedElement ? describedElement.textContent : '';
   }
   
   return '';
+}
+
+/**
+ * Ensure landmarks are unique in the document
+ * @param { NodeList | Array } landmarks - The landmarks to check
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Map();
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (role && seen.has(role)) {
+      landmark.removeAttribute('role');
+    } else if (role) {
+      seen.set(role, landmark);
+    }
+  });
+}
+
+/**
+ * Create an accessible link element
+ * @param { string } href - The href attribute
+ * @param { string } text - The link text
+ * @param { Document } doc - The document object
+ * @returns { HTMLAnchorElement } The created link
+ */
+function createAccessibleLink(href, text, doc) {
+  const link = doc.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  return link;
+}
+
+/**
+ * Create an in-page button element
+ * @param { string } text - The button text
+ * @param { Document } doc - The document object
+ * @returns { HTMLButtonElement } The created button
+ */
+function createInPageButton(text, doc) {
+  const button = doc.createElement('button');
+  button.textContent = text;
+  button.id = button.id || `button-${Date.now()}`;
+  return button;
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)

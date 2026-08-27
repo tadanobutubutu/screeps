@@ -94,6 +94,7 @@ function validateTableStructure(table) {
   }
   
   // Check that headers are in thead
+  const ths = table.querySelectorAll('th');
   const headerRows = thead ? thead.querySelectorAll('tr') : [];
   if (headerRows.length === 0 && ths.length > 0) {
     issues.push('Header cells should be within thead');

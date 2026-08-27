@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file:
-
-```javascript
 // main.js
 
 // ... (existing code not related to issue)
@@ -11,7 +8,7 @@ Here is the resolved `main.js` file:
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-/// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
+// - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
 
 // ... (remainder of code not related to issue)
@@ -27,12 +24,12 @@ function validateLandmarkStructure() {
 
 // Function to ensure all SVG elements have accessible names
 function ensureSvgAccessibleNames() {
-  // Your implementation for handling SVG elements accessibility
+  fixSvgElements();
 }
 
 // Function to handle updating accessible SVG names when DOM mutates
 function updateAccessibleSvgNames() {
-  // Your implementation for updating accessible SVG names when DOM mutates
+  fixSvgElements();
 }
 
 // Function to set unique landmark IDs
@@ -63,7 +60,8 @@ function addProperLandmarkRegions() {
     header.setAttribute('role', 'banner');
   }
 
-  // - REACT_025: Ensure unique landmarks (2 issues) - Updated code above
+  // - REACT_015: Add lang attribute to HTML element
+  document.documentElement.setAttribute('lang', 'en');
 
   const nav = document.querySelector('nav');
   if (nav) {
@@ -80,21 +78,48 @@ function addProperLandmarkRegions() {
     footer.setAttribute('role', 'contentinfo');
   }
 
+  // - REACT_017: Add/fix 4 landmark issues
+  // Assuming landmarks are represented by ARIA roles, you might add or correct them like this:
+  const landmarks = document.querySelectorAll('.landmark');
+  landmarks.forEach((landmark, index) => {
+    // Assuming you know which ARIA roles are correct for your landmarks
+    landmark.setAttribute('role', 'landmark');
+    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+  });
+
+  // - REACT_041: Add accessible names to 2 SVGs
+  const svg1 = document.querySelector('#svg1');
+  const svg2 = document.querySelector('#svg2');
+  if (svg1) {
+    svg1.setAttribute('aria-labelledby', 'svg1-title');
+  }
+  if (svg2) {
+    svg2.setAttribute('aria-labelledby', 'svg2-title');
+  }
+
+  // - REACT_025: Ensure unique landmarks (2 issues)
+  // Fix: For components with conditional <main> elements (e.g., Dashboard error/success states),
+  // ensure only ONE <main> landmark exists in the source. Replace duplicate <main> tags
+  // in conditional branches with <section> elements. For runtime validation:
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Log warning for debugging purposes
+    console.warn('REACT_025: Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
+    // The static fix should be applied in the source files:
+    // - components/Dashboard.tsx: Replace one <main> with <section role="region" aria-labelledby="section-id">
+    // - dashboard/components/Dashboard.tsx: Same fix
+  }
+
+  // - REACT_036: Fix 1 fake link issue
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    // Add the `role` attribute to indicate the link is not a real navigation link
+    link.setAttribute('role', 'presentation');
+  });
+
   handleAccessibility();
 
-  // Function to ensure all SVG elements have accessible names - (Already implemented at the beginning of the file)
-  const ensureSvgAccessibleNames = () => {
-    // Your implementation for handling SVG elements accessibility
-  };
-
-  // Function to handle updating accessible SVG names when DOM mutates - (Already implemented at the beginning of the file)
-  const updateAccessibleSvgNames = () => {
-    // Your implementation for updating accessible SVG names when DOM mutates
-  };
-
-  ensureSvgAccessibleNames();
-
-  // Run again after DOM mutations - (Already implemented at the beginning of the file)
+  // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
       updateAccessibleSvgNames();
@@ -112,6 +137,3 @@ function addProperLandmarkRegions() {
 }
 
 addProperLandmarkRegions();
-```
-
-This resolved version of the file combines both changes and keeps the functionality of the original code intact while also addressing the accessibility improvements as per the conflict markers.

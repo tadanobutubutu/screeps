@@ -1,14 +1,14 @@
-import { createContext } from 'react';
-import { getLandmarks } from './api';
-import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils'; // Importing the existing functions without renaming
+const React = require('react');
+const { getLandmarks } = require('./api');
+const { findIndex: originalFindIndex, filterLandmarks: originalFilterLandmarks, sortLandmarksByName: originalSortLandmarksByName, addRequiredLandmarks: originalAddRequiredLandmarks } = require('./utils');
 
 // Function to calculate the index of an item in an array based on its id ([NEW])
-export const findIndex = (array, id) => {
+const findIndex = (array, id) => {
   return array.findIndex((item) => item.id === id);
 };
 
 // Function to ensure the element has an id ( merging both changes )
-export function ensureElementHasId(element) {
+function ensureElementHasId(element) {
   if (!element.id) {
     element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
   }
@@ -16,7 +16,7 @@ export function ensureElementHasId(element) {
 }
 
 // Add aria-label to element
-export function addAriaLabel(element, labelText) {
+function addAriaLabel(element, labelText) {
   if (element) {
     element.setAttribute('aria-label', labelText);
   }
@@ -24,7 +24,7 @@ export function addAriaLabel(element, labelText) {
 }
 
 // Render dependency graph ( merging both changes )
-export function renderDependencyGraph(dependencies) {
+function renderDependencyGraph(dependencies) {
   // Dummy implementation for dependency graph rendering
   const container = document.createElement('div');
   container.id = 'dependency-graph';
@@ -37,7 +37,7 @@ export function renderDependencyGraph(dependencies) {
 }
 
 // Implement function for addressing accessibility issues from insight report ( new functionality )
-export function addressAccessibilityIssues(insightReport) {
+function addressAccessibilityIssues(insightReport) {
   const issues = [];
   if (insightReport && insightReport.issues) {
     insightReport.issues.forEach(issue => {
@@ -50,18 +50,18 @@ export function addressAccessibilityIssues(insightReport) {
 }
 
 // New Functions for handling Git conflicts ( new functions to address the conflicting changes )
-export function resolveConflicts(content) {
+function resolveConflicts(content) {
   return content;
 }
 
-export function getSvgAccessibleName(element) {
+function getSvgAccessibleName(element) {
   if (!element) return '';
   const name = element.getAttribute('aria-label') || element.getAttribute('alt') || '';
   return name;
 }
 
 // Identifies and enhances landmark elements with appropriate roles and attributes ( new functionality )
-export function addProperLandmarkRegions(container) {
+function addProperLandmarkRegions(container) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   landmarks.forEach(landmark => {
     const elements = container.getElementsByTagName(landmark);

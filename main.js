@@ -13,9 +13,9 @@ import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = ...
-  if (htmlElement && ... {
-    ... lang);
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -26,7 +26,52 @@ function fixTableStructure(document) {
   let fixedCount = 0;
 
   tables.forEach((table) => {
-    // ... existing table structure fix implementation
+    // Ensure tables have proper structure with thead and tbody
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
+    if (rows.length > 0 && !existingThead) {
+      const firstRow = rows[0];
+      const thead = document.createElement('thead');
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, table.firstChild);
+      fixedCount++;
+    }
+    
+    if (!existingTbody) {
+      const remainingRows = Array.from(rows).slice(existingThead ? 0 : 1);
+      if (remainingRows.length > 0) {
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
+    
+    // Ensure proper header cells (th) are used
+    const allRows = table.querySelectorAll('tr');
+    allRows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      // Check if first cell should be a header
+      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+        const firstCell = cells[0];
+        const th = document.createElement('th');
+        th.textContent = firstCell.textContent;
+        th.scope = 'col';
+        row.replaceChild(th, firstCell);
+        fixedCount++;
+      }
+    });
+    
+    // Additional HEAD logic: ensure scope on header cells
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+        fixedCount++;
+      }
+    });
   });
 
   return fixedCount;
@@ -34,7 +79,34 @@ function fixTableStructure(document) {
 
 // Function to add/main landmark
 function addMainLandmark(document) {
-  // ... existing main landmark implementation
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // Find the main content area and wrap it or create main element
+    const body = document.body;
+    const main = document.createElement('main');
+    main.setAttribute('id', 'main-content');
+    
+    // Move first significant content child to main
+    const children = Array.from(body.children);
+    for (const child of children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+          child.tagName !== 'LINK' && child.tagName !== 'META') {
+        main.appendChild(child);
+        break;
+      }
+    }
+    
+    body.insertBefore(main, body.firstChild);
+    mainElement = main;
+  }
+  
+  // Ensure main has proper role if not using native element
+  if (mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
+  }
+  
+  return mainElement;
 }
 
 // Function to ensure unique landmarks (combined approach)
@@ -43,7 +115,7 @@ function ensureUniqueLandmarks(document) {
   // ... existing unique landmarks implementation for origin/main
 }
 
-// Function to add accessible names to SVGs
+// Function to add accessible name to SVG
 function addSvgAccessibleNames(document) {
   // ... existing implementation
 }
@@ -56,7 +128,36 @@ function fixFakeLinkIssue(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
 
   clickableElements.forEach(element => {
-    // ... updated fake link fix implementation
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    const hasHref = element.hasAttribute('href');
+    const onclick = element.getAttribute('onclick') || '';
+    
+    // Check if it's a fake link (clickable but not a real anchor)
+    if (!isAnchor && (onclick.includes('window.location') || 
+        onclick.includes('document.location') || 
+        onclick.includes("location.href"))) {
+      
+      // Convert to proper anchor or add proper accessibility
+      const span = document.createElement('span');
+      span.textContent = element.textContent;
+      span.setAttribute('role', 'link');
+      span.setAttribute('tabindex', '0');
+      span.setAttribute('onclick', onclick);
+      span.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          element.click();
+        }
+      });
+      
+      // Copy styling if available
+      if (element.className) {
+        span.className = element.className;
+      }
+      
+      element.parentNode.replaceChild(span, element);
+      count++;
+    }
   });
 
   return count;
@@ -117,6 +218,12 @@ function googleSignIn(document) {
       );
     }
   }
+}
+
+// Function to handle credential response from Google Sign-In
+function handleCredentialResponse(response) {
+  // TODO: Implement credential response handling
+  console.log('Credential response received:', response);
 }
 
 // Function to ensure the element has an id
@@ -260,7 +367,7 @@ export {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse, // Assuming handleCredentialResponse is a typo and should be fixButtonIdentifiers
+  handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   renderDependencyGraphs,

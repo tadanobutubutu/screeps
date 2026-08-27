@@ -57,13 +57,31 @@ const addMainLandmark = () => {
 const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const existingElements = document.querySelectorAll(`[role="${landmark}"]`);
-    let count = 0;
-    existingElements.forEach(element => {
-      if (!element.id) {
-        element.setAttribute('id', `${landmark}-${count}`);
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const seen = new Set();
+    elements.forEach(element => {
+      let id = element.id;
+      if (!id) {
+        let generatedId;
+        let counter = 0;
+        do {
+          generatedId = `${landmark}-${counter}`;
+          counter++;
+        } while (seen.has(generatedId));
+        id = generatedId;
+        element.setAttribute('id', id);
       }
-      count++;
+      // Ensure uniqueness across all landmarks of the same type
+      while (seen.has(id)) {
+        let baseId = id;
+        let suffix = 1;
+        while (seen.has(`${baseId}-${suffix}`)) {
+          suffix++;
+        }
+        id = `${baseId}-${suffix}`;
+      }
+      seen.add(id);
+      element.setAttribute('id', id);
     });
   });
 };
@@ -72,11 +90,12 @@ const ensureUniqueLandmarks = () => {
 const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const role = svg.getAttribute('role');
     const ariaLabel = svg.getAttribute('aria-label');
     if (!ariaLabel) {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', `SVG Icon ${index + 1}`);
+    } else {
+      svg.setAttribute('role', 'img');
     }
   });
 };
@@ -87,8 +106,8 @@ const fixFakeLinkIssue = () => {
   links.forEach(link => {
     const href = link.getAttribute('href');
     if (!href || href === '#' || href === '') {
-      link.setAttribute('role', 'presentation');
-      link.style.display = 'none';
+      link.setAttribute('role', 'link');
+      link.setAttribute('href', '#');
     }
   });
 };

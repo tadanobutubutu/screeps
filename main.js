@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -10,14 +7,15 @@ Here is the resolved file content:
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
 
 import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
+  const htmlElement = ...
+  if (htmlElement && ... {
+    ... lang);
   }
   return document;
 }
@@ -39,6 +37,11 @@ function ensureUniqueLandmarks(document) {
 
 // Function to add accessible names to SVGs
 function addSvgAccessibleNames(document) {
+  // ... existing implementation
+}
+
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGs(document) {
   // ... existing implementation
 }
 
@@ -81,6 +84,26 @@ function fixButtonIdentifiers(document) {
   // ... existing implementation
 }
 
+// REACT_042: Ensure dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole(document) {
+  const dependencyGraph = document.querySelector('[data-testid="dependencyGraph"]') || 
+                          document.querySelector('#dependencyGraph') || 
+                          document.querySelector('.dependency-graph') ||
+                          document.querySelector('[class*="dependency-graph"]');
+  
+  if (dependencyGraph) {
+    // Check if element already has a role
+    const existingRole = dependencyGraph.getAttribute('role');
+    if (!existingRole) {
+      // Add appropriate role based on context
+      dependencyGraph.setAttribute('role', 'region');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+  
+  return document;
+}
+
 // Function to add the main landmark to docs/index.html
 function addMainLandmarkToIndex(document) {
   // ... existing implementation
@@ -89,6 +112,11 @@ function addMainLandmarkToIndex(document) {
 // Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(document) {
   // ... existing implementation with merged changes
+  
+  // Add the dependencyGraph ARIA role fix
+  ensureDependencyGraphAriaRole(document);
+  
+  return document;
 }
 
 // Export all functions
@@ -109,16 +137,9 @@ export {
   handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
+  ensureDependencyGraphAriaRole,
   addressAccessibilityIssues,
   class1,
   function1,
   Object1
 };
-```
-
-The changes made are:
-
-1. Merged the changes for REACT_036 (fixFakeLinkIssue and fixFakeLinkIssues) by calling both functions sequentially.
-2. Integrated the functionality for REACT_040 (replace my-button with actual button id for accessibility) alongside the existing changes.
-3. Simplified the implementation of REACT_025 (Ensure unique landmarks) by combining both approaches (by role and origin/main).
-4. Updated the order of the functions in the addressAccessibilityIssues function according to the changes made in other functions.

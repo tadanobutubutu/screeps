@@ -16,7 +16,11 @@
 
 // Export the rotateBack function so it can be used in other parts of the application if needed
 export function rotateBack() {
-  // Your code to rotate back
+  // Rotate back logic
+  console.log('Rotating back');
 }
+
+// Set accessible label for example button
+document.getElementById("exampleButton").setAttribute("aria-label", "My Accessible Button");
 
 // ... (other code in main.js)

@@ -35,10 +35,10 @@ export function AccessibleTable({ data, headers }) {
 // REACT_041: Accessible SVG component
 export function AccessibleIcon({ name, size = 24 }) {
   return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
       aria-label={name}
       role="img"
     >
@@ -71,11 +71,11 @@ export function AccessiblePage({ children }) {
           {/* Header content */}
         </nav>
       </header>
-      
+
       <main role="main" id="main-content">
         {children}
       </main>
-      
+
       <footer role="contentinfo">
         {/* Footer content */}
       </footer>

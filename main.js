@@ -454,6 +454,58 @@ const a11yStore = {
   }
 };
 
+// NEW: Function to wrap primary content in a <main> element for accessibility
+// This function ensures the main landmark is properly defined and accessible
+function wrapPrimaryContentInMain(options = {}) {
+  const defaults = {
+    mainId: 'main-content',
+    mainRole: 'main',
+    ensureLang: true,
+    langAttribute: document.documentElement.lang || 'en',
+    fallbackContent: document.body
+  };
+
+  const config = { ...defaults, ...options };
+
+  // REACT_015: Ensure the <html> element has a lang attribute for accessibility
+  if (config.ensureLang && !document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', config.langAttribute);
+  }
+
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    // Create a new <main> element
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', config.mainId);
+    mainElement.setAttribute('role', config.mainRole);
+
+    // Set the lang attribute on the main element
+    if (config.langAttribute) {
+      mainElement.setAttribute('lang', config.langAttribute);
+    }
+
+    // Wrap the body content in the main element
+    const contentToWrap = config.fallbackContent || document.body;
+    mainElement.appendChild(document.body.cloneNode(true));
+    document.body.parentNode.insertBefore(mainElement, document.body);
+  } else {
+    // Ensure existing main element has proper attributes
+    if (!mainElement.id) {
+      mainElement.id = config.mainId;
+    }
+    if (!mainElement.getAttribute('role')) {
+      mainElement.setAttribute('role', config.mainRole);
+    }
+    if (!mainElement.getAttribute('lang') && config.langAttribute) {
+      mainElement.setAttribute('lang', config.langAttribute);
+    }
+  }
+
+  return mainElement;
+}
+
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
 mainElement.setAttribute('lang', document.documentElement.lang);
@@ -497,4 +549,5 @@ export { mainElement };
 export { addressAccessibilityIssues };
 export { calculateDiscount };
 export { getSvgAccessibleName };
+export { wrapPrimaryContentInMain };
 export default a11yStore;

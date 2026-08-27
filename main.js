@@ -176,6 +176,95 @@ export function deepMerge(...objects) {
   }, {});
 }
 
+// Assuming this is a part of main.js where HTML content is being used
+
+// Corrected HTML snippet with lang attribute added
+// <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//   ...
+// </head>
+// <body>
+//   ...
+// </body>
+// </html>
+
+/**
+ * Add role="banner" to header element
+ * @param {HTMLElement} headerElement - The header element
+ */
+export function addRoleToHeader(headerElement) {
+  if (headerElement) {
+    headerElement.setAttribute('role', 'banner');
+  }
+}
+
+/**
+ * Add role="main" to main element
+ * @param {HTMLElement} mainElement - The main element
+ */
+export function addRoleToMain(mainElement) {
+  if (mainElement) {
+    mainElement.setAttribute('role', 'main');
+  }
+}
+
+/**
+ * Add role="contentinfo" to footer element
+ * @param {HTMLElement} footerElement - The footer element
+ */
+export function addRoleToFooter(footerElement) {
+  if (footerElement) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+}
+
+/**
+ * Add role="navigation" to nav element
+ * @param {HTMLElement} navElement - The nav element
+ */
+export function addRoleToNav(navElement) {
+  if (navElement) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+// REACT_037: Add proper landmark regions
+export function addProperLandmarkRegions() {
+  const header = document.querySelector('header') || document.getElementById('header');
+  const nav = document.querySelector('nav') || document.getElementById('nav');
+  const main = document.querySelector('main') || document.getElementById('main');
+  const footer = document.querySelector('footer') || document.getElementById('footer');
+
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+  if (main && !main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  if (footer && !footer.getAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+}
+
+// Assuming you have access to your elements like this:
+const nav = document.getElementById('nav');
+const header = document.getElementById('header');
+const main = document.getElementById('main');
+const footer = document.getElementById('footer');
+
+addRoleToNav(nav);
+addRoleToHeader(header);
+addRoleToMain(main);
+addRoleToFooter(footer);
+
+addProperLandmarkRegions();
+
+// Don't forget to include Jest test cases to ensure the new landmark roles are added correctly.
+
 // Constants
 export const VERSION = '1.0.0';
 export const API_BASE_URL = '/api/v1';

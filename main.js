@@ -460,21 +460,21 @@ function wrapPrimaryContentInMain(options = {}) {
     mainId: 'main-content',
     mainRole: 'main',
     ensureLang: true,
-    langAttribute: document.documentElement.lang || 'en',
-    fallbackContent: document.body
+    langAttribute: (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang) || 'en',
+    fallbackContent: (typeof document !== 'undefined' && document.body) || null
   };
 
   const config = { ...defaults, ...options };
 
   // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-  if (config.ensureLang && !document.documentElement.getAttribute('lang')) {
+  if (typeof document !== 'undefined' && config.ensureLang && !document.documentElement.getAttribute('lang')) {
     document.documentElement.setAttribute('lang', config.langAttribute);
   }
 
   // Check if a <main> element already exists
-  let mainElement = document.querySelector('main');
+  let mainElement = (typeof document !== 'undefined') ? document.querySelector('main') : null;
 
-  if (!mainElement) {
+  if (!mainElement && typeof document !== 'undefined') {
     // Create a new <main> element
     mainElement = document.createElement('main');
     mainElement.setAttribute('id', config.mainId);
@@ -487,9 +487,13 @@ function wrapPrimaryContentInMain(options = {}) {
 
     // Wrap the body content in the main element
     const contentToWrap = config.fallbackContent || document.body;
-    mainElement.appendChild(document.body.cloneNode(true));
-    document.body.parentNode.insertBefore(mainElement, document.body);
-  } else {
+    if (contentToWrap) {
+      mainElement.appendChild(contentToWrap.cloneNode(true));
+    }
+    if (document.body && document.body.parentNode) {
+      document.body.parentNode.insertBefore(mainElement, document.body);
+    }
+  } else if (mainElement) {
     // Ensure existing main element has proper attributes
     if (!mainElement.id) {
       mainElement.id = config.mainId;
@@ -506,21 +510,27 @@ function wrapPrimaryContentInMain(options = {}) {
 }
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+const mainElement = (typeof document !== 'undefined') ? document.createElement('main') : { setAttribute: () => {}, appendChild: () => {} };
+if (typeof document !== 'undefined') {
+  mainElement.setAttribute('lang', document.documentElement.lang || 'en');
 
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+  // REACT_015: Ensure the <html> element has a lang attribute for accessibility
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+
+  if (document.body && document.body.parentNode) {
+    mainElement.appendChild(document.body.cloneNode(true));
+    document.body.parentNode.insertBefore(mainElement, document.body);
+  }
 }
 
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
-
 // Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    a11yStore.init();
+  });
+}
 
 // Preserve existing code
 a11yStore.preserveExistingCode();

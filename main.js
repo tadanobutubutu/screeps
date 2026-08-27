@@ -1,15 +1,1 @@
-// Original code (modified for readability and formatting)
-
-// ...
-
-// Exports
-module.exports = {
-  someFunction: someFunction,
-  anotherFunction: anotherFunction,
-};
-
-// New function requested in the issue
-function myNewFunction() {
-  // Your custom logic here
-  console.log('New function is running!');
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

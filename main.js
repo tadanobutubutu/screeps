@@ -183,6 +183,21 @@ function addSvgAccessibleNames(document) {
   return addAccessibleNamesToSVGs(document);
 }
 
+// Function to add accessible names to SVG elements
+function addAccessibleNamesToSVGs(document) {
+  // Add accessible names to SVG elements for screen readers
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('aria-label', titleElement.textContent.trim());
+    } else {
+      svg.setAttribute('aria-label', 'Graphic');
+    }
+  });
+  return document;
+}
+
 // Function to fix fake link issue (merged fixes)
 function fixFakeLinkIssue(document) {
   fixFakeLinkIssues(document);
@@ -261,9 +276,19 @@ function addLandmarkRegions(document) {
 
 // REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
-  // ... unique landmarks implementation by role
-  // Placeholder: ensure uniqueness by role
-  return document;
+  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role}-${index}`);
+        }
+        index++;
+      });
+    }
+  });
 }
 
 // Address accessibility issues from insight report for image alt texts
@@ -362,6 +387,11 @@ function renderDependencyGraphs(document) {
   return document;
 }
 
+// Function to add accessible names to SVGs (alias)
+function addAccessibleNamesToSVGsAlias(document) {
+  return addAccessibleNamesToSVGs(document);
+}
+
 // REACT_040: Replace my-button with actual button id for accessibility
 function fixButtonIdentifiers(document) {
   const buttons = document.querySelectorAll('[id^="my-button"]');
@@ -422,6 +452,9 @@ function addressAccessibilityIssues(document) {
   return document;
 }
 
+// Placeholder functions for imports
+function handleCredentialResponse() { return null; }
+
 // Export all functions
 export {
   addLangAttribute,
@@ -446,6 +479,7 @@ export {
   ensureElementHasId,
   ensureElementHasIdOrigin,
   addAriaLabel,
+  addAccessibleNamesToSVGsAlias,
   class1,
   function1,
   Object1

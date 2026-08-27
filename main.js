@@ -15,6 +15,4 @@ function myNewFunction() {
 }
 
 // To make it testable, you may export the new function
-export function myNewFunction() {
-  // New function implementation
-}
+export { myNewFunction };

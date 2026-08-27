@@ -1,6 +1,3 @@
-To resolve the merge conflict, I have integrated the changes from both branches and incorporated the new functions. Here is the resolved `main.js` file:
-
-```javascript
 // Generalized accessibility functions
 function improveAccessibility() {
   // ... (unchanged)
@@ -87,6 +84,3 @@ module.exports = {
   // In case the example logic for ensuring unique landmarks is used, export it too
   ensureUniqueLandmarksByExample
 };
-```
-
-This resolved `main.js` file retains the changes from both branches and includes the new functions to address specific accessibility issues based on the insight report. It also provides an example logic to ensure unique landmarks in case no custom functions for this purpose already exist.

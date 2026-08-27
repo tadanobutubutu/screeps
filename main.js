@@ -334,6 +334,23 @@ function addLangAttribute() {
   return document.documentElement.lang;
 }
 
+// New function to set the lang attribute on the HTML element (REACT_015)
+/**
+ * Sets the lang attribute on the HTML root element if it's missing.
+ * This addresses the REACT_015 accessibility rule which requires the
+ * <html> element to have a lang attribute for screen readers.
+ * @param {string} [lang] - Optional language code. Defaults to 'en'.
+ * @returns {string} The lang attribute value that was set.
+ */
+function setHtmlLangAttribute(lang) {
+  if (!document.documentElement) {
+    return '';
+  }
+  const langValue = lang || getLangAttribute();
+  document.documentElement.lang = langValue;
+  return document.documentElement.lang;
+}
+
 // New function to add main landmark (REACT_017)
 function addMainLandmark() {
   let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
@@ -502,3 +519,4 @@ module.exports.addLangAttribute = addLangAttribute;
 module.exports.addMainLandmark = addMainLandmark;
 module.exports.fixTableStructure = fixTableStructure;
 module.exports.fixFakeLinkIssue = fixFakeLinkIssue;
+module.exports.setHtmlLangAttribute = setHtmlLangAttribute;

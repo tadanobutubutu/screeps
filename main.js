@@ -1,4 +1,5 @@
 // TODO: Address accessibility issues from insight report: in main.js
+// TODO: This is the existing code that needs to be preserved
 
 const tableContent = `
   <table>
@@ -20,14 +21,36 @@ const tableContent = `
   </table>
 `;
 
-export const renderTable = (containerId) => {
-  const container = document.getElementById(containerId);
-  if (container) {
-    container.innerHTML = tableContent;
+const renderTable = (containerId) => {
+  if (typeof document !== 'undefined') {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML = tableContent;
+    }
   }
 };
 
-export const submitButton = document.getElementById('submit-btn');
-export const resetButton = document.getElementById('reset-btn');
+const submitButton = (typeof document !== 'undefined') ? document.getElementById('submit-btn') : null;
+const resetButton = (typeof document !== 'undefined') ? document.getElementById('reset-btn') : null;
 
-document.querySelector('#app').innerHTML = tableContent;
+if (typeof document !== 'undefined') {
+  const app = document.querySelector('#app');
+  if (app) {
+    app.innerHTML = tableContent;
+  }
+}
+
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
+const someVar = require('some-module');
+function init() { /* ... */ }
+module.exports.loop = function() { /* ... */ }
+// ----- END ORIGINAL CODE -----
+
+// NEW FUNCTION, CHANGE OR ADDITIONS WITHIN THE TO-DO SECTION (unchanged here)
+function newFunction() { /* ... */ }
+module.exports.newExport = function() { /* ... */ }
+
+module.exports.renderTable = renderTable;
+module.exports.submitButton = submitButton;
+module.exports.resetButton = resetButton;

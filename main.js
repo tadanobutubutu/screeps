@@ -1,6 +1,16 @@
-// main.js - React Table Component with accessibility fixes (REACT_027)
-
 import React, { useMemo } from 'react';
+
+function App() {
+  return (
+    <div>
+      {/* Existing content */}
+      <p lang="en">This is an English paragraph.</p>
+      {/* More content */}
+    </div>
+  );
+}
+
+export default App;
 
 export const DataTable = ({ columns, data, caption }) => {
   return (
@@ -106,5 +116,3 @@ export const SimpleTable = ({ headers, rows }) => {
     </table>
   );
 };
-
-export default DataTable;

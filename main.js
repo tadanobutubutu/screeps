@@ -1,7 +1,7 @@
 const config = {
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: 'dist',
   },
   module: {
     rules: [
@@ -23,8 +23,8 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '~': path.resolve(__dirname, './src'),
+      '@': './src',
+      '~': './src',
     },
   },
   plugins: [
@@ -32,8 +32,10 @@ const config = {
       template: './src/index.html',
       filename: 'index.html',
     }),
-    new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env),
+    new DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+      },
     }),
   ],
   devServer: {
@@ -44,21 +46,19 @@ const config = {
 };
 
 // Add the following function to handle the issue with React SVG Accessible Name
-function addAccessibleNameToSVG(svgContent) {
+function makeSvgAccessible(svgContent) {
   // Assuming svgContent is a string containing the SVG markup
   // This function wraps the SVG content with an aria-label attribute for accessibility
   return `<svg ${svgContent} aria-label="Accessible description of the SVG"></svg>`;
 }
 
 const icons = {
-  icons1: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">...</svg>',
-  icons2: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">...</svg>',
+  icons1: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>`,
+  icons2: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60"/></svg>`,
 };
 
-Object.keys(icons).forEach(iconName => {
-  icons[iconName] = addAccessibleNameToSVG(icons[iconName]);
+Object.keys(icons).forEach((iconName) => {
+  icons[iconName] = makeSvgAccessible(icons[iconName]);
 });
 
 module.exports = config;
-```
-In the above code, the `addAccessibleNameToSVG` function has been integrated and used to update the `icons` constant with accessible SVG functions. The original icons data has been preserved while wrapping them with the `addAccessibleNameToSVG` function.

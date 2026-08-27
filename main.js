@@ -113,6 +113,44 @@ function fixFakeLinkIssue(elements) {
   return issues;
 }
 
+function runAccessibilityFixes(document) {
+  const report = {
+    langAttribute: null,
+    tablesFixed: 0,
+    mainLandmarkAdded: false,
+    landmarkIssues: [],
+    svgIssues: [],
+    fakeLinkIssues: []
+  };
+
+  // REACT_015: Add lang attribute
+  report.langAttribute = addLangAttribute(document);
+
+  // REACT_027: Fix table structure issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (fixTableStructure(table)) {
+      report.tablesFixed++;
+    }
+  });
+
+  // REACT_017: Add main landmark if missing
+  report.mainLandmarkAdded = addMainLandmark(document);
+
+  // REACT_025: Ensure unique landmarks
+  report.landmarkIssues = ensureUniqueLandmarks(document);
+
+  // REACT_041: Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  report.svgIssues = addSvgAccessibleNames(svgs);
+
+  // REACT_036: Fix fake link issues
+  const interactiveElements = document.querySelectorAll('[onclick]');
+  report.fakeLinkIssues = fixFakeLinkIssue(interactiveElements);
+
+  return report;
+}
+
 // Export all accessibility functions
 module.exports = {
   addLangAttribute,
@@ -120,5 +158,6 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  runAccessibilityFixes
 };

@@ -143,9 +143,16 @@ function addAriaLabel(element, labelText) {
   return element;
 }
 
+// New function to add role attribute to the element
+function addRole(element, role) {
+  element.setAttribute('role', role);
+  return element;
+}
+
 // Export for testing purposes
 module.exports = {
   addressAccessibilityIssues,
   ensureElementHasId,
-  addAriaLabel
+  addAriaLabel,
+  addRole
 };

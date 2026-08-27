@@ -7,10 +7,9 @@ import reportWebVitals from './reportWebVitals';
 function Navigation() {
   return (
     <div className="navigation">
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#" onClick={() => console.log('clicked')}>Click me</a>
-      <a href="https://example.com">External</a>
+      <button>Home</button>
+      <button>About</button>
+      <button onClick={() => console.log('clicked')}>Click me</button>
     </div>
   );
 }

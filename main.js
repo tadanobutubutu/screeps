@@ -6,7 +6,7 @@ import React from 'react';
  * @returns {string} - Content wrapped in <main> tags
  */
 export function wrapInMainLandmark(content) {
-  return `<main>${content}</main>`;
+  return `<main lang="en">${content}</main>`;
 }
 
 /**
@@ -15,10 +15,10 @@ export function wrapInMainLandmark(content) {
  * @returns {string} - Content with main landmark
  */
 export function generateMainContent(content) {
-  if (!content.includes('<main>')) {
-    return wrapInMainLandmark(content);
+  if (hasMainLandmark(content)) {
+    return content;
   }
-  return content;
+  return wrapInMainLandmark(content);
 }
 
 /**
@@ -35,7 +35,7 @@ export function hasMainLandmark(content) {
  * @param {string} content - Content to potentially wrap
  * @returns {string} - Processed content
  */
-export function processMainLandmark(content) {
+export function ensureMainLandmark(content) {
   if (hasMainLandmark(content)) {
     return content;
   }
@@ -44,20 +44,23 @@ export function processMainLandmark(content) {
 
 const MyTableComponent = ({ headers }) => {
   return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th key={index} scope="col">
-              {header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {/* ... table rows ... */}
-      </tbody>
-    </table>
+    <main lang="en">
+      <table>
+        <caption>Data Table</caption>
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <th key={index} scope="col">
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {/* ... table rows ... */}
+        </tbody>
+      </table>
+    </main>
   );
 };
 

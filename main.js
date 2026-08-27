@@ -1,11 +1,1 @@
-// Your existing code here
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report
-
-// New functions or changes requested in the issue
-// ...... your new code here ......
-
-module.exports = {
-  // Your existing exports here
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

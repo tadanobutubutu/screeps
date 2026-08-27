@@ -1,4 +1,4 @@
-const originalMainJs = require('./main.js');
+const originalMainJs = require('./original-main');
 
 // Re-export the original main module functionality to preserve existing behavior
 module.exports = originalMainJs;
@@ -8,4 +8,4 @@ module.exports = originalMainJs;
 
 // Example exports that might be needed (please provide file contents for accurate fix):
 // module.exports.someFunction = someFunction;
-// module.exports.AnotherClass = AnotherClass;
+// ... = AnotherClass;

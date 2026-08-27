@@ -5,7 +5,17 @@ function addressAccessibilityIssues() {
   // TODO: Implement the required changes to improve accessibility
 }
 
-// Existimg code and exports here
+// New functions to be implemented
+
+function getLangAttribute() {
+  // TODO: Implement getLangAttribute() function
+}
+
+function getFullLangAttribute() {
+  // TODO: Implement getFullLangAttribute() function
+}
+
+// Existing code and exports here
 // ...
 
 module.exports = {

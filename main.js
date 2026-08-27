@@ -8,8 +8,13 @@ export function existingFunction2() {
   // existing implementation
 }
 
+// To make it testable, you may export the new function
+export function myNewFunction() {
+  // New function implementation
+}
+
 // New function to fix the React SVG Accessible Name issue
-function fixSVGAccessibleName(svgString) {
+export function fixSVGAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
   if (svgString.includes('<title>') || svgString.includes('aria-label') || svgString.includes('aria-hidden')) {
     return svgString;
@@ -29,5 +34,3 @@ function fixSVGAccessibleName(svgString) {
   const svgWithAriaLabel = svgString.replace('<svg', '<svg aria-label="SVG description"');
   return svgWithAriaLabel;
 }
-
-module.exports = { existingFunction2, fixSVGAccessibleName };

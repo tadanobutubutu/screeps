@@ -11,9 +11,16 @@
 // Import the required module
 const { someFunction } = require('./someModule');
 
+// Import the new accessible solution for the table structure issues (REACT_027)
+const { fixTableStructureIssues } = require('./tableStructureFixes');
+
 // Existing code preserved below
 function main() {
   console.log('Running main application');
+
+  // Apply the new accessible solution for the table structure issues (REACT_027)
+  fixTableStructureIssues();
+
   return someFunction();
 }
 
@@ -21,6 +28,7 @@ function main() {
 module.exports = {
   main,
   someFunction,
+  fixTableStructureIssues, // Add the new accessible function
 };
 
 // Existing code preserved below

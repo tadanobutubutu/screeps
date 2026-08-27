@@ -1,5 +1,5 @@
 // TODO: Add back any required exports that might have been?
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
   const buttons = document.querySelectorAll('button');
@@ -14,7 +14,7 @@ function improveAccessibility() {
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
-  
+
   // Ensure the dependencyGraph container has a proper ARIA role
   ensureDependencyGraphAccessibility();
 
@@ -46,6 +46,7 @@ function addressInsightReportIssues(insightReport) {
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
         // Implement logic to ensure unique landmarks if needed
+        ensureUniqueLandmarksFromInsightReport(insightReport);
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
@@ -59,10 +60,6 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
-// Existing code that needs to be preserved from previous issue
-// ----- END ORIGINAL CODE (unchanged) -----
-
-// New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Example logic to ensure unique landmarks
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -81,7 +78,6 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Updated function for REACT_025 (ensuring unique landmarks)
 function ensureUniqueLandmarksFromInsightReport(insightReport) {
   const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
@@ -106,7 +102,6 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   ensureUniqueLandmarks();
 }
 
-// Function for adding proper landmark regions to the main content areas
 function addLandmarkRegions() {
   // Define the standard landmark roles that should be present
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -151,21 +146,20 @@ function addLandmarkRegions() {
   });
 }
 
-// New function to ensure the dependencyGraph container has a proper ARIA role
 function ensureDependencyGraphAccessibility() {
   // Find the dependencyGraph container element
-  const dependencyGraph = document.getElementById('dependencyGraph') || 
+  const dependencyGraph = document.getElementById('dependencyGraph') ||
                           document.querySelector('.dependencyGraph') ||
                           document.querySelector('[data-dependency-graph]');
-  
+
   if (dependencyGraph) {
     // Ensure it has a proper ARIA role
     if (!dependencyGraph.getAttribute('role')) {
       dependencyGraph.setAttribute('role', 'region');
     }
-    
+
     // Add accessible name if not present
-    if (!dependencyGraph.getAttribute('aria-label') && 
+    if (!dependencyGraph.getAttribute('aria-label') &&
         !dependencyGraph.getAttribute('aria-labelledby')) {
       dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
     }

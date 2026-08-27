@@ -1,5 +1,3 @@
-// main.js - Application entry point
-
 const config = require('./config');
 const { initializeApp } = require('./utils');
 

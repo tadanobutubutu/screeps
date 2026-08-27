@@ -9,6 +9,8 @@ const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');
 const roleRepairer = require('role.repairer');
 const tower = require('structure.tower');
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
 
 // Accessibility helper functions
 function getLangAttribute() {

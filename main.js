@@ -1,5 +1,5 @@
-tsx
-// Assuming the file is located at components/Dashboard.tsx
+import dependencyGraphContent from './dependencyGraphContent';
+import indexContent from './indexContent';
 
 import React, { useState } from 'react';
 
@@ -7,7 +7,7 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -32,6 +32,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   return (
     <html lang="en">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        {/* Render dependency graph or index content */}
+        {dependencyGraphContent}
+        {indexContent}
+        
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
           <section

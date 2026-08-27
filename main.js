@@ -6,10 +6,9 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// TODO: Import required module(s) - for fixing table structure issues
-const { formatTable, parseTableData } = require('./utils/tableUtils');
+// Import required module(s) - for fixing table structure issues
+const { formatTable, parseTableData } = require('./tableUtils');
 
-app.use(express.static('public'));
 app.use(express.json());
 
 // Routes

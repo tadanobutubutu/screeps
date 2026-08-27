@@ -51,7 +51,7 @@ function generate() {
 
     const tableRotated = `<table id="table-rotated">
         <thead>
-            <tr><th>Global</th><th>Description</th></tr>
+            <tr><th scope="col">Global</th><th scope="col">Description</th></tr>
         </thead>
         <tbody>
             ${tableSection}

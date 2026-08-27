@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
@@ -260,6 +257,36 @@ function addressAccessibilityIssues(insightReport) {
 
   // Export the new function for testing purposes
   module.exports.saveSettings = saveSettings;
-```
 
-This code resolves the Git merge conflict by integrating both sets of changes. We preserved the existing code and added the new functions to address the accessibility issues according to the insight report. Additionally, we added some new functions for testing purposes and resolved Git conflicts where necessary.
+  /**
+   * Adds proper landmark regions to the document for accessibility.
+   * @param {HTMLElement|Document} root - The root element or document to add landmarks to
+   * @returns {Array<HTMLElement>} Array of elements that were marked as landmarks
+   */
+  function addLandmarkRegions(root) {
+    const landmarks = [];
+    
+    // Check for main content area
+    const mainEl = root.querySelector('main');
+    if (mainEl) {
+      mainEl.setAttribute('role', 'main');
+      landmarks.push(mainEl);
+    }
+    
+    // Check for navigation
+    const navEl = root.querySelector('nav');
+    if (navEl) {
+      navEl.setAttribute('role', 'navigation');
+      landmarks.push(navEl);
+    }
+    
+    // Check for complementary regions (sidebars, footers, etc.)
+    const asideEl = root.querySelector('aside');
+    if (asideEl) {
+      asideEl.setAttribute('role', 'complementary');
+      landmarks.push(asideEl);
+    }
+    
+    return landmarks;
+  }
+}

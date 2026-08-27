@@ -14,7 +14,7 @@ function setSvgAccessibilityProps(svgElement) {
   // Check for existing title element
   const hasTitle = svgElement.querySelector('title');
   const hasDesc = svgElement.querySelector('desc');
-  const hasRole = svgElement.getAttribute('role');
+  const hasRole = svgElement.hasAttribute('role');
   
   // Add role="img" if not present for meaningful SVGs
   if (!hasRole && (hasTitle || hasDesc)) {
@@ -30,7 +30,7 @@ function setSvgAccessibilityProps(svgElement) {
   // Ensure images within SVG have alt text handling
   const images = svgElement.querySelectorAll('image');
   images.forEach(img => {
-    if (!img.hasAttribute('aria-label') && !img.hasAttribute('alt')) {
+    if (!img.getAttribute('alt') && !img.getAttribute('aria-label')) {
       img.setAttribute('role', 'presentation');
     }
   });
@@ -44,7 +44,7 @@ function setSvgAccessibilityProps(svgElement) {
 function isLinkAccessible(link) {
   if (!link) return false;
   const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label') && link.getAttribute('aria-label').trim().length > 0;
+  const hasAriaLabel = link.getAttribute('aria-label') && link.getAttribute('aria-label').trim().length > 0;
   const hasTitle = link.hasAttribute('title') && link.getAttribute('title').trim().length > 0;
   return hasText || hasAriaLabel || hasTitle;
 }
@@ -57,7 +57,7 @@ function isLinkAccessible(link) {
 function isButtonAccessible(button) {
   if (!button) return false;
   const hasText = button.textContent.trim().length > 0;
-  const hasAriaLabel = button.hasAttribute('aria-label') && button.getAttribute('aria-label').trim().length > 0;
+  const hasAriaLabel = button.getAttribute('aria-label') && button.getAttribute('aria-label').trim().length > 0;
   const hasTitle = button.hasAttribute('title');
   return hasText || hasAriaLabel || hasTitle;
 }
@@ -73,7 +73,7 @@ function checkAccessibility(container = document) {
     buttons: { accessible: [], inaccessible: [] }
   };
 
-  const links = container.querySelectorAll('a[href]');
+  const links = container.querySelectorAll('a');
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);
@@ -101,7 +101,7 @@ function checkAccessibility(container = document) {
  */
 function checkLandmarkElement(role, element) {
   const isValidRole = ['banner', 'navigation', 'main', 'sidebar', 'contentinfo', 'search', 'form', 'alert', 'application', 'complementary'];
-  if (!isValidRole || !element || element.getAttribute('role') !== role) return;
+  if (!isValidRole.includes(role) || !element || element.getAttribute('role') !== role) return;
 
   // Check if element already has an aria-label
   const existingLabel = element.getAttribute('aria-label');
@@ -192,11 +192,11 @@ function checkLandmarks(container = document) {
     inaccessibleLandmarks: []
   };
 
-  const landmarkElements = container.querySelectorAll('[role="navigation"], [role="main"], [role="sidebar"], [role="contentinfo"], [role="search"], [role="form"], [role="alert"], [role="application"], [role="complementary"], [role="banner"]');
+  const landmarkElements = container.querySelectorAll('[role="main"], [role="sidebar"], [role="contentinfo"], [role="search"], [role="form"], [role="alert"], [role="application"], [role="complementary"], [role="banner"]');
   landmarkElements.forEach(element => {
     const role = element.getAttribute('role');
     checkLandmarkElement(role, element);
-    if (element.hasAttribute('aria-label') && element.getAttribute('aria-label').trim().length > 0) {
+    if (element.getAttribute('aria-label') && element.getAttribute('aria-label').trim().length > 0) {
       results.accessibleLandmarks.push(element);
     } else {
       results.inaccessibleLandmarks.push(element);

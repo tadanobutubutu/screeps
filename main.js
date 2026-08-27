@@ -1,3 +1,4 @@
+// main.js
 // Assuming you're adding the scope attributes to the th elements inside the table in 'myTable' id and also implementing the `addProperLandmarkRegions` function
 const myTable = document.getElementById('myTable');
 

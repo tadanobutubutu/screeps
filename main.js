@@ -329,7 +329,7 @@ function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
-// Implement function for addressing accessibility issues from insight report
+// Integrated REACT_036 changes and merged accessibility fixes
 function addressAccessibilityIssues(document) {
   document = addLangAttribute(document);
   document = fixTableStructure(document);

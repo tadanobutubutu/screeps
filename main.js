@@ -31,3 +31,19 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
+
+// Additional code to fix the React SVG accessible name issue
+const updateSVGAccessibility = () => {
+  // Assuming there is a function to get all SVG elements
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Check if the SVG has a title or aria-hidden attribute
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-hidden')) {
+      // Add an aria-hidden attribute to hide the SVG from screen readers
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+};
+
+// Call the function to update SVG accessibility
+updateSVGAccessibility();

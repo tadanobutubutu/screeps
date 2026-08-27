@@ -47,14 +47,14 @@ function validateReactLandmarks(htmlContent) {
  * @param {array} files - Array of objects with 'path' and 'content' properties
  * @returns {array} - Array of validation results
  */
-function checkAllFilesForLandmarks(files) {
+function validateMultipleFiles(files) {
     if (!Array.isArray(files)) {
         return [];
     }
     
     return files.map(file => ({
         file: file.path,
-        ...validateReactLandmarks(file.content || file.html || '')
+        ...validateReactLandmarks(file.html || file.content || '')
     }));
 }
 
@@ -160,6 +160,14 @@ function addressAccessibilityIssues(issues, options = {}) {
             value: issue.suggestedAria || null,
           };
           break;
+        case 'react-table-structure':
+        case 'missing-th-scope':
+          fix = {
+            action: 'add-th-scope',
+            target: issue.selector || issue.element,
+            value: issue.scopeType || 'col',
+          };
+          break;
         default:
           fix = {
             action: 'manual-review',
@@ -186,6 +194,64 @@ function addressAccessibilityIssues(issues, options = {}) {
   return { addressed, skipped, summary };
 }
 
+/**
+ * Check if HTML content has table headers without scope attributes
+ * @param {string} htmlContent - The HTML content to validate
+ * @returns {Array<Object>} - Array of issues found
+ */
+function validateTableHeaders(htmlContent) {
+    if (!htmlContent || typeof htmlContent !== 'string') {
+        return [];
+    }
+    
+    const issues = [];
+    
+    // Find all <th> tags without scope attribute
+    const thWithoutScopeRegex = /<th(?![^>]*\bscope=)[^>]*>/gi;
+    let match;
+    
+    while ((match = thWithoutScopeRegex.exec(htmlContent)) !== null) {
+        issues.push({
+            rule: 'REACT_027',
+            type: 'react-table-structure',
+            severity: 'warning',
+            message: '<th> has no scope',
+            suggestion: 'Add scope="col" or scope="row" so cells map to their headers',
+            element: match[0],
+            index: match.index,
+        });
+    }
+    
+    return issues;
+}
+
+/**
+ * Apply scope attribute to table header cells
+ * @param {string} htmlContent - The HTML content to modify
+ * @param {Object} options - Options for applying scope
+ * @param {string} options.scopeType - Either 'col' or 'row'
+ * @param {string} options.selector - CSS selector for specific th elements (optional)
+ * @returns {string} - Modified HTML content
+ */
+function applyTableHeaderScope(htmlContent, options = {}) {
+    if (!htmlContent || typeof htmlContent !== 'string') {
+        return htmlContent;
+    }
+    
+    const { scopeType = 'col', selector } = options;
+    
+    if (selector) {
+        // Apply scope only to specific th elements matching selector
+        // This is a simplified approach - full implementation would need DOM parsing
+        return htmlContent;
+    }
+    
+    // Add scope attribute to <th> tags that don't have it
+    return htmlContent.replace(/<th(?![^>]*\bscope=)([^>]*)>/gi, (match, attrs) => {
+        return `<th scope="${scopeType}"${attrs}>`;
+    });
+}
+
 // Function to ensure the element has an id
 function ensureElementHasId(element) {
   if (!element.id) {
@@ -204,8 +270,10 @@ function addAriaLabel(element, labelText) {
 module.exports = {
     hasMainLandmark,
     validateReactLandmarks,
-    checkAllFilesForLandmarks,
+    validateMultipleFiles,
     addressAccessibilityIssues,
     ensureElementHasId,
-    addAriaLabel
+    addAriaLabel,
+    validateTableHeaders,
+    applyTableHeaderScope
 };

@@ -1,4 +1,6 @@
-// TODO: Create or update the affected functions to be accessible
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // Address accessibility issues from insight report:
@@ -26,13 +28,13 @@ const wrapPrimaryContentInMain = (document) => {
   }
 
   // Check if main element already exists with main-content id
-  const existingMain = document.querySelector('#main-content');
+  const existingMain = document.getElementById('main-content');
   if (existingMain) {
     return document;
   }
 
   // Check if any main element exists
-  const anyMain = document.querySelector('[role="main"]');
+  const anyMain = document.querySelector('main');
   if (anyMain) {
     // Add id to existing main element if it doesn't have one
     if (!anyMain.id) {
@@ -82,7 +84,7 @@ const addSkipLink = (document) => {
   skipLink.style.position = 'absolute';
   skipLink.style.top = '-40px';
   skipLink.style.left = '0';
-  skipLink.style.background = '#000';
+  skipLink.style.backgroundColor = '#000';
   skipLink.style.color = '#fff';
   skipLink.style.padding = '8px 16px';
   skipLink.style.zIndex = '10000';
@@ -96,10 +98,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body) {
+  if (document.body.firstChild) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
+    document.body.appendChild(skipLink);
   }
 
   return document;
@@ -164,11 +166,11 @@ const setAccessibleName = (node, accessibleName) => {
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"]`);
+    const elements = document.getElementsByTagName(type);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}-${idSuffix}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -189,7 +191,7 @@ const addLangAttribute = (document) => {
 };
 
 const fixTableStructureIssues = (document) => {
-  const tables = document.querySelectorAll('table');
+  const tables = document.getElementsByTagName('table');
   tables.forEach((table) => {
     if (!table.querySelector('thead')) {
       const firstRow = table.querySelector('tr');
@@ -211,19 +213,19 @@ const fixTableStructureIssues = (document) => {
 
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      Array.from(thead.querySelectorAll('th')).forEach(th => th.setAttribute('scope', 'col'));
     }
 
     const tbodies = table.querySelectorAll('tbody');
     tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+      Array.from(tbody.querySelectorAll('th')).forEach(th => th.setAttribute('scope', 'row'));
     });
   });
   return document;
 };
 
 const addMainLandmark = (document) => {
-  const mains = document.querySelectorAll('[role="main"]');
+  const mains = document.getElementsByTagName('main');
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
@@ -242,7 +244,7 @@ const addMainLandmark = (document) => {
 };
 
 const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.getElementsByTagName('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
     if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
@@ -262,11 +264,11 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"]`);
+    const elements = document.getElementsByTagName(type);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`[id]`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -281,16 +283,3 @@ const ensureUniqueLandmarks = (document) => {
 // ----- END OF ORIGINAL CODE -----
 
 // Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-};

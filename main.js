@@ -1,24 +1,23 @@
-// Assuming main.js imports the React library and uses it to render the application
 import React from 'react';
-import ReactDOM from 'react-dom';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 
-// Existing code and imports
-// ...
+const inter = Inter({ subsets: ['latin'] });
 
-// The existing React component that renders the HTML document
-function App() {
+export const metadata: Metadata = {
+  title: 'Screeps Dashboard',
+  description: 'Screeps Dashboard - Manage and monitor your Screeps AI',
+  icons: { icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>' },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    // Existing JSX code
-    // ...
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
   );
 }
-
-// Function to render the App component into the DOM
-function renderApp() {
-  // Assuming there is an element in the DOM with the id 'root'
-  const rootElement = document.getElementById('root');
-  ReactDOM.render(<App />, rootElement);
-}
-
-// Call the render function on page load
-document.addEventListener('DOMContentLoaded', renderApp);

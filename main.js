@@ -1,3 +1,8 @@
+We need to resolve the conflict. Let's examine the conflict markers:
+
+<<<<<<< HEAD
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+=======
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -121,3 +126,4 @@ function addProperLandmarkRegions() {
 }
 
 addProperLandmarkRegions();
+>>>>

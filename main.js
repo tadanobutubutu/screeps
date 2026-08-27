@@ -44,8 +44,35 @@ function fixFakeLinks() {
 }
 
 // Implement the new function as per the issue requirements
-function implementNewFunction() {
-  // YOUR IMPLEMENTATION GOES HERE
+// REACT_025: Ensure unique <main> landmarks in the DOM.
+// If multiple <main> elements are present (e.g., from conditionally rendered
+// Dashboard states), convert the additional ones to <section> elements so that
+// only a single <main> landmark remains. This preserves semantic content
+// while satisfying the unique-landmark accessibility rule.
+function ensureUniqueMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length <= 1) {
+    return;
+  }
+
+  // Keep the first <main> as the unique landmark; convert the rest to <section>.
+  for (let i = 1; i < mainElements.length; i++) {
+    const extraMain = mainElements[i];
+    const section = document.createElement('section');
+
+    // Copy attributes (id, class, aria-*, data-*) over to the new <section>.
+    for (const attr of Array.from(extraMain.attributes)) {
+      section.setAttribute(attr.name, attr.value);
+    }
+
+    // Move all child nodes into the new <section>.
+    while (extraMain.firstChild) {
+      section.appendChild(extraMain.firstChild);
+    }
+
+    // Replace the duplicate <main> with the <section>.
+    extraMain.parentNode.replaceChild(section, extraMain);
+  }
 }
 
 // Add the new function within the module.exports for calling from another file
@@ -54,5 +81,6 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinks,
   implementNewFunction,
+  ensureUniqueMainLandmark,
   renderGraphContent // original export preserves for calling from another file
 };

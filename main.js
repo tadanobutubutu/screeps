@@ -17,8 +17,6 @@ function addProperLandmarkRegions() {
   // Implement your function logic here
 }
 
-addScopeToTable();
-
 // ... (existing code, imports, and exports — please insert them here)
 
 function someOtherFunction() {

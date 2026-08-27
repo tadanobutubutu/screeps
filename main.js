@@ -31,3 +31,6 @@ module.exports = {
 
 // Call renderGraphContent function from another file
 renderGraphContent(someData);
+
+// Add lang attribute to the root element
+document.documentElement.lang = 'en';

@@ -13,7 +13,7 @@ export function renderDependencyGraph(containerId, dependencies) {
     console.error(`Container with id "${containerId}" not found`);
     return;
   }
-  
+
   const graphHtml = dependencyGraphContent(dependencies);
   container.innerHTML = graphHtml;
   return container;
@@ -25,7 +25,7 @@ export function renderIndexView(containerId, files) {
     console.error(`Container with id "${containerId}" not found`);
     return;
   }
-  
+
   const indexHtml = indexContent(files);
   container.innerHTML = indexHtml;
   return container;
@@ -38,3 +38,16 @@ export function initializeApp() {
 export function getAppVersion() {
   return '1.0.0';
 }
+
+// New function added from the incoming branch
+function newFunction() {
+  // Implement your new function here...
+}
+
+// Main entry point
+function main() {
+  // Implement main functionality here...
+  console.log('Running main entry point');
+}
+
+export { main, newFunction };

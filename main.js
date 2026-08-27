@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
+// Add new functions as per issue report
 
 const { renderGraphContent } = require('./graphRenderer');
 
@@ -21,10 +22,21 @@ function fixFakeLinks() {
   // This function is to be added as per the issue report.
 }
 
-// Export renderDependencyGraphContent, ensureUniqueLandmarks, and fixFakeLinks functions
+// NEW FUNCTION: Replace the existing accessibility role of the dependencyGraph container (if required)
+function setAccessibilityRole() {
+  // If the dependencyGraph div doesn't have an ARIA role, add 'tree' role for proper accessibility.
+  const dependencyGraph = document.getElementById('dependencyGraph');
+
+  if (!dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'tree');
+  }
+}
+
+// Export renderDependencyGraphContent, ensureUniqueLandmarks, fixFakeLinks, and setAccessibilityRole functions
 module.exports = {
   renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
+  setAccessibilityRole,
   renderGraphContent // original export preserves for calling from another file
 };

@@ -92,7 +92,7 @@ const a11yStore = {
   },
 
   // Setup keyboard navigation for interactive elements
-  setupKeyboardNavigation(e) {
+  setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
       if (e.key === 'Enter' || e.key === ' ') {
@@ -280,3 +280,118 @@ const a11yStore = {
         case 'missing-alt':
           document.querySelectorAll('img').forEach(img => {
             if (!img.getAttribute('alt')) {
+              const imgId = `img-desc-${Date.now() * 1000}`;
+              const descriptionId = `img-desc-text-${Date.now() * 1000}`;
+
+              img.setAttribute('alt', 'Image description');
+              img.setAttribute('aria-describedby', descriptionId);
+
+              const descriptionElement = document.createElement('span');
+              descriptionElement.id = descriptionId;
+              descriptionElement.className = 'sr-only';
+              descriptionElement.textContent = 'Image description';
+              img.parentNode.insertBefore(descriptionElement, img.nextSibling);
+            }
+          });
+          break;
+        case 'missing-aria-label':
+          document.querySelectorAll(issue.selector).forEach(el => {
+            if (!el.getAttribute('aria-label')) {
+              el.setAttribute('aria-label', issue.label || 'Interactive element');
+            }
+          });
+          break;
+        case 'missing-role':
+          document.querySelectorAll(issue.selector).forEach(el => {
+            if (!el.getAttribute('role')) {
+              el.setAttribute('role', issue.role);
+            }
+          });
+          break;
+        default:
+          // Unknown issue type, log for debugging
+          console.warn('Unknown accessibility issue type:', issue.type);
+          break;
+      }
+    });
+  },
+
+  // Observe DOM changes for dynamic content
+  enhanceDynamicContent() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              // Re-apply accessibility fixes to new elements
+              this.checkLandmarkElements();
+              this.addSVGAccessibilityProps();
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  },
+
+  // Setup focus visible polyfill for older browsers
+  setupFocusVisiblePolyfill() {
+    // Add data-focus-visible attribute when focused via keyboard
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        document.body.classList.add('keyboard-navigation');
+      }
+    });
+
+    document.addEventListener('mousedown', () => {
+      document.body.classList.remove('keyboard-navigation');
+    });
+  },
+
+  // Add focus visibility styles
+  addFocusVisibilityStyles() {
+    if (document.getElementById('a11y-focus-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'a11y-focus-styles';
+    style.textContent = `
+      .keyboard-navigation *:focus {
+        outline: 2px solid #0066cc !important;
+        outline-offset: 2px !important;
+      }
+      
+      .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+      
+      .skip-link:focus {
+        top: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  },
+
+  // Handle live region updates
+  handleLiveRegionUpdate(liveRegion) {
+    if (liveRegion && liveRegion.textContent) {
+      this.announce(liveRegion.textContent, liveRegion.getAttribute('aria-live') || 'polite');
+    }
+  }
+};
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { a11yStore, getSvgAccessibleName };
+}

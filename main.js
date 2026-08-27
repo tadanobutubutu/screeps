@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ... existing code ...
 // Import helper functions for accessibility and focus-trap, react-transition-group modules
 const accessibilityHelpers = require('./accessibility-helpers');
 const domHelpers = require('./dom-helpers');
@@ -35,12 +37,14 @@ function addressAccessibilityIssues(role = 'banner') {
     wrapper.style.zIndex = options.zIndex || 9999;
     wrapper.style.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0.5)';
 
+    let trap = null;
+
     const trappedElement = React.createElement(
       'div',
       {
         ref: el => {
           if (el) {
-            const trap = new FocusTrap(el, {
+            trap = new FocusTrap(el, {
               escapeDeactivates: options.escapeDeactivates !== false,
               returnFocusOnDeactivate: true,
               ...options.focusTrapOptions

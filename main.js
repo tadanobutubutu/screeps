@@ -58,6 +58,15 @@ function isLinkAccessible(link) {
 }
 
 /**
+ * Function to format a date into a locale-friendly string.
+ * @param {Date|string|number} date - The date to format
+ * @returns {string} The formatted date string
+ */
+function formatDate(date) {
+  return new Date(date).toLocaleDateString();
+}
+
+/**
  * Checks if a button has appropriate accessibility attributes.
  * @param {HTMLElement} button - The button element to check
  * @returns {boolean} True if the button is accessible, false otherwise
@@ -372,5 +381,6 @@ module.exports = {
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  formatDate
 };

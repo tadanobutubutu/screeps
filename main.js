@@ -17,8 +17,16 @@ function ensureUniqueLandmarks() {
 
 // Fix fake link issue
 function fixFakeLinks() {
-  // Implementation for fixing fake link issues goes here.
-  // This function is to be added as per the issue report.
+  // Find all anchor tags with an empty href attribute
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  
+  // Replace them with button elements to provide proper keyboard and screen reader behavior
+  fakeLinks.forEach(link => {
+    const button = document.createElement('button');
+    button.innerHTML = link.innerHTML;
+    button.setAttribute('aria-label', link.getAttribute('aria-label') || 'Button');
+    link.parentNode.replaceChild(button, link);
+  });
 }
 
 // Export renderDependencyGraphContent, ensureUniqueLandmarks, and fixFakeLinks functions

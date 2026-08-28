@@ -9,8 +9,62 @@
 //_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
-module.exports = {
+// Main game logic for Screeps
+
+const main = {
   loop: function() {
-    // Main game loop
+    // Game loop
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      const controller = room.controller;
+      if (controller && controller.my) {
+        this.manageRoom(room);
+      }
+    }
+    
+    // TODO: Implement harvest and upgrade logic
+    
+    // TODO: Implement tower defense
+    
+    // TODO: Implement spawning logic
+  },
+  
+  manageRoom: function(room) {
+    // Room management
+    const sources = room.find(FIND_SOURCES);
+    const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+    
+    if (hostileCreeps.length > 0) {
+      this.defendRoom(room, hostileCreeps);
+    }
+  },
+  
+  defendRoom: function(room, hostiles) {
+    const towers = room.find(FIND_MY_STRUCTURES, {
+      filter: { structureType: STRUCTURE_TOWER }
+    });
+    
+    towers.forEach(tower => {
+      tower.attack(hostiles[0]);
+    });
+  },
+  
+  harvest: function(creep) {
+    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    if (target) {
+      if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target);
+      }
+    }
+  },
+  
+  upgrade: function(creep) {
+    if (creep.room.controller) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
+      }
+    }
   }
 };
+
+module.exports = main;

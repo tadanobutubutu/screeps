@@ -5,9 +5,9 @@
 // Before:
 // <a id="unrotate" href="#">rotate back</a>
 
-// After:
 // Replace the <a> tag with a <button> element
-// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
+// Ensure it's accessible and can be interacted with using the keyboard
+// <button id="unrotate" role="button" aria-label="rotate back" aria-aguide="true" tabindex="0" onfocus="this.blur()" onclick="rotateBack()">rotate back</button>
 
 // ... (other code in main.js)
 
@@ -20,5 +20,14 @@ function rotateBack() {
 // ... (other code in main.js)
 
 // Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
+// Ensure that all interactive elements have appropriate keyboard support (table of contents example)
+// <ul id="table-of-contents">
+//   <li id="header-1" tabindex="0">Header 1</li>
+//   <li id="header-2" tabindex="0">Header 2</li>
+//   ...
+// </ul>
+
+// Check that ARIA attributes are correctly paired and have appropriate values (example with a graph container)
+// <div id="graph-container" role="region" aria-labelledby="graph-title">
+//   <h1 id="graph-title">Dependency Graph</h1>
+// </div>

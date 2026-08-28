@@ -358,13 +358,108 @@ function isLinkAccessible(link) {
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
+// Accessibility functions from origin/main
+function addLangAttribute(document, lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+  return document;
+}
+
+function fixTableStructure(document) {
+  // Placeholder for table structure fixing logic
+  return document;
+}
+
+function addMainLandmark(document) {
+  if (typeof document !== 'undefined') {
+    wrapPrimaryContentInMain();
+  }
+  return document;
+}
+
+function ensureUniqueLandmarks(document) {
+  // Placeholder for ensuring unique landmarks
+  return document;
+}
+
+function fixImageAltTexts(document) {
+  // Placeholder for fixing image alt texts
+  return document;
+}
+
+function addAccessibleNamesToSVGs(document) {
+  if (typeof document !== 'undefined') {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        setSvgAttributes([svg]);
+      }
+    });
+  }
+  return document;
+}
+
+function setSvgAttributes(svgs) {
+  // This function is expected to be available from accessibilityHelperFunctions
+  // but if not, we provide a fallback implementation
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', 'SVG image');
+    }
+  });
+}
+
+function fixFakeLinkIssue(document) {
+  // Placeholder for fixing fake link issue
+  return document;
+}
+
+function fixLandmarkIssues(document) {
+  if (typeof document !== 'undefined') {
+    addProperLandmarkRegions();
+  }
+  return document;
+}
+
+function addLandmarkRegions(document) {
+  if (typeof document !== 'undefined') {
+    addProperLandmarkRegions();
+  }
+  return document;
+}
+
+function uniqueLandmarks(document) {
+  return ensureUniqueLandmarks(document);
+}
+
+function addressAccessibilityIssuesDocument(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  return document;
+}
+
 // a11yStore mock for accessibility feature initialization
 const a11yStore = {
   init: () => {},
   addressAccessibilityIssues: (report) => {
     if (!report) return;
     if (report.landmarks) addProperLandmarkRegions();
-  }
+  },
+  announce: (message, priority) => {},
+  getSvgAccessibleName: (svg) => {
+    // Fallback implementation
+    return svg.getAttribute('aria-label') || 'SVG element';
+  },
+  setSvgAttributes: setSvgAttributes
 };
 
 // Initialize accessibility features
@@ -408,5 +503,17 @@ module.exports = {
     validateTableStructure,
     updateThScopeAttribute,
     renderIndexView,
-    a11yStore
+    a11yStore,
+    addLangAttribute,
+    fixTableStructure,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    fixImageAltTexts,
+    addAccessibleNamesToSVGs,
+    fixFakeLinkIssue,
+    fixLandmarkIssues,
+    addLandmarkRegions,
+    uniqueLandmarks,
+    addressAccessibilityIssuesDocument,
+    setSvgAttributes
 };

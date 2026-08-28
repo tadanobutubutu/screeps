@@ -94,6 +94,12 @@ function handleRoomLogic(room) {
     const roomName = room.roomName;
     const spawn = ...
 
+    // Check for hostile creeps and defend if necessary
+    const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+    if (hostileCreeps.length > 0) {
+        defendRoom(room, hostileCreeps);
+    }
+
     // Spawn creeps based on roles
     if (spawn && spawn.isActive()) {
         manageSpawning(room, spawn);
@@ -101,6 +107,21 @@ function handleRoomLogic(room) {
 
     // Run all creep logic
     runCreeps(roomName);
+}
+
+/**
+ * Defend room against hostile creeps using towers.
+ * @param {Room} room - The room to defend.
+ * @param {Creep[]} hostiles - Array of hostile creeps in the room.
+ */
+function defendRoom(room, hostiles) {
+    const towers = room.find(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_TOWER }
+    });
+    
+    towers.forEach(tower => {
+        tower.attack(hostiles[0]);
+    });
 }
 
 /**

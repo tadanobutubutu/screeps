@@ -31,6 +31,19 @@ function addMainLandmark(reactRoot) {
   reactRoot.appendChild(mainLandmark);
 }
 
+// New function to create an in-page button
+function createInPageButton(text, id, className) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (id) {
+    button.id = id;
+  }
+  if (className) {
+    button.className = className;
+  }
+  return button;
+}
+
 // Assume YouHaveComponent is the component that needs ARIA roles and keyboard interaction
 
 function YouHaveComponent() {
@@ -53,7 +66,8 @@ module.exports = {
   calculateSum,
   addLangAttribute,
   fixTableStructure,
-  addMainLandmark
+  addMainLandmark,
+  createInPageButton
 };
 
 // React-specific exports

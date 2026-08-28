@@ -1,14 +1,10 @@
 // main.js
-
-// TODO: Add back any required exports that might have been removed
-const { myFunction } = require('./otherFile'); // Assuming this is the missing export
-
-export { myFunction };
-
-// Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 const fs = require('fs');
 const path = require('path');
+
+// Import otherFile's myFunction as required export
+const { myFunction } = require('./otherFile');
 
 // Import accessibility helper functions
 const {
@@ -72,16 +68,12 @@ function addLandmarkRegions() {
   }
 }
 
-// Export the function
-// Note: Using module.exports instead of ES6 export for CommonJS compatibility
-module.exports.addLandmarkRegions = addLandmarkRegions;
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+// Ensure the <html> element has a lang attribute for accessibility
 if (!document.documentElement.lang) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
-// Wrap the entire document content inside a <main> element and set its lang attribute
+// Wrap the entire document content inside a <main> element
 const mainElement = document.createElement('main');
 document.documentElement.setAttribute('lang', 'en');
 document.body.appendChild(mainElement);
@@ -99,7 +91,7 @@ function run() {
       updateThScopeAttribute(filePath);
     });
 
-  // Additional logic to add landmark regions (if required)
+  // Additional logic to add landmark regions
   addLandmarkRegions();
 }
 
@@ -113,8 +105,7 @@ Module.onInit = function() {
   setInterval(run, 1000);
 };
 
-// Game-related functions and exports
-
+// Game-related functions
 function main() {
   return 'Hello World';
 }
@@ -135,7 +126,7 @@ module.exports = {
   SomeClass,
   someUtility,
   config,
-  countDependencies,
+  countDependencies: a11yStore.countDependencies,
   getLangAttribute,
   getFullLangAttribute,
   validateTableAccessibility,
@@ -146,5 +137,8 @@ module.exports = {
   createAccessibleLink,
   a11yStore,
   mainElement,
-  addLandmarkRegions
+  addLandmarkRegions,
+  myFunction,
+  initializeApp,
+  calculateSum
 };

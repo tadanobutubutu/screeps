@@ -12,14 +12,19 @@ StructureSpawn.prototype.createCustomCreep =
         }
         
         if (body.length > 0) {
-            return this.createCreep(body, undefined, { role: roleName });
+            return this.spawning.createCreep(body, undefined, { role: roleName });
         }
         return ERR_NOT_ENOUGH_RESOURCES;
     };
 
 module.exports.loop = function() {
-    var tower = Game.getObjectById('TOWER_ID');
-    if (tower) {
+    var towers = _.filter(Game.structures, function(structure) {
+        return structure.structureType === STRUCTURE_TOWER;
+    });
+    
+    for (var i = 0; i < towers.length; i++) {
+        var tower = towers[i];
+        
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: function(structure) {
                 return structure.hits < structure.hitsMax;

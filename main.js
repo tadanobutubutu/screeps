@@ -28,10 +28,12 @@ function initialize() {
 }
 
 function getConfig() {
+  console.log('Returning configuration:', CONFIG);
   return CONFIG;
 }
 
 function getVersion() {
+  console.log('Returning version:', VERSION);
   return VERSION;
 }
 

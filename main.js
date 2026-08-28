@@ -302,4 +302,13 @@ function checkLandmarkElements() {
   // Mapping of semantic HTML tags to their landmark roles
   const semanticToLandmark = {
     'main': 'main',
-    'nav
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  return results;
+}

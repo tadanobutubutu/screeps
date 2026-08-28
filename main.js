@@ -133,39 +133,6 @@ export function isValidLink(element) {
   return { valid: true };
 }
 
-// REACT_027: Add scope to table headers
-export function addScopeToHeaders(tableElement) {
-  if (!tableElement) return [];
-
-  const headers = tableElement.querySelectorAll('th');
-  const updates = [];
-
-  headers.forEach((th) => {
-    const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.children).indexOf(th);
-
-    // Determine if scope should be 'col' or 'row'
-    let scope = 'col';
-
-    // Check if it's a row header (first cell in a row that's not the first row)
-    if (cellIndex === 0 && rowIndex > 0) {
-      scope = 'row';
-    }
-
-    if (!th.getAttribute('scope')) {
-      th.setAttribute('scope', scope);
-      updates.push({
-        element: th,
-        scope: scope,
-        position: { row: rowIndex, col: cellIndex }
-      });
-    }
-  });
-
-  return updates;
-}
-
 // Accessibility issue addressing functions
 function addressAccessibilityIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
@@ -282,4 +249,19 @@ export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFo
 
 const container = document.getElementById('root');
 const root = createRoot(container);
-root.render(<App />);
+root.render(<App />); 
+
+// Screeps game loop implementation
+module.exports.loop = function() {
+    var tower = Game.getObjectById('tower');
+    if (tower) {
+        var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+            filter: function(structure) {
+                return structure.hits < structure.hitsMax;
+            }
+        });
+        if (closestDamagedStructure) {
+            tower.repair(closestDamagedStructure);
+        }
+    }
+};

@@ -32,7 +32,7 @@ export function announceToScreenReader(message, priority = 'polite') {
 // Focus management
 export function trapFocus(element) {
     const focusableElements = element.querySelectorAll(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -70,11 +70,11 @@ export function meetsContrastRequirements(foreground, background, level = 'AA') 
 
 // Skip link functionality
 export function initSkipLinks() {
-    const skipLink = document.querySelector('[href="#main-content"]');
+    const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
         skipLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const target = document.getElementById('main-content') || document.querySelector('main');
+            const target = document.querySelector(skipLink.getAttribute('href')) || document.getElementById('main-content');
             if (target) {
                 target.setAttribute('tabindex', '-1');
                 target.focus();
@@ -83,10 +83,18 @@ export function initSkipLinks() {
     }
 }
 
+// REACT_015: Add lang attribute to HTML element
+export function addLangAttribute(lang = 'en') {
+    const html = document.documentElement;
+    if (html && !html.hasAttribute('lang')) {
+        html.setAttribute('lang', lang);
+    }
+}
+
 // Initialize accessibility features
 export function initAccessibility() {
     initSkipLinks();
-    document.body.classList.add('accessibility-ready');
+    addLangAttribute();
 }
 
 // Export version for compatibility
@@ -94,7 +102,7 @@ export const VERSION = '1.0.0';
 export { announceToScreenReader as ariaAnnounce };
 
 // Accessibility improvement: Replace non-interactive link with button for proper keyboard and screen reader support
-document.getElementById('unrotate').addEventListener('click', function() {
+document.querySelector('.rotate-back-button')?.addEventListener('click', function() {
     // Assuming some functionality to reverse rotation
     alert('Rotated back!');
 });

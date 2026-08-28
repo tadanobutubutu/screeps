@@ -85,8 +85,6 @@ ensureElementHasId(myElement);
 // Add aria-label to the element ( common changes )
 addAriaLabel(myElement, 'A descriptive text for myElement');
 
-// ADD THE NEW FUNCTION HERE
-
 /**
  * Address accessibility issues from the insight report
  * Applies all relevant accessibility fixes to the document
@@ -139,7 +137,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
 
   // Add ARIA to form controls
   const inputs = doc.querySelectorAll('input, select, textarea');
-  inputs.forEach((input) => {
+  inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
       input.id = `input-${index}`;
       summary.formControlsFixed++;
@@ -173,8 +171,8 @@ function wrapPrimaryContentInMain(doc) {
   main.className = 'main';
   main.setAttribute('role', 'main');
   
-  if (primaryContent) {
-    parentNode.insertBefore(main, primaryContent);
+  if (primaryContent && primaryContent.parentNode) {
+    primaryContent.parentNode.insertBefore(main, primaryContent);
     main.appendChild(primaryContent);
   }
 }
@@ -410,4 +408,3 @@ module.exports = {
   renderDependencyGraph,
   resolveConflicts
 };
-}

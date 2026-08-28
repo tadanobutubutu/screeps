@@ -13,6 +13,8 @@
 
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
+
+// Added: The requested function
 function rotateBack() {
   // Your code to rotate back
 }

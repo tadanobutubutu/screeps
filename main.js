@@ -46,4 +46,5 @@ module.exports = {
     ensureUniqueLandmarkId,
     uniqueLandmarks,
     newFunction,
+    // Preserve any other existing exports here
 };

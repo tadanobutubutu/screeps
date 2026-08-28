@@ -19,5 +19,9 @@ function initDependencyGraph(containerId) {
 
 module.exports = {
   helloWorld,
-  initDependencyGraph
+  initDependencyGraph,
+  default: {
+    helloWorld,
+    initDependencyGraph
+  }
 };

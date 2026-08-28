@@ -31,7 +31,12 @@ function getSvgAccessibleName(svgElement) {
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  // (code for setSvgAccessibilityProps remains the same)
+  if (!svgElement) return;
+  
+  const accessibleName = getSvgAccessibleName(svgElement);
+  if (accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
+  }
 }
 
 /**
@@ -40,7 +45,14 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
-  // (code for isLinkAccessible remains the same)
+  if (!link) return false;
+  
+  const hasFocusable = link.hasAttribute('tabindex') || link.tagName === 'A';
+  const hasAccessibleName = link.hasAttribute('aria-label') || 
+                            link.hasAttribute('aria-labelledby') ||
+                            link.textContent.trim().length > 0;
+  
+  return hasFocusable && hasAccessibleName;
 }
 
 /**
@@ -49,7 +61,14 @@ function isLinkAccessible(link) {
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {
-  // (code for isButtonAccessible remains the same)
+  if (!button) return false;
+  
+  const hasRole = button.hasAttribute('role') || button.tagName === 'BUTTON';
+  const hasAccessibleName = button.hasAttribute('aria-label') || 
+                            button.hasAttribute('aria-labelledby') ||
+                            button.textContent.trim().length > 0;
+  
+  return hasRole && hasAccessibleName;
 }
 
 /**
@@ -58,7 +77,35 @@ function isButtonAccessible(button) {
  * @returns {Object} An object containing accessibility check results
  */
 function checkAccessibility(container = document) {
-  // (code for checkAccessibility remains the same)
+  const results = {
+    issues: [],
+    links: [],
+    buttons: []
+  };
+  
+  if (typeof container === 'undefined' || container === null) {
+    return results;
+  }
+  
+  const links = container.querySelectorAll('a, button, [role="link"], [role="button"]');
+  links.forEach(link => {
+    if (link.tagName === 'A' || link.hasAttribute('role') && link.getAttribute('role') === 'link') {
+      if (!isLinkAccessible(link)) {
+        results.issues.push({ type: 'inaccessible-link', element: link });
+      }
+      results.links.push(link);
+    }
+  });
+  
+  const buttons = container.querySelectorAll('button, [role="button"]');
+  buttons.forEach(button => {
+    if (!isButtonAccessible(button)) {
+      results.issues.push({ type: 'inaccessible-button', element: button });
+    }
+    results.buttons.push(button);
+  });
+  
+  return results;
 }
 
 /**
@@ -67,7 +114,14 @@ function checkAccessibility(container = document) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  if (!element) return;
+  
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const isValidRole = landmarkRoles.includes(role);
+  
+  if (isValidRole && !element.hasAttribute('role')) {
+    element.setAttribute('role', role);
+  }
 }
 
 /**
@@ -76,7 +130,24 @@ function checkLandmarkElement(role, element) {
  * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
  */
 function wrapPrimaryContentInMain() {
-  // (code for wrapPrimaryContentInMain remains the same)
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
+  }
+  
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  const main = document.createElement('main');
+  const bodyChildren = Array.from(document.body.children);
+  
+  bodyChildren.forEach(child => {
+    main.appendChild(child);
+  });
+  
+  document.body.appendChild(main);
+  return main;
 }
 
 /**
@@ -85,7 +156,39 @@ function wrapPrimaryContentInMain() {
  * @returns {Object} An object containing landmark accessibility check results
  */
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const results = {
+    issues: [],
+    landmarks: []
+  };
+  
+  if (typeof container === 'undefined' || container === null) {
+    return results;
+  }
+  
+  const landmarkSelectors = [
+    'header[role="banner"]',
+    'nav[role="navigation"]',
+    'main[role="main"]',
+    'aside[role="complementary"]',
+    'footer[role="contentinfo"]',
+    '[role="search"]',
+    '[role="form"]',
+    '[role="application"]'
+  ];
+  
+  const allLandmarks = container.querySelectorAll(landmarkSelectors.join(', '));
+  const mainLandmark = container.querySelector('main, [role="main"]');
+  
+  if (mainLandmark) {
+    results.landmarks.push(mainLandmark);
+    if (!mainLandmark.hasAttribute('aria-label') && !mainLandmark.hasAttribute('aria-labelledby')) {
+      mainLandmark.setAttribute('aria-label', 'Main content');
+    }
+  } else {
+    results.issues.push({ type: 'missing-main-landmark', element: null });
+  }
+  
+  return results;
 }
 
 /**
@@ -152,7 +255,205 @@ function addLangAttribute() {
  * @returns {NodeList} NodeList of fixed tables
  */
 function fixTableStructureIssues(container = document) {
-  // (code for fixTableStructureIssues remains the same)
+  if (typeof container === 'undefined' || container === null) {
+    return document.querySelectorAll('table');
+  }
+  
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const hasCaption = table.querySelector('caption');
+    if (!hasCaption) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    const hasThead = table.querySelector('thead');
+    if (!hasThead) {
+      const thead = document.createElement('thead');
+      const rows = table.querySelectorAll('tr');
+      if (rows.length > 0) {
+        thead.appendChild(rows[0]);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+  });
+  
+  return tables;
+}
+
+/**
+ * Adds accessible names to all SVG elements in the container.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of SVG elements that were processed
+ */
+function addSvgAccessibleNames(container = document) {
+  if (typeof container === 'undefined' || container === null) {
+    container = document;
+  }
+  
+  const svgs = container.querySelectorAll('svg');
+  const processed = [];
+  
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title && title.textContent) {
+        svg.setAttribute('aria-label', title.textContent.trim());
+        processed.push(svg);
+      }
+    }
+  });
+  
+  return processed;
+}
+
+/**
+ * Ensures unique landmark roles in the document.
+ * @param {HTMLElement} [container=document] - The container to check
+ * @returns {Array} Array of landmark elements that were modified
+ */
+function ensureUniqueLandmarks(container = document) {
+  if (typeof container === 'undefined' || container === null) {
+    container = document;
+  }
+  
+  const mainCount = container.querySelectorAll('[role="main"], main').length;
+  if (mainCount > 1) {
+    const mains = container.querySelectorAll('[role="main"], main');
+    for (let i = 1; i < mains.length; i++) {
+      const main = mains[i];
+      main.removeAttribute('role');
+      main.setAttribute('aria-roledescription', 'complementary');
+    }
+  }
+  
+  return [];
+}
+
+/**
+ * Fixes fake link issues by converting divs/spans with click handlers to actual links.
+ * @param {HTMLElement} [container=document] - The container to check
+ * @returns {Array} Array of elements that were converted
+ */
+function fixFakeLinkIssue(container = document) {
+  if (typeof container === 'undefined' || container === null) {
+    container = document;
+  }
+  
+  const fakeLinks = container.querySelectorAll('div[role="link"], span[role="link"], div[onclick], span[onclick]');
+  const fixed = [];
+  
+  fakeLinks.forEach(el => {
+    if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
+      const a = document.createElement('a');
+      const href = el.getAttribute('href') || '#';
+      a.setAttribute('href', href);
+      a.setAttribute('role', 'link');
+      
+      if (el.getAttribute('onclick')) {
+        a.setAttribute('onclick', el.getAttribute('onclick'));
+      }
+      
+      a.textContent = el.textContent;
+      a.setAttribute('aria-label', el.getAttribute('aria-label') || el.textContent);
+      
+      el.parentNode.replaceChild(a, el);
+      fixed.push(a);
+    }
+  });
+  
+  return fixed;
+}
+
+/**
+ * Adds a main landmark element if one doesn't exist.
+ * @param {HTMLElement} [container=document] - The container to modify
+ * @returns {HTMLElement|null} The main element or null
+ */
+function addMainLandmark(container = document) {
+  if (typeof container === 'undefined' || container === null) {
+    container = document;
+  }
+  
+  const existingMain = container.querySelector('main, [role="main"]');
+  if (existingMain) {
+    return existingMain;
+  }
+  
+  const main = document.createElement('main');
+  const bodyChildren = Array.from(container.body ? container.body.children : document.body.children);
+  
+  bodyChildren.forEach(child => {
+    main.appendChild(child);
+  });
+  
+  if (container.body) {
+    container.body.appendChild(main);
+  } else {
+    document.body.appendChild(main);
+  }
+  
+  return main;
+}
+
+/**
+ * Adds accessible names to all form elements in the document.
+ * @returns {Array} Array of processed form elements
+ */
+function setFormElementAccessibleNames() {
+  const formElements = [];
+  const inputs = document.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach(input => {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      const name = input.getAttribute('name');
+      const id = input.getAttribute('id');
+      const placeholder = input.getAttribute('placeholder');
+      
+      if (name) {
+        input.setAttribute('aria-label', name);
+        formElements.push(input);
+      } else if (id) {
+        input.setAttribute('aria-label', id.replace(/[^a-zA-Z]/g, ' '));
+        formElements.push(input);
+      } else if (placeholder) {
+        input.setAttribute('aria-label', placeholder);
+        formElements.push(input);
+      }
+    }
+  });
+  
+  return formElements;
+}
+
+/**
+ * Adds a11y attributes to interactive elements to ensure they are keyboard accessible.
+ * @returns {Array} Array of elements with added attributes
+ */
+function addA11yAttributesToInteractiveElements() {
+  const interactiveElements = [];
+  const interactive = document.querySelectorAll('[tabindex], button, a, input, select, textarea, [role="button"], [role="link"]');
+  
+  interactive.forEach(el => {
+    if (!el.hasAttribute('tabindex') && ['button', 'a', 'input', 'select', 'textarea'].includes(el.tagName.toLowerCase())) {
+      el.setAttribute('tabindex', '0');
+      interactiveElements.push(el);
+    }
+  });
+  
+  return interactiveElements;
+}
+
+/**
+ * Checks if an element has missing ARIA properties.
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} True if the element is missing required ARIA properties, false otherwise
+ */
+function hasMissingAriaProperties(element) {
+  const requiredAriaProps = ['role', 'aria-label', 'aria-labelledby', 'tabindex'];
+  
+  return !requiredAriaProps.every(prop => element.hasAttribute(prop));
 }
 
 /**
@@ -335,10 +636,32 @@ function hasMissingAriaProperties(element) {
 
 /**
  * Adds accessible names to all form elements in the document.
- * @returns {NodeList} NodeList of processed form elements
+ * @returns {Array} Array of processed form elements
  */
 function setFormElementAccessibleNames() {
-  // (existing code for setFormElementAccessibleNames remains the same)
+  const formElements = [];
+  const inputs = document.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach(input => {
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      const name = input.getAttribute('name');
+      const id = input.getAttribute('id');
+      const placeholder = input.getAttribute('placeholder');
+      
+      if (name) {
+        input.setAttribute('aria-label', name);
+        formElements.push(input);
+      } else if (id) {
+        input.setAttribute('aria-label', id.replace(/[^a-zA-Z]/g, ' '));
+        formElements.push(input);
+      } else if (placeholder) {
+        input.setAttribute('aria-label', placeholder);
+        formElements.push(input);
+      }
+    }
+  });
+  
+  return formElements;
 }
 
 /**
@@ -346,7 +669,17 @@ function setFormElementAccessibleNames() {
  * @returns {Array} Array of elements with added attributes
  */
 function addA11yAttributesToInteractiveElements() {
-  // (existing code for addA11yAttributesToInteractiveElements remains the same)
+  const interactiveElements = [];
+  const interactive = document.querySelectorAll('[tabindex], button, a, input, select, textarea, [role="button"], [role="link"]');
+  
+  interactive.forEach(el => {
+    if (!el.hasAttribute('tabindex') && ['button', 'a', 'input', 'select', 'textarea'].includes(el.tagName.toLowerCase())) {
+      el.setAttribute('tabindex', '0');
+      interactiveElements.push(el);
+    }
+  });
+  
+  return interactiveElements;
 }
 
 // Make functions accessible globally for browser usage

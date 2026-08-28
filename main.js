@@ -1,9 +1,25 @@
-//... existing code
+// main.js
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// Import required module(s) - for fixing table structure issues
+import * as domutils from 'domutils';
 
-//... existing code
+export function processTable(tableElement) {
+  const rows = [];
+  
+  function traverse(node) {
+    if (node.type === 'tag' && node.name === 'tr') {
+      const cells = domutils.getElementsByTagName('td', node);
+      const rowData = cells.map(cell => domutils.textContent(cell));
+      rows.push(rowData);
+    }
+    if (node.children) {
+      node.children.forEach(traverse);
+    }
+  }
+  
+  traverse(tableElement);
+  return rows;
+}
 
 // Imports at the top of the file
 const { utility1, utility2 } = require('./utils');
@@ -296,33 +312,31 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
   return ensureUniqueLandmarks(landmarks);
 }
 
-// Render home page
-function renderHomePage(data) {
-  // Render home page
-  const formattedData = formatData(data);
-  const processedValues = processValues(formattedData);
-  return `<div>${processedValues}</div>`;
+// Export the main function and other exported functions
+export function formatTableRow(rowData, columnWidths) {
+  return rowData.map((cell, i) => {
+    const width = columnWidths[i] || 10;
+    return String(cell).padEnd(width);
+  }).join(' | ');
 }
 
-// Render user profile
-function renderUserProfile(user) {
-  // Render user profile
-  const formattedUser = formatData(user);
-  return `<profile>${formattedUser.name}</profile>`;
+export function generateTableMarkdown(headers, rows) {
+  const columnWidths = headers.map((h, i) => {
+    const maxContentWidth = rows.reduce((max, row) => {
+      return Math.max(max, String(row[i] || '').length);
+    }, 0);
+    return Math.max(h.length, maxContentWidth);
+  });
+  
+  const headerRow = formatTableRow(headers, columnWidths);
+  const separator = columnWidths.map(w => '-'.repeat(w)).join('-+-');
+  const dataRows = rows.map(row => formatTableRow(row, columnWidths));
+  
+  return `${headerRow}\n${separator}\n${dataRows.join('\n')}`;
 }
 
-// Render dashboard
-function renderDashboard(stats) {
-  // Render dashboard
-  const processed = processValues(stats);
-  const formatted = utility1(processed);
-  return `<dashboard>${formatted}</dashboard>`;
-}
-
-// Render settings
-function renderSettings(config) {
-  // Render settings
-  return `<settings>${config.name}</settings>`;
+export function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
 }
 
 module.exports = {

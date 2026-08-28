@@ -34,6 +34,36 @@ function App() {
   );
 }
 
+// Utility functions
+function multiply(a, b) {
+  return a * b;
+}
+
+function add(a, b) {
+  return a + b;
+}
+
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Cannot divide by zero');
+  }
+  return a / b;
+}
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function renderDependencyGraph(modules) {
+  console.log('Rendering dependency graph for modules:', modules);
+  return {};
+}
+
+function displayModuleStructure(modules) {
+  console.log('Displaying module structure for modules:', modules);
+  return {};
+}
+
 // Existing utility function
 export function anotherFunction() {
   // More existing functionality
@@ -41,7 +71,6 @@ export function anotherFunction() {
 
 // Screeps loop logic
 function loop() {
-  // Resolve merged bot logic for Screeps
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
@@ -58,16 +87,33 @@ function loop() {
 // Export for Screeps (CommonJS) and for ES modules
 if (typeof module !== 'undefined' && module.exports) {
   // Node/Screeps environment
-  module.exports.loop = loop;
+  module.exports = {
+    multiply,
+    add,
+    divide,
+    greet,
+    renderDependencyGraph,
+    displayModuleStructure,
+    loop,
+    anotherFunction,
+    App
+  };
 } else {
   // ES module environment
-  export { loop };
+  export { 
+    multiply, 
+    add, 
+    divide, 
+    greet, 
+    renderDependencyGraph, 
+    displayModuleStructure, 
+    loop,
+    anotherFunction 
+  };
+  export default App;
 }
 
 // Render UI in browser
 if (typeof window !== 'undefined') {
   ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 }
-
-// Default export for other usages
-export default App;

@@ -14,6 +14,11 @@
 // 4. Add appropriate roles where needed
 // 5. Ensure color contrast meets WCAG guidelines
 
+// Function to calculate the index of an item in an array based on its id ( new functionality )
+const findIndex = (array, id) => {
+  return array.findIndex((item) => item.id === id);
+};
+
 // Example accessibility improvements:
 // - Buttons should have descriptive text or aria-label
 // - Images should have alt text
@@ -387,6 +392,75 @@ function createInPageButton(text, doc) {
   button.textContent = text;
   button.id = button.id || `button-${Date.now()}`;
   return button;
+}
+
+/**
+ * Get the language attribute for the document
+ * @param { Document } doc - The document object to operate on
+ * @returns { string } The language attribute value */
+function getLangAttributeImpl(doc) {
+  // First check if there's an existing lang attribute on the documentElement
+  const existingLang = doc.documentElement.getAttribute('lang');
+  if (existingLang) {
+    return existingLang;
+  }
+  
+  // Check common sources of language information
+  // 1. Meta tag
+  const metaLang = doc.querySelector('meta[name="language"]');
+  if (metaLang) {
+    return metaLang.getAttribute('content') || 'en';
+  }
+  
+  // 2. HTML tag attribute (already checked above)
+  // 3. Default to 'en'
+  return 'en';
+}
+
+/**
+ * Get the full language attribute including region
+ * @param { Document } doc - The document object to operate on
+ * @returns { string } The full language attribute value */
+function getFullLangAttributeImpl(doc) {
+  // First check if there's an existing lang attribute on the documentElement
+  const existingLang = doc.documentElement.getAttribute('lang');
+  if (existingLang) {
+    return existingLang;
+  }
+  
+  // Check common sources of language information
+  // 1. Meta tag
+  const metaLang = doc.querySelector('meta[name="language"]');
+  if (metaLang) {
+    const content = metaLang.getAttribute('content') || 'en-US';
+    // Ensure it has a region if possible
+    if (content.indexOf('-') === -1 && content.indexOf('_') === -1) {
+      return `${content}-US`; // Default to US region if none specified
+    }
+    return content;
+  }
+  
+  // 2. HTML tag attribute (already checked above)
+  // 3. Default to 'en-US'
+  return 'en-US';
+}
+
+/**
+ * Get the language attribute for the document
+ * Implementation of getLangAttribute()
+ * @param { Document } doc - The document object to operate on
+ * @returns { string } The language attribute value */
+function getLangAttribute(doc) {
+  return getLangAttributeImpl(doc);
+}
+
+/**
+ * Get the full language attribute including region
+ * Implementation of getFullLangAttribute()
+ * @param { Document } doc - The document object to operate on
+ * @returns { string } The full language attribute value */
+function getFullLangAttribute(doc) {
+  return getFullLangAttributeImpl(doc);
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)

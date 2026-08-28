@@ -1,6 +1,9 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
+
+// Line 11: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // Before:
 // <a id="unrotate" href="#">rotate back</a>

@@ -93,7 +93,7 @@ function getFullLangAttribute() {
  */
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement) {
+  if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
   }
   return document;
@@ -410,7 +410,8 @@ function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('location.href'))) {
+        onclick.includes('location.href') ||
+        onclick.includes('href'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -434,30 +435,6 @@ function fixFakeLinkIssue(document) {
 
 /**
  * Fixes all fake link issues in document
- * @param {HTMLDocument} document - The document
- * @returns {HTMLDocument} The modified document
- */
-function fixFakeLinkIssues(document) {
-  // Fix non-anchor elements with role="link"
-  const roleLinks = document.querySelectorAll('[role="link"]');
-  roleLinks.forEach(link => {
-    if (link.tagName !== 'A') {
-      link.setAttribute('aria-label', 'This link goes to a section within the page');
-    }
-  });
-
-  // Fix anchors with href="#" by converting them to accessible buttons
-  const fakeLinks = document.querySelectorAll('a[href="#"]:not([href^="#"])');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-  });
-
-  return document;
-}
-
-/**
- * Fix fake link issues
  * @param {HTMLDocument} document - The document
  * @returns {HTMLDocument} The modified document
  */
@@ -707,6 +684,8 @@ function addressAccessibilityIssuesForDocument(document) {
   document = addLandmarkRegions(document);
   document = ensureUniqueLandmarksByRole(document);
   document = uniqueLandmarksByOrigin(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
   document = addSvgAccessibleNames(document);
   document = addAccessibleNamesToSVGs(document);
   document = fixFakeLinkIssue(document);
@@ -899,6 +878,11 @@ function wrapPrimaryContentInMain() {
   return null;
 }
 
+function uniqueLandmarks(document) {
+  // ... unique landmarks implementation for origin/main
+  return document;
+}
+
 module.exports = {
   getLangAttribute,
   getFullLangAttribute,
@@ -917,6 +901,7 @@ module.exports = {
   addAriaLabel,
   handleCredentialResponse,
   ensureUniqueLandmarksByRole,
+  ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
@@ -924,6 +909,7 @@ module.exports = {
   fixLandmarkIssues,
   addLandmarkRegions,
   uniqueLandmarksByOrigin,
+  uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
   renderDependencyGraphs,
@@ -941,6 +927,7 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
+  getSvgAccessibleName,
   checkAccessibility,
   checkLandmarks,
   checkLandmarkElement,

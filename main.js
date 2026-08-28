@@ -1,7 +1,7 @@
 // main.js
 // Screeps bot entry point
 
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from ...;
 
 /**
  * Main game loop for the Screeps bot.
@@ -38,7 +38,7 @@ function handleRooms() {
  */
 function handleRoomLogic(room) {
     const roomName = room.roomName;
-    const spawn = room.find(FIND_MY_SPAWNS)[0];
+    const spawn = ...
 
     // Spawn creeps based on roles
     if (spawn && spawn.isActive()) {
@@ -55,11 +55,11 @@ function handleRoomLogic(room) {
  * @param {StructureSpawn} spawn - The spawn structure.
  */
 function manageSpawning(room, spawn) {
-    const energyCapacity = room.energyCapacityAvailable;
+    const energyCapacity = ...
     const body = energyCapacity >= 300 ? [WORK, CARRY, MOVE] : [WORK, MOVE];
-    const role = body.includes(CARRY) ? 'harvester' : 'worker';
+    const role = ... ? 'harvester' : 'worker';
 
-    if (!spawn.spawning && room.find(FIND_CREEPS, {
+    if (!spawn.spawning && ... {
         filter: (c) => c.memory.role === role
     }).length < 3) {
         spawn.spawnCreep(body, `${role}_${Game.time}`, {
@@ -102,7 +102,7 @@ function runCreep(creep) {
  * @param {Creep} creep
  */
 function runHarvester(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+    const source = ...
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source);
@@ -110,9 +110,9 @@ function runHarvester(creep) {
     }
 
     if (creep.store.getFreeCapacity() === 0) {
-        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        const target = ... {
             filter: (s) => s.structureType === STRUCTURE_SPAWN &&
-                           s.store.getFreeCapacity(ENERGY) > 0
+                           ... > 0
         });
         if (target) {
             if (creep.transfer(target, ENERGY) === ERR_NOT_IN_RANGE) {
@@ -127,9 +127,9 @@ function runHarvester(creep) {
  * @param {Creep} creep
  */
 function runBuilder(creep) {
-    let target = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1)[0];
+    let target = ... 1)[0];
     if (!target) {
-        target = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+        target = ... 1, {
             filter: (s) => s.hits < s.hitsMax
         })[0];
     }
@@ -152,7 +152,7 @@ function runBuilder(creep) {
  * @param {Creep} creep
  */
 function runWorker(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+    const source = ...
     if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
         creep.moveTo(source);
     }

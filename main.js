@@ -21,3 +21,8 @@ export function someExistingFunction() {
 export function anotherFunction() {
   // More existing functionality
 }
+
+// New function added as per the issue
+export function newFunction() {
+  // New functionality
+}

@@ -22,13 +22,13 @@ const getConfig = () => {
 // Add any updates related to new functions
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...) (DONE: ensureUniqueLandmarks)
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute(), createInPageButton() and addLangAttribute())
+// - REACT_017: Add/fix landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure(), validateLandmarkAttributes() and ensureUniqueLandmarks())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_027: Fix table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_036: Fix fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 
 function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
@@ -110,6 +110,11 @@ function calculateAccessibilityScore(fixedIssues) {
     return score + points;
   }, 0);
 }
+
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+// module.exports = { myFunction };
 
 module.exports = {
   hello,

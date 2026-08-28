@@ -366,6 +366,16 @@ function fixFakeLinkIssue() {
   return fixedLinks;
 }
 
+/**
+ * Calculates the sum of two numbers.
+ * @param {number} a - The first number
+ * @param {number} b - The second number
+ * @returns {number} The sum of a and b
+ */
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -382,5 +392,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  formatDate
+  formatDate,
+  calculateSum
 };

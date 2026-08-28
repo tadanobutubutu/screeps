@@ -73,7 +73,7 @@ const addSkipLink = (document) => {
   skipLink.style.position = 'absolute';
   skipLink.style.top = '-40px';
   skipLink.style.left = '0';
-  skipLink.style.background = '#000';
+  skipLink.style.backgroundColor = '#000';
   skipLink.style.color = '#fff';
   skipLink.style.padding = '8px 16px';
   skipLink.style.zIndex = '10000';
@@ -87,10 +87,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -159,7 +159,7 @@ const addProperLandmarkRegions = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll(`#${type}-`)).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -177,13 +177,13 @@ const addressAccessibilityIssues = (document) => {
     return document;
   }
 
+  wrapPrimaryContentInMain(document);
+  addSkipLink(document);
+  addMainLandmark(document);
+  addProperLandmarkRegions(document);
   addLangAttribute(document);
   fixTableStructureIssues(document);
-  addMainLandmark(document);
-  ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
 
   return document;
 };
@@ -199,6 +199,12 @@ export {
   setAccessibleName,
   addProperLandmarkRegions,
   addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addMainLandmark
 };
 
 // New functions to be added
@@ -207,6 +213,19 @@ const addLangAttribute = (document) => {
   if (html && !html.lang) {
     html.lang = 'en';
   }
+  return document;
+};
+
+const addMainLandmark = (document) => {
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach((main, index) => {
+    if (!main.id) {
+      main.id = `main-${index + 1}`;
+    }
+    if (!main.getAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+  });
   return document;
 };
 
@@ -233,69 +252,8 @@ const fixTableStructureIssues = (document) => {
 
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      const ths = thead.querySelectorAll('th');
+      ths.forEach(th => th.setAttribute('scope', 'col'));
     }
 
-    const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
-    });
-  });
-  return document;
-};
-
-const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
-  });
-};
-
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-    svgIndex++;
-  });
-  return document;
-};
-
-const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    // Add role="link" to ensure it's recognized as a link by screen readers
-    if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
-      link.setAttribute('role', 'link');
-    }
-    // Ensure the link has accessible name
-    if (link.getAttribute('role') === 'link' && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Link');
-    }
-    // Remove href="#" and add href="#" with proper handling
-    if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0);');
-    }
-  });
-  return document;
-};
+    const tb

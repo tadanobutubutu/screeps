@@ -1,14 +1,15 @@
+// TODO: This is the existing code that needs to be preserved
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App'; // Assuming the App component is in the same directory
 
 // Main application logic
 
-... () => {
-  const unrotateBtn = ...
+window.addEventListener('DOMContentLoaded', () => {
+  const unrotateBtn = document.getElementById('unrotate-btn');
   
   if (unrotateBtn) {
-    ... (e) => {
+    unrotateBtn.addEventListener('click', (e) => {
       e.preventDefault();
       // Rotate back logic
       document.body.style.transform = 'rotate(0deg)';
@@ -21,7 +22,7 @@ ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  ...
+  document.getElementById('root')
 );
 
 // Export any existing functions

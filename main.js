@@ -15,12 +15,25 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues() {
+function addLandmarkRoles(gameObjects) {
   // Existing logic (if any) can be kept here, or, a new implementation can be added
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  
+  return gameObjects.map((obj, index) => {
+    // Add appropriate landmark role based on object type
+    if (obj.type === 'spawn') {
+      obj.landmarkRole = 'main';
+    } else if (obj.type === 'extension') {
+      obj.landmarkRole = 'navigation';
+    } else if (obj.type === 'tower') {
+      obj.landmarkRole = 'search';
+    }
+    return obj;
+  });
 }
 
 // Functions to address specific insight report issues
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function handleReact025(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -29,11 +42,17 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   });
 }
 
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function handleReact017(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      // Handle REACT_017 issue - ensuring proper ARIA labels and descriptions
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (!el['aria-label'] && !el.label) {
+          el['aria-label'] = el.id || 'unnamed-element';
+        }
+      });
     }
   });
 }
@@ -55,20 +74,23 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksByExample() {
+function ensureLandmarkUniqueness(elements) {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  
+  // Check for duplicate landmark roles
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
+    const landmarkElements = elements.filter(el => el.role === landmark);
+    
+    // Keep only the first occurrence of each landmark role
+    const seen = new Set();
+    landmarkElements.forEach(el => {
+      if (seen.has(el.id)) {
         // Remove the role if it's not unique
-        el.removeAttribute('role');
+        delete el.role;
+      } else {
+        seen.add(el.id);
       }
     });
   });
@@ -81,9 +103,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  handleReact025,
+  handleReact017,
+  ensureLandmarkUniqueness
 };

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -61,7 +58,7 @@ function renderSettings(config) {
 }
 
 export default {
-  addAndEnsureUniqueLandmarkRegions, // Add the new function to the exported object
+  addAndEnsureUniqueLandmarkRegions,
   renderHomePage,
   renderUserProfile,
   renderDashboard,
@@ -69,6 +66,3 @@ export default {
 };
 
 module.exports = {};
-```
-
-In this revision, I have kept both changes by moving the `addAndEnsureUniqueLandmarkRegions` function from the original code to the updated version and added it to the exported object. This way, both changes are preserved, and the function can be used both in the React app (from the original code) and in the main script (from the updated code). The rest of the code in both versions was left unchanged.

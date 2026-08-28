@@ -104,6 +104,163 @@ function trapFocus(container) {
   });
 }
 
+// Handle REACT_027: Fix 26 table structure issues, REACT_017: Add/fix 4 landmark issues, REACT_041: Add accessible names to 2 SVGs, REACT_025: Ensure unique landmarks, REACT_036: Fix 1 fake link issue, REACT_037: Add proper landmark regions, and new function to address new accessibility issues from insight report
+
+function validateTableAccessibility() {
+  // Implementation for validating table accessibility
+  var tables = document.querySelectorAll('table');
+  var results = [];
+  for (var i = 0; i < tables.length; i++) {
+    var table = tables[i];
+    var hasCaption = table.querySelector('caption') !== null;
+    var hasHeaders = table.querySelector('th') !== null;
+    results.push({
+      table: table,
+      hasCaption: hasCaption,
+      hasHeaders: hasHeaders
+    });
+  }
+  return results;
+}
+
+function validateTableStructure() {
+  // Implementation for validating table structure
+  var tables = document.querySelectorAll('table');
+  var issues = [];
+  for (var i = 0; i < tables.length; i++) {
+    var table = tables[i];
+    var rows = table.querySelectorAll('tr');
+    for (var j = 0; j < rows.length; j++) {
+      var cells = rows[j].querySelectorAll('td, th');
+      if (cells.length === 0) {
+        issues.push({ row: rows[j], message: 'Empty row detected' });
+      }
+    }
+  }
+  return issues;
+}
+
+function validateLandmark() {
+  // Implementation for validating landmarks
+  var landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  return landmarks.length;
+}
+
+function validateLandmarkStructure() {
+  // Implementation for validating the structure of landmarks
+  var mainElements = document.querySelectorAll('main');
+  if (mainElements.length === 0) {
+    return { valid: false, message: 'No main landmark found' };
+  }
+  if (mainElements.length > 1) {
+    return { valid: false, message: 'Multiple main landmarks found' };
+  }
+  return { valid: true };
+}
+
+function validateLandmarkAttributes() {
+  // Implementation for validating attributes of landmarks
+  var landmarks = document.querySelectorAll('[role]');
+  var results = [];
+  for (var i = 0; i < landmarks.length; i++) {
+    var el = landmarks[i];
+    var role = el.getAttribute('role');
+    if (role && !el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+      results.push({ element: el, role: role });
+    }
+  }
+  return results;
+}
+
+function getSvgAccessibleName(svgElement) {
+  // Implementation for getting accessible names for SVGs
+  if (!svgElement) return null;
+  var title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+  return svgElement.getAttribute('aria-label') || null;
+}
+
+function setSvgAttributes(svgElement) {
+  // Implementation for setting SVG attributes
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') return;
+  var hasTitle = svgElement.querySelector('title') !== null;
+  if (!hasTitle && !svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    var title = document.createElement('title');
+    title.textContent = 'SVG graphic';
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+  svgElement.setAttribute('role', 'img');
+}
+
+function ensureUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks
+  var navElements = document.querySelectorAll('nav');
+  var asideElements = document.querySelectorAll('aside');
+  var issues = [];
+  if (navElements.length > 1) {
+    for (var i = 0; i < navElements.length; i++) {
+      if (!navElements[i].hasAttribute('aria-label') && !navElements[i].hasAttribute('aria-labelledby')) {
+        issues.push({ element: navElements[i], type: 'nav' });
+      }
+    }
+  }
+  if (asideElements.length > 1) {
+    for (var j = 0; j < asideElements.length; j++) {
+      if (!asideElements[j].hasAttribute('aria-label') && !asideElements[j].hasAttribute('aria-labelledby')) {
+        issues.push({ element: asideElements[j], type: 'aside' });
+      }
+    }
+  }
+  return issues;
+}
+
+function validateLinkAccessibility() {
+  // Implementation for validating link accessibility
+  var links = document.querySelectorAll('a');
+  var issues = [];
+  for (var i = 0; i < links.length; i++) {
+    var link = links[i];
+    if (!link.hasAttribute('href') || link.getAttribute('href') === '#') {
+      if (link.hasAttribute('onclick') || link.querySelector('button')) {
+        issues.push({ element: link, message: 'Fake link detected' });
+      }
+    }
+  }
+  return issues;
+}
+
+function handleFakeLinks() {
+  // Implementation for handling fake links
+  var fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+  for (var i = 0; i < fakeLinks.length; i++) {
+    var link = fakeLinks[i];
+    if (link.hasAttribute('onclick') || link.getAttribute('role') === 'button') {
+      link.setAttribute('role', 'button');
+    }
+  }
+}
+
+function addProperLandmarkRegions() {
+  // Implementation for adding proper landmark regions
+  var body = document.body;
+  var hasHeader = document.querySelector('header') !== null;
+  var hasNav = document.querySelector('nav') !== null;
+  var hasMain = document.querySelector('main') !== null;
+  var hasFooter = document.querySelector('footer') !== null;
+  return {
+    hasHeader: hasHeader,
+    hasNav: hasNav,
+    hasMain: hasMain,
+    hasFooter: hasFooter
+  };
+}
+
+function addressNewAccessibilityIssues() {
+  // Implementation for addressing new accessibility issues
+}
+
 /**
  * Creates an in-page button element with optional id and class name
  * @param {string} text - The button text
@@ -121,56 +278,7 @@ function createInPageButton(text, id, className) {
     button.className = className;
   }
 
-  // Handle REACT_027: Fix 26 table structure issues, REACT_017: Add/fix 4 landmark issues, REACT_041: Add accessible names to 2 SVGs, REACT_025: Ensure unique landmarks, REACT_036: Fix 1 fake link issue, REACT_037: Add proper landmark regions, and new function to address new accessibility issues from insight report
-  function validateTableAccessibility() {
-    // Implementation for validating table accessibility
-  }
-
-  function validateTableStructure() {
-    // Implementation for validating table structure
-  }
-
-  function validateLandmark() {
-    // Implementation for validating landmarks
-  }
-
-  function validateLandmarkStructure() {
-    // Implementation for validating the structure of landmarks
-  }
-
-  function validateLandmarkAttributes() {
-    // Implementation for validating attributes of landmarks
-  }
-
-  function getSvgAccessibleName(svgElement) {
-    // Implementation for getting accessible names for SVGs
-  }
-
-  function setSvgAttributes(svgElement) {
-    // Implementation for setting SVG attributes
-  }
-
-  function ensureUniqueLandmarks() {
-    // Implementation for ensuring unique landmarks
-  }
-
-  function validateLinkAccessibility() {
-    // Implementation for validating link accessibility
-  }
-
-  function handleFakeLinks() {
-    // Implementation for handling fake links
-  }
-
-  function addProperLandmarkRegions() {
-    // Implementation for adding proper landmark regions
-  }
-
-  function addressNewAccessibilityIssues() {
-    // Implementation for addressing new accessibility issues
-  }
-
-  // Return the created button and include new functions for addressing accessibility issues
+  // Attach accessibility validation functions for testing and internal use
   button.validateTableAccessibility = validateTableAccessibility;
   button.validateTableStructure = validateTableStructure;
   button.validateLandmark = validateLandmark;

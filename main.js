@@ -1,4 +1,6 @@
-// main.js - Core utility functions
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
 
 /**
  * Calculate the sum of two numbers
@@ -56,5 +58,25 @@ export default {
   calculateDifference,
   calculateProduct,
   isNumber,
-  clamp
+  clamp,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
+  }
 };
+
+export const logger = {
+  info(message) {
+    console.log(`[INFO] ${message}`);
+  },
+  error(message) {
+    console.error(`[ERROR] ${message}`);
+  }
+};
+
+export function initializeApp() {
+  return {
+    ready: true,
+    version: '1.0.0'
+  };
+}

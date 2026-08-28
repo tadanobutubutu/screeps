@@ -8,8 +8,13 @@ function helloWorld() {
   return 'Hello, World!';
 }
 
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // Export existing functions
 module.exports = {
   helloWorld,
+  calculateSum,
   // Add new exports here as per issue requirements
 };

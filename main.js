@@ -1,1 +1,21 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Implement validateLandmark functionality
+
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+  
+  if (!landmark.id) {
+    return false;
+  }
+  
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    return false;
+  }
+  
+  return true;
+}
+
+module.exports = {
+  validateLandmark
+};

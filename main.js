@@ -83,30 +83,6 @@ function addressInsightReportIssues(insightReport) {
       if (issue.code === 'REACT_027') {
         // This issue is already implemented, so no action is needed here
       }
-}
-=======
-// Generalized accessibility functions
-function improveAccessibility() {
-  // ... (unchanged)
-}
-
-function addressInsightReportIssues(insightReport) {
-  // ... (unchanged)
-}
-
-// New function to address accessibility issues from insight report
-function ensureUniqueLandmarks() {
-  // Example implementation from origin/main - adapted for Screeps environment
-  // Note: In a Screeps context, we'd need to adapt this to work with game objects
-  // This is a placeholder that would need actual implementation
-}
-
-// New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
     }
   });
 }
@@ -127,7 +103,7 @@ function calculateSum(a, b) {
 }
 
 // Example logic to ensure unique landmarks (from origin/main)
-// Note: This function uses DOM APIs and may need adaptation for Screeps environment
+// Note: This function uses DOM APIs and may need adaptation for Node.js/Screeps
 function ensureUniqueLandmarksByExample() {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
@@ -278,6 +254,23 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
 
   // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
+}
+
+// New function to address accessibility issues from insight report
+function ensureUniqueLandmarks() {
+  // Example implementation from origin/main - adapted for Screeps environment
+  // Note: In a Screeps context, we'd need to adapt this to work with game objects
+  // This is a placeholder that would need actual implementation
+}
+
+// New function to add landmark roles and fix issues
+function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      addLandmarkRolesAndFixIssues();
+    }
+  });
 }
 
 // New function to implement accessibility fixes

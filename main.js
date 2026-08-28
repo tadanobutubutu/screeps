@@ -275,6 +275,21 @@ function applyAccessibilityFixes(htmlString, options = {}) {
   return result;
 }
 
+// Count dependencies in the project
+function countDependencies() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
 // Export all functions for testing and external use
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -284,6 +299,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
-    applyAccessibilityFixes
+    applyAccessibilityFixes,
+    countDependencies
   };
 }

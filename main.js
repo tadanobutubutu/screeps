@@ -1,8 +1,4 @@
-// Please provide the actual main.js content so I can fix the REACT_036 issue.
-// The issue mentions a line like:
-//   <a id="unrotate" href="#">rotate back</a>
-// which should be converted to:
-//   <button id="unrotate" type="button">rotate back</button>
+const fs = require('fs');
 
 function fixFakeLinkIssue(filePath) {
   // ... existing code ...
@@ -87,6 +83,13 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
+// New function to count dependencies
+function countDependencies(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const dependencies = content.match(/import\s+[^{]+from\s+['"]([^'"]+)['"]|require\s*\(\s*['"]([^'"]+)['"]\s*\)/g);
+  return dependencies ? dependencies.length : 0;
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -98,4 +101,5 @@ module.exports = {
   addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
   setLanguage,
+  countDependencies,
 };

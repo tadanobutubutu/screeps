@@ -1,15 +1,23 @@
-// Current state of main.js
 import React from 'react';
 
 function MyComponent() {
   // Old code that needs to be updated
-  <div lang="en">
-    {/* Content */}
-  </div>
+  return (
+    <div lang="en">
+      {/* Content */}
+    </div>
+  );
+}
+
+// New function to add proper landmark regions
+function addLandmarkRegions(element) {
+  if (element) {
+    element.setAttribute('role', 'region');
+  }
 }
 
 export default MyComponent;
 
-<div lang="en">
-  <span id="content">Content</span>
-</div>
+// Adding landmark regions to the existing div element
+const contentDiv = document.getElementById('content');
+addLandmarkRegions(contentDiv);

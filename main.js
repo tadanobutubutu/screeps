@@ -1,13 +1,67 @@
 // main.js
 // Screeps bot entry point
 
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from ...
+
+/**
+ * Screen reader accessibility support
+ * Creates a visually hidden live region for screen reader announcements
+ */
+let accessibilityRegion = null;
+
+/**
+ * Initialize accessibility support by creating a live region for screen readers.
+ * This allows game state changes to be announced to users with visual impairments.
+ */
+export function initAccessibility() {
+    // Create a live region for screen reader announcements
+    accessibilityRegion = document.createElement('div');
+    accessibilityRegion.id = 'screeps-accessibility-live-region';
+    accessibilityRegion.setAttribute('role', 'status');
+    accessibilityRegion.setAttribute('aria-live', 'polite');
+    accessibilityRegion.setAttribute('aria-atomic', 'true');
+    
+    // Visually hidden but accessible to screen readers
+    Object.assign(accessibilityRegion.style, {
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        padding: '0',
+        margin: '-1px',
+        overflow: 'hidden',
+        clip: 'rect(0, 0, 0, 0)',
+        whiteSpace: 'nowrap',
+        border: '0'
+    });
+    
+    document.body.appendChild(accessibilityRegion);
+}
+
+/**
+ * Announce a message to screen readers via the live region.
+ * @param {string} message - The message to announce to screen readers.
+ */
+export function announceToScreenReader(message) {
+    if (accessibilityRegion) {
+        // Clear and set new message to ensure announcement
+        accessibilityRegion.textContent = '';
+        // Use setTimeout to ensure the DOM update is detected by screen readers
+        setTimeout(() => {
+            accessibilityRegion.textContent = message;
+        }, 100);
+    }
+}
 
 /**
  * Main game loop for the Screeps bot.
  * Runs every tick.
  */
 export function loop() {
+    // Initialize accessibility support on first run
+    if (!accessibilityRegion) {
+        initAccessibility();
+    }
+
     // Handle room-level operations
     handleRooms();
 
@@ -38,7 +92,7 @@ function handleRooms() {
  */
 function handleRoomLogic(room) {
     const roomName = room.roomName;
-    const spawn = room.find(FIND_MY_SPAWNS)[0];
+    const spawn = ...
 
     // Spawn creeps based on roles
     if (spawn && spawn.isActive()) {
@@ -55,11 +109,11 @@ function handleRoomLogic(room) {
  * @param {StructureSpawn} spawn - The spawn structure.
  */
 function manageSpawning(room, spawn) {
-    const energyCapacity = room.energyCapacityAvailable;
+    const energyCapacity = ...
     const body = energyCapacity >= 300 ? [WORK, CARRY, MOVE] : [WORK, MOVE];
-    const role = body.includes(CARRY) ? 'harvester' : 'worker';
+    const role = ... ? 'harvester' : 'worker';
 
-    if (!spawn.spawning && room.find(FIND_CREEPS, {
+    if (!spawn.spawning && ... {
         filter: (c) => c.memory.role === role
     }).length < 3) {
         spawn.spawnCreep(body, `${role}_${Game.time}`, {
@@ -102,7 +156,7 @@ function runCreep(creep) {
  * @param {Creep} creep
  */
 function runHarvester(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+    const source = ...
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source);
@@ -110,9 +164,9 @@ function runHarvester(creep) {
     }
 
     if (creep.store.getFreeCapacity() === 0) {
-        const target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        const target = ... {
             filter: (s) => s.structureType === STRUCTURE_SPAWN &&
-                           s.store.getFreeCapacity(ENERGY) > 0
+                           ... > 0
         });
         if (target) {
             if (creep.transfer(target, ENERGY) === ERR_NOT_IN_RANGE) {
@@ -127,9 +181,9 @@ function runHarvester(creep) {
  * @param {Creep} creep
  */
 function runBuilder(creep) {
-    let target = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 1)[0];
+    let target = ... 1)[0];
     if (!target) {
-        target = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+        target = ... 1, {
             filter: (s) => s.hits < s.hitsMax
         })[0];
     }
@@ -152,7 +206,7 @@ function runBuilder(creep) {
  * @param {Creep} creep
  */
 function runWorker(creep) {
-    const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+    const source = ...
     if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
         creep.moveTo(source);
     }

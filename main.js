@@ -63,7 +63,7 @@ function addLandmarkRoles(gameObjects) {
   });
 }
 
-// Function to address REACT_025 specific insight report issues
+// Function to address insight report issues
 function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
@@ -159,6 +159,27 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+// Example logic to ensure unique landmarks (from origin/main)
+// Note: This function uses DOM APIs and may need adaptation for Screeps environment
+function ensureUniqueLandmarkRoles() {
+  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
+  // Keeping it as provided in origin/main for reference
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const elements = []; // DOM elements would be selected here
+    const uniqueElements = [];
+    elements.forEach(el => {
+      const isUnique = !uniqueElements.some(uEl => uEl === el);
+      if (isUnique) {
+        uniqueElements.push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -168,9 +189,10 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addLandmarkRoles,
+  ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
+  addLandmarkRoles,
   addLandmarkRolesAndFixIssues,
   addProperLandmarkRegions,
-  ensureLandmarkUniqueness,
+  ensureLandmarkUniqueness
 };

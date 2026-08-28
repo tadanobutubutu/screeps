@@ -3,12 +3,18 @@
 
 // Hypothetical new function to address accessibility issues (focus-trap for keyboard navigation)
 function addFocusTrap() {
+  let container = document.querySelector('[data-focus-trap]');
+  
+  if (!container) {
+    return;
+  }
+
   let focusableElementsString = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-  let focusableElements = document.querySelectorAll(focusableElementsString);
+  let focusableElements = container.querySelectorAll(focusableElementsString);
   let firstFocusableElement = focusableElements[0];
   let lastFocusableElement = focusableElements[focusableElements.length - 1];
 
-  document.addEventListener('keydown', function(e) {
+  container.addEventListener('keydown', function(e) {
     let isTabPressed = e.key === 'Tab';
 
     if (!isTabPressed) {
@@ -17,13 +23,13 @@ function addFocusTrap() {
 
     if (e.shiftKey) /* shift + tab */ {
       if (document.activeElement === firstFocusableElement) {
-        lastFocusableElement.focus();
         e.preventDefault();
+        lastFocusableElement.focus();
       }
     } else /* tab */ {
       if (document.activeElement === lastFocusableElement) {
-        firstFocusableElement.focus();
         e.preventDefault();
+        firstFocusableElement.focus();
       }
     }
   });
@@ -33,7 +39,7 @@ function addFocusTrap() {
 addFocusTrap();
 
 // Export any necessary functions (if any)
-// export function someExportedFunction() {
+// export function ... {
 //   // ... [Existing export code here] ...
 // }
 

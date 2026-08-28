@@ -1,4 +1,15 @@
 // main.js
+// Import accessibility helper functions
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');
 const path = require('path');

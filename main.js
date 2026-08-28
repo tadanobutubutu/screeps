@@ -31,6 +31,20 @@ function getSvgAccessibleName(svgElement) {
     return accessibleName;
   }
 
+  const dependentGraphContent = require('./dependencyGraph'); // Added line
+
+  // Loop through all child SVG elements recursively
+  let accessibleChildName = null;
+  svgElement.childNodes.forEach(node => {
+    if (node.nodeName === 'svg') {
+      accessibleChildName = getSvgAccessibleName(node);
+    }
+  });
+
+  if (accessibleChildName) {
+    return accessibleChildName;
+  }
+
   return null;
 }
 
@@ -62,6 +76,15 @@ function addSvgAccessibleNames(container = document) {
 }
 
 // ... Existing functions and exports omitted for brevity
+
+import { dependencyGraphContent } from './dependencyGraph'; // Added line
+
+export const renderDependencyGraph = (dependencyGraph, container) => {
+  // Render the dependency graph using the dependencyGraphContent
+  const graphContent = dependencyGraphContent;
+  // Append the graphContent to the container
+  container.innerHTML = graphContent;
+};
 ```
 
-In this solution, the `getSvgAccessibleName` function was modified to search for accessible names by ID in addition to other methods. A new function was also added called `addSvgAccessibleNames`, which performs the same task on all SVG elements in the document or specific container.
+In this solution, the `getSvgAccessibleName` function was modified to search for accessible names by ID in addition to other methods and includes a recursive loop to help find accessible names in all child SVG elements. Also, the `renderDependencyGraph` function imports the `dependencyGraphContent` from the dependencyGraph file.

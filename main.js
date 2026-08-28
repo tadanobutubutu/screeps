@@ -20,6 +20,11 @@ function getLangAttribute() {
   // ...
 }
 
+// TODO: Add a new function named `calculateSum` as requested in the issue
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
+}
+
 function personName() {
   // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
   // ...
@@ -56,5 +61,5 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  // ... any other relevant functions extracted from the conflicting code base
+  calculateSum,
 };

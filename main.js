@@ -386,6 +386,11 @@ function checkTableSchema(tableSchema) {
   return {isValid: true};
 }
 
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
 module.exports = {
   wrapPrimaryContentInMain,
   newFunction,
@@ -403,4 +408,5 @@ module.exports = {
   addLandmarkRegions,
   checkTableStructure,
   checkTableSchema,
+  calculateDiscount
 };

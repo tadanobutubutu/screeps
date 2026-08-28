@@ -1,22 +1,32 @@
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
+// main.js
 
-// Placeholder for affected functions - to be implemented based on issue requirements
-const affectedFunctions = {};
+const fs = require('fs');
+const path = require('path');
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // TODO: This is the existing code that needs to be preserved
 // ...
 
 // ----- END ORIGINAL CODE -------
+// ... existing code above ...
 
-// Adding the new function at the end
-function newFunction() {
-  // Your new function code here
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
 }
 
 // Export affected functions and new function to make them accessible
+// ... existing code below ...
 module.exports = {
-  ...affectedFunctions,
-  newFunction, // Export newFunction
+    countDependencies
 };

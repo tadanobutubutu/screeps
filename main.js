@@ -8,3 +8,20 @@
 function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
+
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+// New function to convert anchor tags to buttons with specific id and text
+function convertAnchorsToButtons() {
+  const anchors = document.querySelectorAll('a#unrotate');
+  anchors.forEach(anchor => {
+    const button = document.createElement('button');
+    button.id = anchor.id;
+    button.type = 'button';
+    button.textContent = anchor.textContent;
+    anchor.parentNode.replaceChild(button, anchor);
+  });
+}
+
+// Call the function to convert anchors to buttons if needed
+convertAnchorsToButtons();

@@ -36,6 +36,7 @@ function updateAriaAttributes() {
     const body = doc.body;
     if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
+      body.setAttribute('role', 'main');
     }
   }
 }

@@ -21,6 +21,16 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
   return ensureUniqueLandmarks(landmarks);
 }
 
+function addProperLandmarkRegions(doc) {
+  // Implementation for adding proper landmark regions
+  // ...
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // Implementation for ensuring that landmarks are unique
+  // ...
+}
+
 // ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS

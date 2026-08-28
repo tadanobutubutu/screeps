@@ -13,9 +13,7 @@ const a11yStore = {
     this.setupFocusManagement();
     this.setupSkipLinks();
     this.checkLandmarkElements();
-    this.addProperLandmarkRegions();
     this.addSVGAccessibilityProps();
-    this.fixFakeLinks(); // Added for REACT_036
   },
 
   // Create a live region for screen reader announcements
@@ -168,117 +166,10 @@ const a11yStore = {
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark, index) => {
-        // Ensure landmark has a unique ID
-        if (landmark.id === '') {
-          landmark.setAttribute('id', `${element}-${index}`);
-        }
-
-        // Ensure unique accessible names for duplicate landmarks
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
-          }
-        }
-      });
-    });
-  },
-
-  // New function to add proper landmark regions for accessibility
-  addProperLandmarkRegions() {
-    // Ensure the main landmark exists
-    if (!document.querySelector('main, [role="main"]')) {
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-      main.id = 'main-content';
-      document.body.appendChild(main);
-    }
-
-    // Ensure banner landmark for header
-    const header = document.querySelector('header');
-    if (header && !header.getAttribute('role')) {
-      header.setAttribute('role', 'banner');
-    }
-
-    // Add navigation landmarks with accessible labels
-    const navElements = document.querySelectorAll('nav');
-    navElements.forEach((nav, index) => {
-      if (!nav.getAttribute('aria-label')) {
-        nav.setAttribute('aria-label', `navigation-${index + 1}`);
+      const landmark = document.querySelector(`[role="${element}"]`);
+      if (landmark && landmark.id === '') {
+        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
       }
-      if (!nav.getAttribute('role')) {
-        nav.setAttribute('role', 'navigation');
-      }
-    });
-
-    // Ensure contentinfo landmark for footer
-    const footer = document.querySelector('footer');
-    if (footer && !footer.getAttribute('role')) {
-      footer.setAttribute('role', 'contentinfo');
-    }
-
-    // Ensure complementary landmark for aside
-    const aside = document.querySelector('aside');
-    if (aside && !aside.getAttribute('role')) {
-      aside.setAttribute('role', 'complementary');
-    }
-
-    // Add form landmark to forms missing a label
-    const forms = document.querySelectorAll('form');
-    forms.forEach((form, index) => {
-      if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
-        const label = form.querySelector('legend, label');
-        if (!label) {
-          form.setAttribute('role', 'form');
-          form.setAttribute('aria-label', `form-${index + 1}`);
-        }
-      }
-    });
-
-    // Add search landmark if missing
-    const searchRegions = document.querySelectorAll('[role="search"]');
-    if (searchRegions.length === 0) {
-      const searchInput = document.querySelector('input[type="search"]');
-      if (searchInput && !searchInput.closest('[role="search"]')) {
-        const searchRegion = document.createElement('div');
-        searchRegion.setAttribute('role', 'search');
-        searchRegion.setAttribute('aria-label', 'search');
-        searchInput.parentNode.insertBefore(searchRegion, searchInput);
-        searchRegion.appendChild(searchInput);
-      }
-    }
-
-    // Ensure all landmark regions have accessible names where required
-    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-    landmarkRoles.forEach((role) => {
-      const elements = document.querySelectorAll(`[role="${role}"]`);
-      elements.forEach((el) => {
-        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
-          const tagName = el.tagName.toLowerCase();
-          let label = '';
-          switch (role) {
-            case 'navigation':
-              label = 'navigation';
-              break;
-            case 'complementary':
-              label = 'complementary';
-              break;
-            case 'contentinfo':
-              label = 'contentinfo';
-              break;
-            case 'search':
-              label = 'search';
-              break;
-            case 'form':
-              label = 'form';
-              break;
-            default:
-              label = role;
-          }
-          el.setAttribute('aria-label', label);
-        }
-      });
     });
   },
 
@@ -286,36 +177,17 @@ const a11yStore = {
   addSVGAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {
-      // Ensure SVG has a title for accessible name
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image'; // Default accessible name
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-labelledby', 'svg-title');
+      const titleText = svg.querySelector('title').textContent || 'Image description';
+      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
+      svg.setAttribute('aria-describedby', descriptionId);
 
-      // Ensure title has an ID for aria-labelledby
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      // Set aria-labelledby to point to the title
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      // Add role img if not present (redundant but safe)
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  // New function to fix fake links (REACT_036)
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
+      const descriptionElement = document.createElement('p');
+      descriptionElement.setAttribute('id', descriptionId);
+      descriptionElement.textContent = titleText;
+      descriptionElement.className = 'sr-only';
+      document.body.appendChild(descriptionElement);
     });
   },
 
@@ -331,6 +203,45 @@ const a11yStore = {
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
   }
 };
+
+// New function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  report.forEach(issue => {
+    // Handle each issue type
+    switch (issue.type) {
+      case 'missing-lang':
+        if (!document.documentElement.getAttribute('lang')) {
+          document.documentElement.setAttribute('lang', 'en');
+        }
+        break;
+      case 'missing-skip-link':
+        if (!document.querySelector('.skip-link')) {
+          const skipLink = document.createElement('a');
+          skipLink.className = 'skip-link';
+          skipLink.href = '#main-content';
+          skipLink.textContent = 'Skip to main content';
+          document.body.insertBefore(skipLink, document.body.firstChild);
+        }
+        break;
+      case 'missing-alt':
+        document.querySelectorAll('img').forEach(img => {
+          if (!img.getAttribute('alt')) {
+            img.setAttribute('alt', 'Image description');
+          }
+        });
+        break;
+      case 'missing-label':
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+          if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+            el.setAttribute('aria-label', 'Form field');
+          }
+        });
+        break;
+      // Add more cases as needed
+    }
+  });
+}
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
@@ -349,27 +260,21 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
-// Preserve existing code
-a11yStore.preserveExistingCode();
-
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
-}
-
-// Standalone utility function to check if user prefers reduced motion
-export function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Standalone utility function to check if user prefers high contrast
-export function prefersHighContrast() {
-  return window.matchMedia('(prefers-contrast: more)').matches;
-}
-
 // Export for module usage
 export { a11yStore };
+export { mainElement };
 export { addressAccessibilityIssues };
 export default a11yStore;
-export { wrapPrimaryContentInMain };
+
+// Import and export additional functions if needed (placeholder for actual modules)
+// Assuming 'utils' modules are required (example follows)
+// import { utilityFunction } from './utils.js';
+// export { utilityFunction };
+
+// Additional required exports
+export const updateLiveRegion = a11yStore.updateLiveRegion;
+export const checkLandmarkElements = a11yStore.checkLandmarkElements;
+export const addSVGAccessibilityProps = a11yStore.addSVGAccessibilityProps;
+export const preserveExistingCode = a11yStore.preserveExistingCode;
+export const prefersReducedMotion = a11yStore.prefersReducedMotion;
+export const prefersHighContrast = a11yStore.prefersHighContrast;

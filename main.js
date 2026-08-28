@@ -1,192 +1,29 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark, fixLandmarkIssues)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
+We need to resolve conflict in main.js. The HEAD side is a React web app with accessibility functions; the other side is Screeps game loop and a Dashboard component. The conflict markers show that the HEAD content (the React code) is the one to keep, but we need to incorporate both changes logically. However the other side seems completely unrelated (Screeps). The HEAD includes imports, ReactDOM, App, and various functions. The other side includes module.exports for Screeps, and a Dashboard component.
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+We need to decide how to merge. The file 'main.js' originally likely belongs to the React app (the HEAD). The Screeps part seems out-of-place; maybe it's a different file that got merged incorrectly. The conflict markers show that the HEAD part is the entire React code, while the other part is the Screeps loop and Dashboard component. Since they are unrelated, we need to decide which to keep. The instruction: "Make sure to keep and integrate both changes if they both add features, or choose the correct logic that compiles and satisfies both needs." They are contradictory; we cannot have both a React app and Screeps loop in same file. The HEAD includes ReactDOM and App; the other includes module.exports loop for Screeps and Dashboard component. Probably the correct file is the React app's main.js, and the Screeps part is erroneous. So we should keep the HEAD content (the React code) and discard the Screeps part (module.exports and Dashboard?) But the Dashboard component may be part of the same app? However the HEAD already has App component imported; maybe Dashboard is a component used inside App. The HEAD does not show Dashboard usage. The other side includes Dashboard component but no import of ReactDOM etc. The HEAD imports React, ReactDOM, App, etc. The Dashboard component is likely part of the same app but not included in HEAD. Could we merge by adding the Dashboard component after the App render? Or maybe the HEAD file originally had only the ReactDOM rendering and functions; the other side added Screeps loop and Dashboard component (maybe for a different environment). Since they conflict, we need to resolve by picking one coherent file.
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+Given the HEAD includes all the accessibility functions and the React rendering, it's likely the intended main.js. The other side seems like a leftover from a different project (Screeps). So we should keep HEAD and discard the Screeps part. But we must ensure no syntax errors. The HEAD already has proper code; we just need to ensure that we don't have leftover conflict markers. The resolved file should be the HEAD content, but we need to ensure we have proper imports and no duplicate exports.
 
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
+Check for any duplication: The HEAD includes `import React from 'react'; import ReactDOM from 'react-dom/client';` etc. Then later there is `import React, { useState } from 'react';` which is duplicate. In HEAD we already imported React, but not destructuring useState. However the Dashboard component uses useState, so we need to import useState. The HEAD currently does not import useState; but the Dashboard component is not part of HEAD. If we keep HEAD only, we may miss useState import needed for Dashboard if it's used elsewhere. However the HEAD code includes App component; maybe Dashboard is used inside App. Not sure.
 
-function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Data table';
-      table.insertBefore(caption, table.firstChild);
-    }
-    const headers = table.querySelectorAll('th');
-    headers.forEach(th => {
-      if (!th.getAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
-}
+The HEAD includes `import React from 'react';` which brings default export only, not useState. To use useState, we need `import React, { useState } from 'react';`. The HEAD currently does not have useState import, but the Dashboard component (from other side) uses it. Since we are merging, we should adjust import to include useState.
 
-function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length === 0) {
-    const content = document.querySelector('#root');
-    if (content) {
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-      while (content.firstChild) {
-        main.appendChild(content.firstChild);
-      }
-      content.appendChild(main);
-    }
-  }
-}
+Also the HEAD includes `import './index.css'; import App from './App'; import reportWebVitals from './reportWebVitals';`. That's fine.
 
-function fixLandmarkIssues() {
-  const landmarks = ['header', 'nav', 'main', 'footer'];
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    elements.forEach((el, index) => {
-      if (elements.length > 1 && !el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', `${landmark} ${index + 1}`);
-      }
-    });
-  });
-}
+The HEAD also includes many functions; they are defined but not used except in DOMContentLoaded. That's fine.
 
-function ensureUniqueLandmarks() {
-  const landmarkTypes = ['header', 'nav', 'main', 'footer', 'aside'];
-  landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(type);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        const label = el.getAttribute('aria-label') || el.getAttribute('id') || '';
-        if (!label.includes(String(index + 1))) {
-          el.setAttribute('aria-label', `${type} ${index + 1}`);
-        }
-      });
-    }
-  });
-}
+Now we need to incorporate the Screeps part? Maybe the file is meant to be both a Screeps bot and a React UI? That seems impossible. However maybe the repository is a Screeps bot that also has a React admin UI, and main.js is the entry point for the UI, while the Screeps loop is separate. The conflict may be that the HEAD side (the UI) is being merged with the Screeps side (the bot). The proper resolution might be to keep both: the file could export both the UI rendering and the Screeps loop? But that wouldn't make sense.
 
-function uniqueLandmarks() {
-  ensureUniqueLandmarks();
-}
+Maybe the intention: The HEAD side is the correct main.js for the React UI, while the other side is a leftover from a different file that got merged erroneously. The instruction says "Do not discard functionality unless they are clearly redundant." The Screeps part is clearly not part of the UI; it's a separate module. So we should discard it.
 
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
-    if (!title && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const newTitle = document.createElement('title');
-      newTitle.textContent = `SVG icon ${index + 1}`;
-      newTitle.id = `svg-title-${index + 1}`;
-      svg.insertBefore(newTitle, svg.firstChild);
-      svg.setAttribute('aria-labelledby', newTitle.id);
-    }
-  });
-}
+Thus we will produce the HEAD content, but fix the import to include useState (since Dashboard uses it). However the HEAD doesn't have Dashboard usage; but maybe App uses Dashboard. Safer to add useState import.
 
-function addAccessibleNamesToSVGs() {
-  addSvgAccessibleNames();
-}
+Also ensure that the file ends with `reportWebVitals();` which is present.
 
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
-  fakeLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('data-href');
-      if (href) {
-        window.location.href = href;
-      }
-    });
-    link.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const href = link.getAttribute('data-href');
-        if (href) {
-          window.location.href = href;
-        }
-      }
-    });
-  });
-}
+Let's rewrite the file:
 
-function fixFakeLinkIssues() {
-  fixFakeLinkIssue();
-}
+- Start with imports: import React, { useState } from 'react'; import ReactDOM from 'react-dom/client'; import './index.css'; import App from './App'; import reportWebVitals from './reportWebVitals';
 
-function googleSignIn() {
-  const googleButtons = document.querySelectorAll('[data-provider="google"]');
-  googleButtons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', 'Sign in with Google');
-    }
-  });
-}
+- Then the ReactDOM render.
 
-function fixButtonIdentifiers() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (button.id === 'my-button' || button.id === '') {
-      const existingId = button.getAttribute('data-original-id');
-      if (existingId) {
-        button.id = existingId;
-      } else {
-        const text = button.textContent.trim() || 'button';
-        const idText = text.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 30);
-        button.id = `button-${idText}-${index + 1}`;
-      }
-    }
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      const icon = button.querySelector('svg, img, i');
-      if (icon) {
-        const altText = icon.getAttribute('aria-label') || icon.getAttribute('alt') || 'button';
-        button.setAttribute('aria-label', altText);
-      }
-    }
-  });
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    addLangAttribute();
-    fixTableStructure();
-    addMainLandmark();
-    fixLandmarkIssues();
-    ensureUniqueLandmarks();
-    addSvgAccessibleNames();
-    fixFakeLinkIssue();
-    googleSignIn();
-    fixButtonIdentifiers();
-  });
-} else {
-  addLangAttribute();
-  fixTableStructure();
-  addMainLandmark();
-  fixLandmarkIssues();
-  ensureUniqueLandmarks();
-  addSvgAccessibleNames();
-  fixFakeLinkIssue();
-  googleSignIn();
-  fixButtonIdentifiers();
-}
-
-reportWebVitals();
+- Then define functions (addLangAttribute, fixTableStructure, addMainLandmark, fix [Hood] [pálido para óculos de sol] [Óculos escuros]

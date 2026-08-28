@@ -1,10 +1,16 @@
 // Imports at the top of the file
 import { utility1, utility2 } from './utils';
 import { formatData, processValues } from './helpers';
+const { addMissingExportFunction } = require('./missingExportFile');
 
-// New function added from the other branch
-export function calculateTotal(items) {
-  return items.reduce((total, item) => total + item.price, 0);
+/**
+ * Add and ensure unique landmark regions
+ * @param { Document } doc - The document object to operate on
+ * @returns { Array<HTMLElement> } - An array of landmark elements
+ */
+function addAndEnsureUniqueLandmarkRegions(doc) {
+  const landmarks = addProperLandmarkRegions(doc);
+  return ensureUniqueLandmarks(landmarks);
 }
 
 // Render home page

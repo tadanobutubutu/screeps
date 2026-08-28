@@ -19,7 +19,30 @@ document.documentElement.lang = getLangAttribute();
 
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 
-// ... (Functions that were unique in each branch)
+// Utility functions
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function generateId() {
+  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+}
 
 function validateTableAccessibility(document) {
   // Implementation for table accessibility validation
@@ -72,6 +95,3 @@ function googleSignIn(document) {
 function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
-```
-
-This code combines both versions of the functions to address multiple accessibility issues in the Screeps bot repository. The combined version respects both versions and ensures that all changes are integrated when resolving the merge conflict.

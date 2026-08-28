@@ -1,4 +1,6 @@
 // TODO: Add back any required exports that might have been removed
+const fs = require('fs');
+const path = require('path');
 const missingModule = require('./path/to/missing/module');
 
 const {

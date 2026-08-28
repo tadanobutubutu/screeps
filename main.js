@@ -1,10 +1,6 @@
-// Existing code from main.js (with conflict markers removed for clarity)
 const existingFunction = () => {
   // Existing function logic
 };
-
-// Exporting existing functions
-export { existingFunction };
 
 // TODO: Address accessibility issues from insight report:
 // Placeholder for new code or changes to address accessibility issues
@@ -28,8 +24,22 @@ function validateLandmark(landmark) {
     typeof landmark.name === 'string' &&
     landmark.name.trim() !== '' &&
     landmark.coordinates &&
-    typeof landmark.coordinates === 'object'
+    typeof landmark.coordinates === 'object' &&
+    typeof landmark.coordinates.lat === 'number' &&
+    typeof landmark.coordinates.lng === 'number' &&
+    landmark.coordinates.lat >= -90 &&
+    landmark.coordinates.lat <= 90 &&
+    landmark.coordinates.lng >= -180 &&
+    landmark.coordinates.lng <= 180
   );
+}
+
+function isLatitudeValid(lat) {
+  return lat >= -90 && lat <= 90;
+}
+
+function isLongitudeValid(lng) {
+  return lng >= -180 && lng <= 180;
 }
 
 /**
@@ -134,6 +144,8 @@ export {
   newAccessibleFunction,
   addLandmarkRegionToElement,
   validateLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
   addLandmarkRegion,
   getLandmarkRegions,
   getLandmarkRegionById,

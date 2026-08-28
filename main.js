@@ -1,54 +1,164 @@
-// Assuming the `main.js` file has the following structure:
+// Assuming the file is located at ...
 
-// ... (existing code)
+import React, { useState } from 'react';
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
-
-// Fix table structure issues
-// Example: Ensure tables have appropriate `<thead>` and `<tbody>` elements
-// This is a placeholder; actual implementation will depend on the table structure
-document.querySelectorAll('table').forEach(table => {
-  // ... (fix table structure)
-});
-
-// Add/fix landmark issues
-// Example: Add ARIA landmarks
-document.querySelectorAll('.landmark').forEach(landmark => {
-  // ... (add or fix landmarks)
-});
-
-// Ensure unique landmarks
-// Example: Check for duplicate landmarks and fix them
-// This is a placeholder; actual implementation will depend on the landmarks used
-document.querySelectorAll('.landmark').forEach((landmark, index) => {
-  if (index > 0 && landmark.id === previousElement.id) {
-    // ... (ensure uniqueness)
+/**
+ * Validates landmark accessibility
+ * @param {Element|null} element - The DOM element to validate
+ * @returns {{ isValid: boolean, errors: string[] }} Validation result
+ */
+export const validateLandmark = (element) => {
+  const errors = [];
+  
+  if (!element) {
+    return { isValid: false, errors: ['No element provided'] };
   }
-  previousElement = landmark;
-});
+  
+  const validLandmarks = [
+    'main',
+    'navigation',
+    'banner',
+    'contentinfo',
+    'complementary',
+    'search',
+    'form',
+    'application'
+  ];
+  
+  const role = element.getAttribute('role');
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaLabelledby = element.getAttribute('aria-labelledby');
+  
+  if (!role) {
+    errors.push('Landmark element must have a role attribute');
+  } else if (!validLandmarks.includes(role)) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  if (role && !ariaLabel && !ariaLabelledby) {
+    errors.push('Landmark should have an accessible name (aria-label or aria-labelledby)');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
 
 // Add accessible names to SVGs
-document.querySelectorAll('svg').forEach(svg => {
-  // ... (add accessible names)
-});
+export const fixAccessibleSVGs = () => {
+  document.querySelectorAll('svg').forEach(svg => {
+    // ... (add accessible names)
+  });
+};
 
 // Fix fake link issue
-// Example: Replace non-interactive elements with `<a>` tags
-document.querySelectorAll('.fake-link').forEach(fakeLink => {
-  // ... (fix fake link issue)
-});
+export const fixFakeLinks = () => {
+  document.querySelectorAll('.fake-link').forEach(fakeLink => {
+    // ... (fix fake link issue)
+  });
+};
 
 // Implement Google sign-in logic
-// This is a placeholder; actual implementation will depend on the authentication logic
-function googleSignIn() {
+export const googleSignIn = () => {
   // ... (Google sign-in logic)
-}
+};
 
-// Replace my-button with actual button id for accessibility
-// Example: Replace instances of 'my-button' with actual button ids
-document.querySelectorAll('.my-button').forEach(button => {
-  button.id = 'actual-button-id';
-});
+const Dashboard = (props) => {
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-// ... (existing code)
+  const copyErr = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const fetchStats = (shouldRetry) => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 2000);
+  };
+
+  return (
+    <main role="main" aria-label="Dashboard">
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        {error && (
+          <section
+            role="alert"
+            aria-label="エラーメッセージ詳細"
+            aria-live="polite"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </section>
+        )}
+        <button
+          type="button"
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          aria-pressed={copied}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          <span>{copied ? '✅' : '📋'}</span>
+          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          aria-disabled={refreshing}
+          aria-busy={refreshing}
+          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          onFocus={() => setErrRetryHover(true)}
+          onBlur={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: refreshing ? '#999' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+            marginLeft: '0.5rem',
+            transition: 'all 0.2s ease-in-out',
+            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+          }}
+        >
+          <span>{refreshing ? '🔄' : '🔁'}</span>
+          <span> {refreshing ? '再試行中...' : 'エラーの再試行'}</span>
+        </button>
+      </div>
+    </main>
+  );
+};
+
+export default Dashboard;

@@ -250,3 +250,23 @@ export function fixFakeLinkIssue(html) {
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+/**
+ * Applies all accessibility improvements to the given HTML string.
+ * This function aggregates the individual fixes and serves as a main entry point.
+ * @param {string} html - The HTML string to process.
+ * @returns {string} The processed HTML with all accessibility improvements applied.
+ */
+export function applyAccessibilityImprovements(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  result = addLangAttribute(result);
+  result = fixTableStructureIssues(result);
+  result = addMainLandmark(result);
+  result = addSvgAccessibleNames(result);
+  result = ensureUniqueLandmarks(result);
+  result = fixFakeLinkIssue(result);
+  
+  return result;
+}

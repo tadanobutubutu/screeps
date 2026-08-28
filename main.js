@@ -23,6 +23,18 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
   // ... (existing code)
+  // Add new landmark regions as per the insight report
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('role', 'banner');
+  }
+
+  const mainContent = document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // ... (existing code, if any)
 }
 
 /**
@@ -34,6 +46,13 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // ... (existing code)
+  // Add new ARIA account management elements as per the insight report
+  const accountMenuToggle = document.querySelector('.account-menu-toggle');
+  if (accountMenuToggle) {
+    accountMenuToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  // ... (existing code, if any)
 }
 
 /**
@@ -44,6 +63,13 @@ function addProperAccountManagement() {
  */
 function addProperFormAccessibility() {
   // ... (existing code)
+  // Add new ARIA form attributes as per the insight report
+  const searchInput = document.querySelector('#search-input');
+  if (searchInput) {
+    searchInput.setAttribute('aria-label', 'Search');
+  }
+
+  // ... (existing code, if any)
 }
 
 /**

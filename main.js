@@ -1,3 +1,18 @@
+Looking at this conflict, I need to carefully merge the changes. The file has multiple conflict markers and the content is quite tangled. Let me analyze what needs to be preserved:
+
+1. The HEAD branch has a complete file with game loop logic, accessibility functions, and exports
+2. The origin/main branch has additions for `addressAccessibilityIssue038` and math helper imports
+
+The cleanest resolution is to keep the HEAD version intact (which is the complete file) and add the new functions from origin/main at the end, plus update the exports.
+
+Let me reconstruct the file properly. The HEAD section has syntax issues in the middle that need to be cleaned up, and I need to integrate the origin/main additions.
+
+Looking more carefully, the file structure is:
+- The HEAD side has the main file with accessibility features
+- The origin/main side adds `addressAccessibilityIssue038` and math helper imports
+
+I'll merge by keeping the HEAD content and adding the origin/main additions at the end before the exports.
+
 // main.js
 
 const _ = require('lodash');
@@ -34,16 +49,15 @@ const config = {
 // Game loop function
 function run() {
   // Your game logic here...
-}
 
-// Update scope attributes in all .html files in the views directory
-const viewsDir = path.join(__dirname, 'views');
-fs.readdirSync(viewsDir)
-  .filter(file => file.endsWith('.html'))
-  .forEach(file => {
-    const filePath = path.join(viewsDir, file);
-    updateThScopeAttribute(filePath);
-  });
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      updateThScopeAttribute(filePath);
+    });
 }
 
 // Start the game loop
@@ -51,88 +65,86 @@ Module.onInit = function() {
   setInterval(run, 1000);
 };
 
-/**
- * Checks the structure of a table and validates it against expected schema
- * @param {string|Object} tableOrName - The name of the table or the table object to check
- * @param {Array} expectedColumns - Array of expected column definitions
- * @returns {Object} - Validation result with isValid boolean and error messages
- */
-function checkTableStructure(tableOrName, expectedColumns = []) {
-    const result = {
-        isValid: true,
-        errors: []
-    };
+const renderDependencyGraph = (dependencyGraph, container) => {
+  const graphContent = dependencyGraph;
+  container.innerHTML = graphContent;
+};
 
-    // Support both call signatures: (tableName, expectedColumns) and (table, expectedColumns)
-    if (typeof tableOrName === 'string') {
-        if (!tableOrName || tableOrName.trim() === '') {
-            result.isValid = false;
-            result.errors.push('Table name must be a non-empty string');
-            return result;
-        }
+const buttonElement = document.getElementById('buttonId');
 
-        if (!Array.isArray(expectedColumns)) {
-            result.isValid = false;
-            result.errors.push('expectedColumns must be an array');
-            return result;
-        }
+function checkTableStructure(tableOrName, expectedColumns) {
+  const result = { isValid: true, errors: [] };
 
-        if (expectedColumns.length === 0) {
-            result.isValid = false;
-            result.errors.push('expectedColumns must not be empty');
-            return result;
-        }
-
-        for (const column of expectedColumns) {
-            if (typeof column !== 'string' || column.trim() === '') {
-                result.isValid = false;
-                result.errors.push('All expected columns must be non-empty strings');
-                return result;
-            }
-        }
-
-        // In a real implementation, this would query the database schema
-        // and validate that the table has the expected columns
-        return result;
+  // Support both call signatures: (tableName, expectedColumns) and (table, expectedColumns)
+  if (typeof tableOrName === 'string') {
+    if (!tableOrName || tableOrName.trim() === '') {
+      result.isValid = false;
+      result.errors.push('Table name must be a non-empty string');
+      return result;
     }
 
-    if (!tableOrName || typeof tableOrName !== 'object') {
+    if (!Array.isArray(expectedColumns)) {
+      result.isValid = false;
+      result.errors.push('expectedColumns must be an array');
+      return result;
+    }
+
+    if (expectedColumns.length === 0) {
+      result.isValid = false;
+      result.errors.push('expectedColumns must not be empty');
+      return result;
+    }
+
+    for (const column of expectedColumns) {
+      if (typeof column !== 'string' || column.trim() === '') {
         result.isValid = false;
-        result.errors.push('Table must be a valid object');
+        result.errors.push('All expected columns must be non-empty strings');
         return result;
+      }
     }
 
-    // Check if table has columns property
-    if (!Array.isArray(tableOrName.columns)) {
-        result.isValid = false;
-        result.errors.push('Table must have a columns array');
-        return result;
-    }
-
-    // Validate each expected column exists
-    const tableColumns = tableOrName.columns.map(col => col.name || col);
-
-    expectedColumns.forEach(expected => {
-        const columnName = typeof expected === 'string' ? expected : expected.name;
-        if (!tableColumns.includes(columnName)) {
-            result.isValid = false;
-            result.errors.push(`Missing expected column: ${columnName}`);
-        }
-    });
-
-    // Check for unexpected columns if strict mode is needed
-    if (tableOrName.strict && expectedColumns.length > 0) {
-        const expectedColumnNames = expectedColumns.map(e => typeof e === 'string' ? e : e.name);
-        tableOrName.columns.forEach(col => {
-            const colName = col.name || col;
-            if (!expectedColumnNames.includes(colName)) {
-                result.isValid = false;
-                result.errors.push(`Unexpected column found: ${colName}`);
-            }
-        });
-    }
-
+    // In a real implementation, this would query the database schema
+    // and validate that the table has the expected columns
     return result;
+  }
+
+  if (!tableOrName || typeof tableOrName !== 'object') {
+    result.isValid = false;
+    result.errors.push('Table must be a valid object');
+    return result;
+  }
+
+  // Check if table has columns property
+  if (!Array.isArray(tableOrName.columns)) {
+    result.isValid = false;
+    result.errors.push('Table must have a columns array');
+    return result;
+  }
+
+  // Validate each expected column exists
+  const tableColumns = tableOrName.columns.map(col => col.name || col);
+
+  expectedColumns.forEach(expected => {
+    const columnName = typeof expected === 'string' ? expected : expected.name;
+    if (!tableColumns.includes(columnName)) {
+      result.isValid = false;
+      result.errors.push(`Missing expected column: ${columnName}`);
+    }
+  });
+
+  // Check for unexpected columns if strict mode is needed
+  if (tableOrName.strict && expectedColumns.length > 0) {
+    const expectedColumnNames = expectedColumns.map(e => typeof e === 'string' ? e : e.name);
+    tableOrName.columns.forEach(col => {
+      const colName = col.name || col;
+      if (!expectedColumnNames.includes(colName)) {
+        result.isValid = false;
+        result.errors.push(`Unexpected column found: ${colName}`);
+      }
+    });
+  }
+
+  return result;
 }
 
 /**
@@ -143,24 +155,24 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
  */
 function validateTableSchema(tableSchema, expectedSchema) {
   const errors = [];
-  
+
   if (!tableSchema || typeof tableSchema !== 'object') {
     errors.push('Invalid table schema provided');
     return { isValid: false, errors };
   }
-  
+
   if (!expectedSchema || typeof expectedSchema !== 'object') {
     errors.push('Invalid expected schema provided');
     return { isValid: false, errors };
   }
-  
+
   const tableColumns = tableSchema.columns || [];
   const expectedColumns = expectedSchema.columns || [];
-  
+
   if (tableColumns.length !== expectedColumns.length) {
     errors.push(`Column count mismatch: expected ${expectedColumns.length}, got ${tableColumns.length}`);
   }
-  
+
   for (const expectedCol of expectedColumns) {
     const found = tableColumns.find(col => col.name === expectedCol.name);
     if (!found) {
@@ -169,7 +181,7 @@ function validateTableSchema(tableSchema, expectedSchema) {
       errors.push(`Column ${expectedCol.name} type mismatch: expected ${expectedCol.type}, got ${found.type}`);
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -178,17 +190,17 @@ function validateTableSchema(tableSchema, expectedSchema) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-    
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+  const dependencies = packageJson.dependencies || {};
+  const devDependencies = packageJson.devDependencies || {};
+
+  return {
+    dependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
 // TODO: Implement the new function as per the issue requirements
@@ -272,16 +284,16 @@ function addProperLandmarkRegions() {
     mainElement = document.createElement('main');
     document.body.insertBefore(mainElement, document.body.firstChild);
   }
-  
+
   // Set lang attribute on main element
   mainElement.setAttribute('lang', document.documentElement.lang || 'en');
-  
+
   // Ensure header has proper role
   const header = document.querySelector('header');
   if (header && !header.hasAttribute('role')) {
     header.setAttribute('role', 'banner');
   }
-  
+
   // Ensure nav elements have proper roles
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
@@ -292,7 +304,7 @@ function addProperLandmarkRegions() {
       nav.setAttribute('aria-label', `Navigation ${index + 1}`);
     }
   });
-  
+
   // Ensure footer has proper role
   const footer = document.querySelector('footer');
   if (footer && !footer.hasAttribute('role')) {
@@ -311,7 +323,7 @@ function validateTableAccessibility() {
     // Check if table has a caption or th elements
     const hasCaption = table.querySelector('caption');
     const hasHeaders = table.querySelectorAll('th').length > 0;
-    
+
     if (!hasCaption && !hasHeaders) {
       result.issues.push('Table should have a caption or header cells');
     }
@@ -348,15 +360,15 @@ function addSVGAccessibilityProps() {
       titleElement.textContent = 'Image'; // Default accessible name
       svg.insertBefore(titleElement, svg.firstChild);
     }
-    
+
     // Ensure title has an ID for aria-labelledby
     if (!titleElement.id) {
       titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
     }
-    
+
     // Set aria-labelledby to point to the title
     svg.setAttribute('aria-labelledby', titleElement.id);
-    
+
     // Add role img if not present (redundant but safe)
     if (!svg.hasAttribute('role')) {
       svg.setAttribute('role', 'img');
@@ -381,20 +393,20 @@ function createAccessibleDialog(id, title, content, closeLabel = 'Close') {
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-labelledby', `${id}-title`);
   dialog.setAttribute('aria-modal', 'true');
-  
+
   const titleEl = document.createElement('h2');
   titleEl.id = `${id}-title`;
   titleEl.textContent = title;
-  
+
   const closeButton = createAccessibleButton(`${id}-close`, closeLabel, () => {
     dialog.hidden = true;
     dialog.setAttribute('aria-hidden', 'true');
   });
-  
+
   dialog.appendChild(titleEl);
   dialog.appendChild(closeButton);
   dialog.appendChild(content);
-  
+
   return dialog;
 }
 
@@ -417,7 +429,7 @@ function trapFocus(container) {
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   container.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       if (e.shiftKey && document.activeElement === firstElement) {
@@ -445,7 +457,7 @@ function initAccessibility() {
       }
     });
   }
-  
+
   // Ensure all images have alt text
   document.querySelectorAll('img').forEach((img) => {
     if (!img.hasAttribute('alt')) {
@@ -453,7 +465,7 @@ function initAccessibility() {
       img.setAttribute('role', 'presentation');
     }
   });
-  
+
   // Add proper labeling to form inputs
   document.querySelectorAll('input, select, textarea').forEach((input) => {
     if (!input.id && input.name) {
@@ -513,7 +525,7 @@ function setupKeyboardNavigation() {
         document.body.style.overflow = '';
       }
     }
-    
+
     // Handle Tab key navigation
     if (e.key === 'Tab') {
       document.body.classList.add('keyboard-nav');
@@ -613,11 +625,11 @@ function setupSkipLinks() {
  */
 function addressAccessibilityIssues(insightReport) {
   const addressedIssues = [];
-  
+
   // Handle accessibility-specific issues (HEAD version)
   if (insightReport && insightReport.accessibility) {
     const accessibilityIssues = insightReport.accessibility || [];
-    
+
     for (const issue of accessibilityIssues) {
       if (issue.type === 'accessibility') {
         console.log(`Addressing accessibility issue: ${issue.id}`);
@@ -626,7 +638,7 @@ function addressAccessibilityIssues(insightReport) {
       }
     }
   }
-  
+
   // Handle general issues (origin/main version)
   if (insightReport && insightReport.issues) {
     insightReport.issues.forEach(issue => {
@@ -635,7 +647,7 @@ function addressAccessibilityIssues(insightReport) {
       addressedIssues.push(issue);
     });
   }
-  
+
   return addressedIssues;
 }
 
@@ -646,14 +658,14 @@ function addressAccessibilityIssues(insightReport) {
  */
 function checkLandmarkElement(role, element) {
   if (!element || !role) return { valid: false, issues: [] };
-  
+
   const issues = [];
   const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
-  
+
   if (!hasLabel && role !== 'main') {
     issues.push(`Landmark with role "${role}" is missing accessible label`);
   }
-  
+
   return {
     valid: issues.length === 0,
     issues: issues
@@ -670,11 +682,11 @@ function checkLandmarks(container = document) {
     landmarks: [],
     issues: []
   };
-  
+
   if (!container) return results;
-  
+
   const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
+
   roles.forEach(role => {
     const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach(element => {
@@ -684,7 +696,7 @@ function checkLandmarks(container = document) {
         element,
         valid: checkResult.valid
       });
-      
+
       if (!checkResult.valid) {
         results.issues.push({
           role,
@@ -694,7 +706,7 @@ function checkLandmarks(container = document) {
       }
     });
   });
-  
+
   return results;
 }
 
@@ -705,12 +717,12 @@ function checkLandmarks(container = document) {
  */
 function isLinkAccessible(link) {
   if (!link) return false;
-  
+
   const hasText = link.textContent && link.textContent.trim().length > 0;
   const hasAriaLabel = link.hasAttribute('aria-label');
   const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
   const hasTitle = link.hasAttribute('title');
-  
+
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
@@ -721,13 +733,13 @@ function isLinkAccessible(link) {
  */
 function isButtonAccessible(button) {
   if (!button) return false;
-  
+
   const hasText = button.textContent && button.textContent.trim().length > 0;
   const hasAriaLabel = button.hasAttribute('aria-label');
   const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
   const hasTitle = button.hasAttribute('title');
   const hasIcon = button.querySelector('svg, img, icon');
-  
+
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
 }
 
@@ -741,9 +753,9 @@ function checkAccessibility(container = document) {
     links: { accessible: [], inaccessible: [] },
     buttons: { accessible: [], inaccessible: [] }
   };
-  
+
   if (!container) return results;
-  
+
   const links = container.querySelectorAll('a[href]');
   links.forEach(link => {
     if (isLinkAccessible(link)) {
@@ -752,7 +764,7 @@ function checkAccessibility(container = document) {
       results.links.inaccessible.push(link);
     }
   });
-  
+
   const buttons = container.querySelectorAll('button');
   buttons.forEach(button => {
     if (isButtonAccessible(button)) {
@@ -761,7 +773,7 @@ function checkAccessibility(container = document) {
       results.buttons.inaccessible.push(button);
     }
   });
-  
+
   return results;
 }
 
@@ -772,21 +784,21 @@ function checkAccessibility(container = document) {
  */
 function wrapPrimaryContentInMain() {
   if (typeof document === 'undefined' || !document.body) return null;
-  
+
   const existingMain = document.querySelector('main');
   if (existingMain) return existingMain;
-  
+
   const main = document.createElement('main');
   main.setAttribute('role', 'main');
-  
+
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
-    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
         !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
       main.appendChild(child);
     }
   });
-  
+
   document.body.insertBefore(main, document.body.firstChild);
   return main;
 }
@@ -999,7 +1011,7 @@ const a11yStore = {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
-        
+
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
@@ -1148,13 +1160,13 @@ const a11yStore = {
         titleElement.textContent = 'Image';
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
@@ -1180,14 +1192,14 @@ const a11yStore = {
         }
       });
     }
-    
+
     document.querySelectorAll('img').forEach((img) => {
       if (!img.hasAttribute('alt')) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
-    
+
     document.querySelectorAll('input, select, textarea').forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
@@ -1225,39 +1237,6 @@ if (banners.length > 1) {
   throw new Error('Document should have at most one banner or header landmark');
 }
 
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) {
-    return null;
-  }
-
-  // Check if a <main> element already exists
-  let mainElement = document.querySelector('main');
-  if (mainElement) {
-    return mainElement;
-  }
-
-  // Identify landmark elements that should remain outside of <main>
-  const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
-  landmarks.forEach(landmark => elementsToExclude.push(landmark));
-
-  // Create a new <main> element
-  mainElement = document.createElement('main');
-
-  // Move all body children that are not in the exclude list into <main>
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (!elementsToExclude.includes(child)) {
-      mainElement.appendChild(child);
-    }
-  });
-
-  // Append the <main> element to the body
-  document.body.appendChild(mainElement);
-
-  return mainElement;
-}
-
 function ensureUniqueLandmarks() {
   // Ensure only one main landmark
   const mains = document.querySelectorAll('main, [role="main"]');
@@ -1292,6 +1271,20 @@ function ensureUniqueLandmarks() {
   return { removedMains, removedBanners, removedFooters };
 }
 
+export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+  // Code to address the specific accessibility issue on the element
+  // This is a placeholder function and should be replaced with the actual implementation
+  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+};
+
+// Math Helper Imports
+const { add } = require('./mathHelpers');
+const { subtract } = require('./mathHelpers');
+const { multiply } = require('./mathHelpers');
+const { divide } = require('./mathHelpers');
+const { power } = require('./mathHelpers');
+const { squareRoot } = require('./mathHelpers');
+
 module.exports = {
     config,
     countDependencies,
@@ -1310,6 +1303,13 @@ module.exports = {
     myFunction1,
     myFunction2,
     addressAccessibilityIssues,
+    addressAccessibilityIssue038,
+    add,
+    subtract,
+    multiply,
+    divide,
+    power,
+    squareRoot,
     main,
     SomeClass,
     someUtility,

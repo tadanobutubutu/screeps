@@ -1,7 +1,13 @@
-// TODO: Identify and update specific functions that render dependency graphs or
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
 
 const fs = require('fs');
 const path = require('path');
+
+function calculateSum(a, b) {
+    return a + b;
+}
 
 function renderDependencyGraph(dependencies) {
     // Placeholder for dependency graph rendering logic
@@ -27,7 +33,8 @@ function updateDependencyGraphs(code) {
     
     const functions = {
         renderDependencyGraph: renderDependencyGraph,
-        updateDependencyGraphs: updateDependencyGraphs
+        updateDependencyGraphs: updateDependencyGraphs,
+        calculateSum: calculateSum
     };
     
     return functions;
@@ -41,5 +48,6 @@ function main() {
 module.exports = {
     main,
     renderDependencyGraph,
-    updateDependencyGraphs
+    updateDependencyGraphs,
+    calculateSum
 };

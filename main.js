@@ -1,3 +1,6 @@
+// Import required module(s) - for fixing table structure issues
+import './table-styles.css';
+
 // main.js - Entry point for the application
 
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
@@ -79,7 +82,8 @@ function initApp() {
   unrotateBtn.id = 'unrotate';
   unrotateBtn.textContent = 'rotate back';
   unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
-  unrotateBtn.addEventListener('click', function() {
+  unrotateBtn.addEventListener('click', function(e) {
+    e.preventDefault();
     content.style.transform = 'rotate(0deg)';
   });
   container.appendChild(unrotateBtn);

@@ -1,7 +1,88 @@
 // main.js
+// TODO: Address accessibility issues from insight report — CONTINUING
+// Add new functions (no existing functions should be removed or renamed)
+
+// Importing the necessary functions
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+
+// Importing utilities for formatting and validation
+import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
+import { renderHeader, renderFooter, renderProductCard } from './components.js';
+import { state, updateState } from './state.js';
 
 // Import required module(s) - for fixing table structure issues
-const domutils = require('domutils');
+import domutils from 'domutils';
+
+// DOM-based accessibility code
+
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', getLangAttribute());
+
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+const table = document.getElementById('myTable');
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
+
+// Add/fix landmark issues
+validateLandmark();
+validateLandmarkStructure();
+
+// Add accessible names to SVGs
+const svg = document.getElementById('mySvg');
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
+
+// Ensure unique landmarks
+validateLinkAccessibility();
+handleFakeLinks();
+
+// React / UI related functions
+
+function formatProductName(product) {
+  return `${product.name} - ${product.category}`;
+}
+
+function renderProductList(products) {
+  const container = document.getElementById('product-list');
+  if (!container) return null;
+  container.innerHTML = products.map(renderProductCard).join('');
+  return container;
+}
+
+function calculateTotalPrice(cart) {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = calculateDiscount(subtotal);
+  return subtotal - discount;
+}
+
+function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return renderProductList(input.products);
+  }
+  return null;
+}
 
 /**
  * Process table elements and extract row data
@@ -25,14 +106,6 @@ function processTable(tableElement) {
   traverse(tableElement);
   return rows;
 }
-
-// Imports at the top of the file
-const { utility1, utility2 } = require('./utils');
-const { formatData, processValues } = require('./helpers');
-const { addMissingExportFunction } = require('./missingExportFile');
-
-// Existing code
-const existingFunction = {};
 
 /**
  * Get accessible name for SVG elements
@@ -72,6 +145,7 @@ function getFullLangAttribute(doc) {
  * @returns { boolean } Whether the landmark is valid
  */
 function validateLandmark(element) {
+  if (!element) return false;
   const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const role = element.getAttribute('role');
   return !!role && validRoles.includes(role);
@@ -83,7 +157,9 @@ function validateLandmark(element) {
  * @returns { Array } Array of validation results
  */
 function validateLandmarkStructure(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const document = doc || global.document;
+  if (!document) return [];
+  const landmarks = document.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks).map(el => ({
     element: el,
     valid: validateLandmark(el),
@@ -97,6 +173,7 @@ function validateLandmarkStructure(doc) {
  * @returns { boolean } Whether the table is accessible
  */
 function validateTableAccessibility(table) {
+  if (!table) return false;
   const hasCaption = table.querySelector('caption') !== null;
   const hasHeaders = table.querySelector('th') !== null;
   return hasCaption && hasHeaders;
@@ -108,7 +185,9 @@ function validateTableAccessibility(table) {
  * @returns { Array } Array of validation results
  */
 function validateTableStructure(doc) {
-  const tables = doc.querySelectorAll('table');
+  const document = doc || global.document;
+  if (!document) return [];
+  const tables = document.querySelectorAll('table');
   return Array.from(tables).map(table => ({
     table,
     accessible: validateTableAccessibility(table),
@@ -136,7 +215,9 @@ function ensureUniqueLandmarks(landmarks) {
  * @param { Document } doc - The document object to operate on
  */
 function addFixLandmarkIssues(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const document = doc || global.document;
+  if (!document) return;
+  const landmarks = document.querySelectorAll('main, footer, aside, section, article');
   ensureUniqueLandmarks(landmarks);
 }
 
@@ -145,7 +226,9 @@ function addFixLandmarkIssues(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function fixFakeLinkIssues(doc) {
-  const links = doc.querySelectorAll('a');
+  const document = doc || global.document;
+  if (!document) return;
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
     if (!link.href || link.href === '#') {
       link.setAttribute('role', 'presentation');
@@ -161,7 +244,9 @@ function fixFakeLinkIssues(doc) {
  * @returns { HTMLAnchorElement } The created link
  */
 function createAccessibleLink(href, text, doc) {
-  const link = doc.createElement('a');
+  const document = doc || global.document;
+  if (!document) return null;
+  const link = document.createElement('a');
   link.href = href;
   link.textContent = text;
   return link;
@@ -174,7 +259,9 @@ function createAccessibleLink(href, text, doc) {
  * @returns { HTMLButtonElement } The created button
  */
 function createInPageButton(text, doc) {
-  const button = doc.createElement('button');
+  const document = doc || global.document;
+  if (!document) return null;
+  const button = document.createElement('button');
   button.textContent = text;
   button.id = button.id || `button-${Date.now()}`;
   return button;
@@ -185,11 +272,13 @@ function createInPageButton(text, doc) {
  * @param { Document } doc - The document object to operate on
  */
 function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('article, #content, .content');
+  const document = doc || global.document;
+  if (!document) return;
+  const primaryContent = document.querySelector('article, #content, .content');
   if (!primaryContent || !primaryContent.parentNode) {
     return;
   }
-  const main = doc.createElement('div');
+  const main = document.createElement('div');
   main.className = 'main';
   main.setAttribute('role', 'main');
   primaryContent.parentNode.insertBefore(main, primaryContent);
@@ -202,7 +291,9 @@ function wrapPrimaryContentInMain(doc) {
  * @returns { Array } Array of landmark elements found
  */
 function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const document = doc || global.document;
+  if (!document) return [];
+  const landmarks = document.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks);
 }
 
@@ -211,7 +302,9 @@ function addProperLandmarkRegions(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function addAriaToFormControls(doc) {
-  const inputs = doc.querySelectorAll('input, select, textarea');
+  const document = doc || global.document;
+  if (!document) return;
+  const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
       input.id = `input-${index}`;
@@ -224,7 +317,9 @@ function addAriaToFormControls(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function replaceMyButtonId(doc) {
-  const buttons = doc.querySelectorAll('button');
+  const document = doc || global.document;
+  if (!document) return;
+  const buttons = document.querySelectorAll('button');
   buttons.forEach((button, index) => {
     if (!button.id) {
       button.id = `button-${index}`;
@@ -239,6 +334,9 @@ function replaceMyButtonId(doc) {
  * @returns { Object } A summary of the fixes applied
  */
 function addressAccessibilityIssuesFromInsightReport(doc) {
+  const document = doc || global.document;
+  if (!document) return {};
+
   const summary = {
     langAttributeFixed: false,
     landmarkIssuesFixed: 0,
@@ -250,22 +348,22 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   };
 
   // REACT_015: Add lang attribute to HTML element if missing
-  if (!doc.documentElement.getAttribute('lang')) {
-    doc.documentElement.setAttribute('lang', getLangAttribute(doc));
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', getLangAttribute(document));
     summary.langAttributeFixed = true;
   }
 
   // REACT_017 & REACT_025: Add/fix landmark issues and ensure unique landmarks
-  const landmarkResults = validateLandmarkStructure(doc);
+  const landmarkResults = validateLandmarkStructure(document);
   summary.landmarkIssuesFixed = landmarkResults.filter(r => !r.valid).length;
-  addFixLandmarkIssues(doc);
+  addFixLandmarkIssues(document);
 
   // REACT_027: Validate table structure
-  const tableResults = validateTableStructure(doc);
+  const tableResults = validateTableStructure(document);
   summary.tablesValidated = tableResults.length;
 
   // REACT_036: Fix fake link issues
-  const links = doc.querySelectorAll('a');
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
     if (!link.href || link.href === '#') {
       link.setAttribute('role', 'presentation');
@@ -274,7 +372,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   });
 
   // REACT_041: Add accessible names to SVGs
-  const svgs = doc.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     if (!getSvgAccessibleName(svg)) {
       svg.setAttribute('aria-label', `Image ${index + 1}`);
@@ -283,7 +381,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   });
 
   // Add ARIA to form controls
-  const inputs = doc.querySelectorAll('input, select, textarea');
+  const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
       input.id = `input-${index}`;
@@ -292,7 +390,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   });
 
   // Replace button IDs with accessible alternatives
-  const buttons = doc.querySelectorAll('button');
+  const buttons = document.querySelectorAll('button');
   buttons.forEach((button, index) => {
     if (!button.id) {
       button.id = `button-${index}`;
@@ -301,8 +399,8 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   });
 
   // Wrap primary content in main landmark if not present
-  if (!doc.querySelector('main, [role="main"]')) {
-    wrapPrimaryContentInMain(doc);
+  if (!document.querySelector('main, [role="main"]')) {
+    wrapPrimaryContentInMain(document);
   }
 
   return summary;
@@ -323,7 +421,9 @@ function calculateTotal(items) {
  * @returns { Array<HTMLElement> } - An array of landmark elements
  */
 function addAndEnsureUniqueLandmarkRegions(doc) {
-  const landmarks = addProperLandmarkRegions(doc);
+  const document = doc || global.document;
+  if (!document) return [];
+  const landmarks = addProperLandmarkRegions(document);
   ensureUniqueLandmarks(landmarks);
   return landmarks;
 }
@@ -362,8 +462,14 @@ function generateTableMarkdown(headers, rows) {
   return `${headerRow}\n${separator}\n${dataRows.join('\n')}`;
 }
 
-module.exports = {
-  existingFunction,
+// Export all functions
+export {
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  processTable,
   getSvgAccessibleName,
   getLangAttribute,
   getFullLangAttribute,
@@ -383,11 +489,6 @@ module.exports = {
   addressAccessibilityIssuesFromInsightReport,
   calculateTotal,
   addAndEnsureUniqueLandmarkRegions,
-  renderHomePage,
-  renderUserProfile,
-  renderDashboard,
-  renderSettings,
-  processTable,
   formatTableRow,
   generateTableMarkdown,
 };

@@ -69,6 +69,14 @@ function addScopeToTableHeaders() {
   });
 }
 
+// Count dependencies function
+function countDependencies(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  return Object.keys(dependencies).length;
+}
+
 // Export the module functions
 module.exports = {
   renderDependencyGraphContent,
@@ -76,5 +84,6 @@ module.exports = {
   fixFakeLinks,
   implementNewFunction,
   addScopeToTableHeaders,
+  countDependencies,
   renderGraphContent
 };

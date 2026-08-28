@@ -41,5 +41,3 @@ function addSvgAccessibilityProps(attrs, options = {}) {
   // Merge aria props
   return { ...newAttrs, ...ariaProps };
 }
-
-// TODO: Implement this function for adding SVG accessibility props

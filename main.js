@@ -30,11 +30,28 @@ function addAriaLabelByIdToHeadings() {
   });
 }
 
+// Preserve the existing code here
+
+// Add the new code to improve accessibility
+function makeInteractiveElementAccessible(element) {
+  // Replace 'yourElementId' with the actual id of the interactive element
+  const yourElement = element;
+  if (yourElement) {
+    yourElement.setAttribute('aria-label', 'Your Element Description');
+  }
+}
+
+// Call the new function with an appropriate selector if needed
+makeInteractiveElementAccessible(document.querySelector('.interactive-element'));
+
+// Preserve the rest of the existing code here
+
 // Run new functions to fix the accessibility issues
 addAriaHiddenToDecorativeSVGs();
 addAriaLabelToFormInputs();
 addAriaLabelByIdToHeadings();
 
 module.exports = {
+  makeInteractiveElementAccessible,
   // Your existing exports...
 };

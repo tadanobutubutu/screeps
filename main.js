@@ -10,6 +10,10 @@ import { createElement } from 'react';
 // Import your new function from your new module
 // import { triggerAccessibilityMode } from ...
 
+// Import dependency graph and index content modules for rendering dependency graphs and index views
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Helper function to get document object (cross-environment support)
 function getDocument() {
   if (typeof document !== 'undefined') {
@@ -18,12 +22,28 @@ function getDocument() {
   return null;
 }
 
+// Function to render dependency graph using dependencyGraphContent
+function renderDependencyGraph(container) {
+  const doc = getDocument();
+  if (!doc || !container) return null;
+  
+  return dependencyGraphContent(doc, container);
+}
+
+// Function to render index view using indexContent
+function renderIndexView(container) {
+  const doc = getDocument();
+  if (!doc || !container) return null;
+  
+  return indexContent(doc, container);
+}
+
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
+    if ... {
+      ... lang);
     }
   }
 }
@@ -34,7 +54,7 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.getAttribute('role')) {
+    if (body && ... {
       // Only set role if one doesn't exist
     }
   }
@@ -48,18 +68,18 @@ function handleErrorState(errorElement, container, trigger = false) {
   if (!doc) return;
 
   // Wrap the error in a <section> element
-  const errorSection = doc.createElement('section');
+  const errorSection = ...
   errorSection.setAttribute('role', 'alert');
-  errorSection.setAttribute('aria-live', 'assertive');
+  ... 'assertive');
   
   if (typeof errorElement === 'string') {
     errorSection.textContent = errorElement;
   } else {
-    errorSection.appendChild(errorElement);
+    ...
   }
 
   if (container) {
-    const errorContainer = doc.createElement('div');
+    const errorContainer = ...
     errorContainer.setAttribute('class', 'error-container');
     errorContainer.setAttribute('role', 'alert');
     errorContainer.appendChild(errorSection);
@@ -68,12 +88,12 @@ function handleErrorState(errorElement, container, trigger = false) {
 
   // If trigger is true, trigger the accessibility mode
   if (trigger) {
-    triggerAccessibilityMode();
+    ...
   }
 }
 
 // Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
-function handleAccessibilityError(errorElement, container) {
+function ... container) {
   handleErrorState(errorElement, container, true);
 }
 
@@ -81,8 +101,8 @@ function handleAccessibilityError(errorElement, container) {
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
+    ...
+    ... 'enabled');
   }
 }
 
@@ -98,3 +118,7 @@ export { addLangAttribute };
 // Export the new functions/modules if needed
 export { updateAriaAttributes };
 export { triggerAccessibilityMode };
+
+// Export functions that render dependency graphs and index views
+export { renderDependencyGraph };
+export { renderIndexView };

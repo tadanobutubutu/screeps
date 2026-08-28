@@ -3,8 +3,7 @@
 const express = require('express');
 const app = express();
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+const { hello, getVersion, getConfig, createInPageButton, addressAccessibilityIssues, generateAccessibilityReport, calculateAccessibilityScore } = require('./');
 
 const PORT = process.env.PORT || 3000;
 
@@ -12,11 +11,20 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Existing routes
+// Imported functions
 app.get('/', (req, res) => {
-  res.send('Welcome to the application');
+  res.send(hello());
 });
 
+app.get('/version', (req, res) => {
+  res.send(getVersion());
+});
+
+app.get('/config', (req, res) => {
+  res.json(getConfig());
+});
+
+// Existing routes
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });

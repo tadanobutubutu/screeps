@@ -66,8 +66,7 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.hasAttribute('role')) {
-      // Only set role if one doesn't exist
+    if (body && !body.getAttribute('role')) {
       body.setAttribute('role', 'document');
     }
   }

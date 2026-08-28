@@ -37,17 +37,7 @@ function addRoleAndLabelToCheckbox(filePath) {
   let updatedContent = content;
 
   const checkboxes = content.match(/<input type="checkbox"/g);
-  if (checkboxes) {
-    checkboxes.forEach((checkbox) => {
-      updatedContent = updatedContent.replace(
-        checkbox,
-        checkbox.replace('<input', '<input role="checkbox" aria-label="checkbox"')
-      );
-    });
-  }
-
-  fs.writeFileSync(filePath, updatedContent);
-  console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
+  // ... existing code ...
 }
 
 // New function to address accessibility issues
@@ -85,7 +75,6 @@ function addressAccessibilityIssues(filePath) {
   console.log(`Improved accessibility in ${filePath}`);
 }
 
-// Example: Set the lang attribute on the root element dynamically
 function setLanguage(lang) {
   document.documentElement.lang = lang;
 }

@@ -15,12 +15,12 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues() {
+function addLandmarkRoles() {
   // Existing logic (if any) can be kept here, or, a new implementation can be added
 }
 
 // Functions to address specific insight report issues
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function addressReact025Issues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -29,11 +29,11 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   });
 }
 
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function addressReact017Issues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      console.log('Addressing REACT_017 issue:', issue);
     }
   });
 }
@@ -55,12 +55,12 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksByExample() {
+function ensureUniqueLandmarkRoles() {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = []; // DOM elements would be selected here
     const uniqueElements = [];
     elements.forEach(el => {
       const isUnique = !uniqueElements.some(uEl => uEl === el);
@@ -81,9 +81,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  addLandmarkRoles,
+  addressReact025Issues,
+  addressReact017Issues
 };

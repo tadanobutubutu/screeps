@@ -162,3 +162,17 @@ function fixFakeLinkIssue() {
   });
   console.log("Fake link issues fixed");
 }
+
+// Your existing code...
+
+// Adding an alt attribute to an image
+const imageElement = document.getElementById('example-image');
+if (imageElement) {
+  imageElement.setAttribute('alt', 'A description of the image');
+}
+
+// Correcting the ARIA role for a div
+const divElement = document.getElementById('example-div');
+if (divElement) {
+  divElement.setAttribute('role', 'list');
+}

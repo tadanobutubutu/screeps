@@ -200,6 +200,6 @@ module.exports = {
   processData,
   validateInput,
   addressAccessibilityIssues,
-  missingExportPlaceholder,
-  config
+  config,
+  missingExportPlaceholder
 };

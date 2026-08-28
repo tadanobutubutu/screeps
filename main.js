@@ -2,77 +2,76 @@ const fs = require('fs');
 const path = require('path');
 
 // Main game loop for Screeps
-module.exports = {
-  loop: function() {
-    // Clean up memory of dead creeps
-    for (var name in Memory.creeps) {
-      if (!Game.creeps[name]) {
-        delete Memory.creeps[name];
-      }
-    }
+function run() {
+  // Your game logic here...
 
-    // Your game logic here
-  },
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      updateThScopeAttribute(filePath);
+    });
+}
 
-  // TODO: Implement a function to count dependencies
-  countDependencies: function() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.lang) {
+  document.documentElement.setAttribute('lang', 'en');
+}
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+// Import accessibility helper functions
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibilityHelperFunctions');
 
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-  },
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.createElement('main');
+document.documentElement.setAttribute('lang', 'en');
+document.body.appendChild(mainElement);
 
-  // ... existing code below ...
+// Initialize accessibility features
+document.addEventListener('DOMContentLoaded', () => {
+  a11yStore.init();
+});
 
-  main: function() {
-    return 'Hello World';
-  },
-
-  SomeClass: SomeClass,
-
-  someUtility: function() {
-    return true;
-  },
-
-  config: {
-    enabled: true
-  }
-};
-
-function SomeClass() {}
+// Game-related functions and exports
 
 function main() {
   return 'Hello World';
 }
 
+function SomeClass() {}
+
 function someUtility() {
   return true;
 }
 
-function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const config = {
+  enabled: true
+};
 
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-module.exports.loop = module.exports.loop;
-module.exports.countDependencies = countDependencies;
-module.exports.main = main;
-module.exports.SomeClass = SomeClass;
-module.exports.someUtility = someUtility;
-module.exports.config = { enabled: true };
+module.exports = {
+  run,
+  main,
+  SomeClass,
+  someUtility,
+  config,
+  countDependencies,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  a11yStore,
+  mainElement
+};

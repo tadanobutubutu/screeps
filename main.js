@@ -69,6 +69,73 @@ export function fixFakeLinkIssue() {
   });
 }
 
+// Add ARIA labels to SVGs that don't have an accessible name
+export function addAriaLabelToSVGsWithoutAccessibleName(svgs) {
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        svg.setAttribute('aria-label', title.textContent);
+      }
+    }
+  });
+}
+
+// Add proper landmark regions based on insight report data
+export function addProperLandmarkRegions(data) {
+  data.forEach(item => {
+    if (item.role && item.selector) {
+      const elements = document.querySelectorAll(item.selector);
+      elements.forEach(el => {
+        el.setAttribute('role', item.role);
+        if (item.label) {
+          el.setAttribute('aria-label', item.label);
+        }
+      });
+    }
+  });
+}
+
+// Generalized accessibility improvements
+export function improveAccessibility() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Add appropriate ARIA labels to SVGs without accessible name
+  addAriaLabelToSVGsWithoutAccessibleName(document.querySelectorAll('svg'));
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
+}
+
+// Function to address insight report issues
+export function addressInsightIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      ensureUniqueLandmarks();
+    }
+    if (issue.code === 'REACT_017') {
+      // Handle REACT_017 issue - ensuring proper ARIA labels and descriptions
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (!el['aria-label'] && !el.label) {
+          el['aria-label'] = el.id || 'unnamed-element';
+        }
+      });
+      // Add proper landmark regions from insight report data
+      addProperLandmarkRegions(issue.data || []);
+    }
+  });
+}
+
 // Initialize accessibility fixes
 export function initAccessibility() {
   addLangAttribute();
@@ -77,6 +144,7 @@ export function initAccessibility() {
   ensureUniqueLandmarks();
   addSvgAccessibleNames();
   fixFakeLinkIssue();
+  improveAccessibility();
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

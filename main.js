@@ -349,6 +349,56 @@ function addA11yAttributesToInteractiveElements() {
   // (existing code for addA11yAttributesToInteractiveElements remains the same)
 }
 
+/**
+ * Validates table accessibility.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Array} Array of issue objects
+ */
+function validateTableAccessibility(table) {
+  const issues = [];
+  // Check for missing caption
+  if (!table.querySelector('caption')) {
+    issues.push({ type: 'missing-caption', element: table });
+  }
+  // Check for missing or invalid headers
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({ type: 'missing-headers', element: table });
+  }
+  // Check for complex spanning cells
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach(cell => {
+    if (cell.hasAttribute('colspan') && cell.getAttribute('colspan') > 1) {
+      issues.push({ type: 'complex-spanning-cell', element: cell });
+    }
+    if (cell.hasAttribute('rowspan') && cell.getAttribute('rowspan') > 1) {
+      issues.push({ type: 'complex-spanning-cell', element: cell });
+    }
+  });
+  return issues;
+}
+
+/**
+ * Validates table structure.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Array} Array of issue objects
+ */
+function validateTableStructure(table) {
+  const issues = [];
+  // Check if table has proper structure (thead, tbody)
+  if (!table.querySelector('thead')) {
+    issues.push({ type: 'missing-thead', element: table });
+  }
+  if (!table.querySelector('tbody')) {
+    issues.push({ type: 'missing-tbody', element: table });
+  }
+  // Check for nested tables
+  if (table.querySelectorAll('table').length > 0) {
+    issues.push({ type: 'nested-table', element: table });
+  }
+  return issues;
+}
+
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
@@ -372,6 +422,8 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.validateTableAccessibility = validateTableAccessibility;
+globalObject.validateTableStructure = validateTableStructure;
 
 // Exports for all functions
 module.exports = {
@@ -395,5 +447,7 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
   getSvgAccessibleName,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure
 };

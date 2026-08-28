@@ -1,5 +1,5 @@
 // Import dependencyGraphContent
-const dependencyGraphContent = require('./dependencyGraph');
+const dependencyGraphContent = require('./dependencyGraphContent');
 
 // Update the renderDependencyGraph function
 const renderDependencyGraph = (dependencyGraph, container) => {
@@ -231,7 +231,36 @@ function checkLandmarkElement(role, element) {
  * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
  */
 function wrapPrimaryContentInMain() {
-  // (code for wrapPrimaryContentInMain remains the same)
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
+  }
+
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main');
+  if (mainElement) {
+    return mainElement;
+  }
+
+  // Identify landmark elements that should remain outside of <main>
+  const elementsToExclude = [];
+  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  landmarks.forEach(landmark => elementsToExclude.push(landmark));
+
+  // Create a new <main> element
+  mainElement = document.createElement('main');
+
+  // Move all body children that are not in the exclude list into <main>
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (!elementsToExclude.includes(child)) {
+      mainElement.appendChild(child);
+    }
+  });
+
+  // Append the <main> element to the body
+  document.body.appendChild(mainElement);
+
+  return mainElement;
 }
 
 /**

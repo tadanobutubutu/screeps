@@ -26,6 +26,16 @@ function initApp() {
     content.style.transform = 'rotate(0deg)';
   });
   container.appendChild(unrotateBtn);
+  
+  // New function to render a dependency graph
+  function renderDependencyGraph() {
+    // Placeholder code for rendering a dependency graph
+    // This function should be updated to include actual rendering logic
+    console.log('Dependency graph rendering logic should be implemented here.');
+  }
+  
+  // Call the new function to render the dependency graph
+  renderDependencyGraph();
 }
 
 // Initialize on DOM ready

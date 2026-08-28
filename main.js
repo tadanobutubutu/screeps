@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Before:
+// ...
+
+// After:
+// ...
+// <html>
+//   <head>
+//     <..., existing code>
+//   </head>
+//   <body lang="en">
+//     ...
+//   </body>
+// </html>

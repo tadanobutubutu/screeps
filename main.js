@@ -16,6 +16,12 @@ const MyComponent = () => {
 
       {/* Add role='checkbox' attribute for checkboxes */}
       <input type="checkbox" role={inputRole} />
+
+      {/* New changes or functions */}
+      <div>
+        {/* Example of a new function or change */}
+        <p>Example of new functionality or change</p>
+      </div>
     </div>
   );
 };

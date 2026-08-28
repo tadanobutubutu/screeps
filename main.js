@@ -1,8 +1,8 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+const fs = require('fs');
+const path = require('path');
 
-// Additional functionality can be added here if needed
-// while preserving the existing code structure
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
 
 function calculateDiscount(price, discountRate) {
     // Calculate and return the discounted price

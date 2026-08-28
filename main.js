@@ -7,5 +7,8 @@ module.exports.loop = function() { /* ... */ }
 // ----- END ORIGINAL CODE -----
 
 // NEW FUNCTION, CHANGE OR ADDITIONS WITHIN THE TO-DO SECTION (unchanged here)
+const newModule = require('new-module');
+const anotherModule = require('another-module');
+
 function newFunction() { /* ... */ }
 module.exports.newExport = function() { /* ... */ }

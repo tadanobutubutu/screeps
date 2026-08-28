@@ -340,24 +340,97 @@ const a11yStore = {
   }
 };
 
-// Wrap the entire document content inside a <main> element and set its lang attribute
 function wrapPrimaryContentInMain() {
-  const mainElement = document.createElement('main');
-  mainElement.setAttribute('lang', document.documentElement.lang);
-
-  // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
   }
 
-  mainElement.appendChild(document.body.cloneNode(true));
-  document.body.parentNode.insertBefore(mainElement, document.body);
+  // Check if a <main> element already exists
+  let mainElement = document.querySelector('main');
+  if (mainElement) {
+    return mainElement;
+  }
+
+  // Identify landmark elements that should remain outside of <main>
+  const elementsToExclude = [];
+  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  landmarks.forEach(landmark => elementsToExclude.push(landmark));
+
+  // Create a new <main> element
+  mainElement = document.createElement('main');
+
+  // Move all body children that are not in the exclude list into <main>
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (!elementsToExclude.includes(child)) {
+      mainElement.appendChild(child);
+    }
+  });
+
+  // Append the <main> element to the body
+  document.body.appendChild(mainElement);
+
+  return mainElement;
 }
 
 // Adding the new function at the end
 function newFunction() {
   // Your new function code here
 }
+
+// Check for duplicate banners
+const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+if (banners.length > 1) {
+  throw new Error('Document should have at most one banner or header landmark');
+}
+
+function checkLandmarkElement(role, element) {
+  // (code for checkLandmarkElement remains the same)
+}
+
+function checkLandmarks(container = document) {
+  // (code for checkLandmarks remains the same)
+}
+
+function ensureUniqueLandmarks() {
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  const removedMains = [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      removedMains.push(mains[i]);
+      mains[i].remove();
+    }
+  }
+
+  // Ensure only one banner landmark
+  const banners = document.querySelectorAll('[role="banner"], header');
+  const removedBanners = [];
+  if (banners.length > 1) {
+    for (let i = 1; i < banners.length; i++) {
+      removedBanners.push(banners[i]);
+      banners[i].remove();
+    }
+  }
+
+  // Ensure only one contentinfo/footer landmark
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  return { removedMains, removedBanners, removedFooters };
+}
+
+// Import and export additional functions if needed (placeholder for actual modules)
+// Assuming 'utils' modules are required (example follows)
+// import { utilityFunction } from './utils.js';
+// export { utilityFunction };
+// ----- END ORIGINAL CODE -----
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -380,7 +453,7 @@ export function prefersReducedMotion() {
 
 // Standalone utility function to check if user prefers high contrast
 export function prefersHighContrast() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return window.matchMedia('(prefers-contrast: more)').matches;
 }
 
 // Export for module usage

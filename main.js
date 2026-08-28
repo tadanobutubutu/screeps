@@ -6,24 +6,15 @@ module.exports = {
   SomeClass,
   someUtility,
   config,
-  countDependencies
+  countDependencies,
+  newFunction
 };
 
 function main() {
   return 'Hello World';
 }
 
-function SomeClass() {}
-
-function someUtility() {
-  return true;
-}
-
-const config = {
-  enabled: true
-};
-
-// TODO: Implement a function to count dependencies
+// Count dependencies function
 function countDependencies() {
     const fs = require('fs');
     const path = require('path');
@@ -40,4 +31,5 @@ function countDependencies() {
     };
 }
 
-// TODO: Add back any required exports that might have been?
+// New function added by HEAD branch
+function newFunction() {

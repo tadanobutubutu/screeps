@@ -15,15 +15,19 @@ function wrapPrimaryContentInMain(doc) {
   }
 }
 
-// ADD THE NEW FUNCTION HERE
+/**
+ * Add and ensure unique landmark regions
+ * @param { Document } doc - The document object to operate on
+ * @returns { Array<HTMLElement> } - An array of landmark elements
+ */
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
   return ensureUniqueLandmarks(landmarks);
 }
 
-// ... (The rest of the existing functions and exports remain unchanged)
+// ... (The rest of the existing functions remain unchanged)
 
-// ADD THE NEW FUNCTION TO THE EXPORTS
+// ADD THE NEW FUNCTIONS TO THE EXPORTS
 const { addMissingExportFunction } = require('./missingExportFile');
 
 module.exports = {

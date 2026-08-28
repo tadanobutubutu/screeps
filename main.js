@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code that must be preserved
+function add(a, b) {
+  return a + b;
+}
+
+// Removed exports
+export { add };

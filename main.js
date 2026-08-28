@@ -390,6 +390,8 @@ globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
 globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
 globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
 globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
+globalObject.getLangAttribute = getLangAttribute;
+globalObject.getFullLangAttribute = getFullLangAttribute;
 
 // Exports for all functions
 module.exports = {
@@ -420,5 +422,7 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  getLangAttribute,
+  getFullLangAttribute
 };

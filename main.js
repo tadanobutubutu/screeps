@@ -8,7 +8,7 @@ import { createElement } from 'react';
 // import { yourRequiredModuleFunction } from ... // Adjust the path to your other required module
 
 // Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+import { triggerAccessibilityMode } from 'path-to-your-new-module';
 
 // Helper function to get document object (cross-environment support)
 function getDocument() {
@@ -36,6 +36,7 @@ function updateAriaAttributes() {
     const body = doc.body;
     if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
+      body.setAttribute('role', 'application');
     }
   }
 }

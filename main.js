@@ -11,6 +11,7 @@ const a11yStore = {
 
   init() {
     this.createLiveRegion();
+    this.addSVGAccessibility();
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
     this.setupSkipLinks();
@@ -87,7 +88,24 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Announce message to screen readers
+  // Apply ARIA attributes to SVG elements
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-labelledby', 'svg-title');
+      const titleText = svg.getAttribute('title') || 'Image description';
+      const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
+      svg.setAttribute('aria-describedby', descriptionId);
+
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
+      descriptionElement.textContent = titleText;
+      svg.appendChild(descriptionElement);
+    });
+  },
+
+  // Anchor message to screen reader via live region
   announce(message, priority = 'polite') {
     if (!this.liveRegion) return;
     this.liveRegion.setAttribute('aria-live', priority);

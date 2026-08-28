@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function getLandmarkData(id) {
+  // ... implement your own logic to fetch landmark data here.
+  return {
+    id,
+    name: "Not defined",
+    structure: [],
+    // ... other landmark data properties
+  };
+}

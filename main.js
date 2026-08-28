@@ -13,6 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Accessibility enhancements
+function focusOnFirstElement() {
+  const firstFocusableElement = document.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (firstFocusableElement) {
+    firstFocusableElement.focus();
+  }
+}
+
+function addAriaRoleToNavigation() {
+  const navigation = document.querySelector('nav');
+  if (navigation) {
+    navigation.setAttribute('role', 'navigation');
+  }
+}
+
+// Call the accessibility functions on document ready
+focusOnFirstElement();
+addAriaRoleToNavigation();
+
 // Export any existing functions
 export function someExistingFunction() {
   // Existing functionality

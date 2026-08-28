@@ -208,7 +208,7 @@ function validateTableAccessibility(table) {
 function validateTableStructure(table) {
   const results = {
     isValid: true,
-    issues: [],
+        issues: [],
     table: table
   };
 
@@ -524,6 +524,122 @@ function setFormElementAccessibleNames() {
  */
 function addA11yAttributesToInteractiveElements() {
   // (existing code for addA11yAttributesToInteractiveElements remains the same)
+}
+
+/**
+ * Adds accessible names to SVG elements.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ * @returns {Array} Array of SVG elements with added accessible names
+ */
+function addSvgAccessibleNames(container) {
+  const svgElements = container.querySelectorAll('svg');
+  const result = [];
+  
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      // Add accessible name to SVG if not already present
+      if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+        const title = svg.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = accessibleName;
+        svg.insertBefore(title, svg.firstChild);
+        result.push(svg);
+      }
+    }
+  });
+  
+  return result;
+}
+
+/**
+ * Ensures landmarks have unique roles.
+ * @param {HTMLElement} container - The container to check for landmarks
+ * @returns {Array} Array of landmark elements with ensured uniqueness
+ */
+function ensureUniqueLandmarks(container) {
+  const result = [];
+  const landmarkRoles = new Set();
+  
+  const landmarks = container.querySelectorAll('[role]');
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    if (!landmarkRoles.has(role)) {
+      landmarkRoles.add(role);
+      result.push(landmark);
+    }
+  });
+  
+  return result;
+}
+
+/**
+ * Fixes fake link accessibility issues.
+ * @param {HTMLElement} container - The container to check for fake links
+ * @returns {Array} Array of fake link elements that were fixed
+ */
+function fixFakeLinkIssue(container) {
+  const result = [];
+  
+  const fakeLinks = container.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (link.textContent.trim() === '' || link.textContent.trim() === 'link') {
+      // Add aria-label to describe the purpose
+      const ariaLabel = link.getAttribute('aria-label') || link.textContent.trim() || 'Link';
+      link.setAttribute('aria-label', ariaLabel);
+      result.push(link);
+    }
+  });
+  
+  return result;
+}
+
+/**
+ * Adds a main landmark if not present.
+ * @param {HTMLElement} container - The container to check for main landmark
+ * @returns {HTMLElement|null} The main element if added or existing, null otherwise
+ */
+function addMainLandmark(container) {
+  if (container.querySelector('main')) {
+    return container.querySelector('main');
+  }
+  
+  const main = container.ownerDocument.createElement('main');
+  const firstHeading = container.querySelector('h1, h2, h3, h4, h5, h6');
+  if (firstHeading) {
+    main.insertBefore(firstHeading, firstHeading.parentNode);
+  }
+  
+  const content = container.cloneNode(true);
+  content.querySelectorAll('script, style').forEach(el => el.remove());
+  main.appendChild(content);
+  container.insertBefore(main, container.firstChild);
+  
+  return main;
+}
+
+/**
+ * Adds accessibility attributes to interactive elements.
+ * @returns {Array} Array of interactive elements with added attributes
+ */
+function addA11yAttributesToInteractiveElements() {
+  const result = [];
+  
+  const interactiveElements = document.querySelectorAll('button, input, select, textarea, a, summary, [onclick], [onkeydown]');
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+      result.push(element);
+    }
+    
+    if (element.tagName === 'A' && !element.hasAttribute('role')) {
+      if (element.getAttribute('href') && !element.getAttribute('href').startsWith('#')) {
+        element.setAttribute('role', 'button');
+        result.push(element);
+      }
+    }
+  });
+  
+  return result;
 }
 
 // Make functions accessible globally for browser usage

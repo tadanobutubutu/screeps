@@ -111,6 +111,40 @@ function modifiedFunction() {
   console.log('This function has been modified.');
 }
 
+// Utility functions from HEAD
+function processData(data) {
+  if (!Array.isArray(data)) {
+    return null;
+  }
+  return data.map(item => ({
+    ...item,
+    processed: true
+  }));
+}
+
+function validateInput(input) {
+  return typeof input === 'string' && input.length > 0;
+}
+
+function formatOutput(data) {
+  return JSON.stringify(data, null, 2);
+}
+
+// Polyfill for Array.prototype.flat (if not available)
+if (!Array.prototype.flat) {
+  Object.defineProperty(Array.prototype, 'flat', {
+    configurable: true,
+    writable: true,
+    value: function depthFlat(depth = 1) {
+      return depth > 0
+        ? Array.prototype.reduce.call(this, function (acc, val) {
+            return acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val);
+          }, [])
+        : Array.prototype.slice.call(this);
+    }
+  });
+}
+
 // Accessibility features for DOM environment
 let insightButton, insightPanel, toggleButton, modal, modalClose;
 
@@ -256,7 +290,6 @@ function setupAccessibilityEventListeners() {
   }
 }
 
-// Export functions for testing
 module.exports = {
   loop,
   validateLandmark,
@@ -270,6 +303,9 @@ module.exports = {
   logger,
   newFunction,
   modifiedFunction,
+  processData,
+  validateInput,
+  formatOutput,
   initializeAccessibility,
   toggleInsightPanel,
   openModal,

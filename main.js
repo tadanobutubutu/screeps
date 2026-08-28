@@ -266,6 +266,15 @@ function countDependencies() {
   }
 }
 
+// Language attribute helper functions (from previous version)
+function getLangAttribute(el) {
+    return el.getAttribute('lang');
+}
+
+function getFullLangAttribute(el) {
+    return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
+}
+
 // Export for testing and external use
 module.exports = {
     validateWebAccessibility,
@@ -279,5 +288,7 @@ module.exports = {
     config,
     countDependencies,
     someFunction,
-    setLanguage
+    setLanguage,
+    getLangAttribute,
+    getFullLangAttribute
 };

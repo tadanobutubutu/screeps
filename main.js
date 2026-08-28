@@ -1,9 +1,20 @@
 // TODO: Address accessibility issues from insight report
 
-// Accessibility helper functions for improving keyboard navigation and screen reader support
+/**
+ * Focuses an element and ensures it is properly accessible
+ * @param {HTMLElement} element - The element to focus
+ */
+function manageFocus(element) {
+  if (element && element.focus) {
+    element.setAttribute('tabindex', '-1');
+    element.focus();
+  }
+}
 
 /**
- * Focus management utilities for improved accessibility
+ * Trap focus within a container (for modals/dialogs)
+ * @param {HTMLElement} container - The container to trap focus within
+ * @returns {Function} Cleanup function to remove trap
  */
 const focusManager = {
   /**
@@ -13,16 +24,16 @@ const focusManager = {
    */
   setFocus(element, options = {}) {
     if (!element) return;
-    
+
     const defaultOptions = {
       preventScroll: false,
       focusVisible: true
     };
-    
+
     const mergedOptions = { ...defaultOptions, ...options };
-    
+
     element.focus(mergedOptions);
-    
+
     // Ensure focus indicator is visible
     if (mergedOptions.focusVisible) {
       element.classList.add('focus-visible');
@@ -38,7 +49,7 @@ const focusManager = {
     const focusableElements = container.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -68,22 +79,26 @@ const focusManager = {
 };
 
 /**
- * Announce content changes to screen readers using ARIA live regions
+ * Announces content to screen readers using ARIA live regions
  * @param {string} message - The message to announce
  * @param {string} priority - 'polite' or 'assertive'
  */
 function announceToScreenReader(message, priority = 'polite') {
   const announcementElement = document.getElementById('sr-announcer') || createAnnouncementElement();
-  
+
   announcementElement.setAttribute('aria-live', priority);
   announcementElement.textContent = '';
-  
+
   // Use setTimeout to ensure the announcement is read
   setTimeout(() => {
     announcementElement.textContent = message;
   }, 100);
 }
 
+/**
+ * Creates the ARIA live region element used for screen reader announcements
+ * @returns {HTMLElement} The announcement element
+ */
 function createAnnouncementElement() {
   const element = document.createElement('div');
   element.id = 'sr-announcer';
@@ -96,7 +111,63 @@ function createAnnouncementElement() {
 }
 
 /**
- * Handle keyboard navigation for custom components
+ * Handles keyboard navigation for accessible interactions
+ * @param {KeyboardEvent} event - The keyboard event
+ * @param {Object} options - Configuration options
+ */
+function handleKeyboardNav(event, options = {}) {
+  const { onEscape, onEnter, onTab } = options;
+
+  switch (event.key) {
+    case 'Escape':
+      if (onEscape) onEscape();
+      break;
+    case 'Enter':
+      if (onEnter) onEnter();
+      break;
+    case 'Tab':
+      if (onTab) onTab();
+      break;
+  }
+}
+
+/**
+ * Set ARIA attributes for expandable/collapsible content
+ * @param {HTMLElement} trigger - The trigger element
+ * @param {HTMLElement} content - The content element
+ * @param {boolean} isExpanded - Whether content is expanded
+ */
+function setExpandableAria(trigger, content, isExpanded) {
+  if (trigger) {
+    trigger.setAttribute('aria-expanded', isExpanded);
+    trigger.setAttribute('aria-controls', content?.id || '');
+  }
+  if (content) {
+    content.setAttribute('aria-hidden', !isExpanded);
+  }
+}
+
+/**
+ * Validates form inputs with proper ARIA descriptions
+ * @param {HTMLInputElement} input - The input element
+ * @param {string} errorId - ID of the error message element
+ * @param {boolean} isValid - Whether the input is valid
+ */
+function setInputAriaValidity(input, errorId, isValid) {
+  if (!input) return;
+
+  input.setAttribute('aria-invalid', !isValid);
+  input.setAttribute('aria-describedby', isValid ? '' : errorId);
+
+  const errorElement = document.getElementById(errorId);
+  if (errorElement) {
+    errorElement.setAttribute('role', 'alert');
+    errorElement.setAttribute('aria-live', 'polite');
+  }
+}
+
+/**
+ * Sets up keyboard navigation for custom components
  * @param {HTMLElement} element - The element to add keyboard support to
  * @param {Object} options - Configuration options
  */
@@ -174,7 +245,7 @@ function setupKeyboardNavigation(element, options = {}) {
   };
 
   element.addEventListener('keydown', handleKeyDown);
-  
+
   return () => {
     element.removeEventListener('keydown', handleKeyDown);
   };
@@ -186,6 +257,21 @@ function setupKeyboardNavigation(element, options = {}) {
  */
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Validates landmark objects for user safety
+ * Checks that landmarks have valid names and geographic coordinates
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {boolean} True if the landmark is valid
+ */
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  if (!landmark.name || typeof landmark.name !== 'string') return false;
+  if (typeof landmark.lat !== 'number' || typeof landmark.lng !== 'number') return false;
+  if (landmark.lat < -90 || landmark.lat > 90) return false;
+  if (landmark.lng < -180 || landmark.lng > 180) return false;
+  return true;
 }
 
 /**
@@ -209,7 +295,11 @@ if (typeof module !== 'undefined' && module.exports) {
     focusManager,
     announceToScreenReader,
     setupKeyboardNavigation,
+    handleKeyboardNav,
+    setExpandableAria,
+    setInputAriaValidity,
     prefersReducedMotion,
+    validateLandmark,
     getMainContent
   };
 }
@@ -220,7 +310,11 @@ if (typeof window !== 'undefined') {
     focusManager,
     announceToScreenReader,
     setupKeyboardNavigation,
+    handleKeyboardNav,
+    setExpandableAria,
+    setInputAriaValidity,
     prefersReducedMotion,
+    validateLandmark,
     getMainContent
   };
 }

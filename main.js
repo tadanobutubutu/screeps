@@ -113,22 +113,7 @@ const {
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
-const {
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-} = require('./mathHelpers');
+const version = "1.0.0";
 
 const { class1, function1, Object1 } = require('./path/to/module');
 
@@ -369,6 +354,15 @@ function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
 
+function main() {
+  return "Hello, World!";
+}
+
+const config = {
+  port: 3000,
+  debug: false
+};
+
 // Export all public functions and values
 module.exports = {
   DEFAULT_CONFIG,
@@ -393,5 +387,11 @@ module.exports = {
   fixLandmarkIssues,
   addLandmarkRegions,
   googleSignIn,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  main,
+  version,
+  config
 };
+
+export { version, config };
+export default main;

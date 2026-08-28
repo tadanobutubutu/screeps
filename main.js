@@ -56,4 +56,4 @@ function replaceAnchorWithButton() {
 // Call the function to replace the anchor with a button when the script loads
 replaceAnchorWithButton();
 
-module.exports = { improveAccessibility, addressAccessibilityInsightReport };
+module.exports = { improveAccessibility, addressAccessibilityInsightReport, replaceAnchorWithButton };

@@ -1,1 +1,27 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+const fs = require('fs');
+const path = require('path');
+
+// ... existing code above ...
+
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
+// ... existing code below ...
+
+module.exports = {
+    countDependencies
+};

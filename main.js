@@ -156,6 +156,103 @@ function fixTableStructureIssues(container = document) {
 }
 
 /**
+ * Validates landmark attributes for accessibility compliance.
+ * Checks if a landmark element has appropriate ARIA attributes.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateLandmarkAttributes(element) {
+  const issues = [];
+  
+  if (!element.hasAttribute('role') && !['main', 'nav', 'aside', 'header', 'footer', 'form', 'section'].includes(element.tagName.toLowerCase())) {
+    if (!element.hasAttribute('role')) {
+      issues.push({
+        type: 'missing-role',
+        message: 'Landmark element is missing a role attribute'
+      });
+    }
+  }
+  
+  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    issues.push({
+      type: 'missing-label',
+      message: 'Landmark element is missing accessible name (aria-label or aria-labelledby)'
+    });
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates landmark structure for accessibility compliance.
+ * Checks if a landmark element has proper structural attributes.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateLandmarkStructure(element) {
+  const issues = [];
+  
+  // Check if element has proper landmark role or is a landmark element
+  const landmarkRoles = ['main', 'navigation', 'complementary', 'banner', 'contentinfo', 'form', 'region'];
+  const hasValidRole = Array.from(element.attributes || []).some(attr => 
+    attr.name === 'role' && landmarkRoles.includes(attr.value)
+  );
+  
+  const landmarkElements = ['main', 'nav', 'aside', 'header', 'footer', 'form', 'section'];
+  const isLandmarkElement = landmarkElements.includes(element.tagName.toLowerCase());
+  
+  if (!hasValidRole && !isLandmarkElement) {
+    issues.push({
+      type: 'invalid-landmark',
+      message: 'Element is not a valid landmark element'
+    });
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates a landmark element for accessibility compliance.
+ * Checks both structure and attributes of the landmark.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results with structure and attribute details
+ */
+function validateLandmark(element) {
+  if (!element) {
+    return {
+      isValid: false,
+      issues: [{
+        type: 'invalid-element',
+        message: 'Invalid landmark element provided'
+      }]
+    };
+  }
+  
+  const structureValidation = validateLandmarkStructure(element);
+  const attributeValidation = validateLandmarkAttributes(element);
+  
+  const allIssues = [
+    ...structureValidation.issues,
+    ...attributeValidation.issues
+  ];
+  
+  return {
+    isValid: allIssues.length === 0,
+    issues: allIssues,
+    details: {
+      structure: structureValidation,
+      attributes: attributeValidation
+    }
+  };
+}
+
+/**
  * Implements function for addressing accessibility issues from insight report.
  * Identifies and fixes common accessibility problems found in the document.
  * @param {HTMLElement} [container=document] - The container to check for accessibility issues
@@ -372,6 +469,9 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.validateLandmark = validateLandmark;
+globalObject.validateLandmarkStructure = validateLandmarkStructure;
+globalObject.validateLandmarkAttributes = validateLandmarkAttributes;
 
 // Exports for all functions
 module.exports = {
@@ -395,5 +495,8 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
   getSvgAccessibleName,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes
 };

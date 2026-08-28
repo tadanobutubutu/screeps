@@ -250,3 +250,46 @@ export function fixFakeLinkIssue(html) {
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+/**
+ * Checks table accessibility issues in HTML
+ * @param {string} html - The HTML string to check
+ * @returns {Array<string>} List of accessibility issues found
+ */
+export function checkTableAccessibility(html) {
+  if (typeof html !== 'string') return [];
+
+  const issues = [];
+
+  // Check for tables without summary or caption
+  const tableRegex = /<table([^>]*)>/gi;
+  let match;
+  while ((match = tableRegex.exec(html)) !== null) {
+    const attrs = match[1];
+    const hasSummary = /summary=/.test(attrs);
+    // Look for caption within the table (approximate)
+    const tableStart = match.index;
+    const tableEnd = html.indexOf('</table>', tableStart);
+    const tableHtml = tableStart !== -1 && tableEnd !== -1 ? html.substring(tableStart, tableEnd) : '';
+    const hasCaption = /<caption/.test(tableHtml);
+    if (!hasSummary && !hasCaption) {
+      issues.push('Table missing summary or caption');
+    }
+  }
+
+  // Check for th without scope
+  const thRegex = /<th([^>]*)>/gi;
+  while ((match = thRegex.exec(html)) !== null) {
+    const attrs = match[1];
+    if (!/scope=/.test(attrs)) {
+      issues.push('<th> missing scope attribute');
+    }
+  }
+
+  // Check for missing thead/tbody
+  if (!/<thead/.test(html) && !/<tbody/.test(html)) {
+    issues.push('Table missing thead/tbody structure');
+  }
+
+  return issues;
+}

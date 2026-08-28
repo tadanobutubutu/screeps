@@ -37,9 +37,18 @@ exports.renderDependencyGraph = renderDependencyGraph;
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
       if (existingThead) {
+        const theadRowCount = existingThead.querySelectorAll('tr').length;
+        remainingRows = remainingRows.slice(theadRowCount);
+      } else {
+        remainingRows = [];
+      }
+=======
+      let remainingRows = Array.from(rows);
+      if (existingThead) {
         remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
       } else {
         remainingRows = remainingRows.slice(1);
+>>>>>>> origin/main
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
@@ -77,8 +86,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
   return fixedCount;
 }
 
-// Function to add/main landmark
-function addMainLandmark(document) {
+// Function to addMainLandmark(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
@@ -576,24 +584,4 @@ exports.addLandmarkRegions = addLandmarkRegions;
 exports.uniqueLandmarks = uniqueLandmarks;
 exports.fixImageAltTexts = fixImageAltTexts;
 exports.googleSignIn = googleSignIn;
-exports.handleCredentialResponse = handleCredentialResponse;
-exports.decodeJwtResponse = decodeJwtResponse;
-exports.fixButtonIdentifiers = fixButtonIdentifiers;
-exports.addMainLandmarkToIndex = addMainLandmarkToIndex;
-exports.renderDependencyGraphs = renderDependencyGraphs;
-exports.fixTableStructureIssues = fixTableStructureIssues;
-exports.renderIndexView = renderIndexView;
-exports.setFormElementAccessibleNames = setFormElementAccessibleNames;
-exports.setSvgAccessibilityProps = setSvgAccessibilityProps;
-exports.isLinkAccessible = isLinkAccessible;
-exports.isButtonAccessible = isButtonAccessible;
-exports.getSvgAccessibleName = getSvgAccessibleName;
-exports.a11yStore = a11yStore;
-exports.handleAccessibilityIssues = handleAccessibilityIssues;
-exports.newNecessaryFunction = a11yStore.newNecessaryFunction;
-exports.createAccessibleButton = a11yStore.createAccessibleButton;
-exports.createAccessibleDialog = a11yStore.createAccessibleDialog;
-exports.announceToScreenReader = a11yStore.announceToScreenReader;
-exports.trapFocus = a11yStore.trapFocus;
-exports.initAccessibility = a11yStore.initAccessibility;
-exports.updateLiveRegion = a11yStore.updateLiveRegion;
+exports.handleCredentialResponse = handleCredentialResponse

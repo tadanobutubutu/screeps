@@ -3,6 +3,19 @@
  * @param {SVGElement} svgElement - The SVG element to get the accessible name for
  * @returns {string|null} The accessible name or null if not found
  */
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
+// - REACT_037: Google sign-in logic (DONE: googleSignIn)
+// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
+
+import { class1, function1, Object1 } from './path/to/module';
+
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return null;
 
@@ -76,17 +89,6 @@ function addSvgAccessibilityProps(svgElement, options = {}) {
     ariaDescribedby
   };
 }
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
@@ -182,17 +184,15 @@ function addMainLandmark(document) {
   }
   
   // Ensure main has proper role if not using native element
-  if (mainElement.tagName !== 'MAIN') {
+  if (mainElement && mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
   
   return mainElement;
 }
 
-// Function to ensure unique landmarks (combined approach)
+// Function to ensure unique landmarks (by role approach)
 function ensureUniqueLandmarks(document) {
-  // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
   const landmarks = document.querySelectorAll('[role="main"], [role="origin"], main, [role="banner"], header, [role="navigation"], nav, [role="search"], [role="complementary"], aside, [role="contentinfo"], footer');
   const landmarkRoles = new Set();
   
@@ -362,6 +362,34 @@ function uniqueLandmarks(document) {
       if (count > 0) {
         element.setAttribute('aria-label', `${role} ${count + 1}`);
       }
+    }
+  });
+  
+  // Combined approach using both role-based and element-based selection
+  const landmarkSelectors = [
+    { selector: '[role="navigation"]', name: 'navigation' },
+    { selector: '[role="banner"]', name: 'banner' },
+    { selector: '[role="contentinfo"]', name: 'contentinfo' },
+    { selector: '[role="complementary"]', name: 'complementary' },
+    { selector: 'main, [role="main"]', name: 'main' },
+    { selector: '[role="region"]', name: 'region' },
+    { selector: '[role="article"]', name: 'article' },
+    { selector: 'nav', name: 'navigation' },
+    { selector: 'header:not([role])', name: 'banner' },
+    { selector: 'footer:not([role])', name: 'contentinfo' },
+    { selector: 'aside', name: 'complementary' }
+  ];
+
+  landmarkSelectors.forEach(({ selector, name }) => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach(el => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${name} ${index}`);
+          index++;
+        }
+      });
     }
   });
   

@@ -17,6 +17,9 @@ function initDependencyGraph(containerId) {
   return container;
 }
 
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', 'en'); // Update this value according to your project's language
+
 module.exports = {
   helloWorld,
   initDependencyGraph

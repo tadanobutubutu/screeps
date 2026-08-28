@@ -9,6 +9,7 @@ function MyComponent() {
     <svg
       // ... other attributes ...
       // Accessibility issue: missing accessible name
+      aria-label="Accessible name for SVG"
     >
       {/* SVG content */}
     </svg>
@@ -31,6 +32,12 @@ function MyComponent() {
       {/* ... other JSX elements ... */}
     </div>
   );
+}
+
+// Implement getSvgAccessibleName() function
+function getSvgAccessibleName(svgElement) {
+  // Return the aria-label attribute value, or a default value if it's not present
+  return svgElement.props.ariaLabel || 'Default SVG Name';
 }
 
 export default MyComponent;

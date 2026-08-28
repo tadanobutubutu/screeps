@@ -7,12 +7,44 @@
  * - Accessibility utilities are pulled in via the React app entry point.
  */
 
+const VERSION = '1.0.0';
+
 // Configuration
 const config = {
-  apiUrl: 'https://api.example.com',
+  apiUrl: process.env.API_URL || 'https://api.example.com',
   debug: false,
-  timeout: 5000
+  timeout: 5000,
+  retries: 3
 };
+
+/**
+ * Format date for display
+ * @param {Date|string} date - Date to format
+ * @returns {string} - Formatted date string
+ */
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Example class
+ */
+class DataProcessor {
+  constructor(options = {}) {
+    this.options = options;
+  }
+
+  process(data) {
+    return data.map(item => ({
+      ...item,
+      processed: true
+    }));
+  }
+}
 
 /**
  * Checks the structure of a table element
@@ -82,19 +114,6 @@ function checkTableStructure(table) {
 }
 
 /**
- * Format date for display
- * @param {Date|string} date - Date to format
- * @returns {string} - Formatted date string
- */
-function formatDate(date) {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-/**
  * Sanitize user input
  * @param {string} input - Raw user input
  * @returns {string} - Sanitized output
@@ -145,6 +164,14 @@ function createDataTable(data, columns) {
   table.appendChild(tbody);
 
   return table;
+}
+
+// Validate input
+function validateInput(input) {
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input provided');
+  }
+  return true;
 }
 
 // TODO: Address accessibility issues from insight report:
@@ -220,9 +247,12 @@ ReactDOM.render(<App />, document.getElementById('root'));
  * Export functions for testing and external use
  */
 module.exports = {
+  VERSION,
   config,
-  checkTableStructure,
   formatDate,
+  DataProcessor,
+  validateInput,
+  checkTableStructure,
   sanitizeInput,
   createDataTable
 };

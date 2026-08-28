@@ -13,7 +13,7 @@ const a11yStore = {
     this.setupFocusManagement();
     this.setupSkipLinks();
     this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
   },
 
   // Create a live region for screen reader announcements
@@ -48,7 +48,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        const target = e.target;
         if (target) {
           e.preventDefault();
           target.click();
@@ -57,17 +57,17 @@ const a11yStore = {
 
       // Escape key to close modals/dropdowns
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        const openModal = document.querySelector('.modal[aria-modal="true"]');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.setAttribute('aria-hidden', 'true');
           document.body.style.overflow = '';
         }
       }
     });
 
     // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach((container) => {
+    const dropdownContainers = document.querySelectorAll('[role="menu"], [role="listbox"]');
+    dropdownContainers.forEach(container => {
       container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
 
@@ -83,7 +83,7 @@ const a11yStore = {
         }
 
         // Ensure focus trapping only within the dropdown container
-        if (!focusIsInsideContainer) {
+        if (!focusIsInsideContainer && !e.shiftKey) {
           // Find the first focusable element within the container
           const firstFocusableElement = container.querySelector(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -103,7 +103,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      const modal = document.querySelector('.modal[aria-modal="true"]:not([aria-hidden="true"])');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
@@ -128,8 +128,8 @@ const a11yStore = {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
-    const target = targetId ? document.getElementById(targetId) : null;
+    const targetId = skipLink.getAttribute('href');
+    const target = targetId ? document.querySelector(targetId) : null;
 
     if (target) {
       skipLink.addEventListener('click', (e) => {
@@ -140,7 +140,7 @@ const a11yStore = {
       });
 
       // Focus the skip link when the document is loaded in Safari
-      if ( navigator.userAgent.toLowerCase().indexOf('safari') !== -1 ) {
+      if (navigator.userAgent.indexOf('Safari') !== -1) {
         skipLink.focus();
       }
     }
@@ -165,29 +165,114 @@ const a11yStore = {
   // New function to check landmark elements
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
-      if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+    const usedIds = new Set();
+    
+    // First, collect all existing IDs on the page
+    document.querySelectorAll('[id]').forEach(el => {
+      usedIds.add(el.id);
+    });
+
+    // Generate unique ID if needed
+    const generateUniqueId = (baseId) => {
+      let id = baseId;
+      let counter = 1;
+      while (usedIds.has(id)) {
+        id = `${baseId}-${counter}`;
+        counter++;
       }
+      usedIds.add(id);
+      return id;
+    };
+
+    landmarkElements.forEach(landmark => {
+      const elements = document.querySelectorAll(landmark);
+      elements.forEach((el, index) => {
+        // REACT_017: Add/fix landmark issues - ensure proper landmark usage
+        if (!el.id) {
+          // Generate unique ID for the landmark
+          const uniqueId = generateUniqueId(`landmark-${landmark}`);
+          el.id = uniqueId;
+        }
+        
+        // REACT_025: Ensure unique landmarks - check for duplicate landmarks without proper differentiation
+        if (elements.length > 1 && !el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          // Add descriptive label for multiple same-type landmarks
+          const label = landmark === 'nav' ? 'Navigation' : 
+                        landmark === 'header' ? 'Site header' : 
+                        landmark === 'footer' ? 'Site footer' : 
+                        landmark === 'aside' ? 'Sidebar' : 'Main content';
+          el.setAttribute('aria-label', index === 0 ? label : `${label} ${index + 1}`);
+        }
+      });
     });
   },
 
   // New function to add SVG accessibility props
-  addSVGAccessibilityProps() {
+  addSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      const titleId = `svg-title-${Math.random().toString(36).substr(2, 9) * 1000}`;
+      const titleText = svg.querySelector('title')?.textContent || 'Image description';
+      const descriptionId = `svg-desc-${Math.random().toString(36).substr(2, 9) * 1000}`;
+      svg.setAttribute('aria-labelledby', `${titleId} ${descriptionId}`);
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      svg.insertBefore(descriptionElement, svg.firstChild);
+    });
+  },
+
+  // REACT_036: Fix fake link issues - buttons styled as links without proper semantics
+  fixFakeLinks() {
+    // Find elements that look like links but are not <a> tags
+    const fakeLinks = document.querySelectorAll('[role="button"], button:not([disabled])');
+    
+    fakeLinks.forEach(fakeLink => {
+      // Check if it's inside an anchor tag (nested interactive elements)
+      const parentAnchor = fakeLink.closest('a');
+      if (parentAnchor && parentAnchor.href) {
+        // Move click handlers to the anchor
+        if (fakeLink.onclick) {
+          parentAnchor.onclick = fakeLink.onclick;
+          fakeLink.removeAttribute('onclick');
+        }
+      }
+      
+      // Ensure buttons that navigate have proper keyboard support
+      if (fakeLink.getAttribute('href') || fakeLink.onclick) {
+        // Add keyboard support if not already present
+        if (!fakeLink.hasAttribute('tabindex')) {
+          fakeLink.setAttribute('tabindex', '0');
+        }
+        
+        // Handle Enter and Space key presses
+        fakeLink.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (fakeLink.onclick) {
+              fakeLink.onclick(e);
+            } else if (fakeLink.getAttribute('href')) {
+              // For href-based navigation, trigger click
+              fakeLink.click();
+            }
+          }
+        });
+      }
+    });
+
+    // Also check for links without href that should be buttons
+    const linksWithoutHref = document.querySelectorAll('a:not([href])');
+    linksWithoutHref.forEach(link => {
+      // If it's a link without href and has an onclick, convert to button role
+      if (link.onclick || link.getAttribute('data-action')) {
+        link.setAttribute('role', 'button');
+        if (!link.hasAttribute('tabindex')) {
+          link.setAttribute('tabindex', '0');
+        }
+      }
     });
   },
 
@@ -198,8 +283,8 @@ const a11yStore = {
       // Handle each issue type
       switch (issue.type) {
         case 'missing-lang':
-          if (!document.documentElement.getAttribute('lang')) {
-            document.documentElement.setAttribute('lang', 'en');
+          if (document.documentElement) {
+            document.documentElement.lang = 'en';
           }
           break;
         case 'missing-skip-link':
@@ -208,6 +293,9 @@ const a11yStore = {
             skipLink.className = 'skip-link';
             skipLink.href = '#main-content';
             skipLink.textContent = 'Skip to main content';
+            skipLink.style.position = 'absolute';
+            skipLink.style.left = '-9999px';
+            skipLink.style.zIndex = '9999';
             document.body.insertBefore(skipLink, document.body.firstChild);
           }
           break;
@@ -238,37 +326,13 @@ const a11yStore = {
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+mainElement.id = 'main-content';
+document.body.appendChild(mainElement);
+document.documentElement.lang = 'en';
 
 // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
 }
 
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
-
-// Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
-
-// Preserve existing code
-a11yStore.preserveExistingCode();
-
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
-}
-
-// Export for module usage
-export { a11yStore };
-export { mainElement };
-export { addressAccessibilityIssues };
-export default a11yStore;
-
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };
+// Ensure main landmark exists for

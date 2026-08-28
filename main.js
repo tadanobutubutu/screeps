@@ -526,6 +526,38 @@ function addA11yAttributesToInteractiveElements() {
   // (existing code for addA11yAttributesToInteractiveElements remains the same)
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Adds role="application" to the dependencyGraph container if it exists and
+ * does not already have a role attribute.
+ * @param {HTMLElement} [container=document] - The container to check for the dependencyGraph element
+ * @returns {HTMLElement|null} The dependencyGraph element with updated role, or null if not found
+ */
+function ensureDependencyGraphRole(container = document) {
+  if (typeof document === 'undefined' || !container) {
+    return null;
+  }
+
+  const dependencyGraph = container.querySelector('#dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.hasAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'application');
+    return dependencyGraph;
+  }
+
+  return dependencyGraph || null;
+}
+
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
@@ -551,6 +583,7 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.ensureDependencyGraphRole = ensureDependencyGraphRole;
 
 // Exports for all functions
 module.exports = {
@@ -576,5 +609,6 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
   getSvgAccessibleName,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  ensureDependencyGraphRole
 };

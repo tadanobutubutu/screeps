@@ -1,13 +1,1 @@
-const { formatDate } = require('./utils/dateUtils');
-const { validateEmail } = require('./utils/validation');
-const { calculateTotal } = require('./utils/math');
-
-// TODO: Create or update the affected functions to be accessible
-
-// Export utility functions that are required by the test suite
-module.exports = {
-  formatDate,
-  validateEmail,
-  calculateTotal,
-  checkLandmarkStructure
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

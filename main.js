@@ -134,7 +134,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
@@ -245,7 +245,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -253,7 +253,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -313,7 +313,7 @@ export function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
   
   // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('href=')) {
       return match;
     }

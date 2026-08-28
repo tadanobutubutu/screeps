@@ -1,1 +1,2 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming the lang attribute is to be added to the HTML element in the DOM
+document.documentElement.lang = 'en'; // Replace 'en' with the appropriate language code

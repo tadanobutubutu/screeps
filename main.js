@@ -1,5 +1,3 @@
-// Import the required functions from both branches
-const { someFunction } = { someFunction: () => 'someFunction result' };
 const { renderDependencyGraphContent } = require('./conflict-branch');
 const { ensureUniqueLandmarkRoles } = require('./uniqueLandmarks');
 const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
@@ -7,6 +5,14 @@ const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 const { addAriaLabelToSVGsWithoutAccessibleName } = require('./uniqueLandmarks');
 
 // Generalized accessibility functions
+
+function setSvgAccessibleName(svg, name) {
+  if (!svg) {
+    console.warn('setSvgAccessibleName: SVG element is required');
+    return;
+  }
+  svg.setAttribute('aria-label', name);
+}
 
 function improveAccessibility() {
   renderDependencyGraphContent(document.querySelector('.dependency-graph_content, [data-dependency-graph-content]'));
@@ -118,9 +124,9 @@ function calculateSum(a, b) {
 }
 
 module.exports = {
+  setSvgAccessibleName,
   improveAccessibility,
   addressInsightIssues,
-  addressREACT017,
   renderDependencyGraphContent,
   renderDependencyGraph,
   renderIndexView,

@@ -1,42 +1,30 @@
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // TODO: Add implementation details
-    
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, 
-            {memory: {role: 'harvester'}});        
-    }
-    
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
+function MainApp() {
+  return (
+    <div lang="en">
+      <header role="banner">
+        <nav role="navigation" aria-label="Main navigation">
+          <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><button type="button" onClick={() => {}}>Contact</button></li>
+          </ul>
+        </nav>
+      </header>
+      
+      <main role="main">
+        <h1>Welcome</h1>
+        <p>This is the main content area.</p>
+      </main>
+      
+      <footer role="contentinfo">
+        <p>&copy; 2024 Company Name</p>
+      </footer>
+    </div>
+  );
 }
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<MainApp />);

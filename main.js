@@ -10,4 +10,10 @@ function MyComponent() {
   );
 }
 
+// New function added as per the issue
+function newFunction() {
+  // Implementation of the new function
+  console.log('New function is called');
+}
+
 export default MyComponent;

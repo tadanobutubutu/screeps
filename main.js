@@ -1,18 +1,29 @@
-// Please provide the actual main.js content so I can fix the REACT_036 issue.
-// The issue mentions a line like:
-//   <a id="unrotate" href="#">rotate back</a>
-// which should be converted to:
-//   <button id="unrotate" type="button">rotate back</button>
+// Address accessibility issues from insight report: replace my-button with actual button id
 
 function fixFakeLinkIssue(filePath) {
-  // ... existing code ...
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  // Replace anchor tags with my-button class/attribute with proper buttons
+  const fakeButtons = content.match(/<a [^>]*my-button[^>]*>/gi);
+  if (fakeButtons) {
+    fakeButtons.forEach((button) => {
+      const newButton = button
+        .replace(/<a /i, '<button type="button" ')
+        .replace(/<\/a>/i, '</button>');
+      updatedContent = updatedContent.replace(button, newButton);
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Fixed fake link issue (my-button) for better accessibility in ${filePath}`);
 }
 
 function addAriaAttribute(filePath) {
   // ... existing code ...
 }
 
-function addLangAttribute(filePath) {
+function addLangAttribute(filePath, lang) {
   // ... existing code ...
 }
 
@@ -32,7 +43,7 @@ function addSvgAccessibleNames(filePath) {
   // ... existing code ...
 }
 
-function addRoleAndLabelToCheckbox(filePath) {
+function ensureButtonAccessibility(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
 
@@ -41,7 +52,7 @@ function addRoleAndLabelToCheckbox(filePath) {
     checkboxes.forEach((checkbox) => {
       updatedContent = updatedContent.replace(
         checkbox,
-        checkbox.replace('<input', '<input role="checkbox" aria-label="checkbox"')
+        checkbox + ' role="checkbox" aria-label="checkbox"'
       );
     });
   }
@@ -50,7 +61,7 @@ function addRoleAndLabelToCheckbox(filePath) {
   console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
 }
 
-// New function to address accessibility issues
+// Address accessibility issues
 function addressAccessibilityIssues(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
@@ -98,7 +109,7 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addRoleAndLabelToCheckbox,
+  ensureButtonAccessibility,
   addressAccessibilityIssues,
   setLanguage,
 };

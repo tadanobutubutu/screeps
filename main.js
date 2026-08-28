@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { updateThScopeAttribute } = require('./testHelper');
-const { checkLandmarkElements } = require('./a11y');
+const { updateThScopeAttribute, checkLandmarkElements } = require('./testHelper');
 const { someFunction } = require('./utils');
+const { getLangAttribute, getFullLangAttribute, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, getSvgAccessibleName, createInPageButton, createAccessibleLink } = require('./accessibility');
 
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
@@ -42,7 +42,7 @@ function newFeature(container, data) {
 }
 
 const a11yStore = {
-  // Existing a11yStore methods and new functions...
+  // Existing a11yStore methods...
 };
 
 function loop() {
@@ -57,5 +57,17 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   a11yStore,
-  LANDMARK_ELEMENTS
+  LANDMARK_ELEMENTS,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  updateThScopeAttribute,
+  checkLandmarkElements
 };

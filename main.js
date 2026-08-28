@@ -1,24 +1,53 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+const fs = require('fs');
+const path = require('path');
 
-// ... (other code in main.js)
+// Get the current directory path (the repo root)
+const repoRoot = process.cwd();
 
-// Before:
-// <a id="unrotate" href="#">rotate back</a>
+// Function to read a directory recursively
+function readDirRecursive(dir) {
+    const files = fs.readdirSync(dir, { withFileTypes: true });
 
-// After:
-// Replace the <a> tag with a <button> element
-// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
+    let result = {};
 
-// ... (other code in main.js)
+    for (const file of files) {
+        const fullPath = path.join(dir, file.name);
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-function rotateBack() {
-  // Your code to rotate back
+        if (file.isDirectory()) {
+            // Recurse into subdirectory
+            const subResult = readDirRecursive(fullPath);
+            result[file.name] = subResult;
+        } else if (file.isFile()) {
+            // Read file content
+            let content;
+            try {
+                content = fs.readFileSync(fullPath, 'utf8');
+            } catch (err) {
+                content = '';
+            }
+            result[file.name] = content;
+        }
+    }
+
+    return result;
 }
 
-// ... (other code in main.js)
+// Read the whole repository
+const repoFiles = readDirRecursive(repoRoot);
 
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
+// Print a tree or find main.js specifically
+function printTree(node, indent = '') {
+    if (typeof node === 'string') {
+        console.log(indent + 'FILE: ' + node);
+    } else {
+        for (const [key, value] of Object.entries(node)) {
+            console.log(indent + 'DIR: ' + key);
+            if (typeof value === 'string') {
+                console.log(indent + '  FILE: ' + key);
+            } else {
+                printTree(value, indent + '  ');
+            }
+        }
+    }
+}
+printTree(repoFiles);

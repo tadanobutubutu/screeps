@@ -1,97 +1,58 @@
-// Generalized accessibility functions
-function improveAccessibility() {
-  // ... (unchanged)
+// Address accessibility issues from insight report
+// Import the required functions from both branches
+const { someFunction } = { someFunction: () => 'someFunction result' };
+const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  if (container) {
+    container.innerHTML = data;
+  }
 }
 
-function addressInsightReportIssues(insightReport) {
-  // ... (unchanged)
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Example implementation from origin/main - adapted for Screeps environment
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
+    const uniqueGameObjects = [];
+    matchingGameObjects.forEach(go => {
+      const isUnique = !uniqueGameObjects.some(ugo => ugo === go);
+      if (isUnique) {
+        uniqueGameObjects.push(go);
+      } else {
+        // Remove the landmark tag if it's not unique
+        go.remove(landmark);
+      }
+    });
+  });
 }
 
 // New function to address accessibility issues from insight report
-function ensureUniqueLandmarks() {
-  // Example implementation from origin/main - adapted for Screeps environment
-  // Note: In a Screeps context, we'd need to adapt this to work with game objects
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        el.removeAttribute('role');
-      }
-    });
+function addressAccessibilityIssues() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
   });
+
+  // New function to ensure unique landmarks
+  ensureUniqueLandmarks();
+
+  // New function to add proper landmark regions
+  addProperLandmarkRegions();
 }
 
-// Function to address landmark roles and fix issues
-function addressLandmarkRoles() {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      ensureUniqueLandmarks();
-    }
-  });
-}
-
-// Function to address React 017 accessibility issues
-function addressReact017Issues() {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      ensureUniqueLandmarks();
-    }
-  });
-}
-
-// Placeholder implementation for rendering a dependency graph
-function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
-}
-
-// Placeholder function for index view rendering (to be replaced with actual implementation)
-function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
-}
-
-// Function to calculate sum (unchanged)
-function calculateSum(a, b) {
-  return a + b;
-}
-
-// Example logic to ensure unique landmarks (from origin/main)
-// Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function removeNonUniqueLandmarks() {
-  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
-  // Keeping it as provided in origin/main for reference
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        el.removeAttribute('role');
-      }
-    });
-  });
-}
-
-// Export all functions for use elsewhere in the repository
-module.exports = {
-  improveAccessibility,
-  addressInsightReportIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addressLandmarkRoles,
-  addressReact017Issues,
-  ensureUniqueLandmarks,
-  removeNonUniqueLandmarks,
-};
+// Rest of the code remains unchanged

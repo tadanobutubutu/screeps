@@ -1,4 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
+// Implementation of accessibility improvements
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -154,12 +154,12 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach(type => {
+  landmarkTypes.forEach((type) => {
     const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll(`[id]`)).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -177,13 +177,14 @@ const addressAccessibilityIssues = (document) => {
     return document;
   }
 
+  wrapPrimaryContentInMain(document);
+  addSkipLink(document);
+  addProperLandmarkRegions(document);
   addLangAttribute(document);
   fixTableStructureIssues(document);
-  addMainLandmark(document);
   ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
   fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
 
   return document;
 };
@@ -222,7 +223,7 @@ const fixTableStructureIssues = (document) => {
       }
     }
 
-    if (table.querySelector('tbody') === null) {
+    if (!table.querySelector('tbody')) {
       const rows = Array.from(table.querySelectorAll('tr'));
       if (rows.length > 0) {
         const newTbody = document.createElement('tbody');
@@ -248,7 +249,7 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach(type => {
+  landmarkTypes.forEach((type) => {
     const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
     elements.forEach((element) => {
       if (!element.id) {
@@ -269,7 +270,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -282,7 +283,7 @@ const addSvgAccessibleNames = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href="#"], span[role="button"], div[role="button"], button:not(a *)');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
     if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {

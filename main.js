@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Add any updates related to new functions
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function isEven(number) {
+  return number % 2 === 0;
+}
+
+module.exports = {
+  greet,
+  calculateSum,
+  isEven
+};

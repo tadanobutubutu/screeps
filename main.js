@@ -1,5 +1,7 @@
 // main.js
 
+// TODO: Add back any required exports that might have been?
+
 const fs = require('fs');
 const path = require('path');
 
@@ -22,6 +24,24 @@ function countDependencies() {
 
 // ... existing code below ...
 
+function main() {
+  return 'Hello World';
+}
+
+function SomeClass() {}
+
+function someUtility() {
+  return true;
+}
+
+const config = {
+  enabled: true
+};
+
 module.exports = {
+    main,
+    SomeClass,
+    someUtility,
+    config,
     countDependencies
 };

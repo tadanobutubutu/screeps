@@ -20,7 +20,7 @@ function addLandmarkRolesAndFixIssues() {
 }
 
 // Functions to address specific insight report issues
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function addressReact025(issue) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -29,16 +29,19 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   });
 }
 
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function addressReact017(issue) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      // Handle REACT_017 - duplicate accessible name
+      if (issue.element && issue.element.removeAttribute) {
+        issue.element.removeAttribute('aria-label');
+      }
     }
   });
 }
 
-// Placeholder implementation for rendering a dependency graph
+// Placeholder for rendering dependency graph
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
 }
@@ -55,8 +58,8 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksByExample() {
-  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
+function ensureUniqueLandmarksFinal() {
+  // This is a browser-oriented example that would need to be adapted for Node.js/ Screeps
   // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
@@ -81,9 +84,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  addressReact025,
+  addressReact017,
+  ensureUniqueLandmarksFinal
 };

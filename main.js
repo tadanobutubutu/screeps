@@ -44,6 +44,19 @@ export function addAriaLabelToSVGsWithoutAccessibleName(svgs) {
   });
 }
 
+// Ensure elements have an id and add aria-label where missing
+export function ensureElementsHaveIdAndAriaLabel() {
+  const elements = document.querySelectorAll('[data-dependency-graph]');
+  elements.forEach(el => {
+    if (!el.id) {
+      el.id = 'dependency-graph-element';
+    }
+    if (!el.getAttribute('aria-label')) {
+      el.setAttribute('aria-label', 'Dependency Graph');
+    }
+  });
+}
+
 // Add proper landmark regions based on insight report data
 export function addProperLandmarkRegions(data) {
   data.forEach(item => {
@@ -57,6 +70,24 @@ export function addProperLandmarkRegions(data) {
       });
     }
   });
+}
+
+// Render dependency graphs with proper accessibility attributes
+export function renderDependencyGraphs(data) {
+  const graphContainer = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  if (graphContainer && data) {
+    data.forEach(item => {
+      if (item.id) {
+        const element = document.getElementById(item.id);
+        if (element) {
+          element.setAttribute('role', item.role || 'tree');
+          if (item.label) {
+            element.setAttribute('aria-label', item.label);
+          }
+        }
+      }
+    });
+  }
 }
 
 // Generalized accessibility improvements
@@ -108,6 +139,18 @@ export function initAccessibility() {
   addSvgAccessibleNames();
   fixFakeLinkIssue();
   improveAccessibility();
+  ensureElementsHaveIdAndAriaLabel();
+  renderDependencyGraphs();
+}
+
+// New function or changes requested in the issue
+function newFunction() {
+  // Implementation of the new function
+}
+
+// Existing exports (do not remove or rename)
+export function existingFunction() {
+  // Implementation of the existing function
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

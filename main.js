@@ -7,6 +7,17 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
+// ----- END ORIGINAL CODE -----
+
+// Implement function to create in-page buttons
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  document.body.appendChild(button);
+  return button;
+}
+
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
@@ -74,7 +85,13 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// Make all functions accessible via exports
 module.exports = {
+  // Export all functions that need to be accessible
+  createInPageButton,
   addressAccessibilityIssues,
   calculateAccessibilityScore
 };
+
+// If using ES6 modules, also ensure functions are exported:
+// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore };

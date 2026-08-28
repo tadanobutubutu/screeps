@@ -1,4 +1,8 @@
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// TODO: Implement 'addProperLandmarkRegions' and 'ensureUniqueLandmarks' function(s) in separate files, then import and include them here in main.js
+
+// Import the new functions
+const addProperLandmarkRegions = require('./addProperLandmarkRegions').default;
+const ensureUniqueLandmarks = require('./ensureUniqueLandmarks').default;
 
 /**
  * Wrap primary content in main div
@@ -15,7 +19,7 @@ function wrapPrimaryContentInMain(doc) {
   }
 }
 
-// ADD THE NEW FUNCTION HERE
+// ADD THE NEW FUNCTIONS HERE
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
   return ensureUniqueLandmarks(landmarks);
@@ -23,7 +27,7 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
 
 // ... (The rest of the existing functions and exports remain unchanged)
 
-// ADD THE NEW FUNCTION TO THE EXPORTS
+// ADD THE NEW FUNCTIONS TO THE EXPORTS
 const { addMissingExportFunction } = require('./missingExportFile');
 
 module.exports = {
@@ -39,5 +43,5 @@ module.exports = {
   validateTableStructure,
   wrapPrimaryContentInMain, // Add the new function to the exports
   addMissingExportFunction, // Add the new function to the exports
-  getSvgAccessibleName
+  getSvgAccessibleName,
 };

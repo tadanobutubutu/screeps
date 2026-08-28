@@ -82,7 +82,7 @@ function validateLandmarks(doc) {
   }
 
   const landmarks = doc.body.querySelectorAll('header, main, nav, aside, section, article, footer');
-  
+
   landmarks.forEach(landmark => {
     results.landmarks.push({
       tag: landmark.tagName.toLowerCase(),
@@ -107,11 +107,11 @@ function validateLandmarks(doc) {
  */
 function getLandmarkElements(container) {
   if (!container) return [];
-  
+
   const landmarkElements = [];
   const selector = 'header, main, nav, aside, section, article, footer';
   const elements = container.querySelectorAll(selector);
-  
+
   elements.forEach(el => {
     if (isLandmark(el)) {
       landmarkElements.push(el);
@@ -168,7 +168,7 @@ function renderDependencyGraphContent(container) {
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
-  
+
   if (!elements) return [];
 
   elements.forEach(el => {
@@ -193,10 +193,6 @@ function ensureUniqueLandmarkRoles() {
   return {};
 }
 
-function ensureUniqueLandmarks() {
-  return {};
-}
-
 function addAriaLabelToSVGsWithoutAccessibleName() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -215,23 +211,12 @@ function addLandmarkRolesAndFixIssues() {
   return uniqueElements;
 }
 
-function addProperLandmarkRegions(affectedElements) {
-  if (!affectedElements || !Array.isArray(affectedElements)) return;
-  
-  affectedElements.forEach(el => {
-    if (!el.hasAttribute('role') && !el.classList.contains('landmark')) {
-      el.setAttribute('role', 'region');
-    }
-  });
-}
-
 function addressInsightIssues(insightReport) {
   const issues = insightReport && insightReport.issues ? insightReport.issues : [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
       ensureUniqueLandmarks();
     }
-
     if (issue.code === 'REACT_017') {
       const affectedElements = issue.elements || [];
       affectedElements.forEach(el => {
@@ -256,6 +241,16 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+function addProperLandmarkRegions(affectedElements) {
+  if (!affectedElements || !Array.isArray(affectedElements)) return;
+
+  affectedElements.forEach(el => {
+    if (!el.hasAttribute('role') && !el.classList.contains('landmark')) {
+      el.setAttribute('role', 'region');
+    }
+  });
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -268,16 +263,11 @@ module.exports = {
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
   ensureUniqueLandmarkRoles,
-  ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
   addAriaLabelToSVGsWithoutAccessibleName,
   addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  // Additional exports
-  ROLE_SOME_ROLE: 'someRole',
-  someHelperFunction: function() {
-    return 'This is a helper function';
-  }
+  addProperLandmarkRegions
 };

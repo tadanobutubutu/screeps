@@ -1,43 +1,27 @@
-// TODO: Implement getSvgAccessibleName() function here
-// Function to get accessible name from SVG elements (for a11y compliance)
-function getSvgAccessibleName(svgElement) {
-  // Check for aria-label attribute first (highest priority)
-  if (svgElement && svgElement.getAttribute) {
-    const ariaLabel = svgElement.getAttribute('aria-label');
-    if (ariaLabel && ariaLabel.trim()) {
-      return ariaLabel.trim();
-    }
-    
-    // Check for aria-labelledby attribute
-    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-    if (ariaLabelledby && ariaLabelledby.trim()) {
-      // If we have a document context, try to find the referenced element
-      if (typeof document !== 'undefined' && document.getElementById) {
-        const referencedElement = document.getElementById(ariaLabelledby);
-        if (referencedElement && referencedElement.textContent) {
-          return referencedElement.textContent.trim();
-        }
-      }
-      // Return the ID as a fallback if reference can't be resolved
-      return ariaLabelledby.trim();
-    }
-    
-    // Check for title element within the SVG
-    if (svgElement.querySelector) {
-      const titleElement = svgElement.querySelector('title');
-      if (titleElement && titleElement.textContent) {
-        return titleElement.textContent.trim();
-      }
-    }
-  }
-  
-  // Return empty string if no accessible name found
-  return '';
-}
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { ensureUniqueLandmarkRoles } = require('./uniqueLandmarks');
+const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+const { addAriaLabelToSVGsWithoutAccessibleName } = require('./uniqueLandmarks');
 
 // Generalized accessibility functions
+
+function setSvgAccessibleName(svg, name) {
+  if (!svg) {
+    console.warn('setSvgAccessibleName: SVG element is required');
+    return;
+  }
+  svg.setAttribute('aria-label', name);
+}
+
 function improveAccessibility() {
-  // ... (unchanged)
+  renderDependencyGraphContent(document.querySelector('.dependency-graph_content, [data-dependency-graph-content]'));
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
 }
 
 function addressInsightReportIssues(insightReport) {
@@ -90,31 +74,147 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Example logic to ensure unique landmarks (from origin/main)
-// Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function fixLandmarkRoles() {
-  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
-  // Keeping it as provided in origin/main for reference
+// Function to get accessible name from SVG elements (for a11y compliance)
+function getSvgAccessibleName(svgElement) {
+  // Check for aria-label attribute first (highest priority)
+  if (svgElement && svgElement.getAttribute) {
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+      return ariaLabel.trim();
+    }
+    
+    // Check for aria-labelledby attribute
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby && ariaLabelledby.trim()) {
+      // If we have a document context, try to find the referenced element
+      if (typeof document !== 'undefined' && document.getElementById) {
+        const referencedElement = document.getElementById(ariaLabelledby);
+        if (referencedElement && referencedElement.textContent) {
+          return referencedElement.textContent.trim();
+        }
+      }
+      // Return the ID as a fallback if reference can't be resolved
+      return ariaLabelledby.trim();
+    }
+    
+    // Check for title element within the SVG
+    if (svgElement.querySelector) {
+      const titleElement = svgElement.querySelector('title');
+      if (titleElement && titleElement.textContent) {
+        return titleElement.textContent.trim();
+      }
+    }
+  }
+  
+  return '';
+}
+
+// Adapted for both DOM and Screeps environments
+function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll('[role="' + landmark + '"]');
+    const elementsByLandmark = document.querySelectorAll('[role="' + landmark + '"]');
+    
+    const elementsById = elementsByLandmark.reduce((memo, el) => {
+      memo[el.id] = memo[el.id] || [];
+      memo[el.id].push(el);
+      return memo;
+    }, {});
+
     const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
+    Object.keys(elementsById).forEach(id => {
+      const el = elementsById[id][0]; // Assuming the first element in the array for each ID is the unique one
+      const isUnique = !uniqueElements.some(uEl => uEl.id === id);
       if (isUnique) {
         uniqueElements.push(el);
       } else {
         // Remove the role if it's not unique
-        el.removeAttribute('role');
+        elementsById[id].forEach(el => delete el.role);
+      }
+    });
+  });
+
+  // Check for duplicate landmark roles in the Screeps environment
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    const uniqueStructures = [];
+
+    structures.forEach(structure => {
+      const isUnique = !uniqueStructures.some(us => us.id === structure.id);
+      if (isUnique) {
+        uniqueStructures.push(structure);
+      } else {
+        // Remove the landmark role if it's not unique
+        structures.forEach(st => delete st.landmarkType);
       }
     });
   });
 }
 
-// Export all functions for use elsewhere in the repository
+function addLandmarkRolesAndFixIssues() {
+  // Adapted for Screeps environment
+  const uniqueElements = ensureUniqueLandmarkRoles();
+
+  Game.spawns.forEach((spawn, id) => {
+    if (uniqueElements.spawn) {
+      spawn.memory.landmarkRole = uniqueElements.spawn[0].name;
+    }
+  });
+
+  Game.extensions.forEach((extension, id) => {
+    if (uniqueElements.extension) {
+      extension.memory.landmarkRole = uniqueElements.extension[0].name;
+    }
+  });
+
+  Game.towers.forEach((tower, id) => {
+    if (uniqueElements.tower) {
+      tower.memory.landmarkRole = uniqueElements.tower[0].name;
+    }
+  });
+
+  addAriaLabelToSVGsWithoutAccessibleName();
+}
+
+function addressInsightIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      ensureUniqueLandmarks();
+    }
+
+    if (issue.code === 'REACT_017') {
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (!el['aria-label'] && !el.label) {
+          el['aria-label'] = el.id || 'unnamed-element';
+        }
+      });
+      addProperLandmarkRegions(issue.data || []);
+    }
+  });
+}
+
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+}
+
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
+  setSvgAccessibleName,
   improveAccessibility,
-  addressInsightReportIssues,
+  addressInsightIssues,
+  renderDependencyGraphContent,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
@@ -123,5 +223,8 @@ module.exports = {
   handleReact017Issues,
   ensureUniqueLandmarks,
   fixLandmarkRoles,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  ensureUniqueLandmarkRoles,
+  ensureLandmarkUniqueness,
+  addLandmarkRolesAndFixIssues
 };

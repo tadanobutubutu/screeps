@@ -277,7 +277,8 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
-    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
+    const datasetId = element.dataset && element.dataset.id ? element.dataset.id : Math.random().toString().slice(2);
+    element.id = `${idPrefix}-${datasetId}`;
   });
   return document;
 }
@@ -322,6 +323,87 @@ function renderDependencyGraphs(document) {
 
     graphContainer.appendChild(svg);
   }
+  return document;
+}
+
+// Updated function to render dependency graphs with enhanced accessibility and rendering
+function renderDependencyGraphsUpdated(document) {
+  // Identify all dependency graph containers
+  const graphContainers = document.querySelectorAll(
+    '[data-dependency-graph], [data-testid="dependencyGraph"], #dependencyGraph, .dependency-graph, [class*="dependency-graph"]'
+  );
+
+  if (!graphContainers || graphContainers.length === 0) {
+    return document;
+  }
+
+  graphContainers.forEach((graphContainer, containerIndex) => {
+    // Ensure container has proper ARIA role and label for accessibility
+    if (!graphContainer.hasAttribute('role')) {
+      graphContainer.setAttribute('role', 'region');
+    }
+    if (!graphContainer.hasAttribute('aria-label')) {
+      graphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+    if (!graphContainer.hasAttribute('aria-roledescription')) {
+      graphContainer.setAttribute('aria-roledescription', 'dependency graph');
+    }
+
+    // Clear previous SVG renderings to avoid duplicates
+    const existingSvgs = graphContainer.querySelectorAll('svg.dependency-graph');
+    existingSvgs.forEach(svg => svg.remove());
+
+    // Create SVG element for the dependency graph
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'dependency-graph');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '400');
+    svg.setAttribute('viewBox', '0 0 800 400');
+    svg.setAttribute('aria-labelledby', `dependency-graph-title-${containerIndex} dependency-graph-desc-${containerIndex}`);
+
+    // Add accessible title
+    const title = document.createElementNS(svgNS, 'title');
+    title.id = `dependency-graph-title-${containerIndex}`;
+    title.textContent = 'Dependency Graph';
+    svg.appendChild(title);
+
+    // Add accessible description
+    const desc = document.createElementNS(svgNS, 'desc');
+    desc.id = `dependency-graph-desc-${containerIndex}`;
+    desc.textContent = 'Visual representation of project dependencies between modules';
+    svg.appendChild(desc);
+
+    // Parse and render dependency data if present
+    const graphDataElement = graphContainer.querySelector('[data-graph-data]');
+    if (graphDataElement) {
+      try {
+        const rawData = graphDataElement.textContent || graphDataElement.dataset.graphData || '[]';
+        const nodes = JSON.parse(rawData);
+        if (Array.isArray(nodes)) {
+          const g = document.createElementNS(svgNS, 'g');
+          g.setAttribute('class', 'dependency-graph-nodes');
+          nodes.forEach((node, index) => {
+            const circle = document.createElementNS(svgNS, 'circle');
+            circle.setAttribute('cx', String(100 + (index % 5) * 150));
+            circle.setAttribute('cy', String(100 + Math.floor(index / 5) * 120));
+            circle.setAttribute('r', '30');
+            circle.setAttribute('fill', '#4a90e2');
+            const nodeTitle = document.createElementNS(svgNS, 'title');
+            nodeTitle.textContent = node && node.name ? node.name : `Node ${index + 1}`;
+            circle.appendChild(nodeTitle);
+            g.appendChild(circle);
+          });
+          svg.appendChild(g);
+        }
+      } catch (e) {
+        // Silently fail if data is malformed; graph still renders structure
+      }
+    }
+
+    graphContainer.appendChild(svg);
+  });
+
   return document;
 }
 

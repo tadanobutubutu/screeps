@@ -285,18 +285,34 @@ function initializeAccessibility(doc = window.document) {
   fixFakeLinkIssue(doc);
 }
 
-// Export functions for testing
+// Accessibility utilities export
+const accessibilityExports = {
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  initializeAccessibility,
+  createInPageButton
+};
+
+// CommonJS export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    addLandmarkIssues,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinkIssue,
-    initializeAccessibility,
-    createInPageButton
-  };
+  module.exports = accessibilityExports;
+}
+
+// ES Module export (for modern JavaScript environments)
+if (typeof exports !== 'undefined') {
+  exports.default = accessibilityExports;
+  exports.addLangAttribute = addLangAttribute;
+  exports.fixTableStructure = fixTableStructure;
+  exports.addLandmarkIssues = addLandmarkIssues;
+  exports.addSvgAccessibleNames = addSvgAccessibleNames;
+  exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  exports.fixFakeLinkIssue = fixFakeLinkIssue;
+  exports.initializeAccessibility = initializeAccessibility;
+  exports.createInPageButton = createInPageButton;
 }
 
 // Auto-initialize when DOM is ready

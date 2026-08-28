@@ -87,10 +87,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -155,11 +155,11 @@ const setAccessibleName = (node, accessibleName) => {
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"]`);
+    const elements = document.getElementsByTagName(type === 'search' ? 'form' : type);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -169,23 +169,6 @@ const addProperLandmarkRegions = (document) => {
       }
     });
   });
-};
-
-// Add the updated addressAccessibilityIssues function
-const addressAccessibilityIssues = (document) => {
-  if (!document) {
-    return document;
-  }
-
-  addLangAttribute(document);
-  fixTableStructureIssues(document);
-  addMainLandmark(document);
-  ensureUniqueLandmarks(document);
-  addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
-
-  return document;
 };
 
 //------ END OF ORIGINAL CODE ------
@@ -249,7 +232,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
+    const elements = document.querySelectorAll(`${type}`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
@@ -260,16 +243,18 @@ const ensureUniqueLandmarks = (document) => {
           id = `${type}-${idSuffix}`;
         }
         element.id = id;
+        usedIds.add(id);
       }
     });
   });
+  return document;
 };
 
 const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -282,7 +267,7 @@ const addSvgAccessibleNames = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
     if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
@@ -294,8 +279,4 @@ const fixFakeLinkIssue = (document) => {
     }
     // Remove href="#" and add href="#" with proper handling
     if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0);');
-    }
-  });
-  return document;
-};
+      link

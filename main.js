@@ -14,10 +14,11 @@ const a11yStore = {
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
-    this.addFocusVisibilityStyles();
+    this.addFocusStyles();
+    this.setupFocusVisiblePolyfill();
     this.enhanceDynamicContent();
+    this.applyARIAtoNode(document.body);
+    this.validateARIA();
   },
 
   // Create a live region for screen reader announcements
@@ -52,7 +53,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        const target = e.target.closest('[role="button"], [tabindex="0"]');
         if (target) {
           e.preventDefault();
           target.click();
@@ -61,17 +62,18 @@ const a11yStore = {
 
       // Escape key to close modals/dropdowns
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        const openModal = document.querySelector('[aria-modal="true"]');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.removeAttribute('aria-modal');
+          openModal.classList.add('hidden');
           document.body.style.overflow = '';
         }
       }
     });
 
     // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach((container) => {
+    const dropdownContainers = document.querySelectorAll('[data-dropdown-container]');
+    dropdownContainers.forEach(container => {
       container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
 
@@ -87,14 +89,22 @@ const a11yStore = {
         }
 
         // Ensure focus trapping only within the dropdown container
-        if (!focusIsInsideContainer) {
-          // Find the first focusable element within the container
-          const firstFocusableElement = container.querySelector(
+        if (focusIsInsideContainer) {
+          // Find the first and last focusable elements
+          const focusableElements = container.querySelectorAll(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
           );
+          if (focusableElements.length === 0) return;
 
-          if (firstFocusableElement) {
-            firstFocusableElement.focus();
+          const firstElement = focusableElements[0];
+          const lastElement = focusableElements[focusableElements.length - 1];
+
+          if (e.shiftKey && currentFocusedElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          } else if (!e.shiftKey && currentFocusedElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
           }
         }
       });
@@ -107,12 +117,13 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      const modal = document.querySelector('[aria-modal="true"]');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
+      if (focusableElements.length === 0) return;
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
@@ -132,7 +143,7 @@ const a11yStore = {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
+    const targetId = skipLink.getAttribute('href').substring(1);
     const target = targetId ? document.getElementById(targetId) : null;
 
     if (target) {
@@ -144,7 +155,7 @@ const a11yStore = {
       });
 
       // Focus the skip link when the document is loaded in Safari
-      if ( navigator.userAgent.toLowerCase().indexOf('safari') !== -1 ) {
+      if (navigator.userAgent.indexOf('Safari') !== -1) {
         skipLink.focus();
       }
     }
@@ -169,29 +180,29 @@ const a11yStore = {
   // New function to check landmark elements
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
-      if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+    landmarkElements.forEach(landmark => {
+      const element = document.querySelector(landmark);
+      if (element && element.id === '') {
+        element.id = `${landmark}-${Math.round(Math.random() * 1000)}`;
       }
     });
   },
 
   // New function to add SVG accessibility props
-  addSVGAccessibilityProps() {
+  enhanceSVG() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
+      const titleText = svg.getAttribute('title') || 'Image description';
+      const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
       svg.setAttribute('aria-describedby', descriptionId);
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      svg.appendChild(descriptionElement);
     });
   },
 
@@ -230,6 +241,8 @@ const a11yStore = {
           });
           break;
         // Add more cases as needed
+        default:
+          break;
       }
     });
   },
@@ -237,13 +250,15 @@ const a11yStore = {
   // Preserve existing code
   preserveExistingCode() {
     // Existing code preservation logic
+    this.checkLandmarkElements();
+    this.enhanceSVG();
   },
 
   // NEW: Add focus visibility styles for keyboard navigation
-  addFocusVisibilityStyles() {
+  addFocusStyles() {
     // Check if styles already added
     if (document.getElementById('a11y-focus-styles')) return;
-    
+
     const style = document.createElement('style');
     style.id = 'a11y-focus-styles';
     style.textContent = `
@@ -254,10 +269,12 @@ const a11yStore = {
       }
       
       /* Ensure focus visibility in different contexts */
-      [data-focus-visible]:focus,
-      [data-focus-visible] [tabindex]:focus,
-      [data-focus-visible] button:focus,
-      [data-focus-visible] a:focus {
+      a:focus,
+      button:focus,
+      input:focus,
+      select:focus,
+      textarea:focus,
+      [tabindex]:focus {
         outline: 2px solid #005fcc !important;
         outline-offset: 2px !important;
       }
@@ -272,108 +289,113 @@ const a11yStore = {
       }
     `;
     document.head.appendChild(style);
-    
+
     // Add focus-visible polyfill support
     this.setupFocusVisiblePolyfill();
   },
-  
+
   // NEW: Setup focus-visible polyfill for better focus management
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
     const alwaysHide = false;
-    
+
     const showRemaining = () => {
-      document.body.classList.remove('user-is-tabbing');
+      if (alwaysHide) return;
+      document.querySelectorAll('[data-focus-visible-added]').forEach(el => {
+        el.removeAttribute('data-focus-visible-added');
+      });
+      document.querySelectorAll(':focus').forEach(el => {
+        el.classList.add('focus-visible');
+      });
     };
-    
+
     const handleBlur = (e) => {
-      e.target.classList.remove('user-is-tabbing');
+      e.target.classList.remove('focus-visible');
     };
-    
+
     const handleKeydown = (e) => {
       hadKeyboardEvent = true;
       showRemaining();
     };
-    
+
     const handlePointerDown = (e) => {
       hadKeyboardEvent = false;
       showRemaining();
     };
-    
+
     document.addEventListener('keydown', handleKeydown, true);
     document.addEventListener('mousedown', handlePointerDown, true);
     document.addEventListener('pointerdown', handlePointerDown, true);
     document.addEventListener('touchstart', handlePointerDown, true);
-    document.addEventListener('focus', (e) => {
+    document.addEventListener('focusout', (e) => {
       if (hadKeyboardEvent) {
-        e.target.classList.add('user-is-tabbing');
+        handleBlur(e);
       }
     }, true);
   },
-  
+
   // NEW: Enhance dynamic content updates for better screen reader support
   enhanceDynamicContent() {
     // Observe DOM changes for dynamic content
-    if (!window.MutationObserver) return;
-    
+    if (typeof MutationObserver === 'undefined') return;
+
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
               this.applyARIAtoNode(node);
             }
           });
         }
       });
     });
-    
+
     observer.observe(document.body, {
       childList: true,
       subtree: true
     });
   },
-  
+
   // NEW: Apply ARIA attributes to dynamically added elements
   applyARIAtoNode(node) {
     if (!node || !node.setAttribute) return;
-    
+
     // Handle buttons without text content
     if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
       node.setAttribute('aria-label', 'Button');
     }
-    
+
     // Handle links without text
     if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
       node.setAttribute('aria-label', 'Link');
     }
-    
+
     // Handle inputs without labels
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName)) {
       if (!node.getAttribute('aria-label') && !node.getAttribute('id')) {
         node.setAttribute('aria-label', 'Form field');
       }
     }
-    
+
     // Handle images without alt text
-    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
+    if (node.tagName === 'IMG' && !node.hasAttribute('alt')) {
       node.setAttribute('alt', '');
     }
-    
+
     // Process children recursively
     const children = node.querySelectorAll('button, a, input, select, textarea, img');
     children.forEach(child => {
       this.applyARIAtoNode(child);
     });
   },
-  
+
   // NEW: Validate and improve ARIA usage
-  validateAndImproveARIA() {
+  validateARIA() {
     // Remove duplicate IDs
     const allElements = document.querySelectorAll('[id]');
     const idMap = {};
-    
+
     allElements.forEach(el => {
       const id = el.getAttribute('id');
       if (idMap[id]) {
@@ -382,7 +404,7 @@ const a11yStore = {
         idMap[id] = true;
       }
     });
-    
+
     // Ensure ARIA attributes are properly used
     document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
       if (el.getAttribute('tabindex') !== '-1') {
@@ -394,15 +416,15 @@ const a11yStore = {
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+mainElement.id = 'main-content';
+mainElement.setAttribute('role', 'main');
 
 // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
 }
 
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
+document.body.prepend(mainElement);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -410,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Preserve existing code
-a11yStore.preserveExistingCode();
+// The following functions and variables are preserved for backward compatibility.
 
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {

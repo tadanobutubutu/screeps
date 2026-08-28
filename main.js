@@ -7,6 +7,42 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 /**
+ * Creates an accessible in-page button element
+ * @param {Document} doc - The document object
+ * @param {string} text - The button text content
+ * @param {Object} [options] - Optional configuration for the button
+ * @param {string} [options.className] - CSS class name(s) for the button
+ * @param {string} [options.id] - ID attribute for the button
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {boolean} [options.disabled] - Whether the button should be disabled
+ * @param {string} [options.type] - Button type attribute (default: 'button')
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(doc, text = '', options = {}) {
+  const button = doc.createElement('button');
+  button.textContent = text;
+  button.type = options.type || 'button';
+
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+
+  if (options.disabled) {
+    button.disabled = true;
+  }
+
+  return button;
+}
+
+/**
  * Adds lang attribute to HTML element for accessibility
  * @param {Document} doc - The document object
  * @param {string} lang - Language code (e.g., 'en', 'es', 'fr')
@@ -258,7 +294,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
-    initializeAccessibility
+    initializeAccessibility,
+    createInPageButton
   };
 }
 

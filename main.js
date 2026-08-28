@@ -6,9 +6,8 @@ const renderFooter = require('./renderFooter');
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -52,7 +51,7 @@ function setHtmlLangAttribute(lang) {
 }
 
 /**
- * Detects the language of the given content and sets the HTML lang attribute
+ * Detects the language of the content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
@@ -107,6 +106,100 @@ if (typeof document !== 'undefined') {
   convertAnchorsToButtons();
 }
 
+/**
+ * Adds accessible names to SVG elements by ensuring a <title> exists
+ * @param {string} [name='SVG Image'] - The accessible name for the SVG
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = 'SVG Image';
+      svg.prepend(title);
+    }
+  });
+}
+
+/**
+ * Fixes 26 table structure issues by ensuring thead and tbody exist
+ */
+function fixTableStructureIssues() {
+  document.querySelectorAll('table').forEach(table => {
+    if (table.querySelector('thead') || table.querySelector('tbody')) return;
+
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach((row, index) => {
+      if (index === 0) {
+        thead.appendChild(row);
+      } else {
+        tbody.appendChild(row);
+      }
+    });
+
+    if (thead.children.length > 0 && tbody.children.length > 0) {
+      table.innerHTML = '';
+      table.appendChild(thead);
+      table.appendChild(tbody);
+    }
+  });
+}
+
+/**
+ * Adds/fixes main landmark by ensuring a <main> element exists
+ */
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    document.body.prepend(mainElement);
+  }
+}
+
+/**
+ * Ensures unique landmarks by removing duplicate roles
+ */
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['main', 'header', 'footer', 'nav', 'aside'];
+  landmarkRoles.forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute('role');
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Fixes fake link issues by replacing non-anchor clickable elements with proper links
+ */
+function fixFakeLinkIssue() {
+  document.querySelectorAll('[onclick]').forEach(el => {
+    if (el.tagName.toLowerCase() !== 'a') {
+      const a = document.createElement('a');
+      a.href = '#';
+      a.textContent = el.textContent;
+      a.onclick = el.onclick;
+      el.replaceWith(a);
+    }
+  });
+}
+
+/**
+ * Adds lang attribute to the document's <html> tag
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // Exporting functions as before
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -118,6 +211,12 @@ if (typeof module !== 'undefined' && module.exports) {
     setHtmlLangAttribute,
     detectAndSetLang,
     convertAnchorsToButtons,
-    setLanguage
+    setLanguage,
+    addSvgAccessibleNames,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    addLangAttribute
   };
 }

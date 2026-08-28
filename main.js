@@ -7,6 +7,12 @@
 //_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 //<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
+// Import modules for use in rendering functions
+const console = require('console');
+const logResults = (label, results) => {
+  console.log(`${label}:`, results);
+};
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 
@@ -88,6 +94,9 @@ function checkLinkAccessibility() {
     }
   });
 
+  // Log results using imported module
+  logResults('Link Accessibility', results);
+  
   return results;
 }
 
@@ -125,6 +134,9 @@ function checkButtonAccessibility() {
       });
     }
   });
+
+  // Log results using imported module
+  logResults('Button Accessibility', results);
 
   return results;
 }
@@ -184,7 +196,8 @@ function ensureUniqueLandmarks(element) {
 }
 
 function addProperLandmarkRegions() {
-  const issues = insightReport ? insightReport.issues || [] : [];
+  // Check for insightReport in module scope
+  const issues = typeof insightReport !== 'undefined' && insightReport ? insightReport.issues || [] : [];
   let uniqueLandmarks = {};
 
   issues.forEach(issue => {
@@ -302,4 +315,59 @@ function checkLandmarkElements() {
   // Mapping of semantic HTML tags to their landmark roles
   const semanticToLandmark = {
     'main': 'main',
-    'nav
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  // Check each landmark role for proper implementation
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    
+    elements.forEach(element => {
+      const issue = {
+        element: element,
+        role: role
+      };
+      
+      // Check for duplicate landmarks
+      const allLandmarks = [];
+      document.querySelectorAll(`[role="${role}"]`).forEach(el => {
+        allLandmarks.push({
+          element: el,
+          role: role
+        });
+      });
+      
+      if (allLandmarks.length > 1 && !results.some(r => r.element === element && r.issue === 'Duplicate landmark')) {
+        results.push({
+          element: element,
+          issue: 'Duplicate landmark role found',
+          role: role
+        });
+      }
+    });
+  });
+
+  // Log results using imported module
+  logResults('Landmark Elements', results);
+
+  return results;
+}
+
+// Export functions for testing
+module.exports = {
+  improveAccessibility,
+  checkLinkAccessibility,
+  checkButtonAccessibility,
+  addressInsightReportIssues,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
+  renderDependencyGraph,
+  checkTableStructure,
+  checkLandmarkElements,
+  logResults
+};

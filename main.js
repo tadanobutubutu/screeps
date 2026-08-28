@@ -270,3 +270,11 @@ export default a11yStore;
 // Assuming 'utils' modules are required (example follows)
 // import { utilityFunction } from './utils.js';
 // export { utilityFunction };
+
+// Additional required exports
+export const updateLiveRegion = a11yStore.updateLiveRegion;
+export const checkLandmarkElements = a11yStore.checkLandmarkElements;
+export const addSVGAccessibilityProps = a11yStore.addSVGAccessibilityProps;
+export const preserveExistingCode = a11yStore.preserveExistingCode;
+export const prefersReducedMotion = a11yStore.prefersReducedMotion;
+export const prefersHighContrast = a11yStore.prefersHighContrast;

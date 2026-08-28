@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -74,14 +71,25 @@ addProperAccountManagement();
 addAriaToFormControls();
 replaceMyButtonId();
 
+/**
+ * New function to get the accessible name for an SVG element
+ * @param {string} svgId - The id of the SVG element
+ * @returns {string} - The accessible name of the SVG element
+ */
+function getSvgAccessibleName(svgId) {
+  const svgElement = document.querySelector(`#${svgId}`);
+  if (svgElement) {
+    return svgElement.getAttribute('title') || svgElement.textContent;
+  }
+  return '';
+}
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
-  getFullLangAttribute
+  getFullLangAttribute,
+  getSvgAccessibleName
 };
-```
-
-In this resolved file, the changes from both branches were integrated to ensure that the `my-button` element is replaced with a concrete id, the `replaceMyButtonId()` function is called after the proper landmark regions, account management, and aria attributes are added to the document, and the `getLangAttribute()` and `getFullLangAttribute()` functions are included in the exported module.

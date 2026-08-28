@@ -1,10 +1,5 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 
 /**
  * Adds lang attribute to HTML element for accessibility
@@ -249,17 +244,32 @@ function initializeAccessibility(doc = window.document) {
   fixFakeLinkIssue(doc);
 }
 
-// Export functions for testing
+// Export functions for testing and module usage
+const accessibilityExports = {
+  addLangAttribute,
+  fixTableStructure,
+  addLandmarkIssues,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  initializeAccessibility
+};
+
+// CommonJS export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    addLandmarkIssues,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinkIssue,
-    initializeAccessibility
-  };
+  module.exports = accessibilityExports;
+}
+
+// ES Module export (for modern JavaScript environments)
+if (typeof exports !== 'undefined') {
+  exports.default = accessibilityExports;
+  exports.addLangAttribute = addLangAttribute;
+  exports.fixTableStructure = fixTableStructure;
+  exports.addLandmarkIssues = addLandmarkIssues;
+  exports.addSvgAccessibleNames = addSvgAccessibleNames;
+  exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  exports.fixFakeLinkIssue = fixFakeLinkIssue;
+  exports.initializeAccessibility = initializeAccessibility;
 }
 
 // Auto-initialize when DOM is ready

@@ -7,6 +7,7 @@
 module.exports = {
   // Export all functions that need to be accessible
   // Add your functions here as needed
+  // Example: someFunction: someFunction,
 };
 
 // If using ES6 modules, also ensure functions are exported:

@@ -1,4 +1,4 @@
-// Import dependencyGraphContent
+// Accessibility utilities and dependency graph rendering
 const dependencyGraphContent = require('./dependencyGraph');
 
 // Update the renderDependencyGraph function

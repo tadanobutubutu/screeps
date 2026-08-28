@@ -3,17 +3,6 @@
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-function renderDependencyGraph() {
-  const container = document.getElementById('dependencyGraph');
-
-  if (container) {
-    container.setAttribute('role', 'region');
-    container.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-
-  return container;
-}
-
 /**
  * Adds lang attribute to the HTML element for accessibility
  * @param {string} langCode - The language code (e.g., 'en', 'es', 'fr')
@@ -23,6 +12,20 @@ function addLangAttribute(langCode = 'en') {
   if (htmlElement) {
     htmlElement.setAttribute('lang', langCode);
   }
+}
+
+/**
+ * Renders the dependency graph with proper ARIA attributes
+ */
+function renderDependencyGraph() {
+  const container = document.getElementById('dependencyGraph');
+
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+
+  return container;
 }
 
 /**
@@ -45,7 +48,7 @@ function setupAccessibility() {
     });
   }
 
-  // Ensure the dependencyGraph container has a proper ARIA role (from merge conflict)
+  // Ensure the dependencyGraph container has a proper ARIA role
   renderDependencyGraph();
 
   // Implement the new function as required by the issue
@@ -70,3 +73,4 @@ module.exports = {
   setupAccessibility,
   renderDependencyGraph,
   implementNewFunction
+};

@@ -216,6 +216,21 @@ function fixTableHeaderCellScope() {
   });
 }
 
+// New function to implement accessibility fixes
+function ensureTableAccessibility() {
+  // Fix table structure issues (thead/tbody)
+  fixTableStructureIssues();
+  
+  // Fix table header cell scope
+  fixTableHeaderCellScope();
+  
+  // Ensure unique landmark roles
+  ensureUniqueLandmarks();
+  
+  // Handle insight report issues related to table landmarks
+  ensureUniqueLandmarksFromInsightReport();
+}
+
 // Add main landmark
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');

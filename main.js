@@ -24,6 +24,66 @@ import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
+// Landmark data structure
+const landmarks = [];
+
+// Existing landmark tracking
+function addLandmark(name, coordinates) {
+    const landmark = {
+        id: Date.now(),
+        name: name,
+        coordinates: coordinates
+    };
+    landmarks.push(landmark);
+    return landmark;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks() {
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        const key = `${landmark.name}-${landmark.coordinates}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+function isLandmarkUnique(name, coordinates) {
+    return !landmarks.some(
+        landmark => 
+            landmark.name === name && 
+            landmark.coordinates === coordinates
+    );
+}
+
+function removeDuplicateLandmarks() {
+    const uniqueLandmarks = ensureUniqueLandmarks();
+    landmarks.length = 0;
+    landmarks.push(...uniqueLandmarks);
+    return landmarks;
+}
+
+function getUniqueLandmarkByName(name) {
+    const matches = landmarks.filter(l => l.name === name);
+    if (matches.length === 0) return null;
+    if (matches.length === 1) return matches[0];
+    return matches[0];
+}
+
+// Sample data for the application
+const appData = {
+    title: 'Landmark Checker',
+    version: '1.0.0'
+};
+
+// Placeholder for the affected SVGs
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
+};
+
 /**
  * Checks if the application is being loaded in a secure context.
  *
@@ -80,7 +140,7 @@ const addLandmarkRoles = () => {
  * This addresses the REACT_025 issue by checking for duplicate landmarks
  * and making them unique with appropriate aria-label or aria-labelledby attributes.
  */
-const ensureUniqueLandmarks = () => {
+const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
   const navElements = document.querySelectorAll('nav[role="navigation"]');
   if (navElements.length > 1) {
@@ -148,6 +208,85 @@ const fixFakeLinks = () => {
   });
 };
 
+function helloWorld() {
+  return 'Hello, World!';
+}
+
+// Function to initialize the dependency graph with accessibility support
+function initDependencyGraph(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.setAttribute('role', 'img');
+    container.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+  return container;
+}
+
+// Function to render the dependency graph
+function renderDependencyGraph(containerId) {
+  const container = initDependencyGraph(containerId);
+  if (container) {
+    // Add the logic to render the dependency graph inside the container
+    // This is a placeholder for the actual rendering logic
+    container.innerHTML = 'Dependency Graph Data';
+  }
+}
+
+// Helper function to get element by ID
+function getElementById(id) {
+    return document.getElementById(id);
+}
+
+// Helper function to query elements
+function queryElements(selector) {
+    return document.querySelectorAll(selector);
+}
+
+// Function to check landmark elements in the DOM
+function checkLandmarkElements() {
+    const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
+    const results = {};
+    
+    landmarkSelectors.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        results[landmark] = {
+            count: elements.length,
+            exists: elements.length > 0
+        };
+    });
+    
+    return results;
+}
+
+// Function to validate landmark structure
+function validateLandmarkStructure() {
+    const results = checkLandmarkElements();
+    const validation = {
+        isValid: true,
+        errors: [],
+        warnings: []
+    };
+    
+    if (!results.main.exists) {
+        validation.isValid = false;
+        validation.errors.push('Missing required <main> landmark element');
+    }
+    
+    if (!results.header.exists) {
+        validation.warnings.push('No <header> landmark element found');
+    }
+    
+    if (!results.nav.exists) {
+        validation.warnings.push('No <nav> landmark element found');
+    }
+    
+    if (!results.footer.exists) {
+        validation.warnings.push('No <footer> landmark element found');
+    }
+    
+    return validation;
+}
+
 /**
  * Initializes the application and applies accessibility fixes.
  */
@@ -158,7 +297,7 @@ const initApp = () => {
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
-  ensureUniqueLandmarks();
+  ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('svg#icon-home', 'Home icon');
@@ -166,6 +305,10 @@ const initApp = () => {
 
   // Fix fake links
   fixFakeLinks();
+
+  // Initialize the application data
+  console.log('Initializing ' + appData.title + ' v' + appData.version);
+  checkLandmarkElements();
 
   // Signal that the app has started
   appStarted();
@@ -180,3 +323,25 @@ if (isSecureContext()) {
 
 // Register the service worker
 registerSW();
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        addLandmark,
+        ensureUniqueLandmarks,
+        isLandmarkUnique,
+        removeDuplicateLandmarks,
+        getUniqueLandmarkByName,
+        landmarks,
+        helloWorld,
+        initDependencyGraph,
+        renderDependencyGraph,
+        getElementById,
+        queryElements,
+        checkLandmarkElements,
+        validateLandmarkStructure,
+        initApp,
+        appData,
+        icons
+    };
+}

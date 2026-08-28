@@ -2,7 +2,12 @@
 
 // TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 
-// Existing code structure
+const fs = require('fs');
+const path = require('path');
+
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
+
 const someData = [];
 
 function processData(data) {
@@ -117,10 +122,16 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   return button;
 }
 
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
 module.exports = {
     someData,
     processData,
     validateLandmark,
     validateLandmarkStructure,
-    createInPageButton
+    createInPageButton,
+    calculateDiscount
 };

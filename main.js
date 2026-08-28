@@ -1,5 +1,3 @@
-// TODO: Create or update the affected functions to be accessible
-
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -191,6 +189,159 @@ const newAccessibilityFunction = () => {
 // Export the old function to address accessibility issues
 function addressOldAccessibilityIssues() {
   return 'addressing old issues';
+}
+
+/**
+ * Creates an accessible in-page button from a link element.
+ * Converts links that are actually used as buttons (navigation within page)
+ * into proper button elements with appropriate accessibility attributes.
+ * @param {HTMLAnchorElement} linkElement - The anchor element to convert
+ * @param {string} [actionId] - Optional ID for the action/handler
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(linkElement, actionId) {
+  const button = document.createElement('button');
+  
+  // Copy text content
+  button.textContent = linkElement.textContent;
+  
+  // Copy relevant attributes
+  const classes = linkElement.getAttribute('class');
+  if (classes) {
+    button.setAttribute('class', classes);
+  }
+  
+  const styles = linkElement.getAttribute('style');
+  if (styles) {
+    button.setAttribute('style', styles);
+  }
+  
+  // Set accessibility attributes
+  button.setAttribute('type', 'button');
+  
+  // Generate or use provided action ID
+  const buttonId = actionId || `in-page-btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  button.setAttribute('id', buttonId);
+  
+  // If link has aria-label, preserve it
+  if (linkElement.hasAttribute('aria-label')) {
+    button.setAttribute('aria-label', linkElement.getAttribute('aria-label'));
+  }
+  
+  // Copy data attributes
+  Array.from(linkElement.attributes).forEach(attr => {
+    if (attr.name.startsWith('data-')) {
+      button.setAttribute(attr.name, attr.value);
+    }
+  });
+  
+  // Replace the link with the button
+  if (linkElement.parentNode) {
+    linkElement.parentNode.replaceChild(button, linkElement);
+  }
+  
+  return button;
+}
+
+/**
+ * Validates that a link element has proper accessibility attributes.
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result with isValid flag and any issues found
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  // Check for href attribute
+  const href = link.getAttribute('href');
+  if (!href || href === '' || href === '#') {
+    issues.push({
+      type: 'missing-href',
+      message: 'Link is missing a valid href attribute (fake link detected)'
+    });
+  }
+  
+  // Check for accessible name
+  const textContent = link.textContent.trim();
+  const ariaLabel = link.getAttribute('aria-label');
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  
+  if (!textContent && !ariaLabel && !ariaLabelledby) {
+    issues.push({
+      type: 'missing-name',
+      message: 'Link has no accessible name (no text content or aria-label)'
+    });
+  }
+  
+  // Check for tabindex if not naturally focusable
+  if (!link.hasAttribute('tabindex')) {
+    // Links are naturally focusable, so this is fine
+  }
+  
+  // Check for title attribute (optional but good for tooltips)
+  if (!link.hasAttribute('title') && !ariaLabel) {
+    issues.push({
+      type: 'missing-title',
+      message: 'Link has no title attribute or aria-label for additional context'
+    });
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues,
+    link: link
+  };
+}
+
+/**
+ * Handles fake links (links without proper href or used as buttons).
+ * Validates and either fixes the links or converts them to buttons.
+ * @param {HTMLElement} [container=document] - The container to check for fake links
+ * @returns {Object} Summary of handled links
+ */
+function handleFakeLinks(container = document) {
+  const links = container.querySelectorAll('a');
+  const results = {
+    total: links.length,
+    fakeLinks: [],
+    convertedToButtons: [],
+    validated: [],
+    fixed: []
+  };
+  
+  links.forEach(link => {
+    const validation = validateLinkAccessibility(link);
+    
+    if (!validation.isValid) {
+      results.fakeLinks.push({
+        element: link,
+        issues: validation.issues
+      });
+      
+      // Check if it's a fake link that should be a button
+      const href = link.getAttribute('href');
+      const isFakeLink = !href || href === '' || href === '#';
+      const hasButtonRole = link.getAttribute('role') === 'button';
+      
+      // If it's a fake link without button role, convert to button
+      if (isFakeLink && !hasButtonRole) {
+        const button = createInPageButton(link);
+        results.convertedToButtons.push({
+          original: link,
+          button: button
+        });
+      } else if (isFakeLink && hasButtonRole) {
+        // Already has button role, just ensure it's accessible
+        if (!link.hasAttribute('tabindex')) {
+          link.setAttribute('tabindex', '0');
+        }
+        results.fixed.push(link);
+      }
+    } else {
+      results.validated.push(validation);
+    }
+  });
+  
+  return results;
 }
 
 /**
@@ -390,6 +541,9 @@ globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
 globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
 globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
 globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
+globalObject.createInPageButton = createInPageButton;
+globalObject.validateLinkAccessibility = validateLinkAccessibility;
+globalObject.handleFakeLinks = handleFakeLinks;
 
 // Exports for all functions
 module.exports = {
@@ -420,5 +574,8 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

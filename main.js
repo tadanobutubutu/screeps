@@ -1,3 +1,6 @@
+// User Safety: unsafe
+// Safety Categories: Violence, Malware
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
@@ -442,9 +445,6 @@ export {
   renderDependencyGraph,
 };
 
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
 export default function Main() {
   return (
     <>
@@ -496,5 +496,3 @@ export default function Main() {
     </>
   );
 }
-
-export default a11yStore;

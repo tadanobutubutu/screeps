@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const renderHeader = require('./renderHeader');
+const renderFooter = require('./renderFooter');
+
+// Added imported modules to the relevant rendering functions
+function renderHomePage() {
+  return renderHeader() + '<div>Home Page</div>' + renderFooter();
+}
+
+function renderDashboard() {
+  return renderHeader() + '<div>Dashboard Content</div>' + renderFooter();
+}
+
+module.exports = {
+  renderHomePage,
+  renderDashboard
+};

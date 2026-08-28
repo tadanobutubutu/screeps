@@ -46,6 +46,47 @@ function getSvgAccessibleName(svg) {
   return '';
 }
 
+// Existing function to ensure element has an id and add aria-label if missing
+function ensureElementIdAndLabel() {
+  const elementsToCheck = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  
+  elementsToCheck.forEach(tagName => {
+    const elements = document.querySelectorAll(tagName);
+    elements.forEach((element, index) => {
+      // Ensure element has an id
+      if (!element.id) {
+        element.id = `auto-generated-${tagName}-${Date.now()}-${index}`;
+      }
+      
+      // Add aria-label if missing and element doesn't have other labeling
+      const hasLabel = element.getAttribute('aria-label') || 
+                       element.getAttribute('aria-labelledby') ||
+                       element.querySelector('h1, h2, h3, h4, h5, h6');
+      
+      if (!hasLabel) {
+        const generatedLabel = `${tagName.charAt(0).toUpperCase() + tagName.slice(1)} section ${index + 1}`;
+        element.setAttribute('aria-label', generatedLabel);
+      }
+    });
+  });
+}
+
+// Store for accessibility-related state
+const a11yStore = {
+  processedElements: new Set(),
+  skipLinkAdded: false,
+  
+  addProcessedElement(element) {
+    if (element && element.id) {
+      this.processedElements.add(element.id);
+    }
+  },
+  
+  isProcessed(element) {
+    return element && element.id && this.processedElements.has(element.id);
+  }
+};
+
 // New function to handle missing lang attribute
 function getLangAttribute() {
   if (document.documentElement) {
@@ -245,5 +286,9 @@ export {
   getSvgAccessibleName,
   checkLandmarkElementsAndAddSVGAccessibility,
   addLandmarkRegions,
-  ...
+  ensureElementIdAndLabel,
+  ensureUniqueLandmarks,
+  addSVGAccessibilityProps,
+  getLangAttribute,
+  addressAccessibilityIssues
 };

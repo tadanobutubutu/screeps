@@ -366,6 +366,26 @@ function fixFakeLinkIssue() {
   return fixedLinks;
 }
 
+/**
+ * Adds SVG accessibility props to all SVG elements in the document or specific container.
+ * This function iterates over all SVG elements and applies accessibility properties
+ * such as role, aria-hidden, and title where appropriate.
+ * @param {HTMLElement} [container=document] - The container to process SVGs in
+ * @returns {NodeList|Array} NodeList of processed SVG elements, or empty array if document is not available
+ */
+function addSvgAccessibilityProps(container = document) {
+  if (typeof document === 'undefined' || !container) {
+    return [];
+  }
+  
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    setSvgAccessibilityProps(svg);
+  });
+  
+  return svgs;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -382,5 +402,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  formatDate
+  formatDate,
+  addSvgAccessibilityProps
 };

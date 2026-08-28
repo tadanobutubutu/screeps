@@ -18,3 +18,6 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
+
+// Export the rotateBack function
+module.exports = { rotateBack };

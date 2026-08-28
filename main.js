@@ -21,6 +21,11 @@ function getVersion() {
   return VERSION;
 }
 
+function newFunction() {
+  // New function added as per the issue
+  console.log('New function executed');
+}
+
 module.exports = {
   VERSION,
   CONFIG,
@@ -34,5 +39,6 @@ module.exports.default = {
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  newFunction // Exporting the new function
 };

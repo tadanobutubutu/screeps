@@ -3,14 +3,10 @@ ______________
 Original code...
 ______________
 
-// Placeholder for the affected SVGs
-icons: {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
-},
-
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // Example: const { helperFunction } = require('./utils');
+const { helperFunction, renderIcon, renderGraph } = require('./utils');
 
 function helloWorld() {
   return 'Hello, World!';
@@ -22,9 +18,15 @@ function initDependencyGraph(containerId) {
   if (container) {
     container.setAttribute('role', 'img');
     container.setAttribute('aria-label', 'Dependency graph visualization');
+    renderGraph(container);
   }
   return container;
 }
+
+// Placeholder for the affected SVGs
+icons: {
+  icon: renderIcon('icon', '... viewBox="0 0 100 100" aria-label="Screeps ... Dashboard</title><text y=".9em" ...'),
+},
 
 module.exports = {
   helloWorld,

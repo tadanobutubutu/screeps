@@ -1,110 +1,84 @@
-// main.js - No changes needed; the issue is in docs/dependency-graph.html
-// The fix should be applied to the HTML file, not this JavaScript file.
-// TODO: Add back any required exports that might have been?
-/**
- * Sets accessibility properties on SVG elements.
- * @param {SVGElement} svgElement - The SVG element to modify
+/ **
+ * Checks landmark elements on the page for accessibility
+ * @returns {Object} An object containing landmark analysis results
  */
-function setSvgAccessibilityProps(svgElement) {
-  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
-    return;
-  }
+function checkLandmarkElements() {
+  // Landmark elements and their corresponding roles
+  const landmarkSelectors = [
+    'header[role="banner"], [role="banner"]',
+    'nav, [role="navigation"]',
+    'main, [role="main"]',
+    'aside, [role="complementary"]',
+    'footer[role="contentinfo"], [role="contentinfo"]',
+    'section[aria-label], section[aria-labelledby], [role="region"]',
+    'article, [role="article"]',
+    'form[aria-label], form[aria-labelledby], [role="form"]',
+    'search, [role="search"]',
+    '[role="application"]',
+    '[role="banner"]',
+    '[role="contentinfo"]'
+  ];
 
-  // Set role attribute
-  svgElement.setAttribute('role', 'img');
+  const allLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
+  const landmarks = Array.from(allLandmarks);
 
-  // Set aria-label if not present
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (!ariaLabel) {
-    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || svgElement.getAttribute('alt') || 'SVG Image');
-  }
-}
-
-/**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  // Check if link has proper href
-  const href = link.getAttribute('href');
-  if (!href || href === '#' || href === '') {
-    return false;
-  }
-
-  // Check if link has text content or aria-label
-  const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.getAttribute('aria-label');
-
-  if (!hasText && !hasAriaLabel) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
- * @returns {boolean} True if the button is accessible, false otherwise
- */
-function isButtonAccessible(button) {
-  // Check if button has type attribute
-  const type = button.getAttribute('type');
-
-  // Check if button has text content or aria-label
-  const hasText = button.textContent.trim().length > 0;
-  const hasAriaLabel = button.getAttribute('aria-label');
-  const hasAriaLabelledby = button.getAttribute('aria-labelledby');
-
-  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement|Document} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing accessibility check results
- */
-function checkLinkAndButtonAccessibility(container = document) {
-  const results = {
-    links: {
-      accessible: [],
-      inaccessible: []
-    },
-    buttons: {
-      accessible: [],
-      inaccessible: []
-    },
-    isFullyAccessible: true
+  const result = {
+    totalLandmarks: landmarks.length,
+    landmarks: [],
+    warnings: [],
+    hasMain: false
   };
 
-  // Check all links in the container
-  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
-  links.forEach(link => {
-    if (isLinkAccessible(link)) {
-      results.links.accessible.push(link);
-    } else {
-      results.links.inaccessible.push(link);
-      results.isFullyAccessible = false;
+  // Categorize landmarks
+  landmarks.forEach(landmark => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    
+    let type = tagName;
+    if (role) {
+      type = role;
+    }
+    
+    const accessibleName = landmark.getAttribute('aria-label') || 
+                          landmark.getAttribute('aria-labelledby') ||
+                          landmark.id || '';
+    
+    result.landmarks.push({
+      type,
+      tagName,
+      accessibleName,
+      hasAccessibleName: !!accessibleName
+    });
+
+    // Check for main landmark
+    if (type === 'main' || tagName === 'main') {
+      result.hasMain = true;
     }
   });
 
-  // Check all buttons in the container
-  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
-  buttons.forEach(button => {
-    if (isButtonAccessible(button)) {
-      results.buttons.accessible.push(button);
-    } else {
-      results.buttons.inaccessible.push(button);
-      results.isFullyAccessible = false;
-    }
-  });
+  // Check for common accessibility issues
+  const mainLandmarks = result.landmarks.filter(l => l.type === 'main' || l.tagName === 'main');
+  if (mainLandmarks.length === 0) {
+    result.warnings.push('No main landmark found. Pages should have exactly one main landmark for accessibility.');
+  } else if (mainLandmarks.length > 1) {
+    result.warnings.push(`Found ${mainLandmarks.length} main landmarks. Consider having only one main landmark.`);
+  }
 
-  return results;
+  const navLandmarks = result.landmarks.filter(l => l.type === 'navigation' || l.tagName === 'nav');
+  if (navLandmarks.length > 5) {
+    const unnamedNavs = navLandmarks.filter(n => !n.hasAccessibleName);
+    if (unnamedNavs.length > 1) {
+      result.warnings.push(`Found ${navLandmarks.length} navigation landmarks. Consider adding aria-label to distinguish them.`);
+    }
+  }
+
+  // Check for sections without accessible names
+  const sections = result.landmarks.filter(l => l.tagName === 'section' && !l.hasAccessibleName);
+  if (sections.length > 3) {
+    result.warnings.push(`${sections.length} sections without accessible names found. Consider adding aria-label or aria-labelledby.`);
+  }
+
+  return result;
 }
 
 // Add the new renderIndexView function
@@ -123,10 +97,6 @@ function renderIndexView() {
 
 // Exports for all functions
 module.exports = {
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkLinkAndButtonAccessibility,
-  checkAccessibility, // This export is commented out, assuming it's not defined and should not be exported
+  checkLandmarkElements,
   renderIndexView,
 };

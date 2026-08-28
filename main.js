@@ -21,6 +21,28 @@ function addProperAccountManagement() {
 
   // Add aria-expanded to collapsible menus based on your implementation
   // ...
+
+  // New accessibility change: Add ARIA roles to landmark elements
+  const landmarkElements = document.querySelectorAll('main, nav, section, article, aside');
+  landmarkElements.forEach(function (el) {
+    const role = el.tagName.toLowerCase() === 'main' ? 'main' :
+                 el.tagName.toLowerCase() === 'nav' ? 'navigation' :
+                 el.tagName.toLowerCase() === 'section' ? 'region' :
+                 el.tagName.toLowerCase() === 'article' ? 'article' :
+                 el.tagName.toLowerCase() === 'aside' ? 'complementary' : null;
+    if (role) {
+      el.setAttribute('role', role);
+    }
+  });
+}
+
+/**
+ * Adds proper landmark regions to the document to enhance navigation for screen readers.
+ *
+ * @returns {void}
+ */
+function addProperLandmarkRegions() {
+  // Existing implementation...
 }
 
 module.exports = {

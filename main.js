@@ -1,5 +1,3 @@
-// main.js
-
 const fs = require('fs');
 const path = require('path');
 
@@ -44,6 +42,21 @@ function checkLandmarkElements(htmlContent) {
   return result;
 }
 
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
 // Game loop function
 function run() {
   // Your game logic here...
@@ -75,4 +88,4 @@ Module.onInit = function() {
 };
 
 // Export for testing
-module.exports = { checkLandmarkElements };
+module.exports = { checkLandmarkElements, countDependencies };

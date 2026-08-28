@@ -1,3 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import Header from './components/Header';
+import Main from './components/Main';
+import Footer from './components/Footer';
+import './styles.css';
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
@@ -6,13 +13,6 @@
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
-
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import Header from './components/Header';
-import Main from './components/Main';
-import Footer from './components/Footer';
-import './styles.css';
 
 function App() {
   const [data, setData] = useState(null);
@@ -33,6 +33,16 @@ function App() {
       setLoading(false);
     }
   };
+
+  // REACT_015: Set the lang attribute on the HTML element
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', 'en');
+  }, []);
+
+  // REACT_017: Add landmark roles and fix landmark issues
+  // REACT_025: Ensure unique landmarks
+  // REACT_036: Fix fake link issues
+  // REACT_041: Add accessible names to SVGs
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
@@ -84,7 +94,7 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-}
+});
 
 // REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {

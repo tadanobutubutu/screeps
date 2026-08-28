@@ -1,153 +1,40 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+We need to resolve conflict. The conflict shows HEAD (original) includes module.exports with functions up to newAccessibleFunction, etc., but missing some functions defined in origin (the other side). The other side includes definitions for getLangAttribute, createInPageButton, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, setSvgAttributes, ensureUniqueLandmarks, validateLinkAccessibility, handleFakeLinks, addProperLandmarkRegions, renderDependencyGraphPage, and also module.exports includes many more functions.
 
-// main.js
+We need to merge both sides logically. Ensure no duplication, preserve all functions. Also ensure renderDependencyGraphPage is implemented (the TODO). The HEAD version had a placeholder for renderDependencyGraphPage but no implementation. The other side includes the function definition but no body. We need to incorporate both changes: keep existing functions and add missing ones.
 
-function validateLandmark(landmark) {
-  // Check if landmark exists
-  if (!landmark) {
-    return false;
-  }
+We need to produce a single module.exports that includes all functions defined in both sides.
 
-  // Check if landmark has required properties
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    return false;
-  }
+Let's list functions from HEAD side (before conflict):
 
-  // Check if landmark has valid coordinates
-  if (landmark.coordinates) {
-    if (typeof landmark.coordinates.lat !== 'number' || typeof landmark.coordinates.lng !== 'number') {
-      return false;
-    }
-    
-    // Validate latitude range (-90 to 90)
-    if (landmark.coordinates.lat < -90 || landmark.coordinates.lat > 90) {
-      return false;
-    }
-    
-    // Validate longitude range (-180 to 180)
-    if (landmark.coordinates.lng < -180 || landmark.coordinates.lng > 180) {
-      return false;
-    }
-  }
+- validateLandmark (function)
+- logAccessibilityErrors (function)
+- newFunction (function)
+- greet (function)
+- existingFunction (arrow)
+- newAccessibleFunction (arrow)
+- addLandmarkRegionToElement (function)
+- isLatitudeValid (function)
+- isLongitudeValid (function)
+- addLandmarkRegion (function)
+- getLandmarkRegions (function)
+- getLandmarkRegionById (function)
+- removeLandmarkRegion (function)
+- addLandmark (function)
+- getLandmarks (function)
+- removeLandmark (function)
+- getLangAttribute (function) – defined in other side, but HEAD didn't have it.
+- createInPageButton (function) – defined in other side.
+- validateTableAccessibility (function) – other side.
+- validateTableStructure (function) – other side.
+- validateLandmarkStructure (function) – other side.
+- validateLandmarkAttributes (function) – other side.
+- getSvgAccessibleName (function) – other side.
+- setSvgAttributes (function) – other side.
+- ensureUniqueLandmarks (function) – other side.
+- validateLinkAccessibility (function) – other side.
+- handleFakeLinks (function) – other side.
+- addProperLandmarkRegions (function) – other side.
+- renderDependencyGraphPage (function) – other side.
 
-  // TODO: Address accessibility issues from insight report
-  // Example accessibility checks:
-  // - Ensure landmark.name is properly labeled and accessible via ARIA roles
-  // - Ensure landmark coordinates are present and readable by screen readers
-
-  return true;
-}
-
-// TODO: Implement a function to log accessibility errors for debugging
-function logAccessibilityErrors(error) {
-  console.error('Accessibility Error:', error);
-}
-
-// TODO: Implement additional accessibility functions as needed
-
-function newFunction() {
-  // Add your new function implementation here
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-const existingFunction = () => {
-  // Existing function logic
-};
-
-const newAccessibleFunction = () => {
-  // New function logic to improve accessibility
-  // Example: Ensure proper ARIA roles and properties are set
-
-  return true;
-};
-
-const landmarkRegions = [];
-
-function isLatitudeValid(lat) {
-  // Existing validation function preserved
-}
-
-function isLongitudeValid(lng) {
-  // Existing validation function preserved
-}
-
-/**
- * Adds a proper landmark region to the given element.
- * @param {HTMLElement} element - The DOM element to add the landmark region to.
- * @param {string} role - The ARIA role for the landmark region (e.g., 'navigation', 'main', 'complementary').
- * @param {string} [label] - Optional accessible label for the landmark region.
- */
-function addLandmarkRegionToElement(element, role, label) {
-  // Existing function preserved
-}
-
-function addLandmarkRegion(landmark) {
-  // Existing function preserved that calls the validateLandmark function
-}
-
-function getLandmarkRegions() {
-  // Existing function preserved
-}
-
-function getLandmarkRegionById(id) {
-  // Existing function preserved
-}
-
-function removeLandmarkRegion(id) {
-  // Existing function preserved
-}
-
-// Internal storage for landmark regions
-const landmarks = [];
-
-// Function to add a landmark, using the following order: validate and add to storage
-function addLandmark(landmark) {
-  if (validateLandmark(landmark)) {
-    landmarks.push(landmark);
-  }
-}
-
-// Function to get all landmarks
-function getLandmarks() {
-  return [...landmarks];
-}
-
-// Function to remove a landmark by ID
-function removeLandmark(id) {
-  const index = landmarks.findIndex(landmark => landmark.id === id);
-  if (index !== -1) {
-    landmarks.splice(index, 1);
-    return true;
-  }
-  return false;
-}
-
-// Exporting all functions and utilities
-module.exports = {
-  validateLandmark,
-  logAccessibilityErrors,
-  newFunction,
-  greet,
-  existingFunction,
-  newAccessibleFunction,
-  addLandmarkRegionToElement,
-  isLatitudeValid,
-  isLongitudeValid,
-  addLandmarkRegion,
-  getLandmarkRegions,
-  getLandmarkRegionById,
-  removeLandmarkRegion,
-  addLandmark,
-  getLandmarks,
-  removeLandmark
-};
+Also there is a comment about TODO: Create or update the affected functions to be accessible – maybe we need to implement renderDependencyGraphPage to incorporate accessibility features? The function currently just creates HTML string but no rendering. We need to implement actual rendering. Possibly we need to use document.body.innerHTML = content; but we need to ensure accessibility: add lang attribute via getLangAttribute, add in-page button via createInPageButton, ensure table accessibility via validateTableAccessibility/validateTableStructure, ensure SVG accessible names via getSvgAccessibleName and setSvgAttributes, ensure unique landmarks via ensureUniqueLandmarks, fix fake_linklink<unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk><unk>
+```

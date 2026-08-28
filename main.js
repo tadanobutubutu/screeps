@@ -1,8 +1,24 @@
-// main.js
-// Implementation of unique landmark functions
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Global set to track used landmark IDs
-const _usedLandmarkIds = new Set();
+/**
+ * Adds a `lang` attribute to the HTML element to specify the language of the document.
+ *
+ * @returns {void}
+ */
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (html) {
+    html.setAttribute('lang', getFullLangAttribute());
+  }
+}
 
 /**
  * Creates a unique identifier for a landmark given a base name.
@@ -14,7 +30,9 @@ function ensureUniqueLandmarkId(baseName) {
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        const uniqueCandidate = `${candidate}-${suffix}`;
+        _usedLandmarkIds.add(uniqueCandidate);
+        return uniqueCandidate;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -64,32 +82,41 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // Create main landmark
+  // Initialize landmark elements
   const main = document.createElement('main');
+  const nav = document.querySelector('nav') || document.createElement('nav');
+  const header = document.querySelector('header') || document.createElement('header');
+  const footer = document.querySelector('footer') || document.createElement('footer');
+  const asides = document.querySelectorAll('aside');
+
+  // Set landmark roles and IDs
   main.setAttribute('role', 'main');
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
   header.setAttribute('role', 'banner');
   header.id = header.id || 'site-header';
 
   // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
   footer.setAttribute('role', 'contentinfo');
   footer.id = footer.id || 'site-footer';
 
-  // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
+  // Add other landmark roles as needed
+
   asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
+    aside.setAttribute(' role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
+
+  // Add landmark elements to the document
+  document.body.appendChild(main);
+  document.body.appendChild(nav);
+  document.body.insertBefore(header, main);
+  document.body.appendChild(footer);
 }
 
 /**
@@ -153,6 +180,7 @@ replaceMyButtonId();
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
+addLangAttribute();
 
 /**
  * Implement validateTableAccessibility() function to check for accessibility issues in tables.

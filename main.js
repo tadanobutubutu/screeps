@@ -91,11 +91,6 @@ function initApp() {
 
 // Placeholder for module structure display utility.
 // Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
-}
 
 // Function to reset body rotation
 export function resetRotation() {

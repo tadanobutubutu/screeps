@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
@@ -5,6 +8,10 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// Added functionalities:
+// - Add aria-label to SVGs without title elements (DONE: addAriaLabelToSVGs)
+// - Add aria-labelledby to SVGs with title elements (DONE: addAriaLabelledbyToSVGs)
+// - Add Proper Landmark Regions (DONE: addProperLandmarkRegions)
 
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
@@ -44,6 +51,9 @@ function handleAccessibilityIssues() {
   getSvgAccessibleName();
   createAccessibleLink();
   ensureUniqueLandmarks();
+  addProperLandmarkRegions(); // Added functionality
+  addAriaLabelledbyToSVGs();   // Added functionality
+  addAriaLabelToSVGs();        // Added functionality
 }
 
 // Call the new function to handle accessibility issues
@@ -161,9 +171,15 @@ function addAriaLabelToSVGs() {
   });
 }
 
-// Call the new landmark and SVG accessibility functions
-addProperLandmarkRegions();
-addAriaLabelledbyToSVGs();
-addAriaLabelToSVGs();
+// Exports for all functions (updated)
+module.exports = {
+  calculateSum,
+  handleAccessibilityIssues,
+  checkLandmarkElements,
+  addProperLandmarkRegions,
+  addAriaLabelledbyToSVGs,
+  addAriaLabelToSVGs
+};
+```
 
-export { checkLandmarkElements };
+This version of the file includes both sets of changes and adds the necessary functions for meeting the remaining accessibility requirements. The `module.exports` have been updated accordingly.

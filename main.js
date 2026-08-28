@@ -1,5 +1,6 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import someFunction from './utils';
 
 /**
  * Counts the total number of dependencies in package.json
@@ -33,5 +34,8 @@ function countDependencies() {
   }
 }
 
+// Export the someFunction from './utils'
+export { someFunction };
+
 // Export for use in other modules
-module.exports = { countDependencies };
+export { countDependencies };

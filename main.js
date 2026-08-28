@@ -85,5 +85,13 @@ module.exports = {
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  ensureUniqueLandmarksByExample,
+  // New function to add aria-label to SVGs without accessible name
+  addAriaLabelToSVGsWithoutAccessibleName: function(svgElements) {
+    svgElements.forEach(svg => {
+      if (!svg.querySelector('title') && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', 'Decorative image');
+      }
+    });
+  }
 };

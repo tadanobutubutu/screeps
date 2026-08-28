@@ -3,7 +3,10 @@
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  // (code for setSvgAccessibilityProps remains the same)
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    const accessibleName = svgElement.querySelector('title')?.textContent?.trim() || 'SVG graphic';
+    svgElement.setAttribute('aria-label', accessibleName);
+  }
 }
 
 /**
@@ -12,7 +15,20 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
-  // (code for isLinkAccessible remains the same)
+  const href = link.getAttribute('href');
+  const tabIndex = link.getAttribute('tabindex');
+  const role = link.getAttribute('role');
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+  
+  if (href && href !== '#' && href !== '') {
+    return true;
+  } else if (role === 'button' && (tabIndex === '0' || tabIndex !== null) && (hasAriaLabel || hasAriaLabelledBy)) {
+    return true;
+  } else if (!href && (tabIndex === '0' || tabIndex !== null) && (hasAriaLabel || hasAriaLabelledBy)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -21,7 +37,11 @@ function isLinkAccessible(link) {
  * @returns {boolean} True if the button is accessible, false otherwise
  */
 function isButtonAccessible(button) {
-  // (code for isButtonAccessible remains the same)
+  const tabIndex = button.getAttribute('tabindex');
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+  
+  return (tabIndex === '0' || tabIndex !== null) && (hasAriaLabel || hasAriaLabelledBy);
 }
 
 /**
@@ -30,7 +50,21 @@ function isButtonAccessible(button) {
  * @returns {Object} An object containing accessibility check results
  */
 function checkAccessibility(container = document) {
-  // (code for checkAccessibility remains the same)
+  const links = Array.from(container.querySelectorAll('a')).filter(link => link.getAttribute('href') === '' || link.getAttribute('href') === '#' || !link.hasAttribute('href'));
+  const buttons = Array.from(container.querySelectorAll('button'));
+  
+  const inaccessibleLinks = links.filter(link => !isLinkAccessible(link));
+  const inaccessibleButtons = buttons.filter(button => !isButtonAccessible(button));
+  
+  return {
+    links: inaccessibleLinks.length,
+    buttons: inaccessibleButtons.length,
+    totalInaccessible: inaccessibleLinks.length + inaccessibleButtons.length,
+    details: {
+      inaccessibleLinks,
+      inaccessibleButtons
+    }
+  };
 }
 
 /**
@@ -39,7 +73,17 @@ function checkAccessibility(container = document) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  if (!validRoles.includes(role)) {
+    console.warn(`Invalid landmark role: ${role}`);
+    return false;
+  }
+  
+  const hasRole = element.getAttribute('role') === role;
+  const hasAriaLabel = element.hasAttribute('aria-label');
+  const hasAriaLabelledBy = element.hasAttribute('aria-labelledby');
+  
+  return hasRole && (hasAriaLabel || hasAriaLabelledBy);
 }
 
 /**
@@ -48,7 +92,33 @@ function checkLandmarkElement(role, element) {
  * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
  */
 function wrapPrimaryContentInMain() {
-  // (code for wrapPrimaryContentInMain remains the same)
+  if (typeof document === 'undefined') return null;
+  
+  let mainElement = document.querySelector('main');
+  const body = document.body;
+  if (!body) return null;
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    const firstElement = body.firstElementChild;
+    if (firstElement) {
+      body.insertBefore(mainElement, firstElement);
+    } else {
+      body.appendChild(mainElement);
+    }
+  }
+  
+  while (mainElement.firstChild) {
+    mainElement.removeChild(mainElement.firstChild);
+  }
+  
+  Array.from(body.children).forEach(child => {
+    if (child !== mainElement) {
+      mainElement.appendChild(child);
+    }
+  });
+  
+  return mainElement;
 }
 
 /**
@@ -57,7 +127,43 @@ function wrapPrimaryContentInMain() {
  * @returns {Object} An object containing landmark accessibility check results
  */
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  const results = {};
+  
+  roles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    const validElements = [];
+    const invalidElements = [];
+    
+    elements.forEach(element => {
+      if (checkLandmarkElement(role, element)) {
+        validElements.push(element);
+      } else {
+        invalidElements.push(element);
+      }
+    });
+    
+    results[role] = {
+      elements: validElements.length,
+      inaccessible: invalidElements.length,
+      inaccessibles: invalidElements
+    };
+  });
+  
+  // Ensure main exists
+  let hasMain = false;
+  container.querySelectorAll('[role="main"]').forEach(el => {
+    if (checkLandmarkElement('main', el)) hasMain = true;
+  });
+  if (!hasMain) {
+    container.querySelectorAll(':not([role="main"])').forEach(el => {
+      if (el.children.length > 0) {
+        wrapPrimaryContentInMain();
+      }
+    });
+  }
+  
+  return results;
 }
 
 /**
@@ -92,7 +198,24 @@ function addLangAttribute() {
  * @returns {NodeList} NodeList of fixed tables
  */
 function fixTableStructureIssues(container = document) {
-  // (code for fixTableStructureIssues remains the same)
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const hasCaption = table.querySelector('caption');
+    if (!hasCaption) {
+      const caption = document.createElement('caption');
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    const rowGroup = table.querySelector('thead') || table.querySelector('tbody') || table.querySelector('tfoot');
+    if (!rowGroup) {
+      const tbody = document.createElement('tbody');
+      while (table.firstChild) {
+        tbody.appendChild(table.firstChild);
+      }
+      table.appendChild(tbody);
+    }
+  });
+  return tables;
 }
 
 /**
@@ -119,7 +242,43 @@ function addSvgAccessibleNames() {
  * @returns {Object} An object containing uniqueness information
  */
 function ensureUniqueLandmarks() {
-  // (code for ensureUniqueLandmarks remains the same)
+  const mains = document.querySelectorAll('main');
+  let mainCount = mains.length;
+  let removedMains = 0;
+  let mergedMain = false;
+  
+  if (mainCount > 1) {
+    const firstMain = mains[0];
+    for (let i = 1; i < mains.length; i++) {
+      const main = mains[i];
+      Array.from(main.children).forEach(child => {
+        firstMain.appendChild(child);
+      });
+      main.remove();
+      removedMains++;
+      mergedMain = true;
+    }
+  }
+  
+  const otherLandmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  let duplicateCount = 0;
+  
+  otherLandmarks.forEach(landmark => {
+    const existing = document.querySelectorAll(`[role="${landmark.getAttribute('role')}"]:not(#${landmark.id})`);
+    if (existing.length > 1 && !landmark.hasAttribute('aria-label')) {
+      landmark.setAttribute('aria-label', `${landmark.getAttribute('role')} section`);
+      duplicateCount++;
+    } else if (!landmark.hasAttribute('aria-label')) {
+      duplicateCount++;
+    }
+  });
+  
+  return {
+    totalMains: mains.length,
+    mergedMain,
+    removedMains,
+    duplicates: duplicateCount
+  };
 }
 
 /**
@@ -152,12 +311,18 @@ function setFormElementAccessibleNames() {
   const formElements = document.querySelectorAll('form [name], form [id]');
   formElements.forEach(element => {
     if (element.tagName.toLowerCase() === 'form') {
-      // Set aria-labelledby for the form using a unique label
-      const uniqueLabel = `form-${Date.now()}`;
-      element.setAttribute('aria-labelledby', uniqueLabel);
-      element.insertAdjacentHTML('afterbegin', `<span id="${uniqueLabel}">${element.getAttribute('aria-label') || ''}</span>`);
+      const ariaLabelledByValue = element.getAttribute('aria-labelledby');
+      if (!ariaLabelledByValue) {
+        const uniqueLabel = `form-${Date.now()}`;
+        const formDescription = element.getAttribute('aria-label') ? element.getAttribute('aria-label') : 'Form';
+        element.insertAdjacentHTML('afterbegin', `<span id="${uniqueLabel}">${formDescription}</span>`);
+        element.setAttribute('aria-labelledby', uniqueLabel);
+      }
     } else {
-      element.setAttribute('aria-label', `${element.tagName.toLowerCase()} input: ${element.name || element.id}`);
+      if (!element.hasAttribute('aria-label')) {
+        const accessibleName = `${element.tagName.toLowerCase()} input: ${element.name || element.id}`;
+        element.setAttribute('aria-label', accessibleName);
+      }
     }
   });
   return formElements;

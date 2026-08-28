@@ -4,14 +4,19 @@
 
 // ... (other code in main.js)
 
-// Before:
-// <a id="unrotate" href="#">rotate back</a>
-
-// After:
-// Replace the <a> tag with a <button> element
-// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
-
-// ... (other code in main.js)
+document.querySelectorAll("a").forEach(a => {
+  const id = a.id;
+  const button = document.createElement("button");
+  button.id = id;
+  button.role = "button";
+  button.ariaLabel = a.innerHTML;
+  button.onclick = function () {
+    a.addEventListener("click", this.dispatchEvent.bind(this));
+    a.dispatchEvent(new MouseEvent("click"));
+  };
+  button.innerHTML = a.innerHTML;
+  a.parentNode.replaceChild(button, a);
+});
 
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:

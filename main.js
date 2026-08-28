@@ -9,6 +9,119 @@ import { prefersReducedMotion, prefersHighContrast } from './utils.js';
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
+// Ensure the root HTML element has a lang attribute
+function ensureHtmlLangAttribute() {
+  if (!document.documentElement) return;
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+// Ensure a given element has a non-empty id; auto-generate one if missing
+function ensureElementHasId(element, prefix = 'el') {
+  if (!element) return '';
+  if (element.id && element.id.trim().length > 0) {
+    return element.id;
+  }
+  const generatedId = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  element.id = generatedId;
+  return generatedId;
+}
+
+// Add an aria-label to an element if it is missing or empty
+function ensureAriaLabel(element, label) {
+  if (!element) return;
+  const existing = element.getAttribute('aria-label');
+  if (!existing || existing.trim().length === 0) {
+    element.setAttribute('aria-label', label || 'Interactive element');
+  }
+}
+
+// Render a textual representation of a dependency graph for assistive technologies
+function renderDependencyGraphDescription(graph) {
+  if (!graph || !graph.nodes || !graph.edges) {
+    return '';
+  }
+  const nodeLabels = graph.nodes.map(n => n.label || n.id).join(', ');
+  const edgeDescriptions = graph.edges.map(e => {
+    const from = graph.nodes.find(n => n.id === e.from);
+    const to = graph.nodes.find(n => n.id === e.to);
+    const fromLabel = from ? (from.label || from.id) : e.from;
+    const toLabel = to ? (to.label || to.id) : e.to;
+    return `${fromLabel} depends on ${toLabel}`;
+  });
+  return `Dependency graph with ${graph.nodes.length} nodes (${nodeLabels}). ${edgeDescriptions.join('. ')}.`;
+}
+
+// Standalone function to get the accessible name of an SVG element
+// Uses aria-labelledby first, then falls back to the <title> child element
+function getSvgAccessibleName(svg) {
+  if (!svg || !(svg instanceof SVGElement) || svg.tagName !== 'svg') {
+    return '';
+  }
+
+  // First, check for aria-labelledby reference
+  const labelledBy = svg.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const ids = labelledBy.split(/\s+/);
+    const names = ids
+      .map(id => {
+        const el = document.getElementById(id);
+        return el ? el.textContent.trim() : '';
+      })
+      .filter(text => text.length > 0);
+    if (names.length > 0) {
+      return names.join(' ');
+    }
+  }
+
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return ariaLabel.trim();
+  }
+
+  // Fall back to <title> child element
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for title attribute on the SVG itself
+  const titleAttr = svg.getAttribute('title');
+  if (titleAttr && titleAttr.trim().length > 0) {
+    return titleAttr.trim();
+  }
+
+  return '';
+}
+
+// isLinkAccessible: Checks if a link element is accessible according to accessibility standards
+// Returns true if the link has a valid href, is not disabled, and has meaningful content
+function isLinkAccessible(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+
+  // Must have a valid href attribute with non-empty value
+  const href = link.getAttribute('href');
+  if (!href || href.trim() === '') {
+    return false;
+  }
+
+  // Should not be disabled (either via disabled attribute or aria-disabled)
+  if (link.hasAttribute('disabled') || link.getAttribute('aria-disabled') === 'true') {
+    return false;
+  }
+
+  // Link should have some text content (non-empty)
+  if (!link.textContent.trim()) {
+    return false;
+  }
+
+  return true;
+}
+
 function existingFunction1() {
   // Existing function 1 implementation
 }
@@ -43,6 +156,8 @@ const a11yStore = {
     this.validateARIA();
     this.addProperLandmarkRegions();
     this.validateARIAUsage();
+    this.addSVGAccessibilityProps();
+    this.addFocusVisibilityStyles();
   },
 
   // Create a live region for screen reader announcements
@@ -62,8 +177,9 @@ const a11yStore = {
 
   // Announce message to screen readers
   announce(message, priority = 'polite') {
-    if (!this.liveRegion) return;
+    if (!this.liveRegion) this.createLiveRegion();
 
+    this.liveRegion.setAttribute('aria-live', priority);
     this.liveRegion.textContent = '';
 
     // Use setTimeout to ensure the change is detected by screen readers
@@ -87,7 +203,8 @@ const a11yStore = {
       // Escape key to close modals/dropdowns
       if (e.key === 'Escape') {
         const openModal = document.querySelector('[aria-modal="true"][aria-hidden="false"]') || 
-                          document.querySelector('[data-modal="open"]');
+                          document.querySelector('[data-modal="open"]') ||
+                          document.querySelector('.modal[aria-hidden="false"]');
         if (openModal) {
           openModal.setAttribute('aria-hidden', 'true');
           openModal.classList.remove('is-open');
@@ -96,7 +213,7 @@ const a11yStore = {
       }
 
       // Fix Safari focus trapping in dropdowns
-      const dropdownContainers = document.querySelectorAll('[data-dropdown]');
+      const dropdownContainers = document.querySelectorAll('[data-dropdown], .dropdown, .dropdown-menu');
       dropdownContainers.forEach(container => {
         container.addEventListener('keydown', (e) => {
           if (e.key !== 'Tab') return;
@@ -134,7 +251,8 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[aria-modal="true"][aria-hidden="false"]');
+      const modal = document.querySelector('[aria-modal="true"][aria-hidden="false"]') ||
+                    document.querySelector('.modal:not([aria-hidden="true"])');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
@@ -158,7 +276,7 @@ const a11yStore = {
 
   // Manage focus for accessibility
   setupSkipLinks() {
-    const skipLink = document.querySelector('a[href^="skip"]');
+    const skipLink = document.querySelector('a[href^="skip"], .skip-link');
     if (!skipLink) return;
 
     const targetId = skipLink.getAttribute('href');
@@ -201,7 +319,7 @@ const a11yStore = {
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) return;
+    if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
   },
 
@@ -334,6 +452,40 @@ const a11yStore = {
     });
   },
 
+  // New function to add SVG accessibility props (extended version)
+  addSVGAccessibilityProps() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const titleElement = svg.querySelector('title');
+      const titleText = titleElement ? (titleElement.textContent || 'Image description') : 'Image description';
+
+      svg.setAttribute('role', 'img');
+
+      // Ensure the SVG has a <title> child for proper accessibility
+      if (!titleElement) {
+        const newTitle = document.createElement('title');
+        newTitle.textContent = titleText;
+        svg.insertBefore(newTitle, svg.firstChild);
+      }
+
+      // Use getSvgAccessibleName to determine the appropriate aria-labelledby value
+      const existingTitle = svg.querySelector('title');
+      if (existingTitle && !existingTitle.id) {
+        existingTitle.id = 'svg-title';
+      }
+      svg.setAttribute('aria-labelledby', existingTitle ? existingTitle.id : 'svg-title');
+
+      const descriptionId = `svg-desc-${Date.now() * 1000}`;
+      svg.setAttribute('aria-describedby', descriptionId);
+
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
+      descriptionElement.textContent = titleText;
+      descriptionElement.className = 'sr-only';
+      svg.appendChild(descriptionElement);
+    });
+  },
+
   // New function to validate ARIA usage
   validateARIAUsage() {
     const ariaElements = document.querySelectorAll('[role]');
@@ -350,7 +502,7 @@ const a11yStore = {
     
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
           mutation.addedNodes.forEach(node => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               // Add appropriate ARIA attributes to dynamically added content
@@ -384,6 +536,8 @@ const a11yStore = {
             skipLink.className = 'skip-link';
             skipLink.href = '#main-content';
             skipLink.textContent = 'Skip to main content';
+            skipLink.style.position = 'absolute';
+            skipLink.style.top = '-40px';
             document.body.prepend(skipLink);
           }
           break;
@@ -401,7 +555,24 @@ const a11yStore = {
             }
           });
           break;
-        // Add more cases as needed
+        case 'missing-aria-label':
+          document.querySelectorAll(issue.selector).forEach(el => {
+            if (!el.getAttribute('aria-label')) {
+              el.setAttribute('aria-label', issue.label || 'Interactive element');
+            }
+          });
+          break;
+        case 'missing-role':
+          document.querySelectorAll(issue.selector).forEach(el => {
+            if (!el.getAttribute('role')) {
+              el.setAttribute('role', issue.role);
+            }
+          });
+          break;
+        default:
+          // Unknown issue type, log for debugging
+          console.warn('Unknown accessibility issue type:', issue.type);
+          break;
       }
     });
   },
@@ -507,30 +678,6 @@ const a11yStore = {
     }, true);
   },
   
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  },
-  
   // NEW: Apply ARIA attributes to dynamically added elements
   applyARIAtoNode(node) {
     if (!node || !node.setAttribute) return;
@@ -585,6 +732,44 @@ const a11yStore = {
         el.setAttribute('tabindex', '-1');
       }
     });
+  },
+
+  // Add focus visibility styles
+  addFocusVisibilityStyles() {
+    if (document.getElementById('a11y-focus-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'a11y-focus-styles';
+    style.textContent = `
+      .keyboard-navigation *:focus {
+        outline: 2px solid #0066cc !important;
+        outline-offset: 2px !important;
+      }
+      
+      .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+      }
+      
+      .skip-link:focus {
+        top: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  },
+
+  // Handle live region updates
+  handleLiveRegionUpdate(liveRegion) {
+    if (liveRegion && liveRegion.textContent) {
+      this.announce(liveRegion.textContent, liveRegion.getAttribute('aria-live') || 'polite');
+    }
   }
 };
 
@@ -705,11 +890,6 @@ function validateLandmarkAttributes() {
   // ... existing code ...
 }
 
-function getSvgAccessibleName(svg) {
-  if (!svg || svg.tagName !== 'SVG') return null;
-  return svg.getAttribute('aria-labelledby') || svg.querySelector('title')?.textContent || null;
-}
-
 function setSvgAttributes(svg, options = {}) {
   if (!svg || svg.tagName !== 'SVG') return false;
   // Implementation here
@@ -733,12 +913,19 @@ export { a11yStore };
 export { addressAccessibilityIssues };
 export default a11yStore;
 
-module.exports = {
-  existingFunction1,
-  existingConst1,
-  newFunction,
-  dependencyGraph,
-  isLinkAccessible,
-  isLinkAccessibleSync,
-  a11yStore
-};
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    existingFunction1,
+    existingConst1,
+    newFunction,
+    dependencyGraph,
+    isLinkAccessible,
+    isLinkAccessibleSync,
+    a11yStore,
+    getSvgAccessibleName,
+    ensureHtmlLangAttribute,
+    ensureElementHasId,
+    ensureAriaLabel,
+    renderDependencyGraphDescription
+  };
+}

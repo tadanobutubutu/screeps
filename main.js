@@ -242,6 +242,15 @@ function validateTableStructure(tableOrUrl) {
     return structureResults;
 }
 
+// Language attribute helper functions (from previous version)
+function getLangAttribute(el) {
+    return el.getAttribute('lang');
+}
+
+function getFullLangAttribute(el) {
+    return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
+}
+
 /**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
@@ -312,5 +321,7 @@ module.exports = {
     countAllDependencies,
     dependencies,
     devDependencies,
-    someFunction
+    someFunction,
+    getLangAttribute,
+    getFullLangAttribute
 };

@@ -1,4 +1,3 @@
-x
 import React from 'react';
 
 const Table = ({ headers, rows }) => {

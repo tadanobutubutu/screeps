@@ -94,9 +94,33 @@ function validateLandmarkStructure(landmarks) {
     return { valid: true };
 }
 
+/**
+ * Create an in-page button element
+ * @param {string} buttonId - Unique identifier for the button
+ * @param {string} buttonText - Text displayed on the button
+ * @param {string} buttonClass - CSS class name(s) to apply to the button
+ * @returns {HTMLElement} - The created button element
+ */
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  // Create a new button element
+  const button = document.createElement('button');
+  
+  // Set the button's ID, text content, and class
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  
+  // Append the button to the body or a specific container
+  document.body.appendChild(button);
+  
+  // Return the created button for further manipulation if needed
+  return button;
+}
+
 module.exports = {
     someData,
     processData,
     validateLandmark,
-    validateLandmarkStructure
+    validateLandmarkStructure,
+    createInPageButton
 };

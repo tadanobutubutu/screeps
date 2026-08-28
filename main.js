@@ -6,6 +6,32 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
+// New function to copy text to clipboard
+const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } else {
+      // Fallback for older browsers or non-secure contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const result = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return result;
+    }
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    return false;
+  }
+};
+
 const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -15,9 +41,15 @@ const Dashboard: ... = (props) => {
 
   const copyErr = () => {
     // Implement the copy error logic
-    setCopied(true);
-    // Reset copied state after some time
-    setTimeout(() => setCopied(false), 3000);
+    if (error) {
+      copyToClipboard(error).then((success) => {
+        if (success) {
+          setCopied(true);
+          // Reset copied state after some time
+          setTimeout(() => setCopied(false), 3000);
+        }
+      });
+    }
   };
 
   const fetchStats = (shouldRetry: boolean) => {
@@ -28,7 +60,7 @@ const Dashboard: ... = (props) => {
   };
 
   return (
-    <main role="main" aria-label="エラーダッシュボード">
+    <main role="main" ...
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -51,9 +83,9 @@ const Dashboard: ... = (props) => {
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
+          onMouseLeave={() => ...
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
+          onBlur={() => ...
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -70,7 +102,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span ... ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button

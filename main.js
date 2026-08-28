@@ -21,10 +21,22 @@ const validateInput = (input) => {
   return input !== null && input !== undefined;
 };
 
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Counts the number of dependencies.
+ * @param {Array} deps - The dependencies to count.
+ * @returns {number} The count of dependencies.
+ */
+function countDependencies(deps) {
+  if (!Array.isArray(deps)) {
+    throw new TypeError('dependencies must be an array');
+  }
+  return deps.length;
+}
 
-function wrapPrimaryContentInMain() {
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(dependencies) {
   // Your implementation here
+  return countDependencies(dependencies);
 }
 
 // Add your new function here
@@ -61,7 +73,9 @@ module.exports = {
   handleRequest,
   processData,
   validateInput,
+  countDependencies,
   wrapPrimaryContentInMain,
   myNewFunction,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  // ... existing exports ...
 };

@@ -1,8 +1,5 @@
-Here is the resolved file content:
-
-```javascript
 import React from 'react';
-import { dependencyGraphContent } from './dependencyGraphContent.js';
+import { dependencyGraphContent } from ...
 import { indexContent } from './indexContent.js';
 
 // Add lang attribute to HTML element
@@ -23,11 +20,11 @@ function renderDependencyGraph(containerId) {
 }
 
 function getDependencyGraphData() {
-  return dependencyGraphContent.getData();
+  return ...
 }
 
 function updateDependencyGraph() {
-  const updates = dependencyGraphContent.getUpdates();
+  const updates = ...
   return updates;
 }
 
@@ -86,9 +83,13 @@ function validateLinkAccessibility(rootElement) {
 
 function createInPageButton() {
   // Implementation of createInPageButton
+  const button = document.createElement('button');
+  button.id = 'in-page-nav-button';
+  button.setAttribute('aria-label', 'Navigate within page');
+  return button;
 }
 
-function validateLinkOrButton(linkOrButton) {
+function validateLinkOrButton(element) {
   // Implementation of validateLinkOrButton
 }
 
@@ -117,12 +118,39 @@ export function addressAccessibilityIssues(insightReport, rootElement = document
   // Process each category of issues from the report
   insightReport.results.forEach(result => {
     switch (result.ruleId) {
-      // ... (Code for each switch case from both branches)
+      case 'image-alt':
+      case 'aria-img-alt':
+        // Handle image accessibility
+        break;
+      case 'link-name':
+        // Handle link accessibility
+        break;
+      case 'button-name':
+        // Handle button accessibility
+        break;
+      case 'label':
+        // Handle label accessibility
+        break;
+      default:
+        // Handle other rules
+        break;
     }
   });
 
-  // ... (Calculate totals and other procedures from both branches)
-}
-```
+  // Calculate totals and other procedures
+  summary.totalIssuesFound = Object.values(summary).reduce((acc, cat) => {
+    if (typeof cat === 'object' && 'issuesFound' in cat) {
+      return acc + cat.issuesFound;
+    }
+    return acc;
+  }, 0);
 
-This solution integrates both changes, adds foreign functions that deal with rendering dependency graphs and index views, and keeps the original accessibility-related functions for handling issues from the insight report.
+  summary.totalIssuesFixed = Object.values(summary).reduce((acc, cat) => {
+    if (typeof cat === 'object' && 'issuesFixed' in cat) {
+      return acc + cat.issuesFixed;
+    }
+    return acc;
+  }, 0);
+
+  return summary;
+}

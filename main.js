@@ -6,4 +6,9 @@
 // Current application exports
 module.exports = {
   // Export application functionality here as needed
+  addLandmarkRegion: function(regionDetails) {
+    // Implementation for adding a proper landmark region
+    // This is a placeholder for the actual implementation
+    console.log('Adding landmark region:', regionDetails);
+  }
 };

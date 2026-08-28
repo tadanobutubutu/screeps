@@ -85,7 +85,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// 73: // TODO: Implement function for generating a report based on accessibility issues
+// TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   // ...

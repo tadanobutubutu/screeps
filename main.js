@@ -1,3 +1,21 @@
+const fs = require('fs');
+const path = require('path');
+
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  ADDRESS_ACCESSIBILITY_ISSUE_038,
+} = require('./accessibilityHelperFunctions');
+
+import { utilityFunction } from './utils.js';
+import { class1, function1, Object1 } from './path/to/module';
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -9,7 +27,13 @@
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphARIA)
 
-import { class1, function1, Object1 } from './path/to/module';
+const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+  const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === ADDRESS_ACCESSIBILITY_ISSUE_038;
+  return {
+    hasIssue038,
+    fixes: hasIssue038 ? [{ type: 'fix038', target: element }] : []
+  };
+};
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
@@ -20,13 +44,54 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
+// Game loop function
+function run() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      updateThScopeAttribute(filePath);
+    });
+}
+
+// Start the game loop
+Module.onInit = function() {
+  setInterval(run, 1000);
+};
+
+export const metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
+
+export default function RootLayout({
+  children,
+}) {
+  addLangAttribute(document);
+  addMainLandmark(document);
+  addSvgAccessibleNames(document);
+  ensureUniqueLandmarks(document);
+  fixFakeLinkIssue(document);
+  fixFakeLinkIssues(document);
+  fixTableStructure(document);
+
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>🏰</text></svg>" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+
 // Function to fix table structure issues
 function fixTableStructure(document) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
   tables.forEach((table) => {
-    // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
@@ -49,11 +114,9 @@ function fixTableStructure(document) {
       }
     }
     
-    // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
       const cells = row.querySelectorAll('td, th');
-      // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
@@ -64,7 +127,6 @@ function fixTableStructure(document) {
       }
     });
     
-    // Additional HEAD logic: ensure scope on header cells
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (!th.hasAttribute('scope')) {
@@ -82,12 +144,10 @@ function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
   
   if (!mainElement) {
-    // Find the main content area and wrap it or create main element
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
     
-    // Move first significant content child to main
     const children = Array.from(body.children);
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
@@ -101,7 +161,6 @@ function addMainLandmark(document) {
     mainElement = main;
   }
   
-  // Ensure main has proper role if not using native element
   if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
@@ -142,7 +201,6 @@ function addSvgAccessibleNames(document) {
 
 // Function to add accessible names to SVG elements
 function addAccessibleNamesToSVGs(document) {
-  // Add accessible names to SVG elements for screen readers
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
@@ -166,12 +224,10 @@ function fixFakeLinkIssue(document) {
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
     
-    // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
         onclick.includes('.href'))) {
       
-      // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -183,7 +239,6 @@ function fixFakeLinkIssue(document) {
         }
       });
       
-      // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
@@ -198,7 +253,6 @@ function fixFakeLinkIssue(document) {
 
 // Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
 function fixFakeLinkIssues(document) {
-  // Fix non-anchor elements with role="link"
   const roleLinks = document.querySelectorAll('[role="link"]');
   roleLinks.forEach(link => {
     if (link.tagName !== 'A') {
@@ -206,7 +260,6 @@ function fixFakeLinkIssues(document) {
     }
   });
 
-  // Fix anchors with href="#" by converting them to accessible buttons
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
@@ -268,7 +321,6 @@ function fixImageAltTexts(document) {
 
 // REACT_037: Google sign-in logic
 function googleSignIn(document) {
-  // Check if Google Identity Services is available
   if (typeof google !== 'undefined' && google.accounts) {
     google.accounts.id.initialize({
       client_id: 'YOUR_CLIENT_ID',
@@ -286,7 +338,6 @@ function googleSignIn(document) {
 
 // Function to handle credential response from Google Sign-In
 function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
   console.log('Credential response received:', response);
 }
 
@@ -328,6 +379,28 @@ function renderDependencyGraphs(document) {
                          document.querySelector('[data-graph="dependencies"]') ||
                          document.querySelector('[id*="dependency"]');
   if (graphContainer) {
-    // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('
+    svg.setAttribute('');
+  }
+}
+
+// Integrated REACT_036 changes and merged accessibility fixes
+function addressAccessibilityIssues(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  document = fixFakeLinkIssues(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = ensureElementHasId(document);
+  document = ensureElementHasIdOrigin(document);
+  document = renderDependencyGraphs(document);
+  return document;
+}

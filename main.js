@@ -14,6 +14,7 @@ const a11yStore = {
     this.setupSkipLinks();
     this.checkLandmarkElements();
     this.addSVGAccessibilityProps();
+    this.fixFakeLinks(); // Added for REACT_036
   },
 
   // Create a live region for screen reader announcements
@@ -166,10 +167,20 @@ const a11yStore = {
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
-      if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
-      }
+      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+      landmarks.forEach((landmark, index) => {
+        // Ensure landmark has a unique ID
+        if (landmark.id === '') {
+          landmark.setAttribute('id', `${element}-${index}`);
+        }
+
+        // Ensure unique accessible names for duplicate landmarks
+        if (landmarks.length > 1) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+          }
+        }
+      });
     });
   },
 
@@ -177,17 +188,36 @@ const a11yStore = {
   addSVGAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      // Ensure SVG has a title for accessible name
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image'; // Default accessible name
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
-      descriptionElement.textContent = titleText;
-      descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      // Ensure title has an ID for aria-labelledby
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      // Add role img if not present (redundant but safe)
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  // New function to fix fake links (REACT_036)
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
     });
   },
 
@@ -201,8 +231,6 @@ const a11yStore = {
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-    // _Commit: c6e80a153733eb63e804a0af7aee24af3cc7c34a_
-    // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
   }
 };
 
@@ -223,9 +251,18 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
+// Preserve existing code
+a11yStore.preserveExistingCode();
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
 // Export for module usage
 export { a11yStore };
-export { mainElement };
+export { addressAccessibilityIssues };
 export default a11yStore;
 
 // Import and export additional functions if needed (placeholder for actual modules)

@@ -71,5 +71,24 @@ function trapFocus(container) {
   });
 }
 
+/**
+ * Creates an in-page button element with optional id and class name
+ * @param {string} text - The button text
+ * @param {string} [id] - Optional id attribute
+ * @param {string} [className] - Optional class name
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, id, className) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (id) {
+    button.id = id;
+  }
+  if (className) {
+    button.className = className;
+  }
+  return button;
+}
+
 // Export functions for use in tests and other modules
-export { announceToScreenReader, updateContent, handleAccessibleKeyboard, trapFocus };
+export { announceToScreenReader, updateContent, handleAccessibleKeyboard, trapFocus, createInPageButton };

@@ -17,7 +17,7 @@ const wrapPrimaryContentInMain = (document) => {
   }
 
   // Check if main element already exists with main-content id
-  const existingMain = document.getElementById('main-content');
+  const existingMain = document.querySelector('#main-content');
   if (existingMain) {
     return document;
   }
@@ -40,7 +40,7 @@ const wrapPrimaryContentInMain = (document) => {
   const body = document.body;
 
   // Get all direct children of body
-  const bodyChildren = Array.from(body.childNodes).filter(node => node.nodeType === 1);
+  const bodyChildren = Array.from(body.children).filter(node => node.nodeType === 1);
 
   if (bodyChildren.length > 0) {
     // Move children to main element
@@ -60,7 +60,7 @@ const addSkipLink = (document) => {
     return document;
   }
 
-  const existingSkipLink = document.getElementById('skip-link');
+  const existingSkipLink = document.querySelector('#skip-link');
   if (existingSkipLink) {
     return document;
   }
@@ -87,10 +87,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -154,12 +154,12 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach(type => {
+  landmarkTypes.forEach((type) => {
     const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -177,12 +177,8 @@ const addressAccessibilityIssues = (document) => {
     return document;
   }
 
-  addLangAttribute(document);
-  fixTableStructureIssues(document);
-  addMainLandmark(document);
-  ensureUniqueLandmarks(document);
-  addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
+  wrapPrimaryContentInMain(document);
+  addSkipLink(document);
   addProperLandmarkRegions(document);
 
   return document;
@@ -248,8 +244,8 @@ const ensureUniqueLandmarks = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
-  landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
+  landmarkTypes.forEach((type) => {
+    const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
@@ -266,10 +262,10 @@ const ensureUniqueLandmarks = (document) => {
 };
 
 const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -282,7 +278,7 @@ const addSvgAccessibleNames = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"]');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
     if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {

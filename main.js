@@ -1,11 +1,11 @@
 import React from 'react';
 
 function MyComponent() {
-  // Old code that needs to be updated
+  // Updated code with accessibility improvements
   return (
-    <div lang="en">
+    <div lang="en" aria-labelledby="content">
       {/* Content */}
-      <span id="content">Content</span>
+      <span id="content" aria-hidden="true">Content</span>
     </div>
   );
 }

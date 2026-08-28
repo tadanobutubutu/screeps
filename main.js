@@ -19,7 +19,7 @@ function getDocument() {
 function addLangAttribute(documentRef = getDocument()) {
   if (!documentRef) return false;
   
-  const htmlElement = documentRef.documentElement || documentRef.querySelector('html');
+  const htmlElement = documentRef.documentElement || documentRef.getElementsByTagName('html')[0];
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     const lang = htmlElement.getAttribute('xml:lang') || 'en';
     htmlElement.setAttribute('lang', lang);
@@ -62,7 +62,7 @@ function fixTableStructure(table) {
 function addMainLandmark(mainElement) {
   if (!mainElement) return false;
   
-  if (!mainElement.hasAttribute('role') && !mainElement.tagName.toLowerCase() === 'main') {
+  if (!mainElement.hasAttribute('role') && mainElement.tagName.toLowerCase() === 'main') {
     mainElement.setAttribute('role', 'main');
   }
   return true;
@@ -76,12 +76,12 @@ function ensureUniqueLandmarks(container = getDocument()) {
   let fixed = false;
   
   landmarks.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"], ${role === 'main' ? 'main' : 'div'}`);
+    const elements = container.querySelectorAll(`${role === 'main' ? 'main' : '[role="' + role + '"]'}, ${role === 'main' ? 'main' : 'div'}`);
     if (elements.length > 1) {
       // Keep only the first landmark of each type for unique landmarks
       for (let i = 1; i < elements.length; i++) {
         const currentRole = elements[i].getAttribute('role');
-        if (landmarks.includes(currentRole)) {
+        if (currentRole === role) {
           // Remove role attribute to avoid duplicate landmark
           elements[i].removeAttribute('role');
           fixed = true;
@@ -93,7 +93,7 @@ function ensureUniqueLandmarks(container = getDocument()) {
   return fixed;
 }
 
-// REACT_041: Add accessible names to SVGs
+// REACT_041: Add accessible name to SVG
 function addSvgAccessibleNames(svgElement, accessibleName) {
   if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') return false;
   
@@ -137,6 +137,8 @@ function triggerAccessibilityMode() {
   if (!doc) return false;
   
   // Apply all accessibility fixes
+  
+  // Add lang attribute to HTML element
   addLangAttribute(doc);
   
   // Fix tables
@@ -144,7 +146,7 @@ function triggerAccessibilityMode() {
   tables.forEach(table => fixTableStructure(table));
   
   // Fix main landmark
-  const mainElement = doc.querySelector('main') || doc.querySelector('[role="main"]');
+  const mainElement = doc.querySelector('main') || doc.getElementsByTagName('main')[0];
   if (mainElement) {
     addMainLandmark(mainElement);
   }
@@ -203,13 +205,19 @@ function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
 }
 
-// Function to trigger accessibility mode
-function triggerAccessibilityMode() {
-  const doc = getDocument();
-  if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
-  }
+// Update aria attributes function
+function updateAriaAttributes(element, attributes) {
+  if (!element || !attributes) return false;
+  
+  Object.keys(attributes).forEach(attr => {
+    if (attributes[attr] !== null && attributes[attr] !== undefined) {
+      element.setAttribute(attr, attributes[attr]);
+    } else {
+      element.removeAttribute(attr);
+    }
+  });
+  
+  return true;
 }
 
 // Export the existing handleErrorState function
@@ -226,7 +234,7 @@ export {
   ensureUniqueLandmarks, 
   addSvgAccessibleNames, 
   fixFakeLinkIssue,
-  triggerAccessibilityMode 
+  triggerAccessibilityMode  
 };
 
 // Export updateAriaAttributes

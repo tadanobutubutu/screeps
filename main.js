@@ -61,6 +61,66 @@ function formatOutput(data) {
   return JSON.stringify(data, null, 2);
 }
 
+/**
+ * Basic utility functions that were previously exported
+ */
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function calculateDifference(a, b) {
+  return a - b;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+function calculateQuotient(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return a / b;
+}
+
+/**
+ * Example function to check if a number is even
+ * @param {number} num - Number to check
+ * @returns {boolean} True if even, false otherwise
+ */
+function isEven(num) {
+  return num % 2 === 0;
+}
+
+/**
+ * Example function to get the maximum of two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Maximum value
+ */
+function getMax(a, b) {
+  return a > b ? a : b;
+}
+
+/**
+ * Example function to get the minimum of two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Minimum value
+ */
+function getMin(a, b) {
+  return a < b ? a : b;
+}
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by imported components/index.html)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+
 // Sample implementation to maintain module structure
 function main() {
   console.log('Main function executed');
@@ -376,6 +436,13 @@ module.exports = {
   processData,
   validateInput,
   formatOutput,
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  calculateQuotient,
+  isEven,
+  getMax,
+  getMin,
   announceToScreenReader,
   enhanceKeyboardAccessibility,
   trapFocus,

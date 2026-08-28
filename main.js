@@ -9,140 +9,67 @@ function addLangAttribute(document, lang = 'en') {
   return document;
 }
 
-function rotateBack() {
-  // Logic to rotate back
-  // JavaScript code to rotate back
-  console.log('Rotating back...');
-  // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
+/**
+ * Gets the accessible name for an SVG element.
+ * @param {SVGElement} svgElement - The SVG element to get the accessible name for
+ * @returns {string|null} The accessible name or null if not found
+ */
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const label = document.getElementById(labelledBy);
+    if (label) {
+      return label.textContent.trim();
+    }
+  }
+
+  return null;
+}
+
+// Address accessibility issues from insight report:
+
+module.exports = {
+  addProperLandmarkRegions: () => ({
+    // Your implementation here
+  }),
+  getSvgAccessibleName,
+  // ... other existing exports ...
 };
 
-export const metadata = {
-  title: "Screeps Dashboard",
-  description: "Dashboard for Screeps",
-};
-
-function addLangAttribute(document, lang = 'en') {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
-  }
-  return document;
-}
-
-function addMainLandmark(document) {
-  let mainElement = document.querySelector('main');
-
-  if (!mainElement) {
-    const body = document.body;
-    const main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-
-    const children = Array.from(body.children);
-    for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
-          child.tagName !== 'LINK' && child.tagName !== 'META') {
-        main.appendChild(child);
-        break;
-      }
-    }
-
-    body.insertBefore(main, body.firstChild);
-    mainElement = main;
-  }
-
-  if (mainElement.tagName !== 'MAIN') {
-    mainElement.setAttribute('role', 'main');
-  }
-
-  return mainElement;
-}
-
-function ensureUniqueLandmarks(document) {
-  const main = document.querySelector('main');
-  if (main && !main.id) {
-    main.id = 'main-content';
-  }
-
-  const navigations = document.querySelectorAll('nav');
-  navigations.forEach((nav, index) => {
-    if (!nav.id && !nav.getAttribute('aria-label')) {
-      nav.setAttribute('aria-label', `navigation-${index + 1}`);
-    }
-  });
-
-  const regions = document.querySelectorAll('[role="region"]');
-  regions.forEach((region, index) => {
-    if (!region.id) {
-      region.id = `region-${index + 1}`;
-    }
-  });
-
-  return document;
-}
-
-function setSvgAccessibilityProps(svg) {
-  svg.setAttribute('role', 'img');
-  if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-    const titleEl = svg.querySelector('title');
-    if (titleEl) {
-      svg.setAttribute('aria-labelledby', titleEl.id || `svg-title-${Math.random().toString(36).substr(2, 9)}`);
-    } else {
-      svg.setAttribute('aria-label', 'Graphic');
-    }
-  }
-}
-
-function validateTableAccessibility(document) {
-  // Validate table accessibility implementation
-}
-
-function validateTableStructure(document) {
-  // Validate table structure implementation
-}
-
-function validateLandmarkStructure(document) {
-  // Validate landmark structure implementation
-}
-
-function getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
-}
-
-function getFullLangAttribute() {
-  return getLangAttribute();
-}
-
+// Utility functions (added from the new changes)
 function formatDate(date) {
-  return new Date(date).toISOString();
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
 }
 
-function formatCurrency(amount, currency = 'USD') {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-}
-
-function debounce(fn, delay) {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), delay);
-  };
-}
-
-function throttle(fn, limit) {
-  let inThrottle;
-  return (...args) => {
-    if (!inThrottle) {
-      fn(...args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
   };
 }
 
 function generateId() {
-  return Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
 }
 
 function addLandmarkRegions(document, regions) {

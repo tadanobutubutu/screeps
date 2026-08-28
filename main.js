@@ -2,6 +2,27 @@
 const fs = require('fs');
 const path = require('path');
 
+function addressAccessibilityIssues(html) {
+    // Add caption to table for screen reader users
+    let updatedHTML = html.replace(
+        '<table id="table-rotated">',
+        '<table id="table-rotated" aria-label="Quality and Metrics Report Table">'
+    );
+    
+    // Add aria-label to links for better accessibility
+    updatedHTML = updatedHTML.replace(
+        '<a href="/plato">Plato Code Complexity Report</a>',
+        '<a href="/plato" aria-label="View Plato Code Complexity Report">Plato Code Complexity Report</a>'
+    );
+    
+    updatedHTML = updatedHTML.replace(
+        '<a href="/dependency-graph">Dependency Graph</a>',
+        '<a href="/dependency-graph" aria-label="View Dependency Graph">Dependency Graph</a>'
+    );
+    
+    return updatedHTML;
+}
+
 function generateHTML() {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -50,4 +71,4 @@ function generateHTML() {
 </html>`;
 }
 
-module.exports = { generateHTML };
+module.exports = { generateHTML, addressAccessibilityIssues };

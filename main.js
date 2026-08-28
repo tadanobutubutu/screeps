@@ -1,14 +1,11 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'polyfill-io/stable';
-import 'polyfill-webextensions-api/location';
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // New function to add lang attribute to the HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (!htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -44,7 +41,7 @@ const setAccessibleName = (element, name) => {
   if (!element || !name) return;
 
   // Clear any existing labeledby
-  if (element.hasAttribute('aria-labelledby')) {
+  if (element.getAttribute('aria-labelledby')) {
     element.removeAttribute('aria-labelledby');
   }
 
@@ -63,10 +60,10 @@ const wrapPrimaryContentInMain = () => {
     if (!body) return;
 
     // Look for common content containers
-    let contentElement = body.querySelector('[role="main"]') ||
-                         body.querySelector('.content') ||
-                         body.querySelector('#content') ||
-                         body.firstElementChild;
+    let contentElement = document.querySelector('div') ||
+                         document.querySelector('article') ||
+                         document.querySelector('section') ||
+                         document.querySelector('main');
 
     if (contentElement && contentElement.tagName !== 'MAIN') {
       mainElement = document.createElement('main');
@@ -136,7 +133,7 @@ const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll(`${landmark}, [role="${landmark}"]`);
     const seen = new Set();
 
     elements.forEach(element => {
@@ -210,7 +207,7 @@ const validateLandmark = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   const missingLandmarks = landmarks.filter(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll(`${landmark}, [role="${landmark}"]`);
     return elements.length === 0;
   });
 
@@ -223,7 +220,7 @@ const validateLandmark = () => {
 const addCustomValidation = () => {
   // Validate that lang attribute is set
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (!htmlElement.getAttribute('lang')) {
     console.warn('HTML element is missing lang attribute');
     return false;
   }

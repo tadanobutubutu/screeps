@@ -1,10 +1,8 @@
-=======
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 
->>>>>>> origin/main
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -71,7 +69,7 @@ function fixFakeLinkIssues(container) {
 // Function for ensuring elements have an ID ( new functionality )
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = element.getAttribute('aria-labelledby') || element.getAttribute('aria-describedby') || getRandomId();
+    element.id = element.getAttribute('aria-labelledby') || element.getAttribute('aria-describedby') || getRandomID();
   }
   return element;
 }
@@ -91,8 +89,13 @@ function resolveConflicts(content) {
 }
 
 // Function to get a random ID for an element ( new functionality )
-function getRandomId() {
+function getRandomID() {
   return `${Math.random().toString(16).slice(2)}-${Date.now()}`;
+}
+
+// Function to calculate the total price of items
+function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
 }
 
 // Import the required export function ( from both sides )
@@ -117,4 +120,5 @@ module.exports = {
   fixFakeLinkIssues,
   ensureElementHasId,
   addAriaLabel,
+  calculateTotal,
 };

@@ -1,3 +1,11 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
 export function calculateSum(a, b) { return a + b; }
@@ -24,11 +32,6 @@ function checkLandmarkElements() {
   ];
 }
 
-// Keep the existing exports
-// ...
-
-// Add new functions or changes requested in the issue
-
 function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   getLangAttribute();
@@ -45,9 +48,6 @@ function handleAccessibilityIssues() {
 
 // Call the new function to handle accessibility issues
 handleAccessibilityIssues();
-
-// Keep the existing exports
-// ...
 
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');

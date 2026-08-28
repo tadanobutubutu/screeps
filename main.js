@@ -22,9 +22,7 @@ function getDocument() {
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
-    }
+    doc.documentElement.setAttribute('lang', lang);
   }
 }
 
@@ -34,8 +32,9 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.getAttribute('role')) {
+    if (body && !body.hasAttribute('role')) {
       // Only set role if one doesn't exist
+      body.setAttribute('role', 'main');
     }
   }
 }
@@ -81,8 +80,7 @@ function handleAccessibilityError(errorElement, container) {
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
+    doc.documentElement.setAttribute('data-accessibility-mode', 'enabled');
   }
 }
 

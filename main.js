@@ -1,4 +1,52 @@
-// Main JavaScript file
+// Main application file
+
+const landmarks = [];
+
+// Existing landmark tracking
+function addLandmark(name, coordinates) {
+    const landmark = {
+        id: Date.now(),
+        name: name,
+        coordinates: coordinates
+    };
+    landmarks.push(landmark);
+    return landmark;
+}
+
+// TODO: Implement functions to ensure unique landmarks here
+function ensureUniqueLandmarks() {
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        const key = `${landmark.name}-${landmark.coordinates}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+function isLandmarkUnique(name, coordinates) {
+    return !landmarks.some(
+        landmark => 
+            landmark.name === name && 
+            landmark.coordinates === coordinates
+    );
+}
+
+function removeDuplicateLandmarks() {
+    const uniqueLandmarks = ensureUniqueLandmarks();
+    landmarks.length = 0;
+    landmarks.push(...uniqueLandmarks);
+    return landmarks;
+}
+
+function getUniqueLandmarkByName(name) {
+    const matches = landmarks.filter(l => l.name === name);
+    if (matches.length === 0) return null;
+    if (matches.length === 1) return matches[0];
+    return matches[0];
+}
 
 // Sample data for the application
 const appData = {
@@ -8,7 +56,7 @@ const appData = {
 
 // Placeholder for the affected SVGs
 icons: {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screeps Dashboard"><title>Screeps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
+  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
 },
 
 // Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
@@ -103,13 +151,19 @@ function init() {
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
+        addLandmark,
+        ensureUniqueLandmarks,
+        isLandmarkUnique,
+        removeDuplicateLandmarks,
+        getUniqueLandmarkByName,
+        landmarks,
         helloWorld,
         initDependencyGraph,
         renderDependencyGraph,
-        checkLandmarkElements,
-        validateLandmarkStructure,
         getElementById,
         queryElements,
+        checkLandmarkElements,
+        validateLandmarkStructure,
         init,
         appData
     };

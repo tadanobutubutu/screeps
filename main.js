@@ -982,6 +982,124 @@ function addA11yAttributesToInteractiveElements() {
   return [];
 }
 
+/**
+ * Adds a main landmark to the container if one doesn't exist.
+ * @param {HTMLElement} [container=document] - The container to add main landmark to
+ * @returns {HTMLElement|null} The main element or null if not available
+ */
+function addMainLandmark(container = document) {
+  if (!container) return null;
+
+  // Check if main already exists
+  const existingMain = container.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
+
+  // Create main element
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+
+  // Get the first child to insert before
+  const firstChild = container.firstChild;
+  if (firstChild) {
+    container.insertBefore(main, firstChild);
+  } else {
+    container.appendChild(main);
+  }
+
+  return main;
+}
+
+/**
+ * Adds accessible names to all SVG elements in the container.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of SVG elements that were processed
+ */
+function addSvgAccessibleNames(container = document) {
+  if (!container) return [];
+
+  const svgElements = container.querySelectorAll('svg');
+  const processed = [];
+
+  svgElements.forEach(svg => {
+    // Skip if already has accessible name
+    if (svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby')) {
+      return;
+    }
+
+    // Try to get name from title element
+    const title = svg.querySelector('title');
+    if (title && title.textContent) {
+      const id = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      title.id = id;
+      svg.setAttribute('aria-labelledby', id);
+      processed.push(svg);
+    }
+  });
+
+  return processed;
+}
+
+/**
+ * Ensures that landmark elements are unique in the document.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of objects with action taken
+ */
+function ensureUniqueLandmarks(container = document) {
+  if (!container) return [];
+
+  const results = [];
+  const landmarkRoles = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+
+  landmarkRoles.forEach(role => {
+    const landmarks = container.querySelectorAll(`[role="${role}"]`);
+
+    // Skip if zero or one landmark
+    if (landmarks.length <= 1) return;
+
+    // Add labels to duplicate landmarks
+    for (let i = 1; i < landmarks.length; i++) {
+      const label = `${role} ${i + 1}`;
+      landmarks[i].setAttribute('aria-label', label);
+      results.push({
+        element: landmarks[i],
+        role: role,
+        label: label
+      });
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Fixes fake link issues (elements that look like links but aren't).
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of elements that were fixed
+ */
+function fixFakeLinkIssue(container = document) {
+  if (!container) return [];
+
+  const fixed = [];
+
+  // Find elements with click handlers that have href-like attributes
+  const potentialFakeLinks = container.querySelectorAll('[onclick][href], [data-href]');
+
+  potentialFakeLinks.forEach(el => {
+    // If it's not an anchor or button, make it a button or add role
+    if (el.tagName !== 'A' && el.tagName !== 'BUTTON') {
+      // Check if it has proper role
+      if (!el.hasAttribute('role')) {
+        el.setAttribute('role', 'button');
+        fixed.push(el);
+      }
+    }
+  });
+
+  return fixed;
+}
+
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;

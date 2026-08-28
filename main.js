@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import { getLandmarks } from './api';
-import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils'; // Importing the existing functions without renaming
+import { findIndex as originalFindIndex, filterLandmarks as originalFilterLandmarks, sortLandmarksByName as originalSortLandmarksByName, addRequiredLandmarks as originalAddRequiredLandmarks } from './utils';
 
 // Function to calculate the index of an item in an array based on its id ([NEW])
 export const findIndex = (array, id) => {
@@ -10,7 +10,7 @@ export const findIndex = (array, id) => {
 // Function to ensure the element has an id ( merging both changes )
 export function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = 'auto-generated-id-' + Math.random().toString(36).substr(2, 9);
+    element.id = 'auto-generated-id-' + Math.random().toString(36).substring(2, 11);
   }
   return element;
 }
@@ -64,8 +64,8 @@ export function getSvgAccessibleName(element) {
 export function addProperLandmarkRegions(container) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   landmarks.forEach(landmark => {
-    const elements = container.getElementsByTagName(landmark);
-    Array.from(elements).forEach(el => {
+    const elements = container.querySelectorAll(landmark);
+    elements.forEach(el => {
       if (!el.getAttribute('role')) {
         el.setAttribute('role', landmark === 'header' ? 'banner' : 
                                landmark === 'nav' ? 'navigation' : 
@@ -90,11 +90,11 @@ module.exports = {
     findIndex,
     filterLandmarks: originalFilterLandmarks,
     sortLandmarksByName: originalSortLandmarksByName,
-    addRequiredLandmarks: originalAddRequiredLandmarks, // Make sure to add the new function to exports
-    addressAccessibilityIssues, // Add the new function to exports
-    ensureElementHasId, // Export the helper function
-    addAriaLabel, // Export the aria-label helper function
-    renderDependencyGraph, // Export the dependency graph renderer
+    addRequiredLandmarks: originalAddRequiredLandmarks,
+    addressAccessibilityIssues,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraph,
     resolveConflicts,
     getSvgAccessibleName,
     addProperLandmarkRegions,

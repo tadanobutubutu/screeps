@@ -1,4 +1,4 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 
@@ -15,7 +15,40 @@
 // If not, define it here:
 function rotateBack() {
   // Your code to rotate back
+  const element = document.getElementById('unrotate');
+  if (element && element.style) {
+    element.style.transform = 'rotate(0deg)';
+  }
 }
+
+// Function to handle keyboard accessibility for buttons
+function handleButtonKeydown(event) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    event.target.click();
+  }
+}
+
+// Initialize accessibility features when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Set up keyboard support for all buttons with onclick attributes
+  const buttons = document.querySelectorAll('button[onclick]');
+  buttons.forEach(function(button) {
+    if (!button.hasAttribute('tabindex')) {
+      button.setAttribute('tabindex', '0');
+    }
+    button.addEventListener('keydown', handleButtonKeydown);
+  });
+
+  // Ensure ARIA attributes are correctly set
+  const interactiveElements = document.querySelectorAll('[role="button"], button, a[href]');
+  interactiveElements.forEach(function(element) {
+    if (element.hasAttribute('aria-label') && !element.textContent.trim()) {
+      // Element only has aria-label, ensure it's properly announced
+      element.setAttribute('aria-live', 'polite');
+    }
+  });
+});
 
 // ... (other code in main.js)
 

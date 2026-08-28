@@ -5,6 +5,8 @@
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 export function calculateSum(a, b) {
   return a + b;
 }

@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -6,6 +7,24 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
+/**
+ * Sets the lang attribute on the HTML element if not already present
+ * @returns {boolean} - True if lang was set or already existed
+ */
+function setHtmlLangAttribute() {
+  if (typeof document === 'undefined') return false;
+
+  const htmlElement = document.documentElement;
+  if (!htmlElement) return false;
+
+  const existingLang = getLangAttribute(htmlElement);
+  if (existingLang) return true;
+
+  // Default to 'en' if no lang attribute is set
+  htmlElement.setAttribute('lang', 'en');
+  return true;
+}
 
 /**
  * Gets the language attribute value from an HTML element
@@ -352,11 +371,17 @@ function handleAccessibilityIssues(issues, reporter = console.warn) {
   return summary;
 }
 
+// Apply lang attribute to HTML element on load
+if (typeof document !== 'undefined') {
+  setHtmlLangAttribute();
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     getLangAttribute,
     getFullLangAttribute,
+    setHtmlLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,

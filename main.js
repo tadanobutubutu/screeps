@@ -33,7 +33,7 @@ function App() {
       console.error('Error fetching data:', error);
       setLoading(false);
     }
-  };
+  }
 
   // REACT_017: Ensure proper landmark structure
   return (

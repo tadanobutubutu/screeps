@@ -1,11 +1,11 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 >
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 >
 //_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 >
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
@@ -302,4 +302,61 @@ function checkLandmarkElements() {
   // Mapping of semantic HTML tags to their landmark roles
   const semanticToLandmark = {
     'main': 'main',
-    'nav
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  // Check for missing landmark roles
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length === 0) {
+      const semanticTag = Object.keys(semanticToLandmark).find(
+        key => semanticToLandmark[key] === role
+      );
+      if (semanticTag) {
+        const semanticElements = document.querySelectorAll(semanticTag);
+        semanticElements.forEach(el => {
+          if (!el.getAttribute('role')) {
+            results.push({
+              element: el,
+              issue: `Missing landmark role: ${role}`
+            });
+          }
+        });
+      }
+    }
+  });
+
+  // Check for duplicate landmark roles
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      // Keep the first one, remove role from others
+      elements.slice(1).forEach(el => {
+        el.removeAttribute('role');
+        results.push({
+          element: el,
+          issue: `Duplicate landmark role: ${role}`
+        });
+      });
+    }
+  });
+
+  return results;
+}
+
+module.exports = {
+  improveAccessibility,
+  checkLinkAccessibility,
+  checkButtonAccessibility,
+  addressInsightReportIssues,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
+  renderDependencyGraph,
+  checkTableStructure,
+  checkLandmarkElements
+};

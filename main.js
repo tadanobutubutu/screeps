@@ -1,3 +1,38 @@
+/**
+ * Gets the accessible name of an SVG element.
+ * @param {SVGElement} svgElement - The SVG element to get the accessible name from.
+ * @returns {string|null} The accessible name or null if not found.
+ */
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+        return null;
+    }
+
+    // Check aria-label attribute first
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel && ariaLabel.trim()) {
+        return ariaLabel.trim();
+    }
+
+    // Check aria-labelledby attribute
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby && ariaLabelledby.trim()) {
+        const labelElementId = ariaLabelledby.trim().split(/\s+/)[0];
+        const labelElement = document.getElementById(labelElementId);
+        if (labelElement && labelElement.textContent) {
+            return labelElement.textContent.trim();
+        }
+    }
+
+    // Check for title element inside SVG
+    const titleElement = svgElement.querySelector('title');
+    if (titleElement && titleElement.textContent) {
+        return titleElement.textContent.trim();
+    }
+
+    return null;
+}
+
 function existingFunction1() {
   // Existing function 1 implementation
 }
@@ -689,11 +724,6 @@ function validateLandmarkAttributes() {
   // ... existing code ...
 }
 
-function getSvgAccessibleName(svg) {
-  if (!svg || svg.tagName !== 'SVG') return null;
-  return svg.getAttribute('aria-labelledby') || svg.querySelector('title')?.textContent || null;
-}
-
 function setSvgAttributes(svg, options = {}) {
   if (!svg || svg.tagName !== 'SVG') return false;
   // Implementation here
@@ -712,11 +742,6 @@ function handleFakeLinks() {
   // ... existing code ...
 }
 
-// Export for module usage
-export { a11yStore };
-export { addressAccessibilityIssues };
-export default a11yStore;
-
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
@@ -729,5 +754,6 @@ module.exports = {
   dependencyGraph,
   isLinkAccessible,
   isLinkAccessibleSync,
-  a11yStore
+  a11yStore,
+  getSvgAccessibleName
 };

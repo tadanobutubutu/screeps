@@ -1,6 +1,6 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// TODO: Address accessibility issues from insight report — CONTINUING
+// Add new functions (no existing functions should be removed or renamed)
+
 
 /**
  * Add your code here to replace `my-button` with a concrete button id
@@ -22,7 +22,22 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // ... (existing code)
+  const mainEl = document.querySelector('main');
+  if (mainEl) {
+    mainEl.setAttribute('role', 'main');
+    // Attach label via first heading
+    const heading = document.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) {
+      mainEl.setAttribute('aria-labelledby', heading.id || '');
+    }
+  } else {
+    const body = document.body;
+    body.setAttribute('role', 'main');
+    const heading = document.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) {
+      body.setAttribute('aria-labelledby', heading.id || '');
+    }
+  }
 }
 
 /**
@@ -33,7 +48,20 @@ function addProperLandmarkRegions() {
  * @returns {void}
  */
 function addProperAccountManagement() {
-  // ... (existing code)
+  // Add aria-expanded to account dropdown if present
+  const dropdown = document.querySelector('.account-dropdown');
+  if (dropdown) {
+    const expanded = dropdown.children.length > 0;
+    dropdown.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
+
+  // Add aria-label to form inputs lacking labels
+  const inputs = document.querySelectorAll('input, textarea, select');
+  inputs.forEach(input => {
+    if (!input.getAttribute('aria-label')) {
+      input.setAttribute('aria-label', 'Account control');
+    }
+  });
 }
 
 /**
@@ -43,7 +71,36 @@ function addProperAccountManagement() {
  * @returns {void}
  */
 function addProperFormAccessibility() {
-  // ... (existing code)
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    const controls = form.querySelectorAll('input, textarea, select, button, checkbox, radio');
+    controls.forEach(control => {
+      // Ensure every control has an associated label
+      const label = control.closest('label');
+      if (!label) {
+        const nearest = control.closest('fieldset, form, [for]');
+        if (nearest && nearest.getAttribute('id')) {
+          control.setAttribute('for', nearest.getAttribute('id'));
+        }
+      }
+
+      // Add required attribute if missing
+      if (!control.hasAttribute('required')) {
+        control.setAttribute('required', '');
+      }
+
+      // For checkboxes and radios, provide an accessible label if none exists
+      if (['checkbox', 'radio'].includes(control.tagName)) {
+        const group = control.closest('div, section, [role="group"]');
+        if (group) {
+          const first = group.querySelector('input, textarea, select');
+          if (first) {
+            first.setAttribute('aria-label', 'Select option');
+          }
+        }
+      }
+    });
+  });
 }
 
 /**

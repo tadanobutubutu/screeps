@@ -120,8 +120,7 @@ module.exports = {
   clearCache,
   initialize,
   validateInput,
-  addressAccessibilityIssues,
-  config
+  addressAccessibilityIssues
 };
 
 // TODO: Address missing export that might have been removed — ADD CODE HERE

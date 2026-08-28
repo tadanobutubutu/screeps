@@ -156,6 +156,90 @@ function fixTableStructureIssues(container = document) {
 }
 
 /**
+ * Adds a main landmark to the document if one does not exist.
+ * @param {HTMLElement} [container=document] - The container to add the main landmark to
+ * @returns {HTMLElement|null} The created main element or null if body is not available
+ */
+function addMainLandmark(container = document) {
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
+  }
+  if (container && typeof container.querySelector === 'function' && container.querySelector('main')) {
+    return container.querySelector('main');
+  }
+  return wrapPrimaryContentInMain();
+}
+
+/**
+ * Adds accessible names to all SVG elements in the document or specific container.
+ * @param {HTMLElement} [container=document] - The container to add SVG accessible names in
+ * @returns {Array} Array of SVG elements that were updated
+ */
+function addSvgAccessibleNames(container = document) {
+  if (typeof document === 'undefined' || !container) {
+    return [];
+  }
+  const updated = [];
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName) {
+        svg.setAttribute('aria-label', accessibleName);
+        updated.push(svg);
+      }
+    }
+  });
+  return updated;
+}
+
+/**
+ * Ensures that landmark elements in the document are unique.
+ * @param {HTMLElement} [container=document] - The container to check for unique landmarks
+ * @returns {Array} Array of landmark elements that were processed
+ */
+function ensureUniqueLandmarks(container = document) {
+  if (typeof document === 'undefined' || !container) {
+    return [];
+  }
+  const processed = [];
+  const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer'];
+  landmarkSelectors.forEach(selector => {
+    const elements = container.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.setAttribute('aria-label', `${selector} ${index + 1}`);
+          processed.push(el);
+        }
+      });
+    }
+  });
+  return processed;
+}
+
+/**
+ * Fixes fake link issues by converting non-link elements with link-like behavior to proper links.
+ * @param {HTMLElement} [container=document] - The container to fix fake link issues in
+ * @returns {Array} Array of fixed elements
+ */
+function fixFakeLinkIssue(container = document) {
+  if (typeof document === 'undefined' || !container) {
+    return [];
+  }
+  const fixed = [];
+  const fakeLinks = container.querySelectorAll('[onclick], [role="link"]');
+  fakeLinks.forEach(el => {
+    if (el.tagName.toLowerCase() !== 'a') {
+      el.setAttribute('role', 'link');
+      el.setAttribute('tabindex', '0');
+      fixed.push(el);
+    }
+  });
+  return fixed;
+}
+
+/**
  * Implements function for addressing accessibility issues from insight report.
  * Identifies and fixes common accessibility problems found in the document.
  * @param {HTMLElement} [container=document] - The container to check for accessibility issues

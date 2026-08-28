@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+export function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
+}
+
+// ... rest of the code ...

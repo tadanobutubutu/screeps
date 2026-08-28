@@ -131,6 +131,50 @@ function fixFakeLinkIssue(element) {
   return false;
 }
 
+// Add proper landmark regions to the document
+function addProperLandmarkRegions(container = getDocument()) {
+  if (!container) return false;
+  
+  let modified = false;
+  const doc = container.ownerDocument || container;
+  const body = container.body || container.querySelector('body') || container;
+  
+  // Add banner landmark if missing (typically <header> at top level)
+  if (!body.querySelector('[role="banner"]') && !body.querySelector('header')) {
+    const banner = doc.createElement('header');
+    banner.setAttribute('role', 'banner');
+    body.insertBefore(banner, body.firstChild);
+    modified = true;
+  }
+  
+  // Add navigation landmark if missing
+  if (!body.querySelector('[role="navigation"]') && !body.querySelector('nav')) {
+    const navigation = doc.createElement('nav');
+    navigation.setAttribute('role', 'navigation');
+    navigation.setAttribute('aria-label', 'Main navigation');
+    body.appendChild(navigation);
+    modified = true;
+  }
+  
+  // Add main landmark if missing
+  if (!body.querySelector('[role="main"]') && !body.querySelector('main')) {
+    const main = doc.createElement('main');
+    main.setAttribute('role', 'main');
+    body.appendChild(main);
+    modified = true;
+  }
+  
+  // Add contentinfo landmark if missing (typically <footer> at top level)
+  if (!body.querySelector('[role="contentinfo"]') && !body.querySelector('footer')) {
+    const contentinfo = doc.createElement('footer');
+    contentinfo.setAttribute('role', 'contentinfo');
+    body.appendChild(contentinfo);
+    modified = true;
+  }
+  
+  return modified;
+}
+
 // Trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
@@ -226,6 +270,7 @@ export {
   ensureUniqueLandmarks, 
   addSvgAccessibleNames, 
   fixFakeLinkIssue,
+  addProperLandmarkRegions,
   triggerAccessibilityMode 
 };
 

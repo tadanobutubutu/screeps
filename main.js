@@ -33,3 +33,12 @@ class App extends React.Component {
 
 // Render the App component to the DOM
 ReactDOM.render(<App />, document.getElementById('root'));
+
+// New function: calculateSum
+// Calculates the sum of an array of numbers
+export function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new TypeError('calculateSum expects an array of numbers');
+  }
+  return numbers.reduce((total, num) => total + num, 0);
+}

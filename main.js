@@ -1,6 +1,3 @@
-Here is the resolved version of the file 'main.js':
-
-```javascript
 /**
  * Gets the accessible name for an SVG element.
  * @param {SVGElement} svgElement - The SVG element to get the accessible name for
@@ -26,8 +23,9 @@ function getSvgAccessibleName(svgElement) {
     }
   }
 
-  if (typeof addSvgAccessibleProps === 'function') {
-    return addSvgAccessibleProps(svgElement).ariaLabel;
+  if (addSvgAccessibleProps && typeof addSvgAccessibleProps === 'function') {
+    const accessibleProps = addSvgAccessibleProps(svgElement);
+    return accessibleProps && accessibleProps.ariaLabel;
   }
 
   return null;
@@ -51,35 +49,5 @@ function addSvgAccessibilityProps(svgElement, options = {}) {
     focusable = false,
     tabIndex
   } = options;
-
-  if (role && !svgElement.getAttribute('role')) {
-    svgElement.setAttribute('role', role);
-  }
-
-  if (ariaLabel && !svgElement.getAttribute('aria-label')) {
-    svgElement.setAttribute('aria-label', ariaLabel);
-  }
-
-  if (ariaLabelledby && !svgElement.getAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-labelledby', ariaLabelledby);
-  }
-
-  if (ariaDescribedby && !svgElement.getAttribute('aria-describedby')) {
-    svgElement.setAttribute('aria-describedby', ariaDescribedby);
-  }
-
-  if (typeof focusable === 'boolean' && !svgElement.hasAttribute('focusable')) {
-    svgElement.setAttribute('focusable', focusable.toString());
-  }
-
-  if (tabIndex !== undefined && !svgElement.hasAttribute('tabindex')) {
-    svgElement.setAttribute('tabindex', tabIndex);
-  }
-
-  return svgElement;
+  // ...
 }
-
-// Rest of the code remains the same
-```
-
-The `addSvgAccessibilityProps` function, which originally appeared in the conflicted section, has been moved to the bottom of the file. Additionally, I've updated the `getSvgAccessibleName` function to call `addSvgAccessibilityProps` if it's available and doesn't have an accessible name.

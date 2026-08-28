@@ -55,6 +55,10 @@ const a11yStore = {
   liveRegion: null,
 
   init() {
+    // Only initialize in browser environment
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
     this.createLiveRegion();
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
@@ -80,6 +84,7 @@ const a11yStore = {
 
   // Announce message to screen readers
   announce(message, priority = 'polite') {
+    if (typeof document === 'undefined') return;
     if (!this.liveRegion) this.createLiveRegion();
 
     this.liveRegion.setAttribute('aria-live', priority);
@@ -196,11 +201,13 @@ const a11yStore = {
 
   // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
   // Utility: Check if user prefers high contrast
   prefersHighContrast() {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
@@ -212,6 +219,7 @@ const a11yStore = {
 
   // New function to check landmark elements
   checkLandmarkElements() {
+    if (typeof document === 'undefined') return;
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach(landmark => {
       const element = document.querySelector(landmark);
@@ -223,6 +231,7 @@ const a11yStore = {
 
   // New function to add SVG accessibility props
   addSVGAccessibilityProps() {
+    if (typeof document === 'undefined') return;
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       const titleElement = svg.querySelector('title');
@@ -257,7 +266,7 @@ const a11yStore = {
 
   // New function to address accessibility issues from insight report
   addressAccessibilityIssues(report) {
-    if (!report) return;
+    if (!report || typeof document === 'undefined') return;
     report.forEach(issue => {
       // Handle each issue type
       switch (issue.type) {
@@ -318,6 +327,7 @@ const a11yStore = {
 
   // Observe DOM changes for dynamic content
   enhanceDynamicContent() {
+    if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') return;
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -340,6 +350,7 @@ const a11yStore = {
 
   // Setup focus visible polyfill for older browsers
   setupFocusVisiblePolyfill() {
+    if (typeof document === 'undefined') return;
     // Add data-focus-visible attribute when focused via keyboard
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
@@ -354,6 +365,7 @@ const a11yStore = {
 
   // Add focus visibility styles
   addFocusVisibilityStyles() {
+    if (typeof document === 'undefined') return;
     if (document.getElementById('a11y-focus-styles')) return;
 
     const style = document.createElement('style');
@@ -396,7 +408,37 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
-// Export for module usage
+// Screeps bot main entry point
+function main() {
+  return "Hello, World!";
+}
+
+const version = "1.0.0";
+
+const config = {
+  port: 3000,
+  debug: false
+};
+
+// Export for module usage (CommonJS for Screeps/Node.js compatibility)
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { a11yStore, getSvgAccessibleName, addressAccessibilityIssues };
+  module.exports = { 
+    a11yStore, 
+    getSvgAccessibleName, 
+    addressAccessibilityIssues,
+    main,
+    version,
+    config
+  };
+}
+
+// Also support ES modules for modern environments
+if (typeof exports !== 'undefined') {
+  exports.a11yStore = a11yStore;
+  exports.getSvgAccessibleName = getSvgAccessibleName;
+  exports.addressAccessibilityIssues = addressAccessibilityIssues;
+  exports.main = main;
+  exports.version = version;
+  exports.config = config;
+  exports.default = main;
 }

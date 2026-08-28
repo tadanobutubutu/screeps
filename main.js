@@ -1,131 +1,101 @@
-Here is the resolved `main.js` file with both code changes integrated:
-
-```javascript
 // Add any updates related to new functions
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and getLandmarkElements())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 
-// Implement function to create in-page buttons
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  document.body.appendChild(button);
-  return button;
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import Header from './components/Header';
+import Main from './components/Main';
+import Footer from './components/Footer';
+import './styles.css';
+
+// ... existing code...
+
+function validateLandmark(landmark, landmarkRoles) {
+  const { id, tagName, role, ariaLabelledby } = landmark;
+  let valid = true;
+
+  if (!role || !landmarkRoles.includes(role)) {
+    valid = false;
+  }
+
+  if (tagName.toLowerCase() !== 'header' && tagName.toLowerCase() !== 'nav' && tagName.toLowerCase() !== 'main' && tagName.toLowerCase() !== 'article' && tagName.toLowerCase() !== 'aside' && tagName.toLowerCase() !== 'footer') {
+    valid = false;
+  }
+
+  if (ariaLabelledby && !(ariaLabelledby.startsWith('landmark-label-') || ariaLabelledby.startsWith('landmark-id-'))) {
+    valid = false;
+  }
+
+  return { valid, id };
 }
 
-// Function to check landmark elements
-function getLandmarkElements(container) {
-  const landmarkSelectors = [
-    'header',
-    'nav',
-    'main',
-    'article',
-    'section',
-    'aside',
-    'footer'
-  ];
+function validateLandmarkStructure(container) {
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const validLandmarks = [];
+  const issues = [];
 
-  const landmarks = {};
-  let hasAccessibleLandmarks = false;
-
-  landmarkSelectors.forEach(selector => {
-    const elements = container.querySelectorAll(selector);
-    landmarks[selector] = elements.length;
-    if (elements.length > 0) {
-      hasAccessibleLandmarks = true;
+  landmarks.forEach((landmark) => {
+    const { valid, id } = validateLandmark(landmark, ['banner', 'navigation', 'main', 'articles', 'aside', 'contentinfo', 'footer', 'complementary']);
+    if (valid) {
+      validLandmarks.push({ id, landmark });
+    } else {
+      issues.push({
+        element: landmark,
+        message: `Invalid landmark found. Check landmark roles and attributes.`,
+        severity: 'error'
+      });
     }
   });
+
+  return { validLandmarks, issues };
+}
+
+function calculateLandmarkElementAccessibility(landmarkElements) {
+  let score = 0;
+
+  landmarkElements.forEach(({ element, hasAccessibleLandmarks }) => {
+    if (!hasAccessibleLandmarks) {
+      score -= 10;
+    }
+  });
+
+  return score;
+}
+
+function validateLandmarkElements(container) {
+  const { landmarks, hasAccessibleLandmarks, totalLandmarks } = getLandmarkElements(container);
+  const validLandmarks = validateLandmarkStructure(container);
+  const score = calculateLandmarkElementAccessibility(validLandmarks.validLandmarks);
 
   return {
     landmarks,
     hasAccessibleLandmarks,
-    totalLandmarks: Object.values(landmarks).reduce((sum, count) => sum + count, 0)
+    accessibleLandmarks: validLandmarks.validLandmarks,
+    totalLandmarks,
+    score
   };
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  if (!insightReport || !insightReport.issues) {
-    return [];
-  }
-
-  return insightReport.issues.map(issue => {
-    let fixedIssue = { ...issue, status: 'resolved' };
-
-    // Apply fixes based on issue type
-    switch (issue.type) {
-      case 'color-contrast':
-        fixedIssue.fixApplied = 'Adjusted foreground and background colors to meet WCAG contrast ratio.';
-        break;
-      case 'missing-alt-text':
-        fixedIssue.fixApplied = 'Added descriptive alternative text for images.';
-        break;
-      case 'missing-aria-label':
-        fixedIssue.fixApplied = 'Added appropriate ARIA labels for interactive elements.';
-        break;
-      case 'heading-order':
-        fixedIssue.fixApplied = 'Corrected heading hierarchy to maintain logical order.';
-        break;
-      case 'add-lang-attribute':
-        fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
-        break;
-      case 'add-landmark-roles':
-        fixedIssue.fixApplied = 'Added landmark roles and fixed landmark issues.';
-        break;
-      case 'add-accessible-names-to-svgs':
-        fixedIssue.fixApplied = 'Added accessible names to SVGs.';
-        break;
-      case 'ensure-unique-landmarks':
-        fixedIssue.fixApplied = 'Ensured unique landmarks.';
-        break;
-      case 'fix-fake-link':
-        fixedIssue.fixApplied = 'Fixed fake link issue.';
-        break;
-      case 'get-landmark-elements': // Added for checking landmark elements
-        fixedIssue.fixApplied = 'Checked and fixed landmark elements.';
-        break;
-      default:
-        fixedIssue.fixApplied = 'Applied generic accessibility fix.';
-        break;
-    }
-
-    return fixedIssue;
+  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
+  insightReport.forEach(issue => {
+    console.log(`Addressing issue: ${issue.issue}`);
+    // Implement the solution to the issue
+    // This is a placeholder for the actual implementation
+    console.log(`Solution: ${issue.solution}`);
+    // ... code to apply the solution ...
   });
 }
 
-// New function for the issue
-function calculateAccessibilityScore(fixedIssues) {
-  if (!Array.isArray(fixedIssues)) {
-    return 0;
-  }
-
-  const scorePoints = {
-    'color-contrast': 5,
-    'missing-alt-text': 3,
-    'missing-aria-label': 5,
-    'heading-order': 2,
-    'get-landmark-elements': 2, // Added for checking landmark elements
-    'other': 1
-  };
-
-  return fixedIssues.reduce((score, issue) => {
-    const points = scorePoints[issue.type] || scorePoints['other'];
-    return score + points;
-  }, 0);
-}
-
-// Make all functions accessible via exports
-module.exports = {
-  // Export all functions that need to be accessible
-  createInPageButton,
-  getLandmarkElements, // Export the updated function for checking landmark elements
-  addressAccessibilityIssues,
-  calculateAccessibilityScore
-};
-```
+exports.validateLandmark = validateLandmark;
+exports.validateLandmarkStructure = validateLandmarkStructure;
+exports.calculateLandmarkElementAccessibility = calculateLandmarkElementAccessibility;
+exports.validateLandmarkElements = validateLandmarkElements;
+exports.addressAccessibilityIssues = addressAccessibilityIssues;

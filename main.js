@@ -1,18 +1,1 @@
-// TODO: Implement this function for ensuring unique landmarks
-function ensureUniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const uniqueLandmarks = [];
-    
-    for (const landmark of landmarks) {
-        if (!seen.has(landmark.id)) {
-            seen.add(landmark.id);
-            uniqueLandmarks.push(landmark);
-        }
-    }
-    
-    return uniqueLandmarks;
-}
-
-module.exports = {
-    ensureUniqueLandmarks
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

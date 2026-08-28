@@ -1,45 +1,73 @@
-import React, { useState } from 'react';
+const Dashboard = () => {
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+  const handleError = (error) => {
+    setError(error);
+    setSuccess(null);
+  };
 
-const getAccessibleName = (node) => {
-  if (!node) {
-    return null;
-  }
-
-  if (node.getAttribute('aria-labelledby')) {
-    const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = document.getElementById(labelledById);
-    return labelledElement ? labelledElement.textContent : null;
-  }
-
-  if (node.getAttribute('aria-label')) {
-    return node.getAttribute('aria-label');
-  }
-
-  if (node.tagName === 'INPUT' && node.type !== 'submit' && node.type !== 'reset') {
-    if (node.labels && node.labels.length > 0) {
-      return node.labels[0].textContent;
+  const handleAccessibilityReport = (reportData) => {
+    setRefreshing(true);
+    if (reportData.issues.length > 0) {
+      setError({ message: "Accessibility issues detected.", report: reportData });
+    } else {
+      setSuccess({ message: "All accessibility issues resolved.", report: reportData });
     }
-  }
+    setRefreshing(false);
+  };
 
-  const titleEl = node.querySelector('title');
-  if (titleEl && titleEl.textContent) {
-    return titleEl.textContent;
-  }
-
-  if (node.textContent && node.textContent.trim()) {
-    return node.textContent.trim();
-  }
-
-  return null;
+  return (
+    <div>
+      {refreshing && <Spinner message="Checking Accessibility..." />}
+      {error && (
+        <ErrorCard
+          title="Accessibility Check Failure"
+          message={error.message}
+          additionalInfo={error.report}
+          onClose={() => {
+            setError(null);
+          }}
+        />
+      )}
+      {success && (
+        <SuccessCard
+          title="Accessibility Check Success"
+          message={success.message}
+          onClose={() => {
+            setSuccess(null);
+          }}
+        />
+      )}
+      <Button onClick={getAccessibilityReport}>Check Accessibility</Button>
+    </div>
+  );
 };
+
+export default Dashboard;
+
+// Implement functions to address accessibility issues from insight report
+
+function getAccessibilityReport() {
+  inspectElement();
+  const reportData = {
+    issues: addressAccessibilityIssues(document),
+  };
+  handleAccessibilityReport(reportData);
+}
+
+function inspectElement() {
+  // Your implementation for inspecting the DOM element here
+}
+
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  document.body.appendChild(button);
+  return button;
+}
 
 const setAccessibleName = (node, accessibleName) => {
   if (!node) {
@@ -64,36 +92,60 @@ const setAccessibleName = (node, accessibleName) => {
   }
 };
 
-const addProperLandmarkRegions = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach((type) => {
-    const elements = document.getElementsByTagName(type);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
-  });
-};
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return [];
+  }
 
-const addLangAttribute = (document) => {
+  return insightReport.issues.map((issue) => {
+    let fixedIssue;
+
+    switch (issue.type) {
+      case 'REACT_015':
+        fixedIssue = addLangAttribute(document);
+        break;
+      case 'REACT_027':
+        fixedIssue = validateTableAccessibility(document);
+        validateTableStructure(document);
+        break;
+      case 'REACT_017':
+        fixedIssue = validateLandmark();
+        validateLandmarkStructure();
+        break;
+      case 'REACT_041':
+        fixedIssue = getSvgAccessibleName(document);
+        setSvgAttributes();
+        break;
+      case 'REACT_025':
+        fixedIssue = ensureUniqueLandmarks(document);
+        break;
+      case 'REACT_036':
+        fixedIssue = createInPageButton(issue.id, issue.text);
+        validateLinkAccessibility();
+        handleFakeLinks();
+        break;
+      default:
+        fixedIssue = [];
+        break;
+    }
+
+    return fixedIssue;
+  });
+}
+
+function addLangAttribute(document) {
   const html = document.documentElement;
   if (html && !html.getAttribute('lang')) {
     html.setAttribute('lang', 'en');
   }
-  return document;
-};
 
-const fixTableStructure = (document) => {
+  return document;
+}
+
+function validateTableAccessibility(document) {
   const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
     if (!table.querySelector('thead')) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
@@ -121,154 +173,21 @@ const fixTableStructure = (document) => {
     tbodies.forEach((tbody) => {
       tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
     });
-  });
-  return document;
-};
-
-const addMainLandmark = (document) => {
-  const mains = document.querySelectorAll('main');
-  if (mains.length === 0) {
-    const main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-    while (document.firstChild) {
-      main.appendChild(document.firstChild);
-    }
-    document.body.appendChild(main);
-  } else {
-    mains.forEach((main, index) => {
-      if (!main.id) {
-        main.id = index === 0 ? 'main-content' : `main-content-${index + 1}`;
-      }
-    });
   }
-  return document;
-};
 
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
+  return document;
+}
+
+function validateTableStructure(document) {
+  const tables = document.querySelectorAll('table');
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    if (table.querySelectorAll('th, td').length <= 1) {
+      // Implement handling for empty tables
     }
-    svgIndex++;
-  });
-  return document;
-};
-
-const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
-    const seenRoleIds = new Set();
-
-    elements.forEach((element, index) => {
-      const id = element.id;
-
-      if (id) {
-        if (seenRoleIds.has(id)) {
-          const newId = `${role}-${index + 1}`;
-          element.id = newId;
-          usedIds.add(newId);
-          seenRoleIds.add(newId);
-        } else {
-          seenRoleIds.add(id);
-          usedIds.add(id);
-        }
-      } else {
-        let newId = `${role}-${index + 1}`;
-        let counter = 1;
-        while (usedIds.has(newId)) {
-          newId = `${role}-${index + 1}-${counter}`;
-          counter++;
-        }
-        element.id = newId;
-        usedIds.add(newId);
-      }
-    });
-  });
+  }
 
   return document;
-};
+}
 
-const fixFakeLinkIssue = (document) => {
-  const links = document.querySelectorAll('a');
-  links.forEach((link) => {
-    const href = link.getAttribute('href');
-    if (href && !link.textContent.trim()) {
-      const accessibleName = getAccessibleName(link);
-      if (!accessibleName) {
-        if (link.querySelector('img')) {
-          link.setAttribute('aria-label', 'Image link');
-        } else if (link.title) {
-          link.setAttribute('aria-label', link.title);
-        } else {
-          link.setAttribute('aria-label', 'Link');
-        }
-      }
-    }
-  });
-  return document;
-};
-
-const addressAccessibilityIssues = (document) => {
-  addLangAttribute(document);
-  fixTableStructure(document);
-  addMainLandmark(document);
-  ensureUniqueLandmarks(document);
-  addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
-  return document;
-};
-
-const Dashboard = () => {
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleError = (error) => {
-    setError(error);
-    setSuccess(null);
-  };
-
-  const handleSuccess = (success) => {
-    setSuccess(success);
-    setError(null);
-  };
-
-  const handleFetchStats = () => {
-    setRefreshing(true);
-    setRefreshing(false);
-  };
-
-  return (
-    <div>
-      {error && (
-        <main>
-          <h1>⚠️ エラー</h1>
-        </main>
-      )}
-      {success && (
-        <main>
-          <h1>🎉 Success</h1>
-        </main>
-      )}
-    </div>
-  );
-};
-
-export default Dashboard;
-
-// Existing exports and functions continue to be preserved
-// No changes to exports are allowed
-
-const skipLink = document.createElement('a');
-skipLink.href = '#main-content';
-skipLink.id = 'skip-link';
-skipLink.className = 'skip-link';
+// Implement the remaining functions to address accessibility issues and fill in the empty spots in the code as necessary

@@ -1,9 +1,33 @@
-Here is the resolved file:
-
-```javascript
 import { type Metadata } from "next";
 import "./globals.css";
-import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, getSvgAccessibleName, addressAccessibilityIssue038 } from "./accessibility";
+import {
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  addMainLandmarkToIndex,
+  renderDependencyGraphs,
+  fixTableStructureIssues,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
+  getSvgAccessibleName,
+} from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
 export const metadata: Metadata = {
@@ -212,6 +236,11 @@ function addressAccessibilityIssues(report) {
   });
 }
 
+// Added a function to find element by id for easier access
+function findElementById(id) {
+  return document.querySelector(`#${id}`);
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -239,11 +268,6 @@ export default function RootLayout({
   // Implement the renderIndexView method here
   renderIndexView();
   renderDependencyGraph();
-
-  // Added a function to find element by id for easier access
-  function findElementById(id) {
-    return document.querySelector(`#${id}`);
-  }
 
   return (
     <html lang="en">
@@ -274,6 +298,3 @@ export {
   renderDependencyGraph,
   findElementById,
 };
-```
-
-This file has the combined changes from both branches while preserving the original structure and style. The `addressAccessibilityIssues` function has been updated to use `a11yStore.init()` for addressing issue 038, and the `findElementById` function is introduced to facilitate finding elements with specific ids.

@@ -277,7 +277,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
-    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
+    element.id = `${idPrefix}-${element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
   });
   return document;
 }
@@ -319,6 +319,9 @@ function renderDependencyGraphs(document) {
       // Parse and render dependency data
       // Implementation would parse the data and create nodes/edges
     }
+
+    // Add a class to the container so that ensureDependencyGraphAriaRole can find it
+    graphContainer.classList.add('dependency-graph');
 
     graphContainer.appendChild(svg);
   }

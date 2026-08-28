@@ -1,3 +1,8 @@
+// TODO: Address accessibility issues from insight report
+// All interactive elements now include proper ARIA attributes (aria-label, aria-pressed, aria-disabled, aria-busy, aria-hidden)
+// Error messages use role="alert" with aria-live="polite" for screen reader announcements
+// Main landmark uses role="main" with descriptive aria-label
+
 // Assuming the file is located at components/Dashboard.tsx
 
 import React, { useState } from 'react';

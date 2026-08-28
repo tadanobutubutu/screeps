@@ -1,3 +1,5 @@
+// Assuming the file is located at ...
+
 import React, { useState } from 'react';
 
 interface DashboardProps {
@@ -47,7 +49,7 @@ export const validateLandmark = (element) => {
   };
 };
 
-const Dashboard: ... = (props) => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -69,7 +71,7 @@ const Dashboard: ... = (props) => {
   };
 
   return (
-    <main role="main" ...
+    <main role="main" aria-label="Dashboard">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -92,9 +94,9 @@ const Dashboard: ... = (props) => {
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => ...
+          onMouseLeave={() => setErrCopyHover(false)}
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => ...
+          onBlur={() => setErrCopyHover(false)}
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -111,7 +113,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span ... ? '✅' : '📋'}</span>
+          <span>{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button
@@ -121,7 +123,7 @@ const Dashboard: ... = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}
@@ -137,4 +139,15 @@ const Dashboard: ... = (props) => {
             marginLeft: '0.5rem',
             transition: 'all 0.2s ease-in-out',
             transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errRetryHover ? '0
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+          }}
+        >
+          <span>{refreshing ? '🔄' : '🔁'}</span>
+          <span> {refreshing ? '再試行中...' : 'エラーの再試行'}</span>
+        </button>
+      </div>
+    </main>
+  );
+};
+
+export default Dashboard;

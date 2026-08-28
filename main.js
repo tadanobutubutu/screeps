@@ -1,3 +1,6 @@
+const renderHeader = require('./renderHeader');
+const renderFooter = require('./renderFooter');
+
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -60,6 +63,14 @@ function detectAndSetLang(content) {
   return setHtmlLangAttribute(lang);
 }
 
+function renderHomePage() {
+  return renderHeader() + '<div>Home Page</div>' + renderFooter();
+}
+
+function renderDashboard() {
+  return renderHeader() + '<div>Dashboard Content</div>' + renderFooter();
+}
+
 // New function to convert anchor tags to buttons with specific id and text
 function convertAnchorsToButtons() {
   if (typeof document !== 'undefined') {
@@ -80,5 +91,11 @@ if (typeof document !== 'undefined') {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { setHtmlLangAttribute, detectAndSetLang };
+  module.exports = {
+    renderHomePage,
+    renderDashboard,
+    setHtmlLangAttribute,
+    detectAndSetLang,
+    convertAnchorsToButtons
+  };
 }

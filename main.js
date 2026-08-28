@@ -7,7 +7,6 @@
  */
 function replaceMyButtonId() {
   // Find the element with the `my-button` class and replace the class with the actual id.
-  // Assuming you have already set the id on the button element in your code
   const button = document.querySelector('.my-button');
   if (button) {
     button.id = 'exampleButton';
@@ -42,21 +41,21 @@ function addProperAccountManagement() {
  *
  * @returns {void}
  */
-function addProperFormAccessibility() {
+function addFormAccessibility() {
   // ... (existing code)
 }
 
 /**
  * Function to replace `my-button` with actual button id
  */
-addProperLandmarkRegions();
-addProperAccountManagement();
-addProperFormAccessibility();
-replaceMyButtonId();
+function initializeAccessibility() {
+  replaceMyButtonId();
+}
 
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
-  addProperFormAccessibility,
-  replaceMyButtonId
+  addFormAccessibility,
+  replaceMyButtonId,
+  initializeAccessibility
 };

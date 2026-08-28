@@ -1,6 +1,7 @@
 // main.js
 
-// TODO: Implement validateLandmark functionality
+// TODO: Add any other missing exports that might have been?
+
 function validateLandmark(landmark) {
   // Check if landmark exists
   if (!landmark) {

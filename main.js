@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 // TODO: Add back any required exports that might have been?
 
 function main() {
@@ -146,10 +149,10 @@ function chunk(array, size) {
 
 function flatten(array, depth = 1) {
   if (depth === 0) return array;
-  return array.reduce((acc, val) => 
-    Array.isArray(val) 
-      ? acc.concat(flatten(val, depth - 1)) 
-      : acc.concat(val), 
+  return array.reduce((acc, val) =>
+    Array.isArray(val)
+      ? acc.concat(flatten(val, depth - 1))
+      : acc.concat(val),
   []);
 }
 
@@ -204,13 +207,62 @@ function retry(fn, maxAttempts = 3, delay = 1000) {
   };
 }
 
-// New function(s) to be implemented
 function calculateAverage(numbers) {
   const sum = numbers.reduce((acc, num) => acc + num, 0);
   return sum / numbers.length;
 }
 
-// Exports
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+
+  if (svgElement.hasAttribute('aria-label')) {
+    return svgElement.getAttribute('aria-label');
+  }
+
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const label = document.getElementById(labelledBy);
+    if (label) {
+      return label.textContent.trim();
+    }
+  }
+
+  return null;
+}
+
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+} = require('./accessibilityHelperFunctions');
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 module.exports = {
   main,
   version,
@@ -238,5 +290,9 @@ module.exports = {
   merge,
   sleep,
   retry,
-  calculateAverage
+  calculateAverage,
+  getSvgAccessibleName,
+  formatDate,
+  debounce
 };
+```

@@ -126,7 +126,7 @@ function handleCredentialResponse(response) {
 // Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
   // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
+  // ... existing unique landmarks implementation for origin/main>
 }
 
 // Function to add accessible names to SVGs

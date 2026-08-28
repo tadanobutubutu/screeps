@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Main application file
 
 const http = require('http');
@@ -210,4 +207,3 @@ function addAriaLabel(element, label) {
 }
 
 // ... (The rest of the file content remains unchanged)
-```

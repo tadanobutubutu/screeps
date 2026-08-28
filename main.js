@@ -160,3 +160,12 @@ export function addScopeToHeaders(tableElement) {
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+export { App, getUniqueLandmarkName, validateUniqueLandmarks, addSvgAccessibleName, isValidLink, addScopeToHeaders };
+
+export default {};
+export const module = { exports: {} };
+module.exports = { App, getUniqueLandmarkName, validateUniqueLandmarks, addSvgAccessibleName, isValidLink, addScopeToHeaders };

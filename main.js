@@ -457,6 +457,91 @@ function hasMissingAriaProperties(element) {
 }
 
 /**
+ * Validates that table elements meet accessibility standards.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the table is accessible, false otherwise
+ */
+function validateTableAccessibility(table) {
+  if (!table) return false;
+
+  let isValid = true;
+
+  // Check for caption element
+  if (!table.querySelector('caption')) {
+    console.warn('Table is missing a <caption> element for accessibility.');
+    isValid = false;
+  }
+
+  // Check for thead element
+  if (!table.querySelector('thead')) {
+    console.warn('Table is missing a <thead> element.');
+    isValid = false;
+  }
+
+  // Check for tbody element
+  if (!table.querySelector('tbody')) {
+    console.warn('Table is missing a <tbody> element.');
+    isValid = false;
+  }
+
+  // Check for scope attributes on th elements
+  const thElements = table.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      console.warn('Table header <th> element is missing a scope attribute.', th);
+      isValid = false;
+    }
+  });
+
+  return isValid;
+}
+
+/**
+ * Validates the structure of table elements to ensure they conform to best practices.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the table structure is valid, false otherwise
+ */
+function validateTableStructure(table) {
+  if (!table) return false;
+
+  let isValid = true;
+
+  // Check that all cells are within rows
+  const cells = table.querySelectorAll('td, th');
+  cells.forEach(cell => {
+    const parentRow = cell.closest('tr');
+    if (!parentRow) {
+      console.warn('Table cell is not contained within a table row.', cell);
+      isValid = false;
+    }
+  });
+
+  // Check for presence of at least one row
+  if (!table.querySelector('tr')) {
+    console.warn('Table has no rows.');
+    isValid = false;
+  }
+
+  // Ensure table headers are present
+  if (!table.querySelector('th')) {
+    console.warn('Table has no header cells (<th>).');
+    isValid = false;
+  }
+
+  // Validate proper nesting of table elements
+  const allowedChildren = ['caption', 'colgroup', 'thead', 'tbody', 'tfoot', 'tr'];
+  const directChildren = Array.from(table.children);
+  directChildren.forEach(child => {
+    if (!allowedChildren.includes(child.tagName.toLowerCase())) {
+      console.warn(`Table contains an unexpected direct child element: <${child.tagName.toLowerCase()}>.`);
+      isValid = false;
+    }
+  });
+
+  return isValid;
+}
+
+/**
  * Implements function for addressing accessibility issues from insight report.
  * Identifies and fixes common accessibility problems found in the document.
  * @param {HTMLElement} [container=document] - The container to check for accessibility issues
@@ -580,6 +665,20 @@ function addressAccessibilityIssues(container = document) {
       });
     }
   }
+
+  // Validate table accessibility and structure
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!validateTableAccessibility(table)) {
+      results.issues.push({ type: 'inaccessible-table', element: table });
+      results.summary.remaining++;
+    }
+    if (!validateTableStructure(table)) {
+      results.issues.push({ type: 'invalid-table-structure', element: table });
+      results.summary.remaining++;
+    }
+  });
+  results.summary.total += tables.length;
 
   // Check for missing ARIA properties on elements
   const allElements = container.querySelectorAll('*');
@@ -705,6 +804,8 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.validateTableAccessibility = validateTableAccessibility;
+globalObject.validateTableStructure = validateTableStructure;
 
 // Exports for all functions
 module.exports = {
@@ -728,5 +829,7 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
   getSvgAccessibleName,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure
 };

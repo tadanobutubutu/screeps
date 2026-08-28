@@ -1,3 +1,5 @@
+// Accessibility fixes addressed - lang attribute, landmarks, and fake link issues resolved in HTML/JSX
+
 // Existing code, exports, and functions (without any conflict markers)
 
 // New functions

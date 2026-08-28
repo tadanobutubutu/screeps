@@ -9,6 +9,8 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
+// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
+
 /**
  * Adds lang attribute to HTML element
  * @param {string} html - The HTML string to process

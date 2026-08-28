@@ -1,5 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -83,15 +84,8 @@ function addressInsightReportIssues(insightReport) {
       if (issue.code === 'REACT_027') {
         // This issue is already implemented, so no action is needed here
       }
-}
-=======
-// Generalized accessibility functions
-function improveAccessibility() {
-  // ... (unchanged)
-}
-
-function addressInsightReportIssues(insightReport) {
-  // ... (unchanged)
+    }
+  });
 }
 
 // New function to address accessibility issues from insight report

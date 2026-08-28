@@ -1,5 +1,23 @@
-// Import dependencyGraphContent
-const dependencyGraphContent = require('./dependencyGraph');
+// Assuming the HTML content is included in a component or similar file that is imported into main.js
+
+// Before change:
+// <a id="unrotate" href="#">rotate back</a>
+
+// After change:
+// <button id="unrotate" onclick="rotateBack()">rotate back</button>
+
+// The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
+
+// Here's an example of how the rotateBack function might be defined:
+function rotateBack() {
+  // Logic to rotate back
+  // For example, if you're manipulating the DOM or a state:
+  // ...
+  // ...
+}
+
+// Now, let's assume the component file is named MyComponent.js and is imported into main.js:
+import MyComponent from './MyComponent';
 
 const renderDependencyGraph = (dependencyGraph, container) => {
   // Render the dependency graph using the dependencyGraphContent
@@ -15,26 +33,6 @@ export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // This is a placeholder function and should be replaced with the actual implementation
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
 };
-
-// Screeps Main Entry Point
-// This file contains the main game loop and accessibility functions
-
-const roleHarvester = require('role.harvester');
-const roleUpgrader = require('role.upgrader');
-const roleBuilder = require('role.builder');
-const roleRepairer = require('role.repairer');
-const tower = require('structure.tower');
-
-function loop() {
-  // Code for the game loop...
-}
-
-// Export the loop function
-exports.loop = loop;
-
-// Export the functions for addressing new accessibility issues
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -277,7 +275,7 @@ function getSvgAccessibleName(svgElement) {
     return title.textContent.trim();
   }
   
-  if (svgElement.hasAttribute('aria-label')) {
+  if (svgElement.getAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label');
   }
   
@@ -293,31 +291,105 @@ function getSvgAccessibleName(svgElement) {
 }
 
 function setSvgAccessibilityProps(svgElement) {
-  // Placeholder for SVG accessibility properties setup
+  if (!svgElement) return;
+  
+  if (!svgElement.hasAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  
+  if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title')) {
+    const generatedLabel = 'SVG Image';
+    svgElement.setAttribute('aria-label', generatedLabel);
+  }
 }
 
 function isLinkAccessible(link) {
-  // Placeholder implementation
-  return true;
+  if (!link) return false;
+  
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+  const hasTitle = link.hasAttribute('title');
+  
+  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
 function isButtonAccessible(button) {
-  // Placeholder implementation
-  return true;
+  if (!button) return false;
+  
+  const hasText = button.textContent && button.textContent.trim().length > 0;
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+  const hasTitle = button.hasAttribute('title');
+  const hasIcon = button.querySelector('svg, img, icon');
+  
+  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
 }
 
 function checkAccessibility(container = document) {
-  // Placeholder implementation
-  return { isValid: true, issues: [] };
+  const results = {
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] }
+  };
+  
+  if (!container) return results;
+  
+  const links = container.querySelectorAll('a[href]');
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
+    }
+  });
+  
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (isButtonAccessible(button)) {
+      results.buttons.accessible.push(button);
+    } else {
+      results.buttons.inaccessible.push(button);
+    }
+  });
+  
+  return results;
 }
 
 function checkLandmarkElement(role, element) {
-  // Placeholder implementation
+  if (!element || !role) return { valid: false, issues: [] };
+  
+  const issues = [];
+  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+  
+  if (!hasLabel && role !== 'main') {
+    issues.push(`Landmark with role "${role}" is missing accessible label`);
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
 }
 
 function wrapPrimaryContentInMain() {
-  // Placeholder implementation
-  return null;
+  if (typeof document === 'undefined' || !document.body) return null;
+  
+  const existingMain = document.querySelector('main');
+  if (existingMain) return existingMain;
+  
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+  
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
+      main.appendChild(child);
+    }
+  });
+  
+  document.body.insertBefore(main, document.body.firstChild);
+  return main;
 }
 
 function renderIndexView() {
@@ -333,43 +405,6 @@ function getLangAttribute() {
     return document.documentElement.lang;
   }
   return null;
-}
-
-function getFullLangAttribute() {
-  if (typeof document === 'undefined') return 'en';
-  const lang = document.documentElement.lang || 'en';
-  const dir = document.documentElement.dir || 'ltr';
-  return { lang, dir };
-}
-
-// REACT_027: Fix table structure issues
-function validateTableAccessibilityFromHead(table) {
-  if (!table) return { valid: false, issues: ['Table not found'] };
-  const issues = [];
-  if (!table.tHead && !table.querySelector('thead')) {
-    issues.push('Missing table header');
-  }
-  if (!table.tBodies.length && !table.querySelector('tbody')) {
-    issues.push('Missing table body');
-  }
-  const rows = table.rows || table.querySelectorAll('tr');
-  if (rows.length === 0) {
-    issues.push('Table has no rows');
-  }
-  return { valid: issues.length === 0, issues };
-}
-
-// REACT_017: Add/fix landmark issues
-function validateLandmarkFromHead(landmark) {
-  if (!landmark) return { valid: false, issues: ['Landmark not found'] };
-  const issues = [];
-  const role = landmark.getAttribute('role');
-  const tag = landmark.tagName.toLowerCase();
-  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
-  if (!role && !landmarkTags.includes(tag)) {
-    issues.push('Element is not a recognized landmark');
-  }
-  return { valid: issues.length === 0, issues };
 }
 
 /**
@@ -865,10 +900,7 @@ module.exports = {
   getTagNameForElement,
   getLandmarkAccessibleName,
   getLangAttribute,
-  getFullLangAttribute,
   validateTableAccessibility,
-  validateTableAccessibilityFromHead,
-  validateLandmarkFromHead,
   validateTableStructure,
   fixTableStructureIssues,
   addressAccessibilityIssues,
@@ -880,26 +912,10 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   checkAccessibility,
   checkLandmarkElement,
-  checkLandmarks,
   wrapPrimaryContentInMain,
   renderIndexView,
-  renderDependencyGraph,
-  addressAccessibilityIssue038,
   createInPageButton,
   addLangAttribute,
-  fixTableStructureIssues,
-  validateTableStructure,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements,
-  hasMissingAriaProperties,
-  addressAccessibilityIssues,
-  validateLandmarkAttributes,
-  getTagNameForElement,
-  getLandmarkAccessibleName,
-  loop,
   isLinkAccessible,
   isButtonAccessible,
   getSvgAccessibleName,

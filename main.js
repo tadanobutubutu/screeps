@@ -11,7 +11,7 @@ export function existingFunction2() {
 // New function to fix the React SVG Accessible Name issue
 function fixSVGAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
-  if (svgString.includes('<title>') || svgString.includes('aria-label') || svgString.includes('aria-hidden')) {
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('aria-describedby')) {
     return svgString;
   }
   
@@ -20,7 +20,7 @@ function fixSVGAccessibleName(svgString) {
   const svgRoot = tempSVG.documentElement;
   
   // Check if the SVG is decorative and does not need an accessible name
-  const isDecorative = svgRoot.querySelector('title') || svgRoot.querySelector('desc');
+  const isDecorative = !svgRoot.querySelector('a, button, input, textarea, select, audio[controls], video[controls]');
   if (isDecorative) {
     return svgString.replace('<svg', '<svg aria-hidden="true"');
   }

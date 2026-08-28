@@ -13,6 +13,7 @@ const a11yStore = {
     this.setupFocusManagement();
     this.setupSkipLinks();
     this.checkLandmarkElements();
+    this.addProperLandmarkRegions();
     this.addSVGAccessibilityProps();
     this.fixFakeLinks(); // Added for REACT_036
   },
@@ -179,6 +180,103 @@ const a11yStore = {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
             landmark.setAttribute('aria-label', `${element} ${index + 1}`);
           }
+        }
+      });
+    });
+  },
+
+  // New function to add proper landmark regions for accessibility
+  addProperLandmarkRegions() {
+    // Ensure the main landmark exists
+    if (!document.querySelector('main, [role="main"]')) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.id = 'main-content';
+      document.body.appendChild(main);
+    }
+
+    // Ensure banner landmark for header
+    const header = document.querySelector('header');
+    if (header && !header.getAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+
+    // Add navigation landmarks with accessible labels
+    const navElements = document.querySelectorAll('nav');
+    navElements.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label')) {
+        nav.setAttribute('aria-label', `navigation-${index + 1}`);
+      }
+      if (!nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+      }
+    });
+
+    // Ensure contentinfo landmark for footer
+    const footer = document.querySelector('footer');
+    if (footer && !footer.getAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+
+    // Ensure complementary landmark for aside
+    const aside = document.querySelector('aside');
+    if (aside && !aside.getAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+    }
+
+    // Add form landmark to forms missing a label
+    const forms = document.querySelectorAll('form');
+    forms.forEach((form, index) => {
+      if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
+        const label = form.querySelector('legend, label');
+        if (!label) {
+          form.setAttribute('role', 'form');
+          form.setAttribute('aria-label', `form-${index + 1}`);
+        }
+      }
+    });
+
+    // Add search landmark if missing
+    const searchRegions = document.querySelectorAll('[role="search"]');
+    if (searchRegions.length === 0) {
+      const searchInput = document.querySelector('input[type="search"]');
+      if (searchInput && !searchInput.closest('[role="search"]')) {
+        const searchRegion = document.createElement('div');
+        searchRegion.setAttribute('role', 'search');
+        searchRegion.setAttribute('aria-label', 'search');
+        searchInput.parentNode.insertBefore(searchRegion, searchInput);
+        searchRegion.appendChild(searchInput);
+      }
+    }
+
+    // Ensure all landmark regions have accessible names where required
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+    landmarkRoles.forEach((role) => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          const tagName = el.tagName.toLowerCase();
+          let label = '';
+          switch (role) {
+            case 'navigation':
+              label = 'navigation';
+              break;
+            case 'complementary':
+              label = 'complementary';
+              break;
+            case 'contentinfo':
+              label = 'contentinfo';
+              break;
+            case 'search':
+              label = 'search';
+              break;
+            case 'form':
+              label = 'form';
+              break;
+            default:
+              label = role;
+          }
+          el.setAttribute('aria-label', label);
         }
       });
     });

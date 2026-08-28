@@ -32,6 +32,19 @@ function personName() {
   // Existing code...
 }
 
+// REACT_025: Add additional accessibility changes as per insight report
+function updateAriaAttributes() {
+  const doc = getDocument();
+  if (doc) {
+    // Ensure proper ARIA attributes are set
+    const body = doc.body;
+    if (body && !body.getAttribute('role')) {
+      // Only set role if one doesn't exist
+      body.setAttribute('role', 'main');
+    }
+  }
+}
+
 function validateTableAccessibility() {
   // Existing code...
 }

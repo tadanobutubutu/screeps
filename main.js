@@ -1,1 +1,102 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+
+// Existing code structure
+const someData = [];
+
+function processData(data) {
+    return data.map(item => {
+        // process each item
+        return {
+            ...item,
+            processed: true
+        };
+    });
+}
+
+/**
+ * Validate a single landmark object
+ * @param {Object} landmark - The landmark to validate
+ * @returns {Object} - { valid: boolean, error?: string }
+ */
+function validateLandmark(landmark) {
+    // Check required fields
+    if (!landmark || typeof landmark !== 'object') {
+        return { valid: false, error: 'Landmark must be an object' };
+    }
+    
+    const requiredFields = ['name', 'coordinates', 'type'];
+    for (const field of requiredFields) {
+        if (!(field in landmark) || landmark[field] === null || landmark[field] === undefined) {
+            return { valid: false, error: `Missing required field: ${field}` };
+        }
+    }
+    
+    // Validate coordinates structure
+    if (!landmark.coordinates || 
+        typeof landmark.coordinates !== 'object' ||
+        typeof landmark.coordinates.lat !== 'number' ||
+        typeof landmark.coordinates.lng !== 'number') {
+        return { valid: false, error: 'Invalid coordinates: must have lat and lng as numbers' };
+    }
+    
+    // Validate coordinate ranges
+    const { lat, lng } = landmark.coordinates;
+    if (lat < -90 || lat > 90) {
+        return { valid: false, error: 'Latitude must be between -90 and 90' };
+    }
+    if (lng < -180 || lng > 180) {
+        return { valid: false, error: 'Longitude must be between -180 and 180' };
+    }
+    
+    // Validate landmark type
+    const validTypes = ['monument', 'building', 'natural', 'historic', 'cultural'];
+    if (!validTypes.includes(landmark.type)) {
+        return { valid: false, error: `Invalid type: must be one of ${validTypes.join(', ')}` };
+    }
+    
+    return { valid: true };
+}
+
+/**
+ * Validate the structure of landmarks collection
+ * @param {Array} landmarks - Array of landmarks to validate
+ * @returns {Object} - { valid: boolean, error?: string }
+ */
+function validateLandmarkStructure(landmarks) {
+    // Check if landmarks is an array
+    if (!Array.isArray(landmarks)) {
+        return { valid: false, error: 'Landmarks must be an array' };
+    }
+    
+    // Check for empty array
+    if (landmarks.length === 0) {
+        return { valid: false, error: 'Landmarks array cannot be empty' };
+    }
+    
+    // Check for duplicate names
+    const names = landmarks.map(l => l && l.name).filter(Boolean);
+    const uniqueNames = new Set(names);
+    if (uniqueNames.size !== names.length) {
+        const duplicates = names.filter((name, index) => names.indexOf(name) !== index);
+        return { valid: false, error: `Duplicate landmark names: ${[...new Set(duplicates)].join(', ')}` };
+    }
+    
+    // Validate each landmark
+    for (let i = 0; i < landmarks.length; i++) {
+        const result = validateLandmark(landmarks[i]);
+        if (!result.valid) {
+            return { valid: false, error: `Landmark at index ${i}: ${result.error}` };
+        }
+    }
+    
+    return { valid: true };
+}
+
+module.exports = {
+    someData,
+    processData,
+    validateLandmark,
+    validateLandmarkStructure
+};

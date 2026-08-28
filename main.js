@@ -49,4 +49,41 @@ function generateHTML() {
 </html>`;
 }
 
-module.exports = { generateHTML };
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement || typeof svgElement !== 'object') {
+        return '';
+    }
+
+    // Check for aria-label attribute (highest priority)
+    const ariaLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
+    if (ariaLabel && typeof ariaLabel === 'string') {
+        return ariaLabel.trim();
+    }
+
+    // Check for title element within the SVG
+    if (svgElement.querySelector) {
+        const titleElement = svgElement.querySelector('title');
+        if (titleElement && titleElement.textContent) {
+            return titleElement.textContent.trim();
+        }
+    }
+
+    // Check for aria-labelledby attribute
+    const ariaLabelledby = svgElement.getAttribute ? svgElement.getAttribute('aria-labelledby') : null;
+    if (ariaLabelledby && typeof ariaLabelledby === 'string') {
+        return ariaLabelledby.trim();
+    }
+
+    // Check for role="img" with accessible name
+    const role = svgElement.getAttribute ? svgElement.getAttribute('role') : null;
+    if (role === 'img') {
+        const imgLabel = svgElement.getAttribute ? svgElement.getAttribute('aria-label') : null;
+        if (imgLabel && typeof imgLabel === 'string') {
+            return imgLabel.trim();
+        }
+    }
+
+    return '';
+}
+
+module.exports = { generateHTML, getSvgAccessibleName };

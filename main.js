@@ -4,31 +4,6 @@ function addProperLandmarkRegions() {
     header.setAttribute('role', 'banner');
   }
 
-  // - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-  const landmark1 = document.getElementById('landmark1');
-  const landmark2 = document.getElementById('landmark2');
-  if (landmark1) {
-    landmark1.setAttribute('id', 'unique-landmark-1');
-  }
-  if (landmark2) {
-    landmark2.setAttribute('id', 'unique-landmark-2');
-  }
-
-  const nav = document.querySelector('nav');
-  if (nav) {
-    nav.setAttribute('role', 'navigation');
-  }
-
-  const main = document.querySelector('main');
-  if (main) {
-    main.setAttribute('role', 'main');
-  }
-
-  const footer = document.querySelector('footer');
-  if (footer) {
-    footer.setAttribute('role', 'contentinfo');
-  }
-
   // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {
     if (typeof document === 'undefined' || !document.body) {
@@ -100,28 +75,43 @@ function addProperLandmarkRegions() {
       });
     }
   }
+
+  // - REACT_017: Add/fix 4 landmark issues
+  const landmarks = document.querySelectorAll('.landmark');
+  landmarks.forEach((landmark) => {
+    // Assuming you know which ARIA roles are correct for your landmarks
+    landmark.setAttribute('role', 'landmark');
+  });
 }
 
-function rotateBack() {
-  // JavaScript code to rotate back
-  console.log('Rotating back...');
+// Implement function to add aria-labelledby to SVGs with title elements
+function addAriaLabelledbyToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = title.getAttribute('id');
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
 }
 
+// Implement function to add aria-label to SVGs without title elements
+function addAriaLabelToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const svgText = svg.textContent || svg.innerText || 'Image';
+      svg.setAttribute('aria-label', svgText);
+    }
+  });
+}
+
+// Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
 // - REACT_041: Add accessible names to 2 SVGs
 // These are decorative favicon SVGs, so marking them as hidden from assistive tech
-const svg1 = document.querySelector('#svg1');
-const svg2 = document.querySelector('#svg2');
-if (svg1) svg1.setAttribute('aria-hidden', 'true');
-if (svg2) svg2.setAttribute('aria-hidden', 'true');
-
-// - REACT_017: Add/fix 4 landmark issues
-const landmarks = document.querySelectorAll('.landmark');
-landmarks.forEach((landmark, index) => {
-  // Assuming you know which ARIA roles are correct for your landmarks
-  landmark.setAttribute('role', 'landmark');
-  landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
-});
-
-// main.js
-
-addProperLandmarkRegions();
+// const svg1 = document.querySelector('#svg1');
+// const svg2 = document.querySelector('#svg2');
+// if (svg1) svg1.setAttribute('aria-hidden', 'true');
+// if (svg2) svg2.setAttribute('aria-hidden', 'true');

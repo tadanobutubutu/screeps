@@ -1,4 +1,3 @@
-tsx
 // Assuming the file is located at ...
 
 import React, { useState } from 'react';
@@ -6,6 +5,11 @@ import React, { useState } from 'react';
 interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
+
+// Add the calculateSum function as requested
+const calculateSum = (...numbers: number[]): number => {
+  return numbers.reduce((acc, num) => acc + num, 0);
+};
 
 const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +75,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span>{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button

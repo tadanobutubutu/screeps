@@ -6,12 +6,12 @@ function renderDependencyGraph(dependencies) {
     const graph = {};
     
     if (dependencies && typeof dependencies === 'object') {
-        Object.keys(dependencies).forEach(module => {
+        for (const module in dependencies) {
             graph[module] = {
                 dependencies: dependencies[module] || [],
                 rendered: true
             };
-        });
+        }
     }
     
     return graph;
@@ -40,7 +40,7 @@ function main() {
 
 // TODO: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // TODO: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
 // TODO: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // TODO: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())

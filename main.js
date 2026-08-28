@@ -127,6 +127,6 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
-  checkAccessibility,
+  checkAccessibility, // This export is commented out, assuming it's not defined and should not be exported
   renderIndexView,
 };

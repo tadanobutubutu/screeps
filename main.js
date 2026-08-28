@@ -4,6 +4,17 @@
 // which should be converted to:
 //   <button id="unrotate" type="button">rotate back</button>
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+
+const fs = require('fs');
+
 function fixFakeLinkIssue(filePath) {
   // ... existing code ...
 }
@@ -52,32 +63,32 @@ function addRoleAndLabelToCheckbox(filePath) {
 
 // New function to address accessibility issues
 function addressAccessibilityIssues(filePath) {
-  // Example of a simple check for empty `alt` attribute in images
-  const images = content.match(/<img [^>]*>/g);
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  // Add alt attributes to images lacking them
+  const images = updatedContent.match(/<img[^>]*>/g);
   if (images) {
     images.forEach((image) => {
       const altAttribute = image.match(/alt="([^"]*)"/);
       if (!altAttribute || altAttribute[1].trim() === '') {
-        updatedContent = updatedContent.replace(
-          image,
-          image.replace('<img', '<img alt="Image description"')
-        );
+        const newImage = image.replace('<img', '<img alt="Image description"');
+        updatedContent = updatedContent.replace(image, newImage);
       }
     });
   }
 
-  // Example of adding `aria-label` to buttons
-  const buttons = content.match(/<button [^>]*>/g);
+  // Add aria-label to buttons
+  const buttons = updatedContent.match(/<button[^>]*>/g);
   if (buttons) {
     buttons.forEach((button) => {
-      updatedContent = updatedContent.replace(
-        button,
-        button.replace('<button', '<button aria-label="Button description"')
-      );
+      if (!button.includes('aria-label')) {
+        const newButton = button.replace('<button', '<button aria-label="Button description"');
+        updatedContent = updatedContent.replace(button, newButton);
+      }
     });
   }
 
-  // Write the updated content back to the file
   fs.writeFileSync(filePath, updatedContent);
   console.log(`Improved accessibility in ${filePath}`);
 }

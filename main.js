@@ -1,5 +1,3 @@
-// main.js
-
 const config = require('./config');
 const logger = require('./utils/logger');
 
@@ -9,13 +7,64 @@ const logger = require('./utils/logger');
 let isInitialized = false;
 const appData = {}
 
-// TODO: Add back any required exports that might have been?
+/**
+ * Checks if a table data array has the required structure
+ * @param {Array} tableData - The table data to check
+ * @param {Array} requiredColumns - List of required column names
+ * @returns {Object} - { valid: boolean, missingColumns: string[] }
+ */
+function checkTableData(tableData, requiredColumns) {
+    if (!Array.isArray(tableData) || tableData.length === 0) {
+        return { valid: false, missingColumns: requiredColumns };
+    }
+    
+    const headers = tableData[0];
+    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+    
+    return {
+        valid: missingColumns.length === 0,
+        missingColumns
+    };
+}
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
+// Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+  
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+  
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+  
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+  
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
 
 function initialize(options = {}) {
   if (isInitialized) {
@@ -61,10 +110,9 @@ function modifiedFunction() {
   console.log('This function has been modified.');
 }
 
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-
 module.exports = {
+  validateLandmark,
+  checkTableData,
   initialize,
   getAppState,
   setData,
@@ -74,4 +122,4 @@ module.exports = {
   logger,
   newFunction,
   modifiedFunction
-;
+};

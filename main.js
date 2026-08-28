@@ -84,13 +84,14 @@ function validateTableStructure() {
     }
 
     // Check if all thead columns have a corresponding tbody column and vice versa
-    if (hasTh.length === rowsInThead.length) {
-      rowsInThead.forEach((row, index) => {
-        if (row.querySelectorAll('th').length !== row.querySelectorAll('td').length) {
+    const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
+    rowsInThead.forEach((row, index) => {
+      if (bodyRows[index]) {
+        if (row.querySelectorAll('th').length !== bodyRows[index].querySelectorAll('td').length) {
           throw new Error(`Row ${index} in table header should have the same number of th and td`);
         }
-      });
-    }
+      }
+    });
   });
 }
 
@@ -412,7 +413,6 @@ module.exports = {
   wrapPrimaryContentInMain,
   checkLandmarks,
   renderIndexView,
-  addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,

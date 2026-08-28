@@ -60,3 +60,5 @@ export default {
   renderDashboard,
   renderSettings
 };
+
+module.exports = {};

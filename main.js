@@ -48,7 +48,50 @@ function getSvgAccessibleName(svg) {
 
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
-// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Ensure the root HTML element has a lang attribute
+function ensureHtmlLangAttribute() {
+  if (!document.documentElement) return;
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+// Ensure a given element has a non-empty id; auto-generate one if missing
+function ensureElementHasId(element, prefix = 'el') {
+  if (!element) return '';
+  if (element.id && element.id.trim().length > 0) {
+    return element.id;
+  }
+  const generatedId = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  element.id = generatedId;
+  return generatedId;
+}
+
+// Add an aria-label to an element if it is missing or empty
+function ensureAriaLabel(element, label) {
+  if (!element) return;
+  const existing = element.getAttribute('aria-label');
+  if (!existing || existing.trim().length === 0) {
+    element.setAttribute('aria-label', label || 'Interactive element');
+  }
+}
+
+// Render a textual representation of a dependency graph for assistive technologies
+function renderDependencyGraphDescription(graph) {
+  if (!graph || !graph.nodes || !graph.edges) {
+    return '';
+  }
+  const nodeLabels = graph.nodes.map(n => n.label || n.id).join(', ');
+  const edgeDescriptions = graph.edges.map(e => {
+    const from = graph.nodes.find(n => n.id === e.from);
+    const to = graph.nodes.find(n => n.id === e.to);
+    const fromLabel = from ? (from.label || from.id) : e.from;
+    const toLabel = to ? (to.label || to.id) : e.to;
+    return `${fromLabel} depends on ${toLabel}`;
+  });
+  return `Dependency graph with ${graph.nodes.length} nodes (${nodeLabels}). ${edgeDescriptions.join('. ')}.`;
+}
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -393,5 +436,5 @@ const a11yStore = {
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { a11yStore, getSvgAccessibleName };
+  module.exports = { a11yStore, getSvgAccessibleName, ensureHtmlLangAttribute, ensureElementHasId, ensureAriaLabel, renderDependencyGraphDescription };
 }

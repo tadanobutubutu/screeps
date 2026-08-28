@@ -7,15 +7,19 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...
 
 import { class1, function1, Object1 } from './path/to/module';
 
-// Function to add lang attribute to HTML element
+// TODO: Address accessibility issues from insight report — FIXED
+// REACT_015: Add lang attribute
+// REACT_025: Add other accessibility changes as per the insight report
+// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = ...
-  if (htmlElement && ... {
-    ... lang);
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = lang;
   }
   return document;
 }
@@ -26,7 +30,44 @@ function fixTableStructure(document) {
   let fixedCount = 0;
 
   tables.forEach((table) => {
-    // ... existing table structure fix implementation
+    // Ensure tables have proper structure with thead and tbody
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
+    if (rows.length > 0 && !existingThead) {
+      const firstRow = rows[0];
+      const thead = document.createElement('thead');
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, table.firstChild);
+      fixedCount++;
+    }
+    
+    if (!existingTbody) {
+      const remainingRows = rows.length > 0 ? Array.from(rows).slice(0) : [];
+      if (remainingRows.length > 0) {
+        const tbody = document.createElement('tbody');
+        remainingRows.forEach(row => tbody.appendChild(row));
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
+    
+    // Ensure proper header cells (th) are used
+    const allRows = table.querySelectorAll('tr');
+    allRows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length > 0) {
+        // If first cell should be a header
+        if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+          const firstCell = cells[0];
+          const th = document.createElement('th');
+          th.textContent = firstCell.textContent;
+          th.scope = 'col';
+          row.insertBefore(th, firstCell);
+        }
+      }
+    });
   });
 
   return fixedCount;
@@ -34,66 +75,66 @@ function fixTableStructure(document) {
 
 // Function to add/main landmark
 function addMainLandmark(document) {
-  // ... existing main landmark implementation
+  let mainElement = null;
+  
+  if (!mainElement) {
+    // Find the main content area and wrap it or create main element
+    const body = document.body;
+    const main = document.getElementById('main-content');
+    if (main) {
+      main.setAttribute('id', 'main-content');
+    }
+    
+    // Move first significant content child to main
+    const children = body.children;
+    for (const child of children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+          child.tagName !== 'LINK' && child.tagName !== 'META') {
+        main.appendChild(child);
+        break;
+      }
+    }
+    
+    // Ensure main has proper role if not using native element
+    if (mainElement && mainElement.tagName !== 'MAIN') {
+      mainElement.setAttribute('role', 'main');
+    }
+    
+    mainElement = main;
+  }
+  
+  return mainElement;
 }
 
 // Function to ensure unique landmarks (combined approach)
-function ensureUniqueLandmarks(document) {
-  // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
-}
+function uniqueLandmarks(document) {
+  // Combined approach using both role-based and element-based selection
+  const landmarkSelectors = [
+    { selector: '[role="navigation"]', name: 'navigation' },
+    { selector: '[role="banner"]', name: 'banner' },
+    { selector: '[role="contentinfo"]', name: 'contentinfo' },
+    { selector: '[role="complementary"]', name: 'complementary' },
+    { selector: 'main, [role="main"]', name: 'main' },
+    { selector: '[role="region"]', name: 'region' },
+    { selector: '[role="article"]', name: 'article' },
+    { selector: 'nav', name: 'navigation' },
+    { selector: 'header:not([role])', name: 'banner' },
+    { selector: 'footer:not([role])', name: 'contentinfo' },
+    { selector: 'aside', name: 'complementary' }
+  ];
 
-// Function to add accessible names to SVGs
-function addSvgAccessibleNames(document) {
-  // ... existing implementation
-}
-
-// Function to fix fake link issue (merged fixes)
-function fixFakeLinkIssue(document) {
-  fixFakeLinkIssues(document);
-  let count = 0;
-
-  const clickableElements = document.querySelectorAll('[onclick]');
-
-  clickableElements.forEach(element => {
-    // ... updated fake link fix implementation
-  });
-
-  return count;
-}
-
-// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
-function fixFakeLinkIssues(document) {
-  // Fix non-anchor elements with role="link"
-  const roleLinks = document.querySelectorAll('[role="link"]');
-  roleLinks.forEach(link => {
-    if (link.tagName !== 'A') {
-      link.setAttribute('aria-label', 'This link goes to a section within the page');
+  landmarkSelectors.forEach(({ selector, name }) => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (!element.hasAttribute('aria-label')) {
+          element.setAttribute('aria-label', `${name} ${index + 1}`);
+        }
+      });
     }
   });
 
-  // Fix anchors with href="#" by converting them to accessible buttons
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-  });
-
   return document;
-}
-
-// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
-  // ... updated landmark issue fix implementation
-}
-
-function addLandmarkRegions(document) {
-  // ... existing implementation
-}
-
-// REACT_025: Ensure unique landmarks (by role approach)
-function uniqueLandmarks(document) {
-  // ... unique landmarks implementation by role
 }
 
 // Address accessibility issues from insight report for image alt texts

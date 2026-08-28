@@ -1,17 +1,14 @@
 // Updated main.js content
 // (Please paste your existing main.js content here, as instructed, before adding the new functions or changes.)
 
-// New function or changes requested in the issue (if any)
-
-// Example of a new function that could be added:
-function newFunction() {
-  console.log('This is a new function added to main.js based on the issue.');
-}
-
-// Call the new function (if added)
-newFunction();
-
-// TODO: Address accessibility issues from insight report — CONTINUING
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 // Add new functions (no existing functions should be removed or renamed)
 
 function addressAccessibilityIssues() {

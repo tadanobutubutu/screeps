@@ -60,5 +60,12 @@
     // Implementation for adding proper landmark regions
   }
 
+  // New function for handling new feature
+  function newFeatureFunction() {
+    // Implementation for the new feature
+  }
+
   // Previous exports ...
+  // Exporting the new function
+  export { newFeatureFunction };
 })();

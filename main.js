@@ -23,6 +23,20 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
   // ... (existing code)
+
+  // NEW: Add getLangAttribute() function here
+  function getLangAttribute(optionalElement) {
+    return optionalElement ? optionalElement.lang : document.documentElement.lang;
+  }
+
+  // NEW: Add getFullLangAttribute() function here
+  function getFullLangAttribute(optionalElement) {
+    const lang = optionalElement ? optionalElement.lang : document.documentElement.lang;
+    const dir = optionalElement ? optionalElement.dir : document.documentElement.dir;
+    return `${lang}-${dir}`;
+  }
+
+  // ... (existing code with updated methods)
 }
 
 /**
@@ -58,5 +72,7 @@ module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addProperFormAccessibility,
-  replaceMyButtonId
+  replaceMyButtonId,
+  getLangAttribute,
+  getFullLangAttribute // Added here
 };

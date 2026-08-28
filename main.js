@@ -370,6 +370,49 @@ function addressOldAccessibilityIssues() {
   return 'addressing old issues';
 }
 
+/**
+ * Addresses accessibility issues from an insight report.
+ * @param {Array} insightReport - An array of issue objects, each with a type property indicating the issue type.
+ */
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  if (!Array.isArray(insightReport)) {
+    console.error('Insight report must be an array');
+    return;
+  }
+
+  insightReport.forEach(issue => {
+    switch (issue.type) {
+      case 'LANG_ATTRIBUTE':
+        addLangAttribute();
+        break;
+      case 'TABLE_STRUCTURE':
+        fixTableStructureIssues();
+        break;
+      case 'LANDMARK_STRUCTURE':
+        addMainLandmark();
+        ensureUniqueLandmarks();
+        break;
+      case 'SVG_ACCESSIBILITY':
+        addSvgAccessibleNames();
+        break;
+      case 'FAKE_LINK':
+        fixFakeLinkIssue();
+        break;
+      case 'FORM_ELEMENTS':
+        setFormElementAccessibleNames();
+        break;
+      case 'INTERACTIVE_ELEMENTS':
+        addA11yAttributesToInteractiveElements();
+        break;
+      case 'GENERAL_ACCESSIBILITY':
+        checkAccessibility();
+        break;
+      default:
+        console.warn(`Unknown issue type: ${issue.type}`);
+    }
+  });
+}
+
 // Preserve the existing exports
 module.exports = {
   renderDependencyGraph,
@@ -399,5 +442,6 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  addressAccessibilityIssuesFromInsightReport
 };

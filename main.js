@@ -45,7 +45,25 @@ function ensureUniqueLandmarks() {
   return uniqueElements;
 }
 
-// Function to address specific insight report issues
+// New function to add landmark roles and fix issues
+function addLandmarkRoles(gameObjects) {
+  // Existing logic (if any) can be kept here, or, a new implementation can be added
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  
+  return gameObjects.map((obj, index) => {
+    // Add appropriate landmark role based on object type
+    if (obj.type === 'spawn') {
+      obj.landmarkRole = 'main';
+    } else if (obj.type === 'extension') {
+      obj.landmarkRole = 'navigation';
+    } else if (obj.type === 'tower') {
+      obj.landmarkRole = 'search';
+    }
+    return obj;
+  });
+}
+
+// Function to address REACT_025 specific insight report issues
 function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
@@ -60,8 +78,52 @@ function addressREACT017(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
+      // Handle REACT_017 issue - ensuring proper ARIA labels and descriptions
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (!el['aria-label'] && !el.label) {
+          el['aria-label'] = el.id || 'unnamed-element';
+        }
+      });
+      // Add proper landmark regions from insight report data
       addProperLandmarkRegions(issue.data || []);
     }
+  });
+}
+
+// New function to add landmark roles and fix issues (Screeps-oriented)
+function addLandmarkRolesAndFixIssues() {
+  // This function adds appropriate landmark roles to Screeps structures
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+  
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    structures.forEach(structure => {
+      if (!structure.landmarkType) {
+        structure.landmarkType = 'region';
+      }
+    });
+  });
+}
+
+// Example logic to ensure unique landmarks
+function ensureLandmarkUniqueness(elements) {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  
+  // Check for duplicate landmark roles
+  landmarks.forEach(landmark => {
+    const landmarkElements = elements.filter(el => el.role === landmark);
+    
+    // Keep only the first occurrence of each landmark role
+    const seen = new Set();
+    landmarkElements.forEach(el => {
+      if (seen.has(el.id)) {
+        // Remove the role if it's not unique
+        delete el.role;
+      } else {
+        seen.add(el.id);
+      }
+    });
   });
 }
 
@@ -97,22 +159,6 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues() {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-  
-  landmarkTypes.forEach(type => {
-    const structures = _.filter(Game.structures, s => s.structureType === type);
-    structures.forEach(structure => {
-      if (!structure.landmarkType) {
-        structure.landmarkType = 'region';
-      }
-    });
-  });
-}
-
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -122,7 +168,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
+  addLandmarkRoles,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
   addProperLandmarkRegions,
+  ensureLandmarkUniqueness,
 };

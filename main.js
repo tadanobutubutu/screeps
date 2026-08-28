@@ -1,5 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
-// ...
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
@@ -36,6 +37,7 @@ function updateAriaAttributes() {
     const body = doc.body;
     if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
+      body.setAttribute('role', 'main');
     }
   }
 }
@@ -81,8 +83,8 @@ function handleAccessibilityError(errorElement, container) {
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
+    const html = doc.documentElement;
+    html.setAttribute('data-accessibility-mode', 'enabled');
   }
 }
 

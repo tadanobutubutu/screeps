@@ -20,8 +20,15 @@ function validateTableStructure() {
     return true;
 }
 
-// Export the validation functions
+// Export utility functions that are required by the test suite
+const { formatDate } = require('./utils/dateUtils');
+const { validateEmail } = require('./utils/validation');
+const { calculateTotal } = require('./utils/math');
+
 module.exports = {
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    formatDate,
+    validateEmail,
+    calculateTotal
 };

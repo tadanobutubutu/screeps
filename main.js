@@ -1,4 +1,17 @@
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// TODO: Implement addProperLandmarkRegions function, including the added logic
+
+function addProperLandmarkRegions(doc) {
+  // Implement this function to properly add landmark regions
+}
+
+/**
+ * Ensures that a given array of landmark elements are unique
+ * @param {HTMLElement[]} landmarks - An array of landmark elements to check for uniqueness
+ * @returns {HTMLElement[]} An array of unique landmark elements
+ */
+function ensureUniqueLandmarks(landmarks) {
+  return [...new Set(landmarks)];
+}
 
 /**
  * Wrap primary content in main div

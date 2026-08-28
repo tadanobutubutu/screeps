@@ -131,6 +131,64 @@ function validateLandmarkStructure() {
   });
 }
 
+// New function: validateLandmarkUniqueness
+function validateLandmarkUniqueness() {
+  // Find all landmarks and check for duplicates
+  const allLandmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"], [role="region"], [role="article"], [role="aside"], [role="figure"], [role="footer"], [role="header"], [role="landmark"], main, header, footer, aside, nav, section[aria-label], form[aria-label]'
+  );
+
+  const landmarkRoles = new Set();
+  for (const landmark of allLandmarks) {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (landmarkRoles.has(role)) {
+      throw new Error(`Duplicate landmark with role "${role}" found in the document`);
+    }
+    landmarkRoles.add(role);
+  }
+}
+
+// New function: createInPageButton
+function createInPageButton() {
+  // Creates a button in the page to replace fake links
+  const button = document.createElement('button');
+  button.textContent = 'Click Me';
+  // Append the button to the body or another element as needed
+  document.body.appendChild(button);
+  return button;
+}
+
+// New function: validateLinkAccessibility
+function validateLinkAccessibility(link) {
+  // Check if the link has appropriate accessibility attributes
+  // Should have href, be focusable, etc.
+  if (!link.hasAttribute('href') || !link.getAttribute('href')) {
+    return false;
+  }
+  // Additional checks could be added here
+  return true;
+}
+
+// New function: handleFakeLinks
+function handleFakeLinks() {
+  // Finds links without proper href and converts them to buttons
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === '') {
+      link.setAttribute('role', 'button');
+      if (!link.hasAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+      fixedLinks.push(link);
+    }
+  });
+
+  return fixedLinks;
+}
+
 // New function: getSvgAccessibleName
 function getSvgAccessibleName(svgElement) {
   // Check for aria-label
@@ -328,7 +386,7 @@ function ensureUniqueLandmarks() {
 function fixFakeLinkIssue() {
   const links = document.querySelectorAll('a');
   const fixedLinks = [];
-  
+
   links.forEach(link => {
     const href = link.getAttribute('href');
     if (!href || href === '#' || href === '') {
@@ -339,7 +397,7 @@ function fixFakeLinkIssue() {
       fixedLinks.push(link);
     }
   });
-  
+
   return fixedLinks;
 }
 
@@ -406,6 +464,7 @@ module.exports = {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  validateLandmarkUniqueness,
   getSvgAccessibleName,
   newAccessibilityFunction,
   addressOldAccessibilityIssues,

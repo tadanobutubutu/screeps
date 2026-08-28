@@ -22,6 +22,10 @@ import { createElement } from 'react';
 // Import your new function from your new module
 // import { triggerAccessibilityMode } from ...
 
+// Import dependency graph and index content modules for rendering dependency graphs and index views
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 // Helper function to get document object (cross-environment support)
 function getDocument() {
   if (typeof document !== 'undefined') {
@@ -30,11 +34,27 @@ function getDocument() {
   return null;
 }
 
+// Function to render dependency graph using dependencyGraphContent
+function renderDependencyGraph(container) {
+  const doc = getDocument();
+  if (!doc || !container) return null;
+  
+  return dependencyGraphContent(doc, container);
+}
+
+// Function to render index view using indexContent
+function renderIndexView(container) {
+  const doc = getDocument();
+  if (!doc || !container) return null;
+  
+  return indexContent(doc, container);
+}
+
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
+    if (doc.documentElement.getAttribute('lang') !== lang) {
       doc.documentElement.setAttribute('lang', lang);
     }
   }
@@ -69,6 +89,8 @@ function handleErrorState(errorElement, container, trigger = false) {
     errorSection.textContent = errorElement;
   } else if (errorElement instanceof HTMLElement) {
     errorSection.appendChild(errorElement);
+  } else {
+    errorSection.textContent = String(errorElement);
   }
 
   if (container) {
@@ -113,3 +135,7 @@ export { addLangAttribute };
 // Export the new functions/modules if needed
 export { updateAriaAttributes };
 export { triggerAccessibilityMode };
+
+// Export functions that render dependency graphs and index views
+export { renderDependencyGraph };
+export { renderIndexView };

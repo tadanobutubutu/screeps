@@ -38,9 +38,6 @@ function addressAccessibilityInsightReport() {
 
 // Existing code preserved below
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
-// TODO: This is the existing code that needs to be preserved
-// ----- END ORIGINAL CODE -----
-
 function replaceAnchorWithButton() {
   const anchor = document.getElementById('unrotate');
   if (anchor) {
@@ -57,3 +54,4 @@ function replaceAnchorWithButton() {
 replaceAnchorWithButton();
 
 module.exports = { improveAccessibility, addressAccessibilityInsightReport };
+// ----- END ORIGINAL CODE -----

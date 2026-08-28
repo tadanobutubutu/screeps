@@ -1,6 +1,5 @@
 // main.js - Accessibility improvements implementation
 
-// TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 
 // Store for accessibility announcements (screen reader support)
@@ -14,6 +13,7 @@ const a11yStore = {
     this.setupSkipLinks();
     this.checkLandmarkElements();
     this.addSVGAccessibilityProps();
+    this.addressAccessibilityIssues();
   },
 
   // Create a live region for screen reader announcements

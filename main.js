@@ -142,6 +142,11 @@ function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    document.documentElement.lang = 'en'; // REACT_015
+    fetchData();
+  }, []);
+
   const fetchData = async () => {
     try {
       const response = await fetch('/api/data');
@@ -177,56 +182,104 @@ function App() {
     }
   }
 
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
+  // REACT_025: Ensure unique landmarks
+  const updateLandmarkNames = (container, existingNames) => {
+    const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+    const landmarkNames = new Set(existingNames);
+    const issues = [];
+
+    landmarks.forEach((landmark) => {
+      const ariaLabel = landmark.getAttribute('aria-label');
+      const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+      const tagName = landmark.tagName.toLowerCase();
+
+      // Determine the landmark name
+      let landmarkName = ariaLabel || ariaLabelledby || tagName;
+
+      if (landmarkNames.has(landmarkName)) {
+        issues.push({
+          element: landmark,
+          message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
+          severity: 'warning'
+        });
+      } else {
+        landmarkNames.add(landmarkName);
+      }
+    });
+
+    return issues;
+  }
+
+  // REACT_017: Ensure proper landmark structure
   return (
-    <div className="app-container">
+    <div className="app-container" lang="en">
+      <table>
+        {addScopeToHeaders(document.querySelector('table'))}
+      </table>
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
+
+      {/* Adding landmark roles */}
+      <div className="app-container" aria-labelledby="app-title" role="document">
+        <header id="app-header" role="banner">
+          <h1 id="app-title">App Title</h1>
+        </header>
+        <main role="main" aria-labelledby="main-title">
+          ...
+        </main>
+        <footer role="contentinfo">
+          ...
+        </footer>
+      </div>
     </div>
   );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
-  }
-  let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames.includes(newName)) {
-    counter++;
-    newName = `${baseName}-${counter}`;
-  }
-  return newName;
-}
+// REACT_027: Add scope to table headers
+export function addScopeToHeaders(tableElement) {
+  if (!tableElement) return [];
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
-  const landmarkNames = new Set();
-  const issues = [];
+  const headers = tableElement.querySelectorAll('th');
+  const updates = [];
 
-  landmarks.forEach((landmark) => {
-    const ariaLabel = landmark.getAttribute('aria-label');
-    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
+  headers.forEach((th) => {
+    const row = th.closest('tr');
+    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const cellIndex = Array.from(row.children).indexOf(th);
 
-    // Determine the landmark name
-    let landmarkName = ariaLabel || ariaLabelledby || tagName;
+    // Determine if scope should be 'col' or 'row'
+    let scope = 'col';
 
-    if (landmarkNames.has(landmarkName)) {
-      issues.push({
-        element: landmark,
-        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
-        severity: 'warning'
+    // Check if it's a row header (first cell in a row that's not the first row)
+    if (cellIndex === 0 && rowIndex > 0) {
+      scope = 'row';
+    }
+
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
       });
-    } else {
-      landmarkNames.add(landmarkName);
     }
   });
 
-  return issues;
+  return updates;
 }
 
+// REACT_025: Ensure unique landmarks
+export function validateUniqueLandmarks(container) {
+  return updateLandmarkNames(container, []);
+}
+
+// REACT_036: Fix fake link issues
+export function isValidLink(element) {
+  // ... (keeping the existing implementation)
+}
+
+// REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
 
@@ -242,8 +295,18 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
-export function isValidLink(element) {
-  // ... existing code ...
+// REACT_017: GetUniqueLandmarkName function
+export function getUniqueLandmarkName(baseName, existingNames) {
+  if (!existingNames.includes(baseName)) {
+    return baseName;
+  }
+  let counter = 2;
+  let newName = `${baseName}-${counter}`;
+  while (existingNames.includes(newName)) {
+    counter++;
+    newName = `${baseName}-${counter}`;
+  }
+  return newName;
 }
 
 // Helper functions for SVG accessible names (reused internally)
@@ -331,19 +394,39 @@ function updateAccessibleSvgNames() {
   });
 }
 
-export {
-  function3,
+// Render the app
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
+
+// The following functions are stubs for the TODOs
+// They don't impact the application, but need to be updated
+// for addressing all accessibility issues from the insight report
+
+export const addressAccessibilityIssuesFromInsightReport = (insightReport) => {
+  // TODO: Implement logic to address accessibility issues based on the insight report
+};
+
+export default {};
+export const module = { exports: {} };
+module.exports = { 
   App,
   getUniqueLandmarkName,
   validateUniqueLandmarks,
   addSvgAccessibleName,
   isValidLink,
+  addScopeToHeaders,
+  ensureSvgAccessibleNames,
+  updateAccessibleSvgNames,
   addressAccessibilityIssues,
   newFunction,
-  existingFunction,
-  existingExport,
+  function3,
   myFunction1,
   myFunction2,
+  existingFunction,
+  existingExport,
+  rotateBack,
+  initializeAccessibility,
 };
 
 // Export functions for accessibility

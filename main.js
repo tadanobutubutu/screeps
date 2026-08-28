@@ -1,5 +1,3 @@
-// Main.js - Core utility functions
-
 // TODO: Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
@@ -66,6 +64,37 @@ export function capitalize(str) {
 
 export function capitalizeWords(str) {
   return str.split(' ').map(capitalize).join(' ');
+}
+
+// Additional utility functions
+export function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
+export function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + (item.price || 0), 0);
+}
+
+export function validateEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+export function capitalizeString(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 /**

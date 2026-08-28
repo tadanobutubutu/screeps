@@ -13,28 +13,6 @@ const {
   ADDRESS_ACCESSIBILITY_ISSUE_038,
 } = require('./accessibilityHelperFunctions');
 
-import { utilityFunction } from './utils.js';
-import { class1, function1, Object1 } from './path/to/module';
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphARIA)
-
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === ADDRESS_ACCESSIBILITY_ISSUE_038;
-  return {
-    hasIssue038,
-    fixes: hasIssue038 ? [{ type: 'fix038', target: element }] : []
-  };
-};
-
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
@@ -42,48 +20,6 @@ function addLangAttribute(document, lang = 'en') {
     htmlElement.setAttribute('lang', lang);
   }
   return document;
-}
-
-// Game loop function
-function run() {
-  const viewsDir = path.join(__dirname, 'views');
-  fs.readdirSync(viewsDir)
-    .filter(file => file.endsWith('.html'))
-    .forEach(file => {
-      const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
-    });
-}
-
-// Start the game loop
-Module.onInit = function() {
-  setInterval(run, 1000);
-};
-
-export const metadata = {
-  title: "Screeps Dashboard",
-  description: "Dashboard for Screeps",
-};
-
-export default function RootLayout({
-  children,
-}) {
-  addLangAttribute(document);
-  addMainLandmark(document);
-  addSvgAccessibleNames(document);
-  ensureUniqueLandmarks(document);
-  fixFakeLinkIssue(document);
-  fixFakeLinkIssues(document);
-  fixTableStructure(document);
-
-  return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>🏰</text></svg>" />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
 }
 
 // Function to fix table structure issues
@@ -404,3 +340,60 @@ function addressAccessibilityIssues(document) {
   document = renderDependencyGraphs(document);
   return document;
 }
+
+// Main game loop for Screeps
+function run() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      updateThScopeAttribute(path.join(viewsDir, file));
+    });
+}
+
+function updateThScopeAttribute(filePath) {
+  // Placeholder for updating th scope attributes in HTML files
+}
+
+module.exports = {
+  loop: function() {
+    // Clean up memory of dead creeps
+    for (var name in Memory.creeps) {
+      if (!Game.creeps[name]) {
+        delete Memory.creeps[name];
+      }
+    }
+
+    // Your game logic here
+  },
+
+  run,
+
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  addressAccessibilityIssues,
+
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+};

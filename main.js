@@ -19,25 +19,8 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
 };
 
-// Screeps Main Entry Point
-// This file contains the main game loop and accessibility functions
-
-const roleHarvester = require('role.harvester');
-const roleUpgrader = require('role.upgrader');
-const roleBuilder = require('role.builder');
-const roleRepairer = require('role.repairer');
-const tower = require('structure.tower');
-
-function loop() {
-  // Code for the game loop...
-}
-
-// Export the loop function
-exports.loop = loop;
-
-// Export the functions for addressing new accessibility issues
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
+// main.js
+// Main entry point for the application
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -435,6 +418,43 @@ function getLangAttribute() {
     return document.documentElement.lang;
   }
   return null;
+}
+
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibilityFromHead(table) {
+  if (!table) return { valid: false, issues: ['Table not found'] };
+  const issues = [];
+  if (!table.tHead && !table.querySelector('thead')) {
+    issues.push('Missing table header');
+  }
+  if (!table.tBodies.length && !table.querySelector('tbody')) {
+    issues.push('Missing table body');
+  }
+  const rows = table.rows || table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmarkFromHead(landmark) {
+  if (!landmark) return { valid: false, issues: ['Landmark not found'] };
+  const issues = [];
+  const role = landmark.getAttribute('role');
+  const tag = landmark.tagName.toLowerCase();
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  if (!role && !landmarkTags.includes(tag)) {
+    issues.push('Element is not a recognized landmark');
+  }
+  return { valid: issues.length === 0, issues };
 }
 
 /**
@@ -945,6 +965,28 @@ function addA11yAttributesToInteractiveElements() {
   return [];
 }
 
+/**
+ * Screeps Main Entry Point
+ * This file contains the main game loop and accessibility functions
+
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
+const tower = require('structure.tower');
+
+function loop() {
+  // Code for the game loop...
+}
+
+// Export the loop function
+exports.loop = loop;
+ */
+
+// Export the functions for addressing new accessibility issues
+exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+exports.renderDependencyGraph = renderDependencyGraph;
+
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
@@ -975,11 +1017,20 @@ globalObject.validateLandmarkStructure = validateLandmarkStructure;
 globalObject.validateLandmarkAttributes = validateLandmarkAttributes;
 globalObject.getTagNameForElement = getTagNameForElement;
 globalObject.getLandmarkAccessibleName = getLandmarkAccessibleName;
-globalObject.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 globalObject.renderDependencyGraph = renderDependencyGraph;
+globalObject.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 
 // Exports for all functions
 module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableAccessibilityFromHead,
+  validateLandmark,
+  validateLandmarkFromHead,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
@@ -988,27 +1039,22 @@ module.exports = {
   checkLandmarks,
   wrapPrimaryContentInMain,
   renderIndexView,
-  getLangAttribute,
+  renderDependencyGraph,
+  addressAccessibilityIssue038,
   createInPageButton,
   addLangAttribute,
   fixTableStructureIssues,
-  validateTableAccessibility,
   validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
-  ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
-  getSvgAccessibleName,
   addressAccessibilityIssues,
-  validateLandmark,
-  validateLandmarkStructure,
   validateLandmarkAttributes,
   getTagNameForElement,
   getLandmarkAccessibleName,
   addressAccessibilityIssue038,
-  renderDependencyGraph,
-  loop
+  renderDependencyGraph
 };

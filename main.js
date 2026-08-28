@@ -7,6 +7,9 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
+const { utility1, utility2 } = require('./utils');
+const { formatData, processValues } = require('./helpers');
+
 /**
  * Get the language attribute value for the HTML element
  * @returns {string} The language attribute value
@@ -57,19 +60,6 @@ function createAccessibleLink(href, text, doc) {
   link.href = href;
   link.textContent = text;
   return link;
-}
-
-/**
- * Create an accessible in-page button
- * @param { string } text - The button text
- * @param { Document } doc - The document object
- * @returns { HTMLButtonElement } The created button
- */
-function createInPageButton(text, doc) {
-  const button = doc.createElement('button');
-  button.textContent = text;
-  button.id = button.id || `button-${Date.now()}`;
-  return button;
 }
 
 /**
@@ -170,72 +160,68 @@ function ensureUniqueLandmarks(landmarks) {
 }
 
 /**
- * Create an accessible link element
- * @param { string } href - The href attribute
- * @param { string } text - The link text
- * @param { Document } doc - The document object
- * @returns { HTMLAnchorElement } The created link
+ * Calculate total price of items
+ * @param {Array} items - Array of items with price property
+ * @returns {number} Total price
  */
-function createAccessibleLink(href, text, doc) {
-  const link = doc.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  return link;
+function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
 }
 
 /**
- * Create an in-page button element
- * @param { string } text - The button text
- * @param { Document } doc - The document object
- * @returns { HTMLButtonElement } The created button
+ * Render home page
+ * @param {Object} data - Data to render
+ * @returns {string} HTML string
  */
-function createInPageButton(text, doc) {
-  const button = doc.createElement('button');
-  button.textContent = text;
-  button.id = button.id || `button-${Date.now()}`;
-  return button;
+function renderHomePage(data) {
+  const formattedData = formatData(data);
+  const processedValues = processValues(formattedData);
+  return `<div>${processedValues}</div>`;
 }
 
-// ... (The rest of the existing functions and exports remain unchanged)
+/**
+ * Render user profile
+ * @param {Object} user - User data
+ * @returns {string} HTML string
+ */
+function renderUserProfile(user) {
+  const formattedUser = formatData(user);
+  return `<profile>${formattedUser.name}</profile>`;
+}
 
-// ADD THE NEW FUNCTION TO THE EXPORTS
-const { addressAccessibilityIssuesFromInsightReport,
-  addProperLandmarkRegions,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  createAccessibleLink,
-  getSvgAccessibleName,
-  addFixLandmarkIssues,
-  fixFakeLinkIssues,
-  findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  resolveConflicts
-};
+/**
+ * Render dashboard
+ * @param {Object} stats - Statistics data
+ * @returns {string} HTML string
+ */
+function renderDashboard(stats) {
+  const processed = processValues(stats);
+  const formatted = utility1(processed);
+  return `<dashboard>${formatted}</dashboard>`;
+}
+
+/**
+ * Render settings
+ * @param {Object} config - Configuration data
+ * @returns {string} HTML string
+ */
+function renderSettings(config) {
+  return `<settings>${config.name}</settings>`;
+}
 
 module.exports = {
   getLangAttribute,
+  getFullLangAttribute,
   createInPageButton,
+  createAccessibleLink,
   validateTableAccessibility,
   validateTableStructure,
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions
+  calculateTotal,
+  renderHomePage,
+  renderUserProfile,
+  renderDashboard,
+  renderSettings
 };

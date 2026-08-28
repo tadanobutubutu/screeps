@@ -1,7 +1,6 @@
 // TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
 // Standalone function to get the accessible name of an SVG element
 // Uses aria-labelledby first, then falls back to the <title> child element

@@ -111,13 +111,57 @@ function addMainLandmark(document) {
 
 // Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
-  // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="region"], header, nav, main, aside, footer, section[aria-label], section[aria-labelledby]');
+  const seenRoles = new Map();
+  let fixedCount = 0;
+
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby');
+    
+    const key = `${role}-${label || 'unlabeled'}`;
+    
+    if (seenRoles.has(key)) {
+      // Add unique identifier to make it unique
+      const count = seenRoles.get(key) + 1;
+      seenRoles.set(key, count);
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        landmark.setAttribute('aria-label', `${label || role} ${count}`);
+        fixedCount++;
+      }
+    } else {
+      seenRoles.set(key, 1);
+    }
+  });
+
+  return fixedCount;
 }
 
 // Function to add accessible name to SVG
 function addSvgAccessibleNames(document) {
-  // ... existing implementation
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby]):not([role="img"][aria-label])');
+  let count = 0;
+
+  svgs.forEach((svg) => {
+    // Check if SVG has a title element
+    const title = svg.querySelector('title');
+    if (title && title.textContent.trim()) {
+      svg.setAttribute('aria-labelledby', title.id || 'svg-title');
+      if (!title.id) {
+        title.id = 'svg-title';
+      }
+      count++;
+    } else if (svg.hasAttribute('data-label')) {
+      svg.setAttribute('aria-label', svg.getAttribute('data-label'));
+      count++;
+    } else if (svg.parentElement && svg.parentElement.textContent.trim()) {
+      // Use parent text as fallback
+      svg.setAttribute('aria-label', svg.parentElement.textContent.trim().slice(0, 100));
+      count++;
+    }
+  });
+
+  return count;
 }
 
 // Function to fix fake link issue (merged fixes)
@@ -185,21 +229,147 @@ function fixFakeLinkIssues(document) {
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-  // ... updated landmark issue fix implementation
+  let fixedCount = 0;
+  
+  // Ensure header has banner role
+  const header = document.querySelector('header');
+  if (header && !header.hasAttribute('role')) {
+    header.setAttribute('role', 'banner');
+    fixedCount++;
+  }
+  
+  // Ensure nav has navigation role
+  const navs = document.querySelectorAll('nav');
+  navs.forEach(nav => {
+    if (!nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+      fixedCount++;
+    }
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      nav.setAttribute('aria-label', 'Main navigation');
+      fixedCount++;
+    }
+  });
+  
+  // Ensure main has main role
+  const main = document.querySelector('main');
+  if (main && !main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+    fixedCount++;
+  }
+  
+  // Ensure aside has complementary role
+  const asides = document.querySelectorAll('aside');
+  asides.forEach((aside, index) => {
+    if (!aside.hasAttribute('role')) {
+      aside.setAttribute('role', 'complementary');
+      fixedCount++;
+    }
+    if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+      aside.setAttribute('aria-label', `Sidebar ${index + 1}`);
+      fixedCount++;
+    }
+  });
+  
+  // Ensure footer has contentinfo role
+  const footer = document.querySelector('footer');
+  if (footer && !footer.hasAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+    fixedCount++;
+  }
+  
+  // Ensure search regions have search role
+  const searchForms = document.querySelectorAll('form[role="search"], form[class*="search"]');
+  searchForms.forEach(form => {
+    if (!form.hasAttribute('role')) {
+      form.setAttribute('role', 'search');
+      fixedCount++;
+    }
+  });
+  
+  return fixedCount;
 }
 
 function addLandmarkRegions(document) {
-  // ... existing implementation
+  let addedCount = 0;
+  
+  // Add region landmarks for major sections without landmarks
+  const sections = document.querySelectorAll('section:not([role]):not([aria-label]):not([aria-labelledby])');
+  sections.forEach((section, index) => {
+    const heading = section.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) {
+      section.setAttribute('role', 'region');
+      section.setAttribute('aria-labelledby', heading.id || `section-heading-${index}`);
+      if (!heading.id) {
+        heading.id = `section-heading-${index}`;
+      }
+      addedCount++;
+    }
+  });
+  
+  // Add region for article elements
+  const articles = document.querySelectorAll('article:not([role]):not([aria-label]):not([aria-labelledby])');
+  articles.forEach((article, index) => {
+    const heading = article.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) {
+      article.setAttribute('role', 'region');
+      article.setAttribute('aria-labelledby', heading.id || `article-heading-${index}`);
+      if (!heading.id) {
+        heading.id = `article-heading-${index}`;
+      }
+      addedCount++;
+    }
+  });
+  
+  return addedCount;
 }
 
 // REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
-  // ... unique landmarks implementation by role
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  let fixedCount = 0;
+  
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+          fixedCount++;
+        }
+      });
+    }
+  });
+  
+  return fixedCount;
 }
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
-  // ... existing implementation
+  const images = document.querySelectorAll('img:not([alt])');
+  let fixedCount = 0;
+  
+  images.forEach(img => {
+    // If image is decorative, mark as such
+    if (img.hasAttribute('role') && img.getAttribute('role') === 'presentation') {
+      img.setAttribute('alt', '');
+      fixedCount++;
+    } else if (img.parentElement && img.parentElement.tagName === 'A' && !img.parentElement.textContent.trim()) {
+      // Image inside link with no other text
+      img.setAttribute('alt', 'Link image');
+      fixedCount++;
+    } else if (img.hasAttribute('data-alt')) {
+      img.setAttribute('alt', img.getAttribute('data-alt'));
+      fixedCount++;
+    } else {
+      // Default to empty alt for decorative, but flag for review
+      img.setAttribute('alt', '');
+      img.setAttribute('data-needs-alt-review', 'true');
+      fixedCount++;
+    }
+  });
+  
+  return fixedCount;
 }
 
 // REACT_037: Google sign-in logic
@@ -241,7 +411,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
-    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
+    element.id = `${idPrefix}-${element.dataset.id ? element.dataset.id : Math.random().toString().slice(2)}`;
   });
   return document;
 }
@@ -291,7 +461,7 @@ function renderDependencyGraphs(document) {
 
 // Function to add accessible names to SVGs (alias)
 function addAccessibleNamesToSVGs(document) {
-  // ... existing implementation
+  return addSvgAccessibleNames(document);
 }
 
 // REACT_040: Replace my-button with actual button id for accessibility
@@ -326,7 +496,23 @@ function ensureDependencyGraphAriaRole(document) {
 
 // Function to add the main landmark to docs/index.html
 function addMainLandmarkToIndex(document) {
-  // ... existing implementation
+  // Check if we're in an index.html context
+  const isIndex = document.title.includes('Index') || 
+                  document.URL.includes('index.html') ||
+                  document.querySelector('body[data-page="index"]');
+  
+  if (isIndex) {
+    const main = addMainLandmark(document);
+    if (main) {
+      // Ensure it has proper labeling for index page
+      if (!main.hasAttribute('aria-label')) {
+        main.setAttribute('aria-label', 'Main content');
+      }
+    }
+    return main;
+  }
+  
+  return null;
 }
 
 // Implement function for addressing accessibility issues from insight report

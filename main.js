@@ -60,6 +60,10 @@ const validateLinkAccessibility = () => { /* Implementation here */ };
 const handleFakeLinks = () => { /* Implementation here */ };
 const addProperLandmarkRegions = () => { /* Implementation here */ };
 
+// Added missing exports as per the issue
+const addLangAttribute = () => { /* Implementation here */ };
+const getAccessibilityReport = () => { /* Implementation here */ };
+
 // Existing exports...
 
 module.exports = {
@@ -78,5 +82,7 @@ module.exports = {
     ensureUniqueLandmarks,
     validateLinkAccessibility,
     handleFakeLinks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    addLangAttribute,
+    getAccessibilityReport
 };

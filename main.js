@@ -164,6 +164,16 @@ function uniqueLandmarks(document) {
   return uniqueMain;
 }
 
+function checkLinkAccessibility(url) {
+  // Implementation for checking link accessibility
+  // ...
+}
+
+function isUserAuthenticated(token) {
+  // Implementation for checking if a user is authenticated
+  // ...
+}
+
 module.exports = {
   addLangAttribute,
   addressAccessibilityIssue038,
@@ -196,5 +206,7 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   getSvgAccessibleName,
-  decodeJwtResponse
+  decodeJwtResponse,
+  checkLinkAccessibility,
+  isUserAuthenticated
 };

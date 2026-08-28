@@ -35,7 +35,15 @@ function getSvgAccessibleName(svg) {
 }
 
 function createSvgAccessibilityProps(props) {
-  // TODO: Implement this function for adding SVG accessibility props
+  // Implement this function for adding SVG accessibility props
+  // Example implementation:
+  const { title, description, ...otherProps } = props;
+  return {
+    ...otherProps,
+    title: title || description || 'Accessible name for SVG',
+    'aria-labelledby': title ? `svg-accessible-name-${title}` : undefined,
+    'aria-describedby': description ? `svg-accessible-description-${description}` : undefined
+  };
 }
 
 function validateLinkAccessibility(link) {

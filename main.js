@@ -1,3 +1,7 @@
+const Safety = {
+  // ...
+};
+
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');

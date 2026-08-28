@@ -231,7 +231,44 @@ function checkLandmarkElement(role, element) {
  * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
  */
 function wrapPrimaryContentInMain() {
-  // (code for wrapPrimaryContentInMain remains the same)
+  if (typeof document !== 'undefined') {
+    // Check if there's already a main element or element with role="main"
+    let mainElement = document.querySelector('main, [role="main"]');
+    
+    if (!mainElement) {
+      const body = document.body;
+      if (!body) return null;
+      
+      // Create a new main element
+      mainElement = document.createElement('main');
+      
+      // Find potential primary content elements (excluding navigation, header, footer)
+      const bodyChildren = Array.from(body.children);
+      const contentCandidates = bodyChildren.filter(element => {
+        const tagName = element.tagName.toLowerCase();
+        const role = element.getAttribute('role');
+        
+        return !['nav', 'header', 'footer', 'aside'].includes(tagName) &&
+               !['navigation', 'header', 'footer', 'complementary'].includes(role);
+      });
+      
+      if (contentCandidates.length > 0) {
+        // If we have suitable candidates, wrap the first one
+        const firstCandidate = contentCandidates[0];
+        firstCandidate.parentNode.insertBefore(mainElement, firstCandidate);
+        mainElement.appendChild(firstCandidate);
+      } else {
+        // Otherwise, wrap all body children
+        bodyChildren.forEach(child => {
+          mainElement.appendChild(child);
+        });
+        body.appendChild(mainElement);
+      }
+    }
+    
+    return mainElement;
+  }
+  return null;
 }
 
 /**

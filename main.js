@@ -130,10 +130,8 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  config,
-  missingExportPlaceholder,
   missingExportPlaceholder
 };
 
 // Address missing export that might have been removed — ADD CODE HERE
-export function missingExportPlaceholder() {}
+function missingExportPlaceholder() {}

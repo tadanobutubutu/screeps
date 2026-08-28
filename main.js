@@ -1,99 +1,26 @@
-// Import dependencyGraphContent
-const dependencyGraphContent = require('./dependencyGraph');
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-// Update the renderDependencyGraph function
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
-
-// Address the issue: REACT_038
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-// Implement the requested functions for addressing new accessibility issues
-
-// Function to handle REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  // Code to get the language and return it
-  // Placeholder example:
-  return 'en';
-}
-
-function getFullLangAttribute() {
-  // Code to get full localized language and return it
-  // Placeholder example:
-  return 'en-US';
-}
-
-// New function: validateTableStructure
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Check if table has a caption, thead, thead > tr, tbody, tfoot, th, td
-    const hasCaption = !!table.querySelector('caption');
-    const hasThead = !!table.querySelector('thead');
-    const rowsInThead = Array.from(table.querySelectorAll('thead tr'));
-    const hasTbody = !!table.querySelector('tbody');
-    const hasTfoot = !!table.querySelector('tfoot');
-    const hasTh = Array.from(table.querySelectorAll('th'));
-    const hasTd = Array.from(table.querySelectorAll('td'));
-
-    // Check if the caption is before the thead, thead before tbody, and tbody before tfoot
-    if (hasCaption) {
-      if (table.firstChild !== table.querySelector('caption')) {
-        throw new Error('Table caption should be the first child of the table');
-      }
-    }
-    if (hasThead) {
-      if (table.firstChild !== table.querySelector('thead')) {
-        throw new Error('Thead should be before the tbody');
-      }
-    }
-    if (hasTbody && hasThead) {
-      if (table.querySelector('thead').nextSibling !== table.querySelector('tbody')) {
-        throw new Error('Tbody should be immediately after thead');
-      }
-    }
-    if (hasTfoot && hasTbody) {
-      if (table.querySelector('tbody').nextSibling !== table.querySelector('tfoot')) {
-        throw new Error('Tfoot should be immediately after tbody');
-      }
-    }
-
-    // Check if all thead columns have a corresponding tbody column and vice versa
-    if (hasTh.length === rowsInThead.length) {
-      rowsInThead.forEach((row, index) => {
-        if (row.querySelectorAll('th').length !== row.querySelectorAll('td').length) {
-          throw new Error(`Row ${index} in table header should have the same number of th and td`);
-        }
-      });
-    }
-  });
-}
-
-// New function: validateLandmark
-function validateLandmark(element, landmarkType) {
-  // Check if the specified element is a landmark (using given landmarkType)
-  // You may use a library like "axe-core" for more reliable checks considering the various landmark roles.
-  // For the sake of simplicity, this example will check only for presence of ARIA attributes, but a more accurate solution would involve verified matching with the given landmarkType.
-  // If the element is not a valid landmark of the requested type, throw an error with a message.
-  if (!element.hasAttribute('aria-' + landmarkType)) {
-    throw new Error(`Element '${element.outerHTML}' is not a valid ${landmarkType} landmark`);
+/**
+ * Adds lang attribute to the HTML element for accessibility
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
   }
 }
 
-// New function: validateLandmarkStructure
-function validateLandmarkStructure() {
-  // Check for required landmarks and proper structure
-  const mainLandmark = document.querySelector('[role="main"], main');
-  if (!mainLandmark) {
-    throw new Error('Document must have a main landmark (role="main" or <main> element)');
+/**
+ * Manages focus for accessibility (ARIA best practice)
+ * @param {HTMLElement} element - The element to focus on
+ */
+function manageFocus(element) {
+  if (element && typeof element.focus === 'function') {
+    element.focus();
   }
 
   // Check for duplicate banners
@@ -124,39 +51,179 @@ function validateLandmarkStructure() {
   });
 }
 
-// New function: getSvgAccessibleName
-function getSvgAccessibleName(svgElement) {
-  // Check for aria-label
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
+/**
+ * Traps focus within a container element (useful for modals/dialogs)
+ * @param {HTMLElement} container - The container element
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+function trapFocus(container, event) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault();
+    lastElement.focus();
+  } else if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault();
+    firstElement.focus();
   }
-  // Check for aria-labelledby
-  if (svgElement.hasAttribute('aria-labelledby')) {
-    const ids = svgElement.getAttribute('aria-labelledby').split(' ');
-    let labels = [];
-    ids.forEach(id => {
-      const labelElement = document.getElementById(id);
-      if (labelElement) {
-        labels.push(labelElement.textContent.trim());
+}
+
+/**
+ * Announces content to screen readers using ARIA live regions
+ * @param {string} message - The message to announce
+ * @param {string} priority - 'polite' or 'assertive'
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  const announcementElement = document.getElementById('sr-announcer');
+  if (announcementElement) {
+    announcementElement.setAttribute('aria-live', priority);
+    announcementElement.textContent = '';
+    // Force screen reader to announce by removing and re-adding content
+    setTimeout(() => {
+      announcementElement.textContent = message;
+    }, 100);
+  }
+}
+
+/**
+ * Handles keyboard navigation for custom components
+ * @param {KeyboardEvent} event - The keyboard event
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ */
+function handleKeyboardNavigation(event, orientation = 'horizontal') {
+  const key = event.key;
+  const isVertical = orientation === 'vertical';
+  const nextKeys = isVertical ? ['ArrowDown'] : ['ArrowRight'];
+  const prevKeys = isVertical ? ['ArrowUp'] : ['ArrowLeft'];
+
+  if (nextKeys.includes(key) || prevKeys.includes(key)) {
+    event.preventDefault();
+    // Navigation logic handled by component-specific implementations
+  }
+}
+
+// ----- Additional functions (origin/main) -----
+// Main.js - Application entry point
+
+function newFeature() {
+  // Version 2 implementation (origin/main branch)
+  // Code for version 2 implementation replaces the original version 1 code.
+  // This assumes that version 2 is a replacement or an upgrade of the existing feature.
+
+  // TODO: Add any other missing exports that might have been?
+  // Added missing exports as per the issue
+
+  // Existing exports as they were before the conflict
+  // No changes needed since they were not part of the conflict
+}
+
+// main.js
+
+document.addEventListener('DOMContentLoaded', () => {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('role', 'banner');
+  }
+
+  const nav = document.querySelector('nav');
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+  }
+
+  const main = document.querySelector('main');
+  if (main) {
+    main.setAttribute('role', 'main');
+  }
+
+  const footer = document.querySelector('footer');
+  if (footer) {
+    footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Function to ensure all SVG elements have accessible names
+  const ensureSvgAccessibleNames = () => {
+    if (typeof document === 'undefined' || !document.body) {
+      return;
+    }
+
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      // Check if SVG is hidden
+      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                       svg.getAttribute('hidden') !== null ||
+                       svg.style.display === 'none' ||
+                       svg.style.visibility === 'hidden';
+
+      if (isHidden) {
+        return;
+      }
+
+      // Check for existing accessible name
+      const hasAriaLabel = svg.getAttribute('aria-label') !== null;
+      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby') !== null;
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
+
+      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+        return;
+      }
+
+      // Determine if decorative - SVGs used for favicons/decorative purposes
+      const isFavicon = svg.closest('link') !== null ||
+                        (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
+                        svg.closest('[rel="icon"]') !== null;
+
+      if (isFavicon) {
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('role', 'presentation');
+      } else {
+        // Add a generic title for non-decorative SVGs
+        const title = document.createElement('title');
+        title.textContent = 'Icon';
+        svg.insertBefore(title, svg.firstChild);
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'Icon');
       }
     });
-    if (labels.length > 0) {
-      return labels.join(' ');
+  };
+
+  // Function to handle updating accessible SVG names when DOM mutates
+  const updateAccessibleSvgNames = () => {
+    setTimeout(() => {
+      ensureSvgAccessibleNames();
+    }, 0);
+  };
+
+  // Initial run
+  ensureSvgAccessibleNames();
+
+  // Run again after DOM mutations
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver(() => {
+      updateAccessibleSvgNames();
+    });
+
+    if (document.body) {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['aria-hidden', 'aria-label', 'aria-labelledby']
+      });
     }
   }
-  // Check for title element
-  const title = svgElement.querySelector('title');
-  if (title) {
-    return title.textContent.trim();
+});
+
+// Assuming the button click is handled by JavaScript, here's how it might look:
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'back-button') {
+    rotateBack();
   }
-  // Check for desc element (often used as description, but can be used as name)
-  const desc = svgElement.querySelector('desc');
-  if (desc) {
-    return desc.textContent.trim();
-  }
-  // Fallback to text content
-  return svgElement.textContent.trim() || '';
-}
+});
 
 // Placeholder functions for missing exports
 function newFunction() {
@@ -426,34 +493,36 @@ function addressOldAccessibilityIssues() {
   return 'addressing old issues';
 }
 
-// Preserve the existing exports
+// Combined module exports for both accessibility and Node utilities
 module.exports = {
-  renderDependencyGraph,
+  // Accessibility functions (from HEAD)
+  addLangAttribute,
+  manageFocus,
+  trapFocus,
+  announceToScreenReader,
+  handleKeyboardNavigation,
+  // Node utilities and other functions (from origin/main)
   newFunction,
-  addressAccessibilityIssue038,
   totalDependencies,
-  addressAccessibilityIssues,
   addressAccessibilityIssueForSpecificElement,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  newAccessibilityFunction,
-  addressOldAccessibilityIssues,
+  addressAccessibilityIssues,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
   checkAccessibility,
   checkLandmarkElement,
-  checkLandmarks,
   wrapPrimaryContentInMain,
+  checkLandmarks,
   renderIndexView,
-  addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  newFeature,
+  loop: function() {
+    console.log('Running screeps loop');
+  }
 };

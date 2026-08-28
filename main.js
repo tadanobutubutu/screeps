@@ -231,6 +231,14 @@ module.exports = {
   validateTableStructure,
   addLangAttribute: getLangAttribute,
   fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
   addSvgAccessibleNames: getSvgAccessibleName,
+  addAltAttribute,
+  replaceButtonId,
+  addressAccessibilityIssues,
+  implementAccessibilityFixesFromReport,
+  renderDependencyGraph,
+  fixSvgDataUriAccessibility,
   fixFakeLinkIssue
 };

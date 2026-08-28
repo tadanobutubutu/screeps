@@ -1,5 +1,9 @@
 import React from 'react';
 
+function wrapPrimaryContentInMain(content) {
+  return <main>{content}</main>;
+}
+
 function MyComponent() {
   // Old code that needs to be updated
   return (

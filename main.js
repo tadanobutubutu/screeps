@@ -2,6 +2,9 @@
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+// REACT_017: Add/fix 4 landmark issues
+// REACT_025: Ensure unique landmarks (2 issues)
+// REACT_036: Fix 1 fake link issue
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -14,6 +17,8 @@ const a11yStore = {
     this.setupSkipLinks();
     this.checkLandmarkElements();
     this.addSVGAccessibilityProps();
+    this.fixLandmarkUniqueness();
+    this.fixFakeLinks();
   },
 
   // Create a live region for screen reader announcements
@@ -164,11 +169,140 @@ const a11yStore = {
 
   // New function to check landmark elements
   checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
-      if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+    // Check for elements with explicit role attributes
+    const landmarkRoles = ['main', 'nav', 'header', 'footer', 'aside', 'banner', 'contentinfo', 'complementary', 'search', 'form'];
+    landmarkRoles.forEach((role) => {
+      const landmark = document.querySelector(`[role="${role}"]`);
+      if (landmark && (landmark.id === '' || !landmark.id)) {
+        landmark.setAttribute('id', `${role}-${Math.floor(Math.random() * 1000)}`);
+      }
+    });
+    
+    // Check for semantic landmark elements
+    const semanticLandmarks = ['main', 'nav', 'header', 'footer', 'aside'];
+    semanticLandmarks.forEach((tagName) => {
+      const landmarks = document.querySelectorAll(tagName);
+      if (landmarks.length > 0) {
+        landmarks.forEach((landmark, index) => {
+          if (landmark.id === '' || !landmark.id) {
+            landmark.setAttribute('id', `${tagName}-${index}-${Math.floor(Math.random() * 1000)}`);
+          }
+        });
+      }
+    });
+  },
+
+  // New function to ensure all landmarks have unique IDs
+  fixLandmarkUniqueness() {
+    const landmarks = [];
+    
+    // Collect all landmarks (both semantic and role-based)
+    const landmarkSelectors = [
+      'main', 'nav', 'header', 'footer', 'aside',
+      '[role="main"]', '[role="navigation"]', '[role="banner"]', 
+      '[role="contentinfo"]', '[role="complementary"]', '[role="search"]', 
+      '[role="form"]', '[role="alert"]', '[role="status"]', 
+      '[role="region"]', '[role="application"]'
+    ];
+    
+    landmarkSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        landmarks.push(el);
+      });
+    });
+    
+    // Ensure each landmark has a unique ID
+    const usedIds = new Set();
+    landmarks.forEach((landmark) => {
+      let id = landmark.id;
+      if (!id || !/^\S+$/.test(id)) {
+        // Generate a unique ID if missing or invalid
+        const baseName = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+        let newId = baseName + '-' + Math.floor(Math.random() * 10000);
+        while (usedIds.has(newId)) {
+          newId = baseName + '-' + Math.floor(Math.random() * 10000);
+        }
+        landmark.setAttribute('id', newId);
+        usedIds.add(newId);
+      } else {
+        // Ensure existing ID is unique
+        if (usedIds.has(id)) {
+          let newId = id + '-dup-' + Math.floor(Math.random() * 10000);
+          while (usedIds.has(newId)) {
+            newId = id + '-dup-' + Math.floor(Math.random() * 10000);
+          }
+          landmark.setAttribute('id', newId);
+          usedIds.add(newId);
+        } else {
+          usedIds.add(id);
+        }
+      }
+    });
+  },
+
+  // New function to fix fake links (elements with click handlers that should be links)
+  fixFakeLinks() {
+    // Find elements that look like links but aren't anchor tags
+    const potentialFakeLinks = document.querySelectorAll('[data-href], .fake-link, [role="link"]');
+    
+    potentialFakeLinks.forEach((fakeLink) => {
+      // Skip if it's already an anchor tag
+      if (fakeLink.tagName.toLowerCase() === 'a') return;
+      
+      // Convert to a proper link if it has href-like attribute
+      const href = fakeLink.getAttribute('data-href') || fakeLink.getAttribute('href');
+      if (href) {
+        // Change tag to anchor while preserving attributes
+        const anchor = document.createElement('a');
+        anchor.href = href;
+        anchor.textContent = fakeLink.textContent;
+        
+        // Copy common attributes
+        const attributesToCopy = ['class', 'id', 'title', 'aria-label', 'target', 'rel'];
+        attributesToCopy.forEach(attr => {
+          const value = fakeLink.getAttribute(attr);
+          if (value) {
+            anchor.setAttribute(attr, value);
+          }
+        });
+        
+        // Copy event listeners by cloning
+        const events = fakeLink.getAttribute('onclick');
+        if (events) {
+          anchor.setAttribute('onclick', events);
+        }
+        
+        // Replace the element
+        fakeLink.parentNode.replaceChild(anchor, fakeLink);
+      }
+    });
+    
+    // Also check for elements with click handlers that should be links
+    const clickableElements = document.querySelectorAll('[onclick]');
+    clickableElements.forEach((el) => {
+      if (el.tagName.toLowerCase() !== 'a' && 
+          el.getAttribute('role') !== 'link' &&
+          !el.hasAttribute('data-href') &&
+          !el.classList.contains('fake-link')) {
+        // Check if text content looks like a link
+        const text = el.textContent.trim().toLowerCase();
+        const looksLikeLink = ['click here', 'read more', 'learn more', 'go to', 'visit'].some(phrase => text.includes(phrase));
+        
+        if (looksLikeLink) {
+          // Make it accessible as a link
+          if (!el.hasAttribute('role')) {
+            el.setAttribute('role', 'link');
+          }
+          if (!el.hasAttribute('tabindex')) {
+            el.setAttribute('tabindex', '0');
+          }
+          
+          // Add keyboard support if not present
+          if (!el.hasAttribute('onkeydown')) {
+            el.setAttribute('onkeydown', 'if(event.key==="Enter"||event.key===" "){event.preventDefault();this.click();}');
+          }
+        }
       }
     });
   },
@@ -236,17 +370,10 @@ const a11yStore = {
   }
 };
 
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
 // REACT_015: Ensure the <html> element has a lang attribute for accessibility
 if (!document.documentElement.getAttribute('lang')) {
   document.documentElement.setAttribute('lang', 'en');
 }
-
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -264,7 +391,6 @@ function addressAccessibilityIssues(report) {
 
 // Export for module usage
 export { a11yStore };
-export { mainElement };
 export { addressAccessibilityIssues };
 export default a11yStore;
 

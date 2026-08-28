@@ -82,13 +82,29 @@ function setInputAriaValidity(input, errorId, isValid) {
   }
 }
 
+/**
+ * Validates landmark objects for user safety
+ * Checks that landmarks have valid names and geographic coordinates
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {boolean} True if the landmark is valid
+ */
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  if (!landmark.name || typeof landmark.name !== 'string') return false;
+  if (typeof landmark.lat !== 'number' || typeof landmark.lng !== 'number') return false;
+  if (landmark.lat < -90 || landmark.lat > 90) return false;
+  if (landmark.lng < -180 || landmark.lng > 180) return false;
+  return true;
+}
+
 // Existing code preserved below
 const main = {
   announceToScreenReader,
   manageFocus,
   handleKeyboardNav,
   setExpandableAria,
-  setInputAriaValidity
+  setInputAriaValidity,
+  validateLandmark
 };
 
 module.exports = main;

@@ -829,6 +829,7 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
+                                aria-keyshortcuts="Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
@@ -855,8 +856,9 @@ export default function Dashboard() {
                             {roomQuery && (
                                 <button
                                     onClick={() => setRoomQuery('')}
-                                    aria-label="検索キーワードをクリア"
-                                    title="検索をクリア"
+                                    aria-label="検索キーワードをクリア (Escape)"
+                                    aria-keyshortcuts="Escape"
+                                    title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
                                         right: '4px',

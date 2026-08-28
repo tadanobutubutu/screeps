@@ -1,14 +1,14 @@
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
 const { renderDependencyGraphContent } = require('./conflict-branch');
-const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
+const { ensureUniqueLandmarkRoles, ensureUniqueLandmarks } = require('./uniqueLandmarks');
 const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 const { addAriaLabelToSVGsWithoutAccessibleName } = require('./uniqueLandmarks'); // Included from both branches, keeping it for reference
 
 // Generalized accessibility functions
 
 function improveAccessibility() {
-  renderDependencyGraphContent(document.querySelector('.dependency-graph-content, [data-dependency-graph-content]'));
+  renderDependencyGraphContent(document.querySelector('.dependency-graph_content, [data-dependency-graph-content]'));
 
   // Ensure all clickable elements are focusable
   const focusable = document.querySelectorAll('[role="link"]');
@@ -17,50 +17,74 @@ function improveAccessibility() {
   });
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
+// Function to ensure unique landmarks for Screeps environment
+function ensureLandmarkUniqueness(elements) {
+  // Adapted for both DOM and Screeps environments
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
 
   landmarks.forEach(landmark => {
-    const isUniqueFn = uniqueElements[landmark] ? Array.prototype.some : Function.prototype.call; // Dynamically select between an existing set and a function depending on the state
-    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-    const uniqueGameObjects = [];
+    const elementsById = elements.reduce((memo, el) => {
+      memo[el.id] = memo[el.id] || [];
+      memo[el.id].push(el);
+      return memo;
+    }, {});
 
-    matchingGameObjects.forEach(go => {
-      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
+    const uniqueElements = [];
+    Object.keys(elementsById).forEach(id => {
+      const el = elementsById[id][0]; // Assuming the first element in the array for each ID is the unique one
+      const isUnique = !uniqueElements.some(uEl => uEl.id === id);
       if (isUnique) {
-        uniqueGameObjects.push(go);
+        uniqueElements.push(el);
       } else {
-        // Remove the landmark tag if it's not unique
-        go.remove(landmark);
+        // Remove the role if it's not unique
+        elementsById[id].forEach(el => delete el.role);
       }
     });
-
-    uniqueElements[landmark] = uniqueGameObjects;
   });
 
-  return uniqueElements;
+  // Check for duplicate landmark roles in the Screeps environment
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    const uniqueStructures = [];
+
+    structures.forEach(structure => {
+      const isUnique = !uniqueStructures.some(us => us.id === structure.id);
+      if (isUnique) {
+        uniqueStructures.push(structure);
+      } else {
+        // Remove the landmark role if it's not unique
+        structures.forEach(st => delete st.landmarkType);
+      }
+    });
+  });
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRoles(gameObjects) {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+// New function to add landmark roles and fix issues in the Screeps environment
+function addLandmarkRolesAndFixIssues() {
+  // Adapted for Screeps environment
+  const uniqueElements = ensureUniqueLandmarkRoles();
 
-  return gameObjects.map((obj, index) => {
-    // Add appropriate landmark role based on object type
-    if (obj.type === 'spawn') {
-      obj.landmarkRole = 'main';
-    } else if (obj.type === 'extension') {
-      obj.landmarkRole = 'navigation';
-    } else if (obj.type === 'tower') {
-      obj.landmarkRole = 'search';
+  Game.spawns.forEach((spawn, id) => {
+    if (uniqueElements.spawn) {
+      spawn.memory.landmarkRole = uniqueElements.spawn[0].name;
     }
-    return obj;
   });
+
+  Game.extensions.forEach((extension, id) => {
+    if (uniqueElements.extension) {
+      extension.memory.landmarkRole = uniqueElements.extension[0].name;
+    }
+  });
+
+  Game.towers.forEach((tower, id) => {
+    if (uniqueElements.tower) {
+      tower.memory.landmarkRole = uniqueElements.tower[0].name;
+    }
+  });
+
+  // ... (any remaining existing logic can be kept here or mixed with the new implementation)
 }
 
 // Function to address insight report issues
@@ -106,73 +130,13 @@ function addLandmarkRolesAndFixIssues() {
   });
 }
 
-// Function to ensure unique landmarks (merged version from both branches)
-function ensureLandmarkUniqueness(elements) {
-  // Check for duplicate landmark roles
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-
-  landmarks.forEach(landmark => {
-    const elementsById = elements.reduce((memo, el) => {
-      memo[el.id] = memo[el.id] || [];
-      memo[el.id].push(el);
-      return memo;
-    }, {});
-
-    const uniqueElements = [];
-    Object.keys(elementsById).forEach(id => {
-      const el = elementsById[id][0]; // Assuming the first element in the array for each ID is the unique one
-      const isUnique = !uniqueElements.some(uEl => uEl.id === id);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        elementsById[id].forEach(el => delete el.role);
-      }
-    });
-  });
-}
-
-// New function to address accessibility issues
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-
-  // Add appropriate ARIA labels to SVGs without accessible name
-  addAriaLabelToSVGsWithoutAccessibleName(document.querySelectorAll('svg'));
-
-  // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
-}
-
-// Placeholder implementation for rendering a dependency graph
-function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
-}
-
-// Placeholder function for index view rendering (to be replaced with actual implementation)
-function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
-}
-
-// Function to calculate sum (unchanged)
-function calculateSum(a, b) {
-  return a + b;
-}
-
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
   addressInsightIssues,
   addressREACT017,
   addressAccessibilityIssues,
+  renderDependencyGraphContent,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
@@ -183,6 +147,3 @@ module.exports = {
   addAriaLabelToSVGsWithoutAccessibleName,
   ensureLandmarkUniqueness
 };
-```
-
-This resolved file incorporates both branches' changes while preserving functionality. The `ensureLandmarkUniqueness` function combines the approaches from both branches, choosing the DOM-oriented example provided in the origin/main branch as the main logic to ensure unique landmark roles for the Screeps environment, while also supporting the adaption to the Screeps environment by using the `Game.getObjectsByIdTag` method. The `addAriaLabelToSVGsWithoutAccessibleName` function is also kept for reference. The general accessibility improvements, such as improving the accessibility of the dependency graph and ensuring focusability of clickable elements, are addressed across both branches and merged.

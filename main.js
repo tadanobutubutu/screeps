@@ -29,6 +29,27 @@ function validateInput(input) {
   return input.length > 0;
 }
 
+function checkTableStructure(table) {
+  if (!Array.isArray(table)) {
+    throw new Error('Expected an array, but received ' + typeof table);
+  }
+  if (table.length === 0) {
+    throw new Error('Table is empty');
+  }
+  const headers = table[0];
+  if (!Array.isArray(headers)) {
+    throw new Error('Table headers should be an array');
+  }
+  table.forEach(row => {
+    if (!Array.isArray(row)) {
+      throw new Error('Table rows should be arrays');
+    }
+    if (row.length !== headers.length) {
+      throw new Error('Row length does not match headers length');
+    }
+  });
+}
+
 // Main execution
 function main() {
   initialize();
@@ -44,5 +65,6 @@ module.exports = {
   initialize,
   processData,
   validateInput,
-  config
+  config,
+  checkTableStructure
 };

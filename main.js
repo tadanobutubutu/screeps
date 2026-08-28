@@ -1,14 +1,11 @@
-<<<<<<< HEAD
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
-// TODO: This is the existing code that needs to be preserved
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+//
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 function fixFakeLinkIssue(filePath) {
@@ -345,6 +342,3 @@ module.exports = {
   renderDependencyGraph,
   fixSvgDataUriAccessibility
 };
-=======
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
->>>>>>> origin/main

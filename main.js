@@ -1,4 +1,4 @@
-// main.js - No changes needed; the issue is in docs/dependency-graph.html
+// main.js - No changes needed; the issue is in ...
 // The fix should be applied to the HTML file, not this JavaScript file.
 // TODO: Add back any required exports that might have been?
 /**
@@ -6,7 +6,7 @@
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     return;
   }
   
@@ -16,7 +16,7 @@ function setSvgAccessibilityProps(svgElement) {
   // Set aria-label if not present
   const ariaLabel = svgElement.getAttribute('aria-label');
   if (!ariaLabel) {
-    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || svgElement.getAttribute('alt') || 'SVG Image');
+    svgElement.setAttribute('aria-label', svgElement.getAttribute('title') || 'SVG Image');
   }
 }
 
@@ -34,7 +34,7 @@ function isLinkAccessible(link) {
 
   // Check if link has text content or aria-label
   const hasText = link.textContent.trim().length > 0;
-  const hasAriaLabel = link.getAttribute('aria-label');
+  const hasAriaLabel = link.hasAttribute('aria-label');
   
   if (!hasText && !hasAriaLabel) {
     return false;
@@ -54,8 +54,8 @@ function isButtonAccessible(button) {
   
   // Check if button has text content or aria-label
   const hasText = button.textContent.trim().length > 0;
-  const hasAriaLabel = button.getAttribute('aria-label');
-  const hasAriaLabelledby = button.getAttribute('aria-labelledby');
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
   
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
     return false;

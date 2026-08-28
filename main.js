@@ -21,12 +21,18 @@ function getVersion() {
   return VERSION;
 }
 
+function handleConflict() {
+  console.log('Conflict detected, handling...');
+  // Placeholder for handling conflict logic
+}
+
 module.exports = {
   VERSION,
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  handleConflict
 };
 
 module.exports.default = {
@@ -34,5 +40,6 @@ module.exports.default = {
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  handleConflict
 };

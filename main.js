@@ -5,9 +5,9 @@ function addLandmarkRegions() {
   // Implement the logic to create and add an appropriate landmark region(s) to the HTML structure according to the accessibility requirements
 
   // For the sake of this example, let's add a role="banner" to the top-level div for a 'banner' landmark region
-  const bannerRegion = document.querySelector('div'); // Assuming the top-level div is the one that should have the landmark region
-  if (bannerRegion) {
-    bannerRegion.setAttribute('role', 'banner');
+  const topLevelDiv = document.querySelector('div');
+  if (topLevelDiv) {
+    topLevelDiv.setAttribute('role', 'banner');
   }
 }
 

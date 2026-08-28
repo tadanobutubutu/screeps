@@ -1,4 +1,4 @@
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the `docs/dependency-graph.html` file.
+// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
 // ... (other code in main.js)
 
@@ -22,3 +22,23 @@ function rotateBack() {
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
+
+// Accessible button element for rotate back functionality
+const rotateBackButton = document.createElement('button');
+rotateBackButton.id = 'unrotate';
+rotateBackButton.setAttribute('role', 'button');
+rotateBackButton.setAttribute('aria-label', 'rotate back');
+rotateBackButton.textContent = 'rotate back';
+rotateBackButton.addEventListener('click', function() {
+  rotateBack();
+});
+
+// Function to handle the rotate back action
+function rotateBack() {
+  // Check if there are any rotation transforms applied
+  const rotatedElement = document.querySelector('.rotated');
+  if (rotatedElement) {
+    rotatedElement.style.transform = 'rotate(0deg)';
+    rotatedElement.classList.remove('rotated');
+  }
+}

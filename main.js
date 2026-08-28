@@ -2,6 +2,8 @@ const loop = require('./loop');
 const config = require('./config');
 const logger = require('./utils/logger');
 
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
 // Application state
 let isInitialized = false;
 const appData = {}

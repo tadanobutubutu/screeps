@@ -1,6 +1,3 @@
-Here is the resolved version of the file, combining both changes:
-
-```javascript
 import { requiredModule } from './required-module.js';
 
 /**
@@ -154,9 +151,3 @@ export {
   applyAccessibilityFixes,
   getSvgAccessibleName
 };
-```
-
-Now you have the combined version of the file, resulting in both branches being merged. The new functions added are:
-
-- `getSvgAccessibleName`: Gets the accessible name for an SVG element.
-- `setSvgAccessibleProps`: Sets accessibility properties on SVG elements.

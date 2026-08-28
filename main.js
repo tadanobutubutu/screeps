@@ -518,9 +518,15 @@ function getSvgAccessibleName(svgElement) {
 function setSvgAccessibilityProps(svgElement) {
   if (!svgElement) return;
 
+  if (!svgElement.hasAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+
   const accessibleName = getSvgAccessibleName(svgElement);
   if (accessibleName) {
     svgElement.setAttribute('aria-label', accessibleName);
+  } else if (!svgElement.hasAttribute('aria-label') && !svgElement.querySelector('title')) {
+    svgElement.setAttribute('aria-label', 'SVG Image');
   }
 }
 
@@ -532,12 +538,12 @@ function setSvgAccessibilityProps(svgElement) {
 function isLinkAccessible(link) {
   if (!link) return false;
 
-  const hasFocusable = link.hasAttribute('tabindex') || link.tagName === 'A';
-  const hasAccessibleName = link.hasAttribute('aria-label') ||
-                            link.hasAttribute('aria-labelledby') ||
-                            link.textContent.trim().length > 0;
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.hasAttribute('aria-label');
+  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+  const hasTitle = link.hasAttribute('title');
 
-  return hasFocusable && hasAccessibleName;
+  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
 /**
@@ -548,12 +554,13 @@ function isLinkAccessible(link) {
 function isButtonAccessible(button) {
   if (!button) return false;
 
-  const hasRole = button.hasAttribute('role') || button.tagName === 'BUTTON';
-  const hasAccessibleName = button.hasAttribute('aria-label') ||
-                            button.hasAttribute('aria-labelledby') ||
-                            button.textContent.trim().length > 0;
+  const hasText = button.textContent && button.textContent.trim().length > 0;
+  const hasAriaLabel = button.hasAttribute('aria-label');
+  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+  const hasTitle = button.hasAttribute('title');
+  const hasIcon = button.querySelector('svg, img, icon');
 
-  return hasRole && hasAccessibleName;
+  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
 }
 
 /**
@@ -565,7 +572,11 @@ function checkAccessibility(container = document) {
   const results = {
     issues: [],
     links: [],
-    buttons: []
+    buttons: [],
+    accessibleLinks: [],
+    inaccessibleLinks: [],
+    accessibleButtons: [],
+    inaccessibleButtons: []
   };
 
   if (typeof container === 'undefined' || container === null) {
@@ -577,6 +588,9 @@ function checkAccessibility(container = document) {
     if (link.tagName === 'A' || link.hasAttribute('role') && link.getAttribute('role') === 'link') {
       if (!isLinkAccessible(link)) {
         results.issues.push({ type: 'inaccessible-link', element: link });
+        results.inaccessibleLinks.push(link);
+      } else {
+        results.accessibleLinks.push(link);
       }
       results.links.push(link);
     }
@@ -586,6 +600,9 @@ function checkAccessibility(container = document) {
   buttons.forEach(button => {
     if (!isButtonAccessible(button)) {
       results.issues.push({ type: 'inaccessible-button', element: button });
+      results.inaccessibleButtons.push(button);
+    } else {
+      results.accessibleButtons.push(button);
     }
     results.buttons.push(button);
   });
@@ -599,14 +616,19 @@ function checkAccessibility(container = document) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  if (!element) return;
+  if (!element || !role) return { valid: false, issues: [] };
 
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  const isValidRole = landmarkRoles.includes(role);
+  const issues = [];
+  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
 
-  if (isValidRole && !element.hasAttribute('role')) {
-    element.setAttribute('role', role);
+  if (!hasLabel && role !== 'main') {
+    issues.push(`Landmark with role "${role}" is missing accessible label`);
   }
+
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
 }
 
 /**
@@ -625,13 +647,17 @@ function wrapPrimaryContentInMain() {
   }
 
   const main = document.createElement('main');
-  const bodyChildren = Array.from(document.body.children);
+  main.setAttribute('role', 'main');
 
+  const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
-    main.appendChild(child);
+    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
+        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
+      main.appendChild(child);
+    }
   });
 
-  document.body.appendChild(main);
+  document.body.insertBefore(main, document.body.firstChild);
   return main;
 }
 
@@ -673,6 +699,28 @@ function checkLandmarks(container = document) {
     results.issues.push({ type: 'missing-main-landmark', element: null });
   }
 
+  const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+
+  roles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(element => {
+      const checkResult = checkLandmarkElement(role, element);
+      results.landmarks.push({
+        role,
+        element,
+        valid: checkResult.valid
+      });
+
+      if (!checkResult.valid) {
+        results.issues.push({
+          role,
+          element,
+          issues: checkResult.issues
+        });
+      }
+    });
+  });
+
   return results;
 }
 
@@ -684,6 +732,32 @@ function renderIndexView() {
   getLangAttribute();
   // Create in-page button for language toggle
   createInPageButton();
+}
+
+/**
+ * Gets the lang attribute value from the document's HTML element.
+ * If missing, sets it to 'en' and returns the value.
+ * @returns {string|null} The lang attribute value or null if document is not available
+ */
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return { lang: 'en', dir: 'ltr' };
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
+}
+
+/**
+ * Adds lang attribute to the HTML element if missing.
+ * @returns {HTMLElement|null} The HTML element or null if document is not available
+ */
+function addLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+    return document.documentElement;
+  }
+  return null;
 }
 
 /**
@@ -1536,9 +1610,14 @@ function createAccessibleLink(href, text, options = {}) {
   if (options.ariaLabel) {
     link.setAttribute('aria-label', options.ariaLabel);
   }
-  if (options.newWindow) {
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener noreferrer');
+  if (options.ariaLabelledby) {
+    link.setAttribute('aria-labelledby', options.ariaLabelledby);
+  }
+  if (options.title) {
+    link.setAttribute('title', options.title);
+  }
+  if (options.className) {
+    link.className = options.className;
   }
   if (options.onClick) {
     link.addEventListener('click', options.onClick);

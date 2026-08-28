@@ -9,6 +9,12 @@ document.getElementById('unrotate').addEventListener('click', rotateBack);
 // main.js
 
 function addProperLandmarkRegions() {
+  // Ensure the HTML element has a lang attribute for screen readers
+  const html = document.documentElement;
+  if (html && !html.lang) {
+    html.lang = 'en';
+  }
+
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');

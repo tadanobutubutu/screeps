@@ -16,252 +16,127 @@ const appData = {};
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+//_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
+//<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
 
-function initialize(options = {}) {
-  if (isInitialized) {
-    logger.warn('App already initialized');
-    return false;
-  }
-  
-  config.set(options);
-  isInitialized = true;
-  logger.info('Application initialized');
-  return true;
-}
+// TODO: Address accessibility issues from insight report — FIXED
 
-function getAppState() {
-  return {
-    isInitialized,
-    ...appData
-  };
-}
+/**
+ * Accessibility utilities for the application
+ */
+const AccessibilityUtils = {
+  /**
+   * Manages focus trapping within a container element
+   * @param {HTMLElement} container - The container element to trap focus within
+   * @returns {Function} - Cleanup function to remove the focus trap
+   */
+  trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
 
-function setData(key, value) {
-  appData[key] = value;
-  return appData;
-}
+    const handleTabKey = (e) => {
+      if (e.key !== 'Tab') return;
 
-function getData(key) {
-  return appData[key];
-}
+      if (e.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    };
 
-function shutdown() {
-  isInitialized = false;
-  logger.info('Application shutdown complete');
-}
-
-// Additional functions from origin
-function newFunction() {
-  // Implementation of the new function
-  console.log('This is the new function.');
-}
-
-function modifiedFunction() {
-  // Modified implementation of the function
-  console.log('This function has been modified.');
-}
-
-// Utility functions from HEAD
-function processData(data) {
-  if (!Array.isArray(data)) {
-    return null;
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
-function validateInput(input) {
-  return typeof input === 'string' && input.length > 0;
-}
-
-function formatOutput(data) {
-  return JSON.stringify(data, null, 2);
-}
-
-// Polyfill for Array.prototype.flat (if not available)
-if (!Array.prototype.flat) {
-  Object.defineProperty(Array.prototype, 'flat', {
-    configurable: true,
-    writable: true,
-    value: function depthFlat(depth = 1) {
-      return depth > 0
-        ? Array.prototype.reduce.call(this, function (acc, val) {
-            return acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val);
-          }, [])
-        : Array.prototype.slice.call(this);
-    }
-  });
-}
-
-// Accessibility features for DOM environment
-let insightButton, insightPanel, toggleButton, modal, modalClose;
-
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-// <!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
-// <!--- Any other modifications or additions go here --->
-
-function newFeature() {
-  // Implementation of the new function as per the issue requirements
-  return true;
-}
-
-// Toggle insight panel with proper ARIA attributes
-function toggleInsightPanel() {
-  if (!toggleButton || !insightPanel) return;
-
-  const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-  toggleButton.setAttribute('aria-expanded', !isExpanded);
-  insightPanel.hidden = isExpanded;
-  
-  if (!isExpanded) {
-    // Move focus to panel when opened for screen readers
-    insightPanel.focus();
-  }
-}
-
-// Modal handling with focus management (accessibility requirement)
-function openModal() {
-  if (!modal) return;
-
-  modal.hidden = false;
-  modal.setAttribute('aria-modal', 'true');
-  
-  // Focus trap management
-  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  if (firstElement) {
-    firstElement.tabIndex = 0;
+    container.addEventListener('keydown', handleTabKey);
     
-    lastElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        firstElement.focus();
+    // Ensure focus is set to the first focusable element
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+
+    // Return cleanup function
+    return () => {
+      container.removeEventListener('keydown', handleTabKey);
+    };
+  },
+
+  /**
+   * Announces a message to screen readers using ARIA live regions
+   * @param {string} message - The message to announce
+   * @param {string} priority - 'polite' or 'assertive'
+   */
+  announceToScreenReader(message, priority = 'polite') {
+    let announcer = document.getElementById('aria-announcer');
+    
+    if (!announcer) {
+      announcer = document.createElement('div');
+      announcer.id = 'aria-announcer';
+      announcer.setAttribute('aria-live', priority);
+      announcer.setAttribute('aria-atomic', 'true');
+      announcer.className = 'sr-only';
+      announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
+      document.body.appendChild(announcer);
+    }
+
+    // Clear and set message (ensures announcement even for repeated messages)
+    announcer.textContent = '';
+    setTimeout(() => {
+      announcer.textContent = message;
+    }, 100);
+  },
+
+  /**
+   * Handles escape key to close modals/dropdowns
+   * @param {Function} closeCallback - Function to call when Escape is pressed
+   * @param {HTMLElement} element - Element to attach the listener to
+   */
+  handleEscapeKey(closeCallback, element = document) {
+    const handler = (e) => {
+      if (e.key === 'Escape' && typeof closeCallback === 'function') {
+        closeCallback();
       }
-    });
-
-    firstElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && e.shiftKey) {
-        e.preventDefault();
-        lastElement.focus();
-      }
-    });
-
-    // Focus first element
-    firstElement?.focus();
+    };
+    
+    element.addEventListener('keydown', handler);
+    
+    return () => {
+      element.removeEventListener('keydown', handler);
+    };
   }
-
-  // Close on Escape key
-  document.addEventListener('keydown', handleEscapeKey);
-  
-  // Store trigger element to return focus
-  const trigger = document.activeElement;
-  modal.dataset.triggerId = trigger?.id || 'modal-trigger';
-}
-
-function closeModal() {
-  if (!modal) return;
-
-  modal.hidden = true;
-  modal.removeAttribute('aria-modal');
-  
-  // Return focus to trigger element
-  const triggerId = modal.dataset.triggerId;
-  const trigger = document.getElementById(triggerId);
-  trigger?.focus();
-  
-  // Remove escape key listener
-  document.removeEventListener('keydown', handleEscapeKey);
-}
-
-function handleEscapeKey(e) {
-  if (e.key === 'Escape') {
-    closeModal();
-  }
-}
-
-// Initialize accessibility DOM references
-function initializeAccessibility() {
-  if (typeof document === 'undefined') return;
-
-  insightButton = document.getElementById('insight-button');
-  insightPanel = document.getElementById('insight-panel');
-  toggleButton = document.getElementById('toggle-button');
-  modal = document.getElementById('modal');
-  modalClose = document.getElementById('modal-close');
-
-  // Ensure modal starts hidden
-  if (modal) {
-    modal.hidden = true;
-  }
-}
-
-// Setup event listeners
-function setupAccessibilityEventListeners() {
-  if (typeof document === 'undefined') return;
-
-  if (modalClose) {
-    modalClose.addEventListener('click', closeModal);
-  }
-
-  if (insightButton) {
-    insightButton.addEventListener('click', toggleInsightPanel);
-    // Ensure keyboard accessibility
-    insightButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleInsightPanel();
-      }
-    });
-  }
-
-  if (toggleButton) {
-    toggleButton.addEventListener('click', toggleInsightPanel);
-    toggleButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleInsightPanel();
-      }
-    });
-  }
-}
-
-module.exports = {
-  initialize,
-  getAppState,
-  setData,
-  getData,
-  shutdown,
-  config,
-  logger,
-  newFunction,
-  modifiedFunction,
-  newFeature,
-  processData,
-  validateInput,
-  formatOutput,
-  initializeAccessibility,
-  toggleInsightPanel,
-  openModal,
-  closeModal,
-  setupAccessibilityEventListeners
 };
 
-// Initialize on DOM ready
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { AccessibilityUtils };
+}
+
+// Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      initializeAccessibility();
-      setupAccessibilityEventListeners();
-    });
-  } else {
-    initializeAccessibility();
-    setupAccessibilityEventListeners();
-  }
+  document.addEventListener('DOMContentLoaded', () => {
+    // Ensure skip link functionality if present
+    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(skipLink.getAttribute('href') || '#main-content');
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  });
 }

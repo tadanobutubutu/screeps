@@ -10,6 +10,13 @@ document.getElementById('unrotate').addEventListener('click', rotateBack);
 
 // main.js
 
+function setLanguageAttribute() {
+  const html = document.documentElement;
+  if (html && !html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
@@ -104,4 +111,5 @@ function addProperLandmarkRegions() {
   }
 }
 
+setLanguageAttribute();
 addProperLandmarkRegions();

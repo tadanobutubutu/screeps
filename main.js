@@ -82,6 +82,25 @@ function addressAccessibilityIssues(filePath) {
   console.log(`Improved accessibility in ${filePath}`);
 }
 
+// New function to convert fake links to buttons
+function convertFakeLinksToButtons(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const fakeLinks = content.match(/<a id="unrotate" href="#">rotate back<\/a>/g);
+  if (fakeLinks) {
+    fakeLinks.forEach((fakeLink) => {
+      updatedContent = updatedContent.replace(
+        fakeLink,
+        `<button id="unrotate" type="button">rotate back</button>`
+      );
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Converted fake links to buttons in ${filePath}`);
+}
+
 // Example: Set the lang attribute on the root element dynamically
 function setLanguage(lang) {
   document.documentElement.lang = lang;
@@ -97,5 +116,6 @@ module.exports = {
   addSvgAccessibleNames,
   addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
+  convertFakeLinksToButtons,
   setLanguage,
 };

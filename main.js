@@ -1,3 +1,15 @@
+// TODO: Add back any required exports that might have been removed
+// Example: import a function from another file (util.js)
+// ------ IMPORTANT -------
+// Do not remove or rename any existing exports in main.js
+
+const { functionName } = require('./util');
+
+// Existing exports and functions in main.js
+module.exports = {
+  // Your existing exports here
+};
+
 // main.js
 
 // TODO: Implement this function for checking landmark structure
@@ -39,7 +51,7 @@ function checkLandmarkStructure(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
  */
-export function addLangAttribute(html) {
+function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
@@ -58,7 +70,7 @@ export function addLangAttribute(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+function fixTableStructureIssues(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
@@ -114,7 +126,7 @@ export function fixTableStructureIssues(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with main landmark added
  */
-export function addMainLandmark(html) {
+function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
@@ -139,7 +151,7 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+function addSvgAccessibleNames(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
@@ -174,7 +186,7 @@ export function addSvgAccessibleNames(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with unique landmarks
  */
-export function ensureUniqueLandmarks(html) {
+function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
   
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
@@ -256,7 +268,7 @@ export function ensureUniqueLandmarks(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed fake link issues
  */
-export function fixFakeLinkIssue(html) {
+function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
   
   // Fix any fake links that do not have a valid href attribute
@@ -267,3 +279,15 @@ export function fixFakeLinkIssue(html) {
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+// Update module.exports to include all accessibility functions
+module.exports = {
+  checkLandmarkStructure,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  functionName // Preserve existing export
+};

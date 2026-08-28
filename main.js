@@ -9,6 +9,8 @@
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphARIA)
 
+import { class1, function1, Object1 } from './path/to/module';
+
 const fs = require('fs');
 const path = require('path');
 
@@ -64,8 +66,8 @@ function run() {
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', lang);
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = lang;
   }
   return document;
 }
@@ -579,7 +581,7 @@ function fixTableStructure(document) {
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
-
+    
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
@@ -587,9 +589,9 @@ function fixTableStructure(document) {
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
-
+    
     if (!existingTbody) {
-      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
+      const remainingRows = rows.length > 0 ? Array.from(rows).slice(0) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -597,7 +599,7 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     }
-
+    
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
@@ -628,27 +630,29 @@ function fixTableStructure(document) {
 
 // Function to add/main landmark
 function addMainLandmark(document) {
-  let mainElement = document.querySelector('main');
+  let mainElement = null;
+  
+  // Find the main content area and wrap it or create main element
+  const body = document.body;
+  const main = document.createElement('main');
+  main.setAttribute('id', 'main-content');
 
-  if (!mainElement) {
-    // Find the main content area and wrap it or create main element
-    const body = document.body;
-    const main = document.createElement('main');
-    main.setAttribute('id', 'main-content');
-
-    // Move first significant content child to main
-    const children = Array.from(body.children);
-    for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
-          child.tagName !== 'LINK' && child.tagName !== 'META') {
-        main.appendChild(child);
-        break;
-      }
+  // Move first significant content child to main
+  const children = Array.from(body.children);
+  for (const child of children) {
+    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+        child.tagName !== 'LINK' && child.tagName !== 'META') {
+      main.appendChild(child);
+      break;
     }
-
-    body.insertBefore(main, body.firstChild);
-    mainElement = main;
   }
+  
+  // Ensure main has proper role if not using native element
+  if (main.tagName !== 'MAIN') {
+    main.setAttribute('role', 'main');
+  }
+  
+  mainElement = main;
 
   // Ensure main has proper role if not using native element
   if (mainElement.tagName !== 'MAIN') {
@@ -659,6 +663,7 @@ function addMainLandmark(document) {
 }
 
 // Function to ensure unique landmarks (combined approach)
+
 function ensureUniqueLandmarks(document) {
   const main = document.querySelector('main');
   if (main && !main.id) {
@@ -669,6 +674,21 @@ function ensureUniqueLandmarks(document) {
   navigations.forEach((nav, index) => {
     if (!nav.id && !nav.getAttribute('aria-label')) {
       nav.setAttribute('aria-label', `navigation-${index + 1}`);
+    }
+  });
+
+  // Combined approach using both role-based and element-based selection
+  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach((el) => {
+        if (!el.getAttribute('aria-label')) {
+          el.setAttribute('aria-label', `${role}-${index}`);
+        }
+        index++;
+      });
     }
   });
 
@@ -736,7 +756,7 @@ function fixFakeLinkIssue(document) {
       if (element.className) {
         span.className = element.className;
       }
-
+      
       element.parentNode.replaceChild(span, element);
       count++;
     }
@@ -767,36 +787,58 @@ function fixFakeLinkIssues(document) {
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-  const landmarks = document.querySelectorAll('[role]');
+  // ... updated landmark issue fix implementation
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
   landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!landmark.id && !landmark.getAttribute('aria-label')) {
-      landmark.setAttribute('aria-label', `landmark-${role}`);
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      const role = landmark.getAttribute('role');
+      landmark.setAttribute('aria-label', `${role} region`);
     }
   });
   return document;
 }
 
+// Function to add landmark regions
 function addLandmarkRegions(document) {
-  const regions = document.querySelectorAll('[role="region"]');
-  regions.forEach((region, index) => {
-    if (!region.id) {
-      region.id = `region-${index + 1}`;
+  // ... existing implementation
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    if (!section.id) {
+      section.id = `section-${index + 1}`;
+    }
+    if (!section.getAttribute('aria-label') && !section.querySelector('h1, h2, h3, h4, h5, h6')) {
+      section.setAttribute('role', 'region');
+      section.setAttribute('aria-label', `Section ${index + 1}`);
     }
   });
   return document;
 }
 
 // REACT_025: Ensure unique landmarks (by role approach)
+
 function uniqueLandmarks(document) {
-  const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  // Combined approach using both role-based and element-based selection
+  const landmarkSelectors = [
+    { selector: '[role="navigation"]', name: 'navigation' },
+    { selector: '[role="banner"]', name: 'banner' },
+    { selector: '[role="contentinfo"]', name: 'contentinfo' },
+    { selector: '[role="complementary"]', name: 'complementary' },
+    { selector: 'main, [role="main"]', name: 'main' },
+    { selector: '[role="region"]', name: 'region' },
+    { selector: '[role="article"]', name: 'article' },
+    { selector: 'nav', name: 'navigation' },
+    { selector: 'header:not([role])', name: 'banner' },
+    { selector: 'footer:not([role])', name: 'contentinfo' },
+    { selector: 'aside', name: 'complementary' }
+  ];
+
+  landmarkSelectors.forEach(({ selector, name }) => {
+    const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
       elements.forEach((el) => {
         if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role}-${index}`);
+          el.setAttribute('aria-label', `${name}-${index}`);
         }
         index++;
       });
@@ -806,10 +848,11 @@ function uniqueLandmarks(document) {
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
+  // ... existing implementation
   const images = document.querySelectorAll('img');
-  images.forEach(img => {
+  images.forEach((img, index) => {
     if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
+      img.setAttribute('alt', `Image ${index + 1}`);
     }
   });
   return document;
@@ -823,7 +866,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#g-signin-button');
+    const buttonContainer = document.getElementById('g_id_onload');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -842,9 +885,9 @@ function handleCredentialResponse(response) {
 // Function to ensure the element has an id
 function ensureElementHasIdFromDoc(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
-  elements.forEach((element, index) => {
+  elements.forEach((element) => {
     if (!element.id) {
-      element.id = `${idPrefix}-${index + 1}`;
+      element.id = `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
     }
   });
   return document;

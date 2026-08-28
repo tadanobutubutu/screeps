@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+// React component
 function App() {
   return (
     <div lang="en">
@@ -33,10 +34,40 @@ function App() {
   );
 }
 
+// Existing utility function
 export function anotherFunction() {
   // More existing functionality
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// Screeps loop logic
+function loop() {
+  // Resolve merged bot logic for Screeps
+  for (let name in Game.creeps) {
+    let creep = Game.creeps[name];
+    if (creep.memory.role === 'harvester') {
+      if (creep.store.getFreeCapacity() > 0) {
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source);
+        }
+      }
+    }
+  }
+}
 
+// Export for Screeps (CommonJS) and for ES modules
+if (typeof module !== 'undefined' && module.exports) {
+  // Node/Screeps environment
+  module.exports.loop = loop;
+} else {
+  // ES module environment
+  export { loop };
+}
+
+// Render UI in browser
+if (typeof window !== 'undefined') {
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+}
+
+// Default export for other usages
 export default App;

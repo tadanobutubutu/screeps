@@ -1,8 +1,5 @@
-We need to resolve the conflict. Let's examine the conflict markers:
+// main.js
 
-<<<<<<< HEAD
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-=======
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -52,6 +49,81 @@ function addProperLandmarkRegions() {
     footer.setAttribute('role', 'contentinfo');
   }
 
+  // Function to get the accessible name of an SVG element
+  // Follows the WAI-ARIA Accessible Name Computation
+  function getSvgAccessibleName(svg) {
+    if (!svg || svg.tagName !== 'SVG') {
+      return '';
+    }
+
+    // 1. Check for aria-label (highest priority)
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel !== null && ariaLabel.trim() !== '') {
+      return ariaLabel.trim();
+    }
+
+    // 2. Check for aria-labelledby
+    const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledBy !== null && ariaLabelledBy.trim() !== '') {
+      const ids = ariaLabelledBy.trim().split(/\s+/);
+      const labels = ids
+        .map(id => {
+          const element = document.getElementById(id);
+          return element ? element.textContent.trim() : '';
+        })
+        .filter(text => text !== '');
+      if (labels.length > 0) {
+        return labels.join(' ');
+      }
+    }
+
+    // 3. Check for <title> child element
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent.trim() !== '') {
+      return titleElement.textContent.trim();
+    }
+
+    // 4. Check for <desc> child element (used as fallback)
+    const descElement = svg.querySelector('desc');
+    if (descElement && descElement.textContent.trim() !== '') {
+      return descElement.textContent.trim();
+    }
+
+    // 5. Check for associated <label> element (if SVG is in a label)
+    const label = svg.closest('label');
+    if (label) {
+      const labelText = label.textContent.trim();
+      if (labelText !== '') {
+        return labelText;
+      }
+    }
+
+    // 6. Check for parent element with aria-label or aria-labelledby
+    const parent = svg.parentElement;
+    if (parent) {
+      const parentAriaLabel = parent.getAttribute('aria-label');
+      if (parentAriaLabel !== null && parentAriaLabel.trim() !== '') {
+        return parentAriaLabel.trim();
+      }
+      const parentAriaLabelledBy = parent.getAttribute('aria-labelledby');
+      if (parentAriaLabelledBy !== null && parentAriaLabelledBy.trim() !== '') {
+        const ids = parentAriaLabelledBy.trim().split(/\s+/);
+        const labels = ids
+          .map(id => {
+            const element = document.getElementById(id);
+            return element ? element.textContent.trim() : '';
+          })
+          .filter(text => text !== '');
+        if (labels.length > 0) {
+          return labels.join(' ');
+        }
+      }
+    }
+
+    // No accessible name found
+    return '';
+  }
+
   // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {
     if (typeof document === 'undefined' || !document.body) {
@@ -70,13 +142,9 @@ function addProperLandmarkRegions() {
         return;
       }
 
-      // Check for existing accessible name
-      const hasAriaLabel = svg.getAttribute('aria-label');
-      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
-
-      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+      // Check for existing accessible name using the new function
+      const accessibleName = getSvgAccessibleName(svg);
+      if (accessibleName !== '') {
         return;
       }
 
@@ -126,4 +194,3 @@ function addProperLandmarkRegions() {
 }
 
 addProperLandmarkRegions();
->>>>

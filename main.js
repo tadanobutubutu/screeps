@@ -29,8 +29,24 @@ function getLangAttribute() {
   // Existing code...
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  const doc = getDocument();
+  if (doc && doc.documentElement) {
+    doc.documentElement.setAttribute('lang', lang);
+  }
+}
+
 function personName() {
   // Existing code...
+}
+
+// Function to trigger accessibility mode
+function triggerAccessibilityMode() {
+  const doc = getDocument();
+  if (doc) {
+    doc.documentElement.setAttribute('data-accessibility-mode', 'enabled');
+  }
 }
 
 // REACT_025: Add additional accessibility changes as per insight report
@@ -39,7 +55,7 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.getAttribute('role')) {
+    if (body && !body.hasAttribute('role')) {
       // Only set role if one doesn't exist
       body.setAttribute('role', 'application');
     }

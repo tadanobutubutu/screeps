@@ -50,6 +50,20 @@ function getLangAttribute() {
   }
 }
 
+// Function to ensure element has id and aria-label
+function ensureElementIdAndLabel() {
+  const elements = document.querySelectorAll('[role]');
+  elements.forEach(element => {
+    if (!element.id) {
+      element.id = `auto-role-${element.getAttribute('role')}-${Date.now() * 1000}`;
+    }
+    if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+      const role = element.getAttribute('role');
+      element.setAttribute('aria-label', `${role} region`);
+    }
+  });
+}
+
 // New function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
@@ -237,10 +251,13 @@ function checkLandmarkElementsAndAddSVGAccessibility() {
 // ... (the rest of the existing code that needs to be preserved)
 
 // Export for module usage
-export {
-  a11yStore,
+module.exports = {
   getSvgAccessibleName,
-  checkLandmarkElementsAndAddSVGAccessibility,
+  getLangAttribute,
+  ensureElementIdAndLabel,
+  ensureUniqueLandmarks,
+  addSVGAccessibilityProps,
   addLandmarkRegions,
-  ...
+  addressAccessibilityIssues,
+  checkLandmarkElementsAndAddSVGAccessibility
 };

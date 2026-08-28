@@ -420,5 +420,7 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  getLangAttribute,
+  getFullLangAttribute
 };

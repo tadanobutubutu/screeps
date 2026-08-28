@@ -5,6 +5,7 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_017: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
@@ -131,6 +132,88 @@ function fixFakeLinkIssue(element) {
   return false;
 }
 
+// REACT_017: Add proper landmark regions
+function addProperLandmarkRegions(documentRef = getDocument()) {
+  if (!documentRef) return false;
+
+  let added = false;
+  const body = documentRef.body || documentRef.querySelector('body');
+  if (!body) return false;
+
+  // Helper to check if a landmark (by role or semantic tag) already exists
+  const hasLandmark = (role, tagName) => {
+    if (tagName) {
+      const tagElements = documentRef.querySelectorAll(tagName);
+      for (const el of tagElements) {
+        const r = el.getAttribute('role');
+        if (!r || r === role) return true;
+      }
+    }
+    return !!documentRef.querySelector(`[role="${role}"]`);
+  };
+
+  // Add banner landmark (<header> at top level)
+  if (!hasLandmark('banner', 'header')) {
+    const header = documentRef.querySelector('header');
+    if (header && header.parentElement === body) {
+      header.setAttribute('role', 'banner');
+    } else {
+      const banner = documentRef.createElement('header');
+      banner.setAttribute('role', 'banner');
+      body.insertBefore(banner, body.firstChild);
+    }
+    added = true;
+  }
+
+  // Add navigation landmark (<nav>)
+  if (!hasLandmark('navigation', 'nav')) {
+    const nav = documentRef.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main navigation');
+    // Insert after the banner/header if present
+    const headerEl = documentRef.querySelector('header, [role="banner"]');
+    if (headerEl && headerEl.parentElement === body) {
+      body.insertBefore(nav, headerEl.nextSibling);
+    } else {
+      body.insertBefore(nav, body.firstChild);
+    }
+    added = true;
+  }
+
+  // Add main landmark (<main>)
+  if (!hasLandmark('main', 'main')) {
+    const main = documentRef.createElement('main');
+    main.setAttribute('role', 'main');
+    // Move existing body children (except banner/nav/footer) into main
+    const bodyChildren = Array.from(body.children);
+    bodyChildren.forEach(child => {
+      const tag = child.tagName ? child.tagName.toLowerCase() : '';
+      const role = child.getAttribute('role');
+      if (tag !== 'header' && tag !== 'nav' && tag !== 'footer' &&
+          role !== 'banner' && role !== 'navigation' && role !== 'contentinfo') {
+        main.appendChild(child);
+      }
+    });
+    body.appendChild(main);
+    added = true;
+  }
+
+  // Add contentinfo landmark (<footer> at top level)
+  if (!hasLandmark('contentinfo', 'footer')) {
+    const footer = documentRef.querySelector('footer');
+    if (footer && footer.parentElement === body) {
+      footer.setAttribute('role', 'contentinfo');
+    } else {
+      const contentinfo = documentRef.createElement('footer');
+      contentinfo.setAttribute('role', 'contentinfo');
+      body.appendChild(contentinfo);
+    }
+    added = true;
+  }
+
+  return added;
+}
+
 // Trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
@@ -148,6 +231,9 @@ function triggerAccessibilityMode() {
   if (mainElement) {
     addMainLandmark(mainElement);
   }
+
+  // Add proper landmark regions
+  addProperLandmarkRegions(doc);
   
   // Ensure unique landmarks
   ensureUniqueLandmarks(doc);
@@ -226,6 +312,7 @@ export {
   ensureUniqueLandmarks, 
   addSvgAccessibleNames, 
   fixFakeLinkIssue,
+  addProperLandmarkRegions,
   triggerAccessibilityMode 
 };
 

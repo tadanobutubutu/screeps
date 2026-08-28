@@ -72,8 +72,6 @@ function getTableRows(table) {
     return table.querySelectorAll('tr');
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
     const tables = typeof tableOrUrl === 'string' 

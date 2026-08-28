@@ -17,8 +17,19 @@ function rotateBack() {
   // Your code to rotate back
 }
 
-// ... (other code in main.js)
+// wrapPrimaryContentInMain function implementation
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.getElementById('primary-content');
+  if (primaryContent) {
+    primaryContent.innerHTML = `<button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>`;
+  }
+}
 
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
+
+// Call the function to wrap the primary content
+wrapPrimaryContentInMain();
+
+// ... (other code in main.js)

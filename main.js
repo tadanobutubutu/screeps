@@ -32,8 +32,19 @@ function setAccessibleName(svgElement, name) {
   
   // Remove aria-label if it exists to prioritize the title relationship
   svgElement.removeAttribute('aria-label');
-
+  
   return true;
 }
 
 // ... rest of existing code ...
+
+// Export utility functions that are required by the test suite
+const { formatDate } = require('./utils/dateUtils');
+const { validateEmail } = require('./utils/validation');
+const { calculateTotal } = require('./utils/math');
+
+module.exports = {
+  formatDate,
+  validateEmail,
+  calculateTotal
+};

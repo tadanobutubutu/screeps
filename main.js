@@ -30,4 +30,6 @@ function fixSVGAccessibleName(svgString) {
   return svgWithAriaLabel;
 }
 
+export { fixSVGAccessibleName };
+
 module.exports = { existingFunction2, fixSVGAccessibleName };

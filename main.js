@@ -1,25 +1,3 @@
-function rotateBack() {
-  // JavaScript code to rotate back
-  console.log('Rotating back...');
-}
-
-// - REACT_041: Add accessible names to 2 SVGs
-// These are decorative favicon SVGs, so marking them as hidden from assistive tech
-const svg1 = document.querySelector('#svg1');
-const svg2 = document.querySelector('#svg2');
-if (svg1) svg1.setAttribute('aria-hidden', 'true');
-if (svg2) svg2.setAttribute('aria-hidden', 'true');
-
-// - REACT_017: Add/fix 4 landmark issues
-const landmarks = document.querySelectorAll('.landmark');
-landmarks.forEach((landmark, index) => {
-  // Assuming you know which ARIA roles are correct for your landmarks
-  landmark.setAttribute('role', 'landmark');
-  landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
-});
-
-// main.js
-
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
@@ -123,5 +101,27 @@ function addProperLandmarkRegions() {
     }
   }
 }
+
+function rotateBack() {
+  // JavaScript code to rotate back
+  console.log('Rotating back...');
+}
+
+// - REACT_041: Add accessible names to 2 SVGs
+// These are decorative favicon SVGs, so marking them as hidden from assistive tech
+const svg1 = document.querySelector('#svg1');
+const svg2 = document.querySelector('#svg2');
+if (svg1) svg1.setAttribute('aria-hidden', 'true');
+if (svg2) svg2.setAttribute('aria-hidden', 'true');
+
+// - REACT_017: Add/fix 4 landmark issues
+const landmarks = document.querySelectorAll('.landmark');
+landmarks.forEach((landmark, index) => {
+  // Assuming you know which ARIA roles are correct for your landmarks
+  landmark.setAttribute('role', 'landmark');
+  landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+});
+
+// main.js
 
 addProperLandmarkRegions();

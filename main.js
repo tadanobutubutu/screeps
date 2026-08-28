@@ -35,30 +35,83 @@ async function isLinkAccessible(url) {
       method: 'HEAD',
       mode: 'no-cors'
     });
-    
-    // In no-cors mode, response.ok is not reliable
-    // A successful request without network error means the resource exists
-    return true;
-  } catch (error) {
-    // Try with GET request as fallback
+
+    if (response.ok) {
+      return true;
+    }
+
     try {
-      const response = await fetch(url, {
-        method: 'GET'
-      });
+      const response = await fetch(url, { method: 'GET' });
       return response.ok;
     } catch (getError) {
       return false;
     }
+  } catch (error) {
+    return false;
   }
 }
 
-/**
- * Synchronous version that returns a Promise for backward compatibility
- * @param {string} url - The URL to check
- * @returns {Promise<boolean>} - Returns true if accessible
- */
 function isLinkAccessibleSync(url) {
-  return isLinkAccessible(url);
+  try {
+    const response = isLinkAccessible(url);
+    return response;
+  } catch (error) {
+    return false;
+  }
+}
+
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+function createInPageButton(options = {}) {
+  // ... existing code ...
+}
+
+function validateTableAccessibility(table) {
+  // ... existing code ...
+}
+
+function validateTableStructure(table) {
+  // ... existing code ...
+}
+
+function validateLandmark() {
+  // ... existing code ...
+}
+
+function validateLandmarkStructure() {
+  // ... existing code ...
+}
+
+function validateLandmarkAttributes() {
+  // ... existing code ...
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg || svg.tagName !== 'SVG') return null;
+   // ... existing code ...
+}
+
+function setSvgAttributes(svg, options = {}) {
+  if (!svg || svg.tagName !== 'SVG') return false;
+   // ... existing code ...
+}
+
+function ensureUniqueLandmarks() {
+  // ... existing code ...
+}
+
+function validateLinkAccessibility() {
+  // ... existing code ...
+}
+
+function handleFakeLinks() {
+  // ... existing code ...
+}
+
+function addProperLandmarkRegions() {
+  // ... existing code ...
 }
 
 // (This comment remains as-is)

@@ -2,6 +2,7 @@ const _ = require('lodash');
 const dependencyGraphContent = require('./dependencyGraphContent');
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
+const { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median } = require('./mathHelpers');
 
 const a11yStore = {
   init: function() {
@@ -130,7 +131,7 @@ function validateLandmarkAttributes(element, role) {
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
@@ -439,5 +440,6 @@ module.exports = {
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   addProperLandmarkRegions,
+  add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
   ...(dependencyGraphContent && typeof dependencyGraphContent === 'object' ? dependencyGraphContent : {}) 
 };

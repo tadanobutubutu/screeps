@@ -1,38 +1,27 @@
-/**
- * Accessibility improvements for main.js
- * Addresses issues from insight report:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_027: Fix 26 table structure issues
- * - REACT_017: Add/fix 2 landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks
- * - REACT_036: Fix 1 fake link issue
- */
-
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
 
 /**
- * Adds lang attribute to HTML element
+ * Adds lang attribute to HTML element if missing
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with lang attribute added
+ * @param {string} lang - The language code (e.g., 'en')
+ * @returns {string} - Updated HTML with lang attribute
  */
-export function addLangAttribute(html) {
+export function addLangToHtml(html, lang = 'en') {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html\b([^>]*)>/gi, (match, attrs) => {
-    // Check if lang attribute already exists
-    if (!attrs || attrs.includes(' lang=')) {
-      return match;
-    }
-    // Add lang attribute with 'en' as default
-    return `<html${attrs} lang="en">`;
-  });
+  const langRegex = /<html[^>]*lang=["'][^"']*["'][^>]*>/i;
+  if (langRegex.test(html)) {
+    return html;
+  }
+  
+  return html.replace(/<html([^>]*)>/i, `<html$1 lang="${lang}">`);
 }
 
 /**
@@ -118,16 +107,49 @@ export function addMainLandmark(html) {
 }
 
 /**
+ * Adds landmark roles to sections missing them
+ * @param {string} html - The HTML string to process
+ * @returns {string} - Updated HTML with landmark roles
+ */
+export function addLandmarkRoles(html) {
+  let updated = html;
+  
+  // Add main landmark if missing (from addMainLandmark logic)
+  updated = addMainLandmark(updated);
+  
+  // Add role="banner" to header if not already present
+  if (/<header[^>]*>/i.test(updated) && !/<header[^>]*role=["']banner["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<header([^>]*)>/i, '<header$1 role="banner">');
+  }
+  
+  // Add role="main" to main element if not already present
+  if (/<main[^>]*>/i.test(updated) && !/<main[^>]*role=["']main["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<main([^>]*)>/i, '<main$1 role="main">');
+  }
+  
+  // Add role="contentinfo" to footer if not already present
+  if (/<footer[^>]*>/i.test(updated) && !/<footer[^>]*role=["']contentinfo["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<footer([^>]*)>/i, '<footer$1 role="contentinfo">');
+  }
+  
+  // Add role="navigation" to nav elements if not already present
+  if (/<nav[^>]*>/i.test(updated) && !/<nav[^>]*role=["']navigation["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<nav([^>]*)>/i, '<nav$1 role="navigation">');
+  }
+  
+  return updated;
+}
+
+/**
  * Adds accessible names to SVG elements
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with accessible SVG names
+ * @returns {string} - Updated HTML with SVG accessible names
  */
 export function addSvgAccessibleNames(html) {
-  if (typeof html !== 'string') return html;
-  
+  let updated = html;
   let svgCounter = 0;
   
-  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+  return updated.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
     
     if (existingLabel) {
@@ -151,31 +173,17 @@ export function addSvgAccessibleNames(html) {
 }
 
 /**
- * Ensures unique landmark identifiers for screen readers
- * Converts additional <main> landmarks to <section> so only one <main> exists per page.
- * Also assigns unique IDs to other landmark types.
+ * Ensures unique landmark roles in the HTML
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with unique landmarks
+ * @returns {string} - Updated HTML with unique landmarks
  */
 export function ensureUniqueLandmarks(html) {
-  if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
+  let updated = html;
   
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+  updated = updated.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -193,12 +201,12 @@ export function ensureUniqueLandmarks(html) {
   // Count occurrences of <main> opening tags in the original-like state and
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
-  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
+  const mainOpenCount = (updated.match(/<main\b/gi) || []).length;
+  const mainCloseCount = (updated.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;
     let replaced = 0;
-    html = html.replace(/<\/main>/gi, (match) => {
+    updated = updated.replace(/<\/main>/gi, (match) => {
       if (replaced < extras) {
         replaced += 1;
         return '</section>';
@@ -207,46 +215,88 @@ export function ensureUniqueLandmarks(html) {
     });
   }
   
-  // Recompute counters after main -> section conversion
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    counters[lm] = matches ? matches.length : 0;
-  });
-  
-  // Assign unique IDs to remaining landmarks
-  landmarks.forEach(lm => {
-    const count = counters[lm] || 0;
-    if (count === 0) return;
-    const seen = {};
-    const openRegex = new RegExp(`<${lm}\\b([^>]*)>`, 'gi');
-    html = html.replace(openRegex, (match, inner) => {
-      // Skip if an id attribute is already present
-      if (inner && inner.includes('id=')) {
+  // Handle multiple <header> elements - only one should have role="banner"
+  const headers = updated.match(/<header[^>]*role=["']banner["'][^>]*>/gi) || [];
+  if (headers.length > 1) {
+    // Keep only the first header with role="banner", change others to role="presentation"
+    let foundFirst = false;
+    updated = updated.replace(/<header[^>]*role=["']banner["'][^>]*>/gi, (match) => {
+      if (!foundFirst) {
+        foundFirst = true;
         return match;
       }
-      seen[lm] = (seen[lm] || 0) + 1;
-      const id = `${lm}-${seen[lm]}`;
-      return `<${lm} id="${id}"${inner || ''}>`;
+      return match.replace(/role=["']banner["']/i, 'role="presentation"');
     });
-  });
+  }
   
-  return html;
+  // Handle multiple <footer> elements - only one should have role="contentinfo"
+  const footers = updated.match(/<footer[^>]*role=["']contentinfo["'][^>]*>/gi) || [];
+  if (footers.length > 1) {
+    let foundFirst = false;
+    updated = updated.replace(/<footer[^>]*role=["']contentinfo["'][^>]*>/gi, (match) => {
+      if (!foundFirst) {
+        foundFirst = true;
+        return match;
+      }
+      return match.replace(/role=["']contentinfo["']/i, 'role="presentation"');
+    });
+  }
+  
+  return updated;
 }
 
 /**
- * Fixes 1 fake link issue
+ * Fixes fake links (elements that look like links but aren't)
  * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed fake link issues
+ * @returns {string} - Updated HTML with fixed fake links
  */
-export function fixFakeLinkIssue(html) {
-  if (typeof html !== 'string') return html;
+export function fixFakeLinks(html) {
+  let updated = html;
   
-  // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
-      return match;
+  // Find div or span elements with onclick that look like links
+  updated = updated.replace(/<(div|span)([^>]*onclick[^>]*)>/gi, (match, tag, attrs) => {
+    // Check if it looks like a link (has cursor:pointer or similar styling)
+    if (/style=["'][^"']*cursor:\s*pointer/i.test(attrs)) {
+      // Convert to proper link or add role="button"
+      if (!/role=["']button["']/i.test(attrs)) {
+        return `<${tag}${attrs} role="button" tabindex="0">`;
+      }
     }
-    return match.replace(/<a/, '<a href="#"');
+    return match;
   });
+  
+  return updated;
 }
+
+/**
+ * Main function to process accessibility fixes
+ * @param {string} html - The HTML string to process
+ * @param {Object} options - Configuration options
+ * @returns {string} - Updated HTML with accessibility fixes
+ */
+export function processAccessibility(html, options = {}) {
+  let result = html;
+  
+  result = addLangToHtml(result, options.lang || 'en');
+  result = addLandmarkRoles(result);
+  result = addSvgAccessibleNames(result);
+  result = ensureUniqueLandmarks(result);
+  result = fixFakeLinks(result);
+  
+  return result;
+}
+
+export default {
+  addLangToHtml,
+  addLandmarkRoles,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinks,
+  processAccessibility
+}
+
+function addressAccessibilityIssues() {
+    // Function implementation goes here
+}
+
+const VERSION = '1

@@ -121,6 +121,118 @@ function renderIndexView() {
   document.body.appendChild(button);
 }
 
+/**
+ * Ensures unique landmarks in the document or specific container.
+ * Checks for duplicate landmark elements (main, nav, header, footer, etc.)
+ * and returns information about any duplicates found.
+ * @param {HTMLElement|Document} [container=document] - The container to check for landmarks
+ * @returns {Object} An object containing landmark uniqueness check results
+ */
+function ensureUniqueLandmarks(container = document) {
+  // Landmark types that should be unique in a document
+  const UNIQUE_LANDMARKS = ['main', 'navigation', 'banner', 'contentinfo', 'search'];
+  
+  // Selectors for landmark elements (both semantic and ARIA-based)
+  const LANDMARK_SELECTORS = [
+    'main',
+    'nav',
+    'header',
+    'footer',
+    'aside',
+    'section[aria-label]',
+    'section[aria-labelledby]',
+    '[role="main"]',
+    '[role="navigation"]',
+    '[role="banner"]',
+    '[role="contentinfo"]',
+    '[role="search"]',
+    '[role="complementary"]',
+    '[role="region"]'
+  ].join(', ');
+
+  const results = {
+    isUnique: true,
+    uniqueLandmarks: [],
+    duplicateLandmarks: [],
+    totalLandmarks: 0
+  };
+
+  // Get all landmark elements from the container
+  const landmarks = container.querySelectorAll ? container.querySelectorAll(LANDMARK_SELECTORS) : [];
+  results.totalLandmarks = landmarks.length;
+
+  // Track occurrences of each landmark type
+  const landmarkCounts = {};
+  const landmarkElements = {};
+
+  landmarks.forEach(landmark => {
+    // Determine the landmark type
+    const role = landmark.getAttribute('role');
+    const tagName = landmark.tagName.toLowerCase();
+    
+    // Determine the canonical landmark type
+    let landmarkType;
+    if (role) {
+      // Map ARIA roles to standard landmark types
+      const roleMap = {
+        'main': 'main',
+        'navigation': 'navigation',
+        'banner': 'banner',
+        'contentinfo': 'contentinfo',
+        'search': 'search',
+        'complementary': 'complementary',
+        'region': 'region'
+      };
+      landmarkType = roleMap[role] || role;
+    } else {
+      // Map HTML elements to standard landmark types
+      const tagMap = {
+        'main': 'main',
+        'nav': 'navigation',
+        'header': 'banner',
+        'footer': 'contentinfo',
+        'aside': 'complementary',
+        'section': 'region'
+      };
+      landmarkType = tagMap[tagName] || tagName;
+    }
+
+    // Initialize tracking for this landmark type
+    if (!landmarkCounts[landmarkType]) {
+      landmarkCounts[landmarkType] = 0;
+      landmarkElements[landmarkType] = [];
+    }
+
+    landmarkCounts[landmarkType]++;
+    landmarkElements[landmarkType].push(landmark);
+  });
+
+  // Analyze each landmark type
+  for (const type in landmarkCounts) {
+    const count = landmarkCounts[type];
+    const elements = landmarkElements[type];
+
+    if (UNIQUE_LANDMARKS.includes(type) && count > 1) {
+      // This is a duplicate for a unique landmark type
+      results.isUnique = false;
+      results.duplicateLandmarks.push({
+        type: type,
+        count: count,
+        elements: elements
+      });
+    } else {
+      // This is a unique or acceptable landmark
+      results.uniqueLandmarks.push({
+        type: type,
+        count: count,
+        elements: elements
+      });
+    }
+  }
+
+  return results;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -129,4 +241,5 @@ module.exports = {
   checkLinkAndButtonAccessibility,
   checkAccessibility,
   renderIndexView,
+  ensureUniqueLandmarks,
 };

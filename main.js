@@ -22,7 +22,37 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // ... (existing code)
+  // Ensure main landmark exists
+  let main = document.querySelector('main');
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    if (document.body.firstChild) {
+      document.body.insertBefore(main, document.body.firstChild);
+    } else {
+      document.body.appendChild(main);
+    }
+  }
+
+  // Ensure navigation landmarks have proper roles
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav) => {
+    if (!nav.id) {
+      nav.setAttribute('role', 'navigation');
+    }
+  });
+
+  // Ensure header has proper landmark role
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+
+  // Ensure footer has proper landmark role
+  const footer = document.querySelector('footer');
+  if (footer && !footer.getAttribute('role')) {
+    footer.setAttribute('role', 'contentinfo');
+  }
 }
 
 /**
@@ -33,7 +63,21 @@ function addProperLandmarkRegions() {
  * @returns {void}
  */
 function addProperAccountManagement() {
-  // ... (existing code)
+  // Add aria-expanded to elements with collapse/toggle behavior
+  const collapsibleElements = document.querySelectorAll('[data-toggle="collapse"], .dropdown-toggle, [aria-controls]');
+  collapsibleElements.forEach((element) => {
+    if (!element.hasAttribute('aria-expanded')) {
+      element.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Add aria-label to form elements that need better descriptions
+  const formElements = document.querySelectorAll('form');
+  formElements.forEach((form, index) => {
+    if (!form.id && !form.getAttribute('aria-label')) {
+      form.setAttribute('aria-label', `Form ${index + 1}`);
+    }
+  });
 }
 
 /**
@@ -42,21 +86,69 @@ function addProperAccountManagement() {
  *
  * @returns {void}
  */
-function addProperFormAccessibility() {
-  // ... (existing code)
+function addAriaAttributesToFormControls() {
+  // Get all form inputs, textareas, and selects
+  const formControls = document.querySelectorAll('input, textarea, select');
+
+  formControls.forEach((control, index) => {
+    // Skip controls that already have proper labeling
+    const hasLabel = control.id &&
+                     document.querySelector(`label[for="${control.id}"]`);
+
+    // Skip hidden inputs
+    if (control.type === 'hidden') {
+      return;
+    }
+
+    if (!hasLabel) {
+      // Add aria-label if no associated label exists
+      const existingLabel = control.getAttribute('aria-label') ||
+                           control.getAttribute('aria-labelledby') ||
+                           control.getAttribute('placeholder');
+
+      if (!existingLabel) {
+        const inputType = control.type || control.tagName.toLowerCase();
+        control.setAttribute('aria-label', `${inputType} input ${index + 1}`);
+      }
+    }
+
+    // Add required indicator via ARIA for required fields
+    if (control.required && !control.getAttribute('aria-required')) {
+      control.setAttribute('aria-required', 'true');
+    }
+
+    // Add invalid state indicator via ARIA
+    if (control.validity && !control.validity.valid && !control.getAttribute('aria-invalid')) {
+      control.setAttribute('aria-invalid', 'true');
+    }
+  });
+
+  // Ensure all fieldsets have accessible names
+  const fieldsets = document.querySelectorAll('fieldset');
+  fieldsets.forEach((fieldset, index) => {
+    if (!fieldset.getAttribute('aria-label') && !fieldset.getAttribute('aria-labelledby')) {
+      const legend = fieldset.querySelector('legend');
+      if (legend) {
+        fieldset.setAttribute('aria-label', legend.textContent || `Field group ${index + 1}`);
+      }
+    }
+  });
 }
 
 /**
  * Function to replace `my-button` with actual button id
  */
-addProperLandmarkRegions();
-addProperAccountManagement();
-addProperFormAccessibility();
-replaceMyButtonId();
+function initAccessibility() {
+  replaceMyButtonId();
+  addProperLandmarkRegions();
+  addProperAccountManagement();
+  addAriaAttributesToFormControls();
+}
 
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
-  addProperFormAccessibility,
-  replaceMyButtonId
+  addAriaAttributesToFormControls,
+  replaceMyButtonId,
+  initAccessibility
 };

@@ -50,4 +50,11 @@ function generateHTML() {
 </html>`;
 }
 
-module.exports = { generateHTML };
+// New function added to the main.js file
+function getTableContent() {
+    // Placeholder for the logic to retrieve table content
+    // This function should be updated to fetch the actual table content
+    return '<tr><td>Example Metric</td><td>Example Value</td></tr>';
+}
+
+module.exports = { generateHTML, getTableContent };

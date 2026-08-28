@@ -3,12 +3,6 @@ import "./globals.css";
 import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
 export const metadata: Metadata = {
   title: "Screeps Dashboard",
   description: "Dashboard for Screeps",
@@ -22,20 +16,32 @@ export default function RootLayout({
   addLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
+  checkAccessibility();
+  checkLandmarks();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+  fixTableStructureIssues();
+  setFormElementAccessibleNames();
+  setSvgAccessibilityProps();
+  
+  // Check and address accessibility issues
+  const elements = document.querySelectorAll('[data-accessibility-issue]');
+  elements.forEach(element => {
+    const issueId = element.getAttribute('data-accessibility-issue');
+    if (issueId === '038') {
+      addressAccessibilityIssue038(element, { issue: '038', severity: 'high' });
+    }
+  });
 
   // Implement the renderIndexView method here
   renderIndexView();
+  renderDependencyGraph();
 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
-        {checkAccessibility().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
-        {checkLandmarks().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>{children}</body>
     </html>

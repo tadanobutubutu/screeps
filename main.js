@@ -42,7 +42,7 @@ function addMainLandmark(document) {
 // Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
   // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
+  // ... unique landmarks implementation for origin/main
 }
 
 // Function to add accessible names to SVGs
@@ -132,7 +132,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
-    element.id = `${idPrefix}-${element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
+    element.id = `${idPrefix}-element.dataset.id > 0 ? element.dataset.id : Math.random().toString().slice(2)}`;
   });
   return document;
 }
@@ -310,4 +310,21 @@ export {
   class1,
   function1,
   Object1
+};
+
+// TODO: Add back any required exports that might have been removed
+const missingModule = require('./path/to/missing/module');
+
+// Existing code...
+
+module.exports = {
+  // Existing exports...
+  MyExport: function() {
+    // Existing implementation...
+  },
+
+  // Add the missing export
+  AnotherExport: function() {
+    // Implementation of the new export
+  },
 };

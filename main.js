@@ -1,3 +1,12 @@
+import _ from 'lodash';
+
+// Existing exports and functions stay here
+
+// New export for the myNewFunction
+export function myNewFunction(arr) {
+  return _.map(arr, item => item * 2);
+}
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
@@ -284,6 +293,37 @@ function fixFakeLinkIssue() {
   const links = document.querySelectorAll('a');
   const fixedLinks = [];
 
+  links.forEach(link => {
+    if (!isLinkAccessible(link)) {
+      // Convert inaccessible links to buttons
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      const ariaLabel = link.getAttribute('aria-label');
+      if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+      }
+      link.parentNode.replaceChild(button, link);
+      fixedLinks.push(button);
+    }
+  });
+
+  return fixedLinks;
+}
+
+/**
+ * Checks accessibility of links and buttons in a container.
+ * @param {HTMLElement} [container=document] - The container to check
+ * @returns {Object} An object containing accessibility check results
+ */
+function checkLinkAndButtonAccessibility(container = document) {
+  const results = {
+    isFullyAccessible: true,
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] }
+  };
+
+  // Check all links in the container
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);

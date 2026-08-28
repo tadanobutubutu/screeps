@@ -11,16 +11,24 @@ function addressInsightReportIssues(insightReport) {
 function ensureUniqueLandmarks() {
   // Example implementation from origin/main - adapted for Screeps environment
   // Note: In a Screeps context, we'd need to adapt this to work with game objects
-  // This is a placeholder that would need actual implementation
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const uniqueElements = [];
+    elements.forEach(el => {
+      const isUnique = !uniqueElements.some(uEl => uEl === el);
+      if (isUnique) {
+        uniqueElements.push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues() {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
-}
-
-// Functions to address specific insight report issues
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+// Function to address landmark roles and fix issues
+function addressLandmarkRoles() {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -29,11 +37,12 @@ function ensureUniqueLandmarksFromInsightReport(insightReport) {
   });
 }
 
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+// Function to address React 017 accessibility issues
+function addressReact017Issues() {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      ensureUniqueLandmarks();
     }
   });
 }
@@ -55,7 +64,7 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksByExample() {
+function removeNonUniqueLandmarks() {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -81,9 +90,8 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addressLandmarkRoles,
+  addressReact017Issues,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  removeNonUniqueLandmarks,
 };

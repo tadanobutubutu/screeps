@@ -218,6 +218,67 @@ function renderIndexView() {
   document.body.appendChild(button);
 }
 
+/**
+ * Gets the language attribute from the HTML element.
+ * Addresses REACT_015 accessibility requirement.
+ * @returns {string} The language code (e.g., 'en', 'es') or empty string if not set
+ */
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (!htmlElement) return '';
+  return htmlElement.getAttribute('lang') || '';
+}
+
+/**
+ * Creates an accessible in-page button with proper ARIA attributes.
+ * Addresses REACT_015 accessibility requirement.
+ * @param {string} text - The button text content
+ * @param {Function} onClick - The click handler function
+ * @param {Object} options - Additional options for the button (ariaLabel, id, className, title)
+ * @returns {HTMLButtonElement} The created button element with accessibility attributes
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  
+  // Set the button text
+  button.textContent = text;
+  
+  // Add optional id
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  // Add optional class name
+  if (options.className) {
+    button.className = options.className;
+  }
+  
+  // Add aria-label for screen readers if provided
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+  
+  // Add title attribute for additional context
+  if (options.title) {
+    button.setAttribute('title', options.title);
+  }
+  
+  // If no visible text, ensure aria-label is set for accessibility
+  if (!text || text.trim().length === 0) {
+    if (!options.ariaLabel) {
+      console.warn('createInPageButton: Button has no text. Consider adding an aria-label for accessibility.');
+    }
+    button.setAttribute('role', 'presentation');
+  }
+  
+  // Attach click handler
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  return button;
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -227,5 +288,7 @@ module.exports = {
   checkLandmarkElement,
   checkLandmarks,
   wrapPrimaryContentInMain,
-  renderIndexView
+  renderIndexView,
+  getLangAttribute,
+  createInPageButton
 };

@@ -28,6 +28,28 @@ function run() {
     });
 }
 
+// ----- END ORIGINAL CODE -------
+
+/**
+ * Check if a value is a number
+ * @param {*} value - Value to check
+ * @returns {boolean} True if value is a number, false otherwise
+ */
+function isNumber(value) {
+  return typeof value === 'number' && !isNaN(value);
+}
+
+/**
+ * Clamp a number between min and max values
+ * @param {number} value - Value to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} Clamped value
+ */
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
 // Start the game loop
 Module.onInit = function() {
   setInterval(run, 1000);
@@ -175,5 +197,7 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    isNumber,
+    clamp
 };

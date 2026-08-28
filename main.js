@@ -1,28 +1,15 @@
 // TODO: Add back any required exports that might have been?
 
-// Utility functions
-function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+function main() {
+  return "Hello, World!";
 }
 
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount);
-}
+const version = "1.0.0";
 
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
+const config = {
+  port: 3000,
+  debug: false
+};
 
 function throttle(func, limit) {
   let inThrottle;
@@ -225,9 +212,9 @@ function calculateAverage(numbers) {
 
 // Exports
 module.exports = {
-  formatDate,
-  formatCurrency,
-  debounce,
+  main,
+  version,
+  config,
   throttle,
   generateId,
   deepClone,

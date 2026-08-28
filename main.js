@@ -1,4 +1,5 @@
-<<<<<<< HEAD
+const fs = require('fs');
+const path = require('path');
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 
@@ -30,18 +31,6 @@ function getSvgAccessibleName(svgElement) {
   return null;
 }
 
-// Import accessibility helper functions
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
 // Address accessibility issues from insight report:
 
 module.exports = {
@@ -50,6 +39,7 @@ module.exports = {
   // ... existing exports ...
   // calculateArea: calculateArea,
   // ... new function exports ...
+  getSvgAccessibleName,
 };
 
 // Utility functions (added from the new changes)
@@ -78,4 +68,3 @@ function generateId() {
 }
 
 // ... other utility functions if necessary ...
->>>>>>> origin/main

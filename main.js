@@ -250,3 +250,13 @@ export function fixFakeLinkIssue(html) {
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+// Default export containing all exported functions
+export default {
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
+};

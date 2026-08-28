@@ -140,6 +140,11 @@ function countDependencies() {
     };
 }
 
+// TODO: Implement the new function as per the issue requirements
+function newFunction(a, b) {
+  return a + b;
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 function ensureElementHasId(element) {
@@ -183,7 +188,8 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    newFunction
 };
 
 export function getLangAttribute() {

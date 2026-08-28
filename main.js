@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with the merged changes:
-
-```javascript
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -36,7 +33,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-helpers');
 
 // Screeps Main Entry Point
 // This file contains the main game loop and accessibility functions
@@ -51,11 +48,7 @@ function loop() {
   // Code for the game loop...
 }
 
-// Export the loop function
 exports.loop = loop;
 
 // Export the new function to validate landmark structure
 exports.validateLandmarkStructure = validateLandmarkStructure;
-```
-
-This merged version preserves both changes and combines the accessibility functions import at the bottom of the file. The render dependency graph and the accessibility issue 038 resolution are included, as well as the merged accessibility helper functions. Also, the landmark structure validation function is exported.

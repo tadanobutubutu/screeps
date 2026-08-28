@@ -1,15 +1,1 @@
-// ... (existing code before line 8) ...
-
-// BEGIN ORIGINAL CODE (unchanged)
-// ... (original code from before the merge) ...
-// ----- END ORIGINAL CODE -----
-
-// ... (existing code after line 8) ...
-
-// New code from the branch being merged in
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN NEW CODE (from the branch being merged) -----
-// ... (new code from the branch) ...
-// ----- END NEW CODE -----
-
-// ... (existing code after line 8) ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

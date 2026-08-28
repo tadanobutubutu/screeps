@@ -3,10 +3,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App'; // Assuming the root component is named App
 
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    return 0;
+  }
+  return numbers.reduce((sum, num) => sum + num, 0);
+}
+
 // Assuming that App.js imports and renders the primary content components
 // For the purpose of this example, I'll assume it looks something like this:
 import IndexPage from './IndexPage';
-import DependencyGraphPage from './DependencyGraphPage';
+import DependencyGraphPage from ...
 
 // The App component will manage the routing or conditional rendering of the pages
 class App extends React.Component {
@@ -32,4 +39,4 @@ class App extends React.Component {
 }
 
 // Render the App component to the DOM
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, ...

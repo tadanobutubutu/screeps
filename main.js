@@ -394,6 +394,7 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 // Exports for all functions
 module.exports = {
   renderDependencyGraph,
+  dependencyGraphContent,
   newFunction,
   addressAccessibilityIssue038,
   totalDependencies,

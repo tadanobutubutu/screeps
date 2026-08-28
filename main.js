@@ -27,7 +27,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  const container = document.querySelector('.dependency-graph-container, [data-dependency-graph-container]');
   if (container) {
     container.innerHTML = data;
   }
@@ -44,7 +44,7 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('[onclick], [role="button"]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -83,8 +83,10 @@ function addressInsightReportIssues(insightReport) {
       if (issue.code === 'REACT_027') {
         // This issue is already implemented, so no action is needed here
       }
+    }
+  });
 }
-=======
+
 // Generalized accessibility functions
 function improveAccessibility() {
   // ... (unchanged)
@@ -102,11 +104,14 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function addLandmarkRoles(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
     }
   });
 }
@@ -128,7 +133,7 @@ function calculateSum(a, b) {
 
 // Example logic to ensure unique landmarks (from origin/main)
 // Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureUniqueLandmarksByExample() {
+function handleUniqueLandmarks() {
   // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
   // Keeping it as provided in origin/main for reference
 }
@@ -156,11 +161,11 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
   
-  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    if (link.tabIndex < 0) link.setAttribute('tabindex', '0');
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
@@ -170,7 +175,7 @@ function fixFakeLinks() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.lang) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -199,12 +204,12 @@ function fixTableHeaderCellScope() {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const rows = table.querySelectorAll('tr');
+        const cellIndex = Array.from(cell.parentNode.cells).indexOf(cell);
         let isHeaderRow = true;
         
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('td, th');
+          const rowCells = Array.from(row.querySelectorAll('th, td'));
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -256,7 +261,7 @@ function addSvgAccessibleNames() {
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function processUniqueLandmarksFromReport(insightReport) {
   const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
 
@@ -288,8 +293,8 @@ function implementNewFunction() {
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
+  addSvgAccessibleNames();
   fixTableHeaderCellScope();
-  improveAccessibility();
 }
 
 // Existing code preserved below
@@ -305,8 +310,8 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addressAccessibilityIssues,
+  renderDependencyGraphContent,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -316,7 +321,10 @@ module.exports = {
   implementNewFunction,
   addLangAttribute,
   main,
-  someFunction
+  someFunction,
+  addLandmarkRoles,
+  processUniqueLandmarksFromReport,
+  handleUniqueLandmarks
 };
 
 // Execute main function

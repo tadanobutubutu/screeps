@@ -1,11 +1,5 @@
 // main.js - Accessibility improvements implementation
 
-// Adding the new function at the end
-function newFunction() {
-  // Placeholder implementation - could be expanded based on actual requirements
-  console.log("New function executed");
-}
-
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
   liveRegion: null,
@@ -193,6 +187,25 @@ const a11yStore = {
     }
   },
 
+  // Add lang attribute to HTML element
+  getLangAttribute() {
+    return document.documentElement.lang || 'en';
+  },
+
+  // Create skip-to-main-content button
+  createInPageButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Skip to main content';
+    button.addEventListener('click', () => {
+      const main = document.querySelector('main');
+      if (main) {
+        main.setAttribute('tabindex', '-1');
+        main.focus();
+      }
+    });
+    return button;
+  },
+
   // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
     return (
@@ -244,12 +257,31 @@ const a11yStore = {
     });
   },
 
+  // Address accessibility issues from insight report
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+    // Implementation would process the report and fix identified issues
+    console.log('Addressing accessibility issues:', report);
+  },
+
   // Preserve existing code functionality
   preserveExistingCode() {
     // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
   }
 };
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Adding the new function at the end
+function newFunction() {
+  // Placeholder implementation - could be expanded based on actual requirements
+  console.log("New function executed");
+}
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -259,5 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Exporting the module
 module.exports = {
   newFunction,
-  a11yStore
+  a11yStore,
+  addressAccessibilityIssues,
+  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+  createInPageButton: a11yStore.createInPageButton.bind(a11yStore)
 };

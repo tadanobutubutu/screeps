@@ -250,6 +250,57 @@ function addLangAttribute() {
 }
 
 /**
+ * Checks table structure accessibility in the document or specific container.
+ * @param {HTMLElement} [container=document] - The container to check for table accessibility
+ * @returns {Object} An object containing table accessibility check results
+ */
+function checkTableStructure(container = document) {
+  const results = {
+    accessibleTables: [],
+    inaccessibleTables: []
+  };
+
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    const tableIssues = [];
+
+    // Check for caption element
+    if (!table.querySelector('caption')) {
+      tableIssues.push('missing-caption');
+    }
+
+    // Check for proper table structure (thead/tbody)
+    if (!table.querySelector('thead') && !table.querySelector('tbody')) {
+      tableIssues.push('missing-thead-tbody');
+    }
+
+    // Check for scope attributes on th elements
+    const thElements = table.querySelectorAll('th');
+    let missingScope = false;
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        missingScope = true;
+      }
+    });
+    if (thElements.length > 0 && missingScope) {
+      tableIssues.push('th-missing-scope');
+    }
+
+    // If no issues found, table is accessible
+    if (tableIssues.length === 0) {
+      results.accessibleTables.push(table);
+    } else {
+      results.inaccessibleTables.push({
+        table: table,
+        issues: tableIssues
+      });
+    }
+  });
+
+  return results;
+}
+
+/**
  * Fixes table structure issues in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to fix table issues in
  * @returns {NodeList} NodeList of fixed tables
@@ -377,6 +428,7 @@ module.exports = {
   wrapPrimaryContentInMain,
   renderIndexView,
   addLangAttribute,
+  checkTableStructure,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,

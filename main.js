@@ -85,12 +85,50 @@ function addProperLandmarkRegions() {
     }, 0);
   };
 
+  // Function to check link and button accessibility
+  const checkLinkButtonAccessibility = () => {
+    if (typeof document === 'undefined' || !document.body) {
+      return;
+    }
+
+    const elements = document.querySelectorAll('a, button');
+    elements.forEach((element) => {
+      // Check if element is hidden
+      const isHidden = element.getAttribute('aria-hidden') === 'true' ||
+                       element.getAttribute('hidden') !== null ||
+                       element.style.display === 'none' ||
+                       element.style.visibility === 'hidden';
+
+      if (isHidden) {
+        return;
+      }
+
+      // Check for existing accessible name
+      const hasAriaLabel = element.getAttribute('aria-label');
+      const hasAriaLabelledBy = element.getAttribute('aria-labelledby');
+      const hasTitle = element.getAttribute('title');
+      const hasTextContent = element.textContent && element.textContent.trim().length > 0;
+
+      // For links, also check if they contain an image with alt text
+      const hasImgWithAlt = element.querySelector('img[alt]') !== null;
+
+      if (!hasAriaLabel && !hasAriaLabelledBy && !hasTitle && !hasTextContent && !hasImgWithAlt) {
+        const tagName = element.tagName.toLowerCase();
+        const id = element.id ? `#${element.id}` : '';
+        const className = element.className ? `.${element.className.toString().trim().split(/\s+/).join('.')}` : '';
+        console.warn(`Accessibility: ${tagName}${id}${className} has no accessible name.`);
+      }
+    });
+  };
+
   ensureSvgAccessibleNames();
+  checkLinkButtonAccessibility();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
       updateAccessibleSvgNames();
+      checkLinkButtonAccessibility();
     });
 
     if (document.body) {

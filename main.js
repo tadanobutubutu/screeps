@@ -1,3 +1,7 @@
+// <<<<<<< HEAD
+// [your current branch changes]
+// >>>>>>> origin/main
+
 // Please provide the actual main.js content so I can fix the REACT_036 issue.
 // The issue mentions a line like:
 //   <a id="unrotate" href="#">rotate back</a>

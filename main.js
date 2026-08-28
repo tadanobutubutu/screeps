@@ -1,3 +1,7 @@
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
 const existingFunction = () => {
   // Existing function logic
 };
@@ -106,8 +110,9 @@ function removeLandmarkRegion(id) {
   return true;
 }
 
-// Exporting the new function and landmark utilities
+// Exporting all functions and utilities
 export {
+  greet,
   existingFunction,
   newAccessibleFunction,
   addLandmarkRegionToElement,

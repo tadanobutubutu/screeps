@@ -405,7 +405,7 @@ if (!document.documentElement.getAttribute('lang')) {
 }
 
 /**
- * Wraps the primary content in a <main> element for semantic HTML structure.
+ * Wraps the primary content area (body or main content container)
  * This function finds the main content area and wraps it appropriately.
  * 
  * @param {Object} context - The React context containing window and document references

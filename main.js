@@ -5,6 +5,13 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
+// Initial setup
+const app = document.getElementById('root');
+
+// Improve accessibility
+app.setAttribute('role', 'main');
+app.setAttribute('aria-label', 'Main application');
+
 function function3() {
   // TODO: Implement new function3 logic here
 }

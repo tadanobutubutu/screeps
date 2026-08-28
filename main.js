@@ -8,6 +8,10 @@ function helloWorld() {
   return 'Hello, World!';
 }
 
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
+
 // Export existing functions
 module.exports = {
   helloWorld,

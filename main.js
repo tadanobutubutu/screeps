@@ -1,52 +1,52 @@
 // TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
 
+// Import the required functions from both branches
+const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+
+// Generalized accessibility functions
+
 function improveAccessibility() {
-  // ... (unchanged)
+  renderDependencyGraphContent(document.querySelector('.dependency-graph-content, [data-dependency-graph-content]'));
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
 }
 
-function addressInsightReportIssues(insightReport) {
-  // ... (unchanged)
-}
-
-// New function to address accessibility issues from insight report
+// Function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  // Example implementation from origin/main - adapted for Screeps environment
-  // Note: In a Screeps context, we'd need to adapt this to work with game objects
-  // This function ensures no duplicate landmarks exist in the game
+  // This function ensures unique landmark roles and removes duplicates
+  // Adapted for Screeps environment
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  
+  const uniqueElements = {};
+
   landmarks.forEach(landmark => {
-    const elements = _.filter(Game.structures, s => s.landmarkType === landmark);
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl.id === el.id);
+    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
+    const uniqueGameObjects = [];
+
+    matchingGameObjects.forEach(go => {
+      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
       if (isUnique) {
-        uniqueElements.push(el);
+        uniqueGameObjects.push(go);
+      } else {
+        // Remove the landmark tag if it's not unique
+        go.remove(landmark);
       }
     });
-    // Return the count of unique landmarks for this type
-    return uniqueElements.length;
+
+    uniqueElements[landmark] = uniqueGameObjects;
   });
+
+  return uniqueElements;
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixIssues() {
-  // Existing logic (if any) can be kept here, or, a new implementation can be added
-  // This function adds appropriate landmark roles to Screeps structures
-  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
-  
-  landmarkTypes.forEach(type => {
-    const structures = _.filter(Game.structures, s => s.structureType === type);
-    structures.forEach(structure => {
-      if (!structure.landmarkType) {
-        structure.landmarkType = 'region';
-      }
-    });
-  });
-}
-
-// Functions to address specific insight report issues
-function handleReact025Issues(insightReport) {
+// Function to address specific insight report issues
+function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
@@ -55,12 +55,30 @@ function handleReact025Issues(insightReport) {
   });
 }
 
-function handleReact017Issues(insightReport) {
+// Function to address REACT_017 specific insight report issues
+function addressREACT017(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      addProperLandmarkRegions(issue.data || []);
     }
+  });
+}
+
+// New function to address accessibility issues
+function addressAccessibilityIssues() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
   });
 }
 
@@ -79,24 +97,17 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Example logic to ensure unique landmarks (from origin/main)
-// Note: This function uses DOM APIs and may need adaptation for Screeps environment
-function ensureDOMUniqueLandmarks() {
-  // This is a browser-oriented example that would need to be adapted for Node.js/Screeps
-  // Keeping it as provided in origin/main for reference
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const elements = [];
-    const uniqueElements = [];
-    elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
-      if (isUnique) {
-        uniqueElements.push(el);
-      } else {
-        // Remove the role if it's not unique
-        if (el.removeAttribute) {
-          el.removeAttribute('role');
-        }
+// New function to add landmark roles and fix issues
+function addLandmarkRolesAndFixIssues() {
+  // Existing logic (if any) can be kept here, or, a new implementation can be added
+  // This function adds appropriate landmark roles to Screeps structures
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+  
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    structures.forEach(structure => {
+      if (!structure.landmarkType) {
+        structure.landmarkType = 'region';
       }
     });
   });
@@ -105,13 +116,13 @@ function ensureDOMUniqueLandmarks() {
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
-  addressInsightReportIssues,
+  addressInsightIssues,
+  addressREACT017,
+  addressAccessibilityIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  handleReact025Issues,
-  handleReact017Issues,
-  ensureDOMUniqueLandmarks
+  addProperLandmarkRegions,
 };

@@ -1,17 +1,34 @@
-// Replace the fake link with a button element
-const createRotateButton = () => {
-  const button = document.createElement('button');
-  button.id = 'unrotate';
-  button.textContent = 'rotate back';
-  button.type = 'button';
-  return button;
-};
+const createRotateButton = (() => {
+  const getInAccessibleButton = () => {
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = 'rotate back';
+    button.type = 'button';
+    button.style.display = 'none';
+    return button;
+  };
 
-// Example usage - append the button
-const unrotateButton = createRotateButton();
-document.body.appendChild(unrotateButton);
+  const updateButtonAccessibility = () => {
+    const button = document.getElementById('unrotate');
+    if (button) {
+      button.removeAttribute('style');
+      button.setAttribute('aria-label', 'Rotate button');
+    }
+  };
 
-// Original functions preserved
+  let unrotateButton = null;
+
+  return () => {
+    if (!unrotateButton) {
+      unrotateButton = getInAccessibleButton();
+      document.body.appendChild(unrotateButton);
+    }
+    updateButtonAccessibility();
+    return unrotateButton;
+  };
+})();
+
 module.exports = {
   createRotateButton,
+  // ... the existing functions and properties
 };

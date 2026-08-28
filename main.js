@@ -1,1 +1,5 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+export default function main() {
+  return "Hello, World!";
+}
+
+export const version = "1.0.0";

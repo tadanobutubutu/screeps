@@ -103,12 +103,40 @@ function fixFakeLinkIssue(link) {
   return link;
 }
 
+// Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(rootElement) {
+  // Check if the rootElement has a main element and wrap the primary content
+  if (!rootElement) {
+    return null;
+  }
+
+  const mainElement = rootElement.querySelector('main');
+  if (!mainElement) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    // Assuming 'primary content' is any content after the 'header' element
+    const primaryContent = rootElement.querySelector('header');
+    if (primaryContent) {
+      const contentToMove = primaryContent.nextElementSibling;
+      if (contentToMove) {
+        while (contentToMove.firstChild) {
+          mainElement.appendChild(contentToMove.firstChild);
+        }
+        rootElement.insertBefore(mainElement, contentToMove);
+      }
+    }
+  }
+
+  return rootElement;
+}
+
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 const rootElement = document.querySelector('html') || document.body;
 
 if (rootElement) {
   addLangAttribute(rootElement);
   addMainLandmark(rootElement);
+  wrapPrimaryContentInMain(rootElement); // Added call to new function
 }
 
 ensureUniqueLandmarks();
@@ -120,4 +148,5 @@ export {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
+  wrapPrimaryContentInMain // Exporting the new function
 };

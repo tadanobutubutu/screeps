@@ -4,13 +4,13 @@
 
 // ... (existing code continues here, including imports, exports, and functions)
 
-function getLangAttribute() {
+export function getLangAttribute() {
   // Implementation of the getLangAttribute function
   // This is a placeholder for the actual implementation
   return 'en'; // Assuming English for the example
 }
 
-function createInPageButton() {
+export function createInPageButton() {
   // Implementation of the createInPageButton function
   // This is a placeholder for the actual implementation
 }
@@ -401,35 +401,4 @@ export function checkTableStructure(html) {
   
   return issues;
 }
-
-module.exports = {
-  getLangAttribute,
-  createInPageButton,
-  getAccessibilityReport,
-  calculateSum,
-  calculateDifference,
-  multiply,
-  divide,
-  greet,
-  isEven,
-  isOdd,
-  sumArray,
-  averageArray,
-  findMax,
-  findMin,
-  reverseString,
-  capitalize,
-  capitalizeWords,
-  formatDate,
-  calculateTotal,
-  validateEmail,
-  capitalizeString,
-  debounce,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableStructure
-};
+```

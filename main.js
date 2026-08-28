@@ -155,5 +155,9 @@ module.exports = {
   addSvgAccessibleNames,
   fixImageAltTexts,
   googleSignIn,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  main: function() {
+    return "Hello, World!";
+  },
+  version: "1.0.0"
 };

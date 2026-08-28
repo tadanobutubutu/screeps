@@ -1,9 +1,5 @@
 // Existing code
 const existingFunction = () => {};
-module.exports = {
-  existingFunction,
-  getSvgAccessibleName,
-};
 
 /**
  * Get accessible name for SVG elements
@@ -269,6 +265,15 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   return summary;
 }
 
+/**
+ * Calculate total price from an array of items
+ * @param { Array } items - Array of items with price property
+ * @returns { number } Total price of all items
+ */
+function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
+}
+
 module.exports = {
   existingFunction,
   getSvgAccessibleName,
@@ -288,4 +293,5 @@ module.exports = {
   addAriaToFormControls,
   replaceMyButtonId,
   addressAccessibilityIssuesFromInsightReport,
+  calculateTotal,
 };

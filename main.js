@@ -7,22 +7,25 @@ import { validateUserInput } from './utils/validation.js';
 
 // Configuration
 const config = {
-    apiUrl: 'https://api.example.com',
+    apiUrl: ...
     timeout: 5000,
     enableAccessibility: true
 };
 
 // Initialize application
-document.addEventListener('DOMContentLoaded', () => {
+... () => {
     initializeApp(config);
     
     // Address new accessibility issues from the insight report
+    // Add lang attribute to HTML element (REACT_015)
+    addLangAttribute();
+    
     handleAccessibility();
     
     // Setup form validation
-    const form = document.getElementById('contact-form');
+    const form = ...
     if (form) {
-        form.addEventListener('submit', validateUserInput);
+        ... validateUserInput);
     }
 });
 
@@ -32,16 +35,16 @@ export function logMessage(message, level = 'info') {
 }
 
 // Accessibility helper function
-export function checkAccessibilityCompliance(element) {
+export function ... {
     const issues = [];
     
     // Check for missing alt attributes on images
-    const images = element.querySelectorAll('img');
+    const images = ...
     images.forEach((img, index) => {
         if (!img.alt && !img.getAttribute('role')) {
             issues.push({
                 type: 'missing-alt',
-                element: `img:nth-child(${index + 1})`,
+                element: ... + 1})`,
                 severity: 'high',
                 recommendation: 'Add descriptive alt text or role="presentation" for decorative images'
             });
@@ -49,16 +52,16 @@ export function checkAccessibilityCompliance(element) {
     });
     
     // Check for buttons without accessible names
-    const buttons = element.querySelectorAll('button');
+    const buttons = ...
     buttons.forEach((btn, index) => {
         const hasText = btn.textContent.trim().length > 0;
         const hasAriaLabel = btn.getAttribute('aria-label');
-        const hasAriaLabelledby = btn.getAttribute('aria-labelledby');
+        const hasAriaLabelledby = ...
         
         if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
             issues.push({
                 type: 'button-no-name',
-                element: `button:nth-child(${index + 1})`,
+                element: ... + 1})`,
                 severity: 'critical',
                 recommendation: 'Add text content, aria-label, or aria-labelledby to button'
             });
@@ -66,16 +69,16 @@ export function checkAccessibilityCompliance(element) {
     });
     
     // Check for form inputs without labels
-    const inputs = element.querySelectorAll('input:not("hidden"):not("submit"):not("button"):not("reset"):not("image")');
-    inputs.forEach((input, index) => {
+    const inputs = ...
+    ... index) => {
         const hasLabel = input.getAttribute('aria-label') || 
-                         input.getAttribute('aria-labelledby') ||
-                         document.querySelector(`label[for="${input.id}"]`);
+                         ... ||
+                         ...
         
         if (!input.id && !hasLabel) {
             issues.push({
                 type: 'input-no-label',
-                element: `input:nth-child(${index + 1})`,
+                element: ... + 1})`,
                 severity: 'critical',
                 recommendation: 'Add id to input and associate with a label, or use aria-label/aria-labelledby'
             });
@@ -83,16 +86,16 @@ export function checkAccessibilityCompliance(element) {
     });
     
     // Check for interactive elements with insufficient contrast potential
-    const links = element.querySelectorAll('a');
+    const links = ...
     links.forEach((link, index) => {
-        const style = window.getComputedStyle(link);
-        const bgStyle = window.getComputedStyle(link.parentElement || element);
+        const style = ...
+        const bgStyle = ... || element);
         
         // Basic check - full implementation would calculate actual color contrast ratios
-        if (style.color === bgStyle.backgroundColor) {
+        if (style.color === ... {
             issues.push({
                 type: 'contrast-issue',
-                element: `a:nth-child(${index + 1})`,
+                element: ... + 1})`,
                 severity: 'medium',
                 recommendation: 'Ensure link color has sufficient contrast with background'
             });
@@ -100,6 +103,22 @@ export function checkAccessibilityCompliance(element) {
     });
     
     return issues;
+}
+
+/**
+ * Adds lang attribute to the HTML element if missing.
+ * Addresses accessibility requirement REACT_015.
+ * @returns {boolean} - True if lang attribute was added, false if already present or element not found.
+ */
+export function addLangAttribute() {
+    const htmlElement = document.documentElement;
+    
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        // Default to 'en' for English; can be extended to detect page language
+        htmlElement.setAttribute('lang', 'en');
+        return true;
+    }
+    return false;
 }
 
 // Export for testing
@@ -110,12 +129,12 @@ export function getAccessibilityReport(scope = document) {
     const allIssues = [];
     
     // Run comprehensive accessibility checks
-    const altIssues = checkAccessibilityCompliance(scope);
+    const altIssues = ...
     allIssues.push(...altIssues);
     
     // Check for proper heading hierarchy
-    const headings = scope.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    const headingLevels = Array.from(headings).map(h => parseInt(h.tagName[1]));
+    const headings = ... h2, h3, h4, h5, h6');
+    const headingLevels = ... => ...
     for (let i = 1; i < headingLevels.length; i++) {
         if (headingLevels[i] - headingLevels[i-1] > 1) {
             allIssues.push({
@@ -128,7 +147,7 @@ export function getAccessibilityReport(scope = document) {
     }
     
     // Check for lang attribute on html element
-    if (!document.documentElement.hasAttribute('lang')) {
+    if ... {
         allIssues.push({
             type: 'missing-lang',
             element: 'html',
@@ -155,5 +174,6 @@ export default {
     logMessage,
     checkAccessibilityCompliance,
     getAccessibilityReport,
+    addLangAttribute,
     config
 }

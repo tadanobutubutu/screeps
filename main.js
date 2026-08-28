@@ -1,13 +1,6 @@
 const dependencyGraphContent = require('./dependencyGraph');
 
-const rotateBack = function () {
-  // Logic to rotate back
-  // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
-};
-
-function addLangAttribute(lang = 'en') {
+function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.lang = lang;
@@ -15,24 +8,14 @@ function addLangAttribute(lang = 'en') {
   return document;
 }
 
-exports.rotateBack = rotateBack;
+function fixTableStructure(document) {
+  const tables = document.querySelectorAll('table');
+  let fixedCount = 0;
 
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
-
-exports.renderDependencyGraph = renderDependencyGraph;
+  tables.forEach((table) => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
 
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
@@ -40,15 +23,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
         const theadRowCount = existingThead.querySelectorAll('tr').length;
         remainingRows = remainingRows.slice(theadRowCount);
       } else {
-        remainingRows = [];
-      }
-=======
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
-      } else {
         remainingRows = remainingRows.slice(1);
->>>>>>> origin/main
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
@@ -58,11 +33,9 @@ exports.renderDependencyGraph = renderDependencyGraph;
       }
     }
 
-    // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
+      const cells = row.querySelectorAll('td, th');
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
@@ -73,7 +46,6 @@ exports.renderDependencyGraph = renderDependencyGraph;
       }
     });
 
-    // Additional HEAD logic: ensure scope on header cells
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (!th.scope) {
@@ -86,16 +58,14 @@ exports.renderDependencyGraph = renderDependencyGraph;
   return fixedCount;
 }
 
-// Function to addMainLandmark(document) {
+function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
-    // Find the main content area and wrap it or create main element
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
 
-    // Move first significant content child to main
     const children = Array.from(body.children);
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
@@ -109,7 +79,6 @@ exports.renderDependencyGraph = renderDependencyGraph;
     mainElement = main;
   }
 
-  // Ensure main has proper role if not using native element
   if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
@@ -117,29 +86,23 @@ exports.renderDependencyGraph = renderDependencyGraph;
   return mainElement;
 }
 
-// Function to handle credential response from Google Sign-In
 function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
   console.log('Credential response received:', response);
 }
 
-// Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
   // ... existing implementation for by role
   // ... existing unique landmarks implementation for origin/main>
 }
 
-// Function to add accessible names to SVGs
 function addSvgAccessibleNames(document) {
   // ... existing implementation
 }
 
-// Function to add accessible names to SVGs (alias)
 function addAccessibleNamesToSVGs(document) {
   // ... existing implementation
 }
 
-// Function to fix fake link issue (merged fixes)
 function fixFakeLinkIssue(document) {
   let count = 0;
 
@@ -151,12 +114,10 @@ function fixFakeLinkIssue(document) {
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
     
-    // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
         onclick.includes('href'))) {
       
-      // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -165,7 +126,6 @@ function fixFakeLinkIssue(document) {
       element.setAttribute('onclick', '');
       span.onclick = element.onclick;
       
-      // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
@@ -178,9 +138,7 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
-// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
 function fixFakeLinkIssues(document) {
-  // Fix non-anchor elements with role="link"
   const roleLinks = document.querySelectorAll('[role="link"]');
   roleLinks.forEach(link => {
     if (link.tagName !== 'A') {
@@ -188,7 +146,6 @@ function fixFakeLinkIssues(document) {
     }
   });
 
-  // Fix anchors with href="#" by converting them to accessible buttons
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
@@ -198,7 +155,6 @@ function fixFakeLinkIssues(document) {
   return document;
 }
 
-// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
   // ... updated landmark issue fix implementation
 }
@@ -207,19 +163,15 @@ function addLandmarkRegions(document) {
   // ... existing implementation
 }
 
-// REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
   // ... unique landmarks implementation by role
 }
 
-// Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
   // ... existing implementation
 }
 
-// REACT_037: Google sign-in logic
 function googleSignIn(document) {
-  // Check if Google Identity Services is available
   if (typeof google !== 'undefined' && google.accounts) {
     google.accounts.id.initialize({
       client_id: 'YOUR_CLIENT_ID',
@@ -236,7 +188,6 @@ function googleSignIn(document) {
   return document;
 }
 
-// Function to ensure the element has an id
 function ensureElementHasId(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element, index) => {
@@ -247,7 +198,6 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
   return document;
 }
 
-// Function to add aria-label to elements
 function addAriaLabel(document, selector, label) {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
@@ -258,28 +208,69 @@ function addAriaLabel(document, selector, label) {
   return document;
 }
 
-// Function to render dependency graphs
 function renderDependencyGraphs(document) {
   const graphContainer = document.querySelector('[data-dependency-graph]');
   if (graphContainer) {
-    // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'dependency-graph');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '400');
+    svg.setAttribute('viewBox', '0 0 800 400');
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph visualization');
-    graphContainer.appendChild(svg);
-    
-    // Render the graph content
+
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Dependency Graph';
+    svg.appendChild(title);
+
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    desc.textContent = 'Visual representation of project dependencies';
+    svg.appendChild(desc);
+
+    const graphContent = graphContainer.querySelector('[data-graph-data]');
+    if (graphContent) {
+      // Parse and render dependency data
+      // Implementation would parse the data and create nodes/edges
+    }
+
+    // Render the graph content using the dependencyGraphContent
     if (dependencyGraphContent) {
-      const graphContent = typeof dependencyGraphContent === 'string' 
+      const graphContentString = typeof dependencyGraphContent === 'string' 
         ? dependencyGraphContent 
         : JSON.stringify(dependencyGraphContent);
       const parser = new DOMParser();
-      const doc = parser.parseFromString(graphContent, 'image/svg+xml');
+      const doc = parser.parseFromString(graphContentString, 'image/svg+xml');
       const svgContent = doc.documentElement;
       while (svgContent.firstChild) {
         svg.appendChild(svgContent.firstChild);
       }
+    }
+
+    graphContainer.appendChild(svg);
+  }
+  return document;
+}
+
+function fixButtonIdentifiers(document) {
+  const buttons = document.querySelectorAll('[id^="my-button"]');
+  buttons.forEach(button => {
+    const newId = button.id.replace('my-button', 'btn-' + button.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
+    button.id = newId;
+  });
+  return document;
+}
+
+function ensureDependencyGraphAriaRole(document) {
+  const dependencyGraph = document.querySelector('[data-testid="dependencyGraph"]') || 
+                          document.querySelector('#dependencyGraph') || 
+                          document.querySelector('.dependency-graph') ||
+                          document.querySelector('[class*="dependency-graph"]');
+  
+  if (dependencyGraph) {
+    const existingRole = dependencyGraph.getAttribute('role');
+    if (!existingRole) {
+      dependencyGraph.setAttribute('role', 'region');
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
     }
   }
   return document;
@@ -521,6 +512,54 @@ function fixTableStructureIssues(document) {
   return fixedCount;
 }
 
+function addMainLandmarkToIndex(document) {
+  // ... existing implementation
+  return document;
+}
+
+function addressAccessibilityIssuesForDocument(document) {
+  document = addLangAttribute(document);
+  document = fixTableStructure(document);
+  document = fixLandmarkIssues(document);
+  document = addMainLandmark(document);
+  document = addLandmarkRegions(document);
+  document = ensureUniqueLandmarks(document);
+  document = uniqueLandmarks(document);
+  document = addSvgAccessibleNames(document);
+  document = addAccessibleNamesToSVGs(document);
+  document = fixFakeLinkIssue(document);
+  document = fixFakeLinkIssues(document);
+  document = fixImageAltTexts(document);
+  document = googleSignIn(document);
+  document = fixButtonIdentifiers(document);
+  document = addMainLandmarkToIndex(document);
+  document = ensureElementHasId(document);
+  document = addAriaLabel(document, '[data-dependency-graph]', 'Dependency Graph');
+  document = renderDependencyGraphs(document);
+  document = ensureDependencyGraphAriaRole(document);
+  return document;
+}
+
+const rotateBack = function () {
+  // Logic to rotate back
+  // For example, if you're manipulating the DOM or a state:
+  // document.getElementById('someElement').classList.remove('rotate-forward');
+  // document.getElementById('someElement').classList.add('rotate-backward');
+};
+
+const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+  // Code to address the specific accessibility issue on the element
+  // This is a placeholder function and should be replaced with the actual implementation
+  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+};
+
+const renderDependencyGraph = (dependencyGraph, container) => {
+  // Render the dependency graph using the dependencyGraphContent
+  const graphContent = dependencyGraphContent;
+  // Append the graphContent to the container
+  container.innerHTML = graphContent;
+};
+
 function renderIndexView() {
   // Function to render the index view
 }
@@ -561,27 +600,40 @@ function decodeJwtResponse() {
   // Decode JWT response
 }
 
-function fixButtonIdentifiers() {
-  // Fix button identifiers
-}
-
-function addMainLandmarkToIndex() {
-  // Add main landmark to index
-}
-
-// Export all functions and utilities
-exports.addLangAttribute = addLangAttribute;
-exports.addMainLandmark = addMainLandmark;
-exports.addSvgAccessibleNames = addSvgAccessibleNames;
-exports.checkAccessibility = checkAccessibility;
-exports.checkLandmarks = checkLandmarks;
-exports.checkLandmarkElement = checkLandmarkElement;
-exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
-exports.fixFakeLinkIssue = fixFakeLinkIssue;
-exports.fixFakeLinkIssues = fixFakeLinkIssues;
-exports.fixLandmarkIssues = fixLandmarkIssues;
-exports.addLandmarkRegions = addLandmarkRegions;
-exports.uniqueLandmarks = uniqueLandmarks;
-exports.fixImageAltTexts = fixImageAltTexts;
-exports.googleSignIn = googleSignIn;
-exports.handleCredentialResponse = handleCredentialResponse
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureElementHasId,
+  addAriaLabel,
+  handleCredentialResponse,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  ensureDependencyGraphAriaRole,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssuesForDocument,
+  addressAccessibilityIssues,
+  rotateBack,
+  addressAccessibilityIssue038,
+  renderDependencyGraph,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
+  getSvgAccessibleName,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  decodeJwtResponse
+};

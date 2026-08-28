@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with the merged changes:
-
-```javascript
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -38,6 +35,29 @@ const {
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
+// Function to check link and button accessibility
+const checkLinkAndButtonAccessibility = (element) => {
+  // Check if the element is a link or button
+  if (element.tagName === 'A' || element.tagName === 'BUTTON') {
+    // Check for accessible name
+    const accessibleName = element.getAttribute('aria-label') || element.textContent;
+    if (!accessibleName || accessibleName.trim() === '') {
+      console.warn(`Element ${element.tagName} lacks an accessible name.`);
+    }
+
+    // Check for proper role
+    if (element.tagName === 'A' && !element.hasAttribute('href')) {
+      console.warn(`Anchor element lacks an href attribute.`);
+    }
+
+    // Check for keyboard accessibility
+    const tabIndex = element.getAttribute('tabindex');
+    if (tabIndex === '-1') {
+      console.warn(`Element ${element.tagName} is not keyboard accessible (tabindex="-1").`);
+    }
+  }
+};
+
 // Screeps Main Entry Point
 // This file contains the main game loop and accessibility functions
 
@@ -56,6 +76,6 @@ exports.loop = loop;
 
 // Export the new function to validate landmark structure
 exports.validateLandmarkStructure = validateLandmarkStructure;
-```
 
-This merged version preserves both changes and combines the accessibility functions import at the bottom of the file. The render dependency graph and the accessibility issue 038 resolution are included, as well as the merged accessibility helper functions. Also, the landmark structure validation function is exported.
+// Export the new function to check link and button accessibility
+exports.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;

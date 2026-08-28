@@ -14,4 +14,25 @@ const { mode } = require('./mathHelpers');
 const { median } = require('./mathHelpers');
 // TODO: Add necessary exports for new functions
 
-module.exports = { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median };
+// New function that needs to be preserved in the exports
+const newFunction = () => {
+  // Implementation of newFunction
+};
+
+module.exports = {
+  add,
+  subtract,
+  multiply,
+  divide,
+  power,
+  squareRoot,
+  factorial,
+  fibonacci,
+  sum,
+  average,
+  max,
+  min,
+  mode,
+  median,
+  newFunction
+};

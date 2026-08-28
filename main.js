@@ -43,7 +43,7 @@ function addressAccessibilityIssues(insightReport) {
 
 // Main execution
 function main() {
-  initialize();
+  initializeAccessibility();
   console.log('Main function executed');
 }
 

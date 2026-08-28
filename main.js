@@ -12,8 +12,6 @@ const a11yStore = {
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
   },
 
   // Create a live region for screen reader announcements
@@ -32,7 +30,7 @@ const a11yStore = {
 
   // Announce message to screen readers
   announce(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) return;
 
     this.liveRegion.setAttribute('aria-live', priority);
     this.liveRegion.textContent = '';
@@ -48,7 +46,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        const target = e.target;
         if (target) {
           e.preventDefault();
           target.click();
@@ -57,16 +55,16 @@ const a11yStore = {
 
       // Escape key to close modals/dropdowns
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        const openModal = document.querySelector('.modal.is-open, .dropdown.is-open');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.classList.remove('is-open');
           document.body.style.overflow = '';
         }
       }
     });
 
     // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
+    const dropdownContainers = document.querySelectorAll('.dropdown, .menu');
     dropdownContainers.forEach((container) => {
       container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
@@ -83,7 +81,7 @@ const a11yStore = {
         }
 
         // Ensure focus trapping only within the dropdown container
-        if (!focusIsInsideContainer) {
+        if (!focusIsInsideContainer && document.activeElement === currentFocusedElement) {
           // Find the first focusable element within the container
           const firstFocusableElement = container.querySelector(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -103,7 +101,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      const modal = document.querySelector('.modal.is-open');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
@@ -128,8 +126,8 @@ const a11yStore = {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
-    const target = targetId ? document.getElementById(targetId) : null;
+    const targetId = skipLink.getAttribute('href');
+    const target = targetId ? document.querySelector(targetId.substring(1)) : null;
 
     if (target) {
       skipLink.addEventListener('click', (e) => {
@@ -140,7 +138,7 @@ const a11yStore = {
       });
 
       // Focus the skip link when the document is loaded in Safari
-      if ( navigator.userAgent.toLowerCase().indexOf('safari') !== -1 ) {
+      if (navigator.userAgent.indexOf('Safari') !== -1) {
         skipLink.focus();
       }
     }
@@ -158,36 +156,46 @@ const a11yStore = {
 
   // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) return;
     this.announce(message, priority);
   },
 
   // New function to check landmark elements
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
+    landmarkElements.forEach((tag) => {
+      const landmark = document.querySelector(tag);
       if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+        landmark.id = `landmark-${tag}-${Date.now() * 1000}`;
       }
     });
   },
 
   // New function to add SVG accessibility props
-  addSVGAccessibilityProps() {
+  addSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg) => {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      const existingTitle = svg.querySelector('title');
+      const titleText = existingTitle ? existingTitle.textContent : 'Image description';
+      const descriptionId = `svg-desc-${Date.now() * 1000}`;
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      if (!existingTitle) {
+        const title = document.createElement('title');
+        title.id = descriptionId;
+        title.textContent = titleText;
+        svg.insertBefore(title, svg.firstChild);
+      }
+
+      svg.setAttribute('aria-labelledby', descriptionId);
+
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
+      if (!svg.querySelector('desc')) {
+        svg.insertBefore(descriptionElement, svg.firstChild);
+      }
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
     });
   },
 
@@ -206,15 +214,14 @@ const a11yStore = {
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+document.documentElement.setAttribute('lang', 'en');
 
 // REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
+if (!document.documentElement.lang) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
+document.body.appendChild(mainElement);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {

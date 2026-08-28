@@ -4,20 +4,39 @@
 function checkAccessibilityCompliance(element) {
   const issues = [];
   
-  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-    issues.push('Element missing accessible name');
+  // REACT_015: Add lang attribute to HTML element
+  if (element.tagName === 'HTML' && !element.hasAttribute('lang')) {
+    issues.push('HTML element missing lang attribute');
   }
   
-  if (element.hasAttribute('disabled') && !element.hasAttribute('aria-disabled')) {
-    issues.push('Disabled element missing aria-disabled attribute');
+  // REACT_017: Add/fix 4 landmark issues
+  if (element.hasAttribute('role') && !element.getAttribute('role').includes(' ')) {
+    issues.push('Landmark element should have proper labeling');
   }
   
-  if (element.tagName === 'IMG' && !element.hasAttribute('alt')) {
-    issues.push('Image missing alt attribute');
+  // REACT_025: Ensure unique landmarks (2 issues)
+  if (element.hasAttribute('role') && ['banner', 'navigation', 'main', 'contentinfo', 'complementary'].includes(element.getAttribute('role'))) {
+    const sameRoleElements = document.querySelectorAll(`[role="${element.getAttribute('role')}"]`);
+    if (sameRoleElements.length > 1) {
+      issues.push('Duplicate landmark role found');
+    }
   }
   
-  if (element.hasAttribute('aria-hidden') && element.tagName === 'BUTTON') {
-    issues.push('Button should not be hidden from assistive technology');
+  // REACT_036: Fix 1 fake link issue
+  if ((element.tagName === 'DIV' || element.tagName === 'SPAN') && element.getAttribute('role') === 'link') {
+    issues.push('Fake link detected: use an anchor element instead');
+  }
+  
+  if (element.tagName === 'A' && !element.hasAttribute('href') && element.getAttribute('role') !== 'button') {
+    issues.push('Anchor element missing href attribute');
+  }
+  
+  if (element.hasAttribute('onclick') && element.tagName !== 'A' && element.tagName !== 'BUTTON') {
+    issues.push('Clickable element should be a button or link');
+  }
+  
+  if (element.getAttribute('role') === 'button' && element.tagName !== 'BUTTON' && element.tagName !== 'A') {
+    issues.push('Button role should be on a semantic button or link element');
   }
   
   return {

@@ -2,16 +2,20 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const unrotateBtn = document.getElementById('unrotate');
-  
+
   if (unrotateBtn) {
     unrotateBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      // Rotate back logic
-      document.body.style.transform = 'rotate(0deg)';
-      document.body.style.transition = 'transform 0.3s ease';
+      unrotate();
     });
   }
 });
+
+// Function to rotate back
+const unrotate = () => {
+  document.body.style.transform = 'rotate(0deg)';
+  document.body.style.transition = 'transform 0.3s ease';
+};
 
 // Export any existing functions
 export function someExistingFunction() {
@@ -21,3 +25,6 @@ export function someExistingFunction() {
 export function anotherFunction() {
   // More existing functionality
 }
+
+// Export new function
+export default unrotate;

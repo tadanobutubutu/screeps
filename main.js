@@ -302,4 +302,37 @@ function checkLandmarkElements() {
   // Mapping of semantic HTML tags to their landmark roles
   const semanticToLandmark = {
     'main': 'main',
-    'nav
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+
+  // Check each semantic element for its corresponding landmark role
+  Object.entries(semanticToLandmark).forEach(([tag, role]) => {
+    const elements = document.querySelectorAll(tag);
+    elements.forEach(el => {
+      if (!el.getAttribute('role')) {
+        results.push({
+          element: el,
+          issue: `Element is missing landmark role "${role}"`
+        });
+      }
+    });
+  });
+
+  // Check region landmarks for accessible names
+  const regions = document.querySelectorAll('[role="region"]');
+  regions.forEach(region => {
+    if (!region.getAttribute('aria-label') && !region.getAttribute('aria-labelledby')) {
+      results.push({
+        element: region,
+        issue: 'Region landmark is missing an accessible name'
+      });
+    }
+  });
+
+  return results;
+}

@@ -35,12 +35,46 @@ function getVersion() {
   return VERSION;
 }
 
+function applyAccessibilityFixes() {
+  const elements = document.querySelectorAll('[data-accessibility-issue]');
+  elements.forEach(element => {
+    const issue = element.getAttribute('data-accessibility-issue');
+    switch (issue) {
+      case 'missing-alt':
+        if (!element.getAttribute('alt')) {
+          element.setAttribute('alt', '');
+        }
+        break;
+      case 'missing-label':
+        const id = element.getAttribute('id');
+        if (id && !document.querySelector(`label[for="${id}"]`)) {
+          element.setAttribute('aria-label', element.getAttribute('placeholder') || 'Input field');
+        }
+        break;
+      case 'low-contrast':
+        element.style.color = '#000000';
+        element.style.backgroundColor = '#ffffff';
+        break;
+      case 'missing-role':
+        if (!element.getAttribute('role')) {
+          element.setAttribute('role', 'button');
+        }
+        break;
+      default:
+        break;
+    }
+  });
+}
+
+applyAccessibilityFixes();
+
 export {
   VERSION,
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  applyAccessibilityFixes
 };
 
 export default {
@@ -48,5 +82,6 @@ export default {
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  applyAccessibilityFixes
 };

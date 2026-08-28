@@ -13,13 +13,13 @@ const getAccessibleName = (node) => {
     return null;
   }
 
-  if (node.hasAttribute('aria-labelledby')) {
+  if (node.getAttribute('aria-labelledby')) {
     const labelledById = node.getAttribute('aria-labelledby');
     const labelledElement = document.getElementById(labelledById);
     return labelledElement ? labelledElement.textContent : null;
   }
 
-  if (node.hasAttribute('aria-label')) {
+  if (node.getAttribute('aria-label')) {
     return node.getAttribute('aria-label');
   }
 
@@ -66,16 +66,16 @@ const setAccessibleName = (node, accessibleName) => {
 
 const addProperLandmarkRegions = (document) => {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+  landmarkTypes.forEach((type) => {
+    const elements = document.getElementsByTagName(type);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`[id^="${role}-"]`)).map(el => el.id);
-        let id = `${role}-${idSuffix}`;
+        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+        let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
-          id = `${role}-${idSuffix}`;
+          id = `${type}-${idSuffix}`;
         }
         element.id = id;
       }
@@ -85,7 +85,7 @@ const addProperLandmarkRegions = (document) => {
 
 const addLangAttribute = (document) => {
   const html = document.documentElement;
-  if (html && !html.hasAttribute('lang')) {
+  if (html && !html.getAttribute('lang')) {
     html.setAttribute('lang', 'en');
   }
   return document;
@@ -114,12 +114,12 @@ const fixTableStructure = (document) => {
 
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach((th) => th.setAttribute('scope', 'col'));
+      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
     }
 
     const tbodies = table.querySelectorAll('tbody');
     tbodies.forEach((tbody) => {
-      tbody.querySelectorAll('th').forEach((th) => th.setAttribute('scope', 'row'));
+      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
     });
   });
   return document;
@@ -130,10 +130,10 @@ const addMainLandmark = (document) => {
   if (mains.length === 0) {
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
+    while (document.firstChild) {
+      main.appendChild(document.firstChild);
     }
-    document.body.insertBefore(main, document.body.firstChild);
+    document.body.appendChild(main);
   } else {
     mains.forEach((main, index) => {
       if (!main.id) {
@@ -148,7 +148,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.querySelector('title') && !svg.hasAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -165,7 +165,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach((role) => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     const seenRoleIds = new Set();
 
     elements.forEach((element, index) => {
@@ -221,10 +221,9 @@ const addressAccessibilityIssues = (document) => {
   addLangAttribute(document);
   fixTableStructure(document);
   addMainLandmark(document);
-  addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
+  addSvgAccessibleNames(document);
   fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
   return document;
 };
 

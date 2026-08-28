@@ -1,25 +1,40 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// main.js
+// Implementation of unique landmark functions
+
+// Global set to track used landmark IDs
+const _usedLandmarkIds = new Set();
 
 /**
- * Add your code here to replace `my-button` with a concrete button id
+ * Creates a unique identifier for a landmark given a base name.
+ * @param {string} baseName - Base name of the landmark.
+ * @returns {string} Unique ID.
  */
-function replaceMyButtonId() {
-  // Find the element with the `my-button` class and replace the class with the actual id.
-  // Assuming you have already set the id on the button element in your code
-  const button = document.querySelector('.my-button');
-  if (button) {
-    button.id = 'exampleButton';
-  }
+function ensureUniqueLandmarkId(baseName) {
+    const candidate = `${baseName}-${Date.now()}`;
+    if (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add random suffix
+        const suffix = Math.random().toString(36).substring(2, 7);
+        candidate = `${candidate}-${suffix}`;
+    }
+    _usedLandmarkIds.add(candidate);
+    return candidate;
 }
 
 /**
- * This function gets the current language attribute
- * @returns {string} - the current language attribute
+ * Returns a new array containing only unique landmarks from the input list.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Unique landmarks.
  */
-function getLangAttribute() {
-  return document.documentElement.lang;
+function uniqueLandmarks(landmarks) {
+    const seen = new Set();
+    const result = [];
+    for (const lm of landmarks) {
+        if (!seen.has(lm.id)) {
+            seen.add(lm.id);
+            result.push(lm);
+        }
+    }
+    return result;
 }
 
 /**
@@ -28,6 +43,18 @@ function getLangAttribute() {
  */
 function getFullLangAttribute() {
   return document.documentElement.lang || '';
+}
+
+/**
+ * Function to replace `my-button` with actual button id
+ */
+function replaceMyButtonId() {
+  // Find the element with the `my-button` class and replace the class with the actual id.
+  // Assuming you have already set the id on the button element in your code
+  const button = document.querySelector('.my-button');
+  if (button) {
+    button.id = 'exampleButton';
+  }
 }
 
 /**
@@ -119,9 +146,10 @@ function addAriaToFormControls() {
   });
 }
 
-/**
- * Function to replace `my-button` with actual button id
- */
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 replaceMyButtonId();
 
 addProperLandmarkRegions();
@@ -134,5 +162,7 @@ module.exports = {
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
-  getFullLangAttribute
+  getFullLangAttribute,
+  ensureUniqueLandmarkId,
+  uniqueLandmarks
 };

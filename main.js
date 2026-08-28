@@ -1,6 +1,9 @@
+//... existing code
+
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+// (This comment remains as-is)
+
+//... existing code
 
 // Imports at the top of the file
 const { utility1, utility2 } = require('./utils');

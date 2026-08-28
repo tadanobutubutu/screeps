@@ -1,8 +1,33 @@
 // Example of how the main.js might have been incorrectly modified and then corrected
-
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
+}
+
+// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
+function addressAccessibilityIssues() {
+  document.documentElement.setAttribute('lang', 'en');
+
+  const landmarks = document.querySelectorAll('.landmark');
+  landmarks.forEach((landmark, index) => {
+    landmark.setAttribute('role', 'landmark');
+    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+  });
+
+  const svg1 = document.querySelector('#svg1');
+  const svg2 = document.querySelector('#svg2');
+  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
+  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
+
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('REACT_025: Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
+  }
+
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'presentation');
+  });
 }
 
 // Assuming the button click is handled by JavaScript, here's how it might look:
@@ -15,6 +40,9 @@ document.addEventListener('click', (e) => {
 // main.js
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Set lang attribute for accessibility
+  document.documentElement.setAttribute('lang', 'en');
+
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -34,6 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
+
+  // Handle landmark elements
+  const landmarks = document.querySelectorAll('.landmark');
+  landmarks.forEach((landmark, index) => {
+    landmark.setAttribute('role', 'landmark');
+    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+  });
+
+  // Check for multiple main elements
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('REACT_025: Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
+  }
+
+  // Handle fake links
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'presentation');
+  });
 
   // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {
@@ -108,3 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
+
+// Export the functions to make them available for import in other files
+export { rotateBack, addressAccessibilityIssues };

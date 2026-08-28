@@ -1,4 +1,3 @@
-x
 //Main.jsx
 import React from 'react';
 

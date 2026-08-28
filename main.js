@@ -8,6 +8,13 @@ export function initialize() {
   return true;
 }
 
+// ... (other code in main.js)
+
+// Export the rotateBack function
+export function rotateBack() {
+  // Assuming implementation elsewhere
+}
+
 export function getConfig() {
   return {
     apiUrl: process.env.API_URL || 'https://api.example.com',
@@ -68,5 +75,6 @@ export function countDependencies(dependencies) {
 export default {
   VERSION,
   initialize,
-  getConfig
+  getConfig,
+  rotateBack
 };

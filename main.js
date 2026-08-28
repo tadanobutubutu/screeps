@@ -13,9 +13,9 @@ import { class1, function1, Object1 } from './path/to/module';
 
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
-  const htmlElement = ...
-  if (htmlElement && ... {
-    ... lang);
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
   }
   return document;
 }
@@ -107,6 +107,12 @@ function googleSignIn(document) {
       );
     }
   }
+}
+
+// Define the handleCredentialResponse callback
+function handleCredentialResponse(response) {
+  // Handle the credential response from Google
+  console.log('Credential response:', response);
 }
 
 // Function to ensure the element has an id

@@ -1,17 +1,18 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
 
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+// Update the renderDependencyGraph function
+const renderDependencyGraph = (dependencyGraph, container) => {
+  // Render the dependency graph using the dependencyGraphContent
+  const graphContent = dependencyGraphContent;
+  // Append the graphContent to the container
+  container.innerHTML = graphContent;
+};
 
-// Address accessibility issue 038 from HEAD
+// Address the issue: REACT_038
+// Replace `my-button` with 'buttonId' in the following line
+const buttonElement = document.getElementById('buttonId');
+
 export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   if (!element || !accessibilityInfo) {
     return false;
@@ -339,6 +340,39 @@ if (typeof Module !== 'undefined' && Module.onInit) {
     setInterval(run, 1000);
   };
 }
+
+// Screeps Main Entry Point
+// This file contains the main game loop and accessibility functions
+
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
+const tower = require('structure.tower');
+
+function loop() {
+  // Code for the game loop...
+}
+
+// Export the loop function
+exports.loop = loop;
+
+// Export the functions for addressing new accessibility issues
+exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+exports.renderDependencyGraph = renderDependencyGraph;
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// Landmark elements that should be checked for proper usage
+const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
 /**
  * Validates a landmark element's accessibility attributes and structure.
@@ -789,6 +823,43 @@ function getLangAttribute() {
     return document.documentElement.lang;
   }
   return null;
+}
+
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibilityFromHead(table) {
+  if (!table) return { valid: false, issues: ['Table not found'] };
+  const issues = [];
+  if (!table.tHead && !table.querySelector('thead')) {
+    issues.push('Missing table header');
+  }
+  if (!table.tBodies.length && !table.querySelector('tbody')) {
+    issues.push('Missing table body');
+  }
+  const rows = table.rows || table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmarkFromHead(landmark) {
+  if (!landmark) return { valid: false, issues: ['Landmark not found'] };
+  const issues = [];
+  const role = landmark.getAttribute('role');
+  const tag = landmark.tagName.toLowerCase();
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  if (!role && !landmarkTags.includes(tag)) {
+    issues.push('Element is not a recognized landmark');
+  }
+  return { valid: issues.length === 0, issues };
 }
 
 /**
@@ -1270,38 +1341,116 @@ function fixFakeLinkIssue(container = document) {
  * @returns {HTMLElement|null} The main element created or existing, or null if not available
  */
 function addMainLandmark(container = document) {
-  if (!container.querySelector('main')) {
-    const main = document.createElement('main');
-    main.setAttribute('role', 'main');
-    main.setAttribute('aria-label', 'Main content');
-    
-    const firstChild = container.firstElementChild;
-    if (firstChild) {
-      container.insertBefore(main, firstChild);
-    } else {
-      container.appendChild(main);
-    }
-    
-    return main;
+  if (!container) return null;
+
+  // Check if main already exists
+  const existingMain = container.querySelector('main');
+  if (existingMain) {
+    return existingMain;
   }
-  
-  return null;
+
+  // Create main element
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+
+  // Get the first child to insert before
+  const firstChild = container.firstChild;
+  if (firstChild) {
+    container.insertBefore(main, firstChild);
+  } else {
+    container.appendChild(main);
+  }
+
+  return main;
 }
 
 /**
- * Adds accessible names to all form elements in the document.
- * @returns {NodeList} NodeList of processed form elements
+ * Adds accessible names to all SVG elements in the container.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of SVG elements that were processed
  */
-function setFormElementAccessibleNames() {
-  return [];
+function addSvgAccessibleNamesFromOrigin(container = document) {
+  if (!container) return [];
+
+  const svgElements = container.querySelectorAll('svg');
+  const processed = [];
+
+  svgElements.forEach(svg => {
+    // Skip if already has accessible name
+    if (svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby')) {
+      return;
+    }
+
+    // Try to get name from title element
+    const title = svg.querySelector('title');
+    if (title && title.textContent) {
+      const id = `svg-title-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      title.id = id;
+      svg.setAttribute('aria-labelledby', id);
+      processed.push(svg);
+    }
+  });
+
+  return processed;
 }
 
 /**
- * Adds a11y attributes to interactive elements to ensure they are keyboard accessible.
- * @returns {Array} Array of elements with added attributes
+ * Ensures that landmark elements are unique in the document.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of objects with action taken
  */
-function addA11yAttributesToInteractiveElements() {
-  return [];
+function ensureUniqueLandmarksFromOrigin(container = document) {
+  if (!container) return [];
+
+  const results = [];
+  const landmarkRoles = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+
+  landmarkRoles.forEach(role => {
+    const landmarks = container.querySelectorAll(`[role="${role}"]`);
+
+    // Skip if zero or one landmark
+    if (landmarks.length <= 1) return;
+
+    // Add labels to duplicate landmarks
+    for (let i = 1; i < landmarks.length; i++) {
+      const label = `${role} ${i + 1}`;
+      landmarks[i].setAttribute('aria-label', label);
+      results.push({
+        element: landmarks[i],
+        role: role,
+        label: label
+      });
+    }
+  });
+
+  return results;
+}
+
+/**
+ * Fixes fake link issues (elements that look like links but aren't).
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Array} Array of elements that were fixed
+ */
+function fixFakeLinkIssueFromOrigin(container = document) {
+  if (!container) return [];
+
+  const fixed = [];
+
+  // Find elements with click handlers that have href-like attributes
+  const potentialFakeLinks = container.querySelectorAll('[onclick][href], [data-href]');
+
+  potentialFakeLinks.forEach(el => {
+    // If it's not an anchor or button, make it a button or add role
+    if (el.tagName !== 'A' && el.tagName !== 'BUTTON') {
+      // Check if it has proper role
+      if (!el.hasAttribute('role')) {
+        el.setAttribute('role', 'button');
+        fixed.push(el);
+      }
+    }
+  });
+
+  return fixed;
 }
 
 /**
@@ -1324,6 +1473,22 @@ function addLandmarkRegions() {
  */
 function checkLandmarkElements(htmlContent) {
   // Implementation for checking landmark elements in HTML content
+}
+
+/**
+ * Adds accessible names to all form elements in the document.
+ * @returns {NodeList} NodeList of processed form elements
+ */
+function setFormElementAccessibleNames() {
+  return [];
+}
+
+/**
+ * Adds a11y attributes to interactive elements to ensure they are keyboard accessible.
+ * @returns {Array} Array of elements with added attributes
+ */
+function addA11yAttributesToInteractiveElements() {
+  return [];
 }
 
 // Make functions accessible globally for browser usage
@@ -1361,9 +1526,20 @@ globalObject.checkLandmarkElements = checkLandmarkElements;
 globalObject.a11yStore = a11yStore;
 globalObject.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 globalObject.LANDMARK_ELEMENTS = LANDMARK_ELEMENTS;
+globalObject.renderDependencyGraph = renderDependencyGraph;
 
 // Exports for Node.js module usage
 module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableAccessibilityFromHead,
+  validateLandmark,
+  validateLandmarkFromHead,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  ensureUniqueLandmarksFromOrigin,
+  getSvgAccessibleName,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
@@ -1372,32 +1548,30 @@ module.exports = {
   checkLandmarks,
   wrapPrimaryContentInMain,
   renderIndexView,
-  getLangAttribute,
+  renderDependencyGraph,
+  addressAccessibilityIssue038,
   createInPageButton,
   addLangAttribute,
   fixTableStructureIssues,
-  validateTableAccessibility,
   validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
-  ensureUniqueLandmarks,
+  addSvgAccessibleNamesFromOrigin,
   fixFakeLinkIssue,
+  fixFakeLinkIssueFromOrigin,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
-  getSvgAccessibleName,
   addressAccessibilityIssues,
-  validateLandmark,
-  validateLandmarkStructure,
   validateLandmarkAttributes,
   getTagNameForElement,
   getLandmarkAccessibleName,
   addLandmarkRegions,
   checkLandmarkElements,
   a11yStore,
-  addressAccessibilityIssue038,
   metadata,
-  LANDMARK_ELEMENTS
+  LANDMARK_ELEMENTS,
+  loop
 };
 
 // ES module exports
@@ -1418,8 +1592,11 @@ export {
   validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
+  addSvgAccessibleNamesFromOrigin,
   ensureUniqueLandmarks,
+  ensureUniqueLandmarksFromOrigin,
   fixFakeLinkIssue,
+  fixFakeLinkIssueFromOrigin,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
@@ -1456,8 +1633,11 @@ export default {
   validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
+  addSvgAccessibleNamesFromOrigin,
   ensureUniqueLandmarks,
+  ensureUniqueLandmarksFromOrigin,
   fixFakeLinkIssue,
+  fixFakeLinkIssueFromOrigin,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
@@ -1473,5 +1653,6 @@ export default {
   a11yStore,
   addressAccessibilityIssue038,
   metadata,
-  LANDMARK_ELEMENTS
+  LANDMARK_ELEMENTS,
+  loop
 };

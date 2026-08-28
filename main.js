@@ -1,5 +1,16 @@
+// TODO: Add back any required exports that might have been removed
+// Here is an example of how to export a required function from another file:
+
 // main.js - Accessible Insight Report Interface
 // Line 13: Address accessibility issues from insight report — CONTINUING
+
+const { helperFunction } = require('./helpers');
+const { formatData, validateInput } = require('./utils');
+
+// Main application logic
+function main() {
+  console.log('Application started');
+}
 
 // Accessibility helper function to announce dynamic content changes to screen readers
 function announceToScreenReader(message, priority = 'polite') {
@@ -186,47 +197,53 @@ function fixFakeLinkIssue() {
 }
 
 // Initialize accessibility features on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Ensure all form inputs have associated labels
-  const inputs = document.querySelectorAll('input:not([id]), select:not([id]), textarea:not([id])');
-  inputs.forEach((input, index) => {
-    const id = input.id || `auto-input-${index}`;
-    input.id = id;
-    
-    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
-      const label = document.createElement('label');
-      label.htmlFor = id;
-      label.textContent = `Input ${index + 1}`;
-      label.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
-      input.parentNode.insertBefore(label, input);
-    }
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Ensure all form inputs have associated labels
+    const inputs = document.querySelectorAll('input:not([id]), select:not([id]), textarea:not([id])');
+    inputs.forEach((input, index) => {
+      const id = input.id || `auto-input-${index}`;
+      input.id = id;
+      
+      if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+        const label = document.createElement('label');
+        label.htmlFor = id;
+        label.textContent = `Input ${index + 1}`;
+        label.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
+        input.parentNode.insertBefore(label, input);
+      }
+    });
+
+    // Ensure buttons are keyboard accessible
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.hasAttribute('tabindex') && !button.hasAttribute('aria-label')) {
+        // Button is accessible by default
+      }
+    });
+
+    // Handle missing alt text for images
+    handleMissingAltText(document.body);
+
+    // Run origin/main accessibility improvements
+    addLangAttribute();
+    fixTableStructureIssues();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssue();
+
+    announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
   });
+}
 
-  // Ensure buttons are keyboard accessible
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.hasAttribute('tabindex') && !button.hasAttribute('aria-label')) {
-      // Button is accessible by default
-    }
-  });
-
-  // Handle missing alt text for images
-  handleMissingAltText(document.body);
-
-  // Run origin/main accessibility improvements
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  ensureUniqueLandmarks();
-  fixFakeLinkIssue();
-
-  announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
-});
-
-// Export accessibility utilities for testing
+// Export functions that might be required by other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    main,
+    helperFunction,
+    formatData,
+    validateInput,
     announceToScreenReader,
     trapFocus,
     toggleAriaExpanded,

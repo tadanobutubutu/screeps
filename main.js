@@ -31,11 +31,12 @@ function fixTableStructure(document) {
     }
 
     if (!existingTbody) {
-      let remainingRows = table.querySelectorAll('tr');
+      let remainingRows = Array.from(table.querySelectorAll('tr'));
       if (existingThead) {
-        remainingRows = Array.from(rows).slice(0, existingThead.length);
+        const theadRowCount = existingThead.querySelectorAll('tr').length;
+        remainingRows = remainingRows.slice(theadRowCount);
       } else {
-        remainingRows = Array.from(rows).slice(1);
+        remainingRows = [];
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');

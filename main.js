@@ -1,3 +1,6 @@
+// TODO: Address accessibility issues from insight report:
+// ... existing comment block
+
 // Existing code, exports, and functions (without any conflict markers)
 
 // New functions

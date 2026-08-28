@@ -99,3 +99,9 @@ document.getElementById('unrotate').addEventListener('click', function() {
     alert('Rotated back!');
 });
 export { initAccessibility as default };
+
+// New function as per the issue requirements
+export function toggleHighlight(element, highlightClass) {
+    if (!element) return;
+    element.classList.toggle(highlightClass);
+}

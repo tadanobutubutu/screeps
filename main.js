@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 // main.js - Accessibility improvements implementation
@@ -391,7 +391,12 @@ const a11yStore = {
   }
 };
 
+// New top-level function for addressing accessibility issues from the insight report
+function addressAccessibilityIssues(report) {
+  a11yStore.addressAccessibilityIssues(report);
+}
+
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { a11yStore, getSvgAccessibleName };
+  module.exports = { a11yStore, getSvgAccessibleName, addressAccessibilityIssues };
 }

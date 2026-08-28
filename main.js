@@ -1,35 +1,65 @@
-// main.js
-// Screeps bot entry point
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000
+};
 
 import { Dashboard } from ...;
+
+function initialize() {
+  console.log('Application initialized');
+  return true;
+}
+
+function processData(data) {
+  if (!data) {
+    throw new Error('No data provided');
+  }
+  return data.map(item => ({
+    ...item,
+    processed: true
+  }));
+}
+
+function validateInput(input) {
+  if (typeof input !== 'string') {
+    return false;
+  }
+  return input.length > 0;
+}
+
+function addressAccessibilityIssues(insightReport) {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
+      console.log(`Accessibility issue detected: ${issue.message}`);
+    });
+  }
+}
+
+const isInitialized = (() => {
+  if (!global.gameInitialized) {
+    global.gameInitialized = true;
+    initialize();
+  }
+  return global.gameInitialized;
+})();
 
 /**
  * Main game loop for the Screeps bot.
  * Runs every tick.
  */
 export function loop() {
-    // Handle room-level operations
-    handleRooms();
+  if (!isInitialized) {
+    initialize();
+    isInitialized = true;
+  }
 
-    // Render dashboard UI (if available)
-    if (Dashboard) {
-        Dashboard.render();
-    }
-}
+  // Handle room-level operations
+  handleRooms();
 
-/**
- * Process each room controlled by the player.
- */
-function handleRooms() {
-    const username = Game.me ? Game.me.username : '';
-
-    for (const roomName in Game.rooms) {
-        const room = Game.rooms[roomName];
-
-        if (room.controller && room.controller.my) {
-            handleRoomLogic(room);
-        }
-    }
+  // Render dashboard UI (if available)
+  if (Dashboard) {
+    Dashboard.render();
+  }
 }
 
 /**
@@ -65,35 +95,6 @@ function manageSpawning(room, spawn) {
         spawn.spawnCreep(body, `${role}_${Game.time}`, {
             memory: { role: role }
         });
-    }
-}
-
-/**
- * Run all creeps assigned to a given room.
- * @param {string} roomName - Name of the room.
- */
-function runCreeps(roomName) {
-    const creep = Game.creeps[roomName];
-    if (creep && creep.my) {
-        runCreep(creep);
-    }
-}
-
-/**
- * Run individual creep logic.
- * @param {Creep} creep - The creep to run.
- */
-function runCreep(creep) {
-    const role = creep.memory.role;
-    switch (role) {
-        case 'harvester':
-            runHarvester(creep);
-            break;
-        case 'builder':
-            runBuilder(creep);
-            break;
-        default:
-            runWorker(creep);
     }
 }
 
@@ -163,3 +164,42 @@ function runWorker(creep) {
         }
     }
 }
+
+function handleRooms() {
+  for (const roomName in Game.rooms) {
+    handleRoomLogic(Game.rooms[roomName]);
+  }
+}
+
+function runCreeps(roomName) {
+  const room = Game.rooms[roomName];
+  if (!room) return;
+
+  for (const name in room.creeps) {
+    const creep = room.creeps[name];
+    const role = creep.memory.role;
+
+    switch (role) {
+      case 'harvester':
+        runHarvester(creep);
+        break;
+      case 'builder':
+        runBuilder(creep);
+        break;
+      default:
+        runWorker(creep);
+    }
+  }
+}
+
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+function missingExportPlaceholder() {}
+
+module.exports = {
+  initialize,
+  processData,
+  validateInput,
+  addressAccessibilityIssues,
+  missingExportPlaceholder,
+  config
+};

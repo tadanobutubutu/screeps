@@ -11,14 +11,13 @@ const a11yStore = {
 
   init() {
     this.createLiveRegion();
+    this.addSVGAccessibility();
     this.setupKeyboardNavigation();
     this.setupFocusManagement();
     this.setupSkipLinks();
     this.addFocusStyles();
     this.setupFocusVisiblePolyfill();
     this.enhanceDynamicContent();
-    this.checkLandmarkElements();
-    this.addSVGAccessibility();
   },
 
   // Create a live region for screen reader announcements
@@ -35,7 +34,42 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Announce message to screen readers
+  // Apply ARIA attributes to SVG elements
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-labelledby', 'svg-title');
+      const titleText = svg.getAttribute('title') || 'Image description';
+      const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
+      svg.setAttribute('aria-describedby', descriptionId);
+
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
+      descriptionElement.textContent = titleText;
+      svg.appendChild(descriptionElement);
+    });
+  },
+
+  // Apply ARIA attributes to dynamically added elements
+  enhanceSVG() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      if (!svg.getAttribute('aria-labelledby')) {
+        const titleText = svg.getAttribute('title') || 'Image description';
+        const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
+        svg.setAttribute('aria-labelledby', descriptionId);
+
+        const descriptionElement = document.createElement('desc');
+        descriptionElement.id = descriptionId;
+        descriptionElement.textContent = titleText;
+        svg.appendChild(descriptionElement);
+      }
+    });
+  },
+
+  // Anchor message to screen reader via live region
   announce(message, priority = 'polite') {
     if (!this.liveRegion) return;
     this.liveRegion.setAttribute('aria-live', priority);
@@ -204,258 +238,10 @@ const a11yStore = {
         const descriptionElement = document.createElement('desc');
         descriptionElement.id = descriptionId;
         descriptionElement.textContent = titleText;
-        svg.prepend(descriptionElement);
+        svg.appendChild(descriptionElement);
       }
     });
   },
 
   // New function to address accessibility issues from insight report
-  addressAccessibilityIssues(report) {
-    if (!report) return;
-    report.forEach(issue => {
-      // Handle each issue type
-      switch (issue.type) {
-        case 'missing-lang':
-          if (document.documentElement.getAttribute('lang') === null) {
-            document.documentElement.setAttribute('lang', 'en');
-          }
-          break;
-        case 'missing-skip-link':
-          if (!document.querySelector('.skip-link')) {
-            const skipLink = document.createElement('a');
-            skipLink.className = 'skip-link';
-            skipLink.href = '#main-content';
-            skipLink.textContent = 'Skip to main content';
-            document.body.prepend(skipLink);
-          }
-          break;
-        case 'missing-alt':
-          document.querySelectorAll('img').forEach(img => {
-            if (!img.getAttribute('alt')) {
-              img.setAttribute('alt', 'Image description');
-            }
-          });
-          break;
-        case 'missing-label':
-          document.querySelectorAll('input, select, textarea').forEach(el => {
-            if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
-              el.setAttribute('aria-label', 'Form field');
-            }
-          });
-          break;
-        // Add more cases as needed
-      }
-    });
-  },
-
-  // Preserve existing code
-  preserveExistingCode() {
-    // Existing code preservation logic
-  },
-
-  // NEW: Add focus visibility styles for keyboard navigation
-  addFocusStyles() {
-    // Check if styles already added
-    if (document.getElementById('a11y-focus-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'a11y-focus-styles';
-    style.textContent = `
-      /* High contrast focus indicators for keyboard users */
-      :focus {
-        outline: 2px solid #005fcc !important;
-        outline-offset: 2px !important;
-      }
-
-      /* Ensure focus visibility in different contexts */
-      a:focus,
-      button:focus,
-      input:focus,
-      select:focus,
-      textarea:focus,
-      [tabindex]:focus {
-        outline: 2px solid #005fcc !important;
-        outline-offset: 2px !important;
-      }
-
-      /* Reduce motion support */
-      @media (prefers-reduced-motion: reduce) {
-        * {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Add focus-visible polyfill support
-    if (document.documentElement.classList) {
-      document.documentElement.classList.add('focus-visible');
-    }
-  },
-
-  // NEW: Setup focus-visible polyfill for better focus management
-  setupFocusVisiblePolyfill() {
-    let hadKeyboardEvent = false;
-    const alwaysHide = false;
-
-    const showRemaining = () => {
-      const elements = document.querySelectorAll('.focus-visible');
-      elements.forEach(el => el.classList.remove('focus-visible'));
-      if (hadKeyboardEvent && !alwaysHide) {
-        const activeElement = document.activeElement;
-        if (activeElement) {
-          activeElement.classList.add('focus-visible');
-        }
-      }
-    };
-
-    const handleBlur = (e) => {
-      const target = e.target;
-      if (target && target.nodeType === 1) {
-        target.classList.remove('focus-visible');
-      }
-    };
-
-    const handleKeydown = (e) => {
-      hadKeyboardEvent = true;
-      showRemaining();
-    };
-
-    const handlePointerDown = (e) => {
-      hadKeyboardEvent = false;
-      showRemaining();
-    };
-
-    document.addEventListener('keydown', handleKeydown, true);
-    document.addEventListener('pointerdown', handlePointerDown, true);
-    document.addEventListener('mousedown', handlePointerDown, true);
-    document.addEventListener('touchstart', handlePointerDown, true);
-    document.addEventListener('focus', (e) => {
-      if (hadKeyboardEvent) {
-        e.target.classList.add('focus-visible');
-      }
-    }, true);
-  },
-
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    if (typeof MutationObserver === 'undefined') return;
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  },
-
-  // NEW: Apply ARIA attributes to dynamically added elements
-  applyARIAtoNode(node) {
-    if (!node || !node.setAttribute) return;
-
-    // Handle buttons without text content
-    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('title')) {
-      node.setAttribute('title', 'Button');
-    }
-
-    // Handle links without text
-    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
-      node.setAttribute('aria-label', 'Link');
-    }
-
-    // Handle inputs without labels
-    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName)) {
-      if (!node.getAttribute('aria-label') && !node.getAttribute('id')) {
-        node.setAttribute('arial-label', 'Form field');
-      }
-    }
-
-    // Handle images without alt text
-    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
-      node.setAttribute('alt', '');
-    }
-
-    // Process children recursively
-    const children = node.querySelectorAll('a, button, input, select, textarea, img');
-    children.forEach(child => {
-      this.applyARIAtoNode(child);
-    });
-  },
-
-  // NEW: Validate and improve ARIA usage
-  validateARIA() {
-    // Remove duplicate IDs
-    const allElements = document.querySelectorAll('[id]');
-    const idMap = {};
-
-    allElements.forEach(el => {
-      const id = el.getAttribute('id');
-      if (idMap[id]) {
-        el.removeAttribute('id');
-      } else {
-        idMap[id] = true;
-      }
-    });
-
-    // Ensure ARIA attributes are properly used
-    document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
-      if (el.getAttribute('tabindex') !== '-1') {
-        el.setAttribute('tabindex', '-1');
-      }
-    });
-  }
-};
-
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-mainElement.id = 'main-content';
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
-}
-
-// Move all existing body children into the main element
-while (document.body.firstChild) {
-  mainElement.appendChild(document.body.firstChild);
-}
-document.body.appendChild(mainElement);
-
-// Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
-
-// Preserve existing code
-a11yStore.preserveExistingCode();
-
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
-}
-
-// Export for module usage
-export { a11yStore };
-export { mainElement };
-export { addressAccessibilityIssues };
-export default a11yStore;
-
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };
+  addressAccessibility

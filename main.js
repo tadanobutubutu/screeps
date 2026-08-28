@@ -1,11 +1,14 @@
+Here is the resolved file content:
+
+```javascript
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_017: Add landmark roles and fix landmark issues (DONE: addLandmarkRole, ensureUniqueLandmarks)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_035: Function to create accessible in-page buttons (DONE: createInPageButton)
 
 /**
  * Generates a unique landmark ID to ensure unique landmarks
@@ -44,22 +47,22 @@ function addLandmarkRole(selector, landmarkRole) {
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"], nav, main, header, footer');
   const seenLandmarks = new Map();
-  
+
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
     const existingIds = seenLandmarks.get(role) || [];
-    
+
     if (existingIds.length > 0) {
       // This is a duplicate landmark - make it unique
       const uniqueId = getUniqueLandmarkId(`landmark-${role}`);
       landmark.id = uniqueId;
       landmark.setAttribute('aria-label', `${role} ${existingIds.length + 1}`);
     }
-    
+
     if (!landmark.id) {
       landmark.id = getUniqueLandmarkId(`landmark-${role}`);
     }
-    
+
     seenLandmarks.set(role, [...existingIds, landmark.id]);
   });
 }
@@ -85,18 +88,18 @@ function fixFakeLinks(selector) {
   const fakeLinks = document.querySelectorAll(selector);
   fakeLinks.forEach(link => {
     const href = link.getAttribute('href');
-    
+
     // Check if it's a fake link (no href or href that looks like JavaScript)
     if (!href || href.startsWith('javascript:') || href === '#') {
       // Add button role if it's not already a button
       if (link.tagName !== 'BUTTON') {
         link.setAttribute('role', 'button');
-        
+
         // Add keyboard support
         if (!link.hasAttribute('tabindex')) {
           link.setAttribute('tabindex', '0');
         }
-        
+
         // Add click handler if not present
         link.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -120,23 +123,59 @@ function addHtmlLangAttribute(lang = 'en') {
   }
 }
 
+/**
+ * Creates an accessible in-page button element
+ * @param {Document} doc - The document object
+ * @param {string} text - The button text content
+ * @param {Object} [options] - Optional configuration for the button
+ * @param {string} [options.className] - CSS class name(s) for the button
+ * @param {string} [options.id] - ID attribute for the button
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {boolean} [options.disabled] - Whether the button should be disabled
+ * @param {string} [options.type] - Button type attribute (default: 'button')
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(doc, text = '', options = {}) {
+  const button = doc.createElement('button');
+  button.textContent = text;
+  button.type = options.type || 'button';
+
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  }
+
+  if (options.disabled) {
+    button.disabled = true;
+  }
+
+  return button;
+}
+
 // Initialize accessibility fixes when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Add lang attribute to HTML element (REACT_015)
   addHtmlLangAttribute();
-  
+
   // Add landmark roles (REACT_017)
   addLandmarkRole('nav', 'navigation');
   addLandmarkRole('main', 'main');
   addLandmarkRole('header', 'banner');
   addLandmarkRole('footer', 'contentinfo');
-  
+
   // Ensure unique landmarks (REACT_025)
   ensureUniqueLandmarks();
-  
+
   // Add accessible names to SVGs (REACT_041)
   addSvgAccessibleName('svg', 'Decorative icon');
-  
+
   // Fix fake links (REACT_036)
   fixFakeLinks('.fake-link');
 });
@@ -147,5 +186,7 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleName,
   fixFakeLinks,
-  addHtmlLangAttribute
+  addHtmlLangAttribute,
+  createInPageButton
 };
+```

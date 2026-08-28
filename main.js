@@ -1,72 +1,48 @@
-// TODO: This is the existing code that needs to be preserved
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App'; // Assuming the App component is in the same directory
+import App from './App';
 
-/**
- * Sets the lang attribute on the HTML element based on the page content
- * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
- */
-function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', languageCode);
-  }
+// Accessibility setup
+function setupAccessibility() {
+  document.body.setAttribute('role', 'application');
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  document.body.insertBefore(skipLink, document.body.firstChild);
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach(el => el.setAttribute('tabindex', '0'));
 }
 
-// Default language setting
-setLanguageAttribute('en');
+// Application initialization
+function initializeApp() {
+  setupAccessibility();
+  console.log('Application initialized');
+}
 
-// Main application logic
+// Attach listeners once the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
 
-window.addEventListener('DOMContentLoaded', () => {
+  // Unrotate button functionality
   const unrotateBtn = document.getElementById('unrotate-btn');
-  
   if (unrotateBtn) {
     unrotateBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      // Rotate back logic
       document.body.style.transform = 'rotate(0deg)';
       document.body.style.transition = 'transform 0.3s ease';
     });
   }
 });
 
-// Simple interactive page with content rotation functionality
+// Simple interactive page initialization (placeholder)
 function initApp() {
   const container = document.getElementById('app');
-  
-  // Create heading
-  const h1 = document.createElement('h1');
-  h1.textContent = 'My Page';
-  h1.id = 'title';
-  container.appendChild(h1);
-  
-  // Create content area
-  const content = document.createElement('div');
-  content.id = 'content';
-  content.style.transition = 'transform 0.3s ease';
-  content.style.transformOrigin = 'center center';
-  container.appendChild(content);
-  
-  // Create button for rotating back (FIXED: changed from <a href="#"> to <button>)
-  const unrotateBtn = document.createElement('button');
-  unrotateBtn.id = 'unrotate';
-  unrotateBtn.textContent = 'rotate back';
-  unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
-  unrotateBtn.addEventListener('click', function() {
-    content.style.transform = 'rotate(0deg)';
-  });
-  container.appendChild(unrotateBtn);
-  
-  // Call the dependency graph rendering utility
-  renderDependencyGraph();
+  // Additional logic could be added here
 }
 
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
+// Module structure display utility
 function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
   console.log('Displaying module structure for modules:', modules);
   return {};
 }
@@ -91,6 +67,7 @@ const functionB = {
   Z: functionZb,
 };
 
+// React rendering
 ReactDOM.render(
   <React.StrictMode>
     <App />
@@ -98,7 +75,7 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-// Export any existing functions
+// Existing exported functions
 export function someExistingFunction() {
   // Existing functionality
 }
@@ -107,9 +84,20 @@ export function anotherFunction() {
   // More existing functionality
 }
 
+// Export utilities and functions
 export {
   setLanguageAttribute,
   displayModuleStructure,
   functionA,
   functionB
 };
+
+// Define setLanguageAttribute (used earlier)
+function setLanguageAttribute(lang) {
+  document.documentElement.setAttribute('lang', lang);
+}
+
+// Define getMainContent (origin side)
+function getMainContent() {
+  return document.getElementById('main-content');
+}

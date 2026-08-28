@@ -1,34 +1,19 @@
+Here's the resolved file content:
+
+```javascript
 const fs = require('fs');
 const path = require('path');
 
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 
-// Landmark elements that should be checked for proper usage
-const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
-
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText, buttonClass) {
-  // Create a new button element
-  const button = document.createElement('button');
-  
-  // Set the button's ID, text content, and class
-  button.id = buttonId;
-  button.textContent = buttonText;
-  button.className = buttonClass;
-  
-  // Append the button to the body or a specific container
-  document.body.appendChild(button);
-  
-  // Return the created button for further manipulation if needed
-  return button;
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
 }
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
-  // New property to count dependencies
-  countDependencies,
-
   init() {
     this.createLiveRegion();
     this.setupKeyboardNavigation();
@@ -39,7 +24,6 @@ const a11yStore = {
     this.fixFakeLinks(); // Added for REACT_036
   },
 
-  // Create a live region for screen reader announcements
   createLiveRegion() {
     if (this.liveRegion) return;
 
@@ -94,7 +78,7 @@ const a11yStore = {
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [ href ], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
 
       const firstElement = focusableElements[0];
@@ -159,7 +143,7 @@ const a11yStore = {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
         }
-        
+
         // Ensure unique accessible names for duplicate landmarks
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
@@ -181,15 +165,15 @@ const a11yStore = {
         titleElement.textContent = 'Image'; // Default accessible name
         svg.insertBefore(titleElement, svg.firstChild);
       }
-      
+
       // Ensure title has an ID for aria-labelledby
       if (!titleElement.id) {
         titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
       }
-      
+
       // Set aria-labelledby to point to the title
       svg.setAttribute('aria-labelledby', titleElement.id);
-      
+
       // Add role img if not present (redundant but safe)
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
@@ -351,3 +335,4 @@ export default a11yStore;
 // Assuming 'utils' modules are required (example follows)
 // import { utilityFunction } from './utils.js';
 // export { utilityFunction };
+```

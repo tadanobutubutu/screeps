@@ -1,31 +1,45 @@
-tsx
-// Assuming the file is located at ...
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: ... = (props) => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
   const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
-  const copyErr = () => {
-    // Implement the copy error logic
-    setCopied(true);
-    // Reset copied state after some time
-    setTimeout(() => setCopied(false), 3000);
+  const copyErr = async () => {
+    if (!error) return;
+    try {
+      await navigator.clipboard.writeText(error);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (err) {
+      console.error('Failed to copy error:', err);
+    }
   };
 
-  const fetchStats = (shouldRetry: boolean) => {
-    // Implement the fetch stats logic
+  const fetchStats = async (shouldRetry: boolean) => {
     setRefreshing(true);
-    // Reset refreshing state after some time
-    setTimeout(() => setRefreshing(false), 2000);
+    try {
+      // Add your fetch logic here
+      const response = shouldRetry 
+        ? await fetch('/api/stats', { method: 'POST' })
+        : await fetch('/api/stats');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Reset refreshing state after successful fetch
+      setTimeout(() => setRefreshing(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setRefreshing(false);
+    }
   };
 
   // Remove the redundant <main> elements and use <section> or <article> for different states
@@ -71,7 +85,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span>{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button
@@ -80,7 +94,7 @@ const Dashboard: ... = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}

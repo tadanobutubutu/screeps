@@ -6,7 +6,7 @@
  * - REACT_017: Add/fix 2 landmark issues
  * - REACT_041: Add accessible names to 2 SVGs
  * - REACT_025: Ensure unique landmarks
- * - REACT_036: Fix 1 fake link issue
+ * - REACT_036: Fix 1 fake link issues
  */
 
 // TODO: Address accessibility issues from insight report:
@@ -249,4 +249,53 @@ export function fixFakeLinkIssue(html) {
     }
     return match.replace(/<a/, '<a href="#"');
   });
+}
+
+/**
+ * Checks table structure for accessibility issues
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function checkTableStructure(html) {
+  if (typeof html !== 'string') return [];
+  
+  const issues = [];
+  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch;
+  
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const tableHtml = tableMatch[0];
+    
+    // Check for caption
+    if (!/<caption\b/i.test(tableHtml)) {
+      issues.push('Table missing <caption> element');
+    }
+    
+    // Check for summary attribute
+    if (!/\bsummary=/i.test(tableHtml)) {
+      issues.push('Table missing summary attribute');
+    }
+    
+    // Check for th with scope
+    const thRegex = /<th\b([^>]*)>/gi;
+    let thMatch;
+    let thMissingScope = false;
+    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
+      const attrs = thMatch[1];
+      if (!/\bscope=/i.test(attrs)) {
+        thMissingScope = true;
+        break;
+      }
+    }
+    if (thMissingScope) {
+      issues.push('<th> missing scope attribute');
+    }
+    
+    // Check for thead/tbody
+    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
+      issues.push('Table missing <thead> or <tbody> structure');
+    }
+  }
+  
+  return issues;
 }

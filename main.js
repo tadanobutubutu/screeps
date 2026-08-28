@@ -294,6 +294,23 @@ function addMainLandmark() {
 }
 
 /**
+ * Adds landmark regions to the document.
+ */
+function addLandmarkRegions() {
+  const container = document.getElementById('landmark-regions-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="landmark-region" role="region" aria-label="Building">
+        Main Building
+      </div>
+      <div class="landmark-region" role="region" aria-label="Park">
+        Central Park
+      </div>
+    `;
+  }
+}
+
+/**
  * Adds accessible names to all SVG elements in the document.
  * @returns {NodeList} NodeList of processed SVG elements
  */
@@ -380,6 +397,7 @@ globalObject.renderIndexView = renderIndexView;
 globalObject.addLangAttribute = addLangAttribute;
 globalObject.fixTableStructureIssues = fixTableStructureIssues;
 globalObject.addMainLandmark = addMainLandmark;
+globalObject.addLandmarkRegions = addLandmarkRegions;
 globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
 globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
 globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
@@ -415,6 +433,7 @@ module.exports = {
   renderIndexView,
   fixTableStructureIssues,
   addMainLandmark,
+  addLandmarkRegions,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,

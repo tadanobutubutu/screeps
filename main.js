@@ -89,6 +89,72 @@ function checkLandmarks(container = document) {
 }
 
 /**
+ * Ensures all landmark elements have unique accessible labels.
+ * If multiple landmarks share the same role, they are labeled uniquely via aria-label.
+ * @param {HTMLElement} [container=document] - The container to check for landmarks
+ * @returns {Array} Array of elements that were updated with unique labels
+ */
+function ensureUniqueLandmarks(container = document) {
+  const modifiedElements = [];
+  
+  if (!container) {
+    return modifiedElements;
+  }
+
+  const landmarkSelectors = 'main, nav, header, footer, aside, form, section, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="form"], [role="search"], [role="region"]';
+  const landmarks = container.querySelectorAll(landmarkSelectors);
+  
+  const roleMap = new Map();
+  
+  landmarks.forEach(element => {
+    const role = element.getAttribute('role') || element.tagName.toLowerCase();
+    if (!roleMap.has(role)) {
+      roleMap.set(role, []);
+    }
+    roleMap.get(role).push(element);
+  });
+  
+  roleMap.forEach((elements, role) => {
+    if (elements.length <= 1) return;
+    
+    const labels = new Set();
+    
+    elements.forEach(element => {
+      const ariaLabel = element.getAttribute('aria-label');
+      if (ariaLabel) labels.add(ariaLabel);
+    });
+    
+    let index = 1;
+    elements.forEach(element => {
+      const ariaLabel = element.getAttribute('aria-label');
+      
+      if (!ariaLabel) {
+        let newLabel = `${role} ${index}`;
+        while (labels.has(newLabel)) {
+          index++;
+          newLabel = `${role} ${index}`;
+        }
+        labels.add(newLabel);
+        element.setAttribute('aria-label', newLabel);
+        modifiedElements.push(element);
+      } else if (labels.has(ariaLabel)) {
+        let newLabel = `${ariaLabel} ${index}`;
+        while (labels.has(newLabel)) {
+          index++;
+          newLabel = `${ariaLabel} ${index}`;
+        }
+        labels.add(newLabel);
+        element.setAttribute('aria-label', newLabel);
+        modifiedElements.push(element);
+      }
+      index++;
+    });
+  });
+  
+  return modifiedElements;
+}
+
+/**
  * Renders the index view of the application.
  */
 function renderIndexView() {

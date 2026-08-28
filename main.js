@@ -1,6 +1,12 @@
-// Main application logic
+const landmarkStructureCheck = (landmark) => {
+  // Implement your logic for checking the landmark structure
+  // For example, let's check if the landmark has required properties: name and coordinates
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+};
 
-// TODO: Implement this function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
     const uniqueLandmarks = [];
     const seen = new Set();
@@ -18,7 +24,7 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
-// Example usage and export
 module.exports = {
+    landmarkStructureCheck,
     ensureUniqueLandmarks
 };

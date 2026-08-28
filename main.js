@@ -325,7 +325,7 @@ function handleButtonClick(event) {
   if (target.id === 'checkout') {
     processCheckout();
   } else if (target.classList.contains('add-to-cart')) {
-    addToCart(target.dataset productId);
+    addToCart(target.dataset.productId);
   }
 }
 

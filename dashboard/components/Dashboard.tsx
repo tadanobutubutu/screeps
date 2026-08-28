@@ -519,6 +519,7 @@ export default function Dashboard() {
                             onMouseLeave={() => setRefreshHover(false)}
                             onFocus={() => setRefreshHover(true)}
                             onBlur={() => setRefreshHover(false)}
+                            aria-keyshortcuts="Alt+r"
                             aria-label={
                                 refreshing
                                     ? 'データを更新中...'

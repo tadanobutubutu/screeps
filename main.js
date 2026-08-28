@@ -1,3 +1,7 @@
+// Import the content modules
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
 // Existing code, exports, and functions (without any conflict markers)
 
 // New functions
@@ -15,6 +19,8 @@ function functionB() {
 module.exports = {
   // Existing exports, keep the same order
   ...existingExports,
+  dependencyGraphContent,
+  indexContent,
   functionA,
   functionB,
   myFunction,

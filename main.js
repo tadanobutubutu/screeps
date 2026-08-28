@@ -225,7 +225,6 @@ module.exports = {
   groupByCategory,
   transformInputData,
   getLangAttribute,
-  calculateSum,
   personName,
   getSvgAccessibleName,
   validateTableAccessibility,

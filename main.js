@@ -1,3 +1,25 @@
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * This addresses accessibility issues from the insight report.
+ */
+function setDependencyGraphAccessibility() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  
+  if (dependencyGraphContainer) {
+    // Ensure the container has a proper ARIA role
+    if (!dependencyGraphContainer.hasAttribute('role')) {
+      dependencyGraphContainer.setAttribute('role', 'region');
+      dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+    
+    // Ensure the container has an accessible name
+    if (!dependencyGraphContainer.hasAttribute('aria-label') && 
+        !dependencyGraphContainer.hasAttribute('aria-labelledby')) {
+      dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 // TODO: Add back any required exports that might have been?
 
 // TODO: This is the existing code that needs to be preserved
@@ -227,5 +249,6 @@ module.exports = {
   checkLandmarkElement,
   checkLandmarks,
   wrapPrimaryContentInMain,
-  renderIndexView
+  renderIndexView,
+  setDependencyGraphAccessibility
 };

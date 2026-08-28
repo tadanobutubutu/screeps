@@ -1,11 +1,11 @@
 import React from 'react';
 
+// Add ARIA property role for better tab focusability
+const role = 'button';
+const inputRole = 'checkbox';
+
 const MyComponent = () => {
   // Existing component code
-
-  // Add ARIA property role for better tab focusability
-  const role = 'button';
-  const inputRole = 'checkbox';
 
   return (
     <div>
@@ -22,3 +22,6 @@ const MyComponent = () => {
 
 // Export MyComponent
 export default MyComponent;
+
+// Export the role constants to make them accessible in main.js
+export { role, inputRole };

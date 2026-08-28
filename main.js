@@ -54,6 +54,32 @@ function createInPageButton(buttonId, buttonText) {
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
+
+// Function to add aria-labelledby to SVGs with title elements
+function addAriaLabelledbyToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = title.getAttribute('id');
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
+
+// Function to add aria-label to SVGs without title elements
+function addAriaLabelToSVGs() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const title = svg.querySelector('title');
+    if (!title) {
+      const svgText = svg.textContent || svg.innerText || 'Image';
+      svg.setAttribute('aria-label', svgText);
+    }
+  });
+}
+
+// Function to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -132,6 +158,16 @@ function renderIndexView() {
   console.log('renderIndexView function called');
 }
 
+// Call the functions to add aria-labels and aria-labelledby to SVGs
+addAriaLabelledbyToSVGs();
+addAriaLabelToSVGs();
+
+// Call the addressAccessibilityIssues function with an example insight report
+addressAccessibilityIssues([
+  { issue: 'Issue 1', solution: 'Solution 1' },
+  { issue: 'Issue 2', solution: 'Solution 2' }
+]);
+
 // Export all functions and values
 // Using a combination of ES Modules and CommonJS exports to satisfy both environments
 export { 
@@ -143,7 +179,9 @@ export {
   createInPageButton, 
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
-  calculateAccessibilityScore 
+  calculateAccessibilityScore,
+  addAriaLabelledbyToSVGs,
+  addAriaLabelToSVGs
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -157,6 +195,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
-    renderIndexView
+    renderIndexView,
+    addAriaLabelledbyToSVGs,
+    addAriaLabelToSVGs
   };
 }

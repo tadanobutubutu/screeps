@@ -13,8 +13,8 @@ const a11yStore = {
     this.checkLandmarkElements();
     this.addProperLandmarkRegions();
     this.addSVGAccessibilityProps();
-    this.fixFakeLinks();
-    this.countDependencies();
+    this.fixFakeLinks(); // Added for REACT_036
+    this.countDependencies(); // Merged change from both branches
   },
 
   // New function to count dependencies

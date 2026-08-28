@@ -250,6 +250,64 @@ function addLangAttribute() {
 }
 
 /**
+ * Checks if a single table element has appropriate accessibility attributes.
+ * A table is considered accessible if it has a caption, uses thead/tbody structure,
+ * and has scope attributes on th elements.
+ * @param {HTMLElement} table - The table element to check
+ * @returns {boolean} True if the table is accessible, false otherwise
+ */
+function isTableAccessible(table) {
+  if (!table || table.tagName.toLowerCase() !== 'table') return false;
+
+  // Check for caption
+  const hasCaption = !!table.querySelector('caption');
+
+  // Check for thead or tbody structure
+  const hasStructure = !!table.querySelector('thead') || !!table.querySelector('tbody');
+
+  // Check that all th elements have a scope attribute
+  const thElements = table.querySelectorAll('th');
+  let allThHaveScope = true;
+  if (thElements.length === 0) {
+    // Tables without th elements don't need scope attributes
+    allThHaveScope = true;
+  } else {
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        allThHaveScope = false;
+      }
+    });
+  }
+
+  return hasCaption && hasStructure && allThHaveScope;
+}
+
+/**
+ * Checks table accessibility in the document or specific container.
+ * Reports accessible and inaccessible tables based on the presence of caption,
+ * thead/tbody structure, and scope attributes on th elements.
+ * @param {HTMLElement} [container=document] - The container to check for table accessibility
+ * @returns {Object} An object containing table accessibility check results
+ */
+function checkTableAccessibility(container = document) {
+  const results = {
+    accessible: [],
+    inaccessible: []
+  };
+
+  const tables = container.querySelectorAll('table');
+  tables.forEach(table => {
+    if (isTableAccessible(table)) {
+      results.accessible.push(table);
+    } else {
+      results.inaccessible.push(table);
+    }
+  });
+
+  return results;
+}
+
+/**
  * Fixes table structure issues in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to fix table issues in
  * @returns {NodeList} NodeList of fixed tables
@@ -371,9 +429,11 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
+  isTableAccessible,
   checkAccessibility,
   checkLandmarkElement,
   checkLandmarks,
+  checkTableAccessibility,
   wrapPrimaryContentInMain,
   renderIndexView,
   addLangAttribute,

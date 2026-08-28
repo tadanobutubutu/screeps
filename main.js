@@ -1,9 +1,5 @@
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+//<!-- todo-hash: 67dade65c11eaa928754d8fd37a4e9af2da664fc -->
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
@@ -292,48 +288,33 @@ function checkTableStructure() {
   });
 }
 
-// TODO: Implement this function for checking landmark elements
-function checkLandmarkElements() {
-  const results = [];
-  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  
-  // Mapping of semantic HTML tags to their landmark roles
-  const semanticToLandmark = {
-    'main': 'main',
-    'nav': 'navigation',
-    'search': 'search',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  };
+// TODO: Implement this function for adding SVG accessibility props
+function addSvgAccessibilityProps() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    // Ensure SVG has role="img" for screen readers
+    if (!svg.getAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
 
-  // Check each landmark role
-  landmarkRoles.forEach(role => {
-    const semanticTag = Object.keys(semanticToLandmark).find(
-      key => semanticToLandmark[key] === role
-    );
-    
-    if (semanticTag) {
-      const elements = document.querySelectorAll(semanticTag);
-      elements.forEach(el => {
-        const hasAccessibleName = 
-          el.getAttribute('aria-label') ||
-          el.getAttribute('aria-labelledby') ||
-          (el.textContent.trim());
-        
-        if (!hasAccessibleName && role !== 'main') {
-          results.push({
-            element: el,
-            role: role,
-            issue: `Landmark role "${role}" is missing an accessible name`
-          });
-        }
-      });
+    // Use <title> content if available
+    const titleElement = svg.querySelector('title');
+    if (titleElement) {
+      const titleText = titleElement.textContent.trim();
+      if (titleText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', titleText);
+      }
+    } else {
+      // Fallback to alt attribute
+      const altText = svg.getAttribute('alt');
+      if (altText && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-label', altText);
+      } else if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        // Final fallback
+        svg.setAttribute('aria-label', 'Graphic');
+      }
     }
   });
-
-  return results;
 }
 
 function setSvgAccessibleNames() {

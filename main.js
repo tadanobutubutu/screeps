@@ -46,6 +46,32 @@ function getSvgAccessibleName(svg) {
   return '';
 }
 
+// isLinkAccessible: Checks if a link element is accessible according to accessibility standards
+// Returns true if the link has a valid href, is not disabled, and has meaningful content
+function isLinkAccessible(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+
+  // Must have a valid href attribute with non-empty value
+  const href = link.getAttribute('href');
+  if (!href || href.trim() === '') {
+    return false;
+  }
+
+  // Should not be disabled (either via disabled attribute or aria-disabled)
+  if (link.hasAttribute('disabled') || link.getAttribute('aria-disabled') === 'true') {
+    return false;
+  }
+
+  // Link should have some text content (non-empty)
+  if (!link.textContent.trim()) {
+    return false;
+  }
+
+  return true;
+}
+
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
 

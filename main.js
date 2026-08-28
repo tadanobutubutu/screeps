@@ -1,17 +1,110 @@
-/**
- * Main application module
- * Address accessibility issues from insight report — FIXED
- */
+const loop = require('./loop');
+const config = require('./config');
+const logger = require('./utils/logger');
 
-// DOM Elements with proper ARIA attributes
-const insightButton = document.getElementById('insight-button');
-const insightPanel = document.getElementById('insight-panel');
-const toggleButton = document.querySelector('[aria-expanded]');
-const modal = document.getElementById('accessible-modal');
-const modalClose = document.getElementById('modal-close');
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
+// Application state
+let isInitialized = false;
+const appData = {}
+
+/**
+ * Checks if a table data array has the required structure
+ * @param {Array} tableData - The table data to check
+ * @param {Array} requiredColumns - List of required column names
+ * @returns {Object} - { valid: boolean, missingColumns: string[] }
+ */
+function checkTableData(tableData, requiredColumns) {
+    if (!Array.isArray(tableData) || tableData.length === 0) {
+        return { valid: false, missingColumns: requiredColumns };
+    }
+    
+    const headers = tableData[0];
+    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+    
+    return {
+        valid: missingColumns.length === 0,
+        missingColumns
+    };
+}
+
+// Implement validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+function initialize(options = {}) {
+  if (isInitialized) {
+    logger.warn('App already initialized');
+    return false;
+  }
+  
+  config.set(options);
+  isInitialized = true;
+  logger.info('Application initialized');
+  return true;
+}
+
+function getAppState() {
+  return {
+    isInitialized,
+    ...appData
+  };
+}
+
+function setData(key, value) {
+  appData[key] = value;
+  return appData;
+}
+
+function getData(key) {
+  return appData[key];
+}
+
+function shutdown() {
+  isInitialized = false;
+  logger.info('Application shutdown complete');
+}
+
+// Additional functions from origin
+function newFunction() {
+  // Implementation of the new function
+  console.log('This is the new function.');
+}
+
+function modifiedFunction() {
+  // Modified implementation of the function
+  console.log('This function has been modified.');
+}
+
+// Accessibility features for DOM environment
+let insightButton, insightPanel, toggleButton, modal, modalClose;
 
 // Initialize accessibility features
 function initializeAccessibility() {
+  if (typeof document === 'undefined') return;
+
+  // DOM Elements with proper ARIA attributes
+  insightButton = document.getElementById('insight-button');
+  insightPanel = document.getElementById('insight-panel');
+  toggleButton = document.querySelector('[aria-expanded]');
+  modal = document.getElementById('accessible-modal');
+  modalClose = document.getElementById('modal-close');
+
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   
@@ -39,6 +132,8 @@ function initializeAccessibility() {
 
 // Toggle insight panel with proper ARIA attributes
 function toggleInsightPanel() {
+  if (!toggleButton || !insightPanel) return;
+
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   toggleButton.setAttribute('aria-expanded', !isExpanded);
   insightPanel.hidden = isExpanded;
@@ -51,6 +146,8 @@ function toggleInsightPanel() {
 
 // Modal handling with focus management (accessibility requirement)
 function openModal() {
+  if (!modal) return;
+
   modal.hidden = false;
   modal.setAttribute('aria-modal', 'true');
   
@@ -59,21 +156,26 @@ function openModal() {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  firstElement.tabIndex = 0;
-  
-  lastElement.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      firstElement.focus();
-    }
-  });
+  if (firstElement) {
+    firstElement.tabIndex = 0;
+    
+    lastElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
 
-  firstElement.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab' && e.shiftKey) {
-      e.preventDefault();
-      lastElement.focus();
-    }
-  });
+    firstElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    });
+
+    // Focus first element
+    firstElement?.focus();
+  }
 
   // Close on Escape key
   document.addEventListener('keydown', handleEscapeKey);
@@ -81,12 +183,11 @@ function openModal() {
   // Store trigger element to return focus
   const trigger = document.activeElement;
   modal.dataset.triggerId = trigger?.id || 'modal-trigger';
-  
-  // Focus first element
-  firstElement?.focus();
 }
 
 function closeModal() {
+  if (!modal) return;
+
   modal.hidden = true;
   modal.removeAttribute('aria-modal');
   
@@ -106,44 +207,65 @@ function handleEscapeKey(e) {
 }
 
 // Setup event listeners
-if (modalClose) {
-  modalClose.addEventListener('click', closeModal);
-}
+function setupAccessibilityEventListeners() {
+  if (typeof document === 'undefined') return;
 
-if (insightButton) {
-  insightButton.addEventListener('click', toggleInsightPanel);
-  // Ensure keyboard accessibility
-  insightButton.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleInsightPanel();
-    }
-  });
-}
+  if (modalClose) {
+    modalClose.addEventListener('click', closeModal);
+  }
 
-if (toggleButton) {
-  toggleButton.addEventListener('click', toggleInsightPanel);
-  toggleButton.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleInsightPanel();
-    }
-  });
+  if (insightButton) {
+    insightButton.addEventListener('click', toggleInsightPanel);
+    // Ensure keyboard accessibility
+    insightButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
+
+  if (toggleButton) {
+    toggleButton.addEventListener('click', toggleInsightPanel);
+    toggleButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleInsightPanel();
+      }
+    });
+  }
 }
 
 // Export functions for testing
-export {
+module.exports = {
+  loop,
+  validateLandmark,
+  checkTableData,
+  initialize,
+  getAppState,
+  setData,
+  getData,
+  shutdown,
+  config,
+  logger,
+  newFunction,
+  modifiedFunction,
   initializeAccessibility,
   toggleInsightPanel,
   openModal,
-  closeModal
+  closeModal,
+  setupAccessibilityEventListeners
 };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeAccessibility);
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeAccessibility();
+      setupAccessibilityEventListeners();
+    });
   } else {
     initializeAccessibility();
+    setupAccessibilityEventListeners();
   }
 }

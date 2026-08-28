@@ -8,13 +8,6 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// Existing code from main.js with conflict markers preserved
-// <<<<<<< HEAD
-// Existing code here that needs to be preserved
-// =======
-// Code with conflict here
-// >>>>>>> origin/branch-name
-
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');

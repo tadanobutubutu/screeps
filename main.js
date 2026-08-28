@@ -198,7 +198,10 @@ function addressOldAccessibilityIssues() {
  * @param {SVGElement} svgElement - The SVG element to modify
  */
 function setSvgAccessibilityProps(svgElement) {
-  // (code for setSvgAccessibilityProps remains the same)
+  const accessibleName = getSvgAccessibleName(svgElement);
+  if (accessibleName) {
+    svgElement.setAttribute('aria-label', accessibleName);
+  }
 }
 
 /**

@@ -18,19 +18,11 @@ document.querySelectorAll("a").forEach(a => {
   a.parentNode.replaceChild(button, a);
 });
 
-// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
-// If not, define it here:
-
 // Added: The requested function
 function rotateBack() {
-  // Your code to rotate back
+  // Function to rotate back - implementation placeholder
+  console.log("Rotate back functionality executed");
 }
-
-// ... (other code in main.js)
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
 
 // REACT_015: lang attribute should be added to the HTML element (typically in index.html)
 function addLangAttribute(element, lang) {
@@ -91,35 +83,6 @@ function ensureThScope() {
       }
     }
   });
-}
-
-// Initialize accessibility improvements
-function initializeAccessibility() {
-  // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
-    const parent = fakeLink.parentElement;
-    const newButton = createUnrotateButton();
-    parent.replaceChild(newButton, fakeLink);
-  }
-  
-  // Ensure table headers have proper scope
-  ensureThScope();
-  
-  // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
-      svg.setAttribute('aria-label', `Icon ${index + 1}`);
-    }
-  });
-}
-
-// Run accessibility initialization when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeAccessibility);
-} else {
-  initializeAccessibility();
 }
 
 function addMainLandmark(rootElement) {
@@ -199,6 +162,77 @@ function fixFakeLinkIssue(link) {
   return link;
 }
 
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssues() {
+  // Replace <a id="unrotate" href="#">rotate back</a> with accessible button
+  const rotateLink = document.getElementById('unrotate');
+  
+  if (rotateLink && rotateLink.tagName === 'A') {
+    // Create a button element to replace the anchor tag
+    const rotateButton = document.createElement('button');
+    rotateButton.id = 'unrotate';
+    rotateButton.setAttribute('role', 'button');
+    rotateButton.setAttribute('aria-label', 'rotate back');
+    rotateButton.textContent = rotateLink.textContent;
+    
+    // Copy any additional attributes if needed
+    if (rotateLink.className) {
+      rotateButton.className = rotateLink.className;
+    }
+    
+    // Add click event listener
+    rotateButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      rotateBack();
+    });
+    
+    // Add keyboard support (Enter and Space keys)
+    rotateButton.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        rotateBack();
+      }
+    });
+    
+    // Replace the anchor with the button
+    rotateLink.parentNode.replaceChild(rotateButton, rotateLink);
+  }
+}
+
+// Initialize accessibility improvements
+function initializeAccessibility() {
+  // Replace fake links with proper buttons
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+  
+  // Ensure table headers have proper scope
+  ensureThScope();
+  
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+      svg.setAttribute('aria-label', `Icon ${index + 1}`);
+    }
+  });
+  
+  addressAccessibilityIssues();
+}
+
+// Run accessibility improvements when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeAccessibility);
+} else {
+  initializeAccessibility();
+}
+
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
+
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 const rootElement = document.documentElement || document.body;
 
@@ -208,15 +242,30 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
-module.exports = {
-  rotateBack,
-  createUnrotateButton,
-  addSvgAccessibility,
-  ensureThScope,
-  initializeAccessibility,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinkIssue,
-  addLangAttribute
-};
+addMainLandmark(rootElement);
+
+// Example usage for SVG accessibility:
+// const svg1 = document.querySelector('.icon-svg-1');
+// const svg2 = document.querySelector('.icon-svg-2');
+// svg1 && addSvgAccessibleNames(svg1);
+// svg2 && addSvgAccessibleNames(svg2);
+
+// Run addressAccessibilityIssues as well
+addressAccessibilityIssues();
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    rotateBack,
+    createUnrotateButton,
+    addSvgAccessibility,
+    ensureThScope,
+    initializeAccessibility,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    addSvgAccessibleNames,
+    fixFakeLinkIssue,
+    addLangAttribute,
+    addressAccessibilityIssues
+  };
+}

@@ -11,7 +11,6 @@ function replaceMyButtonId() {
   const button = document.querySelector('.my-button');
   if (button) {
     button.id = 'exampleButton';
-    button.removeAttribute('data-temp-accessibility-placeholder');
     button.classList.remove('my-button');
   }
 }
@@ -29,7 +28,8 @@ function getLangAttribute() {
  * @returns {string} - the full language attribute with region (if provided)
  */
 function getFullLangAttribute() {
-  return document.documentElement.getAttribute('lang') || '';
+  const lang = document.documentElement.lang;
+  return lang || '';
 }
 
 /**
@@ -40,6 +40,21 @@ function getFullLangAttribute() {
  */
 function addProperLandmarkRegions() {
   // ... (existing code)
+  const main = document.querySelector('main') || document.createElement('main');
+  if (!main.id) main.id = 'main-content';
+  main.setAttribute('role', 'main');
+  
+  const header = document.querySelector('header') || document.createElement('header');
+  if (!header.id) header.id = 'site-header';
+  header.setAttribute('role', 'banner');
+  
+  const nav = document.querySelector('nav') || document.createElement('nav');
+  if (!nav.id) nav.id = 'main-navigation';
+  nav.setAttribute('aria-label', 'Main navigation');
+  
+  const footer = document.querySelector('footer') || document.createElement('footer');
+  if (!footer.id) footer.id = 'site-footer';
+  footer.setAttribute('role', 'contentinfo');
 }
 
 /**
@@ -51,6 +66,22 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // ... (existing code)
+  const collapsibleMenus = document.querySelectorAll('[aria-haspopup="true"], [data-toggle="collapse"]');
+  collapsibleMenus.forEach(menu => {
+    menu.setAttribute('aria-expanded', 'false');
+    menu.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+    });
+  });
+  
+  const formElements = document.querySelectorAll('input, select, textarea');
+  formElements.forEach(element => {
+    if (!element.getAttribute('aria-label') && !document.querySelector(`label[for="${element.id}"]`)) {
+      const label = element.getAttribute('name') || element.getAttribute('placeholder') || 'Form field';
+      element.setAttribute('aria-label', label);
+    }
+  });
 }
 
 /**
@@ -61,15 +92,38 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // ... (existing code)
+  const formControls = document.querySelectorAll('input, select, textarea, button');
+  formControls.forEach(control => {
+    if (control.type !== 'hidden' && !control.disabled) {
+      if (!control.getAttribute('aria-describedby') && control.getAttribute('aria-label')) {
+        control.setAttribute('role', control.tagName.toLowerCase());
+      }
+      
+      if (control.required && !control.getAttribute('aria-required')) {
+        control.setAttribute('aria-required', 'true');
+      }
+      
+      if (control.valid && !control.getAttribute('aria-invalid')) {
+        control.setAttribute('aria-invalid', 'false');
+      }
+    }
+  });
+  
+  const requiredFields = document.querySelectorAll('[required]');
+  requiredFields.forEach(field => {
+    field.setAttribute('aria-required', 'true');
+  });
 }
 
 /**
  * Function to replace `my-button` with actual button id
  */
-addProperLandmarkRegions();
-addProperAccountManagement();
+function initializeButton() {
+  replaceMyButtonId();
+}
+
+initializeButton();
 addAriaToFormControls();
-replaceMyButtonId();
 
 module.exports = {
   addProperLandmarkRegions,

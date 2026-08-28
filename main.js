@@ -119,6 +119,14 @@ function googleSignIn(document) {
   }
 }
 
+// Function to handle Google credential response
+function handleCredentialResponse(response) {
+  // Handle the Google credential response here
+  // This would typically involve sending the credential to your backend
+  console.log('Google credential response:', response);
+  return response;
+}
+
 // Function to ensure the element has an id
 function ensureElementHasId(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
@@ -260,7 +268,7 @@ export {
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,
-  handleCredentialResponse, // Assuming handleCredentialResponse is a typo and should be fixButtonIdentifiers
+  handleCredentialResponse,
   fixButtonIdentifiers,
   addMainLandmarkToIndex,
   renderDependencyGraphs,

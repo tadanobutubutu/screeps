@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import _ from 'lodash';
+
+// Existing exports and functions stay here
+
+// New export for the myNewFunction
+export function myNewFunction(arr) {
+  return _.map(arr, item => item * 2);
+}

@@ -542,6 +542,103 @@ function validateTableStructure(table) {
 }
 
 /**
+ * Validates landmark attributes for accessibility compliance.
+ * Checks if a landmark element has appropriate ARIA attributes.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateLandmarkAttributes(element) {
+  const issues = [];
+  
+  if (!element.hasAttribute('role') && !['main', 'nav', 'aside', 'header', 'footer', 'form', 'section'].includes(element.tagName.toLowerCase())) {
+    if (!element.hasAttribute('role')) {
+      issues.push({
+        type: 'missing-role',
+        message: 'Landmark element is missing a role attribute'
+      });
+    }
+  }
+  
+  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    issues.push({
+      type: 'missing-label',
+      message: 'Landmark element is missing accessible name (aria-label or aria-labelledby)'
+    });
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates landmark structure for accessibility compliance.
+ * Checks if a landmark element has proper structural attributes.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateLandmarkStructure(element) {
+  const issues = [];
+  
+  // Check if element has proper landmark role or is a landmark element
+  const landmarkRoles = ['main', 'navigation', 'complementary', 'banner', 'contentinfo', 'form', 'region'];
+  const hasValidRole = Array.from(element.attributes || []).some(attr => 
+    attr.name === 'role' && landmarkRoles.includes(attr.value)
+  );
+  
+  const landmarkElements = ['main', 'nav', 'aside', 'header', 'footer', 'form', 'section'];
+  const isLandmarkElement = landmarkElements.includes(element.tagName.toLowerCase());
+  
+  if (!hasValidRole && !isLandmarkElement) {
+    issues.push({
+      type: 'invalid-landmark',
+      message: 'Element is not a valid landmark element'
+    });
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates a landmark element for accessibility compliance.
+ * Checks both structure and attributes of the landmark.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results with structure and attribute details
+ */
+function validateLandmark(element) {
+  if (!element) {
+    return {
+      isValid: false,
+      issues: [{
+        type: 'invalid-element',
+        message: 'Invalid landmark element provided'
+      }]
+    };
+  }
+  
+  const structureValidation = validateLandmarkStructure(element);
+  const attributeValidation = validateLandmarkAttributes(element);
+  
+  const allIssues = [
+    ...structureValidation.issues,
+    ...attributeValidation.issues
+  ];
+  
+  return {
+    isValid: allIssues.length === 0,
+    issues: allIssues,
+    details: {
+      structure: structureValidation,
+      attributes: attributeValidation
+    }
+  };
+}
+
+/**
  * Implements function for addressing accessibility issues from insight report.
  * Identifies and fixes common accessibility problems found in the document.
  * @param {HTMLElement} [container=document] - The container to check for accessibility issues
@@ -722,65 +819,6 @@ function addressAccessibilityIssues(container = document) {
   return results;
 }
 
-/**
- * Checks if an element has missing ARIA properties.
- * @param {HTMLElement} element - The element to check
- * @returns {boolean} True if the element is missing required ARIA properties, false otherwise
- */
-function hasMissingAriaProperties(element) {
-  const requiredAriaProps = ['role', 'aria-label', 'aria-labelledby', 'tabindex'];
-
-  return !requiredAriaProps.every(prop => element.hasAttribute(prop));
-}
-
-/**
- * Adds accessible names to all form elements in the document.
- * @returns {Array} Array of processed form elements
- */
-function setFormElementAccessibleNames() {
-  const formElements = [];
-  const inputs = document.querySelectorAll('input, select, textarea');
-  
-  inputs.forEach(input => {
-    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
-      const name = input.getAttribute('name');
-      const id = input.getAttribute('id');
-      const placeholder = input.getAttribute('placeholder');
-      
-      if (name) {
-        input.setAttribute('aria-label', name);
-        formElements.push(input);
-      } else if (id) {
-        input.setAttribute('aria-label', id.replace(/[^a-zA-Z]/g, ' '));
-        formElements.push(input);
-      } else if (placeholder) {
-        input.setAttribute('aria-label', placeholder);
-        formElements.push(input);
-      }
-    }
-  });
-  
-  return formElements;
-}
-
-/**
- * Adds a11y attributes to interactive elements to ensure they are keyboard accessible.
- * @returns {Array} Array of elements with added attributes
- */
-function addA11yAttributesToInteractiveElements() {
-  const interactiveElements = [];
-  const interactive = document.querySelectorAll('[tabindex], button, a, input, select, textarea, [role="button"], [role="link"]');
-  
-  interactive.forEach(el => {
-    if (!el.hasAttribute('tabindex') && ['button', 'a', 'input', 'select', 'textarea'].includes(el.tagName.toLowerCase())) {
-      el.setAttribute('tabindex', '0');
-      interactiveElements.push(el);
-    }
-  });
-  
-  return interactiveElements;
-}
-
 // Make functions accessible globally for browser usage
 const globalObject = typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : global);
 globalObject.setSvgAccessibilityProps = setSvgAccessibilityProps;
@@ -804,6 +842,9 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.validateLandmark = validateLandmark;
+globalObject.validateLandmarkStructure = validateLandmarkStructure;
+globalObject.validateLandmarkAttributes = validateLandmarkAttributes;
 globalObject.validateTableAccessibility = validateTableAccessibility;
 globalObject.validateTableStructure = validateTableStructure;
 
@@ -830,6 +871,9 @@ module.exports = {
   hasMissingAriaProperties,
   getSvgAccessibleName,
   addressAccessibilityIssues,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
   validateTableAccessibility,
   validateTableStructure
 };

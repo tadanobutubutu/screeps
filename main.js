@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing module setup
 // Application entry point
 // Core configuration
@@ -12,34 +9,40 @@ Here is the resolved file content:
 // New functions or changes requested in the issue go here. This includes any accessibility fixes such as adding ARIA attributes,
 // improving keyboard navigation, or making sure interactive elements are properly labeled and focusable.
 
-// Example of an accessibility improvement:
-// Adding a role and aria-label to a button to improve screen reader support
-// Assuming the button has an existing ID 'myButton', you would update it like this:
+// Utility functions required by the test suite
+const { formatDate } = require('./utils/dateUtils');
+const { validateEmail } = require('./utils/validation');
+const { calculateTotal } = require('./utils/math');
 
-const myButton = document.getElementById('myButton');
-myButton.setAttribute('role', 'button');
-myButton.setAttribute('aria-label', 'Click to perform an action');
+// Add new utility functions regarding accessibility improvements
+const { makeAccessible } = require('./utils/accessibility');
+
+function createInPageButton(text, id, className) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  if (id) {
+    button.id = id;
+  }
+  if (className) {
+    button.className = className;
+  }
+  // Accessibility improvements: ensure button is properly labeled for screen readers
+  button.setAttribute('role', 'button');
+  if (id) {
+    button.setAttribute('aria-label', text);
+  }
+  return button;
+}
 
 // Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 
-// Export utility functions that are required by the test suite
-const { formatDate } = require('./utils/dateUtils');
-const { validateEmail } = require('./utils/validation');
-const { calculateTotal } = require('./utils/math');
-
-// Add new utility functions regarding accessibility improvements
-const makeAccessible = require('./utils/accessibility');
-
 module.exports = {
-  preserveOriginalLogic: preserveOriginalLogic,
   formatDate,
   validateEmail,
   calculateTotal,
-  makeAccessible
+  makeAccessible,
+  createInPageButton
 };
-```
-
-This resolved file combines both the original code and the new code required for accessibility improvements. It preserves the existing `preserveOriginalLogic` function, exports the utility functions required by the test suite, and adds a new utility function (`makeAccessible`) to address accessibility improvements.

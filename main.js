@@ -119,7 +119,9 @@ function addAriaLabelledbyToSVGs() {
     const title = svg.querySelector('title');
     if (title) {
       const titleId = title.getAttribute('id');
-      svg.setAttribute('aria-labelledby', titleId);
+      if (titleId) {
+        svg.setAttribute('aria-labelledby', titleId);
+      }
     }
   });
 }
@@ -135,14 +137,6 @@ function addAriaLabelToSVGs() {
     }
   });
 }
-
-// Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
-// - REACT_041: Add accessible names to 2 SVGs
-// These are decorative favicon SVGs, so marking them as hidden from assistive tech
-// const svg1 = document.querySelector('#svg1');
-// const svg2 = document.querySelector('#svg2');
-// if (svg1) svg1.setAttribute('aria-hidden', 'true');
-// if (svg2) svg2.setAttribute('aria-hidden', 'true');
 
 // Call the new landmark and SVG accessibility functions
 addProperLandmarkRegions();

@@ -6,6 +6,12 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
+const fs = require('fs');
+const path = require('path');
+
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
+
 function addLangAttribute() {
   // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
@@ -98,6 +104,11 @@ function applyAccessibilityFixes() {
   fixFakeLinkIssue();
 }
 
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
 module.exports = {
   addLangAttribute,
   fixTableStructure,
@@ -106,4 +117,5 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   applyAccessibilityFixes,
+  calculateDiscount: calculateDiscount
 };

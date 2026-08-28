@@ -32,7 +32,7 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('main, [role="main"]');
+  const existingMain = rootElement.querySelector('[role="main"]');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
@@ -104,11 +104,10 @@ function fixFakeLinkIssue(link) {
 }
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
-const rootElement = document.querySelector('html') || document.body;
+const rootElement = document.documentElement || document.body;
 
 if (rootElement) {
-  addLangAttribute(rootElement);
-  addMainLandmark(rootElement);
+  addLangAttribute(rootElement, 'en');
 }
 
 ensureUniqueLandmarks();

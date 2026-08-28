@@ -36,6 +36,7 @@ function updateAriaAttributes() {
     const body = doc.body;
     if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
+      body.setAttribute('role', 'main');
     }
   }
 }
@@ -48,18 +49,18 @@ function handleErrorState(errorElement, container, trigger = false) {
   if (!doc) return;
 
   // Wrap the error in a <section> element
-  const errorSection = doc.createElement('section');
+  const errorSection = createElement('section');
   errorSection.setAttribute('role', 'alert');
   errorSection.setAttribute('aria-live', 'assertive');
   
   if (typeof errorElement === 'string') {
     errorSection.textContent = errorElement;
   } else {
-    errorSection.appendChild(errorElement);
+    errorSection.appendChild(errorElement.cloneNode(true));
   }
 
   if (container) {
-    const errorContainer = doc.createElement('div');
+    const errorContainer = createElement('div');
     errorContainer.setAttribute('class', 'error-container');
     errorContainer.setAttribute('role', 'alert');
     errorContainer.appendChild(errorSection);
@@ -81,8 +82,7 @@ function handleAccessibilityError(errorElement, container) {
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
+    doc.documentElement.setAttribute('data-accessibility-mode', 'enabled');
   }
 }
 

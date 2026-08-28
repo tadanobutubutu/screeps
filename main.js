@@ -1,12 +1,21 @@
-// main.js - Accessibility improvements implementation
+const fs = require('fs');
+const path = require('path');
 
-// TODO: Add exports for new functions if needed
-// REACT_015: Add lang attribute
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.querySelector('main') || document.createElement('main');
+mainElement.id = 'main-content';
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
+}
+document.body.appendChild(mainElement);
 
-// Store for accessibility announcements (screen reader support)
+// Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.hasAttribute('lang')) {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
 const a11yStore = {
   liveRegion: null,
-
   init() {
     this.createLiveRegion();
     this.setupKeyboardNavigation();
@@ -14,7 +23,6 @@ const a11yStore = {
     this.setupSkipLinks();
   },
 
-  // Create a live region for screen reader announcements
   createLiveRegion() {
     if (this.liveRegion) return;
 
@@ -28,7 +36,6 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Announce message to screen readers
   announce(message, priority = 'polite') {
     if (!this.liveRegion) return;
 
@@ -41,7 +48,6 @@ const a11yStore = {
     }, 100);
   },
 
-  // Setup keyboard navigation for interactive elements
   setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
       // Handle Enter and Space for custom interactive elements
@@ -62,40 +68,8 @@ const a11yStore = {
         }
       }
     });
-
-    // Fix Safari focus trapping in dropdowns
-    const dropdownContainers = document.querySelectorAll('.dropdown, .menu');
-    dropdownContainers.forEach(container => {
-      container.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-
-        const currentFocusedElement = document.activeElement;
-        let focusIsInsideContainer = false;
-
-        if (
-          currentFocusedElement &&
-          (currentFocusedElement === container ||
-            currentFocusedElement.closest(container))
-        ) {
-          focusIsInsideContainer = true;
-        }
-
-        // Ensure focus trapping only within the dropdown container
-        if (!focusIsInsideContainer) {
-          // Find the first focusable element within the container
-          const firstFocusableElement = container.querySelector(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          );
-
-          if (firstFocusableElement) {
-            firstFocusableElement.focus();
-          }
-        }
-      });
-    });
   },
 
-  // Manage focus for accessibility
   setupFocusManagement() {
     // Trap focus within modals
     document.addEventListener('keydown', (e) => {
@@ -121,7 +95,6 @@ const a11yStore = {
     });
   },
 
-  // Setup skip links
   setupSkipLinks() {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
@@ -144,23 +117,19 @@ const a11yStore = {
     }
   },
 
-  // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  // Utility: Check if user prefers high contrast
   prefersHighContrast() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
-  // New function to handle dynamic content updates
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
   },
 
-  // New function to check landmark elements
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach(landmark => {
@@ -171,7 +140,6 @@ const a11yStore = {
     });
   },
 
-  // New function to add SVG accessibility props
   addSvgAccessibilityProps() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -189,7 +157,6 @@ const a11yStore = {
     });
   },
 
-  // New function to preserve existing code
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // (This comment remains as-is)
@@ -199,10 +166,61 @@ const a11yStore = {
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+  },
+
+  addressAccessibilityIssues(report) {
+    if (!report) return;
+    report.forEach(issue => {
+      // Handle each issue type
+      switch (issue.type) {
+        case 'missing-lang':
+          if (!document.documentElement.lang) {
+            document.documentElement.lang = 'en';
+          }
+          break;
+        case 'missing-skip-link':
+          if (!document.querySelector('.skip-link')) {
+            const skipLink = document.createElement('a');
+            skipLink.className = 'skip-link';
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            document.body.prepend(skipLink);
+          }
+          break;
+        case 'missing-alt':
+          document.querySelectorAll('img').forEach(img => {
+            if (!img.getAttribute('alt')) {
+              img.setAttribute('alt', 'Image description');
+            }
+          });
+          break;
+        case 'missing-label':
+          document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+              el.setAttribute('aria-label', 'Form field');
+            }
+          });
+          break;
+        // Add more cases as needed
+      }
+    });
   }
 };
 
-// New function to address accessibility issues from insight report
+function run() {
+  // Your game logic here...
+
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      updateThScopeAttribute(filePath);
+    });
+}
+
+// Used for addressing React accessibility issues
 function addressAccessibilityIssues(report) {
   if (!report) return;
   report.forEach(issue => {
@@ -241,34 +259,7 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.querySelector('main') || document.createElement('main');
-mainElement.id = 'main-content';
-if (!document.documentElement.lang) {
-  document.documentElement.lang = 'en';
-}
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.hasAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
-}
-
-document.body.appendChild(mainElement);
-
-// Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
-
-// Export for module usage
-export { a11yStore };
-export { mainElement };
-export { addressAccessibilityIssues };
-export { prefersReducedMotion } from a11yStore;
-export { prefersHighContrast } from a11yStore;
-export default a11yStore;
-
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };
+module.exports = {
+  run,
+  addressAccessibilityIssues
+};

@@ -1,6 +1,5 @@
 // main.js - Accessibility improvements implementation
 
-// TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 
 // Store for accessibility announcements (screen reader support)
@@ -264,6 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
 export { a11yStore };
 export { mainElement };
 export { addressAccessibilityIssues };
+export { updateLiveRegion };
+export { initA11y };
 export default a11yStore;
 
 // Import and export additional functions if needed (placeholder for actual modules)

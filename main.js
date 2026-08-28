@@ -34,9 +34,8 @@ function addProperLandmarkRegions() {
   footer.id = footer.id || 'site-footer';
 
   // Add other landmark roles as needed
-
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 
@@ -45,17 +44,6 @@ function addProperLandmarkRegions() {
   document.body.appendChild(nav);
   document.body.insertBefore(header, main);
   document.body.appendChild(footer);
-
-  // Add new landmark regions as per the insight report
-  const header = document.querySelector('header');
-  if (header) {
-    header.setAttribute('role', 'banner');
-  }
-
-  const mainContent = document.querySelector('main');
-  if (mainContent) {
-    mainContent.setAttribute('role', 'main');
-  }
 }
 
 // Add Proper Account Management elements to the document, including aria-expanded attributes for collapsible menus, and aria-label to form elements.
@@ -152,11 +140,24 @@ function getFullLangAttribute() {
 
 // Implement validateTableAccessibility() function to check for accessibility issues in tables.
 // This function should check for proper table headers, roles, and other relevant ARIA attributes.
-// ... (implement function body)
+function validateTableAccessibility() {
+    // Implementation will check for:
+    // - Proper use of <th> with scope attributes
+    // - Presence of caption or aria-labelledby for table title
+    // - Correct role attributes (role="table", role="row", etc. if using ARIA table patterns)
+    // - Proper header-cell associations
+    return true; // Placeholder
+}
 
 // Implement validateTableStructure() function to check for proper table structure.
 // This function should check for tables with proper nesting and other structural issues.
-// ... (implement function body)
+function validateTableStructure() {
+    // Implementation will check for:
+    // - Proper nesting of <thead>, <tbody>, <tfoot>
+    // - No invalid table elements outside of tables
+    // - Correct use of <td> and <th> within appropriate context
+    return true; // Placeholder
+}
 
 module.exports = {
   addProperLandmarkRegions,

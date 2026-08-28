@@ -2,6 +2,11 @@
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }
 
+// TODO: Export utility functions that are required by the test suite
+import { formatDate } from './utils/dateUtils';
+import { validateEmail } from './utils/validation';
+import { calculateTotal } from './utils/math';
+
 // Utility functions
 export function calculateSum(a, b) {
   return a + b;
@@ -179,6 +184,8 @@ function YouHaveComponent() {
 export { YouHaveComponent };
 export { default as App } from './App';
 export { default as reportWebVitals } from './reportWebVitals';
-```
 
-This resolved conflict in the file 'main.js' by combining changes that were made in both branches, keeping functionality where possible, following best practices and styles.
+// Export utility functions required by the test suite
+export { formatDate };
+export { validateEmail };
+export { calculateTotal };

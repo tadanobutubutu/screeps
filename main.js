@@ -11,4 +11,6 @@ function MyComponent() {
   );
 }
 
+export function calculateSum(a, b) { return a + b; }
+
 export default MyComponent;

@@ -1,5 +1,5 @@
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
+// Import required module(s) - for fixing table structure issues
+const { formatTable, validateTableStructure } = require('./tableUtils');
 
 const VERSION = '1.0.0';
 
@@ -21,12 +21,22 @@ function getVersion() {
   return VERSION;
 }
 
+function formatTableData(data, options) {
+  return formatTable(data, options);
+}
+
+function validateTable(data) {
+  return validateTableStructure(data);
+}
+
 module.exports = {
   VERSION,
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  formatTableData,
+  validateTable
 };
 
 module.exports.default = {
@@ -34,5 +44,7 @@ module.exports.default = {
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  formatTableData,
+  validateTable
 };

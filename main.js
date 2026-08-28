@@ -121,6 +121,42 @@ function renderIndexView() {
   document.body.appendChild(button);
 }
 
+/**
+ * Checks the landmark structure of the document or a specific container.
+ * @param {HTMLElement|Document} [container=document] - The container to check for landmarks
+ * @returns {Object} An object containing information about landmarks
+ */
+function checkLandmarkStructure(container = document) {
+  // Define the required landmark roles
+  const requiredLandmarks = ['banner', 'navigation', 'main', 'contentinfo'];
+  const landmarkMap = {
+    banner: container.querySelector('[role="banner"], header'),
+    navigation: container.querySelector('[role="navigation"], nav'),
+    main: container.querySelector('[role="main"], main'),
+    contentinfo: container.querySelector('[role="contentinfo"], footer'),
+    complementary: container.querySelector('[role="complementary"], aside'),
+    search: container.querySelector('[role="search"], [type="search"]'),
+    form: container.querySelector('[role="form"], form'),
+  };
+
+  // Determine which required landmarks are missing
+  const missing = requiredLandmarks.filter(role => !landmarkMap[role]);
+
+  // Optionally, collect all found landmarks
+  const found = {};
+  for (const [role, el] of Object.entries(landmarkMap)) {
+    if (el) {
+      found[role] = el;
+    }
+  }
+
+  return {
+    hasAllRequired: missing.length === 0,
+    missing,
+    found,
+  };
+}
+
 // Exports for all functions
 module.exports = {
   setSvgAccessibilityProps,
@@ -129,4 +165,5 @@ module.exports = {
   checkLinkAndButtonAccessibility,
   checkAccessibility,
   renderIndexView,
+  checkLandmarkStructure,
 };

@@ -124,12 +124,18 @@ app.delete('/items/:id', (req, res) => {
   res.json(deletedItem);
 });
 
+// Start the server only if this file is run directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
 // Export utility functions for testing
-export { calculateSum, calculateDifference, calculateProduct, calculateQuotient };
-
-// Export the Express app for testing
-export { app };
-
-// TODO: Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
+module.exports = {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  calculateQuotient,
+  app,
+};

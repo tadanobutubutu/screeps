@@ -1,4 +1,5 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve the REACT_027 issue.
+
 // Current main.js content is not provided in your message.
 // Please paste the contents of main.js, especially any sections with conflict markers
 // (<<<<<<<, =======, >>>>>>>), so I can help resolve the REACT_027 issue.

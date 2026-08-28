@@ -191,6 +191,23 @@ const a11yStore = {
     });
   },
 
+  // Function to count dependencies
+  countDependencies(obj) {
+    if (!obj || typeof obj !== 'object') return 0;
+    
+    let count = 0;
+    const keys = Object.keys(obj);
+    
+    for (const key of keys) {
+      if (obj[key] !== null && typeof obj[key] === 'object') {
+        count += this.countDependencies(obj[key]);
+      }
+      count++;
+    }
+    
+    return count;
+  },
+
   // New function to address accessibility issues from insight report
   addressAccessibilityIssues(report) {
     if (!report) return;

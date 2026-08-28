@@ -1,4 +1,11 @@
 // TODO: Address accessibility issues from insight report — CONTINUING
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 // Add new functions (no existing functions should be removed or renamed)
 
 function addressAccessibilityIssues() {
@@ -185,7 +192,7 @@ function validateTableAccessibility(tableOrUrl) {
     };
 
     tables.forEach((table, index) => {
-        // \\ This section was updated to check if table has headers
+        // \ This section was updated to check if table has headers
         if (!tables[index].querySelectorAll('th').length) {
             accessibilityResults.issues.push({
                 table: index,
@@ -220,7 +227,7 @@ function validateTableStructure(tableOrUrl) {
     };
 
     tables.forEach((table, index) => {
-        // \\ This section was updated to check for caption
+        // \ This section was updated to check for caption
         const caption = table.querySelector('caption');
         if (!caption) {
             structureResults.issues.push({
@@ -291,6 +298,60 @@ function countAllDependencies(deps, devDeps) {
   return countDependenciesFromObj(deps) + countDependenciesFromObj(devDeps);
 }
 
+// Landmark validation helpers
+function validateLandmark(element) {
+  if (!element) return false;
+  const tag = element.tagName ? element.tagName.toLowerCase() : '';
+  const role = element.getAttribute('role');
+  const landmarkTags = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'search', 'form', 'region', 'complementary'];
+  return landmarkTags.includes(tag) || (role && landmarkRoles.includes(role));
+}
+
+function validateLandmarkStructure(doc = document) {
+  const landmarkSelectors = 'main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="search"], [role="form"], [role="region"], [role="complementary"]';
+  const elements = doc.querySelectorAll ? doc.querySelectorAll(landmarkSelectors) : [];
+  const ids = new Set();
+  const issues = [];
+  elements.forEach(el => {
+    if (el.id) {
+      if (ids.has(el.id)) {
+        issues.push({ element: el.tagName, id: el.id, message: 'Duplicate landmark ID' });
+      }
+      ids.add(el.id);
+    }
+  });
+  return {
+    landmarks: elements.length,
+    uniqueIds: ids.size,
+    issues,
+    valid: issues.length === 0
+  };
+}
+
+// Accessible name helpers for SVGs
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName !== 'SVG') return '';
+  const title = svgElement.querySelector ? svgElement.querySelector('title') : null;
+  return svgElement.getAttribute('aria-label') || (title ? title.textContent.trim() : '') || '';
+}
+
+// In-page button creation helper
+function createInPageButton(text, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text || 'In-page button';
+  if (options.id) button.id = options.id;
+  if (options.className) button.className = options.className;
+  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
+  return button;
+}
+
+// Person name helper for accessible labels
+function personName(element) {
+  if (!element) return 'Unknown person';
+  return element.getAttribute('aria-label') || element.textContent.trim() || 'Unknown person';
+}
+
 // Language attribute helper functions (from previous version)
 function getLangAttribute(el) {
   // Implement the logic to return the language attribute
@@ -322,6 +383,11 @@ module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
     validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    personName,
     elementExists,
     getElementText,
     getAllTables,

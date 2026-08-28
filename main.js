@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Add back any required exports that might have been?
+export default {
+  version: '1.0.0'
+};
+
+export const config = {
+  port: 3000,
+  debug: false
+};

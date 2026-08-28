@@ -1,15 +1,1 @@
-// helper.js
-
-function exampleFunction1() {
-  // implementation
-}
-
-function exampleFunction2() {
-  // implementation
-}
-
-// Export the required functions
-module.exports = {
-  exampleFunction1,
-  exampleFunction2,
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -4,11 +4,11 @@ import App from './App'; // Assuming the App component is in the same directory
 
 // Main application logic
 
-document.addEventListener('DOMContentLoaded', () => {
-  const unrotateBtn = document.getElementById('unrotate');
+... () => {
+  const unrotateBtn = ...
   
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', (e) => {
+    ... (e) => {
       e.preventDefault();
       // Rotate back logic
       document.body.style.transform = 'rotate(0deg)';
@@ -21,7 +21,7 @@ ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );
 
 // Export any existing functions
@@ -32,3 +32,6 @@ export function someExistingFunction() {
 export function anotherFunction() {
   // More existing functionality
 }
+
+// Export App component for external use and testing
+export { App };

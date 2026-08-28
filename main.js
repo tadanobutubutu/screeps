@@ -163,3 +163,17 @@ function runWorker(creep) {
         }
     }
 }
+
+/**
+ * Ensure unique landmarks - REACT_025
+ */
+function ensureUniqueLandmarks() {
+    // TODO: Implement unique landmarks
+}
+
+/**
+ * Add landmark roles and fix landmark issues - REACT_017
+ */
+function addLandmarkRoles() {
+    // TODO: Implement landmark roles
+}

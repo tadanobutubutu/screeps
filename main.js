@@ -9,7 +9,7 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report — FIXED
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)

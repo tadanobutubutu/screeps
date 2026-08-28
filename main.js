@@ -1,3 +1,4 @@
+const loop = require('./loop');
 const config = require('./config');
 const logger = require('./utils/logger');
 
@@ -255,6 +256,7 @@ function setupAccessibilityEventListeners() {
 
 // Export functions for testing
 module.exports = {
+  loop,
   validateLandmark,
   checkTableData,
   initialize,

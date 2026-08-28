@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Import the required module
+const _ = require('lodash');
+
+// Add the new function
+function myNewFunction(arg1, arg2) {
+  // Implement your new function here
+  // For example:
+  return arg1 + arg2;
+}
+
+// Export the new function
+module.exports = {
+  ...module.exports, // Preserve existing exports
+  myNewFunction,
+};

@@ -4,4 +4,13 @@
 // Additional functionality can be added here if needed
 // while preserving the existing code structure
 
-module.exports = {};
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
+module.exports = {
+    // Preserve all existing exports
+    // ...
+    calculateDiscount: calculateDiscount
+};

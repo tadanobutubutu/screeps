@@ -1,5 +1,21 @@
+// main.js
+
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
 const fs = require('fs');
 const path = require('path');
+
+// Import accessibility helper functions
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibilityHelperFunctions');
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -25,7 +41,36 @@ const a11yStore = {
   },
 };
 
-// Main game loop for Screeps
+// New function to handle adding landmark regions
+function addLandmarkRegions() {
+  const container = document.getElementById('landmark-regions-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="landmark-region" role="region" aria-label="Building">
+        Main Building
+      </div>
+      <div class="landmark-region" role="region" aria-label="Park">
+        Central Park
+      </div>
+    `;
+  }
+}
+
+// Export the function
+// Note: Using module.exports instead of ES6 export for CommonJS compatibility
+module.exports.addLandmarkRegions = addLandmarkRegions;
+
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.lang) {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.createElement('main');
+document.documentElement.setAttribute('lang', 'en');
+document.body.appendChild(mainElement);
+
+// Game loop function
 function run() {
   // Your game logic here...
 
@@ -34,36 +79,23 @@ function run() {
   fs.readdirSync(viewsDir)
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
+      const filePath = path.join(viewsDir, file);
       updateThScopeAttribute(filePath);
     });
+
+  // Additional logic to add landmark regions (if required)
+  addLandmarkRegions();
 }
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.lang) {
-  document.documentElement.setAttribute('lang', 'en');
-}
-
-// Import accessibility helper functions
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-document.documentElement.setAttribute('lang', 'en');
-document.body.appendChild(mainElement);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
+
+// Start the game loop
+Module.onInit = function() {
+  setInterval(run, 1000);
+};
 
 // Game-related functions and exports
 
@@ -98,8 +130,5 @@ module.exports = {
   createAccessibleLink,
   a11yStore,
   mainElement,
-  prefersReducedMotion,
-  prefersHighContrast,
-  wrapPrimaryContentInMain,
-  addressAccessibilityIssues,
+  addLandmarkRegions
 };

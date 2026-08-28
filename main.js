@@ -54,7 +54,8 @@ function getLangAttribute() {
 }
 
 /**
- * Function to replace `my-button` with actual button id
+ * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
+ * Assumes you have already set the id on the button element in your code.
  */
 function replaceMyButtonId() {
     // Find the element with the `my-button` class and replace the class with the actual id.
@@ -82,9 +83,6 @@ function addProperLandmarkRegions() {
     const nav = document.querySelector('nav') || document.createElement('nav');
     nav.setAttribute('role', 'navigation');
     nav.id = nav.id || 'primary-navigation';
-    if (!nav.getAttribute('aria-label')) {
-        nav.setAttribute('aria-label', 'Main navigation');
-    }
 
     // Create banner/header landmark
     const header = document.querySelector('header') || document.createElement('header');
@@ -113,8 +111,8 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
     // Add aria-expanded to collapsible menus/buttons
-    const collapsibleMenus = document.querySelectorAll('[aria-haspopup="true"], [data-toggle="collapse"]');
-    collapsibleMenus.forEach(menu => {
+    const collapsibles = document.querySelectorAll('[aria-haspopup="true"], [data-toggle="collapse"]');
+    collapsibles.forEach(menu => {
         if (!menu.hasAttribute('aria-expanded')) {
             menu.setAttribute('aria-expanded', 'false');
         }
@@ -138,8 +136,8 @@ function addProperAccountManagement() {
     });
 
     // Add aria-expanded to elements with aria-controls (additional support)
-    const collapsibles = document.querySelectorAll('[aria-controls]');
-    collapsibles.forEach(element => {
+    const collapsibles2 = document.querySelectorAll('[aria-controls]');
+    collapsibles2.forEach(element => {
         if (!element.hasAttribute('aria-expanded')) {
             element.setAttribute('aria-expanded', 'false');
         }
@@ -173,10 +171,8 @@ function addAriaToFormControls() {
     });
 }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
+// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
+// Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
 
 addProperLandmarkRegions();

@@ -222,8 +222,64 @@ function googleSignIn(document) {
 
 // Function to handle credential response from Google Sign-In
 function handleCredentialResponse(response) {
-  // TODO: Implement credential response handling
-  console.log('Credential response received:', response);
+  // Decode the JWT credential returned by Google Identity Services
+  if (!response || !response.credential) {
+    console.error('No credential received from Google Sign-In');
+    return;
+  }
+
+  try {
+    // JWT format: header.payload.signature
+    const credential = response.credential;
+    const parts = credential.split('.');
+    if (parts.length !== 3) {
+      throw new Error('Invalid JWT format');
+    }
+
+    // Decode the payload (base64url -> JSON)
+    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const decodedPayload = decodeURIComponent(
+      atob(payload)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const userInfo = JSON.parse(decodedPayload);
+
+    // Extract relevant user information
+    const user = {
+      sub: userInfo.sub,
+      email: userInfo.email,
+      name: userInfo.name,
+      picture: userInfo.picture,
+      emailVerified: userInfo.email_verified
+    };
+
+    // Persist authenticated user (e.g., store in localStorage for session reuse)
+    try {
+      localStorage.setItem('googleUser', JSON.stringify(user));
+    } catch (storageError) {
+      console.warn('Unable to persist user session:', storageError);
+    }
+
+    // Notify the application of the successful sign-in
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('google-signin-success', { detail: user }));
+    }
+
+    // Trigger a global callback if one has been registered
+    if (typeof window !== 'undefined' && typeof window.onGoogleSignIn === 'function') {
+      window.onGoogleSignIn(user);
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Failed to handle Google credential response:', error);
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('google-signin-error', { detail: error }));
+    }
+    return null;
+  }
 }
 
 // Function to ensure the element has an id

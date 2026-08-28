@@ -3,7 +3,27 @@ const logger = require('./utils/logger');
 
 // Application state
 let isInitialized = false;
-const appData = {};
+const appData = {}
+
+/**
+ * Checks if a table data array has the required structure
+ * @param {Array} tableData - The table data to check
+ * @param {Array} requiredColumns - List of required column names
+ * @returns {Object} - { valid: boolean, missingColumns: string[] }
+ */
+function checkTableData(tableData, requiredColumns) {
+    if (!Array.isArray(tableData) || tableData.length === 0) {
+        return { valid: false, missingColumns: requiredColumns };
+    }
+    
+    const headers = tableData[0];
+    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+    
+    return {
+        valid: missingColumns.length === 0,
+        missingColumns
+    };
+}
 
 // Implement validateLandmark functionality
 function validateLandmark(landmark) {
@@ -90,6 +110,7 @@ function modifiedFunction() {
 
 module.exports = {
   validateLandmark,
+  checkTableData,
   initialize,
   getAppState,
   setData,

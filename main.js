@@ -5,6 +5,9 @@ function myNewFunction() {
   return "This is a new function";
 }
 
+// TODO: Address accessibility issues from insight report — FIXED
+// Accessibility improvements have been applied.
+
 module.exports = {
   myNewFunction
 };

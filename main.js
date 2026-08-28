@@ -8,22 +8,14 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
+// TODO: Implement function for adding proper landmark regions
+
 // Import the required module
 const _ = require('lodash');
 
 // TODO: Implement validateLandmark functionality
 
-/**
- * Validates a landmark object
- * @param {Object} landmark - The landmark object to validate
- * @returns {boolean} - Returns true if the landmark is valid, false otherwise
- */
 function validateLandmark(landmark) {
-  // Check if landmark exists
-  if (!landmark) {
-    return false;
-  }
-
   // Validate name is present and non-empty
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     return false;
@@ -45,6 +37,30 @@ function validateLandmark(landmark) {
   }
 
   return true;
+}
+
+/**
+ * Function to add proper landmark regions to the page for accessibility
+ * Landmark regions help assistive technologies navigate the page structure
+ */
+function addLandmarkRegions() {
+  const landmarks = [
+    { tag: 'header', role: 'banner', id: 'site-header' },
+    { tag: 'nav', role: 'navigation', id: 'main-nav', ariaLabel: 'Main navigation' },
+    { tag: 'main', role: 'main', id: 'main-content' },
+    { tag: 'aside', role: 'complementary', id: 'sidebar' },
+    { tag: 'footer', role: 'contentinfo', id: 'site-footer' }
+  ];
+
+  landmarks.forEach(landmark => {
+    const element = document.createElement(landmark.tag);
+    element.id = landmark.id;
+    element.setAttribute('role', landmark.role);
+    if (landmark.ariaLabel) {
+      element.setAttribute('aria-label', landmark.ariaLabel);
+    }
+    document.body.appendChild(element);
+  });
 }
 
 // Add the new function
@@ -244,7 +260,7 @@ function fixTableStructure(doc) {
       fixedCount++;
     }
   });
-  
+
   return fixedCount;
 }
 
@@ -434,6 +450,7 @@ const accessibilityExports = {
   initializeAccessibility,
   createInPageButton,
   ErrorDisplay,
+  addLandmarkRegions,
 };
 
 // CommonJS export
@@ -442,6 +459,7 @@ if (typeof module !== 'undefined' && module.exports) {
     ...module.exports, // Preserve existing exports
     validateLandmark,
     myNewFunction,
+    addLandmarkRegions,
     ...accessibilityExports,
   };
 }
@@ -451,10 +469,12 @@ if (typeof exports !== 'undefined') {
   exports.default = {
     validateLandmark,
     myNewFunction,
+    addLandmarkRegions,
     ...accessibilityExports,
   };
   exports.validateLandmark = validateLandmark;
   exports.myNewFunction = myNewFunction;
+  exports.addLandmarkRegions = addLandmarkRegions;
   exports.addLangAttribute = addLangAttribute;
   exports.fixTableStructure = fixTableStructure;
   exports.addLandmarkIssues = addLandmarkIssues;

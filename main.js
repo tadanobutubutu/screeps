@@ -1,9 +1,13 @@
 // Imports at the top of the file
-const { utility1, utility2 } = require('./utils');
-const { formatData, processValues } = require('./helpers');
+import { utility1, utility2 } from './utils';
+import { formatData, processValues } from './helpers';
 
-// TODO: Add these imported modules to the relevant rendering functions
+// New function added from the other branch
+export function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
+}
 
+// Render home page
 function renderHomePage(data) {
   // Render home page
   const formattedData = formatData(data);
@@ -11,12 +15,14 @@ function renderHomePage(data) {
   return `<div>${processedValues}</div>`;
 }
 
+// Render user profile
 function renderUserProfile(user) {
   // Render user profile
   const formattedUser = formatData(user);
   return `<profile>${formattedUser.name}</profile>`;
 }
 
+// Render dashboard
 function renderDashboard(stats) {
   // Render dashboard
   const processed = processValues(stats);
@@ -24,12 +30,13 @@ function renderDashboard(stats) {
   return `<dashboard>${formatted}</dashboard>`;
 }
 
+// Render settings
 function renderSettings(config) {
   // Render settings
   return `<settings>${config.name}</settings>`;
 }
 
-module.exports = {
+export default {
   renderHomePage,
   renderUserProfile,
   renderDashboard,

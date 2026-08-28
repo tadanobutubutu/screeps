@@ -1,3 +1,5 @@
+import { announceToScreenReader } from 'aria-announcer';
+
 /**
  * Main JavaScript module with accessibility improvements
  * Addressed accessibility issues from insight report — FIXED (combined with the export code)
@@ -7,6 +9,11 @@
 export function getAccessibleName(element) {
     if (!element) return '';
     return element.getAttribute('aria-label') || element.textContent?.trim() || '';
+}
+
+export function getAccessibleDescription(element) {
+    if (!element) return '';
+    return element.getAttribute('aria-describedby') || '';
 }
 
 export function setAccessibleDescription(element, description) {

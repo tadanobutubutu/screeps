@@ -1,19 +1,33 @@
 // main.js
 
-// Export all functions to make them accessible
+// Utility functions
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function generateId() {
+  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+}
+
+// Export all utility functions
 module.exports = {
-  // Add your functions here as exports
+  formatDate,
+  debounce,
+  generateId,
 };
-
-// Example structure (adjust based on your actual functions):
-function affectedFunction1() {
-  // function implementation
-}
-
-function affectedFunction2() {
-  // function implementation
-}
-
-// Export all functions
-module.exports.affectedFunction1 = affectedFunction1;
-module.exports.affectedFunction2 = affectedFunction2;

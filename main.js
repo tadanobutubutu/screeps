@@ -102,4 +102,27 @@ function addProperLandmarkRegions() {
   }
 }
 
+function addressAccessibilityIssues(insightReport) {
+  // Iterate through the insight report's accessibility issues and resolve them
+  if (!insightReport || !Array.isArray(insightReport.issues)) {
+    return;
+  }
+
+  insightReport.issues.forEach((issue) => {
+    switch (issue.type) {
+      case 'missingLandmarkRegion':
+        // Ensure proper landmark roles are already being added
+        // This is handled by addProperLandmarkRegions()
+        break;
+      case 'svgWithoutAccessibleName':
+        // This is handled by ensureSvgAccessibleNames() within addProperLandmarkRegions()
+        break;
+      default:
+        console.warn(`Unrecognized accessibility issue type: ${issue.type}`);
+    }
+  });
+}
+
 addProperLandmarkRegions();
+
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues;

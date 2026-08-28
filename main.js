@@ -21,4 +21,8 @@ function countDependencies(code) {
 // const dependencyCount = countDependencies(mainCodeString);
 // console.log(`Number of dependencies: ${dependencyCount}`);
 
-// Existing code after the TODO placeholder
+export default function main() {
+  return "Hello, World!";
+}
+
+export const version = "1.0.0";

@@ -4,5 +4,9 @@ const { someFunction } = require('./otherFile');
 
 // Export the function so it's available to tests
 module.exports = {
-  someFunction
+  someFunction,
+  // New function to be added as per the issue
+  newFunction: function() {
+    // Implementation of the new function
+  }
 };

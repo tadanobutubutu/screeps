@@ -1,49 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-
-// - REACT_015: Add lang attribute to HTML element
-// Add the following line at the beginning of your main JS file, before any other code:
-// Assuming your HTML root is wrapped in a React component (App)
-const app = document.querySelector('App');
-app.setAttribute('lang', 'en'); // adjust the language code as needed
-
-// - REACT_017: Add landmark roles and fix landmark issues
-// It's not possible to fix landmark issues within the main.js file without knowing your component structure.
-// You'll need to ensure that appropriate landmark roles (e.g., role="banner", role="nav", role="main", etc.) are added to your components.
-
-// - REACT_041: Add accessible names to 2 SVGs
-// Find the 2 SVGs by their id or index, and add 'aria-label' or 'aria-labelledby' attributes:
-// Assuming you have 2 SVGs with id "svg1" and "svg2"
-const svg1 = document.getElementById('svg1');
-svg1.setAttribute('aria-label', 'Your SVG1 Accessible Name');
-
-const svg2 = document.getElementById('svg2');
-svg2.setAttribute('aria-label', 'Your SVG2 Accessible Name');
-
-// - REACT_025: Ensure unique landmarks (2 issues)
-// This issue also requires knowing your component structure. Make sure no landmark role is repeated.
-
-// - REACT_036: Fix 1 fake link issue
-// Find the invalid link in the code and replace it with a valid one. Most likely, it should include a valid href attribute.
-
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// It seems this one is already handled correctly.
-
-=======
-// main.js - Accessibility improvements implementation
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  createInPageButton,
-  createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
 const {
   add,
   subtract,
@@ -71,104 +25,7 @@ const a11yStore = {
     this.addSVGAccessibilityProps();
     this.fixFakeLinks();
     this.ensureUniqueLandmarks();
-    this.addSVGAccessibilityProps(); // Duplicate call removed
-    this.fixFakeLinks(); // Duplicate call removed
-    this.ensureUniqueLandmarks(); // Duplicate call removed
     this.initAccessibility();
-  },
-
-  createAccessibleButton(id, label, onClick) {
-    const button = document.createElement('button');
-    button.id = id;
-    button.setAttribute('aria-label', label);
-    button.textContent = label;
-    button.addEventListener('click', onClick);
-    return button;
-  },
-
-  createAccessibleDialog(id, title, content, closeLabel = 'Close') {
-    const dialog = document.createElement('div');
-    dialog.id = id;
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-labelledby', `${id}-title`);
-    dialog.setAttribute('aria-modal', 'true');
-    
-    const titleEl = document.createElement('h2');
-    titleEl.id = `${id}-title`;
-    titleEl.textContent = title;
-    
-    const closeButton = this.createAccessibleButton(`${id}-close`, closeLabel, () => {
-      dialog.hidden = true;
-      dialog.setAttribute('aria-hidden', 'true');
-    });
-    
-    dialog.appendChild(titleEl);
-    dialog.appendChild(closeButton);
-    dialog.appendChild(content);
-    
-    return dialog;
-  },
-
-  announceToScreenReader(message, priority = 'polite') {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', priority);
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
-    announcement.textContent = message;
-    document.body.appendChild(announcement);
-    setTimeout(() => announcement.remove(), 1000);
-  },
-
-  trapFocus(container) {
-    const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    
-    container.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    });
-  },
-
-  initAccessibility() {
-    const skipLink = document.querySelector('.skip-link');
-    if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
-        if (target) {
-          target.tabIndex = -1;
-          target.focus();
-        }
-      });
-    }
-    
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
-        img.setAttribute('alt', '');
-        img.setAttribute('role', 'presentation');
-      }
-    });
-    
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
-      if (!input.id && input.name) {
-        input.id = input.name;
-      }
-      const label = document.querySelector(`label[for="${input.id}"]`);
-      if (!label && input.type !== 'hidden') {
-        input.setAttribute('aria-label', input.name || 'Form input');
-      }
-    });
   },
 
   createLiveRegion() {
@@ -297,4 +154,164 @@ const a11yStore = {
   },
 
   updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion
+    if (!this.liveRegion) {
+      this.createLiveRegion();
+    }
+    this.liveRegion.setAttribute('aria-live', priority);
+    this.liveRegion.textContent = message;
+  },
+
+  createAccessibleDialog(id, title, content, closeLabel = 'Close') {
+    const dialog = document.createElement('div');
+    dialog.id = id;
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-labelledby', `${id}-title`);
+    dialog.setAttribute('aria-modal', 'true');
+    
+    const titleEl = document.createElement('h2');
+    titleEl.id = `${id}-title`;
+    titleEl.textContent = title;
+    
+    const closeButton = this.createAccessibleButton(`${id}-close`, closeLabel, () => {
+      dialog.hidden = true;
+      dialog.setAttribute('aria-hidden', 'true');
+    });
+    
+    dialog.appendChild(titleEl);
+    dialog.appendChild(closeButton);
+    dialog.appendChild(content);
+    
+    return dialog;
+  },
+
+  announceToScreenReader(message, priority = 'polite') {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', priority);
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    setTimeout(() => announcement.remove(), 1000);
+  },
+
+  trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    container.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    });
+  },
+
+  initAccessibility() {
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(skipLink.getAttribute('href'));
+        if (target) {
+          target.tabIndex = -1;
+          target.focus();
+        }
+      });
+    }
+    
+    document.querySelectorAll('img').forEach((img) => {
+      if (!img.hasAttribute('alt')) {
+        img.setAttribute('alt', '');
+        img.setAttribute('role', 'presentation');
+      }
+    });
+    
+    document.querySelectorAll('input, select, textarea').forEach((input) => {
+      if (!input.id && input.name) {
+        input.id = input.name;
+      }
+      const label = document.querySelector(`label[for="${input.id}"]`);
+      if (!label && input.type !== 'hidden') {
+        input.setAttribute('aria-label', input.name || 'Form input');
+      }
+    });
+  },
+
+  checkLandmarkElements() {
+    // Ensure no duplicate landmark roles
+    const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+    const roleCounts = {};
+    landmarks.forEach((landmark) => {
+      const role = landmark.getAttribute('role');
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+      if (roleCounts[role] > 1) {
+        console.warn(`Duplicate landmark role found: ${role}`);
+      }
+    });
+  },
+
+  addSVGAccessibilityProps() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg, index) => {
+      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+        svg.setAttribute('aria-label', `SVG Icon ${index + 1}`);
+      }
+    });
+  },
+
+  fixFakeLinks() {
+    document.querySelectorAll('[role="link"]').forEach((fakeLink) => {
+      if (!fakeLink.hasAttribute('href') && fakeLink.getAttribute('tabindex') !== '0') {
+        fakeLink.setAttribute('tabindex', '0');
+        fakeLink.setAttribute('aria-label', fakeLink.textContent || 'Link');
+      }
+    });
+  },
+
+  ensureUniqueLandmarks() {
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+    landmarkRoles.forEach((role) => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      if (elements.length > 1) {
+        elements.forEach((el, i) => {
+          if (i === 0) {
+            el.setAttribute('aria-label', `${role} (primary)`);
+          } else {
+            el.setAttribute('aria-label', `${role} (${i + 1})`);
+          }
+        });
+      }
+    });
+  },
+
+  createAccessibleButton(id, label, onClick) {
+    const button = document.createElement('button');
+    button.id = id;
+    button.setAttribute('aria-label', label);
+    button.textContent = label;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+};
+
+module.exports = {
+  MyExport: function() {
+    // Existing implementation...
+  },
+
+  AnotherExport: function() {
+    // Implementation of the new export
+  },
+
+  a11yStore,
+  ...require('./mathHelpers')
+};

@@ -1,302 +1,118 @@
 // Implementation of accessibility improvements
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// New requested function
-const newFunction = (document) => {
-  // Implementation for handling the new function
-  // This could include additional processing or setup needed for the document
-  return document;
-};
-
-const wrapPrimaryContentInMain = (document) => {
-  if (!document || !document.body) {
-    return document;
+/**
+ * Adds lang attribute to HTML element if missing
+ * @param {string} html - The HTML string to process
+ * @param {string} lang - The language code (e.g., 'en')
+ * @returns {string} - Updated HTML with lang attribute
+ */
+export function addLangToHtml(html, lang = 'en') {
+  if (typeof html !== 'string') return html;
+  
+  const langRegex = /<html[^>]*lang=["'][^"']*["'][^>]*>/i;
+  if (langRegex.test(html)) {
+    return html;
   }
+  
+  return html.replace(/<html([^>]*)>/i, `<html$1 lang="${lang}">`);
+}
 
-  // Check if main element already exists with main-content id
-  const existingMain = document.getElementById('main-content');
-  if (existingMain) {
-    return document;
-  }
-
-  // Check if any main element exists
-  const anyMain = document.querySelector('main');
-  if (anyMain) {
-    // Add id to existing main element if it doesn't have one
-    if (!anyMain.id) {
-      anyMain.id = 'main-content';
+/**
+ * Fixes table structure issues for accessibility
+ * Ensures tables have proper headers, captions, and structure
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed table structures
+ */
+export function fixTableStructureIssues(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Fix tables that need proper scope attributes on headers
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('scope=')) {
+      return match;
     }
-    return document;
-  }
-
-  // Create main element and wrap appropriate content
-  const main = document.createElement('main');
-  main.id = 'main-content';
-  main.setAttribute('role', 'main');
-
-  const body = document.body;
-
-  // Get all direct children of body
-  const bodyChildren = Array.from(body.childNodes).filter(node => node.nodeType === 1);
-
-  if (bodyChildren.length > 0) {
-    // Move children to main element
-    bodyChildren.forEach(child => {
-      main.appendChild(child);
-    });
-
-    // Append main to body
-    body.appendChild(main);
-  }
-
-  return document;
-};
-
-const addSkipLink = (document) => {
-  if (!document || !document.body) {
-    return document;
-  }
-
-  const existingSkipLink = document.getElementById('skip-link');
-  if (existingSkipLink) {
-    return document;
-  }
-
-  const skipLink = document.createElement('a');
-  skipLink.href = '#main-content';
-  skipLink.id = 'skip-link';
-  skipLink.className = 'skip-link';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.style.position = 'absolute';
-  skipLink.style.top = '-40px';
-  skipLink.style.left = '0';
-  skipLink.style.background = '#000';
-  skipLink.style.color = '#fff';
-  skipLink.style.padding = '8px 16px';
-  skipLink.style.zIndex = '10000';
-  skipLink.style.transition = 'top 0.3s';
-
-  skipLink.addEventListener('focus', () => {
-    skipLink.style.top = '0';
+    return `<th${attrs} scope="col">`;
   });
-
-  skipLink.addEventListener('blur', () => {
-    skipLink.style.top = '-40px';
+  
+  // Ensure tables have associated caption or summary
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+      return match;
+    }
+    // Add summary attribute for screen readers
+    return `<table${attrs} summary="Data table">`;
   });
-
-  if (document.body.firstChild) {
-    document.body.insertBefore(skipLink, document.body.firstChild);
-  } else {
-    document.body.appendChild(skipLink);
-  }
-
-  return document;
-};
-
-const getAccessibleName = (node) => {
-  if (!node) {
-    return null;
-  }
-
-  if (node.getAttribute('aria-labelledby')) {
-    const labelledById = node.getAttribute('aria-labelledby');
-    const labelledElement = document.getElementById(labelledById);
-    return labelledElement ? labelledElement.textContent : null;
-  }
-
-  if (node.getAttribute('aria-label')) {
-    return node.getAttribute('aria-label');
-  }
-
-  if (node.tagName === 'INPUT' && node.type !== 'submit' && node.type !== 'reset') {
-    if (node.labels && node.labels.length > 0) {
-      return node.labels[0].textContent;
+  
+  // Ensure proper thead/tbody structure
+  result = result.replace(/<tr\b([^>]*)>/gi, (match, attrs) => {
+    // Check if tbody already exists before this tr
+    const trIndex = result.indexOf(match);
+    const beforeTr = result.substring(0, trIndex);
+    if (beforeTr && beforeTr.includes('<tbody>') && beforeTr.includes('</tbody>')) {
+      return `<tbody>${match}`;
     }
-  }
-
-  const titleEl = node.querySelector('title');
-  if (titleEl && titleEl.textContent) {
-    return titleEl.textContent;
-  }
-
-  if (node.textContent && node.textContent.trim()) {
-    return node.textContent.trim();
-  }
-
-  return null;
-};
-
-const setAccessibleName = (node, accessibleName) => {
-  if (!node) {
-    return;
-  }
-
-  if (typeof node.setAttribute === 'function') {
-    node.setAttribute('aria-label', accessibleName);
-    return;
-  }
-
-  if (node.querySelector) {
-    const titleEl = node.querySelector('title');
-    if (titleEl) {
-      titleEl.textContent = accessibleName;
-    }
-
-    const ariaLabelEl = node.querySelector('[aria-label]');
-    if (ariaLabelEl && typeof ariaLabelEl.setAttribute === 'function') {
-      ariaLabelEl.setAttribute('aria-label', accessibleName);
-    }
-  }
-};
-
-const addProperLandmarkRegions = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  landmarkTypes.forEach((type) => {
-    const elements = document.querySelectorAll(`[role="${type}"]`);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`[id]`)).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
   });
-};
-
-// Add the updated addressAccessibilityIssues function
-const addressAccessibilityIssues = (document) => {
-  if (!document) {
-    return document;
-  }
-
-  wrapPrimaryContentInMain(document);
-  addSkipLink(document);
-  addProperLandmarkRegions(document);
-  addLangAttribute(document);
-  fixTableStructureIssues(document);
-  ensureUniqueLandmarks(document);
-  addSvgAccessibleNames(document);
-  fixFakeLinkIssue(document);
-
-  return document;
-};
-
-//------ END OF ORIGINAL CODE ------
-
-// Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addressAccessibilityIssues,
-};
-
-// New functions to be added
-const addLangAttribute = (document) => {
-  const html = document.documentElement;
-  if (html && !html.lang) {
-    html.lang = 'en';
-  }
-  return document;
-};
-
-const fixTableStructureIssues = (document) => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
+  
+  // Close tbody tags that aren't properly closed
+  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  tableMatches.forEach(table => {
+    const hasThead = /<thead/i.test(table);
+    const hasTbody = /<tbody/i.test(table);
+    const hasTfoot = /<tfoot/i.test(table);
+    
+    if (hasThead || hasTbody || hasTfoot) {
+      // Ensure proper structure - tbody should wrap data rows
+      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
+        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
       }
     }
-
-    if (!table.querySelector('tbody')) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      if (rows.length > 0) {
-        const newTbody = document.createElement('tbody');
-        rows.forEach((row) => newTbody.appendChild(row));
-        table.appendChild(newTbody);
-      }
-    }
-
-    const thead = table.querySelector('thead');
-    if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
-    }
-
-    const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
-    });
   });
-  return document;
-};
+  
+  return result;
+}
 
-const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
+/**
+ * Adds main landmark to HTML for proper document structure
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with main landmark added
+ */
+export function addMainLandmark(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if main landmark already exists
+  if (/<main\b/i.test(html)) {
+    return html;
+  }
+  
+  // Try to match body content
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  if (bodyMatch) {
+    const bodyAttrs = bodyMatch[1];
+    const bodyContent = bodyMatch[2];
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+  }
+  
+  return html;
+}
 
-  landmarkTypes.forEach((type) => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
-  });
-};
-
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
-    }
-    svgIndex++;
-  });
-  return document;
-};
-
-const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a[href="#"], span[role="button"], div[role="button"], button:not(a *)');
-  fakeLinks.forEach(link => {
-    // Add role="link" to ensure it's recognized as a link by screen readers
-    if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
-      link.setAttribute('role', 'link');
-    }
-    // Ensure the link has accessible name
-    if (link.getAttribute('role') === 'link' && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Link');
-    }
-    // Remove href="#" and add href="#" with proper handling
-    if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0);');
-    }
-  });
-  return document;
-};
+/**
+ * Adds landmark roles to sections missing them
+ * @param {string} html - The HTML string to process
+ * @returns {string} - Updated HTML with landmark roles
+ */
+export function addLandmarkRoles(html) {
+  let updated = html;
+  
+  // Add main landmark if missing (from addMainLandmark logic)
+  updated = addMainLandmark(updated);
+  
+  // Add role="banner" to header if not already present
+  if (/<header[^>]*>/i.test(updated) && !/<header[^>]*role=["']banner["'][^>]*>/i.test(updated)) {
+    updated = updated.replace(/<header([^>]*)>/i, '<header$1 role="banner">');
+  }
+  
+  // Add role="main" to main element if not already present

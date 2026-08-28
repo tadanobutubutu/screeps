@@ -3,6 +3,12 @@
 // Import necessary modules
 const { checkAccessibility } = require('./accessibility');
 const { checkStructure } = require('./structure');
+const fs = require('fs');
+const path = require('path');
+
+// Import and re-export someFunction from './utils'
+const _utils = require('./utils');
+const someFunction = _utils.default || _utils.someFunction || _utils;
 
 // Existing configuration
 const config = {
@@ -225,6 +231,38 @@ function validateTableStructure(tableOrUrl) {
     return structureResults;
 }
 
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(process.cwd(), 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
 // Export for testing and external use
 module.exports = {
     validateWebAccessibility,
@@ -235,5 +273,7 @@ module.exports = {
     getAllTables,
     getTableHeaders,
     getTableRows,
-    config
+    config,
+    countDependencies,
+    someFunction
 };

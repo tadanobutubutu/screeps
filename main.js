@@ -1,12 +1,12 @@
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 /**
  * Wrap primary content in main div
  * @param { Document } doc - The document object to operate on
  */
 function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('.primary-content');
-  const main = doc.createElement('div');
+  const primaryContent = doc.querySelector('[role="main"], main, #content, #main, .content');
+  const main = doc.createElement('main');
   main.className = 'main';
 
   if (primaryContent.parentNode) {
@@ -16,19 +16,18 @@ function wrapPrimaryContentInMain(doc) {
 }
 
 // ADD THE NEW FUNCTION HERE
-function addAndEnsureUniqueLandmarkRegions(doc) {
-  const landmarks = addProperLandmarkRegions(doc);
+function addUniqueLandmarks(doc) {
+  const landmarks = doc.querySelectorAll('header, footer, main, nav, aside, section, article');
   return ensureUniqueLandmarks(landmarks);
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
-const { addMissingExportFunction } = require('./missingExportFile');
+const { addMissingExportFunction } = require('./utils');
 
 module.exports = {
   addProperLandmarkRegions,
-  addAndEnsureUniqueLandmarkRegions,
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
@@ -37,7 +36,7 @@ module.exports = {
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
-  wrapPrimaryContentInMain, // Add the new function to the exports
-  addMissingExportFunction, // Add the new function to the exports
+  wrapPrimaryContentInMain,
+  addUniqueLandmarks,
   getSvgAccessibleName
 };

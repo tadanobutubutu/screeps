@@ -1,16 +1,1 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js
-const fs = require('fs');
-const path = require('path');
-
-function helloWorld() {
-  return 'Hello, World!';
-}
-
-function goodbyeWorld() {
-  return 'Goodbye, World!';
-}
-
-module.exports = {
-  helloWorld,
-  goodbyeWorld
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

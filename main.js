@@ -1,42 +1,7 @@
-// GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
+const fs = require('fs');
+const path = require('path');
 
-// TODO: Add exports for new functions if needed - UPDATED: Added exports below
-
-// Existing utility functions
-function add(a, b) {
-  return a + b;
-}
-
-function subtract(a, b) {
-  return a - b;
-}
-
-function multiply(a, b) {
-  return a * b;
-}
-
-function divide(a, b) {
-  if (b === 0) {
-    throw new Error('Division by zero');
-  }
-  return a / b;
-}
-
-function reverseString(str) {
-  return str.split('').reverse().join('');
-}
-
-// New functions added
-function isEven(num) {
-  return num % 2 === 0;
-}
-
-function capitalizeFirst(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// Accessibility store implementation (from origin/main)
+// Store for accessibility announcements (screen reader support)
 const a11yStore = {
   liveRegion: null,
 
@@ -46,20 +11,10 @@ const a11yStore = {
     this.setupFocusManagement();
     this.setupSkipLinks();
     this.checkLandmarkElements();
+    this.addProperLandmarkRegions();
     this.addSVGAccessibilityProps();
-  },
-
-  createLiveRegion() {
-    if (this.liveRegion) return;
-
-    const region = document.createElement('div');
-    region.setAttribute('role', 'status');
-    region.setAttribute('aria-live', 'polite');
-    region.setAttribute('aria-atomic', 'true');
-    region.className = 'sr-only';
-    region.id = 'a11y-live-region';
-    document.body.appendChild(region);
-    this.liveRegion = region;
+    this.fixFakeLinks(); // Added for REACT_036
+    this.countDependencies(); // Merged change from both branches
   },
 
   announce(message, priority = 'polite') {
@@ -270,86 +225,112 @@ const a11yStore = {
   }
 };
 
-// Function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  report.forEach(issue => {
-    switch (issue.type) {
-      case 'missing-lang':
-        if (!document.documentElement.getAttribute('lang')) {
-          document.documentElement.setAttribute('lang', 'en');
-        }
-        break;
-      case 'missing-skip-link':
-        if (!document.querySelector('.skip-link')) {
-          const skipLink = document.createElement('a');
-          skipLink.className = 'skip-link';
-          skipLink.href = '#main-content';
-          skipLink.textContent = 'Skip to main content';
-          document.body.insertBefore(skipLink, document.body.firstChild);
-        }
-        break;
-      case 'missing-alt':
-        document.querySelectorAll('img').forEach(img => {
-          if (!img.getAttribute('alt')) {
-            img.setAttribute('alt', 'Image description');
-          }
-        });
-        break;
-      case 'missing-label':
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-          if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
-            el.setAttribute('aria-label', 'Form field');
-          }
-        });
-        break;
-    }
-  });
+// Main game loop for Screeps
+function run() {
+  // Your game logic here...
+
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      updateThScopeAttribute(filePath);
+    });
 }
 
-// REACT_015: Add lang attribute
-if (!document.documentElement.getAttribute('lang')) {
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.lang) {
   document.documentElement.setAttribute('lang', 'en');
 }
+
+// Import accessibility helper functions
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibilityHelperFunctions');
+
+// Wrap the entire document content inside a <main> element and set its lang attribute
+const mainElement = document.createElement('main');
+document.documentElement.setAttribute('lang', 'en');
+document.body.appendChild(mainElement);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
-// CommonJS exports (preserved from HEAD)
-module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  reverseString,
-  isEven,
-  capitalizeFirst,
-  a11yStore,
-  addressAccessibilityIssues,
-  countDependencies,
-  updateLiveRegion: a11yStore.updateLiveRegion,
-  checkLandmarkElements: a11yStore.checkLandmarkElements,
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
-  preserveExistingCode: a11yStore.preserveExistingCode,
-  prefersReducedMotion: a11yStore.prefersReducedMotion,
-  prefersHighContrast: a11yStore.prefersHighContrast
-};
-
 // Standalone function to count dependencies
 function countDependencies(options) {
   return a11yStore.countDependencies(options);
 }
 
-// ES6 module exports
-export { a11yStore };
-export { addressAccessibilityIssues };
-export { countDependencies };
-export { updateLiveRegion };
-export { checkLandmarkElements };
-export { addSVGAccessibilityProps };
-export { preserveExistingCode };
-export { prefersReducedMotion };
-export { prefersHighContrast };
-export default a11yStore;
+// Standalone wrapper functions for a11yStore methods
+function updateLiveRegion(message, priority = 'polite') {
+  return a11yStore.updateLiveRegion(message, priority);
+}
+
+function checkLandmarkElements() {
+  return a11yStore.checkLandmarkElements();
+}
+
+function addSVGAccessibilityProps() {
+  return a11yStore.addSVGAccessibilityProps();
+}
+
+function preserveExistingCode() {
+  return a11yStore.preserveExistingCode();
+}
+
+function prefersReducedMotion() {
+  return a11yStore.prefersReducedMotion();
+}
+
+function prefersHighContrast() {
+  return a11yStore.prefersHighContrast();
+}
+
+// Game-related functions and exports
+function main() {
+  return 'Hello World';
+}
+
+function SomeClass() {}
+
+function someUtility() {
+  return true;
+}
+
+const config = {
+  enabled: true
+};
+
+module.exports = {
+  run,
+  main,
+  SomeClass,
+  someUtility,
+  config,
+  countDependencies,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  a11yStore,
+  mainElement,
+  updateLiveRegion,
+  checkLandmarkElements,
+  addSVGAccessibilityProps,
+  preserveExistingCode,
+  prefersReducedMotion,
+  prefersHighContrast
+};

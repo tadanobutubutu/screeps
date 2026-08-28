@@ -6,10 +6,8 @@
 // <a id="unrotate" href="#">rotate back</a>
 
 // After:
-// Replace the <a> tag with a <button> element
+// Replace the <a> tag with a <button> element with appropriate ARIA attributes
 // <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
-
-// ... (other code in main.js)
 
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
@@ -19,6 +17,6 @@ function rotateBack() {
 
 // ... (other code in main.js)
 
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values
+// Ensure that all interactive elements have appropriate keyboard support. However, since the provided content does not include any other interactive elements, no additional action is needed for this example.
+
+// Check that ARIA attributes are correctly paired and have appropriate values. The provided example already follows this rule.

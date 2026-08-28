@@ -6,8 +6,6 @@
  * Add your code here to replace `my-button` with a concrete button id
  */
 function replaceMyButtonId() {
-  // Find the element with the `my-button` class and replace the class with the actual id.
-  // Assuming you have already set the id on the button element in your code
   const button = document.querySelector('.my-button');
   if (button) {
     button.id = 'exampleButton';

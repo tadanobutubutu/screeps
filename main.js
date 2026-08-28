@@ -1,6 +1,7 @@
-// main.js
+const fs = require('fs');
+const path = require('path');
 
-// Game loop function
+// Main game loop for Screeps
 function run() {
   // Your game logic here...
 
@@ -30,9 +31,6 @@ const {
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
-const fs = require('fs');
-const path = require('path');
-
 // Wrap the entire document content inside a <main> element and set its lang attribute
 const mainElement = document.createElement('main');
 document.documentElement.setAttribute('lang', 'en');
@@ -60,23 +58,20 @@ const config = {
 };
 
 module.exports = {
-    run,
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    a11yStore,
-    mainElement
+  run,
+  main,
+  SomeClass,
+  someUtility,
+  config,
+  countDependencies,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  a11yStore,
+  mainElement
 };
-```
-
-This version of the file integrates both changes, keeps the accessibility improvements and the imported functions, and preserves the game-related functions and exports.

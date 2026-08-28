@@ -31,7 +31,9 @@ function addressAccessibilityInsightReport() {
     // For example, if the issue is about missing ARIA roles, add them
     const element = document.querySelector(issue); // Find the element with the issue
     if (element) {
-      element.setAttribute('role', 'alert'); // Example: add 'alert' role
+      // Handle landmark regions addition here
+      const landmark = issue.match(/^(\w+) region/)[1]; // Extract the landmark type
+      if (landmark) element.setAttribute('role', `landmark${landmark}`);
     }
   });
 }

@@ -19,7 +19,7 @@ function getDocument() {
 function addLangAttribute(documentRef = getDocument()) {
   if (!documentRef) return false;
   
-  const htmlElement = documentRef.documentElement || documentRef.querySelector('html');
+  const htmlElement = documentRef.documentElement || documentRef.getElementsByTagName('html')[0];
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     const lang = htmlElement.getAttribute('xml:lang') || 'en';
     htmlElement.setAttribute('lang', lang);
@@ -34,7 +34,7 @@ function fixTableStructure(table) {
   
   // Ensure proper table structure with thead, tbody, and tfoot
   if (!table.querySelector('thead')) {
-    const thead = table.ownerDocument.createElement('thead');
+    const thead = document.createElement('thead');
     const firstRow = table.querySelector('tr');
     if (firstRow) {
       thead.appendChild(firstRow);
@@ -43,7 +43,7 @@ function fixTableStructure(table) {
   }
   
   // Ensure all rows are within tbody
-  const tbody = table.querySelector('tbody') || table.ownerDocument.createElement('tbody');
+  const tbody = table.querySelector('tbody') || document.createElement('tbody');
   const rows = table.querySelectorAll('tr');
   rows.forEach(row => {
     if (row.parentElement !== tbody) {
@@ -62,7 +62,7 @@ function fixTableStructure(table) {
 function addMainLandmark(mainElement) {
   if (!mainElement) return false;
   
-  if (!mainElement.hasAttribute('role') && !mainElement.tagName.toLowerCase() === 'main') {
+  if (!mainElement.hasAttribute('role') && mainElement.tagName && mainElement.tagName.toLowerCase() === 'main') {
     mainElement.setAttribute('role', 'main');
   }
   return true;
@@ -81,7 +81,7 @@ function ensureUniqueLandmarks(container = getDocument()) {
       // Keep only the first landmark of each type for unique landmarks
       for (let i = 1; i < elements.length; i++) {
         const currentRole = elements[i].getAttribute('role');
-        if (landmarks.includes(currentRole)) {
+        if (currentRole === role) {
           // Remove role attribute to avoid duplicate landmark
           elements[i].removeAttribute('role');
           fixed = true;
@@ -93,12 +93,12 @@ function ensureUniqueLandmarks(container = getDocument()) {
   return fixed;
 }
 
-// REACT_041: Add accessible names to SVGs
+// REACT_041: Add accessible name to SVG
 function addSvgAccessibleNames(svgElement, accessibleName) {
-  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') return false;
+  if (!svgElement || svgElement.tagName !== 'svg') return false;
   
   // Add aria-label if not present
-  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.querySelector('title')) {
     svgElement.setAttribute('aria-label', accessibleName || 'Decorative or informational graphic');
     return true;
   }
@@ -131,6 +131,21 @@ function fixFakeLinkIssue(element) {
   return false;
 }
 
+// Function to update ARIA attributes
+function updateAriaAttributes(element, attributes) {
+  if (!element) return false;
+  
+  Object.keys(attributes).forEach(key => {
+    if (attributes[key] !== null && attributes[key] !== undefined) {
+      element.setAttribute(`aria-${key}`, attributes[key]);
+    } else {
+      element.removeAttribute(`aria-${key}`);
+    }
+  });
+  
+  return true;
+}
+
 // Trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
@@ -144,7 +159,7 @@ function triggerAccessibilityMode() {
   tables.forEach(table => fixTableStructure(table));
   
   // Fix main landmark
-  const mainElement = doc.querySelector('main') || doc.querySelector('[role="main"]');
+  const mainElement = doc.querySelector('main') || doc.getElementById('main');
   if (mainElement) {
     addMainLandmark(mainElement);
   }
@@ -155,7 +170,7 @@ function triggerAccessibilityMode() {
   // Add accessible names to SVGs
   const svgs = doc.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
       addSvgAccessibleNames(svg, 'Graphic element');
     }
   });
@@ -201,15 +216,6 @@ function handleErrorState(errorElement, container, trigger = false) {
 // Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
 function handleAccessibilityError(errorElement, container) {
   handleErrorState(errorElement, container, true);
-}
-
-// Function to trigger accessibility mode
-function triggerAccessibilityMode() {
-  const doc = getDocument();
-  if (doc) {
-    doc.body.classList.add('accessibility-mode');
-    doc.body.setAttribute('data-accessibility', 'enabled');
-  }
 }
 
 // Export the existing handleErrorState function

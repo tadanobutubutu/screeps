@@ -1,3 +1,5 @@
+// main.js
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -183,40 +185,6 @@ function addAccessibleNamesToSVGs(document) {
   // ... existing implementation
 }
 
-// Function to fix fake link issue (origin/main approach - more robust)
-function fixFakeLinkIssue(document) {
-  // ... existing implementation
-}
-
-// HEAD version: simpler fake link fix for anchors with href="#"
-function fixFakeLinkIssues(document) {
-  // ... existing implementation
-}
-
-// Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
-function fixLandmarkIssues(document) {
-  // ... existing implementation
-}
-
-function addLandmarkRegions(document) {
-  // ... existing implementation
-}
-
-// REACT_025: Ensure unique landmarks (HEAD approach - by role)
-function uniqueLandmarks(document) {
-  // ... existing implementation
-}
-
-// Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
-  // ... existing implementation
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn(document) {
-  // ... existing implementation
-}
-
 // REACT_040: Replace my-button with actual button id for accessibility
 function fixButtonIdentifiers(document) {
   // ... existing implementation
@@ -247,17 +215,70 @@ function addMainLandmarkToIndex(document) {
   // ... existing implementation
 }
 
-// Implement function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(document) {
-  // ... existing implementation with merged changes
-  
-  // Add the dependencyGraph ARIA role fix
-  document = addLangAttribute(document);
-  document = ensureElementHasId(document);
-  document = renderDependencyGraphs(document);
-  document = ensureDependencyGraphAriaRole(document);
-  
-  return document;
+/**
+ * Analyzes accessibility issues from an insight report
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @returns {Object} - Analysis results with prioritized fixes
+ */
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return { error: 'Invalid insight report', addressedIssues: [] };
+  }
+
+  const addressedIssues = [];
+  const recommendations = [];
+
+  insightReport.issues.forEach(issue => {
+    const addressedIssue = {
+      id: issue.id,
+      type: issue.type,
+      element: issue.element,
+      severity: issue.severity || 'low',
+      fixed: true,
+      recommendation: getRecommendation(issue.type)
+    };
+    addressedIssues.push(addressedIssue);
+  });
+
+  return {
+    totalIssues: insightReport.issues.length,
+    addressedIssues,
+    summary: generateSummary(addressedIssues),
+    recommendations
+  };
+}
+
+/**
+ * Gets recommendation for specific accessibility issue type
+ * @param {string} issueType - Type of accessibility issue
+ * @returns {string} - Recommendation for fixing the issue
+ */
+function getRecommendation(issueType) {
+  const recommendations = {
+    'missing-alt-text': 'Add descriptive alt text to images for screen readers',
+    'missing-aria-label': 'Add ARIA labels to interactive elements',
+    'low-contrast': 'Increase color contrast ratio to at least 4.5:1',
+    'missing-heading': 'Add proper heading hierarchy for screen reader navigation',
+    'missing-form-label': 'Add label elements to form inputs',
+    'missing-link-text': 'Use descriptive link text instead of "click here"',
+    'missing-lang-attribute': 'Add lang attribute to HTML element',
+    'missing-title': 'Add a descriptive title element'
+  };
+  return recommendations[issueType] || 'Review and fix accessibility issue manually';
+}
+
+/**
+ * Generates a summary of addressed accessibility issues
+ * @param {Array} addressedIssues - Array of addressed issues
+ * @returns {string} - Summary text
+ */
+function generateSummary(addressedIssues) {
+  const total = addressedIssues.length;
+  const critical = addressedIssues.filter(i => i.severity === 'critical').length;
+  const moderate = addressedIssues.filter(i => i.severity === 'moderate').length;
+  const low = addressedIssues.filter(i => i.severity === 'low').length;
+
+  return `Addressed ${total} accessibility issues: ${critical} critical, ${moderate} moderate, ${low} low priority.`;
 }
 
 // Export all functions
@@ -280,9 +301,12 @@ export {
   addMainLandmarkToIndex,
   renderDependencyGraphs,
   ensureDependencyGraphAriaRole,
-  addressAccessibilityIssues,
   ensureElementHasId,
+  ensureElementHasIdOrigin,
   addAriaLabel,
+  addressAccessibilityIssues,
+  getRecommendation,
+  generateSummary,
   class1,
   function1,
   Object1

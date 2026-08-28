@@ -370,6 +370,86 @@ function addressOldAccessibilityIssues() {
   return 'addressing old issues';
 }
 
+/**
+ * Addresses accessibility issues from an insight report.
+ * Iterates through the provided insight report and applies the appropriate
+ * accessibility fixes based on the issue type and code (e.g., REACT_015, REACT_038).
+ * @param {Array<Object>} insightReport - The insight report containing accessibility issues to address
+ * @returns {Array<Object>} An array of results describing how each issue was handled
+ */
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  if (!Array.isArray(insightReport)) {
+    return [];
+  }
+
+  const results = [];
+
+  insightReport.forEach((issue) => {
+    if (!issue || typeof issue !== 'object') {
+      return;
+    }
+
+    const { code, element, info, type } = issue;
+    const targetElement = element || null;
+
+    switch (code) {
+      case 'REACT_015':
+        // Add the lang attribute to the HTML element
+        addLangAttribute();
+        results.push({ code, status: 'addressed', action: 'addLangAttribute' });
+        break;
+      case 'REACT_038':
+        // Address REACT_038 accessibility issue
+        addressAccessibilityIssue038(targetElement, info);
+        results.push({ code, status: 'addressed', action: 'addressAccessibilityIssue038' });
+        break;
+      case 'TABLE_STRUCTURE':
+        // Fix table structure issues
+        fixTableStructureIssues();
+        results.push({ code, status: 'addressed', action: 'fixTableStructureIssues' });
+        break;
+      case 'LANDMARK_STRUCTURE':
+        // Fix landmark structure issues
+        addMainLandmark();
+        ensureUniqueLandmarks();
+        results.push({ code, status: 'addressed', action: 'fixLandmarkStructure' });
+        break;
+      case 'SVG_ACCESSIBLE_NAME':
+        // Add accessible names to SVG elements
+        addSvgAccessibleNames();
+        results.push({ code, status: 'addressed', action: 'addSvgAccessibleNames' });
+        break;
+      case 'FAKE_LINK':
+        // Fix fake link issues
+        fixFakeLinkIssue();
+        results.push({ code, status: 'addressed', action: 'fixFakeLinkIssue' });
+        break;
+      case 'FORM_ACCESSIBLE_NAME':
+        // Set accessible names for form elements
+        setFormElementAccessibleNames();
+        results.push({ code, status: 'addressed', action: 'setFormElementAccessibleNames' });
+        break;
+      case 'INTERACTIVE_A11Y':
+        // Add a11y attributes to interactive elements
+        addA11yAttributesToInteractiveElements();
+        results.push({ code, status: 'addressed', action: 'addA11yAttributesToInteractiveElements' });
+        break;
+      case 'GENERAL':
+        // Address a general accessibility issue for a specific element
+        addressAccessibilityIssueForSpecificElement(targetElement, info || type);
+        results.push({ code, status: 'addressed', action: 'addressAccessibilityIssueForSpecificElement' });
+        break;
+      default:
+        // For unknown issue codes, use the general accessibility handler
+        addressAccessibilityIssueForSpecificElement(targetElement, info || code || type);
+        results.push({ code: code || 'UNKNOWN', status: 'addressed', action: 'addressAccessibilityIssueForSpecificElement' });
+        break;
+    }
+  });
+
+  return results;
+}
+
 // Preserve the existing exports
 module.exports = {
   renderDependencyGraph,
@@ -384,6 +464,7 @@ module.exports = {
   getSvgAccessibleName,
   newAccessibilityFunction,
   addressOldAccessibilityIssues,
+  addressAccessibilityIssuesFromInsightReport,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,

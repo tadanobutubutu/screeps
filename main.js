@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report — CONTINUING
 // Add new functions (no existing functions should be removed or renamed)
 
@@ -112,7 +109,63 @@ function validateTableStructure(tableOrUrl) {
     return structureResults;
 }
 
-// ... Implement other functions here
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(process.cwd(), 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
+// Language attribute helper functions (from previous version)
+function getLangAttribute(el) {
+  // Implement the logic to return the language attribute
+  // Example: return the current language code, e.g., 'en' or read from a config
+  if (!el) {
+    return 'en';
+  }
+  return el.getAttribute('lang');
+}
+
+function getFullLangAttribute(el) {
+  // Implement the logic to return the full language attribute (if required)
+  // Example: combine language code with region or locale identifier
+  if (!el) {
+    return 'en-US';
+  }
+  return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
+}
+
+// Improve accessibility by adding semantic role and label to the root element
+const root = document.getElementById('root');
+if (root) {
+  root.setAttribute('role', 'main');
+  root.setAttribute('aria-label', 'Main application');
+}
 
 // Export for testing and external use
 module.exports = {
@@ -127,17 +180,3 @@ module.exports = {
     addressAccessibilityIssues,
     // Export existing functions here if necessary
 };
-```
-
-In this solution, I have moved the existing accessibility improvement functions to a new section titled "TODO: Address accessibility issues from insight report — CONTINUING." Then, I have added a new `addressAccessibilityIssues()` function, which is a placeholder for implementing the required changes to improve accessibility.
-
-I have also added additional functions that were missing from the previous version:
-
-- `validateWebAccessibility(url)`: Main validation function for web accessibility.
-- `elementExists(selector)`: Helper function to check if an element exists.
-- `getElementText(selector)`: Helper function to get the text of an element.
-- `getAllTables()`, `getTableHeaders(table)`, and `getTableRows(table)`: Helper functions for working with table elements.
-
-These new functions are designed to help with the implementation of the `validateTableAccessibility(tableOrUrl)` and `validateTableStructure(tableOrUrl)` functions.
-
-Finally, I have made sure that the original exported functions are still available for testing and external use, and I have included the language attribute helper functions as well.

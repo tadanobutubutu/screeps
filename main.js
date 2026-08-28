@@ -217,6 +217,12 @@ function retry(fn, maxAttempts = 3, delay = 1000) {
   };
 }
 
+// New function(s) to be implemented
+function calculateAverage(numbers) {
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  return sum / numbers.length;
+}
+
 // Exports
 module.exports = {
   formatDate,
@@ -244,5 +250,6 @@ module.exports = {
   omit,
   merge,
   sleep,
-  retry
+  retry,
+  calculateAverage
 };

@@ -3,7 +3,7 @@ import "./globals.css";
 import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // Code to address the specific accessibility issue on the element
   // This is a placeholder function and should be replaced with the actual implementation
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);

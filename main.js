@@ -9,7 +9,11 @@ const renderDependencyGraph = (dependencyGraph, container) => {
   container.innerHTML = graphContent;
 };
 
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
+// Address the issue: REACT_038
+// Replace `my-button` with 'buttonId' in the following line
+const buttonElement = document.getElementById('buttonId');
+
+export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // Code to address the specific accessibility issue on the element
   // This is a placeholder function and should be replaced with the actual implementation
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
@@ -18,6 +22,7 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
 // Export the functions for addressing new accessibility issues
 exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 
+// main.js
 // Main entry point for the application
 
 // Addressed accessibility issues from insight report:
@@ -424,6 +429,43 @@ function getLangAttribute() {
     return document.documentElement.lang;
   }
   return null;
+}
+
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibilityFromHead(table) {
+  if (!table) return { valid: false, issues: ['Table not found'] };
+  const issues = [];
+  if (!table.tHead && !table.querySelector('thead')) {
+    issues.push('Missing table header');
+  }
+  if (!table.tBodies.length && !table.querySelector('tbody')) {
+    issues.push('Missing table body');
+  }
+  const rows = table.rows || table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmarkFromHead(landmark) {
+  if (!landmark) return { valid: false, issues: ['Landmark not found'] };
+  const issues = [];
+  const role = landmark.getAttribute('role');
+  const tag = landmark.tagName.toLowerCase();
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  if (!role && !landmarkTags.includes(tag)) {
+    issues.push('Element is not a recognized landmark');
+  }
+  return { valid: issues.length === 0, issues };
 }
 
 /**
@@ -1094,6 +1136,15 @@ globalObject.processInsightReport = processInsightReport;
 
 // Exports for all functions
 module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableAccessibilityFromHead,
+  validateLandmark,
+  validateLandmarkFromHead,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
@@ -1102,29 +1153,22 @@ module.exports = {
   checkLandmarks,
   wrapPrimaryContentInMain,
   renderIndexView,
-  getLangAttribute,
-  getFullLangAttribute,
+  renderDependencyGraph,
+  addressAccessibilityIssue038,
   createInPageButton,
   addLangAttribute,
   fixTableStructureIssues,
-  validateTableAccessibility,
   validateTableStructure,
   addMainLandmark,
   addSvgAccessibleNames,
-  ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
-  getSvgAccessibleName,
   addressAccessibilityIssues,
-  validateLandmark,
-  validateLandmarkStructure,
   validateLandmarkAttributes,
   getTagNameForElement,
   getLandmarkAccessibleName,
-  renderDependencyGraph,
-  addressAccessibilityIssue038,
   log,
   escapeHtml,
   readFile,

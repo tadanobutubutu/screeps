@@ -233,6 +233,12 @@ describe('add-contributor', () => {
             script.commitAndPush('testuser');
             expect(console.warn).toHaveBeenCalledWith('⚠️  Failed to commit/push:', 'Git failed');
         });
+
+        it('should reject invalid username for commit', () => {
+            script.commitAndPush('../malicious');
+            expect(console.warn).toHaveBeenCalledWith('⚠️  Invalid username for commit: ../malicious');
+            expect(require('child_process').execFileSync).not.toHaveBeenCalled();
+        });
     });
 
     describe('main', () => {

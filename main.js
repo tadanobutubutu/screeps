@@ -1,5 +1,3 @@
-// Example of how the main.js might have been incorrectly modified and then corrected
-
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');

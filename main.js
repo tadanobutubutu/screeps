@@ -1,8 +1,6 @@
 <?php
 // TODO: This is the existing code that needs to be preserved
 
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
-
 // ... (other code in main.js)
 
 document.querySelectorAll("a").forEach(a => {

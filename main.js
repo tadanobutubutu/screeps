@@ -89,13 +89,16 @@ export function initAccessibility() {
     document.body.classList.add('accessibility-ready');
 }
 
+// Unrotate functionality for accessibility
+export function unrotate() {
+    // Functionality to reverse rotation
+    alert('Rotated back!');
+}
+
+// Accessibility improvement: Replace non-interactive link with button for proper keyboard and screen reader support
+document.getElementById('unrotate').addEventListener('click', unrotate);
+
 // Export version for compatibility
 export const VERSION = '1.0.0';
 export { announceToScreenReader as ariaAnnounce };
-
-// Accessibility improvement: Replace non-interactive link with button for proper keyboard and screen reader support
-document.getElementById('unrotate').addEventListener('click', function() {
-    // Assuming some functionality to reverse rotation
-    alert('Rotated back!');
-});
 export { initAccessibility as default };

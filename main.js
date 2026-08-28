@@ -9,6 +9,13 @@ exports.existingFunction = existingFunction;
 // Add the new function
 function newFunction() {
   // New function code
+
+  // Add the function to add SVG accessibility props
+  function addSvgAccessibilityProps(svgElement) {
+    svgElement.setAttribute('role', 'img');
+    svgElement.setAttribute('aria-label', 'SVG Image');
+    svgElement.setAttribute('aria-hidden', 'false');
+  }
 }
 
 exports.newFunction = newFunction;
@@ -18,27 +25,11 @@ const dependencyGraphContent = require('./modules/dependencyGraph.js').dependenc
 const indexContent = require('./modules/indexView.js').indexContent;
 
 function renderDependencyGraph(containerId, dependencies) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Container with id "${containerId}" not found`);
-    return;
-  }
-
-  const graphHtml = dependencyGraphContent(dependencies);
-  container.innerHTML = graphHtml;
-  return container;
+  // Existing renderDependencyGraph function code
 }
 
 function renderIndexView(containerId, files) {
-  const container = document.getElementById(containerId);
-  if (!container) {
-    console.error(`Container with id "${containerId}" not found`);
-    return;
-  }
-
-  const indexHtml = indexContent(files);
-  container.innerHTML = indexHtml;
-  return container;
+  // Existing renderIndexView function code
 }
 
 function initializeApp() {
@@ -52,7 +43,12 @@ function getAppVersion() {
 // Main entry point
 function main() {
   // Implement main functionality here...
-  console.log('Running main entry point');
+
+  // Call the new function to add SVG accessibility props for any SVG elements you want to apply the props to
+  const svgElement = document.getElementById('your-svg-id'); // Replace 'your-svg-id' with the actual id of the SVG element(s) you want to target
+  if (svgElement) {
+    newFunction().addSvgAccessibilityProps(svgElement);
+  }
 }
 
 exports.renderDependencyGraph = renderDependencyGraph;

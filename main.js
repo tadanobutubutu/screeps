@@ -40,9 +40,15 @@ if (require.main === module) {
   main();
 }
 
+// Added new function for export
+function someNewFunction() {
+  console.log('This is a new function added for export');
+}
+
 module.exports = {
   initialize,
   processData,
   validateInput,
-  config
+  config,
+  someNewFunction // Exporting the new function
 };

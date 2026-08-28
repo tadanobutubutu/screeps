@@ -12,6 +12,13 @@
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 
+// Example: Set the lang attribute on the root element dynamically
+function setLanguage(lang) {
+  document.documentElement.lang = lang;
+}
+
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
@@ -53,4 +60,25 @@ function detectAndSetLang(content) {
   return setHtmlLangAttribute(lang);
 }
 
-module.exports = { setHtmlLangAttribute, detectAndSetLang };
+// New function to convert anchor tags to buttons with specific id and text
+function convertAnchorsToButtons() {
+  if (typeof document !== 'undefined') {
+    const anchors = document.querySelectorAll('a#unrotate');
+    anchors.forEach(anchor => {
+      const button = document.createElement('button');
+      button.id = anchor.id;
+      button.type = 'button';
+      button.textContent = anchor.textContent;
+      anchor.parentNode.replaceChild(button, anchor);
+    });
+  }
+}
+
+// Call the function to convert anchors to buttons if needed
+if (typeof document !== 'undefined') {
+  convertAnchorsToButtons();
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { setHtmlLangAttribute, detectAndSetLang };
+}

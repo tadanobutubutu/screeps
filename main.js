@@ -27,19 +27,18 @@ import { appStarted } from './events/appStarted.js';
 // Landmark data structure
 const landmarks = [];
 
-// Existing landmark tracking
-function addLandmark(name, coordinates) {
-    const landmark = {
-        id: Date.now(),
-        name: name,
-        coordinates: coordinates
-    };
-    landmarks.push(landmark);
-    return landmark;
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+//  * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
 }
 
 // Ensure unique landmarks by filtering duplicates
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
         const key = `${landmark.name}-${landmark.coordinates}`;
@@ -51,32 +50,17 @@ function ensureUniqueLandmarks() {
     });
 }
 
-function isLandmarkUnique(name, coordinates) {
-    return !landmarks.some(
-        landmark => 
-            landmark.name === name && 
-            landmark.coordinates === coordinates
-    );
-}
-
-function removeDuplicateLandmarks() {
-    const uniqueLandmarks = ensureUniqueLandmarks();
-    landmarks.length = 0;
-    landmarks.push(...uniqueLandmarks);
-    return landmarks;
-}
-
-function getUniqueLandmarkByName(name) {
-    const matches = landmarks.filter(l => l.name === name);
-    if (matches.length === 0) return null;
-    if (matches.length === 1) return matches[0];
-    return matches[0];
-}
-
-// Sample data for the application
-const appData = {
-    title: 'Landmark Checker',
-    version: '1.0.0'
+// Testing the checkLandmarkElement function:
+//
+// To test this function, we could create a test file with the following content:
+// (Testing is kept here as integration reference for the merged module.)
+const landmarkStructureCheck = (landmark) => {
+  // Implement your logic for checking the landmark structure
+  // For example, let's check if the landmark has required properties: name and coordinates
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
 };
 
 // Placeholder for the affected SVGs
@@ -246,7 +230,7 @@ function queryElements(selector) {
 function checkLandmarkElements() {
     const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
     const results = {};
-    
+
     landmarkSelectors.forEach(landmark => {
         const elements = document.querySelectorAll(landmark);
         results[landmark] = {
@@ -254,7 +238,7 @@ function checkLandmarkElements() {
             exists: elements.length > 0
         };
     });
-    
+
     return results;
 }
 
@@ -266,24 +250,12 @@ function validateLandmarkStructure() {
         errors: [],
         warnings: []
     };
-    
+
     if (!results.main.exists) {
         validation.isValid = false;
         validation.errors.push('Missing required <main> landmark element');
     }
-    
-    if (!results.header.exists) {
-        validation.warnings.push('No <header> landmark element found');
-    }
-    
-    if (!results.nav.exists) {
-        validation.warnings.push('No <nav> landmark element found');
-    }
-    
-    if (!results.footer.exists) {
-        validation.warnings.push('No <footer> landmark element found');
-    }
-    
+
     return validation;
 }
 
@@ -325,23 +297,24 @@ if (isSecureContext()) {
 registerSW();
 
 // Export functions for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        addLandmark,
-        ensureUniqueLandmarks,
-        isLandmarkUnique,
-        removeDuplicateLandmarks,
-        getUniqueLandmarkByName,
-        landmarks,
-        helloWorld,
-        initDependencyGraph,
-        renderDependencyGraph,
-        getElementById,
-        queryElements,
-        checkLandmarkElements,
-        validateLandmarkStructure,
-        initApp,
-        appData,
-        icons
-    };
-}
+export {
+    ensureUniqueLandmarks,
+    landmarkStructureCheck,
+    helloWorld,
+    initDependencyGraph,
+    renderDependencyGraph,
+    getElementById,
+    queryElements,
+    checkLandmarkElement,
+    checkLandmarkElements,
+    validateLandmarkStructure,
+    initApp,
+    icons,
+    isSecureContext,
+    setLanguageAttribute,
+    addLandmarkRoles,
+    ensureUniqueLandmarkElements,
+    addSVGAccessibleName,
+    fixFakeLinks,
+    landmarks
+};

@@ -245,16 +245,24 @@ export default function RootLayout({
   isLinkAccessible();
   isButtonAccessible();
 
+  // Check and address accessibility issues
+  const elements = document.querySelectorAll('[data-accessibility-issue]');
+  elements.forEach(element => {
+    const issueId = element.getAttribute('data-accessibility-issue');
+    if (issueId === '038') {
+      addressAccessibilityIssue038(element, { issue: '038', severity: 'high' });
+    }
+  });
+
   // Implement the renderIndexView method here
   renderIndexView();
+  renderDependencyGraph();
 
   return (
     <html lang="en">
       <head>
-        <link
-          rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👾</text></svg>"
-        />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
         <main>

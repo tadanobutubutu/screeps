@@ -8,6 +8,10 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
+import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
+import { renderHeader, renderFooter, renderProductCard } from './components.js';
+import { state, updateState } from './state.js';
+
 function getLangAttribute() {
   const htmlElement = document.documentElement;
   if (!htmlElement.getAttribute('lang')) {
@@ -189,7 +193,48 @@ function handleFakeLinks() {
   return links.length;
 }
 
-module.exports = {
+function formatProductName(product) {
+  return `${product.name} - ${product.category}`;
+}
+
+function renderProductList(products) {
+  const container = document.getElementById('product-list');
+  container.innerHTML = products.map(renderProductCard).join('');
+  return container;
+}
+
+function calculateTotalPrice(cart) {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = calculateDiscount(subtotal);
+  return subtotal - discount;
+}
+
+function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return renderProductList(input.products);
+  }
+  return '<p>Invalid input</p>';
+}
+
+function renderPage(data) {
+  const header = renderHeader(data.title);
+  const content = renderProductList(data.products);
+  const footer = renderFooter();
+  return `${header}${content}${footer}`;
+}
+
+export {
   getLangAttribute,
   createInPageButton,
   validateTableAccessibility,
@@ -202,5 +247,11 @@ module.exports = {
   ensureUniqueLandmarks,
   addProperLandmarkRegions,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage
 };

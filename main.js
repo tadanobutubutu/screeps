@@ -6,8 +6,6 @@ function rotateBack() {
 // Assuming the button click is handled by JavaScript, here's how it might look:
 document.getElementById('unrotate').addEventListener('click', rotateBack);
 
-// main.js
-
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
@@ -100,6 +98,14 @@ function addProperLandmarkRegions() {
       });
     }
   }
+}
+
+// Ensure main landmark is added to the existing content
+const existingMainContent = document.querySelector('main');
+if (!existingMainContent) {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
 }
 
 addProperLandmarkRegions();

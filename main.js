@@ -1,16 +1,17 @@
-// Example of how the main.js might have been incorrectly modified and then corrected
-
-function rotateBack() {
+// Export functions for testing purposes
+export function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
 }
 
 // Assuming the button click is handled by JavaScript, here's how it might look:
-document.getElementById('unrotate').addEventListener('click', rotateBack);
+if (typeof document !== 'undefined') {
+  document.getElementById('unrotate').addEventListener('click', rotateBack);
+}
 
 // main.js
 
-function addProperLandmarkRegions() {
+export function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');

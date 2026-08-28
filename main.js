@@ -12,6 +12,18 @@
 const a11yStore = {
   liveRegion: null,
 
+  // Configuration for accessibility features
+  config: {
+    announcementDelay: 100,
+    focusVisibleEnabled: true,
+    highContrastMode: false,
+    reducedMotionEnabled: false,
+    observerEnabled: true,
+    skipLinkEnabled: true,
+    landmarkCheckEnabled: true,
+    svgAccessibilityEnabled: true,
+  },
+
   init() {
     this.createLiveRegion();
     this.setupKeyboardNavigation();
@@ -196,8 +208,5 @@ const a11yStore = {
       descriptionElement.className = 'sr-only';
       document.body.appendChild(descriptionElement);
     });
-  },
-
-  // New function to address accessibility issues from insight report
-  addressAccessibilityIssues(report) {
-    if (!report)
+  }
+};

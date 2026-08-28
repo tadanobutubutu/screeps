@@ -6,7 +6,6 @@ const {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
@@ -153,6 +152,41 @@ exports.totalDependencies = totalDependencies;
 
 // Export the function to address specific accessibility issues
 exports.addressAccessibilityIssues = addressAccessibilityIssues;
+
+// Create the getSvgAccessibleName function
+const getSvgAccessibleName = (svgElement) => {
+    // Check if the SVG element has a title or desc element
+    const title = svgElement.querySelector('title');
+    const desc = svgElement.querySelector('desc');
+    
+    // Return the title if it exists
+    if (title && title.textContent) {
+        return title.textContent.trim();
+    }
+    
+    // Return the description if title doesn't exist
+    if (desc && desc.textContent) {
+        return desc.textContent.trim();
+    }
+    
+    // Return aria-label attribute if it exists
+    const ariaLabel = svgElement.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel.trim();
+    }
+    
+    // Return aria-labelledby if it exists
+    const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+    if (ariaLabelledby) {
+        const labeledElement = document.getElementById(ariaLabelledby);
+        if (labeledElement && labeledElement.textContent) {
+            return labeledElement.textContent.trim();
+        }
+    }
+    
+    // Default name for SVG elements without accessible names
+    return 'SVG graphic';
+};
 
 // Export the getSvgAccessibleName function
 exports.getSvgAccessibleName = getSvgAccessibleName;

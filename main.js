@@ -33,7 +33,11 @@ function rotateBack() {
 // Check that ARIA attributes are correctly paired and have appropriate values
 
 // REACT_015: lang attribute should be added to the HTML element (typically in index.html)
-// <html lang="en">
+function addLangAttribute(element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang);
+  }
+}
 
 // REACT_017: Add landmark roles and fix landmark issues
 // Add main landmark role to main content area
@@ -117,8 +121,6 @@ if (document.readyState === 'loading') {
 } else {
   initializeAccessibility();
 }
-
-return table;
 
 function addMainLandmark(rootElement) {
   // Add main landmark to the provided rootElement
@@ -216,6 +218,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  addLangAttribute,
-  fixTableStructure
+  addLangAttribute
 };

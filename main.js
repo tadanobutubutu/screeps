@@ -6,6 +6,11 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
+const validateLandmark = (landmark: string): boolean => {
+  // TODO: Implement validateLandmark functionality
+  return false;
+};
+
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);

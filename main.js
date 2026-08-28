@@ -1,18 +1,13 @@
-Here is the resolved file content:
-
-```javascript
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'polyfill-io/stable';
-import 'polyfill-webextensions-api/location';
-import 'polyfill- foss/all'; // import polyfill for IE11
 
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // New function to add lang attribute to the HTML element
 const addLangAttribute = () => {
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (!htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -65,6 +60,8 @@ const addMainLandmark = () => {
   } else if (!mainElement.id) {
     mainElement.setAttribute('id', 'main');
   }
+  
+  return mainElement;
 };
 
 // New function to ensure unique landmarks
@@ -72,7 +69,7 @@ const ensureUniqueLandmarks = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll(landmark);
     const seen = new Set();
 
     elements.forEach(element => {
@@ -116,7 +113,7 @@ const addSvgAccessibleNames = () => {
   svgs.forEach((svg, index) => {
     const ariaLabel = svg.getAttribute('aria-label') ||
                       svg.getAttribute('aria-labelledby') ||
-                      svg.querySelector('title')?.textContent;
+                      svg.getAttribute('title');
 
     if (!ariaLabel) {
       svg.setAttribute('role', 'img');
@@ -146,20 +143,22 @@ const validateLandmark = () => {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
   const missingLandmarks = landmarks.filter(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+    const elements = document.querySelectorAll(landmark);
     return elements.length === 0;
   });
 
   if (missingLandmarks.length > 0) {
     throw new Error(`Missing landmarks: ${missingLandmarks.join(', ')}`);
   }
+  
+  return true;
 };
 
 // New function to add custom validation
 const addCustomValidation = () => {
   // Validate that lang attribute is set
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (!htmlElement.getAttribute('lang')) {
     console.warn('HTML element is missing lang attribute');
     return false;
   }
@@ -196,6 +195,3 @@ module.exports = {
   getAccessibleName,
   setAccessibleName
 };
-```
-
-This file includes changes to address accessibility concerns and merges the changes from the respective branches.

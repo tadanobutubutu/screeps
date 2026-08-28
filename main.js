@@ -1,3 +1,8 @@
+// <<<<<<< HEAD
+// [your current branch changes]
+// =======
+// [incoming changes from origin/main]
+// >>>>>>> origin/main
 // main.js
 
 // TODO: Implement the required changes to improve accessibility

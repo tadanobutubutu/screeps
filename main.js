@@ -6,7 +6,7 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: ... = (props) => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -28,7 +28,7 @@ const Dashboard: ... = (props) => {
   };
 
   return (
-    <main role="main" aria-label="エラーダッシュボード">
+    <main role="main" ...
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -70,7 +70,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span>{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button

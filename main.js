@@ -6,4 +6,14 @@
 // Current application exports
 module.exports = {
   // Export application functionality here as needed
+
+  validateTableAccessibility: function () {
+    // Implement the validation for table accessibility
+    // ...
+  },
+
+  validateTableStructure: function () {
+    // Implement the validation for table structure
+    // ...
+  },
 };

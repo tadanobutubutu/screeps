@@ -2,7 +2,11 @@
 
 // Utility functions
 function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
 }
 
 function formatCurrency(amount) {
@@ -14,7 +18,7 @@ function formatCurrency(amount) {
 
 function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -36,7 +40,7 @@ function throttle(func, limit) {
 }
 
 function generateId() {
-  return Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
 }
 
 function deepClone(obj) {

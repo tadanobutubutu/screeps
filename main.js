@@ -6,11 +6,14 @@ function rotateBack() {
 }
 
 // Assuming the button click is handled by JavaScript, here's how it might look:
-document.getElementById('unrotate').addEventListener('click', rotateBack);
+const button = document.querySelector('.back-button');
+if (button) {
+  button.addEventListener('click', rotateBack);
+}
 
 // main.js
 
-function addProperLandmarkRegions() {
+(function initAccessibility() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -41,7 +44,7 @@ function addProperLandmarkRegions() {
     svgs.forEach((svg) => {
       // Check if SVG is hidden
       const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                       svg.getAttribute('hidden') !== null ||
+                       svg.parentElement !== null ||
                        svg.style.display === 'none' ||
                        svg.style.visibility === 'hidden';
 
@@ -62,14 +65,14 @@ function addProperLandmarkRegions() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-favicon') === 'true';
+                        svg.getAttribute('data-decorative') === 'true';
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
         svg.setAttribute('focusable', 'false');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        const title = document.createElement('title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
@@ -85,12 +88,14 @@ function addProperLandmarkRegions() {
     }, 0);
   };
 
+  // Initial run
   ensureSvgAccessibleNames();
+  updateAccessibleSvgNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      updateAccessibleSvgNames();
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -102,6 +107,6 @@ function addProperLandmarkRegions() {
       });
     }
   }
-}
+})();
 
-addProperLandmarkRegions();
+export { rotateBack };

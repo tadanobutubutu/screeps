@@ -33,6 +33,27 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// New function for the issue
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce((score, issue) => {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+}
+
 module.exports = {
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  calculateAccessibilityScore
 };

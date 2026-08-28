@@ -34,8 +34,53 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.getAttribute('role')) {
-      // Only set role if one doesn't exist
+    if (body) {
+      // Set main landmark role if not present
+      const main = body.querySelector('main');
+      if (main && !main.getAttribute('role')) {
+        main.setAttribute('role', 'main');
+      }
+      
+      // Ensure navigation has proper landmark role
+      const nav = body.querySelector('nav');
+      if (nav && !nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+      }
+      
+      // Ensure aside elements have proper complementary role
+      const aside = body.querySelector('aside');
+      if (aside && !aside.getAttribute('role')) {
+        aside.setAttribute('role', 'complementary');
+      }
+      
+      // Ensure form elements have proper labels
+      const forms = body.querySelectorAll('form');
+      forms.forEach(form => {
+        if (!form.getAttribute('aria-label') && !form.getAttribute('aria-labelledby')) {
+          form.setAttribute('aria-label', 'Form');
+        }
+      });
+      
+      // Ensure buttons have accessible names
+      const buttons = body.querySelectorAll('button');
+      buttons.forEach(button => {
+        if (!button.getAttribute('aria-label') && !button.getAttribute('aria-labelledby') && !button.textContent.trim()) {
+          button.setAttribute('aria-label', 'Button');
+        }
+      });
+      
+      // Ensure images have alt text
+      const images = body.querySelectorAll('img');
+      images.forEach(img => {
+        if (!img.getAttribute('alt')) {
+          img.setAttribute('alt', 'Image');
+        }
+      });
+      
+      // Set body role if not present and appropriate
+      if (!body.getAttribute('role')) {
+        body.setAttribute('role', 'document');
+      }
     }
   }
 }

@@ -148,7 +148,25 @@ const a11yStore = {
   addProperLandmarkRegions() {
     // Ensure the main landmark exists
     if (!document.querySelector('main, [role="main"]')) {
-      const
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.id = 'main-content';
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+    
+    // Add landmark regions if missing
+    const landmarks = ['nav', 'header', 'footer', 'aside'];
+    landmarks.forEach(landmark => {
+      const selector = `${landmark}, [role="${landmark}"]`;
+      if (!document.querySelector(selector)) {
+        const el = document.createElement(landmark);
+        el.setAttribute('role', landmark);
+        document.body.appendChild(el);
+      }
+    });
+  }
+};
+
 const existingConst1 = {
   // Existing constant 1 definition
 };
@@ -269,5 +287,6 @@ module.exports = {
   newFunction,
   dependencyGraph,
   isLinkAccessible,
-  isLinkAccessibleSync
+  isLinkAccessibleSync,
+  a11yStore
 };

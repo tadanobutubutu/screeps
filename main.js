@@ -1,18 +1,48 @@
 // Import the required module
 const _ = require('lodash');
 
+// TODO: Implement validateLandmark functionality
+
+/**
+ * Validates a landmark object
+ * @param {Object} landmark - The landmark object to validate
+ * @returns {boolean} - Returns true if the landmark is valid, false otherwise
+ */
+function validateLandmark(landmark) {
+  // Check if landmark exists
+  if (!landmark) {
+    return false;
+  }
+
+  // Validate name is present and non-empty
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    return false;
+  }
+
+  // Validate coordinates if present
+  if (landmark.latitude !== undefined || landmark.longitude !== undefined) {
+    if (typeof landmark.latitude !== 'number' || typeof landmark.longitude !== 'number') {
+      return false;
+    }
+    // Validate latitude range (-90 to 90)
+    if (landmark.latitude < -90 || landmark.latitude > 90) {
+      return false;
+    }
+    // Validate longitude range (-180 to 180)
+    if (landmark.longitude < -180 || landmark.longitude > 180) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // Add the new function
 function myNewFunction(arg1, arg2) {
   // Implement your new function here
   // For example:
   return arg1 + arg2;
 }
-
-// Export the new function
-module.exports = {
-  ...module.exports, // Preserve existing exports
-  myNewFunction,
-};
 
 /**
  * Creates an accessible in-page button element
@@ -307,12 +337,23 @@ const accessibilityExports = {
 
 // CommonJS export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = accessibilityExports;
+  module.exports = {
+    ...module.exports, // Preserve existing exports
+    validateLandmark,
+    myNewFunction,
+    ...accessibilityExports,
+  };
 }
 
 // ES Module export (for modern JavaScript environments)
 if (typeof exports !== 'undefined') {
-  exports.default = accessibilityExports;
+  exports.default = {
+    validateLandmark,
+    myNewFunction,
+    ...accessibilityExports,
+  };
+  exports.validateLandmark = validateLandmark;
+  exports.myNewFunction = myNewFunction;
   exports.addLangAttribute = addLangAttribute;
   exports.fixTableStructure = fixTableStructure;
   exports.addLandmarkIssues = addLandmarkIssues;

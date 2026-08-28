@@ -31,7 +31,7 @@ function fixTableStructure(document) {
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
     const rows = table.querySelectorAll('tr');
-    
+
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
       const thead = document.createElement('thead');
@@ -39,7 +39,7 @@ function fixTableStructure(document) {
       table.insertBefore(thead, table.firstChild);
       fixedCount++;
     }
-    
+
     if (!existingTbody) {
       const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
@@ -49,7 +49,7 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     }
-    
+
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
       const cells = row.querySelectorAll('td, th');
@@ -62,7 +62,7 @@ function fixTableStructure(document) {
         fixedCount++;
       }
     });
-    
+
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (!th.hasAttribute('scope')) {
@@ -78,29 +78,29 @@ function fixTableStructure(document) {
 // Function to add/main landmark
 function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
-  
+
   if (!mainElement) {
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
-    
+
     const children = Array.from(body.children);
     for (const child of children) {
-      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
           child.tagName !== 'LINK' && child.tagName !== 'META') {
         main.appendChild(child);
         break;
       }
     }
-    
+
     body.insertBefore(main, body.firstChild);
     mainElement = main;
   }
-  
+
   if (mainElement.tagName !== 'MAIN') {
     mainElement.setAttribute('role', 'main');
   }
-  
+
   return mainElement;
 }
 
@@ -110,25 +110,44 @@ function ensureUniqueLandmarks(document) {
   if (main && !main.id) {
     main.id = 'main-content';
   }
-  
+
   const navigations = document.querySelectorAll('nav');
   navigations.forEach((nav, index) => {
     if (!nav.id && !nav.getAttribute('aria-label')) {
       nav.setAttribute('aria-label', `navigation-${index + 1}`);
     }
   });
-  
+
   return document;
+}
+
+// Function to set aria-label on SVG elements from title or aria-labelledby
+function setSvgAccessibilityProps(svgElement) {
+  if (!svgElement) return;
+
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    svgElement.setAttribute('aria-label', title.textContent.trim());
+  }
+
+  const labelledBy = svgElement.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const label = document.getElementById(labelledBy);
+    if (label) {
+      svgElement.setAttribute('aria-labelledby', label.id);
+    }
+  }
 }
 
 // Function to add accessible name to SVG
 function addSvgAccessibleNames(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
+    setSvgAccessibilityProps(svg);
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
       svg.setAttribute('aria-label', titleElement.textContent.trim());
-    } else {
+    } else if (!svg.getAttribute('aria-label')) {
       svg.setAttribute('aria-label', 'Graphic');
     }
   });
@@ -139,10 +158,11 @@ function addSvgAccessibleNames(document) {
 function addAccessibleNamesToSVGs(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
+    setSvgAccessibilityProps(svg);
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
       svg.setAttribute('aria-label', titleElement.textContent.trim());
-    } else {
+    } else if (!svg.getAttribute('aria-label')) {
       svg.setAttribute('aria-label', 'Graphic');
     }
   });
@@ -159,11 +179,11 @@ function fixFakeLinkIssue(document) {
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
-    
-    if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('document.location') || 
+
+    if (!isAnchor && (onclick.includes('window.location') ||
+        onclick.includes('document.location') ||
         onclick.includes('.href'))) {
-      
+
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -174,11 +194,11 @@ function fixFakeLinkIssue(document) {
           element.click();
         }
       });
-      
+
       if (element.className) {
         span.className = element.className;
       }
-      
+
       element.parentNode.replaceChild(span, element);
       count++;
     }
@@ -310,13 +330,15 @@ function addAriaLabel(document, selector, label) {
 
 // Function to render dependency graphs
 function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('#dependencyGraph') || 
-                         document.querySelector('.dependency-graph') || 
+  const graphContainer = document.querySelector('#dependencyGraph') ||
+                         document.querySelector('.dependency-graph') ||
                          document.querySelector('[data-graph="dependencies"]') ||
                          document.querySelector('[id*="dependency"]');
   if (graphContainer) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('');
+    svg.setAttribute('role', 'img');
+    setSvgAccessibilityProps(svg);
+    graphContainer.appendChild(svg);
   }
 }
 
@@ -373,6 +395,7 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,

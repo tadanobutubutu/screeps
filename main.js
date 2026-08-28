@@ -31,7 +31,7 @@ function fixTableStructure(doc) {
   
   tables.forEach((table) => {
     // Add caption if missing
-    if (!table.querySelector('caption')) {
+    if (!table.caption) {
       const caption = doc.createElement('caption');
       caption.textContent = 'Data table';
       table.insertBefore(caption, table.firstChild);
@@ -42,8 +42,8 @@ function fixTableStructure(doc) {
     const headers = table.querySelectorAll('th');
     headers.forEach((th) => {
       if (!th.hasAttribute('scope')) {
-        const rowHeaders = th.closest('tr')?.querySelectorAll('th');
-        const isRowHeader = rowHeaders && Array.from(rowHeaders).includes(th);
+        const rowHeaders = th.parentElement ? th.parentElement.querySelectorAll('th') : null;
+        const isRowHeader = rowHeaders && rowHeaders.length > 1 && th.cellIndex > 0;
         th.setAttribute('scope', isRowHeader ? 'row' : 'col');
         fixedCount++;
       }
@@ -62,7 +62,7 @@ function fixTableStructure(doc) {
     
     if (!table.querySelector('tbody')) {
       const tbody = doc.createElement('tbody');
-      const remainingRows = table.querySelectorAll('tr');
+      const remainingRows = Array.from(table.querySelectorAll('tr'));
       remainingRows.forEach((row) => {
         tbody.appendChild(row);
       });
@@ -90,8 +90,8 @@ function addLandmarkIssues(doc) {
     const body = doc.querySelector('body');
     if (body) {
       // Move content to main
-      Array.from(body.children).forEach((child) => {
-        if (!['SCRIPT', 'STYLE', 'LINK'].includes(child.tagName)) {
+      Array.from(body.childNodes).forEach((child) => {
+        if (!['SCRIPT', 'STYLE'].includes(child.nodeName)) {
           main.appendChild(child);
         }
       });
@@ -122,7 +122,7 @@ function addLandmarkIssues(doc) {
   
   // Mark the main landmark with id for skip link
   const mainElement = doc.querySelector('main') || doc.querySelector('[role="main"]');
-  if (mainElement) {
+  if (mainElement && !mainElement.id) {
     mainElement.id = 'main-content';
     fixedCount++;
   }
@@ -186,7 +186,7 @@ function ensureUniqueLandmarks(doc) {
   const navs = doc.querySelectorAll('nav');
   if (navs.length > 1) {
     navs.forEach((nav, index) => {
-      if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
         fixedCount++;
       }
@@ -205,7 +205,7 @@ function fixFakeLinkIssue(doc) {
   let fixedCount = 0;
   
   // Find elements with role="link" that aren't anchor elements
-  const fakeLinks = doc.querySelectorAll('[role="link"]:not(a)');
+  const fakeLinks = doc.querySelectorAll('[role="link"]');
   
   fakeLinks.forEach((element) => {
     // Check if it's a clickable div/span that should be a button

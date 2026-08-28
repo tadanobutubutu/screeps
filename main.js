@@ -29,7 +29,7 @@ export function formatDate(date, format = 'YYYY-MM-DD') {
  */
 export function debounce(func, wait = 300) {
   let timeout;
-  return function executedFunction(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -47,7 +47,7 @@ export function debounce(func, wait = 300) {
  */
 export function throttle(func, limit = 300) {
   let inThrottle;
-  return function executedFunction(...args) {
+  return function(...args) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
@@ -160,7 +160,7 @@ export function isEmpty(value) {
 export function deepMerge(...objects) {
   return objects.reduce((result, obj) => {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (result.hasOwnProperty(key)) {
         if (
           typeof obj[key] === 'object' &&
           obj[key] !== null &&
@@ -230,7 +230,7 @@ export function addRoleToNav(navElement) {
 }
 
 // REACT_037: Add proper landmark regions
-export function addProperLandmarkRegions() {
+export function setLandmarkRoles() {
   const header = document.querySelector('header') || document.getElementById('header');
   const nav = document.querySelector('nav') || document.getElementById('nav');
   const main = document.querySelector('main') || document.getElementById('main');
@@ -251,17 +251,17 @@ export function addProperLandmarkRegions() {
 }
 
 // Assuming you have access to your elements like this:
-const nav = document.getElementById('nav');
-const header = document.getElementById('header');
-const main = document.getElementById('main');
-const footer = document.getElementById('footer');
+const nav = document.querySelector('nav');
+const header = document.querySelector('header');
+const main = document.querySelector('main');
+const footer = document.querySelector('footer');
 
 addRoleToNav(nav);
 addRoleToHeader(header);
 addRoleToMain(main);
 addRoleToFooter(footer);
 
-addProperLandmarkRegions();
+setLandmarkRoles();
 
 // Don't forget to include Jest test cases to ensure the new landmark roles are added correctly.
 

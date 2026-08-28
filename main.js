@@ -154,11 +154,35 @@ function addressInsightReportIssues(insightReport) {
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
+        // Fix fake link by converting to button or adding proper href
+        const isButton = element.tagName === 'BUTTON' || element.getAttribute('role') === 'button';
+        if (!isButton && !element.getAttribute('href')) {
+          // If it's an anchor without href, convert to button or add role="button"
+          element.setAttribute('role', 'button');
+          // Add tabindex to make it focusable
+          if (element.getAttribute('tabindex') === null) {
+            element.setAttribute('tabindex', '0');
+          }
+        }
       }
-      // Add scope="col" or scope="row" to <th> elements (already implemented)
+      // Add scope="col" or scope="row" to <th> elements
       if (issue.code === 'REACT_027') {
-        // This issue is already implemented, so no action is needed here
+        if (element.tagName === 'TH') {
+          // Determine if it's a column header or row header
+          const parent = element.parentElement;
+          const isFirstCell = parent ? parent.firstChild === element : false;
+          const rowHeaders = element.getAttribute('scope') === 'row';
+          
+          if (!element.getAttribute('scope')) {
+            if (rowHeaders || (parent && parent.getAttribute('role') === 'row' && !isFirstCell)) {
+              element.setAttribute('scope', 'col');
+            } else if (isFirstCell) {
+              element.setAttribute('scope', 'row');
+            } else {
+              element.setAttribute('scope', 'col');
+            }
+          }
+        }
       }
     }
   });
@@ -292,7 +316,6 @@ function checkTableStructure() {
   });
 }
 
-// TODO: Implement this function for checking landmark elements
 function checkLandmarkElements() {
   const results = [];
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -365,7 +388,6 @@ function setSvgAccessibleNames() {
   });
 }
 
-// TODO: Implement this function for adding SVG accessibility props
 function addSvgAccessibilityProps() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {

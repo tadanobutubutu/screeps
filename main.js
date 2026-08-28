@@ -1,6 +1,5 @@
 // main.js
 
-// TODO: Implement validateLandmark functionality
 function validateLandmark(landmark) {
   // Check if landmark exists
   if (!landmark) {

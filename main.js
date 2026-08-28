@@ -1,11 +1,10 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_017: Add/fix 4 landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_027: Add scope="col" or scope="row" to <th> elements
 
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -19,6 +18,8 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // REACT_015: Set document language attribute
+    document.documentElement.lang = 'en';
     fetchData();
   }, []);
 
@@ -34,7 +35,7 @@ function App() {
     }
   };
 
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
+  // REACT_017: Ensure proper landmark structure
   return (
     <div className="app-container" lang="en">
       <Header />

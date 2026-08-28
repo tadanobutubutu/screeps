@@ -16,6 +16,14 @@ function wrapPrimaryContentInMain(doc) {
 }
 
 // ADD THE NEW FUNCTION HERE
+function addProperLandmarkRegions(doc) {
+  // Existing logic for adding proper landmark regions
+}
+
+function ensureUniqueLandmarks(landmarks) {
+  // Existing logic for ensuring unique landmarks
+}
+
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
   return ensureUniqueLandmarks(landmarks);

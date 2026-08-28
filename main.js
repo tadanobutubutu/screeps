@@ -280,6 +280,17 @@ function addProperLandmarkRegions(element) {
   }
 }
 
+// Additional validation functions from HEAD branch
+function validateLandmarkStructure() {
+  // Implementation of validateLandmarkStructure function
+  // ...
+}
+
+function validateLandmarkAttributes() {
+  // Implementation of validateLandmarkAttributes function
+  // ...
+}
+
 module.exports = {
   newFunction,
   greet,
@@ -300,6 +311,8 @@ module.exports = {
   createInPageButton,
   validateTableAccessibility,
   validateTableStructure,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
   getSvgAccessibleName,
   setSvgAttributes,
   ensureUniqueLandmarks,

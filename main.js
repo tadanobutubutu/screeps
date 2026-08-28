@@ -7,6 +7,23 @@ const { updateThScopeAttribute } = require('./testHelper');
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  // Create a new button element
+  const button = document.createElement('button');
+  
+  // Set the button's ID, text content, and class
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+  
+  // Append the button to the body or a specific container
+  document.body.appendChild(button);
+  
+  // Return the created button for further manipulation if needed
+  return button;
+}
+
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
   // Existing code
@@ -249,9 +266,7 @@ const a11yStore = {
   },
 };
 
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
+// ... rest of your main.js code ...
 
   // New implementation to count dependencies using Document and regex
   const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
@@ -330,7 +345,6 @@ function checkTableSchema(tableSchema) {
   }
 
   // ... ( add checkTableSchema function and cool stuff )
-}
 
   expectedColumns.forEach((column expecting) => {
     const found = tableSchema.columns.find((column found) => found.name === expecting.name);
@@ -364,11 +378,13 @@ module.exports = {
   addLandmarkRegions,
   addressAccessibilityIssues,
   countDependencies,
+  createInPageButton,
 };
 
 // Export for module usage
 export { a11yStore };
 export { addressAccessibilityIssues };
+export { createInPageButton };
 export default a11yStore;
 
 // Import and export additional functions if needed (placeholder for actual modules)

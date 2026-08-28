@@ -275,6 +275,13 @@ function countDependencies() {
   }
 }
 
+// Improve accessibility by adding semantic role and label to the root element
+const root = document.getElementById('root');
+if (root) {
+  root.setAttribute('role', 'main');
+  root.setAttribute('aria-label', 'Main application');
+}
+
 // Export for testing and external use
 module.exports = {
     validateWebAccessibility,

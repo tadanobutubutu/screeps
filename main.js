@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Initial setup
+const app = document.getElementById('root');
+
+// Improve accessibility
+app.setAttribute('role', 'main');
+app.setAttribute('aria-label', 'Main application');

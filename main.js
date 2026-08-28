@@ -35,12 +35,25 @@ function getVersion() {
   return VERSION;
 }
 
+// Adding a new function to improve accessibility: focus on the first focusable element on page load
+function focusFirstElement() {
+  const focusableElements = document.querySelectorAll('a, button, input, textarea, select');
+  const firstFocusableElement = focusableElements[0];
+  if (firstFocusableElement) {
+    firstFocusableElement.focus();
+  }
+}
+
+// Call focusFirstElement when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', focusFirstElement);
+
 export {
   VERSION,
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  focusFirstElement
 };
 
 export default {
@@ -48,5 +61,6 @@ export default {
   CONFIG,
   initialize,
   getConfig,
-  getVersion
+  getVersion,
+  focusFirstElement
 };

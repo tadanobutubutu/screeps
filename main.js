@@ -1,4 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
+// TODO: This is the existing code that needs to be preserved
 
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');

@@ -41,6 +41,13 @@ function ensureElementHasId(element, prefix = 'element') {
   return generatedId;
 }
 
+export function anotherFunction() {
+  // More existing functionality
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
 /**
  * Adds an aria-label to the element if it doesn't already have one
  * @param {HTMLElement} element - The element to add aria-label to
@@ -180,6 +187,7 @@ module.exports = {
   internalFunction1,
   internalFunction2,
   ensureElementHasId,
+  anotherFunction,
   addAriaLabel,
   setLanguageAttribute,
   initApp,

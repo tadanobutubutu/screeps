@@ -54,6 +54,87 @@ function App() {
   );
 }
 
+// Assuming the button click is handled by JavaScript, here's how it might look:
+const button = document.querySelector('.back-button');
+if (button) {
+  button.addEventListener('click', rotateBack);
+}
+
+function rotateBack() {
+  // Function to handle rotating back
+}
+
+// main.js
+
+(function initAccessibility() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('role', 'banner');
+  }
+
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    // Check if SVG is hidden
+    const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
+                     svg.parentElement !== null ||
+                     svg.style.display === 'none' ||
+                     svg.style.visibility === 'hidden';
+
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
+    const hasTitle = svg.querySelector('title');
+    const hasDesc = svg.querySelector('desc');
+
+    if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+      return;
+    }
+
+    // Determine if decorative - SVGs used for favicons/decorative purposes
+    const isFavicon = svg.closest('link') !== null ||
+                      (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
+                      svg.getAttribute('data-decorative') === 'true';
+
+    if (isFavicon) {
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+    } else {
+      // Add a generic title for non-decorative SVGs
+      const title = document.createElement('title');
+      title.textContent = 'Icon';
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'Icon');
+    }
+  });
+
+  // Function to handle updating accessible SVG names when DOM mutates
+  const updateAccessibleSvgNames = () => {
+    setTimeout(() => {
+      ensureSvgAccessibleNames();
+    }, 0);
+  };
+
+  // Initial run
+  ensureSvgAccessibleNames();
+  updateAccessibleSvgNames();
+
+  // Run again after DOM mutations
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver(() => {
+      ensureSvgAccessibleNames();
+    });
+
+    if (document.body) {
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['aria-hidden', 'aria-label', 'aria-labelledby']
+      });
+    }
+  }
+})();
+
 // REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
   if (!existingNames.includes(baseName)) {
@@ -208,7 +289,7 @@ function manageFocusOnNavigation(selector) {
     target.focus();
     target.removeAttribute('tabindex');
   }
-}
+})();
 
 /**
  * Checks if user prefers reduced motion
@@ -245,7 +326,7 @@ function hasAccessibleName(element) {
 }
 
 // Export the newFunction for use in other modules
-export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName };
+export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName, rotateBack };
 
 const container = document.getElementById('root');
 const root = createRoot(container);

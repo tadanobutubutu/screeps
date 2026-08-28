@@ -274,5 +274,8 @@ module.exports = {
   validateTableStructure,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  newAccessibilityFunction
+  newAccessibilityFunction,
+  formatDate,
+  debounce,
+  generateId
 };

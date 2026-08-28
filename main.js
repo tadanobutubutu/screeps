@@ -1,9 +1,9 @@
+// Import test helper function
+const { updateThScopeAttribute } = require('./testHelper');
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Before change:
-// <a id="unrotate" href="#">rotate back</a>
 
 // After change:
 // <button id="unrotate" onclick="rotateBack()">rotate back</button>
@@ -347,3 +347,13 @@ function ensureUniqueLandmarks(container = document) {
   
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary'];
   const role
+function calculateDiscount(price, discountRate) {
+    // Calculate and return the discounted price
+    return price - (price * discountRate);
+}
+
+module.exports = {
+    // Preserve all existing exports
+    // ...
+    calculateDiscount: calculateDiscount
+};

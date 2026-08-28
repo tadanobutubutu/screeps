@@ -1,3 +1,4 @@
+// TODO: Replace this placeholder with the actual main.js content...
 const React = require('react');
 const { getLandmarks } = require('./api');
 const { findIndex: originalFindIndex, filterLandmarks: originalFilterLandmarks, sortLandmarksByName: originalSortLandmarksByName, addRequiredLandmarks: originalAddRequiredLandmarks } = require('./utils');
@@ -410,4 +411,3 @@ module.exports = {
   renderDependencyGraph,
   resolveConflicts
 };
-}

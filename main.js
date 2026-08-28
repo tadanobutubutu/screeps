@@ -273,7 +273,7 @@ export function ensureUniqueLandmarks(html) {
   // Count occurrences of <main> opening tags in the original-like state and
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainOpenCount = (html.match(/<main\\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;

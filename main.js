@@ -1,4 +1,3 @@
-// Import render functions
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');
 
@@ -16,6 +15,11 @@ const throttle = require('./main').throttle;
 function getLangAttribute() {
   // Implementation for REACT_015: Add lang attribute to HTML element
   // ...
+}
+
+// TODO: Add a new function named `calculateSum` as requested in the issue
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
 }
 
 function personName() {
@@ -55,4 +59,5 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   // ... any other relevant functions extracted from the conflicting code base
+  calculateSum
 };

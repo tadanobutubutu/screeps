@@ -79,7 +79,7 @@ export function fixTableStructureIssues(html) {
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
-    const hasTfoot = /<tfoot/i.test(table);
+    const hasTfoot = /<\/tfoot/i.test(table);
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows

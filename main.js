@@ -1,10 +1,13 @@
+// Import required module(s) - for fixing table structure issues
+import './table-styles.css';
+
 // Main application logic
 
-document.addEventListener('DOMContentLoaded', () => {
-  const unrotateBtn = document.getElementById('unrotate');
+... () => {
+  const unrotateBtn = ...
   
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', (e) => {
+    ... (e) => {
       e.preventDefault();
       // Rotate back logic
       document.body.style.transform = 'rotate(0deg)';

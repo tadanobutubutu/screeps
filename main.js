@@ -47,6 +47,36 @@ function addProperFormAccessibility() {
 }
 
 /**
+ * Validates whether a given element is a proper ARIA landmark.
+ * @param {Element} element - The DOM element to validate.
+ * @returns {boolean} True if the element is a valid landmark, false otherwise.
+ */
+function validateLandmark(element) {
+  const validLandmarks = [
+    'banner',
+    'complementary',
+    'contentinfo',
+    'form',
+    'main',
+    'navigation',
+    'region',
+    'search'
+  ];
+  const role = element.getAttribute('role');
+  return role && validLandmarks.includes(role);
+}
+
+/**
+ * Validates the overall landmark structure of the document.
+ * Currently checks for the presence of a main landmark role.
+ * @returns {boolean} True if the document contains at least one element with role="main", false otherwise.
+ */
+function validateLandmarkStructure() {
+  const mainLandmark = document.querySelector('[role="main"]');
+  return !!mainLandmark;
+}
+
+/**
  * Function to replace `my-button` with actual button id
  */
 addProperLandmarkRegions();
@@ -58,5 +88,7 @@ module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addProperFormAccessibility,
-  replaceMyButtonId
+  replaceMyButtonId,
+  validateLandmark,
+  validateLandmarkStructure
 };

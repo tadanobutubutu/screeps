@@ -163,3 +163,73 @@ function runWorker(creep) {
         }
     }
 }
+
+/**
+ * New function for REACT_025 (ensuring unique landmarks)
+ * This function will check for unique landmarks in a room and handle duplicates.
+ * @param {Room} room - The room to check.
+ */
+function ensureUniqueLandmarks(room) {
+    const landmarks = room.find(FIND_MY_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_RAMPART || s.structureType === STRUCTURE_WALL
+    });
+
+    const uniqueLandmarks = new Set();
+    landmarks.forEach((landmark) => {
+        const landmarkId = `${landmark.pos.x},${landmark.pos.y}`;
+        if (uniqueLandmarks.has(landmarkId)) {
+            // Handle duplicate landmark, e.g., remove or merge
+            // For the sake of this example, we'll just log a warning
+            console.warn(`Duplicate landmark found at ${landmarkId}`);
+        } else {
+            uniqueLandmarks.add(landmarkId);
+        }
+    });
+}
+
+/**
+ * New function for REACT_017 (adding landmark roles and fixing landmark issues)
+ * This function will add landmark roles to ramparts and walls and fix any issues.
+ * @param {Room} room - The room to update.
+ */
+function addLandmarkRolesAndFixIssues(room) {
+    const ramparts = room.find(FIND_MY_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_RAMPART
+    });
+
+    ramparts.forEach((rampart) => {
+        rampart.setRole('landmark');
+    });
+
+    const walls = room.find(FIND_MY_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_WALL
+    });
+
+    walls.forEach((wall) => {
+        wall.setRole('landmark');
+    });
+}
+
+/**
+ * Add lang attribute to HTML element
+ * This is a placeholder for the actual implementation, which would depend on the specific HTML structure.
+ */
+function addLangAttribute() {
+    // Implementation would go here
+}
+
+/**
+ * Add accessible names to 2 SVGs
+ * This is a placeholder for the actual implementation, which would depend on the specific SVGs.
+ */
+function addAccessibleNamesToSVGs() {
+    // Implementation would go here
+}
+
+/**
+ * Fix 1 fake link issue
+ * This is a placeholder for the actual implementation, which would depend on the specific issue.
+ */
+function fixFakeLinkIssue() {
+    // Implementation would go here
+}

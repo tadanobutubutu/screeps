@@ -9,14 +9,14 @@ const AppLayout: React.FC = () => {
     <div className="App">
       <header className="App-header">
         <svg
-          aria-hidden="true"
           className="App-favicon"
           width="1em"
           height="1em"
           viewBox="0 0 100 100"
           xmlns="http://www.w3.org/2000/svg"
+          aria-labelledby="App-favicon-title"
         >
-          <title>Screeps Dashboard</title>
+          <title id="App-favicon-title">Screeps Dashboard</title>
           <text y=".9em" font-size="90">🐛</text>
         </svg>
         {/* ... Existing code ... */}

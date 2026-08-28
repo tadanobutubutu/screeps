@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_017: Add landmark roles and fix landmark issues (DONE: addLandmarkRole, ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
@@ -127,6 +127,8 @@ const config = {
 
 const Dashboard = require('./dashboard'); // Adjust path as needed
 
+let isInitialized = false;
+
 function initialize() {
   console.log('Application initialized');
   // Initialize accessibility fixes when DOM is ready
@@ -151,41 +153,9 @@ function initialize() {
       fixFakeLinks('.fake-link');
     });
   }
+  isInitialized = true;
   return true;
 }
-
-function processData(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
-function validateInput(input) {
-  if (typeof input !== 'string') {
-    return false;
-  }
-  return input.length > 0;
-}
-
-function addressAccessibilityIssues(insightReport) {
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-    });
-  }
-}
-
-const isInitialized = (() => {
-  if (!global.gameInitialized) {
-    global.gameInitialized = true;
-    initialize();
-  }
-  return global.gameInitialized;
-})();
 
 /**
  * Main game loop for the Screeps bot.
@@ -195,14 +165,12 @@ module.exports.loop = function() {
   if (!isInitialized) {
     initialize();
   }
-
-  // Handle room-level operations
-  handleRooms();
-
-  // Render dashboard UI (if available)
+    // Render dashboard UI (if available)
   if (Dashboard) {
     Dashboard.render();
   }
+
+  handleRooms();
 };
 
 /**
@@ -333,9 +301,6 @@ function runCreeps(roomName) {
   }
 }
 
-// TODO: Address missing export that might have been removed — ADD CODE HERE
-function missingExportPlaceholder() {}
-
 module.exports = {
   getUniqueLandmarkId,
   addLandmarkRole,
@@ -344,9 +309,5 @@ module.exports = {
   fixFakeLinks,
   addHtmlLangAttribute,
   initialize,
-  processData,
-  validateInput,
-  addressAccessibilityIssues,
-  config,
-  missingExportPlaceholder
+  config
 };

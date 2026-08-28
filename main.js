@@ -69,6 +69,14 @@ function addScopeToTableHeaders() {
   });
 }
 
+// Ensure the root html element has a lang attribute for accessibility
+function setHtmlLangAttribute() {
+  const htmlEl = document.querySelector('html');
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en');
+  }
+}
+
 // Export the module functions
 module.exports = {
   renderDependencyGraphContent,
@@ -76,5 +84,6 @@ module.exports = {
   fixFakeLinks,
   implementNewFunction,
   addScopeToTableHeaders,
-  renderGraphContent
+  renderGraphContent,
+  setHtmlLangAttribute
 };

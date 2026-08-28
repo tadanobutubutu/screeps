@@ -3,6 +3,10 @@
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 
+// Import filesystem and path modules
+const fs = require('fs');
+const path = require('path');
+
 // Game loop function
 function run() {
   // Your game logic here...
@@ -21,6 +25,3 @@ function run() {
 Module.onInit = function() {
   setInterval(run, 1000);
 };
-```
-
-This version of the file combines both changes. The first change (HEAD) added a test helper function to update the `<th>` scope attribute in a JavaScript file (`testHelper.js`). The second change (origin/main) incorporated the game logic that uses this test helper function to update the `<th>` scope attributes in all `.html` files in the `views` directory, which was not present in the first change.

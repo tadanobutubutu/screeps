@@ -1,6 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
+// Import accessibility helper functions
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibilityHelperFunctions');
+
 // Main game loop for Screeps
 module.exports = {
   loop: function() {
@@ -14,7 +26,7 @@ module.exports = {
     // Your game logic here
   },
 
-  // TODO: Implement a function to count dependencies
+  // Function to count dependencies from package.json
   countDependencies: function() {
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -43,7 +55,17 @@ module.exports = {
 
   config: {
     enabled: true
-  }
+  },
+
+  // Accessibility helper functions
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
 };
 
 function SomeClass() {}
@@ -55,24 +77,3 @@ function main() {
 function someUtility() {
   return true;
 }
-
-function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
-
-    return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
-        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-    };
-}
-
-module.exports.loop = module.exports.loop;
-module.exports.countDependencies = countDependencies;
-module.exports.main = main;
-module.exports.SomeClass = SomeClass;
-module.exports.someUtility = someUtility;
-module.exports.config = { enabled: true };

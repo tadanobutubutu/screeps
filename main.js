@@ -15,6 +15,12 @@ function wrapPrimaryContentInMain(doc) {
   }
 }
 
+// TODO: Implement this function for setting accessible names to SVGs
+function setSvgAccessibleName(svgElement, name) {
+  // Assuming the SVG has an 'aria-label' attribute to provide an accessible name
+  svgElement.setAttribute('aria-label', name);
+}
+
 // ADD THE NEW FUNCTION HERE
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
@@ -39,5 +45,6 @@ module.exports = {
   validateTableStructure,
   wrapPrimaryContentInMain, // Add the new function to the exports
   addMissingExportFunction, // Add the new function to the exports
-  getSvgAccessibleName
+  setSvgAccessibleName, // Add the new function to the exports
+  getSvgAccessibleName // Ensure the existing getSvgAccessibleName export remains
 };

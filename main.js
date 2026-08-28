@@ -28,6 +28,28 @@ function initApp() {
   container.appendChild(unrotateBtn);
 }
 
+// TODO: Implement createInPageButton() and createAccessibleLink() functions here
+function createInPageButton(id, text, ariaLabel) {
+  const button = document.createElement('button');
+  button.id = id;
+  button.textContent = text;
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  return button;
+}
+
+function createAccessibleLink(id, text, href, ariaLabel) {
+  const link = document.createElement('a');
+  link.id = id;
+  link.textContent = text;
+  link.href = href;
+  if (ariaLabel) {
+    link.setAttribute('aria-label', ariaLabel);
+  }
+  return link;
+}
+
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
@@ -35,4 +57,4 @@ if (document.readyState === 'loading') {
   initApp();
 }
 
-export { initApp };
+export { initApp, createInPageButton, createAccessibleLink };

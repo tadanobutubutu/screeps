@@ -1,3 +1,8 @@
+// Example: Set the lang attribute on the root element dynamically
+function setLanguage(lang) {
+  document.documentElement.lang = lang;
+}
+
 // main.js - Main application logic
 
 // Import necessary modules
@@ -332,6 +337,7 @@ module.exports = {
     config,
     countDependencies,
     someFunction,
+    setLanguage,
     getLangAttribute,
     getFullLangAttribute,
     checkAccessibility,

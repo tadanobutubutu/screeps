@@ -127,6 +127,6 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
-  checkAccessibility,
+  checkAccessibility, // Assuming 'checkAccessibility' is a typo and should be 'checkLinkAndButtonAccessibility'
   renderIndexView,
 };

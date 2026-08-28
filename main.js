@@ -38,4 +38,36 @@ fakeLinks.forEach(link => {
   link.setAttribute('role', 'presentation');
 });
 
+// TODO: Implement this function for adding SVG accessibility props
+/**
+ * Adds accessibility properties to SVG elements.
+ * @param {SVGElement} svgElement - The SVG element to add accessibility props to
+ * @param {Object} options - Options for accessibility attributes
+ * @param {string} options.ariaLabel - The aria-label text for the SVG
+ * @param {string} options.ariaLabelledBy - The ID of the element that labels the SVG
+ * @param {string} options.role - The ARIA role for the SVG (defaults to 'img')
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  if (!svgElement) return;
+  
+  const { ariaLabel, ariaLabelledBy, role = 'img' } = options;
+  
+  // Set the role attribute
+  if (role) {
+    svgElement.setAttribute('role', role);
+  }
+  
+  // Set aria-label if provided
+  if (ariaLabel) {
+    svgElement.setAttribute('aria-label', ariaLabel);
+  }
+  
+  // Set aria-labelledby if provided
+  if (ariaLabelledBy) {
+    svgElement.setAttribute('aria-labelledby', ariaLabelledBy);
+  }
+  
+  return svgElement;
+}
+
 // existing code...

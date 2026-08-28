@@ -1,6 +1,5 @@
 // main.js - Accessibility improvements implementation
 
-// TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed

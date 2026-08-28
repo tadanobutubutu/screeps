@@ -7,13 +7,45 @@ const logger = require('./utils/logger');
 let isInitialized = false;
 const appData = {};
 
-// TODO: Add back any required exports that might have been?
+// TODO: Implement validateLandmark functionality
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
+function validateLandmark(landmark) {
+  const errors = [];
+  
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+  
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+  
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+  
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
 
 function initialize(options = {}) {
   if (isInitialized) {
@@ -59,17 +91,8 @@ function modifiedFunction() {
   console.log('This function has been modified.');
 }
 
-// Export the new function if needed
-// export { newFunction };
-
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-// <!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
-// <!--- Any other modifications or additions go here --->
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 module.exports = {
+  validateLandmark,
   initialize,
   getAppState,
   setData,

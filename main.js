@@ -226,6 +226,9 @@ export { a11yStore };
 export { mainElement };
 export default a11yStore;
 
+// Additional required exports
+export const { updateLiveRegion, checkLandmarkElements, addSVGAccessibilityProps, preserveExistingCode } = a11yStore;
+
 // Import and export additional functions if needed (placeholder for actual modules)
 // Assuming 'utils' modules are required (example follows)
 // import { utilityFunction } from './utils.js';

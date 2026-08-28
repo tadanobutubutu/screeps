@@ -235,6 +235,7 @@ function addProperLandmarkRegions(insightReport) {
   });
 }
 
+// TODO: Identify and update specific functions that render dependency graphs or other visualizations for accessibility.
 function renderDependencyGraph() {
   // Find the dependencyGraph container element
   const dependencyGraph = document.getElementById('dependencyGraph') ||

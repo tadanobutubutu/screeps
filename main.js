@@ -1,6 +1,3 @@
-Here is the resolved file content, integrating both changes:
-
-```javascript
 const dependencyGraphContent = require('./dependencyGraph');
 
 // Update the renderDependencyGraph function
@@ -99,4 +96,3 @@ module.exports = {
   addressAccessibilityIssues,
   addressAccessibilityIssueForSpecificElement
 };
-```

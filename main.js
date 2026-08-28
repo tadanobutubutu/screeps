@@ -1,3 +1,6 @@
+// TODO: Create or update the affected functions to be accessible
+//------ BEGIN ORIGINAL CODE (unchanged)------
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 

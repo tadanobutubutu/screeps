@@ -24,3 +24,7 @@ function rotateBack() {
 // Additional accessibility-related code changes:
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
+
+// Note: The origin/main branch did not contain the conflict marker content, so the
+// existing implementation (HEAD) is preserved. Please paste the contents of
+// `main.js` from origin/main if further changes need to be merged.

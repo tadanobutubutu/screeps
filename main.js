@@ -1,5 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const { getModuleInfo } = require('./moduleInfo');
+
+// TODO: Add back any required exports that might have been removed
+// Here's an example of how to export a required function from another file:
 
 function renderDependencyGraph(dependencies) {
     // Placeholder for dependency graph rendering logic
@@ -40,7 +44,7 @@ function main() {
 
 // TODO: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // TODO: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// TODO: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
 // TODO: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // TODO: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -78,5 +82,8 @@ module.exports = {
     ensureUniqueLandmarks,
     validateLinkAccessibility,
     handleFakeLinks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    getModuleInfo,
+    fs,
+    path
 };

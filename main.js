@@ -1,92 +1,133 @@
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
-// Update the renderDependencyGraph function
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  return document.documentElement.lang || 'en';
+}
 
-// Address the issue: REACT_038
-// Replace `my-button` with 'buttonId' in the following line
-const buttonElement = document.getElementById('buttonId');
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return 'en';
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
+}
 
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-// Implement createInPageButton function for creating accessible in-page buttons
-const createInPageButton = (options) => {
-  const {
-    id,
-    text,
-    onClick,
-    ariaLabel,
-    ariaDescribedBy,
-    className,
-    tabIndex = 0,
-    type = 'button'
-  } = options;
-
-  // Create the button element
-  const button = document.createElement('button');
-  
-  // Set attributes
-  button.id = id;
-  button.type = type;
-  button.textContent = text;
-  button.className = className || '';
-  
-  // Set accessibility attributes
-  if (ariaLabel) {
-    button.setAttribute('aria-label', ariaLabel);
+// REACT_027: Fix table structure issues
+function validateTableAccessibility(table) {
+  if (!table) return { valid: false, issues: ['Table not found'] };
+  const issues = [];
+  if (!table.tHead && !table.querySelector('thead')) {
+    issues.push('Missing table header');
   }
-  if (ariaDescribedBy) {
-    button.setAttribute('aria-describedby', ariaDescribedBy);
+  if (!table.tBodies.length && !table.querySelector('tbody')) {
+    issues.push('Missing table body');
   }
-  
-  // Set tabindex for keyboard navigation
-  button.tabIndex = tabIndex;
-  
-  // Add event listener for click
-  if (onClick) {
-    button.addEventListener('click', onClick);
+  const rows = table.rows || table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table has no rows');
   }
-  
-  // Ensure keyboard accessibility
-  button.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      if (onClick) {
-        onClick(event);
-      }
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_017: Add/fix landmark issues
+function validateLandmark(landmark) {
+  if (!landmark) return { valid: false, issues: ['Landmark not found'] };
+  const issues = [];
+  const role = landmark.getAttribute('role');
+  const tag = landmark.tagName.toLowerCase();
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section'];
+  if (!role && !landmarkTags.includes(tag)) {
+    issues.push('Element is not a recognized landmark');
+  }
+  if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby') && tag === 'section') {
+    issues.push('Section landmark missing accessible name');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+function validateLandmarkStructure(container) {
+  if (!container) return { valid: false, issues: ['Container not found'] };
+  const issues = [];
+  const landmarks = container.querySelectorAll('header, nav, main, aside, footer, section, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="region"]');
+  if (landmarks.length === 0) {
+    issues.push('No landmarks found in container');
+  }
+  const mainLandmarks = container.querySelectorAll('main, [role="main"]');
+  if (mainLandmarks.length > 1) {
+    issues.push('Multiple main landmarks found');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks(container) {
+  if (!container) return { valid: false, issues: ['Container not found'] };
+  const issues = [];
+  const seen = new Map();
+  const landmarks = container.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+  landmarks.forEach((landmark) => {
+    const tag = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || tag;
+    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+    const key = `${role}:${label}`;
+    if (seen.has(key)) {
+      issues.push(`Duplicate landmark: ${role}`);
+    } else {
+      seen.set(key, true);
     }
   });
-  
+  return { valid: issues.length === 0, issues };
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const refElement = document.getElementById(ariaLabelledBy);
+    if (refElement) return refElement.textContent.trim();
+  }
+  const title = svg.querySelector('title');
+  if (title) return title.textContent.trim();
+  return '';
+}
+
+// REACT_036: Fix fake link issues
+function createInPageButton(label, targetId) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label;
+  button.setAttribute('aria-controls', targetId);
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      if (target.focus) target.focus();
+    }
+  });
   return button;
-};
+}
 
-// Export the function for creating in-page buttons
-exports.createInPageButton = createInPageButton;
-
-// Import accessibility helper functions and merge with existing ones
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
-// Export the functions for addressing new accessibility issues
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+function createAccessibleLink(href, text, options = {}) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  if (options.ariaLabel) {
+    link.setAttribute('aria-label', options.ariaLabel);
+  }
+  if (options.newWindow) {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  }
+  if (options.onClick) {
+    link.addEventListener('click', options.onClick);
+  }
+  return link;
+}
 
 // Screeps Main Entry Point
 // This file contains the main game loop and accessibility functions
@@ -106,3 +147,19 @@ exports.loop = loop;
 
 // Export the new function to validate landmark structure
 exports.validateLandmarkStructure = validateLandmarkStructure;
+
+// Module exports from accessibility helper functions
+module.exports = {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createAccessibleLink,
+};
+
+// Export the functions for addressing new accessibility issues
+exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;

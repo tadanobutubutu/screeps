@@ -1,3 +1,105 @@
+<<<<<<< HEAD
+=======
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
+
+// Basic utility functions
+export function calculateSum(a, b) {
+  return a + b;
+}
+
+export function calculateDifference(a, b) {
+  return a - b;
+}
+
+export function multiply(a, b) {
+  return a * b;
+}
+
+export function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
+  }
+  return a / b;
+}
+
+export function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+export function isEven(num) {
+  return num % 2 === 0;
+}
+
+export function isOdd(num) {
+  return num % 2 !== 0;
+}
+
+// Array utility functions
+export function sumArray(arr) {
+  return arr.reduce((acc, val) => acc + val, 0);
+}
+
+export function averageArray(arr) {
+  if (arr.length === 0) return 0;
+  return sumArray(arr) / arr.length;
+}
+
+export function findMax(arr) {
+  return Math.max(...arr);
+}
+
+export function findMin(arr) {
+  return Math.min(...arr);
+}
+
+// String utility functions
+export function reverseString(str) {
+  return str.split('').reverse().join('');
+}
+
+export function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function capitalizeWords(str) {
+  return str.split(' ').map(capitalize).join(' ');
+}
+
+// Additional utility functions
+export function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
+export function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + (item.price || 0), 0);
+}
+
+export function validateEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+export function capitalizeString(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+>>>>>>> origin/main
 /**
  * Accessibility improvements for main.js
  * Addresses issues from insight report:
@@ -9,7 +111,7 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
-// TODO: Address accessibility issues from insight report:
+// Accessibility functions are now accessible in main.js:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
@@ -31,7 +133,7 @@ export function addLangAttribute(html) {
       return match;
     }
     // Add lang attribute with 'en' as default
-    return `<html${atts} lang="en">`;
+    return `<html${attrs} lang="en">`;
   });
 }
 
@@ -56,7 +158,7 @@ export function fixTableStructureIssues(html) {
 
   // Ensure tables have associated caption or summary
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -64,11 +166,11 @@ export function fixTableStructureIssues(html) {
   });
 
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead') && !beforeTr.includes('<table')) {
       return `<tbody>${match}`;
     }
     return match;
@@ -79,12 +181,12 @@ export function fixTableStructureIssues(html) {
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
-    const hasTfoot = /<tfoot/i.test(table);
+    const hasTfoot = /<\/tfoot/i.test(table);
 
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
       if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/gi, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -101,7 +203,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
 
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main[\s>]/i.test(html)) {
     return html;
   }
 
@@ -110,7 +212,7 @@ export function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
+    const wrappedContent = `<main>${bodyContent}</main>`;
     return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
   }
 
@@ -118,7 +220,7 @@ export function addMainLandmark(html) {
 }
 
 /**
- * Adds accessible names to SVG elements using a new function
+ * Adds accessible names to SVG elements
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
@@ -139,14 +241,14 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
 
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']*)["']/);
+    const idMatch = attrs.match(/id=["']([^"']+)["']/);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}">`;
+      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
 
     // Add inline title for accessibility
     const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attrs} role="img"><title id="${titleId}">${label}</title></svg>`;
+    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
 
@@ -175,7 +277,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -183,7 +285,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -209,10 +311,17 @@ export function ensureUniqueLandmarks(html) {
 
   // Recompute counters after main -> section conversion
   landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
     const count = counters[lm] || 0;
     if (count === 0) return;
     const seen = {};
-    const openRegex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const openRegex = new RegExp(`<${lm}([^>]*?)>`, 'gi');
     html = html.replace(openRegex, (match, inner) => {
       // Skip if an id attribute is already present
       if (inner && inner.includes('id=')) {
@@ -236,7 +345,7 @@ export function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
 
   // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('href=')) {
       return match;
     }
@@ -244,7 +353,60 @@ export function fixFakeLinkIssue(html) {
   });
 }
 
-// NEW ADDITION
+/**
+ * Checks table structure for accessibility issues
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function checkTableStructure(html) {
+  if (typeof html !== 'string') return [];
+
+  const issues = [];
+  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch;
+
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const tableHtml = tableMatch[0];
+
+    // Check for caption
+    if (!/<caption\b/i.test(tableHtml)) {
+      issues.push('Table missing <caption> element');
+    }
+
+    // Check for summary attribute
+    if (!/\bsummary=/i.test(tableHtml)) {
+      issues.push('Table missing summary attribute');
+    }
+
+    // Check for th with scope
+    const thRegex = /<th\b([^>]*)>/gi;
+    let thMatch;
+    let thMissingScope = false;
+    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
+      const attrs = thMatch[1];
+      if (!/\bscope=/i.test(attrs)) {
+        thMissingScope = true;
+        break;
+      }
+    }
+    if (thMissingScope) {
+      issues.push('<th> missing scope attribute');
+    }
+
+    // Check for thead/tbody
+    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
+      issues.push('Table missing <thead> or <tbody> structure');
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Adds accessible names to SVG elements using an updated function
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with accessible SVG names
+ */
 export function addSvgAccessibleNamesUpdated(html) {
   if (typeof html !== 'string') return html;
 

@@ -29,10 +29,29 @@ function ensureUniqueLandmarks(filePath) {
 }
 
 function addSvgAccessibleNames(filePath) {
-  // ... existing code ...
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const svgRegex = /<svg[^>]*>[\s\S]*?<\/svg>/gi;
+  const svgs = content.match(svgRegex);
+
+  if (svgs) {
+    svgs.forEach((svg) => {
+      const hasTitle = /<title[^>]*>[\s\S]*?<\/title>/i.test(svg);
+      const hasDesc = /<desc[^>]*>[\s\S]*?<\/desc>/i.test(svg);
+
+      if (!hasTitle && !hasDesc) {
+        const newSvg = svg.replace(/<svg([^>]*)>/i, '<svg$1><title>SVG Image</title>');
+        updatedContent = updatedContent.replace(svg, newSvg);
+      }
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
+  console.log(`Added accessible names to SVGs for better accessibility in ${filePath}`);
 }
 
-function addRoleAndLabelToCheckbox(filePath) {
+function addressAccessibilityIssues(filePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   let updatedContent = content;
 
@@ -41,17 +60,17 @@ function addRoleAndLabelToCheckbox(filePath) {
     checkboxes.forEach((checkbox) => {
       updatedContent = updatedContent.replace(
         checkbox,
-        checkbox.replace('<input', '<input role="checkbox" aria-label="checkbox"')
+        '<input role="checkbox" aria-label="checkbox"'
       );
     });
   }
 
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Added role and label to checkboxes for better accessibility in ${filePath}`);
 }
 
 // New function to address accessibility issues
-function addressAccessibilityIssues(filePath) {
+function improveAccessibility(filePath) {
   // Example of a simple check for empty `alt` attribute in images
   const images = content.match(/<img [^>]*>/g);
   if (images) {
@@ -78,7 +97,7 @@ function addressAccessibilityIssues(filePath) {
   }
 
   // Write the updated content back to the file
-  fs.writeFileSync(filePath, updatedContent);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
   console.log(`Improved accessibility in ${filePath}`);
 }
 
@@ -95,7 +114,7 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
+  improveAccessibility,
   setLanguage,
 };

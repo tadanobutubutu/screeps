@@ -18,7 +18,7 @@ StructureSpawn.prototype.createCustomCreep =
     };
 
 module.exports.loop = function() {
-    var tower = Game.getObjectById('TOWER_ID');
+    var tower = Game.getObjectById('tower');
     if (tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: function(structure) {

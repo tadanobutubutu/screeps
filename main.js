@@ -271,7 +271,7 @@ function fixTableStructureIssues(container = document) {
       const thElements = row.querySelectorAll('th');
       thElements.forEach(th => {
         if (!th.hasAttribute('scope')) {
-          th.setAttribute('scope', rowIndex === 0 ? 'col' : 'row');
+          th.setAttribute('scope', 'col');
         }
       });
     });

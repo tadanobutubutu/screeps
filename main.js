@@ -53,6 +53,32 @@ function getRecommendation(issueType) {
 }
 
 /**
+ * New function to fix the React SVG Accessible Name issue
+ * @param {string} svgString - The SVG string to fix
+ * @returns {string} - SVG string with accessible name added
+ */
+function fixSVGAccessibleName(svgString) {
+  // Check if the SVG string already contains an accessible name
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('aria-describedby')) {
+    return svgString;
+  }
+  
+  // Create a temporary SVG element to parse the SVG string
+  const tempSVG = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+  const svgRoot = tempSVG.documentElement;
+  
+  // Check if the SVG is decorative and does not need an accessible name
+  const isDecorative = !svgRoot.querySelector('a, button, input, textarea, select, audio[controls], video[controls]');
+  if (isDecorative) {
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
+  }
+  
+  // Add an aria-label to the SVG if it's not decorative
+  const svgWithAriaLabel = svgString.replace('<svg', '<svg aria-label="SVG description"');
+  return svgWithAriaLabel;
+}
+
+/**
  * Generates a summary of addressed accessibility issues
  * @param {Array} addressedIssues - Array of addressed issues
  * @returns {string} - Summary text
@@ -66,11 +92,9 @@ function generateSummary(addressedIssues) {
   return `Addressed ${total} accessibility issues: ${critical} critical, ${moderate} moderate, ${low} low priority.`;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
-
 module.exports = {
   addressAccessibilityIssues,
   getRecommendation,
-  generateSummary
+  generateSummary,
+  fixSVGAccessibleName
 };

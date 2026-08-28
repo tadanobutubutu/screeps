@@ -1,18 +1,6 @@
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
-
-/**
- * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on
- */
-function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('.primary-content');
-  const main = doc.createElement('div');
-  main.className = 'main';
-
-  if (primaryContent.parentNode) {
-    primaryContent.parentNode.insertBefore(main, primaryContent);
-    main.appendChild(primaryContent);
-  }
+// main.js
+export function calculateTotal(items) {
+  return items.reduce((total, item) => total + item.price, 0);
 }
 
 // ADD THE NEW FUNCTION HERE
@@ -65,6 +53,10 @@ function getSvgAccessibleName(doc) {
   // ... (existing implementation for getting SVG accessible name)
 }
 
+function wrapPrimaryContentInMain(doc) {
+  // Placeholder: add appropriate implementation
+}
+
 const { addMissingExportFunction } = require('./missingExportFile');
 
 module.exports = {
@@ -78,7 +70,7 @@ module.exports = {
   validateLandmarkStructure,
   validateTableAccessibility,
   validateTableStructure,
-  wrapPrimaryContentInMain, // Add the new function to the exports
-  addMissingExportFunction, // Add the new function to the exports
+  wrapPrimaryContentInMain,
+  addMissingExportFunction,
   getSvgAccessibleName
 };

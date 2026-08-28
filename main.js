@@ -12,6 +12,12 @@ const { max } = require('./mathHelpers');
 const { min } = require('./mathHelpers');
 const { mode } = require('./mathHelpers');
 const { median } = require('./mathHelpers');
-// TODO: Add necessary exports for new functions
 
-module.exports = { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median };
+// TODO: Add necessary exports for new functions
+const newFunction1 = () => { /* ... */ };
+const newFunction2 = () => { /* ... */ };
+
+module.exports = {
+    add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
+    newFunction1, newFunction2
+};

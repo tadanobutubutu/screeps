@@ -87,6 +87,25 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
+// New function to convert fake links to buttons
+function convertFakeLinksToButtons(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  const fakeLinks = content.match(/<a id="unrotate" href="#">rotate back<\/a>/g);
+  if (fakeLinks) {
+    fakeLinks.forEach((fakeLink) => {
+      updatedContent = updatedContent.replace(
+        fakeLink,
+        `<button id="unrotate" type="button">rotate back</button>`
+      );
+    });
+  }
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Converted fake links to buttons in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -98,4 +117,5 @@ module.exports = {
   addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
   setLanguage,
+  convertFakeLinksToButtons,
 };

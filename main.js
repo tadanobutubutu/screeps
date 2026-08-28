@@ -19,19 +19,42 @@
 function setSvgAccessibilityProps(svgElement) {
   if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') return;
   
-  // Check for existing title element
   const hasTitle = svgElement.querySelector('title');
   const hasDesc = svgElement.querySelector('desc');
   const hasRole = svgElement.hasAttribute('role');
   
-  // Add role="img" if not present for meaningful SVGs
-  if (!hasRole && (hasTitle || hasDesc)) {
-    svgElement.setAttribute('role', 'img');
+  // Add focusable="false" for IE compatibility
+  if (!svgElement.hasAttribute('focusable')) {
+    svgElement.setAttribute('focusable', 'false');
   }
   
-  // If SVG has no title, desc, or role, mark as decorative
-  if (!hasTitle && !hasDesc && !hasRole) {
-    svgElement.setAttribute('role', 'img');
+  if (hasTitle || hasDesc) {
+    // Ensure meaningful SVGs have role="img"
+    if (!hasRole) {
+      svgElement.setAttribute('role', 'img');
+    }
+    
+    // Build aria-labelledby from title and desc element IDs
+    const referencedIds = [];
+    if (hasTitle) {
+      if (!hasTitle.id) {
+        hasTitle.id = 'svg-title';
+      }
+      referencedIds.push(hasTitle.id);
+    }
+    if (hasDesc) {
+      if (!hasDesc.id) {
+        hasDesc.id = 'svg-desc';
+      }
+      referencedIds.push(hasDesc.id);
+    }
+    svgElement.setAttribute('aria-labelledby', referencedIds.join(' '));
+    
+    if (hasDesc) {
+      svgElement.setAttribute('aria-describedby', hasDesc.id);
+    }
+  } else {
+    // Mark decorative SVGs as hidden from assistive technology
     svgElement.setAttribute('aria-hidden', 'true');
   }
   

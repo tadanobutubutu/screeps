@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been removed
+
 import React from 'react';
 
 const Table = ({ data }) => {
@@ -24,3 +26,4 @@ const Table = ({ data }) => {
 };
 
 export default Table;
+export { Table };

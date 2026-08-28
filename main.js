@@ -8,7 +8,8 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
+// Import your new function from your new module
+import { triggerAccessibilityMode } from 'path-to-your-new-module';
 // Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
@@ -40,7 +41,7 @@ function updateAriaAttributes() {
     const body = doc.body;
     if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
-      body.setAttribute('role', 'main');
+      body.setAttribute('role', 'application');
     }
   }
 }

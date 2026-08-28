@@ -1,8 +1,1 @@
-on
-[
-    {
-        "tool_call_id": "1",
-        "tool_name": "read",
-        "parameters": {"path": "/workspace/javascript-store-analyzer/main.js"}
-    }
-]
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

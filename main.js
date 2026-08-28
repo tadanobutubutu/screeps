@@ -1,5 +1,1 @@
-// Address accessibility issues from insight report: replaced `my-button` with actual button id
-
-document.getElementById('submit-btn').addEventListener('click', function() {
-  console.log('Button clicked');
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

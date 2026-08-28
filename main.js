@@ -450,11 +450,37 @@ function calculateDiscount(price, discountRate) {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-function getLangAttribute(element) {
-  return element.getAttribute('lang');
+// REACT_015: Get lang attribute with fallback
+function getLangAttribute() {
+  if (typeof document === 'undefined' || !document.documentElement) {
+    return 'en';
+  }
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+  return document.documentElement.lang;
+}
+
+function getFullLangAttribute() {
+  if (typeof document === 'undefined') return { lang: 'en', dir: 'ltr' };
+  const lang = document.documentElement.lang || 'en';
+  const dir = document.documentElement.dir || 'ltr';
+  return { lang, dir };
 }
 
 function createInPageButton() {
+  if (typeof document !== 'undefined' && document.body) {
+    const button = document.createElement('button');
+    button.textContent = 'Toggle Language';
+    button.setAttribute('aria-label', 'Toggle Language');
+    button.addEventListener('click', () => {
+      const currentLang = document.documentElement.lang;
+      document.documentElement.lang = (currentLang === 'en') ? 'fr' : 'en';
+    });
+    document.body.appendChild(button);
+    return button;
+  }
+  return null;
 }
 
 /**
@@ -658,54 +684,6 @@ function renderIndexView() {
   getLangAttribute();
   // Create in-page button for language toggle
   createInPageButton();
-}
-
-/**
- * Gets the lang attribute value from the document's HTML element.
- * If missing, sets it to 'en' and returns the value.
- * @returns {string|null} The lang attribute value or null if document is not available
- */
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = 'en';
-    }
-    return document.documentElement.lang;
-  }
-  return null;
-}
-
-/**
- * Creates an in-page button to toggle language settings.
- * @returns {HTMLButtonElement|null} The created button element or null if document is not available
- */
-function createInPageButton() {
-  if (typeof document !== 'undefined' && document.body) {
-    const button = document.createElement('button');
-    button.textContent = 'Toggle Language';
-    button.setAttribute('aria-label', 'Toggle Language');
-    button.addEventListener('click', () => {
-      const currentLang = document.documentElement.lang;
-      document.documentElement.lang = (currentLang === 'en') ? 'fr' : 'en';
-    });
-    document.body.appendChild(button);
-    return button;
-  }
-  return null;
-}
-
-/**
- * Adds lang attribute to the HTML element if missing.
- * @returns {HTMLElement|null} The HTML element or null if document is not available
- */
-function addLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = 'en';
-    }
-    return document.documentElement;
-  }
-  return null;
 }
 
 /**
@@ -958,22 +936,6 @@ function addressAccessibilityIssues() {
 }
 
 // Additional accessibility helper functions
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) return ariaLabel;
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    return labelElement ? labelElement.textContent : null;
-  }
-
-  const title = svgElement.querySelector('title');
-  return title ? title.textContent : null;
-}
-
 function setSvgAttributes(svgElement, accessibleName) {
   if (!svgElement || !accessibleName) return;
 
@@ -1566,7 +1528,26 @@ function addressAccessibilityIssues(container = document) {
   return results;
 }
 
-function validateLandmark() {
+// Create accessible link helper function (from origin/main)
+function createAccessibleLink(href, text, options = {}) {
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  if (options.ariaLabel) {
+    link.setAttribute('aria-label', options.ariaLabel);
+  }
+  if (options.newWindow) {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  }
+  if (options.onClick) {
+    link.addEventListener('click', options.onClick);
+  }
+  return link;
+}
+
+// Validate landmark elements function
+function validateLandmarkElements() {
   return true;
 }
 
@@ -1604,6 +1585,7 @@ module.exports = {
   addressAccessibilityIssues,
   // Additional accessibility helpers (origin/main)
   getLangAttribute,
+  getFullLangAttribute,
   createInPageButton,
   validateLandmark,
   validateLandmarkStructure,
@@ -1649,7 +1631,8 @@ module.exports = {
   setFormElementAccessibleNames,
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
-  validateLandmarkAttributes
+  validateLandmarkAttributes,
+  createAccessibleLink
 };
 
 // Make functions accessible globally for browser usage

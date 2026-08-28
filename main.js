@@ -33,6 +33,51 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+// Function to add proper landmark regions to improve accessibility
+function addLandmarkRegions(document) {
+  if (!document) {
+    return [];
+  }
+
+  const landmarks = [];
+
+  // Add <header> landmark if not present
+  if (document.body && !document.querySelector('header, [role="banner"]')) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.insertBefore(header, document.body.firstChild);
+    landmarks.push({ type: 'header', element: header });
+  }
+
+  // Add <nav> landmark if not present
+  if (!document.querySelector('nav, [role="navigation"]')) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Main navigation');
+    document.body.insertBefore(nav, document.body.children[1] || null);
+    landmarks.push({ type: 'nav', element: nav });
+  }
+
+  // Add <main> landmark if not present
+  if (!document.querySelector('main, [role="main"]')) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    document.body.appendChild(main);
+    landmarks.push({ type: 'main', element: main });
+  }
+
+  // Add <footer> landmark if not present
+  if (!document.querySelector('footer, [role="contentinfo"]')) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.appendChild(footer);
+    landmarks.push({ type: 'footer', element: footer });
+  }
+
+  return landmarks;
+}
+
 module.exports = {
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  addLandmarkRegions
 };

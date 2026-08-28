@@ -1,12 +1,6 @@
-// Existing code from main.js (with conflict markers removed for clarity)
 const existingFunction = () => {
   // Existing function logic
 };
-
-// TODO: Add any other missing exports that might have been?
-
-// Exporting existing functions
-export { existingFunction };
 
 // New function for REACT_031: Add 'aria-hidden' to decorative SVGs
 function addAriaHiddenToDecorativeSVGs() {
@@ -35,8 +29,22 @@ function validateLandmark(landmark) {
     typeof landmark.name === 'string' &&
     landmark.name.trim() !== '' &&
     landmark.coordinates &&
-    typeof landmark.coordinates === 'object'
+    typeof landmark.coordinates === 'object' &&
+    typeof landmark.coordinates.lat === 'number' &&
+    typeof landmark.coordinates.lng === 'number' &&
+    landmark.coordinates.lat >= -90 &&
+    landmark.coordinates.lat <= 90 &&
+    landmark.coordinates.lng >= -180 &&
+    landmark.coordinates.lng <= 180
   );
+}
+
+function isLatitudeValid(lat) {
+  return lat >= -90 && lat <= 90;
+}
+
+function isLongitudeValid(lng) {
+  return lng >= -180 && lng <= 180;
 }
 
 /**
@@ -106,9 +114,12 @@ function removeLandmarkRegion(id) {
 // Exporting the new function and landmark utilities
 export {
   existingFunction,
+  addAriaHiddenToDecorativeSVGs,
   newAccessibleFunction,
   addLandmarkRegionToElement,
   validateLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
   addLandmarkRegion,
   getLandmarkRegions,
   getLandmarkRegionById,

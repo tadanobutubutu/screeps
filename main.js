@@ -3,6 +3,12 @@ import './table-styles.css';
 
 // main.js - Entry point for the application
 
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
 
 /**

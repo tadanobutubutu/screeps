@@ -58,9 +58,14 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
+const Safety = {
+  // ...
+};
+
 module.exports = {
   function1,
   function2,
   function3,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  Safety
 };

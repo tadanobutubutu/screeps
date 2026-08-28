@@ -171,26 +171,7 @@ function ensureUniqueLandmarks(element) {
   });
 }
 
-function addProperLandmarkRegions(insightReport) {
-  const issues = insightReport ? insightReport.issues || [] : [];
-  let uniqueLandmarks = {};
-
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_025') {
-      const element = document.querySelector(issue.selector);
-
-      // If the landmark role exists, add it to the unique landmarks object
-      if (element && issue.ariaRole) {
-        if (!uniqueLandmarks[issue.ariaRole]) {
-          uniqueLandmarks[issue.ariaRole] = true;
-        } else {
-          // Remove the role if it's not unique
-          element.removeAttribute('role');
-        }
-      }
-    }
-  });
-
+function addProperLandmarkRegions() {
   // Define the standard landmark roles that should be present
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
@@ -233,6 +214,23 @@ function addProperLandmarkRegions(insightReport) {
       }
     }
   });
+
+  // Ensure only one main landmark exists
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    // Keep the first one with the role, remove from others
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].removeAttribute('role');
+    }
+  }
+
+  // Ensure only one contentinfo landmark exists (usually in footer)
+  const contentinfoElements = document.querySelectorAll('footer, [role="contentinfo"]');
+  if (contentinfoElements.length > 1) {
+    for (let i = 1; i < contentinfoElements.length; i++) {
+      contentinfoElements[i].removeAttribute('role');
+    }
+  }
 }
 
 function renderDependencyGraph() {
@@ -282,7 +280,6 @@ function checkTableStructure() {
   });
 }
 
-// TODO: Implement this function for checking landmark elements
 function checkLandmarkElements() {
   const results = [];
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -355,7 +352,6 @@ function setSvgAccessibleNames() {
   });
 }
 
-// TODO: Implement this function for adding SVG accessibility props
 function addSvgAccessibilityProps() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {

@@ -3,13 +3,21 @@ import React from 'react';
 
 function MyComponent() {
   // Old code that needs to be updated
-  <div lang="en">
-    {/* Content */}
-  </div>
+  return (
+    <div lang="en">
+      {/* Content */}
+    </div>
+  );
 }
 
 export default MyComponent;
 
-<div lang="en">
-  <span id="content">Content</span>
-</div>
+// New changes according to the issue
+function updateAccessibility() {
+  const container = document.querySelector('#dependencyGraph');
+  if (container) {
+    container.setAttribute('role', 'application');
+  }
+}
+
+export { updateAccessibility };

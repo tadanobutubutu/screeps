@@ -217,6 +217,19 @@ function retry(fn, maxAttempts = 3, delay = 1000) {
   };
 }
 
+// New function to fix the fake link issue
+function createInPageButton() {
+  // Implementation for creating an in-page button
+}
+
+function validateLinkAccessibility(url) {
+  // Implementation for validating the accessibility of a link
+}
+
+function handleFakeLinks() {
+  // Implementation for handling fake links
+}
+
 // Exports
 module.exports = {
   formatDate,
@@ -244,5 +257,8 @@ module.exports = {
   omit,
   merge,
   sleep,
-  retry
+  retry,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

@@ -1,5 +1,3 @@
-// Assuming the file is located at components/Dashboard.tsx
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
@@ -28,7 +26,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   };
 
   return (
-    <main role="main" aria-label="エラーダッシュボード">
+    <main role="main">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -70,7 +68,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+          <span>{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button

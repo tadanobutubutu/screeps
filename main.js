@@ -109,7 +109,7 @@ function validateLandmarkStructure() {
   }
 
   // Check for nested landmarks of the same type
-  const allLandmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"], [role="region"], [role="article"], [role="aside"], [role="figure"], [role="footer"], [role="header"], [role="landmark"], main, header, footer, aside, nav, section[aria-label], form[aria-label]');
+  const allLandmarks = document.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"], [role="region"], [role="article"], [role="aside"], [role="figure"], [role="footer"], [role="header"], [role="landmark"], main, "header", "footer", "aside", "nav", section[aria-label], form[aria-label]');
 
   allLandmarks.forEach(landmark => {
     const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
@@ -176,6 +176,10 @@ function addressAccessibilityIssueForSpecificElement(element, issue) {
 
 // Implement the function for addressing the new accessibility issues
 function addressAccessibilityIssues() {
+  addLangAttribute();
+  addMainLandmark();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
   validateTableStructure();
   validateLandmarkStructure();
   // Additional accessibility issue handling can be added here
@@ -302,7 +306,59 @@ function addSvgAccessibleNames() {
  * @returns {Object} An object containing uniqueness information
  */
 function ensureUniqueLandmarks() {
-  // (code for ensureUniqueLandmarks remains the same)
+  const results = {
+    mainKept: 0,
+    mainRemoved: 0,
+    landmarksLabeled: 0
+  };
+
+  // Handle main landmarks - keep only the first one
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length > 1) {
+    // Keep the first main element, remove others or change their role
+    for (let i = 1; i < mainElements.length; i++) {
+      const main = mainElements[i];
+      if (main.hasAttribute('role')) {
+        main.removeAttribute('role');
+      } else {
+        main.style.display = 'none';
+      }
+      results.mainRemoved++;
+    }
+  }
+  if (mainElements.length >= 1) {
+    results.mainKept = 1;
+  }
+
+  // Handle navigation landmarks - add unique labels if missing
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  const navLabels = ['Primary', 'Secondary', 'Tertiary', 'Footer', 'Sidebar'];
+  let navIndex = 0;
+  navElements.forEach(nav => {
+    const hasLabel = nav.hasAttribute('aria-label') || nav.hasAttribute('aria-labelledby');
+    if (!hasLabel) {
+      const label = navLabels[navIndex] || `Navigation ${navIndex + 1}`;
+      nav.setAttribute('aria-label', label);
+      results.landmarksLabeled++;
+    }
+    navIndex++;
+  });
+
+  // Handle complementary landmarks (asides)
+  const asideElements = document.querySelectorAll('aside, [role="complementary"]');
+  const asideLabels = ['Related Content', 'Additional Information'];
+  let asideIndex = 0;
+  asideElements.forEach(aside => {
+    const hasLabel = aside.hasAttribute('aria-label') || aside.hasAttribute('aria-labelledby');
+    if (!hasLabel) {
+      const label = asideLabels[asideIndex] || `Aside ${asideIndex + 1}`;
+      aside.setAttribute('aria-label', label);
+      results.landmarksLabeled++;
+    }
+    asideIndex++;
+  });
+
+  return results;
 }
 
 /**

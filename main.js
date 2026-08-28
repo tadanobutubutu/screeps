@@ -4,15 +4,20 @@ import App from './App'; // Assuming the App component is in the same directory
 
 // Main application logic
 
-document.addEventListener('DOMContentLoaded', () => {
-  const unrotateBtn = document.getElementById('unrotate');
+// Function to reset body rotation
+export function resetRotation() {
+  document.body.style.transform = 'rotate(0deg)';
+  document.body.style.transition = 'transform 0.3s ease';
+}
+
+... () => {
+  const unrotateBtn = ...
   
   if (unrotateBtn) {
-    unrotateBtn.addEventListener('click', (e) => {
+    ... (e) => {
       e.preventDefault();
       // Rotate back logic
-      document.body.style.transform = 'rotate(0deg)';
-      document.body.style.transition = 'transform 0.3s ease';
+      resetRotation();
     });
   }
 });
@@ -21,7 +26,7 @@ ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );
 
 // Export any existing functions

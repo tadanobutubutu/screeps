@@ -11,6 +11,16 @@ import './table-styles.css';
 
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
 
+// TODO: Update or create the affected functions to be accessible
+
+let internalFunction1 = (arg1, arg2) => {
+  // Implementation of the new function (adjust as necessary)
+};
+
+let internalFunction2 = () => {
+  // Implementation of the new function (adjust as necessary)
+};
+
 /**
  * Ensures the element has an id. If the element doesn't have an id, generates one.
  * @param {HTMLElement} element - The element to check
@@ -163,6 +173,12 @@ const functionB = {
 };
 
 module.exports = {
+  // Existing exported functions/objects
+  function1: function1,
+  function2: function2,
+  // New function exports
+  internalFunction1,
+  internalFunction2,
   ensureElementHasId,
   addAriaLabel,
   setLanguageAttribute,

@@ -207,7 +207,47 @@ function setSvgAccessibilityProps(svgElement) {
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
-  // (code for isLinkAccessible remains the same)
+  // TODO: Implement this function for checking link accessibility
+  if (!link || !(link instanceof HTMLElement)) {
+    return false;
+  }
+
+  // A link is considered accessible if:
+  // 1. It has an href attribute
+  // 2. It has discernible text content (not empty)
+  // 3. The text content is not only whitespace
+  // 4. The link does not have an aria-label that is empty
+
+  // Check for href attribute
+  if (!link.hasAttribute('href')) {
+    return false;
+  }
+
+  // Check for discernible text content
+  const textContent = link.textContent.trim();
+  if (textContent.length === 0) {
+    // If no text content, check for aria-label
+    const ariaLabel = link.getAttribute('aria-label');
+    if (!ariaLabel || ariaLabel.trim().length === 0) {
+      return false;
+    }
+  }
+
+  // Check for aria-labelledby pointing to a valid element with content
+  if (link.hasAttribute('aria-labelledby')) {
+    const labelledById = link.getAttribute('aria-labelledby');
+    const labelElement = document.getElementById(labelledById);
+    if (!labelElement || !labelElement.textContent.trim()) {
+      return false;
+    }
+  }
+
+  // Check that the link is not disabled
+  if (link.hasAttribute('aria-disabled') && link.getAttribute('aria-disabled') === 'true') {
+    return false;
+  }
+
+  return true;
 }
 
 /**

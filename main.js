@@ -358,6 +358,16 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
+// Standalone utility function to check if user prefers reduced motion
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Standalone utility function to check if user prefers high contrast
+export function prefersHighContrast() {
+  return window.matchMedia('(prefers-contrast: more)').matches;
+}
+
 // Export for module usage
 export { a11yStore };
 export { addressAccessibilityIssues };

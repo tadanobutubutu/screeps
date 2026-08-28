@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 /**
  * Adds SVG accessibility properties to an attributes object
  * and HTML element accessibility functions
@@ -18,6 +21,7 @@ function addSvgAccessibilityProps(el, options = {}) {
   // It's an HTML element
   if (el.tagName.toLowerCase() === 'svg') {
     addSvgAccessibilityPropsToAttrs(el.attributes, options);
+    applySvgAccessibilityToElement(el, options); // New functionality
   }
 
   // Add HTML element accessibility functions
@@ -115,6 +119,28 @@ function addSvgAccessibilityPropsToAttrs(attrs, options = {}) {
   return { ...newAttrs, ...ariaProps };
 }
 
+// New function to apply accessibility functions to SVG element
+function applySvgAccessibilityToElement(el, options) {
+  // Add title element
+  if (options.title) {
+    const titleEl = document.createElement('title');
+    titleEl.textContent = options.title;
+    el.appendChild(titleEl);
+  }
+
+  // Add description element
+  if (options.description) {
+    const descriptionEl = document.createElement('desc');
+    descriptionEl.textContent = options.description;
+    el.appendChild(descriptionEl);
+  }
+
+  // Add aria-label
+  if (options.label) {
+    el.setAttribute('aria-label', options.label);
+  }
+}
+
 import React from 'react';
 
 // Additional utility functions
@@ -160,6 +186,7 @@ export {
   checkTableAccessibility,
   performTableAccessibilityCheck,
   addSvgAccessibilityProps,
+  applySvgAccessibilityToElement // New exported function
 };
 
 module.exports = {
@@ -193,7 +220,11 @@ module.exports = {
   checkTableAccessibility,
   performTableAccessibilityCheck,
   addSvgAccessibilityProps,
+  applySvgAccessibilityToElement // New exported function
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, performTableAccessibilityCheck, addSvgAccessibilityProps };
+// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, performTableAccessibilityCheck, addSvgAccessibilityProps, applySvgAccessibilityToElement };
+```
+
+In this file, the new functionality has been integrated by adding the `applySvgAccessibilityToElement` function that is responsible for applying accessibility functions directly to the SVG element. This function is called when the `el` argument passed to the `addSvgAccessibilityProps` function is an `HTMLSVGElement`. Additionally, the new function has been included as an export from the module.

@@ -1,4 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
+// Replaced with implementation
 //------ BEGIN ORIGINAL CODE (unchanged)------
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -87,10 +87,10 @@ const addSkipLink = (document) => {
     skipLink.style.top = '-40px';
   });
 
-  if (document.body.firstChild) {
+  if (document.body) {
     document.body.insertBefore(skipLink, document.body.firstChild);
   } else {
-    document.body.appendChild(skipLink);
+    document.documentElement.insertBefore(skipLink, document.documentElement.firstChild);
   }
 
   return document;
@@ -159,7 +159,7 @@ const addProperLandmarkRegions = (document) => {
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll(`#${type}`)).map(el => el.id);
+        const existingIds = Array.from(document.querySelectorAll(`#${type}-${idSuffix}`)).map(el => el.id);
         let id = `${type}-${idSuffix}`;
         while (existingIds.includes(id)) {
           idSuffix++;
@@ -177,13 +177,13 @@ const addressAccessibilityIssues = (document) => {
     return document;
   }
 
+  wrapPrimaryContentInMain(document);
+  addSkipLink(document);
   addLangAttribute(document);
   fixTableStructureIssues(document);
-  addMainLandmark(document);
   ensureUniqueLandmarks(document);
   addSvgAccessibleNames(document);
   fixFakeLinkIssue(document);
-  addProperLandmarkRegions(document);
 
   return document;
 };
@@ -222,7 +222,7 @@ const fixTableStructureIssues = (document) => {
       }
     }
 
-    if (table.querySelector('tbody') === null) {
+    if (!table.querySelector('tbody')) {
       const rows = Array.from(table.querySelectorAll('tr'));
       if (rows.length > 0) {
         const newTbody = document.createElement('tbody');
@@ -233,12 +233,12 @@ const fixTableStructureIssues = (document) => {
 
     const thead = table.querySelector('thead');
     if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
+      Array.from(thead.querySelectorAll('th')).forEach(th => th.setAttribute('scope', 'col'));
     }
 
     const tbodies = table.querySelectorAll('tbody');
     tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
+      Array.from(tbody.querySelectorAll('th')).forEach(th => th.setAttribute('scope', 'row'));
     });
   });
   return document;
@@ -249,7 +249,7 @@ const ensureUniqueLandmarks = (document) => {
   const usedIds = new Set();
 
   landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
+    const elements = document.querySelectorAll(`[role="${type}"]`);
     elements.forEach((element) => {
       if (!element.id) {
         let idSuffix = 1;
@@ -269,7 +269,7 @@ const addSvgAccessibleNames = (document) => {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
+    if (!svg.querySelector('title') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = `SVG ${svgIndex + 1}`;
       title.id = `svg-title-${svgIndex + 1}`;
@@ -282,7 +282,7 @@ const addSvgAccessibleNames = (document) => {
 };
 
 const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
+  const fakeLinks = document.querySelectorAll('[role="link"], a:not([href])');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
     if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {

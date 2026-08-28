@@ -183,7 +183,7 @@ function ensureUniqueLandmarks(element) {
   });
 }
 
-function addProperLandmarkRegions() {
+function addProperLandmarkRegions(insightReport) {
   const issues = insightReport ? insightReport.issues || [] : [];
   let uniqueLandmarks = {};
 
@@ -302,4 +302,74 @@ function checkLandmarkElements() {
   // Mapping of semantic HTML tags to their landmark roles
   const semanticToLandmark = {
     'main': 'main',
-    'nav
+    'nav': 'navigation',
+    'search': 'search',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  };
+  
+  // Check each semantic element for proper landmark role
+  Object.entries(semanticToLandmark).forEach(([tag, expectedRole]) => {
+    const elements = document.querySelectorAll(tag);
+    
+    elements.forEach(el => {
+      const currentRole = el.getAttribute('role');
+      
+      // Check if the element has a role attribute
+      if (!currentRole) {
+        results.push({
+          element: el,
+          tag: tag,
+          issue: `Element <${tag}> is missing required landmark role="${expectedRole}"`
+        });
+      } else if (currentRole !== expectedRole) {
+        results.push({
+          element: el,
+          tag: tag,
+          issue: `Element <${tag}> has incorrect role="${currentRole}", expected "${expectedRole}"`
+        });
+      }
+    });
+  });
+  
+  // Check for duplicate landmark roles
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          results.push({
+            element: el,
+            role: role,
+            issue: `Duplicate landmark: role="${role}" should only appear once in the page`
+          });
+        }
+      });
+    }
+  });
+  
+  // Check that main landmark exists
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  if (mainElements.length === 0) {
+    results.push({
+      element: null,
+      issue: 'Page is missing a main landmark (<main> or role="main")'
+    });
+  }
+  
+  // Check that navigation landmarks have accessible names if multiple exist
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  navElements.forEach((nav, index) => {
+    const hasLabel = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
+    if (navElements.length > 1 && !hasLabel) {
+      results.push({
+        element: nav,
+        issue: `Navigation landmark #${index + 1} is missing an accessible name (aria-label)`
+      });
+    }
+  });
+  
+  return results;
+}

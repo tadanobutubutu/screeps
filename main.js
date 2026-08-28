@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
@@ -81,10 +78,13 @@ function validateLandmarkStructure() {
 
 // New function: getSvgAccessibleName
 function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+
   // Check for aria-label
   if (svgElement.hasAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label');
   }
+
   // Check for aria-labelledby
   if (svgElement.hasAttribute('aria-labelledby')) {
     const ids = svgElement.getAttribute('aria-labelledby').split(' ');
@@ -99,18 +99,21 @@ function getSvgAccessibleName(svgElement) {
       return labels.join(' ');
     }
   }
+
   // Check for title element
   const title = svgElement.querySelector('title');
   if (title) {
     return title.textContent.trim();
   }
-  // Check for desc element (often used as description, but can be used as name)
+
+  // Check for desc element
   const desc = svgElement.querySelector('desc');
   if (desc) {
     return desc.textContent.trim();
   }
+
   // Fallback to text content
-  return svgElement.textContent.trim() || '';
+  return svgElement.textContent.trim();
 }
 
 // Implement the function for addressing the new accessibility issues
@@ -203,6 +206,33 @@ function renderIndexView() {
   document.body.appendChild(button);
 }
 
+// Utility functions (added from the new changes)
+function formatDate(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function generateId() {
+  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+}
+
+// ... other utility functions if necessary ...
+
 // Maintain the existing content from origin/main
 // ...
 
@@ -248,4 +278,3 @@ module.exports = {
 export { a11yStore };
 export { addressAccessibilityIssues };
 export default a11yStore;
-```

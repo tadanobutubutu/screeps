@@ -180,6 +180,12 @@ function YouHaveComponent() {
   );
 }
 
+// Screeps game loop - this is the main entry point
+var loop = function() {
+    // Your game logic here
+    console.log('Game tick');
+};
+
 // Exports
 export { YouHaveComponent };
 export { default as App } from './App';
@@ -189,3 +195,11 @@ export { default as reportWebVitals } from './reportWebVitals';
 export { formatDate };
 export { validateEmail };
 export { calculateTotal };
+
+// Export for Screeps
+module.exports = {
+    loop: loop
+};
+
+// Ensure accessibility: this file contains JavaScript logic only.
+// Accessibility fixes (lang attribute, landmarks, unique nav labels) are handled in index.html

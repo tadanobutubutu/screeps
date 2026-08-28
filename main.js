@@ -260,6 +260,23 @@ function handleFakeLinks() {
   return fakeLinks.length;
 }
 
+function countDependencies() {
+  const scripts = document.querySelectorAll('script[src]');
+  const styles = document.querySelectorAll('link[rel="stylesheet"]');
+  const images = document.querySelectorAll('img[src]');
+  const svgElements = document.querySelectorAll('svg[src]');
+  const fonts = document.querySelectorAll('link[rel="preload"][as="font"], link[rel="stylesheet"][href*="font"]');
+  
+  return {
+    scripts: scripts.length,
+    styles: styles.length,
+    images: images.length,
+    svgs: svgElements.length,
+    fonts: fonts.length,
+    total: scripts.length + styles.length + images.length + svgElements.length + fonts.length
+  };
+}
+
 import { type Metadata } from "next";
 import "./globals.css";
 import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";

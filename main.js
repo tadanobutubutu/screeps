@@ -1,1 +1,27 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: Implement function for adding proper landmark regions
+
+/**
+ * Function to add proper landmark regions to the page for accessibility
+ * Landmark regions help assistive technologies navigate the page structure
+ */
+function addLandmarkRegions() {
+  const landmarks = [
+    { tag: 'header', role: 'banner', id: 'site-header' },
+    { tag: 'nav', role: 'navigation', id: 'main-nav', ariaLabel: 'Main navigation' },
+    { tag: 'main', role: 'main', id: 'main-content' },
+    { tag: 'aside', role: 'complementary', id: 'sidebar' },
+    { tag: 'footer', role: 'contentinfo', id: 'site-footer' }
+  ];
+
+  landmarks.forEach(landmark => {
+    const element = document.createElement(landmark.tag);
+    element.id = landmark.id;
+    element.setAttribute('role', landmark.role);
+    if (landmark.ariaLabel) {
+      element.setAttribute('aria-label', landmark.ariaLabel);
+    }
+    document.body.appendChild(element);
+  });
+}
+
+module.exports = { addLandmarkRegions };

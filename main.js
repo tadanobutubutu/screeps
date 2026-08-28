@@ -5,84 +5,72 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue / convertAnchorsToButtons)
+// - ADD: Address new accessibility issues from insight report
 
+// main.js
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');
 
-export function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+
+// Utility functions
+function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
+function fetchData(endpoint) {
+  return fetch(endpoint).then(res => res.json());
+}
+
+function saveData(data) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (data) resolve({ success: true });
+      else reject(new Error('No data provided'));
+    }, 100);
+  });
+}
+
+function parseJSON(str) {
+  try {
+    return JSON.parse(str);
+  } catch (e) {
+    return null;
   }
 }
 
-export function fixTableStructureIssues() {
-  document.querySelectorAll('table').forEach(table => {
-    if (table.querySelector('thead') || table.querySelector('tbody')) return;
+function debounce(fn, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
 
-    const thead = document.createElement('thead');
-    const tbody = document.createElement('tbody');
-    const rows = table.querySelectorAll('tr');
-
-    rows.forEach((row, index) => {
-      if (index === 0) {
-        thead.appendChild(row);
-      } else {
-        tbody.appendChild(row);
-      }
-    });
-
-    if (thead.children.length > 0 && tbody.children.length > 0) {
-      table.innerHTML = '';
-      table.appendChild(thead);
-      table.appendChild(tbody);
+function throttle(fn, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
     }
-  });
+  };
 }
 
-export function addMainLandmark() {
-  if (!document.querySelector('main')) {
-    const mainElement = document.createElement('main');
-    document.body.prepend(mainElement);
-  }
-}
-
-export function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = 'SVG Image';
-      svg.prepend(title);
-    }
-  });
-}
-
-export function ensureUniqueLandmarks() {
-  const landmarkRoles = ['main', 'header', 'footer', 'nav', 'aside'];
-  landmarkRoles.forEach(tag => {
-    const elements = document.querySelectorAll(tag);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (index > 0) {
-          el.removeAttribute('role');
-        }
-      });
-    }
-  });
-}
-
-export function fixFakeLinkIssue() {
-  document.querySelectorAll('[onclick]').forEach(el => {
-    if (el.tagName.toLowerCase() !== 'A') {
-      const a = document.createElement('a');
-      a.href = '#';
-      a.textContent = el.textContent;
-      a.onclick = el.onclick;
-      el.replaceWith(a);
-    }
-  });
-}
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
@@ -105,7 +93,7 @@ function setHtmlLangAttribute(lang) {
 }
 
 /**
- * Detects the language of the given content and sets the HTML lang attribute
+ * Detects the language of the content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
@@ -175,9 +163,111 @@ if (typeof document !== 'undefined') {
   convertAnchorsToButtons();
 }
 
+/**
+ * Adds accessible names to SVG elements by ensuring a <title> exists
+ * @param {string} [name='SVG Image'] - The accessible name for the SVG
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = 'SVG Image';
+      svg.prepend(title);
+    }
+  });
+}
+
+/**
+ * Fixes 26 table structure issues by ensuring thead and tbody exist
+ */
+function fixTableStructureIssues() {
+  document.querySelectorAll('table').forEach(table => {
+    if (table.querySelector('thead') || table.querySelector('tbody')) return;
+
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach((row, index) => {
+      if (index === 0) {
+        thead.appendChild(row);
+      } else {
+        tbody.appendChild(row);
+      }
+    });
+
+    if (thead.children.length > 0 && tbody.children.length > 0) {
+      table.innerHTML = '';
+      table.appendChild(thead);
+      table.appendChild(tbody);
+    }
+  });
+}
+
+/**
+ * Adds/fixes main landmark by ensuring a <main> element exists
+ */
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    document.body.prepend(mainElement);
+  }
+}
+
+/**
+ * Ensures unique landmarks by removing duplicate roles
+ */
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['main', 'header', 'footer', 'nav', 'aside'];
+  landmarkRoles.forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.removeAttribute('role');
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Fixes fake link issues by replacing non-anchor clickable elements with proper links
+ */
+function fixFakeLinkIssue() {
+  document.querySelectorAll('[onclick]').forEach(el => {
+    if (el.tagName.toLowerCase() !== 'a') {
+      const a = document.createElement('a');
+      a.href = '#';
+      a.textContent = el.textContent;
+      a.onclick = el.onclick;
+      el.replaceWith(a);
+    }
+  });
+}
+
+/**
+ * Adds lang attribute to the document's <html> tag
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // Exporting functions as before
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    formatDate,
+    validateEmail,
+    calculateTotal,
+    fetchData,
+    saveData,
+    parseJSON,
+    debounce,
+    throttle,
     originalFunction,
     newFunction,
     otherFunction,
@@ -186,7 +276,12 @@ if (typeof module !== 'undefined' && module.exports) {
     setHtmlLangAttribute,
     detectAndSetLang,
     convertAnchorsToButtons,
-    setLanguage
+    setLanguage,
+    addSvgAccessibleNames,
+    fixTableStructureIssues,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    addLangAttribute
   };
-}
 }

@@ -19,6 +19,14 @@ function rotateBack() {
 // Now, let's assume the component file is named MyComponent.js and is imported into main.js:
 import MyComponent from './MyComponent';
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+
 const renderDependencyGraph = (dependencyGraph, container) => {
   // Render the dependency graph using the dependencyGraphContent
   const graphContent = dependencyGraphContent;
@@ -33,16 +41,6 @@ export const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // This is a placeholder function and should be replaced with the actual implementation
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
 };
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 function validateLandmark(role, element) {
   const results = {
@@ -275,7 +273,7 @@ function getSvgAccessibleName(svgElement) {
     return title.textContent.trim();
   }
   
-  if (svgElement.getAttribute('aria-label')) {
+  if (svgElement.hasAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label');
   }
   

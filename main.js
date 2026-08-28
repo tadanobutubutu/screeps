@@ -112,7 +112,7 @@ function addMainLandmark(document) {
 // Function to ensure unique landmarks (combined approach)
 function ensureUniqueLandmarks(document) {
   // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
+  // ... unique landmarks implementation for origin/main
 }
 
 // Function to add accessible name to SVG
@@ -231,6 +231,37 @@ function uniqueLandmarks(document) {
       });
     }
   });
+}
+
+// Function to add proper landmark regions with accessible names
+function addProperLandmarkRegions(document) {
+  const candidates = document.querySelectorAll('section, article, aside, nav, [data-region], [data-landmark]');
+  
+  candidates.forEach((element, index) => {
+    const role = element.getAttribute('role');
+    const hasAriaLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+    const isAlreadyLandmark = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'].includes(role);
+    
+    if (!isAlreadyLandmark) {
+      element.setAttribute('role', 'region');
+      
+      if (!hasAriaLabel) {
+        const heading = element.querySelector('h1, h2, h3, h4, h5, h6');
+        if (heading) {
+          element.setAttribute('aria-label', heading.textContent.trim());
+        } else {
+          element.setAttribute('aria-label', `Region ${index + 1}`);
+        }
+      }
+    } else if (!hasAriaLabel && role === 'region') {
+      const heading = element.querySelector('h1, h2, h3, h4, h5, h6');
+      if (heading) {
+        element.setAttribute('aria-label', heading.textContent.trim());
+      }
+    }
+  });
+  
+  return document;
 }
 
 // Address accessibility issues from insight report for image alt texts
@@ -372,6 +403,7 @@ function addressAccessibilityIssues(document) {
   document = fixLandmarkIssues(document);
   document = addMainLandmark(document);
   document = addLandmarkRegions(document);
+  document = addProperLandmarkRegions(document);
   document = ensureUniqueLandmarks(document);
   document = uniqueLandmarks(document);
   document = addSvgAccessibleNames(document);
@@ -403,6 +435,7 @@ export {
   fixFakeLinkIssues,
   fixLandmarkIssues,
   addLandmarkRegions,
+  addProperLandmarkRegions,
   uniqueLandmarks,
   fixImageAltTexts,
   googleSignIn,

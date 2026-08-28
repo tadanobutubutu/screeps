@@ -5,6 +5,16 @@
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 
+// Main application entry point
+
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
+
+// Application initialization
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
+});
+
 function add(a, b) {
   return a + b;
 }
@@ -36,38 +46,65 @@ function setLanguageAttribute(languageCode) {
 
 setLanguageAttribute('en');
 
-// Import the modules if necessary
-// ... (Add necessary imports if needed)
-
-// Simple interactive page with content rotation functionality
-function initApp() {
-  const container = document.getElementById('app');
+function initializeApp() {
+  // Initialize accessibility features
+  setupAccessibility();
 
   // Create heading
   const h1 = document.createElement('h1');
   h1.textContent = 'My Page';
   h1.id = 'title';
-  container.appendChild(h1);
+  h1.setAttribute('tabindex', '0');
+  document.body.appendChild(h1);
 
   // Create content area
   const content = document.createElement('div');
   content.id = 'content';
   content.style.transition = 'transform 0.3s ease';
   content.style.transformOrigin = 'center center';
-  container.appendChild(content);
+  content.setAttribute('tabindex', '0');
+  document.body.appendChild(content);
 
   // Create button for rotating back (FIXED: changed from <a href="#"> to <button>)
   const unrotateBtn = document.createElement('button');
   unrotateBtn.id = 'unrotate';
   unrotateBtn.textContent = 'rotate back';
   unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
+  unrotateBtn.setAttribute('tabindex', '0');
   unrotateBtn.addEventListener('click', function() {
     content.style.transform = 'rotate(0deg)';
   });
-  container.appendChild(unrotateBtn);
+  document.body.appendChild(unrotateBtn);
 
   // Call the dependency graph rendering utility
   renderDependencyGraph();
+
+  console.log('Application initialized');
+}
+
+function setupAccessibility() {
+  // Ensure proper focus management
+  document.body.setAttribute('role', 'application');
+
+  // Add skip link for keyboard navigation
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  document.body.insertBefore(skipLink, document.body.firstChild);
+
+  // Ensure all interactive elements are keyboard accessible
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach(el => {
+    el.setAttribute('tabindex', '0');
+  });
+
+  // Focus on the first interactive element when appropriate
+  focusOnFirstElement();
+}
+
+function getMainContent() {
+  return document.getElementById('main-content');
 }
 
 // Placeholder for module structure display utility.

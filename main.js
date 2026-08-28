@@ -14,3 +14,7 @@ function newFunction(arg1, arg2) {
 }
 
 // Existing functions and exports
+module.exports = {
+  myFunction,
+  newFunction
+};

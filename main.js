@@ -1,1 +1,154 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+/**
+ * Main application entry point
+ */
+
+// Configuration
+const config = {
+  apiUrl: 'https://api.example.com',
+  debug: false,
+  timeout: 5000
+};
+
+/**
+ * Checks the structure of a table element
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result object
+ */
+function checkTableStructure(table) {
+  const result = {
+    isValid: true,
+    errors: [],
+    warnings: [],
+    rowCount: 0,
+    columnCount: 0,
+    hasHeader: false,
+    hasBody: false,
+    hasFooter: false
+  };
+
+  // Check if table element exists
+  if (!table) {
+    result.isValid = false;
+    result.errors.push('Table element is null or undefined');
+    return result;
+  }
+
+  // Check for table sections
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+
+  result.hasHeader = !!thead;
+  result.hasBody = !!tbody;
+  result.hasFooter = !!tfoot;
+
+  // Get all rows
+  const allRows = table.querySelectorAll('tr');
+  result.rowCount = allRows.length;
+
+  if (result.rowCount === 0) {
+    result.isValid = false;
+    result.errors.push('Table has no rows');
+    return result;
+  }
+
+  // Check header structure
+  if (!result.hasHeader) {
+    result.warnings.push('Table has no thead element');
+  } else {
+    const headerCells = thead.querySelectorAll('th, td');
+    result.columnCount = headerCells.length;
+  }
+
+  // Validate row consistency
+  const targetRow = tbody || allRows[0];
+  const firstRowCells = targetRow.querySelectorAll('td, th');
+  const expectedCellCount = firstRowCells.length || result.columnCount;
+
+  allRows.forEach((row, index) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length !== expectedCellCount) {
+      result.isValid = false;
+      result.errors.push(`Row ${index} has ${cells.length} cells, expected ${expectedCellCount}`);
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Format date for display
+ * @param {Date|string} date - Date to format
+ * @returns {string} - Formatted date string
+ */
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Sanitize user input
+ * @param {string} input - Raw user input
+ * @returns {string} - Sanitized output
+ */
+function sanitizeInput(input) {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Create a data table from array data
+ * @param {Array} data - Array of objects to display
+ * @param {Array} columns - Column definitions
+ * @returns {HTMLTableElement} - Created table element
+ */
+function createDataTable(data, columns) {
+  const table = document.createElement('table');
+  table.className = 'data-table';
+
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  columns.forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col.label || col.key;
+    th.style.width = col.width || 'auto';
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Create body
+  const tbody = document.createElement('tbody');
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    columns.forEach(col => {
+      const td = document.createElement('td');
+      td.textContent = item[col.key] !== undefined ? item[col.key] : '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  return table;
+}
+
+/**
+ * Export functions for testing and external use
+ */
+module.exports = {
+  config,
+  checkTableStructure,
+  formatDate,
+  sanitizeInput,
+  createDataTable
+};

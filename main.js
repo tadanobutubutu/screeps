@@ -17,19 +17,29 @@ function validateLandmark(landmark) {
     if (typeof landmark.coordinates.lat !== 'number' || typeof landmark.coordinates.lng !== 'number') {
       return false;
     }
-    
+
     // Validate latitude range (-90 to 90)
     if (landmark.coordinates.lat < -90 || landmark.coordinates.lat > 90) {
       return false;
     }
-    
+
     // Validate longitude range (-180 to 180)
     if (landmark.coordinates.lng < -180 || landmark.coordinates.lng > 180) {
       return false;
     }
   }
 
+  // TODO: Add back any required exports that might have been removed
+  function isLatitudeValid(lat) {
+    return lat >= -90 && lat <= 90;
+  }
+
+  function isLongitudeValid(lng) {
+    return lng >= -180 && lng <= 180;
+  }
+
+  // Export the newly added functions if needed
+  module.exports = { validateLandmark, isLatitudeValid, isLongitudeValid };
+
   return true;
 }
-
-module.exports = { validateLandmark };

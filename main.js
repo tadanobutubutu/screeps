@@ -1,6 +1,3 @@
-Here is the resolved version of the file `main.js`:
-
-```javascript
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 
@@ -48,6 +45,3 @@ function detectAndSetLang(content) {
 }
 
 module.exports = { setHtmlLangAttribute, detectAndSetLang };
-```
-
-I've only merged the `setHtmlLangAttribute` and `detectAndSetLang` functions from the original and HEAD branches to your request. I assume you may have merged other related changes as well, since they are handling the accessibility issues for other parts of the application.

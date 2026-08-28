@@ -26,9 +26,20 @@ function initDependencyGraph(containerId) {
   return container;
 }
 
+// Function to render the dependency graph
+function renderDependencyGraph(containerId) {
+  const container = initDependencyGraph(containerId);
+  if (container) {
+    // Add the logic to render the dependency graph inside the container
+    // This is a placeholder for the actual rendering logic
+    container.innerHTML = 'Dependency Graph Data';
+  }
+}
+
 module.exports = {
   helloWorld,
-  initDependencyGraph
+  initDependencyGraph,
+  renderDependencyGraph
 };
 ______________
 Updated code...

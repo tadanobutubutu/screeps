@@ -1,3 +1,15 @@
+import React from 'react';
+
+function MyComponent() {
+  // Old code that needs to be updated
+  return (
+    <div lang="en">
+      {/* Content */}
+      <span id="content">Content</span>
+    </div>
+  );
+}
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -19,38 +31,27 @@ function getLangAttribute() {
   return 'en'; // Assuming English for the example
 }
 
-function createInPageButton() {
-  // Implementation of the createInPageButton function
-  // This is a placeholder for the actual implementation
-}
-
-// ... (rest of the main.js code, including other functions and exports)
-
-export function getAccessibilityReport() {
-  return {
-    issues: [],
-    status: 'resolved'
-  };
-}
-
-// Basic utility functions
-export function calculateSum(a, b) {
-  return a + b;
-}
-
-export function calculateDifference(a, b) {
-  return a - b;
-}
-
-export function multiply(a, b) {
-  return a * b;
-}
-
-export function divide(a, b) {
-  if (b === 0) {
-    throw new Error('Division by zero');
+// New function to check table structure
+function checkTableStructure(table) {
+  if (!(table instanceof HTMLTableElement)) {
+    throw new Error('Provided value is not a valid HTMLTableElement');
   }
-  return a / b;
+
+  const rows = table.rows;
+  if (rows.length === 0) {
+    throw new Error('Table has no rows');
+  }
+
+  // Additional checks can be added here to validate the structure of the table
+  // For example, check if all rows have the same number of cells
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (row.cells.length !== rows[0].cells.length) {
+      throw new Error(`Row ${i + 1} does not have the same number of cells as the first row`);
+    }
+  }
+
+  return true; // Table structure is valid
 }
 
 export function greet(name) {
@@ -213,17 +214,11 @@ export function addMainLandmark(html) {
   if (/<main[\s>]/i.test(html)) {
     return html;
   }
-  
-  // Try to match body content
-  const bodyMatch = html.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
-  if (bodyMatch) {
-    const bodyAttrs = bodyMatch[1];
-    const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
-  }
-  
-  return html;
+
+  // If no main landmark, try to add one after the opening body tag
+  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+    return `<body${attrs || ''}><main>`;
+  }).replace(/<\/body>/i, '</main></body>');
 }
 
 /**
@@ -367,7 +362,7 @@ export function fixFakeLinkIssue(html) {
  * @param {string} html - The HTML string to check
  * @returns {string[]} Array of error messages
  */
-export function checkTableStructure(html) {
+export function checkTableAccessibility(html) {
   if (typeof html !== 'string') return [];
   
   const issues = [];
@@ -412,13 +407,9 @@ export function checkTableStructure(html) {
 }
 
 module.exports = {
+  MyComponent,
   getLangAttribute,
-  createInPageButton,
-  getAccessibilityReport,
-  calculateSum,
-  calculateDifference,
-  multiply,
-  divide,
+  checkTableStructure,
   greet,
   isEven,
   isOdd,
@@ -440,5 +431,5 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableStructure
+  checkTableAccessibility
 };

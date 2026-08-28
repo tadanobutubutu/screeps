@@ -9,6 +9,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), ... and createAccessibleLink())
+
 import { class1, function1, Object1 } from './path/to/module';
 
 /**
@@ -836,48 +837,6 @@ function decodeJwtResponse(token) {
   return JSON.parse(atob(token.split('.')[1]));
 }
 
-/**
- * Check accessibility
- * @param {HTMLElement} [container=document] - The container
- * @returns {Object} Accessibility results
- */
-function checkAccessibility(container = document) {
-  // (code for checkAccessibility remains the same)
-  return {
-    links: { accessible: 0, inaccessible: [] },
-    buttons: { accessible: 0, inaccessible: [] },
-    landmarks: { valid: false, issues: [] }
-  };
-}
-
-/**
- * Check landmarks
- * @param {HTMLElement} [container=document] - The container
- * @returns {Object} Landmark results
- */
-function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
-  return { mainLandmarks: [], issues: [] };
-}
-
-/**
- * Check landmark element
- * @param {string} role - The role
- * @param {HTMLElement} element - The element
- */
-function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
-}
-
-/**
- * Wrap primary content in main
- * @returns {HTMLElement|null} Main element
- */
-function wrapPrimaryContentInMain() {
-  // (code for wrapPrimaryContentInMain remains the same)
-  return null;
-}
-
 function uniqueLandmarks(document) {
   // ... unique landmarks implementation for origin/main
   return document;
@@ -901,7 +860,6 @@ module.exports = {
   addAriaLabel,
   handleCredentialResponse,
   ensureUniqueLandmarksByRole,
-  ensureUniqueLandmarks,
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
@@ -927,7 +885,6 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
-  getSvgAccessibleName,
   checkAccessibility,
   checkLandmarks,
   checkLandmarkElement,

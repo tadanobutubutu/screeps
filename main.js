@@ -3,6 +3,9 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 
+const fs = require('fs');
+const path = require('path');
+
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
   liveRegion: null,
@@ -228,12 +231,43 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
-// Export for module usage
-export { a11yStore };
-export { mainElement };
-export default a11yStore;
+// TODO: Add back any required exports that might have been?
 
-// Import and export additional functions if needed (placeholder for actual modules)
-// Assuming 'utils' modules are required (example follows)
-// import { utilityFunction } from './utils.js';
-// export { utilityFunction };
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    return {
+        dependencies: Object.keys(dependencies).length,
+        devDependencies: Object.keys(devDependencies).length,
+        total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+    };
+}
+
+function main() {
+  return 'Hello World';
+}
+
+function SomeClass() {}
+
+function someUtility() {
+  return true;
+}
+
+const config = {
+  enabled: true
+};
+
+module.exports = {
+    main,
+    SomeClass,
+    someUtility,
+    config,
+    countDependencies,
+    a11yStore,
+    mainElement
+};

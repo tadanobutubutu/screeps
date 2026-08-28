@@ -1,4 +1,4 @@
-// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// Implement wrapPrimaryContentInMain function, including the added logic
 
 /**
  * Wrap primary content in main div
@@ -15,7 +15,10 @@ function wrapPrimaryContentInMain(doc) {
   }
 }
 
-// ADD THE NEW FUNCTION HERE
+/**
+ * Add and ensure unique landmark regions
+ * @param { Document } doc - The document object to operate on
+ */
 function addAndEnsureUniqueLandmarkRegions(doc) {
   const landmarks = addProperLandmarkRegions(doc);
   return ensureUniqueLandmarks(landmarks);
@@ -23,7 +26,7 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
 
 // ... (The rest of the existing functions and exports remain unchanged)
 
-// ADD THE NEW FUNCTION TO THE EXPORTS
+// ADD THE NEW FUNCTIONS TO THE EXPORTS
 const { addMissingExportFunction } = require('./missingExportFile');
 
 module.exports = {

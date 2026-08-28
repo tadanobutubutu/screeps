@@ -120,6 +120,12 @@ function fixImageAltTexts(document) {
   return document;
 }
 
+export default function main() {
+  return "Hello, World!";
+}
+
+export const version = "1.0.0";
+
 export {
   addLangAttribute,
   fixTableStructure,

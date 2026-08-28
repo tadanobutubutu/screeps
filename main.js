@@ -25,7 +25,7 @@
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -47,7 +47,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -55,8 +55,8 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -64,7 +64,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/(<tr[\s>])/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
@@ -75,7 +75,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -84,7 +84,7 @@ export function fixTableStructureIssues(html) {
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
       if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+        result = result.replace(table, (t) => t.replace(/(<tbody)([\s\S]*?)(<\/table>)/gi, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -101,17 +101,17 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main[\s>]/i.test(html)) {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = html.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs || ''}>${wrappedContent}</body>`);
   }
   
   return html;
@@ -127,19 +127,19 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
+  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
+    const existingLabel = attrs && (attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/));
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']*)["']/);
+    const idMatch = attrs && attrs.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
@@ -175,7 +175,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -219,7 +219,7 @@ export function ensureUniqueLandmarks(html) {
     const count = counters[lm] || 0;
     if (count === 0) return;
     const seen = {};
-    const openRegex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
     html = html.replace(openRegex, (match, inner) => {
       // Skip if an id attribute is already present
       if (inner && inner.includes('id=')) {
@@ -243,7 +243,7 @@ export function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
   
   // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
     if (attrs && attrs.includes('href=')) {
       return match;
     }

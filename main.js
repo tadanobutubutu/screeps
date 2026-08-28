@@ -134,33 +134,10 @@ function fixFakeLinkIssue(element) {
 // Trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
-  if (!doc) return false;
-  
-  // Apply all accessibility fixes
-  addLangAttribute(doc);
-  
-  // Fix tables
-  const tables = doc.querySelectorAll('table');
-  tables.forEach(table => fixTableStructure(table));
-  
-  // Fix main landmark
-  const mainElement = doc.querySelector('main') || doc.querySelector('[role="main"]');
-  if (mainElement) {
-    addMainLandmark(mainElement);
+  if (doc) {
+    doc.body.classList.add('accessibility-mode');
+    doc.body.setAttribute('data-accessibility', 'enabled');
   }
-  
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(doc);
-  
-  // Add accessible names to SVGs
-  const svgs = doc.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      addSvgAccessibleNames(svg, 'Graphic element');
-    }
-  });
-  
-  return true;
 }
 
 // Implement the handleErrorState function to handle the new accessibility issue
@@ -231,3 +208,19 @@ export {
 
 // Export updateAriaAttributes
 export { updateAriaAttributes };
+
+// Implement addProperLandmarkRegions();
+function addProperLandmarkRegions(container = getDocument()) {
+  if (!container) return false;
+
+  const landmarkElements = container.querySelectorAll('[role="landmark"]');
+  landmarkElements.forEach(element => {
+    // Add proper landmark regions
+    element.setAttribute('aria-roledescription', 'Landmark region');
+  });
+
+  return true;
+}
+
+// Export the new addProperLandmarkRegions function
+export { addProperLandmarkRegions };

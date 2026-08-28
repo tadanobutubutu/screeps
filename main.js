@@ -11,7 +11,7 @@ export function getAccessibleName(element) {
 
 export function setAccessibleDescription(element, description) {
     if (!element) return;
-    element.setAttribute('aria-describedby', description);
+    element.setAttribute('aria-description', description);
 }
 
 export function announceToScreenReader(message, priority = 'polite') {
@@ -22,7 +22,7 @@ export function announceToScreenReader(message, priority = 'polite') {
         announcer.setAttribute('aria-live', priority);
         announcer.setAttribute('aria-atomic', 'true');
         announcer.className = 'sr-only';
-        announcer.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
+        announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
         document.body.appendChild(announcer);
     }
     announcer.textContent = message;
@@ -58,7 +58,7 @@ export function trapFocus(element) {
 // Check color contrast compliance
 export function meetsContrastRequirements(foreground, background, level = 'AA') {
     const getLuminance = (color) => {
-        const rgb = color.match(/\w\w/g).map(x => parseInt(x, 16) / 255);
+        const rgb = color.match(/[A-Fa-f0-9]{2}/g).map(x => parseInt(x, 16) / 255);
         const [r, g, b] = rgb.map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
@@ -70,11 +70,12 @@ export function meetsContrastRequirements(foreground, background, level = 'AA') 
 
 // Skip link functionality
 export function initSkipLinks() {
-    const skipLink = document.querySelector('[href="#main-content"]');
+    const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
     if (skipLink) {
         skipLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const target = document.getElementById('main-content') || document.querySelector('main');
+            const targetId = skipLink.getAttribute('href')?.substring(1);
+            const target = document.getElementById(targetId) || document.querySelector('main') || document.querySelector('[role="main"]');
             if (target) {
                 target.setAttribute('tabindex', '-1');
                 target.focus();
@@ -86,7 +87,7 @@ export function initSkipLinks() {
 // Initialize accessibility features
 export function initAccessibility() {
     initSkipLinks();
-    document.body.classList.add('accessibility-ready');
+    // Additional initialization can be added here
 }
 
 // Export version for compatibility
@@ -94,7 +95,7 @@ export const VERSION = '1.0.0';
 export { announceToScreenReader as ariaAnnounce };
 
 // Accessibility improvement: Replace non-interactive link with button for proper keyboard and screen reader support
-document.getElementById('unrotate').addEventListener('click', function() {
+document.querySelector('#rotate-back').addEventListener('click', function() {
     // Assuming some functionality to reverse rotation
     alert('Rotated back!');
 });

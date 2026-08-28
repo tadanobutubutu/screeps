@@ -45,8 +45,26 @@ function renderDependencyGraphs(data, container) {
   return svg;
 }
 
+// New feature implementation
+/**
+ * Demonstrates the new feature by preparing an element and rendering a dependency graph.
+ * @param {HTMLElement} container - The container element for the graph
+ * @param {Object} data - The dependency data to render
+ * @returns {SVGElement} The rendered SVG element
+ */
+function newFeature(container, data) {
+  // Ensure the element has an id
+  ensureElementHasId(container);
+  // Add aria-label for accessibility
+  addAriaLabel(container, "Dependency Graph");
+  // Render the dependency graph
+  const svg = renderDependencyGraphs(data, container);
+  return svg;
+}
+
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  newFeature
 };

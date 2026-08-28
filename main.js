@@ -107,6 +107,16 @@ function checkAccessibility(container = document) {
   return results;
 }
 
+/**
+ * Counts the number of dependencies in the application.
+ * @returns {number} The total count of dependencies
+ */
+function countDependencies() {
+  // TODO: Implement a function to count dependencies
+  const dependencies = [];
+  return dependencies.length;
+}
+
 // Add the new renderIndexView function
 /**
  * Renders the index view of the application.
@@ -126,5 +136,6 @@ module.exports = {
   isLinkAccessible,
   isButtonAccessible,
   checkAccessibility,
+  countDependencies,
   renderIndexView,
 };

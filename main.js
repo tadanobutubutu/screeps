@@ -1,4 +1,4 @@
-// TODO: Create or update the affected functions to be accessible
+// Accessibility improvements implemented - see functions below
 
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');

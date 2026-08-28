@@ -60,6 +60,16 @@ const validateLinkAccessibility = () => { /* Implementation here */ };
 const handleFakeLinks = () => { /* Implementation here */ };
 const addProperLandmarkRegions = () => { /* Implementation here */ };
 
+// Add accessible names to 2 SVGs
+function addAccessibleNamesToSVGs(svgElements) {
+    svgElements.forEach(svg => {
+        const accessibleName = getSvgAccessibleName();
+        if (accessibleName) {
+            setSvgAttributes(svg, { 'aria-label': accessibleName });
+        }
+    });
+}
+
 // Existing exports...
 
 module.exports = {
@@ -78,5 +88,6 @@ module.exports = {
     ensureUniqueLandmarks,
     validateLinkAccessibility,
     handleFakeLinks,
-    addProperLandmarkRegions
+    addProperLandmarkRegions,
+    addAccessibleNamesToSVGs // Add the new export
 };

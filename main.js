@@ -32,4 +32,55 @@ function validateLandmark(landmark) {
   return true;
 }
 
-module.exports = { validateLandmark };
+// Internal storage for landmark regions
+const landmarkRegions = [];
+
+// Function for adding proper landmark regions
+function addLandmarkRegion(landmark) {
+  // Validate the landmark first
+  if (!validateLandmark(landmark)) {
+    return null;
+  }
+  
+  // Create the landmark region object with metadata
+  const landmarkRegion = {
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    name: landmark.name.trim(),
+    coordinates: { ...landmark.coordinates },
+    region: landmark.region || null,
+    createdAt: new Date().toISOString()
+  };
+  
+  // Add to regions collection
+  landmarkRegions.push(landmarkRegion);
+  
+  return landmarkRegion;
+}
+
+// Function to get all landmark regions
+function getLandmarkRegions() {
+  return [...landmarkRegions];
+}
+
+// Function to get a landmark region by ID
+function getLandmarkRegionById(id) {
+  return landmarkRegions.find(region => region.id === id) || null;
+}
+
+// Function to remove a landmark region by ID
+function removeLandmarkRegion(id) {
+  const index = landmarkRegions.findIndex(region => region.id === id);
+  if (index === -1) {
+    return false;
+  }
+  landmarkRegions.splice(index, 1);
+  return true;
+}
+
+module.exports = { 
+  validateLandmark,
+  addLandmarkRegion,
+  getLandmarkRegions,
+  getLandmarkRegionById,
+  removeLandmarkRegion
+};

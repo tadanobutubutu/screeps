@@ -203,7 +203,7 @@ function validateTableStructure(table) {
 
 // New function to validate landmark (REACT_017)
 function validateLandmark(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return { valid: false, message: 'Invalid landmark element' };
   }
   return { valid: true };
@@ -211,7 +211,7 @@ function validateLandmark(element) {
 
 // New function to validate landmark structure (REACT_017)
 function validateLandmarkStructure(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return { valid: false, message: 'Invalid landmark element' };
   }
   return { valid: true };
@@ -219,7 +219,7 @@ function validateLandmarkStructure(element) {
 
 // New function to validate landmark attributes (REACT_017)
 function validateLandmarkAttributes(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return { valid: false, message: 'Invalid landmark element' };
   }
   return { valid: true };
@@ -227,7 +227,7 @@ function validateLandmarkAttributes(element) {
 
 // New function to set SVG attributes (REACT_041)
 function setSvgAttributes(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return;
   }
   const name = getSvgAccessibleName(element);
@@ -276,7 +276,7 @@ function ensureUniqueLandmarks() {
 
 // New function to validate link accessibility (REACT_036)
 function validateLinkAccessibility(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return { valid: false, message: 'Invalid link element' };
   }
   if (element.tagName === 'A' && (element.getAttribute('href') === '#' || element.getAttribute('href') === '')) {
@@ -287,7 +287,7 @@ function validateLinkAccessibility(element) {
 
 // New function to handle fake links (REACT_036)
 function handleFakeLinks(element) {
-  if (!element) {
+  if ( === undefined ||  === null) {
     return;
   }
 
@@ -355,7 +355,7 @@ function addLangAttribute() {
 function addMainLandmark() {
   let mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
 
-  if (!mainElement) {
+  if ( === undefined ||  === null) {
     mainElement = document.createElement('main');
     mainElement.setAttribute('role', 'main');
     addAriaLabel(mainElement, 'Main content');
@@ -388,7 +388,7 @@ function fixTableStructure() {
     }
 
     const headerRow = table.querySelector('tr') ? table.querySelector('tr').querySelector('th') : null;
-    if (!headerRow) {
+    if ( === undefined ||  === null) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const firstCells = firstRow.querySelectorAll('td');

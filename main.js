@@ -360,6 +360,109 @@ function addA11yAttributesToInteractiveElements() {
   return interactiveElements;
 }
 
+/**
+ * Adds proper landmark regions to the document.
+ * Ensures all required landmarks exist and have proper accessibility attributes.
+ * @param {HTMLElement} [container=document] - The container to add landmark regions to
+ * @returns {Object} An object containing information about processed landmarks
+ */
+function addProperLandmarkRegions(container = document) {
+  const results = {
+    main: null,
+    navigation: [],
+    banner: null,
+    contentinfo: null,
+    complementary: [],
+    regions: []
+  };
+
+  // Ensure main landmark exists
+  let main = container.querySelector('main, [role="main"]');
+  if (!main) {
+    main = document.createElement('main');
+    const body = container.body || container;
+    // Move content to main element
+    const contentFragment = document.createDocumentFragment();
+    Array.from(body.childNodes).forEach(node => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const tagName = node.tagName ? node.tagName.toUpperCase() : '';
+        if (!['SCRIPT', 'STYLE', 'LINK', 'META', 'NOSCRIPT'].includes(tagName)) {
+          contentFragment.appendChild(node);
+        }
+      }
+    });
+    main.appendChild(contentFragment);
+    body.appendChild(main);
+  }
+  results.main = main;
+
+  // Ensure navigation landmarks have proper labels
+  const navElements = container.querySelectorAll('nav, [role="navigation"]');
+  navElements.forEach((nav, index) => {
+    const label = nav.getAttribute('aria-label') || nav.getAttribute('aria-labelledby');
+    if (!label) {
+      const navLabels = ['Primary Navigation', 'Secondary Navigation', 'Footer Navigation', 'Breadcrumb Navigation'];
+      const labelText = navLabels[index] || `Navigation ${index + 1}`;
+      nav.setAttribute('aria-label', labelText);
+    }
+    results.navigation.push(nav);
+  });
+
+  // Ensure banner/header landmark exists
+  let banner = container.querySelector('header[role="banner"], [role="banner"]');
+  if (!banner) {
+    const header = container.querySelector('header');
+    if (header) {
+      header.setAttribute('role', 'banner');
+      banner = header;
+    } else if (container.body) {
+      banner = document.createElement('header');
+      banner.setAttribute('role', 'banner');
+      container.body.insertBefore(banner, container.body.firstChild);
+    }
+  }
+  results.banner = banner;
+
+  // Ensure contentinfo/footer landmark exists
+  let contentinfo = container.querySelector('footer[role="contentinfo"], [role="contentinfo"]');
+  if (!contentinfo) {
+    const footer = container.querySelector('footer');
+    if (footer) {
+      footer.setAttribute('role', 'contentinfo');
+      contentinfo = footer;
+    } else if (container.body) {
+      contentinfo = document.createElement('footer');
+      contentinfo.setAttribute('role', 'contentinfo');
+      container.body.appendChild(contentinfo);
+    }
+  }
+  results.contentinfo = contentinfo;
+
+  // Process complementary landmarks (aside)
+  const complementary = container.querySelectorAll('aside, [role="complementary"]');
+  complementary.forEach((comp, index) => {
+    if (!comp.getAttribute('aria-label') && !comp.getAttribute('aria-labelledby')) {
+      comp.setAttribute('aria-label', `Complementary Content ${index + 1}`);
+    }
+    results.complementary.push(comp);
+  });
+
+  // Process region landmarks with aria-labelledby or aria-label
+  const regions = container.querySelectorAll('[role="region"], section[aria-label], section[aria-labelledby]');
+  regions.forEach(region => {
+    if (!region.getAttribute('aria-label') && !region.getAttribute('aria-labelledby')) {
+      // Generate a unique label for the region based on its content
+      const heading = region.querySelector('h1, h2, h3, h4, h5, h6');
+      if (heading) {
+        region.setAttribute('aria-label', heading.textContent.trim());
+      }
+    }
+    results.regions.push(region);
+  });
+
+  return results;
+}
+
 // Create the new placeholder functions for accessibility handling
 const newAccessibilityFunction = () => {
   return 'new accessibility function';
@@ -399,5 +502,6 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  addProperLandmarkRegions
 };

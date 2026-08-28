@@ -74,6 +74,36 @@ function ensureUniqueLandmarksByExample() {
   });
 }
 
+// Function to get the accessible name of an SVG element
+function getSvgAccessibleName(svgNode) {
+  if (!svgNode) {
+    return '';
+  }
+
+  // Check for aria-label attribute
+  if (svgNode.getAttribute('aria-label')) {
+    return svgNode.getAttribute('aria-label');
+  }
+
+  // Check for aria-labelledby attribute
+  const ariaLabelledBy = svgNode.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelledElement = document.getElementById(ariaLabelledBy);
+    if (labelledElement) {
+      return labelledElement.textContent;
+    }
+  }
+
+  // Check for title element
+  const titleElements = svgNode.getElementsByTagName('title');
+  if (titleElements.length > 0 && titleElements[0].textContent) {
+    return titleElements[0].textContent;
+  }
+
+  // Return empty string if no accessible name is found
+  return '';
+}
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -85,5 +115,6 @@ module.exports = {
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
-  ensureUniqueLandmarksByExample
+  ensureUniqueLandmarksByExample,
+  getSvgAccessibleName
 };

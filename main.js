@@ -108,7 +108,13 @@ export function existingExport() {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-function initializeAccessibility() {
+function addProperLandmarkRegions() {
+  // Ensure the HTML element has a lang attribute for screen readers
+  const html = document.documentElement;
+  if (html && !html.lang) {
+    html.lang = 'en';
+  }
+
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -128,9 +134,13 @@ function initializeAccessibility() {
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
   }
+}
+
+function initializeAccessibility() {
+  addProperLandmarkRegions();
 
   // Function to ensure all SVG elements have accessible names
-  const ensureSvgAccessibleNames = () => {
+  function ensureSvgAccessibleNames() {
     if (typeof document === 'undefined' || !document.body) {
       return;
     }
@@ -177,7 +187,7 @@ function initializeAccessibility() {
   };
 
   // Function to handle updating accessible SVG names when DOM mutates
-  const updateAccessibleSvgNames = () => {
+  function updateAccessibleSvgNames() {
     setTimeout(() => {
       ensureSvgAccessibleNames();
     }, 0);
@@ -293,12 +303,10 @@ function App() {
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
-        ensureSvgAccessibleNames();
-        updateAccessibleSvgNames();
+        initializeAccessibility();
       });
     } else {
-      ensureSvgAccessibleNames();
-      updateAccessibleSvgNames();
+      initializeAccessibility();
     }
   }
 
@@ -387,13 +395,14 @@ export {
   rotateBack,
   checkTableStructure,
   validateTableSchema,
+  initializeAccessibility,
+  addProperLandmarkRegions,
 };
 
 module.exports = {
   rotateBack,
   initializeAccessibility,
-  ensureSvgAccessibleNames,
-  updateAccessibleSvgNames,
+  addProperLandmarkRegions,
   checkTableStructure,
   validateTableSchema,
 };

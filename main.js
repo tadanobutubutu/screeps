@@ -25,7 +25,7 @@ function getLangAttribute(element) {
 function getFullLangAttribute(element) {
   const lang = getLangAttribute(element);
   if (lang) return lang;
-  
+
   // Check parent elements for lang attribute
   let parent = element.parentElement;
   while (parent) {
@@ -43,28 +43,28 @@ function getFullLangAttribute(element) {
  */
 function validateTableAccessibility(table) {
   const issues = [];
-  
+
   if (!table) return { valid: false, issues: ['Table not found'] };
-  
+
   // Check for caption
   const caption = table.querySelector('caption');
   if (!caption) {
     issues.push('Table is missing a caption');
   }
-  
+
   // Check for th elements
   const ths = table.querySelectorAll('th');
   if (ths.length === 0) {
     issues.push('Table should have header cells (th)');
   }
-  
+
   // Check for scope attributes on th
   ths.forEach(th => {
     if (!th.hasAttribute('scope')) {
       issues.push('Header cell is missing scope attribute');
     }
   });
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -78,32 +78,59 @@ function validateTableAccessibility(table) {
  */
 function validateTableStructure(table) {
   const issues = [];
-  
+
   if (!table) return { valid: false, issues: ['Table not found'] };
-  
+
   // Check for thead
   const thead = table.querySelector('thead');
   if (!thead) {
     issues.push('Table should have a thead element');
   }
-  
+
   // Check for tbody
   const tbody = table.querySelector('tbody');
   if (!tbody) {
     issues.push('Table should have a tbody element');
   }
-  
+
   // Check that headers are in thead
   const ths = table.querySelectorAll('th');
   const headerRows = thead ? thead.querySelectorAll('tr') : [];
   if (headerRows.length === 0 && ths.length > 0) {
     issues.push('Header cells should be within thead');
   }
-  
+
   return {
     valid: issues.length === 0,
     issues
   };
+}
+
+// Add the new function here
+function validateLandmarkUsages(context = document) {
+  let landmarkCounts = {};
+
+  validateDuplicateLandmarks('banner', context, landmarkCounts);
+  validateDuplicateLandmarks('navigation', context, landmarkCounts);
+
+  // Add more validation for other landmarks as needed
+
+  function validateDuplicateLandmarks(landmark, context, landmarkCounts) {
+    const elements = context.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach((el, index) => {
+      if (!el.id) {
+        const id = `${landmark}-${index}`;
+        el.setAttribute('id', id);
+      }
+
+      const key = `${landmark}-${el.id}`;
+      if (landmarkCounts[key]) {
+        console.warn(`Duplicate ${landmark} landmark found with id "${el.id}"`);
+      } else {
+        landmarkCounts[key] = true;
+      }
+    });
+  }
 }
 
 /**
@@ -114,7 +141,7 @@ function validateTableStructure(table) {
 function validateLandmark(context = document) {
   const issues = [];
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  
+
   landmarks.forEach(landmark => {
     const elements = context.querySelectorAll(landmark);
     elements.forEach(el => {
@@ -122,7 +149,7 @@ function validateLandmark(context = document) {
       const ariaLabel = el.getAttribute('aria-label');
       const ariaLabelledby = el.getAttribute('aria-labelledby');
       const title = el.getAttribute('title');
-      
+
       if (!ariaLabel && !ariaLabelledby && !title) {
         // Only flag if it's a section without implicit role
         if (el.tagName.toLowerCase() === 'section' || el.tagName.toLowerCase() === 'aside') {
@@ -131,7 +158,7 @@ function validateLandmark(context = document) {
       }
     });
   });
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -145,23 +172,23 @@ function validateLandmark(context = document) {
  */
 function validateLandmarkStructure(context = document) {
   const issues = [];
-  
+
   // Check for multiple main landmarks
   const mains = context.querySelectorAll('main');
   if (mains.length > 1) {
     issues.push('Document should have only one main landmark');
   }
-  
+
   // Check for proper header/footer usage
   const headers = context.querySelectorAll('header');
   const footers = context.querySelectorAll('footer');
-  
+
   headers.forEach(header => {
     if (!header.closest('main') && !header.closest('article') && !header.closest('section')) {
       // Header outside of content is OK, just informational
     }
   });
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -176,9 +203,9 @@ function validateLandmarkStructure(context = document) {
 function ensureUniqueLandmarks(context = document) {
   const issues = [];
   const landmarkCounts = {};
-  
+
   const landmarks = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  
+
   landmarks.forEach(role => {
     const elements = context.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
@@ -186,7 +213,7 @@ function ensureUniqueLandmarks(context = document) {
         const id = `${role}-${index}`;
         el.setAttribute('id', id);
       }
-      
+
       const key = `${role}-${el.id}`;
       if (landmarkCounts[key]) {
         issues.push(`Duplicate landmark: ${role} with id "${el.id}"`);
@@ -195,7 +222,7 @@ function ensureUniqueLandmarks(context = document) {
       }
     });
   });
-  
+
   return {
     valid: issues.length === 0,
     issues
@@ -209,22 +236,22 @@ function ensureUniqueLandmarks(context = document) {
  */
 function getSvgAccessibleName(svg) {
   if (!svg) return null;
-  
+
   // Check aria-label
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) return ariaLabel;
-  
+
   // Check aria-labelledby
   const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const targetEl = document.getElementById(ariaLabelledby);
     return targetEl ? targetEl.textContent : null;
   }
-  
+
   // Check title element
   const title = svg.querySelector('title');
   if (title) return title.textContent;
-  
+
   return null;
 }
 
@@ -241,30 +268,30 @@ function createInPageButton(options = {}) {
     id = '',
     className = ''
   } = options;
-  
+
   const button = document.createElement('button');
   button.type = 'button';
-  
+
   if (text) {
     button.textContent = text;
   }
-  
+
   if (ariaLabel) {
     button.setAttribute('aria-label', ariaLabel);
   } else if (!text) {
     console.warn('Button should have text or aria-label for accessibility');
   }
-  
+
   if (id) {
     button.id = id;
   }
-  
+
   if (className) {
     button.className = className;
   }
-  
+
   button.addEventListener('click', onClick);
-  
+
   return button;
 }
 
@@ -283,32 +310,32 @@ function createAccessibleLink(options = {}) {
     className = '',
     isFakeLink = false
   } = options;
-  
+
   const link = document.createElement('a');
   link.href = href;
-  
+
   if (text) {
     link.textContent = text;
   }
-  
+
   if (ariaLabel) {
     link.setAttribute('aria-label', ariaLabel);
   }
-  
+
   if (id) {
     link.id = id;
   }
-  
+
   if (className) {
     link.className = className;
   }
-  
+
   // If it's a fake link (not a real anchor), add role="link" for accessibility
   if (isFakeLink) {
     link.setAttribute('role', 'link');
     link.setAttribute('tabindex', '0');
   }
-  
+
   if (href === '#' || href === '') {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -317,7 +344,7 @@ function createAccessibleLink(options = {}) {
   } else {
     link.addEventListener('click', onClick);
   }
-  
+
   return link;
 }
 
@@ -334,10 +361,10 @@ function handleAccessibilityIssues(issues, reporter = console.warn) {
     moderate: [],
     minor: []
   };
-  
+
   issues.forEach(issue => {
     const severity = issue.severity || 'moderate';
-    
+
     if (severity === 'critical') {
       summary.critical.push(issue);
     } else if (severity === 'moderate') {
@@ -345,10 +372,10 @@ function handleAccessibilityIssues(issues, reporter = console.warn) {
     } else {
       summary.minor.push(issue);
     }
-    
+
     reporter(`[${severity.toUpperCase()}] ${issue.message}`, issue);
   });
-  
+
   return summary;
 }
 
@@ -359,6 +386,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getFullLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
+    validateLandmarkUsages, // New function
     validateLandmark,
     validateLandmarkStructure,
     ensureUniqueLandmarks,

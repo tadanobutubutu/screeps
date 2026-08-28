@@ -370,6 +370,14 @@ function addressOldAccessibilityIssues() {
   return 'addressing old issues';
 }
 
+// Address accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport() {
+  // Process and address all identified accessibility issues
+  addressAccessibilityIssues();
+  addressOldAccessibilityIssues();
+  return 'addressing accessibility issues from insight report';
+}
+
 // Preserve the existing exports
 module.exports = {
   renderDependencyGraph,
@@ -384,6 +392,7 @@ module.exports = {
   getSvgAccessibleName,
   newAccessibilityFunction,
   addressOldAccessibilityIssues,
+  addressAccessibilityIssuesFromInsightReport,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,

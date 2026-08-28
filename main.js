@@ -79,6 +79,44 @@ function validateTableStructure() {
   });
 }
 
+// New function: validateTableAccessibility
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Check for caption
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      throw new Error('Table must have a caption for accessibility');
+    }
+
+    // Check for th elements in header rows
+    const headerRows = table.querySelectorAll('thead tr');
+    headerRows.forEach((row, index) => {
+      const thElements = row.querySelectorAll('th');
+      const tdElements = row.querySelectorAll('td');
+      if (thElements.length === 0 && tdElements.length > 0) {
+        throw new Error(`Header row ${index} should use <th> elements instead of <td> for accessibility`);
+      }
+      // Check scope attribute on th elements
+      thElements.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+          throw new Error(`Header cell in row ${index} should have a scope attribute for accessibility`);
+        }
+      });
+    });
+
+    // Check for proper role attributes
+    if (!table.hasAttribute('role') && !table.querySelector('[role="table"]')) {
+      table.setAttribute('role', 'table');
+    }
+
+    // Check for accessible name
+    if (!table.hasAttribute('aria-label') && !table.hasAttribute('aria-labelledby') && !caption) {
+      throw new Error('Table must have an accessible name via aria-label, aria-labelledby, or caption');
+    }
+  });
+}
+
 // New function: validateLandmark
 function validateLandmark(element, landmarkType) {
   // Check if the specified element is a landmark (using given landmarkType)
@@ -179,6 +217,7 @@ function addressAccessibilityIssueForSpecificElement(element, issue) {
 // Implement the function for addressing the new accessibility issues
 function addressAccessibilityIssues() {
   validateTableStructure();
+  validateTableAccessibility();
   validateLandmarkStructure();
   // Additional accessibility issue handling can be added here
 }
@@ -400,6 +439,7 @@ module.exports = {
   addressAccessibilityIssues,
   addressAccessibilityIssueForSpecificElement,
   validateTableStructure,
+  validateTableAccessibility,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,

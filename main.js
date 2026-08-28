@@ -87,6 +87,18 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
+// New function to replace placeholders with real conflict markers
+function replacePlaceholderWithConflictMarkers(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content.replace(
+    /<a id="unrotate" href="#">rotate back<\/a>/g,
+    '<button id="unrotate" type="button">rotate back</button>'
+  );
+
+  fs.writeFileSync(filePath, updatedContent);
+  console.log(`Replaced placeholder with real conflict markers in ${filePath}`);
+}
+
 module.exports = {
   fixFakeLinkIssue,
   addAriaAttribute,
@@ -98,4 +110,5 @@ module.exports = {
   addRoleAndLabelToCheckbox,
   addressAccessibilityIssues,
   setLanguage,
+  replacePlaceholderWithConflictMarkers,
 };

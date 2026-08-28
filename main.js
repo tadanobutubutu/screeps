@@ -299,3 +299,48 @@ const fixFakeLinkIssue = (document) => {
   });
   return document;
 };
+
+const addMainLandmark = (document) => {
+  if (!document || !document.body) {
+    return document;
+  }
+
+  // Check if main element already exists with main-content id
+  const existingMain = document.getElementById('main-content');
+  if (existingMain) {
+    existingMain.setAttribute('role', 'main');
+    return document;
+  }
+
+  // Check if any main element exists
+  const anyMain = document.querySelector('main');
+  if (anyMain) {
+    if (!anyMain.id) {
+      anyMain.id = 'main-content';
+    }
+    anyMain.setAttribute('role', 'main');
+    return document;
+  }
+
+  // Create main element and wrap appropriate content
+  const main = document.createElement('main');
+  main.id = 'main-content';
+  main.setAttribute('role', 'main');
+
+  const body = document.body;
+
+  // Get all direct children of body
+  const bodyChildren = Array.from(body.childNodes).filter(node => node.nodeType === 1);
+
+  if (bodyChildren.length > 0) {
+    // Move children to main element
+    bodyChildren.forEach(child => {
+      main.appendChild(child);
+    });
+
+    // Append main to body
+    body.appendChild(main);
+  }
+
+  return document;
+};

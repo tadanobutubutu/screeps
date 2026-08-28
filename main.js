@@ -6,4 +6,8 @@
 // Current application exports
 module.exports = {
   // Export application functionality here as needed
+  // Add any new exports here
+  newExportedFunction: function() {
+    // Implementation of newExportedFunction
+  }
 };

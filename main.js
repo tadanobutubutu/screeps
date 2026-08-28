@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+// This is a simple utility library with added dependency graph rendering and module structure display functionalities
+
 // React component
 function App() {
   return (
@@ -54,6 +56,17 @@ function greet(name) {
   return `Hello, ${name}!`;
 }
 
+// Export any existing functions
+function someExistingFunction() {
+  // Existing functionality
+}
+
+function anotherFunction() {
+  // More existing functionality
+}
+
+// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+
 function renderDependencyGraph(modules) {
   console.log('Rendering dependency graph for modules:', modules);
   return {};
@@ -62,11 +75,6 @@ function renderDependencyGraph(modules) {
 function displayModuleStructure(modules) {
   console.log('Displaying module structure for modules:', modules);
   return {};
-}
-
-// Existing utility function
-export function anotherFunction() {
-  // More existing functionality
 }
 
 // Screeps loop logic
@@ -96,6 +104,7 @@ if (typeof module !== 'undefined' && module.exports) {
     displayModuleStructure,
     loop,
     anotherFunction,
+    someExistingFunction,
     App
   };
 } else {
@@ -108,7 +117,8 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDependencyGraph, 
     displayModuleStructure, 
     loop,
-    anotherFunction 
+    anotherFunction,
+    someExistingFunction
   };
   export default App;
 }

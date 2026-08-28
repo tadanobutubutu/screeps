@@ -433,6 +433,89 @@ function handlePendingFunctionality() {
   console.log('Addressing accessibility issues from insight report...');
 }
 
+// Validate that a landmark element is valid and accessible
+function validateLandmark(document) {
+  const issues = [];
+  const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', '[role="banner"]', '[role="navigation"]', '[role="main"]', '[role="complementary"]', '[role="contentinfo"]'];
+  
+  landmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length === 0) {
+      issues.push({ selector, issue: 'Missing landmark' });
+    } else if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0 && !el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          issues.push({ selector, issue: 'Duplicate landmark without unique label' });
+        }
+      });
+    }
+  });
+  
+  return issues;
+}
+
+// Validate the structure of landmark elements to ensure correct nesting
+function validateLandmarkStructure(document) {
+  const issues = [];
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
+  
+  // Ensure main is not nested inside another landmark
+  mainElements.forEach(main => {
+    let parent = main.parentElement;
+    while (parent) {
+      if (['HEADER', 'NAV', 'FOOTER', 'ASIDE'].includes(parent.tagName)) {
+        issues.push({ element: main, issue: 'Main landmark nested inside another landmark' });
+        break;
+      }
+      parent = parent.parentElement;
+    }
+  });
+  
+  // Ensure nav elements have appropriate content
+  navElements.forEach(nav => {
+    const links = nav.querySelectorAll('a');
+    if (links.length === 0) {
+      issues.push({ element: nav, issue: 'Navigation landmark has no links' });
+    }
+  });
+  
+  return issues;
+}
+
+// Validate accessibility attributes on landmark elements
+function validateLandmarkAttributes(document) {
+  const issues = [];
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article');
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
+    
+    // Check for section/article without accessible name
+    if ((tagName === 'section' || tagName === 'article') && !ariaLabel && !ariaLabelledby) {
+      issues.push({ element: landmark, issue: 'Section/article landmark missing accessible name' });
+    }
+    
+    // Check for invalid role on landmark
+    const validRoles = {
+      'header': 'banner',
+      'nav': 'navigation',
+      'main': 'main',
+      'aside': 'complementary',
+      'footer': 'contentinfo'
+    };
+    
+    if (validRoles[tagName] && role && role !== validRoles[tagName]) {
+      issues.push({ element: landmark, issue: `Invalid role "${role}" on ${tagName} landmark` });
+    }
+  });
+  
+  return issues;
+}
+
 // Export all functions
 export { 
   addLangAttribute, 
@@ -454,6 +537,9 @@ export {
   implementAccessibilityFixesFromReport,
   addressAccessibilityIssues,
   handlePendingFunctionality,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
   class1, 
   function1, 
   Object1 

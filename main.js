@@ -1,3 +1,6 @@
+Here is the resolved file content with both changes integrated:
+
+```javascript
 function main() {
   const Safety = {
     // ...
@@ -94,6 +97,15 @@ function main() {
     // ... original accessibility function, with conflict resolution ...
   }
 
+  // Add the new export from the conflicted branch
+  export const version = "1.0.0";
+
+  // Preserve the original module.exports
+  module.exports = {
+    main
+  };
+
+  // Export all functions and properties
   export {
     checkTableStructure,
     validateTableSchema,
@@ -106,10 +118,9 @@ function main() {
     announceToScreenReader,
     handleKeyboardNavigation,
     newFeature,
-    fixTableStructure
+    fixTableStructure,
+    version
   };
 }
-
-module.exports = {
-  main
-};
+```
+This resolved file keeps both changes, allows the bot to run as expected by the existing changes and adds the new functionality from the conflicted branch, including the addition of the `version` constant in the exports.

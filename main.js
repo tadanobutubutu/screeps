@@ -1,103 +1,111 @@
-// main.js
+// Assuming the file is located at ...
 
-// Configuration
-const config = {
-  apiUrl: 'https://api.example.com',
-  timeout: 5000
+import React, { useState } from 'react';
+
+interface DashboardProps {
+  // Define any props the Dashboard component might receive
+}
+
+const Dashboard: React.FC<DashboardProps> = (props) => {
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
+  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
+
+  const copyErr = () => {
+    // Implement the copy error logic
+    setCopied(true);
+    // Reset copied state after some time
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const fetchStats = (shouldRetry: boolean) => {
+    // Implement the fetch stats logic
+    setRefreshing(true);
+    // Reset refreshing state after some time
+    setTimeout(() => setRefreshing(false), 2000);
+  };
+
+  return (
+    <main role="main" ...
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        {error && (
+          <section
+            role="alert"
+            aria-label="エラーメッセージ詳細"
+            aria-live="polite"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </section>
+        )}
+        <button
+          type="button"
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          aria-pressed={copied}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          <span>{copied ? '✅' : '📋'}</span>
+          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          aria-disabled={refreshing}
+          aria-busy={refreshing}
+          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
+          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          onFocus={() => setErrRetryHover(true)}
+          onBlur={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: refreshing ? '#999' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+            marginLeft: '0.5rem',
+            transition: 'all 0.2s ease-in-out',
+            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errRetryHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
+          <span> {refreshing ? '再試行中...' : '再試行'}</span>
+        </button>
+      </div>
+    </main>
+  );
 };
 
-// Implementation details
-function initialize() {
-  console.log('Application initialized');
-  return true;
-}
-
-function processData(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
-function validateInput(input) {
-  if (typeof input !== 'string') {
-    return false;
-  }
-  return input.length > 0;
-}
-
-// TODO: Implement this function for accessibility checks on tables
-function checkTableAccessibility(tableElement) {
-  if (!tableElement || tableElement.tagName !== 'TABLE') {
-    return [{ type: 'error', message: 'Provided element is not a table' }];
-  }
-
-  const issues = [];
-
-  // Check for caption
-  const caption = tableElement.querySelector('caption');
-  if (!caption) {
-    issues.push({ type: 'warning', message: 'Table is missing a <caption> element' });
-  }
-
-  // Check for header cells
-  const headers = tableElement.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push({ type: 'error', message: 'Table has no header cells (<th>)' });
-  } else {
-    // Check for scope attributes on headers
-    headers.forEach((header, index) => {
-      if (!header.hasAttribute('scope')) {
-        issues.push({ 
-          type: 'warning', 
-          message: `Header cell at index ${index} is missing a scope attribute` 
-        });
-      }
-    });
-  }
-
-  // Check for thead/tbody structure
-  const hasThead = tableElement.querySelector('thead');
-  const hasTbody = tableElement.querySelector('tbody');
-  if (!hasThead && headers.length > 0) {
-    issues.push({ type: 'warning', message: 'Table headers should be wrapped in <thead>' });
-  }
-  if (!hasTbody) {
-    issues.push({ type: 'warning', message: 'Table body should be wrapped in <tbody>' });
-  }
-
-  // Check for data cells without associated headers
-  const dataCells = tableElement.querySelectorAll('td');
-  dataCells.forEach((cell, index) => {
-    if (!cell.headers && headers.length > 0) {
-      issues.push({ 
-        type: 'info', 
-        message: `Data cell at index ${index} has no explicit headers association` 
-      });
-    }
-  });
-
-  return issues;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-module.exports = {
-  initialize,
-  processData,
-  validateInput,
-  checkTableAccessibility,
-  config
-};
+export default Dashboard;

@@ -1,3 +1,7 @@
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -34,6 +38,20 @@ function getFullLangAttribute(element) {
     parent = parent.parentElement;
   }
   return 'en';
+}
+
+/**
+ * Adds a lang attribute to the HTML element
+ * @param {string} [lang='en'] - The language value to set
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement) return;
+  
+  // Add the lang attribute if not already present
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
 }
 
 /**
@@ -357,6 +375,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     getLangAttribute,
     getFullLangAttribute,
+    addLangAttribute,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,

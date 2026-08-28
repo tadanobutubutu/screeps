@@ -3,10 +3,10 @@ import { class1, function1, Object1 } from './path/to/module';
 // TODO: Address any missing required exports
 // REACT_015: Add lang attribute
 
-function addLangAttribute(document, lang = 'en') {
+function addLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    htmlElement.lang = lang;
   }
   return document;
 }
@@ -31,11 +31,11 @@ function fixTableStructure(document) {
     }
 
     if (!existingTbody) {
-      let remainingRows = table.querySelectorAll('tr');
+      let remainingRows = Array.from(rows);
       if (existingThead) {
-        remainingRows = Array.from(rows).slice(0, existingThead.length);
+        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
       } else {
-        remainingRows = Array.from(rows).slice(1);
+        remainingRows = remainingRows.slice(1);
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
@@ -48,7 +48,7 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
@@ -63,7 +63,7 @@ function fixTableStructure(document) {
     // Additional HEAD logic: ensure scope on header cells
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.scope) {
         th.setAttribute('scope', 'col');
         fixedCount++;
       }
@@ -129,7 +129,6 @@ function addAccessibleNamesToSVGs(document) {
 
 // Function to fix fake link issue (merged fixes)
 function fixFakeLinkIssue(document) {
-  fixFakeLinkIssues(document);
   let count = 0;
 
   const clickableElements = document.querySelectorAll('[onclick]');
@@ -143,7 +142,7 @@ function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes("location.href"))) {
+        onclick.includes('href'))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -151,7 +150,8 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('role', 'link');
       span.setAttribute('tabindex', '0');
       span.setAttribute('onclick', onclick);
-      span.addEventListener('click', element.onclick);
+      element.setAttribute('onclick', '');
+      span.onclick = element.onclick;
       
       // Copy styling if available
       if (element.className) {
@@ -213,7 +213,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#google-sign-in-button');
+    const buttonContainer = document.getElementById('g_id_onbutton');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -252,116 +252,4 @@ function renderDependencyGraphs(document) {
   if (graphContainer) {
     // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'dependency-graph');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '400');
-    svg.setAttribute('viewBox', '0 0 800 400');
-
-    // Add accessible title and description
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-    title.textContent = 'Dependency Graph';
-    svg.appendChild(title);
-
-    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of project dependencies';
-    svg.appendChild(desc);
-
-    // Render the graph content
-    const graphContent = graphContainer.querySelector('[data-graph-data]');
-    if (graphContent) {
-      // Parse and render dependency data
-      // Implementation would parse the data and create nodes/edges
-    }
-
-    graphContainer.appendChild(svg);
-  }
-  return document;
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers(document) {
-  const buttons = document.querySelectorAll('[id^="my-button"]');
-  buttons.forEach(button => {
-    const newId = button.id.replace('my-button', 'btn-' + button.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
-    button.id = newId;
-  });
-  return document;
-}
-
-// REACT_042: Ensure dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphAriaRole(document) {
-  const dependencyGraph = document.querySelector('[data-testid="dependencyGraph"]') || 
-                          document.querySelector('#dependencyGraph') || 
-                          document.querySelector('.dependency-graph') ||
-                          document.querySelector('[class*="dependency-graph"]');
-  
-  if (dependencyGraph) {
-    // Check if element already has a role
-    const existingRole = dependencyGraph.getAttribute('role');
-    if (!existingRole) {
-      // Add appropriate role based on context
-      dependencyGraph.setAttribute('role', 'region');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
-  }
-  
-  return document;
-}
-
-// Function to add the main landmark to docs/index.html
-function addMainLandmarkToIndex(document) {
-  // ... existing implementation
-  return document;
-}
-
-// Implement function for addressing accessibility issues from insight report
-function addressAccessibilityIssues(document) {
-  document = addLangAttribute(document);
-  document = fixTableStructure(document);
-  document = fixLandmarkIssues(document);
-  document = addMainLandmark(document);
-  document = addLandmarkRegions(document);
-  document = ensureUniqueLandmarks(document);
-  document = uniqueLandmarks(document);
-  document = addSvgAccessibleNames(document);
-  document = addAccessibleNamesToSVGs(document);
-  document = fixFakeLinkIssue(document);
-  document = fixFakeLinkIssues(document);
-  document = fixImageAltTexts(document);
-  document = googleSignIn(document);
-  document = fixButtonIdentifiers(document);
-  document = addMainLandmarkToIndex(document);
-  document = ensureElementHasId(document);
-  document = addAriaLabel(document, '[data-dependency-graph]', 'Dependency Graph');
-  document = renderDependencyGraphs(document);
-  document = ensureDependencyGraphAriaRole(document);
-  return document;
-}
-
-// Export all functions
-export {
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureElementHasId,
-  addAriaLabel,
-  handleCredentialResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  addMainLandmarkToIndex,
-  addressAccessibilityIssues,
-  class1,
-  function1,
-  Object1
-};
+    svg.setAttribute('class',

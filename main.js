@@ -156,6 +156,137 @@ function fixTableStructureIssues(container = document) {
 }
 
 /**
+ * Validates a landmark element.
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} An object containing validation results with valid boolean and errors array
+ */
+function validateLandmark(element) {
+  const errors = [];
+  
+  if (!element) {
+    return { valid: false, errors: ['Element is null or undefined'] };
+  }
+  
+  // Check if element has a role
+  const role = element.getAttribute('role');
+  if (!role) {
+    errors.push('Landmark missing role attribute');
+  }
+  
+  // Check for accessible name (label or labelledby)
+  const hasAccessibleName = element.hasAttribute('aria-label') || 
+                            element.hasAttribute('aria-labelledby') ||
+                            element.textContent.trim().length > 0;
+  if (!hasAccessibleName) {
+    errors.push('Landmark missing accessible name (aria-label, aria-labelledby, or text content)');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validates the structure of landmarks in the document or container.
+ * Checks for proper landmark usage and uniqueness requirements.
+ * @param {HTMLElement} [container=document] - The container to validate landmarks in
+ * @returns {Object} An object containing validation results with valid boolean and errors array
+ */
+function validateLandmarkStructure(container = document) {
+  const errors = [];
+  
+  if (!container) {
+    return { valid: false, errors: ['Container is null or undefined'] };
+  }
+  
+  // Check for multiple main landmarks
+  const mainLandmarks = container.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    errors.push(`Multiple main landmarks found: ${mainLandmarks.length}. Only one main landmark is allowed.`);
+  }
+  
+  // Check for multiple banner landmarks (only outside main)
+  const allElements = container.querySelectorAll('*');
+  let bannerCount = 0;
+  let mainElement = null;
+  
+  allElements.forEach(el => {
+    if (el.hasAttribute('role') && el.getAttribute('role') === 'banner') {
+      bannerCount++;
+    }
+    if (el.tagName === 'MAIN' || (el.hasAttribute('role') && el.getAttribute('role') === 'main')) {
+      mainElement = el;
+    }
+  });
+  
+  if (bannerCount > 1) {
+    errors.push(`Multiple banner landmarks found: ${bannerCount}. Only one banner landmark is allowed.`);
+  }
+  
+  // Check for multiple contentinfo landmarks
+  let contentinfoCount = 0;
+  allElements.forEach(el => {
+    if (el.hasAttribute('role') && el.getAttribute('role') === 'contentinfo') {
+      contentinfoCount++;
+    }
+  });
+  
+  if (contentinfoCount > 1) {
+    errors.push(`Multiple contentinfo landmarks found: ${contentinfoCount}. Only one contentinfo landmark is allowed.`);
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validates that landmarks have required accessibility attributes.
+ * Checks for proper labeling and identification of landmarks.
+ * @param {HTMLElement} [container=document] - The container to validate landmarks in
+ * @returns {Object} An object containing validation results with valid boolean and errors array
+ */
+function validateLandmarkAttributes(container = document) {
+  const errors = [];
+  
+  if (!container) {
+    return { valid: false, errors: ['Container is null or undefined'] };
+  }
+  
+  // Get all elements with role attribute (potential landmarks)
+  const landmarks = container.querySelectorAll('[role]');
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role');
+    
+    // Check if landmark has an accessible name
+    const hasAriaLabel = landmark.hasAttribute('aria-label') && landmark.getAttribute('aria-label').trim() !== '';
+    const hasAriaLabelledby = landmark.hasAttribute('aria-labelledby') && landmark.getAttribute('aria-labelledby').trim() !== '';
+    const hasTextContent = landmark.textContent.trim().length > 0;
+    
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTextContent) {
+      errors.push(`Landmark with role="${role}" is missing an accessible name (aria-label, aria-labelledby, or visible text)`);
+    }
+    
+    // Check for proper id if referenced by aria-labelledby
+    if (hasAriaLabelledby) {
+      const labelledById = landmark.getAttribute('aria-labelledby');
+      const labelElement = document.getElementById(labelledById);
+      if (!labelElement) {
+        errors.push(`Landmark with role="${role}" has aria-labelledby="${labelledById}" but the referenced element does not exist`);
+      }
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
+/**
  * Implements function for addressing accessibility issues from insight report.
  * Identifies and fixes common accessibility problems found in the document.
  * @param {HTMLElement} [container=document] - The container to check for accessibility issues
@@ -372,6 +503,9 @@ globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInterac
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
 globalObject.getSvgAccessibleName = getSvgAccessibleName;
 globalObject.addressAccessibilityIssues = addressAccessibilityIssues;
+globalObject.validateLandmark = validateLandmark;
+globalObject.validateLandmarkStructure = validateLandmarkStructure;
+globalObject.validateLandmarkAttributes = validateLandmarkAttributes;
 
 // Exports for all functions
 module.exports = {
@@ -395,5 +529,8 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   hasMissingAriaProperties,
   getSvgAccessibleName,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes
 };

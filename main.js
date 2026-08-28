@@ -1,5 +1,8 @@
 const _ = require('lodash');
 const dependencyGraphContent = require('./dependencyGraphContent');
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+
 const a11yUtils = {
   createLiveRegion: function() {
     let liveRegion = document.getElementById('a11y-live-region');
@@ -77,6 +80,47 @@ if (typeof document !== 'undefined') {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { a11yUtils, main, myNewFunction, getSvgAccessibleName, setSvgAttributes, ensureElementHasId, addAriaLabel, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, ensureUniqueLandmarks, ...(dependencyGraphContent && typeof dependencyGraphContent === 'object' ? dependencyGraphContent : {}) };
-```
+}
 
-This resolved file integrates both set of changes by combining their functionalities and keeping both accessibility and module export features. The modifications to the `main.js` file aim to preserve both sets of changes in a meaningful and logical way with minimal alterations to the original structure and style.
+var roleHarvester = require('role.harvester');
+var roleUpgrader = require('role.upgrader');
+
+module.exports.loop = function() {
+    // Clear the memory of dead creeps
+    for(var name in Memory.creeps) {
+        if(!Game.creeps[name]) {
+            delete Memory.creeps[name];
+        }
+    }
+
+    // TODO: Add implementation details
+    
+    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+
+    if(harvesters.length < 2) {
+        var newName = 'Harvester' + Game.time;
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, 
+            {memory: {role: 'harvester'}});        
+    }
+    
+    if(upgraders.length < 2) {
+        var newName = 'Upgrader' + Game.time;
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+            {memory: {role: 'upgrader'}});
+    }
+
+    for(var name in Game.rooms) {
+        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
+    }
+
+    for(var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'harvester') {
+            roleHarvester.run(creep);
+        }
+        if(creep.memory.role == 'upgrader') {
+            roleUpgrader.run(creep);
+        }
+    }
+};

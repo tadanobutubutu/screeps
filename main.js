@@ -1,13 +1,8 @@
-Here is the resolved file content:
-
-```javascript
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import 'polyfill-io/stable';
 import 'polyfill-webextensions-api/location';
-import 'polyfill- foss/all'; // import polyfill for IE11
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+import 'polyfill-foss/all'; // import polyfill for IE11
 
 // New function to add lang attribute to the HTML element
 const addLangAttribute = () => {
@@ -196,6 +191,3 @@ module.exports = {
   getAccessibleName,
   setAccessibleName
 };
-```
-
-This file includes changes to address accessibility concerns and merges the changes from the respective branches.

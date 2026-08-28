@@ -33,3 +33,6 @@ function addressAccessibilityIssues() {
 
   // ... Add more checks for identifying and addressing other accessibility problems here
 }
+
+// Export the function to make it available for import in other files
+export { rotateBack, addressAccessibilityIssues };

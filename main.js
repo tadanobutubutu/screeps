@@ -10,4 +10,10 @@ function MyComponent() {
   );
 }
 
+// New function as per the issue request
+function getLanguage() {
+  return 'en';
+}
+
 export default MyComponent;
+export { getLanguage };

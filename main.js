@@ -1,5 +1,3 @@
-// Assuming the file is located at ...
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
@@ -32,7 +30,7 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
   }
 };
 
-const Dashboard: ... = (props) => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -60,7 +58,7 @@ const Dashboard: ... = (props) => {
   };
 
   return (
-    <main role="main" ...
+    <main role="main" style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -83,9 +81,9 @@ const Dashboard: ... = (props) => {
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => ...
+          onMouseLeave={() => setErrCopyHover(false)}
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => ...
+          onBlur={() => setErrCopyHover(false)}
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -102,7 +100,7 @@ const Dashboard: ... = (props) => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          <span ... ? '✅' : '📋'}</span>
+          <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
           <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button

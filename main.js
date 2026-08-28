@@ -103,6 +103,19 @@ const config = {
     }
 };
 
+// Sample dependencies data (could come from package.json)
+const dependencies = {
+    "express": "^4.18.0",
+    "lodash": "^4.17.21",
+    "axios": "^1.0.0",
+    "react": "^18.0.0"
+};
+
+const devDependencies = {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+};
+
 // Main validation function for web accessibility
 function validateWebAccessibility(url) {
     if (!url) {
@@ -151,7 +164,7 @@ function getTableHeaders(table) {
 
 // Get table rows
 function getTableRows(table) {
-    return table.querySelectorAll('tr');
+    return document.querySelectorAll('tr');
 }
 
 // Validate table accessibility
@@ -322,11 +335,11 @@ function countDependencies() {
     const packageContent = fs.readFileSync(packagePath, 'utf8');
     const packageJson = JSON.parse(packageContent);
     
-    const dependencies = packageJson.dependencies || {};
-    const devDependencies = packageJson.devDependencies || {};
+    const deps = packageJson.dependencies || {};
+    const devDeps = packageJson.devDependencies || {};
     
-    const dependencyCount = Object.keys(dependencies).length;
-    const devDependencyCount = Object.keys(devDependencies).length;
+    const dependencyCount = Object.keys(deps).length;
+    const devDependencyCount = Object.keys(devDeps).length;
     
     return {
       dependencies: dependencyCount,
@@ -341,6 +354,28 @@ function countDependencies() {
       total: 0
     };
   }
+}
+
+/**
+ * Counts the number of dependencies from a given object
+ * @param {Object} deps - Object containing dependencies
+ * @returns {number} - Number of dependencies
+ */
+function countDependenciesFromObj(deps) {
+  if (!deps || typeof deps !== 'object') {
+    return 0;
+  }
+  return Object.keys(deps).length;
+}
+
+/**
+ * Counts all dependencies including devDependencies from objects
+ * @param {Object} deps - Production dependencies
+ * @param {Object} devDeps - Development dependencies
+ * @returns {number} - Total count of all dependencies
+ */
+function countAllDependencies(deps, devDeps) {
+  return countDependenciesFromObj(deps) + countDependenciesFromObj(devDeps);
 }
 
 // Language attribute helper functions (from previous version)
@@ -381,6 +416,10 @@ module.exports = {
     getTableRows,
     config,
     countDependencies,
+    countDependenciesFromObj,
+    countAllDependencies,
+    dependencies,
+    devDependencies,
     someFunction,
     setLanguage,
     getLangAttribute,

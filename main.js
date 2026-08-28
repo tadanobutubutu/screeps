@@ -23,14 +23,15 @@ function setSvgAccessibilityProps(svgElement) {
   const hasTitle = svgElement.querySelector('title');
   const hasDesc = svgElement.querySelector('desc');
   const hasRole = svgElement.hasAttribute('role');
+  const hasAriaLabel = svgElement.hasAttribute('aria-label') && svgElement.getAttribute('aria-label').trim().length > 0;
   
   // Add role="img" if not present for meaningful SVGs
-  if (!hasRole && (hasTitle || hasDesc)) {
+  if (!hasRole && (hasTitle || hasDesc || hasAriaLabel)) {
     svgElement.setAttribute('role', 'img');
   }
   
-  // If SVG has no title, desc, or role, mark as decorative
-  if (!hasTitle && !hasDesc && !hasRole) {
+  // If SVG has no title, desc, role, or aria-label, mark as decorative
+  if (!hasTitle && !hasDesc && !hasRole && !hasAriaLabel) {
     svgElement.setAttribute('role', 'img');
     svgElement.setAttribute('aria-hidden', 'true');
   }

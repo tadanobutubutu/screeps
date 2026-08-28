@@ -7,3 +7,22 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// New function for REACT_025 (ensuring unique landmarks)
+function newUniqueLandmarksFunction(landmarks) {
+  // Implement the logic to ensure unique landmarks...
+  // For example:
+  const uniqueLandmarks = new Set();
+  landmarks.forEach(landmark => uniqueLandmarks.add(landmark.id));
+  return [...uniqueLandmarks];
+}
+
+// New function for REACT_017 (adding landmark roles and fixing landmark issues)
+function newLandmarkRolesFunction() {
+  // Implement the logic to add landmark roles and fix landmark issues...
+  // For example:
+  const nav = document.querySelector("nav");
+  nav.setAttribute("role", "navigation");
+  const header = document.querySelector("header");
+  header.setAttribute("role", "banner");
+}

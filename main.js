@@ -360,6 +360,166 @@ function addA11yAttributesToInteractiveElements() {
   return interactiveElements;
 }
 
+/**
+ * Adds proper landmark regions to the document.
+ * Ensures common landmarks (header, main, nav, footer, aside, search, form, contentinfo, banner) exist with proper roles and labels.
+ * @param {HTMLElement} [container=document] - The container to add landmark regions to
+ * @returns {Object} An object containing the landmark regions that were added or fixed
+ */
+function addProperLandmarkRegions(container = document) {
+  const result = {
+    header: null,
+    main: null,
+    nav: null,
+    footer: null,
+    aside: null,
+    search: null,
+    form: null,
+    regions: []
+  };
+  
+  // Get or create header/banner landmark
+  let header = container.querySelector('header:not([role="contentinfo"]):not([role="footer"]), [role="banner"]');
+  if (!header) {
+    header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    if (container.body) {
+      container.body.insertBefore(header, container.body.firstChild);
+    }
+  }
+  if (!header.hasAttribute('aria-label') && !header.hasAttribute('aria-labelledby')) {
+    header.setAttribute('aria-label', 'Site header');
+  }
+  result.header = header;
+  
+  // Get or create main landmark
+  let main = container.querySelector('main, [role="main"]');
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    if (container.body) {
+      container.body.appendChild(main);
+    }
+  }
+  if (!main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
+    main.setAttribute('aria-label', 'Main content');
+  }
+  result.main = main;
+  
+  // Get or create navigation landmarks
+  let navElements = container.querySelectorAll('nav, [role="navigation"]');
+  if (navElements.length === 0) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.setAttribute('aria-label', 'Primary navigation');
+    if (container.body) {
+      container.body.insertBefore(nav, container.body.firstChild);
+    }
+    result.nav = nav;
+  } else {
+    // Ensure existing nav elements have labels
+    navElements.forEach((nav, index) => {
+      if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+        nav.setAttribute('aria-label', index === 0 ? 'Primary navigation' : `Navigation ${index + 1}`);
+      }
+    });
+    result.nav = navElements[0];
+  }
+  
+  // Get or create footer/contentinfo landmark
+  let footer = container.querySelector('footer:not([role="banner"]):not([role="header"]), [role="contentinfo"]');
+  if (!footer) {
+    footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    if (container.body) {
+      container.body.appendChild(footer);
+    }
+  }
+  if (!footer.hasAttribute('aria-label') && !footer.hasAttribute('aria-labelledby')) {
+    footer.setAttribute('aria-label', 'Site footer');
+  }
+  result.footer = footer;
+  
+  // Get or create aside/complementary landmark
+  let aside = container.querySelector('aside, [role="complementary"]');
+  if (!aside) {
+    aside = document.createElement('aside');
+    aside.setAttribute('role', 'complementary');
+    aside.setAttribute('aria-label', 'Related content');
+    if (main && main.parentNode) {
+      main.parentNode.insertBefore(aside, main.nextSibling);
+    } else if (container.body) {
+      container.body.insertBefore(aside, container.body.firstChild);
+    }
+  }
+  if (!aside.hasAttribute('aria-label') && !aside.hasAttribute('aria-labelledby')) {
+    aside.setAttribute('aria-label', 'Related content');
+  }
+  result.aside = aside;
+  
+  // Get or create search landmark
+  let search = container.querySelector('[role="search"], form[role="search"]');
+  if (!search) {
+    const forms = container.querySelectorAll('form');
+    forms.forEach(form => {
+      if (form.classList.contains('search') || form.id.includes('search')) {
+        search = form;
+        return;
+      }
+    });
+  }
+  if (search && !search.hasAttribute('role')) {
+    search.setAttribute('role', 'search');
+  }
+  if (search && !search.hasAttribute('aria-label') && !search.hasAttribute('aria-labelledby')) {
+    search.setAttribute('aria-label', 'Search');
+  }
+  result.search = search;
+  
+  // Get or create form landmark (for major forms)
+  let form = container.querySelector('[role="form"], form[role="form"], form:not([role])');
+  if (!form) {
+    const forms = container.querySelectorAll('form');
+    if (forms.length > 0) {
+      form = forms[0];
+    }
+  }
+  if (form && !form.hasAttribute('role')) {
+    form.setAttribute('role', 'form');
+  }
+  if (form && !form.hasAttribute('aria-label') && !form.hasAttribute('aria-labelledby')) {
+    form.setAttribute('aria-label', 'Form');
+  }
+  result.form = form;
+  
+  // Check for region landmarks with aria-label or aria-labelledby
+  const regionElements = container.querySelectorAll('[role="region"], section[aria-label], section[aria-labelledby]');
+  regionElements.forEach(region => {
+    if (!region.hasAttribute('aria-label') && !region.hasAttribute('aria-labelledby')) {
+      region.setAttribute('aria-label', 'Region');
+    }
+    result.regions.push(region);
+  });
+  
+  // Ensure contentinfo is properly labeled if it exists
+  const contentinfos = container.querySelectorAll('[role="contentinfo"]');
+  contentinfos.forEach(ci => {
+    if (!ci.hasAttribute('aria-label') && !ci.hasAttribute('aria-labelledby')) {
+      ci.setAttribute('aria-label', 'Site footer');
+    }
+  });
+  
+  // Ensure banner is properly labeled if it exists
+  const banners = container.querySelectorAll('[role="banner"]');
+  banners.forEach(banner => {
+    if (!banner.hasAttribute('aria-label') && !banner.hasAttribute('aria-labelledby')) {
+      banner.setAttribute('aria-label', 'Site header');
+    }
+  });
+  
+  return result;
+}
+
 // Create the new placeholder functions for accessibility handling
 const newAccessibilityFunction = () => {
   return 'new accessibility function';
@@ -399,5 +559,6 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   setFormElementAccessibleNames,
-  addA11yAttributesToInteractiveElements
+  addA11yAttributesToInteractiveElements,
+  addProperLandmarkRegions
 };

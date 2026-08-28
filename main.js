@@ -157,6 +157,11 @@ if (require.main === module) {
   main();
 }
 
+// Added new function for export
+function someNewFunction() {
+  console.log('This is a new function added for export');
+}
+
 // Example usage of the new function (if applicable)
 // This would depend on how the insight report is obtained and when you want to address the issues
 // const report = getInsightReport(); // Hypothetical function to get the insight report
@@ -186,6 +191,8 @@ module.exports = {
   clearCache,
   initialize,
   validateInput,
+  config,
+  someNewFunction, // Exporting the new function
   addressAccessibilityIssues,
   main,
   getLangAttribute,

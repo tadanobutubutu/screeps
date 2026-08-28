@@ -6,11 +6,12 @@ function rotateBack() {
 }
 
 // Assuming the button click is handled by JavaScript, here's how it might look:
-document.getElementById('unrotate').addEventListener('click', rotateBack);
+// Some button element that triggers rotateBack
+// button.addEventListener('click', rotateBack);
 
 // main.js
 
-function addProperLandmarkRegions() {
+function initAccessibility() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -50,10 +51,10 @@ function addProperLandmarkRegions() {
       }
 
       // Check for existing accessible name
-      const hasAriaLabel = svg.getAttribute('aria-label');
-      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
+      const hasAriaLabel = svg.hasAttribute('aria-label');
+      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
 
       if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
         return;
@@ -62,14 +63,14 @@ function addProperLandmarkRegions() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-favicon') === 'true';
+                        svg.getAttribute('aria-hidden') === 'true';
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('role', 'presentation');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        const title = document.createElement('title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
@@ -85,12 +86,13 @@ function addProperLandmarkRegions() {
     }, 0);
   };
 
+  // Initial call to set accessible names
   ensureSvgAccessibleNames();
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      updateAccessibleSvgNames();
+      ensureSvgAccessibleNames();
     });
 
     if (document.body) {
@@ -104,4 +106,14 @@ function addProperLandmarkRegions() {
   }
 }
 
-addProperLandmarkRegions();
+// Run accessibility initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccessibility);
+} else {
+  initAccessibility();
+}
+
+// Export for potential external use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { initAccessibility, rotateBack };
+}

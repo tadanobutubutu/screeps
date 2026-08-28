@@ -99,3 +99,5 @@ document.getElementById('unrotate').addEventListener('click', function() {
     alert('Rotated back!');
 });
 export { initAccessibility as default };
+
+// TODO: Create or update the affected functions to be accessible

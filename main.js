@@ -1,6 +1,3 @@
-Here is the resolved file content with both changes integrated:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -242,4 +239,3 @@ export {
   validateLinkAccessibility,
   handleFakeLinks
 };
-```

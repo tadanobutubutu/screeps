@@ -14,8 +14,6 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Add back any required exports that might have been?
-
 // Game loop function
 function run() {
   // Your game logic here...
@@ -36,36 +34,87 @@ Module.onInit = function() {
 };
 
 /**
- * Checks if a table has the expected structure
- * @param {string} tableName - The name of the table to check
- * @param {Array<string>} expectedColumns - Array of expected column names
- * @returns {boolean} - True if table structure matches expected columns, false otherwise
+ * Checks the structure of a table and validates it against expected schema
+ * @param {string|Object} tableOrName - The name of the table or the table object to check
+ * @param {Array} expectedColumns - Array of expected column definitions
+ * @returns {Object} - Validation result with isValid boolean and error messages
  */
-function checkTableStructure(tableName, expectedColumns) {
-  if (!tableName || typeof tableName !== 'string') {
-    return false;
-  }
-  
-  if (!Array.isArray(expectedColumns)) {
-    return false;
-  }
-  
-  // Validate that expectedColumns is not empty
-  if (expectedColumns.length === 0) {
-    return false;
-  }
-  
-  // Validate that all expectedColumns are non-empty strings
-  for (const column of expectedColumns) {
-    if (typeof column !== 'string' || column.trim() === '') {
-      return false;
+function checkTableStructure(tableOrName, expectedColumns = []) {
+    const result = {
+        isValid: true,
+        errors: []
+    };
+
+    // Support both call signatures: (tableName, expectedColumns) and (table, expectedColumns)
+    if (typeof tableOrName === 'string') {
+        if (!tableOrName || tableOrName.trim() === '') {
+            result.isValid = false;
+            result.errors.push('Table name must be a non-empty string');
+            return result;
+        }
+
+        if (!Array.isArray(expectedColumns)) {
+            result.isValid = false;
+            result.errors.push('expectedColumns must be an array');
+            return result;
+        }
+
+        if (expectedColumns.length === 0) {
+            result.isValid = false;
+            result.errors.push('expectedColumns must not be empty');
+            return result;
+        }
+
+        for (const column of expectedColumns) {
+            if (typeof column !== 'string' || column.trim() === '') {
+                result.isValid = false;
+                result.errors.push('All expected columns must be non-empty strings');
+                return result;
+            }
+        }
+
+        // In a real implementation, this would query the database schema
+        // and validate that the table has the expected columns
+        return result;
     }
-  }
-  
-  // This function checks the structure of a table
-  // In a real implementation, this would query the database schema
-  // and validate that the table has the expected columns
-  return true;
+
+    if (!tableOrName || typeof tableOrName !== 'object') {
+        result.isValid = false;
+        result.errors.push('Table must be a valid object');
+        return result;
+    }
+
+    // Check if table has columns property
+    if (!Array.isArray(tableOrName.columns)) {
+        result.isValid = false;
+        result.errors.push('Table must have a columns array');
+        return result;
+    }
+
+    // Validate each expected column exists
+    const tableColumns = tableOrName.columns.map(col => col.name || col);
+    
+    expectedColumns.forEach(expected => {
+        const columnName = typeof expected === 'string' ? expected : expected.name;
+        if (!tableColumns.includes(columnName)) {
+            result.isValid = false;
+            result.errors.push(`Missing expected column: ${columnName}`);
+        }
+    });
+
+    // Check for unexpected columns if strict mode is needed
+    if (tableOrName.strict && expectedColumns.length > 0) {
+        const expectedColumnNames = expectedColumns.map(e => typeof e === 'string' ? e : e.name);
+        tableOrName.columns.forEach(col => {
+            const colName = col.name || col;
+            if (!expectedColumnNames.includes(colName)) {
+                result.isValid = false;
+                result.errors.push(`Unexpected column found: ${colName}`);
+            }
+        });
+    }
+
+    return result;
 }
 
 // TODO: Implement a function to count dependencies

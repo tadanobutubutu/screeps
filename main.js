@@ -1,8 +1,15 @@
-// ... existing code ...
+// This is a simple module
+const greeting = "Hello";
+
+// TODO: Implement the new function as per the issue requirements
+function newFunction() {
+  // Implementation goes here
+  return "newFunction implemented";
+}
 
 /**
  * Implementation of getSvgAccessibleName
- * @param {SVGSVGElement} svgElement 
+ * @param {SVGSVGElement} svgElement
  * @returns {string|null}
  */
 function getSvgAccessibleName(svgElement) {
@@ -29,4 +36,8 @@ function getSvgAccessibleName(svgElement) {
   return null;
 }
 
-// ... existing code and exports ...
+module.exports = {
+  greeting,
+  newFunction,
+  getSvgAccessibleName
+};

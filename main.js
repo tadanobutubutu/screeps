@@ -259,6 +259,69 @@ function announceToScreenReader(message, priority = 'polite') {
   }, 1000);
 }
 
+// Function to check table structure for accessibility
+const checkTableStructure = (tableElement) => {
+  const errors = [];
+  
+  // Check if table has thead
+  const thead = tableElement.find(child => child.type === 'thead');
+  if (!thead) {
+    errors.push('Table must have a thead element');
+  } else {
+    // Check if thead has th elements
+    const thElements = thead.children || thead.props?.children;
+    const hasTh = thElements && (
+      (Array.isArray(thElements) && thElements.some(el => el && el.type === 'th')) ||
+      (thElements && thElements.type === 'th')
+    );
+    if (!hasTh) {
+      errors.push('Table thead must contain th elements');
+    }
+  }
+  
+  // Check if table has tbody
+  const tbody = tableElement.find(child => child.type === 'tbody');
+  if (!tbody) {
+    errors.push('Table must have a tbody element');
+  } else {
+    // Check if tbody has tr elements with td
+    const rows = tbody.children || tbody.props?.children;
+    if (rows) {
+      const hasProperRows = Array.isArray(rows) 
+        ? rows.some(row => row && (row.type === 'tr' || (row.props && row.props.children)))
+        : true;
+      if (!hasProperRows) {
+        errors.push('Table tbody must contain tr elements with td');
+      }
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Example 6: Proper table structure
+const AccessibleTable = ({ data }) => (
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((item, index) => (
+        <tr key={index}>
+          <td>{item.name}</td>
+          <td>{item.email}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
 /**
  * Ensure interactive elements are keyboard accessible
  * @param {HTMLElement} container - Container element to enhance
@@ -517,8 +580,7 @@ if (typeof document !== 'undefined') {
 }
 
 // Export all functions and values
-module.exports = {
-  VERSION,
+export {
   main,
   initialize,
   processData,
@@ -532,6 +594,8 @@ module.exports = {
   getMax,
   getMin,
   announceToScreenReader,
+  checkTableStructure,
+  AccessibleTable,
   enhanceKeyboardAccessibility,
   trapFocus,
   setupSkipLink,

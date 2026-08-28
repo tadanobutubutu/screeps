@@ -227,20 +227,55 @@ function handleReducedMotion() {
   }
 }
 
-// Export functions for testing
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    initSkipLink,
-    initKeyboardNavigation,
-    handleEscapeKey,
-    initAriaLiveRegion,
-    announceToScreenReader,
-    initFocusManagement,
-    openModal,
-    closeModal,
-    trapFocus,
-    enhanceFormLabels,
-    improveModalAccessibility,
-    handleReducedMotion,
-  };
+/**
+ * Check if a link/URL is accessible via HTTP HEAD/GET request
+ */
+async function isLinkAccessible(url) {
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      mode: 'no-cors'
+    });
+    
+    // In no-cors mode, response.ok is not reliable
+    // A successful request without network error means the resource exists
+    return true;
+  } catch (error) {
+    // Try with GET request as fallback
+    try {
+      const response = await fetch(url, {
+        method: 'GET'
+      });
+      return response.ok;
+    } catch (getError) {
+      return false;
+    }
+  }
 }
+
+/**
+ * Synchronous version that returns a Promise for backward compatibility
+ * @param {string} url - The URL to check
+ * @returns {Promise<boolean>} - Returns true if accessible
+ */
+function isLinkAccessibleSync(url) {
+  return isLinkAccessible(url);
+}
+
+// Export functions for testing and utility
+module.exports = {
+  initSkipLink,
+  initKeyboardNavigation,
+  handleEscapeKey,
+  initAriaLiveRegion,
+  announceToScreenReader,
+  initFocusManagement,
+  openModal,
+  closeModal,
+  trapFocus,
+  enhanceFormLabels,
+  improveModalAccessibility,
+  handleReducedMotion,
+  isLinkAccessible,
+  isLinkAccessibleSync
+};

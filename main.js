@@ -5,8 +5,10 @@
  * @param { Document } doc - The document object to operate on
  */
 function wrapPrimaryContentInMain(doc) {
-  const primaryContent = doc.querySelector('.primary-content');
-  const main = doc.createElement('div');
+  const primaryContent = doc.querySelector('main, [role="main"], .main-content, #main, article, section:first-child');
+  if (!primaryContent) return;
+  
+  const main = doc.createElement('main');
   main.className = 'main';
 
   if (primaryContent.parentNode) {
@@ -16,19 +18,45 @@ function wrapPrimaryContentInMain(doc) {
 }
 
 // ADD THE NEW FUNCTION HERE
-function addAndEnsureUniqueLandmarkRegions(doc) {
-  const landmarks = addProperLandmarkRegions(doc);
-  return ensureUniqueLandmarks(landmarks);
+function ensureUniqueLandmarkNames(landmarks) {
+  const landmarkNames = [];
+  
+  landmarks.forEach(landmark => {
+    const existingName = landmark.getAttribute('aria-label') || 
+                         landmark.getAttribute('aria-labelledby') ||
+                         landmark.getAttribute('name');
+    
+    let uniqueName = existingName;
+    let counter = 1;
+    
+    while (landmarkNames.includes(uniqueName)) {
+      uniqueName = existingName ? `${existingName}-${counter}` : `landmark-${counter}`;
+      counter++;
+    }
+    
+    landmarkNames.push(uniqueName);
+    
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', uniqueName);
+    }
+  });
+  
+  return landmarks;
+}
+
+function addUniqueLandmarkNames(doc) {
+  const landmarks = doc.querySelectorAll('header, nav, main, aside, footer, section, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="region"]');
+  return ensureUniqueLandmarkNames(landmarks);
 }
 
 // ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
-const { addMissingExportFunction } = require('./missingExportFile');
+const { addMissingExportFunction, addProperLandmarkRegions, addAriaToFormControls, replaceMyButtonId, getLangAttribute, getFullLangAttribute, validateLandmark, validateLandmarkStructure, validateTableAccessibility, validateTableStructure, getSvgAccessibleName } = require('./helpers');
 
 module.exports = {
   addProperLandmarkRegions,
-  addAndEnsureUniqueLandmarkRegions,
+  addMissingExportFunction,
   addAriaToFormControls,
   replaceMyButtonId,
   getLangAttribute,
@@ -38,6 +66,6 @@ module.exports = {
   validateTableAccessibility,
   validateTableStructure,
   wrapPrimaryContentInMain, // Add the new function to the exports
-  addMissingExportFunction, // Add the new function to the exports
+  addUniqueLandmarkNames, // Add the new function to the exports
   getSvgAccessibleName
 };

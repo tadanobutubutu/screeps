@@ -1,3 +1,21 @@
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements(doc) {
+  const landmarks = doc.querySelectorAll('main, nav, header, footer, aside, [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const results = [];
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const hasLabel = landmark.hasAttribute('aria-label') || landmark.hasAttribute('aria-labelledby');
+    results.push({
+      element: landmark,
+      role: role,
+      hasAccessibleName: hasLabel
+    });
+  });
+
+  return results;
+}
+
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 
 /**
@@ -39,5 +57,6 @@ module.exports = {
   validateTableStructure,
   wrapPrimaryContentInMain, // Add the new function to the exports
   addMissingExportFunction, // Add the new function to the exports
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  checkLandmarkElements
 };

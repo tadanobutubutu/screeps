@@ -3,7 +3,7 @@
 
 // 47: // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  if (!insightReport || !Array.isArray(insightReport.issues)) {
+  if (!insightReport || !insightReport.issues) {
     return [];
   }
 

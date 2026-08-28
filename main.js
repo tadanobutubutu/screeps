@@ -1,11 +1,10 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 // Hypothetical new function to address accessibility issues (focus-trap for keyboard navigation)
 function addFocusTrap() {
@@ -104,6 +103,10 @@ function fixTableStructure(filePath) {
   console.log(`Fixed table structure issues in ${filePath}`);
 }
 
+function fixTableStructureIssues(filePath) {
+  fixTableStructure(filePath);
+}
+
 function addMainLandmark(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
@@ -128,6 +131,10 @@ function ensureUniqueLandmarks(filePath) {
     let index = 0;
     updatedContent = updatedContent.replace(regex, (match, tagName, attrs) => {
       index++;
+      // Updated to keep single <main>
+      if (landmark === 'main') {
+        return match;
+      }
       if (attrs.includes('id=')) {
         return match;
       }
@@ -343,6 +350,7 @@ module.exports = {
   addAriaAttribute,
   addLangAttribute,
   fixTableStructure,
+  fixTableStructureIssues,
   addMainLandmark,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,

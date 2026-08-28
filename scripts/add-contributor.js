@@ -128,6 +128,10 @@ function updateReadme() {
  * 変更をコミット・プッシュ
  */
 function commitAndPush(username) {
+    if (!username || typeof username !== 'string' || !/^[a-zA-Z0-9-]+$/.test(username)) {
+        console.warn(`⚠️  Invalid username for commit: ${username}`);
+        return;
+    }
     try {
         console.log('📤 Committing changes...');
         execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });

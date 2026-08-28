@@ -1,129 +1,85 @@
-function rotateBack() {
-  // JavaScript code to rotate back
-  console.log('Rotating back...');
+// ... Existing code from main.js ...
+
+// Function to validate landmark structure
+function validateLandmarkStructure(landmark) {
+  const landmarkRole = landmark.getAttribute('role');
+  if (!landmarkRole || landmarkRole !== 'landmark') {
+    console.error(`Invalid role for landmark: ${landmark.id}. Should be "landmark"`);
+    return false;
+  }
+
+  const landmarkLabelledBy = landmark.getAttribute('aria-labelledby');
+  if (!landmarkLabelledBy) {
+    console.error(`Missing aria-labelledby attribute for landmark: ${landmark.id}`);
+    return false;
+  }
+
+  const labelledByElements = document.querySelectorAll(`[id=${landmarkLabelledBy}]`);
+  if (labelledByElements.length === 0) {
+    console.error(`No element with id "${landmarkLabelledBy}" found for landmark: ${landmark.id}`);
+    return false;
+  }
+
+  // Check if at least one labelledBy element is a visible text
+  let hasVisibleText = false;
+  labelledByElements.forEach((element) => {
+    if (element.nodeName === 'SPAN' && element.textContent.trim().length > 0) {
+      hasVisibleText = true;
+    }
+    if (element.nodeName === '#text' && element.textContent.trim().length > 0) {
+      hasVisibleText = true;
+    }
+  });
+
+  if (!hasVisibleText) {
+    console.error(`No visible text found for the labelledBy elements of landmark: ${landmark.id}`);
+    return false;
+  }
+
+  return true;
 }
 
-// - REACT_041: Add accessible names to 2 SVGs
-// These are decorative favicon SVGs, so marking them as hidden from assistive tech
-const svg1 = document.querySelector('#svg1');
-const svg2 = document.querySelector('#svg2');
-if (svg1) svg1.setAttribute('aria-hidden', 'true');
-if (svg2) svg2.setAttribute('aria-hidden', 'true');
+// Function to validate landmark attributes
+function validateLandmarkAttributes(landmark) {
+  const landmarkId = landmark.id;
 
-// - REACT_017: Add/fix 4 landmark issues
+  // Check if the landmark has a unique id
+  if (document.querySelectorAll(`[id="${landmarkId}"]`).length > 1) {
+    console.error(`Landmark with id "${landmarkId}" is not unique!`);
+    return false;
+  }
+
+  // Check if the landmark has at least one child
+  if (landmark.childNodes.length === 0) {
+    console.error(`Landmark with id "${landmarkId}" has no children.`);
+    return false;
+  }
+
+  // Call validateLandmarkStructure() function
+  const validationResult = validateLandmarkStructure(landmark);
+  if (!validationResult) {
+    return false;
+  }
+
+  // Check if there is a heading in the landmark
+  const headingsInLandmark = landmark.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  if (headingsInLandmark.length === 0) {
+    console.error(`Landmark with id "${landmarkId}" should have at least one heading (h1-h6).`);
+    return false;
+  }
+
+  return true;
+}
+
+// Add validation functions to the existing landmark checks in main.js
 const landmarks = document.querySelectorAll('.landmark');
 landmarks.forEach((landmark, index) => {
-  // Assuming you know which ARIA roles are correct for your landmarks
-  landmark.setAttribute('role', 'landmark');
-  landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+  // ... Existing code ...
+
+  // Validate landmark structure and attributes
+  if (!validateLandmarkAttributes(landmark)) {
+    console.error(`Landmark validation issues for landmark with id '${landmark.id}'`);
+  }
 });
 
-// main.js
-
-function addProperLandmarkRegions() {
-  const header = document.querySelector('header');
-  if (header) {
-    header.setAttribute('role', 'banner');
-  }
-
-  // - REACT_025: Ensure unique landmarks (2 issues) - Updated code added below
-  const landmark1 = document.getElementById('landmark1');
-  const landmark2 = document.getElementById('landmark2');
-  if (landmark1) {
-    landmark1.setAttribute('id', 'unique-landmark-1');
-  }
-  if (landmark2) {
-    landmark2.setAttribute('id', 'unique-landmark-2');
-  }
-
-  const nav = document.querySelector('nav');
-  if (nav) {
-    nav.setAttribute('role', 'navigation');
-  }
-
-  const main = document.querySelector('main');
-  if (main) {
-    main.setAttribute('role', 'main');
-  }
-
-  const footer = document.querySelector('footer');
-  if (footer) {
-    footer.setAttribute('role', 'contentinfo');
-  }
-
-  // Function to ensure all SVG elements have accessible names
-  const ensureSvgAccessibleNames = () => {
-    if (typeof document === 'undefined' || !document.body) {
-      return;
-    }
-
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg) => {
-      // Check if SVG is hidden
-      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                       svg.getAttribute('hidden') !== null ||
-                       svg.style.display === 'none' ||
-                       svg.style.visibility === 'hidden';
-
-      if (isHidden) {
-        return;
-      }
-
-      // Check for existing accessible name
-      const hasAriaLabel = svg.getAttribute('aria-label');
-      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
-
-      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
-        return;
-      }
-
-      // Determine if decorative - SVGs used for favicons/decorative purposes
-      const isFavicon = svg.closest('link') !== null ||
-                        (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-favicon') === 'true';
-
-      if (isFavicon) {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
-      } else {
-        // Add a generic title for non-decorative SVGs
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = 'Icon';
-        svg.insertBefore(title, svg.firstChild);
-        svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-label', 'Icon');
-      }
-    });
-  };
-
-  // Function to handle updating accessible SVG names when DOM mutates
-  const updateAccessibleSvgNames = () => {
-    setTimeout(() => {
-      ensureSvgAccessibleNames();
-    }, 0);
-  };
-
-  ensureSvgAccessibleNames();
-
-  // Run again after DOM mutations
-  if (typeof MutationObserver !== 'undefined') {
-    const observer = new MutationObserver(() => {
-      updateAccessibleSvgNames();
-    });
-
-    if (document.body) {
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['aria-hidden', 'aria-label', 'aria-labelledby']
-      });
-    }
-  }
-
-  // ... Add more checks for identifying and addressing other accessibility problems here
-}
-
-addProperLandmarkRegions();
+// ... Existing code below the landmarks loop ...

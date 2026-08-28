@@ -9,7 +9,12 @@
 // Replace the <a> tag with a <button> element
 // <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
 
-// ... (other code in main.js)
+// Ensure that all interactive elements have appropriate keyboard support (applied only to the new button)
+document.getElementById("unrotate").addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " "){
+    rotateBack();
+  }
+});
 
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
@@ -18,7 +23,3 @@ function rotateBack() {
 }
 
 // ... (other code in main.js)
-
-// Additional accessibility-related code changes:
-// Ensure that all interactive elements have appropriate keyboard support
-// Check that ARIA attributes are correctly paired and have appropriate values

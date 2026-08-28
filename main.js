@@ -28,6 +28,14 @@ module.exports = {
   // Validation helpers
   validate: function(input) {
     return input !== null && input !== undefined;
+  },
+  
+  // New function added as per the issue
+  performAction: function(action, data) {
+    if (!action || typeof action !== 'function') {
+      throw new Error('Action must be a function');
+    }
+    return action(data);
   }
 };
 
@@ -36,3 +44,4 @@ module.exports.getVersion = module.exports.getVersion;
 module.exports.initialize = module.exports.initialize;
 module.exports.processData = module.exports.processData;
 module.exports.validate = module.exports.validate;
+module.exports.performAction = module.exports.performAction;

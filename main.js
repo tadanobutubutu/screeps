@@ -14,8 +14,48 @@ import { generateReport } from './src/reporter.js';
  * @returns {Promise<Array>} A promise that resolves to an array of violation objects.
  */
 export async function checkAccessibility(element) {
-  // TODO: Implement accessibility checks for tables
-  return [];
+  const violations = [];
+  const target = element || document;
+
+  // Check links and buttons within the target element
+  const links = target.querySelectorAll('a');
+  const buttons = target.querySelectorAll('button');
+
+  links.forEach(link => {
+    if (link.getAttribute('aria-label') === null) {
+      violations.push({
+        type: 'missing-aria-label',
+        element: link,
+        message: 'Link lacks aria-label attribute.'
+      });
+    }
+    if (!link.hasAttribute('role')) {
+      violations.push({
+        type: 'missing-role',
+        element: link,
+        message: 'Link lacks role attribute.'
+      });
+    }
+  });
+
+  buttons.forEach(button => {
+    if (button.getAttribute('aria-label') === null) {
+      violations.push({
+        type: 'missing-aria-label',
+        element: button,
+        message: 'Button lacks aria-label attribute.'
+      });
+    }
+    if (!button.hasAttribute('role')) {
+      violations.push({
+        type: 'missing-role',
+        element: button,
+        message: 'Button lacks role attribute.'
+      });
+    }
+  });
+
+  return violations;
 }
 
 /**

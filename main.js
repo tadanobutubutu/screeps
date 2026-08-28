@@ -7,7 +7,7 @@ export function renderDependencyGraphPage() {
       </head>
       <body>
         <main>
-          <table id="table-rotated">
+          <table id="table-rotated" role="grid">
             <!-- Table content here -->
           </table>
         </main>

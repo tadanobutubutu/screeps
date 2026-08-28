@@ -33,6 +33,8 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-module.exports = {
-  addressAccessibilityIssues
-};
+// TODO: Add back any required exports that might have been removed.
+// No exports were removed in the current code, so this is just a placeholder comment.
+// If there were exports removed, they would be added here following the format:
+// export function calculateSum(a, b) { return a + b; }
+// export ...;

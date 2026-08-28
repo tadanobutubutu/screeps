@@ -1,12 +1,1 @@
-import axe from 'axe-core';
-
-// ...
-
-function myFunction() {
-  const node = document.querySelector('#my-element');
-  axe.analyze(node).then(results => {
-    if (results.violations.length > 0) {
-      // Handle the violations
-    }
-  });
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

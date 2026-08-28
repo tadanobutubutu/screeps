@@ -4,9 +4,14 @@ import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessib
 import { renderDependencyGraph } from "./dependencyGraph";
 
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
+  // Identify elements with issue 038 accessibility concerns
+  const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === '038';
+  
+  // Return accessibility status and any fixes needed
+  return {
+    hasIssue038,
+    fixes: hasIssue038 ? [{ type: 'fix038', target: element }] : []
+  };
 };
 
 export const metadata: Metadata = {
@@ -22,20 +27,19 @@ export default function RootLayout({
   addLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
-
-  // Implement the renderIndexView method here
+  checkLandmarks();
+  ensureUniqueLandmarks();
+  fixFakeLinkIssue();
+  fixTableStructureIssues();
+  setFormElementAccessibleNames();
+  setSvgAccessibilityProps();
   renderIndexView();
 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
-        {checkAccessibility().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
-        {checkLandmarks().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
+        <link rel="icon" href="/favicon.ico" />
+        <title>Screeps Dashboard</title>
       </head>
       <body>{children}</body>
     </html>

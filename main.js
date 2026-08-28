@@ -31,6 +31,15 @@ function improveAccessibility() {
 
   // Check table structure for accessibility
   checkTableStructure();
+
+  // Check link accessibility
+  const linkResults = checkLinkAccessibility();
+  linkResults.forEach(result => {
+    if (result.element && result.element.setAttribute) {
+      result.element.setAttribute('data-accessibility-issue', 'true');
+      result.element.setAttribute('title', result.issue);
+    }
+  });
 }
 
 function checkLinkAccessibility() {
@@ -282,7 +291,6 @@ function checkTableStructure() {
   });
 }
 
-// TODO: Implement this function for checking landmark elements
 function checkLandmarkElements() {
   const results = [];
   const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -355,7 +363,6 @@ function setSvgAccessibleNames() {
   });
 }
 
-// TODO: Implement this function for adding SVG accessibility props
 function addSvgAccessibilityProps() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {

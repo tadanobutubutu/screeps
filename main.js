@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
@@ -15,8 +14,8 @@ function fixFakeLinkIssue(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix fake links: replace <a> tags without href that should be <button>
-  content = content.replace(/<a([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
-    if (attrs.includes('href')) {
+  content = content.replace(/<a\s+([^>]*?)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
+    if (attrs.includes('href=') || attrs.includes('onClick=')) {
       return match;
     }
     return `<button${attrs}>${inner}</button>`;
@@ -52,22 +51,22 @@ function fixTableStructure(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Fix table structure: ensure tables have proper thead/tbody
-  const tableRegex = /<table\b([^>]*)>([\s\S]*?)<\/table>/gi;
+  const tableRegex = /<table([^>]*)>([\s\S]*?)<\/table>/gi;
   const updatedContent = content.replace(tableRegex, (match, attrs, inner) => {
     let fixed = inner;
     // Fix th elements to have scope attribute
-    fixed = fixed.replace(/<th\b([^>]*)>/gi, (thMatch, thAttrs) => {
-      if (thAttrs.match(/scope=/i)) {
+    fixed = fixed.replace(/<th([^>]*)>/gi, (thMatch, thAttrs) => {
+      if (thAttrs.includes('scope=')) {
         return thMatch;
       }
       return '<th scope="col"' + thAttrs + '>';
     });
     // Add thead if not present
-    if (!fixed.includes('<thead')) {
-      fixed = fixed.replace(/(<tr\b[^>]*>[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
+    if (!/<thead/i.test(fixed)) {
+      fixed = fixed.replace(/(<tr[\s\S]*?<\/tr>)/i, '<thead>$1</thead>');
     }
     // Add tbody if not present
-    if (!fixed.includes('<tbody')) {
+    if (!/<tbody/i.test(fixed)) {
       const theadEnd = fixed.indexOf('</thead>');
       if (theadEnd !== -1) {
         fixed = fixed.substring(0, theadEnd + 8) + '<tbody>' + fixed.substring(theadEnd + 8) + '</tbody>';
@@ -83,12 +82,12 @@ function addMainLandmark(filePath) {
   const fs = require('fs');
   let content = fs.readFileSync(filePath, 'utf8');
   // Add main landmark if not present
-  if (!content.includes('<main')) {
+  if (!/<main/i.test(content)) {
     // Wrap main content in <main> tag
     const bodyMatch = content.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       const bodyContent = bodyMatch[1];
-      const wrappedContent = `<main role="main">${bodyContent}</main>`;
+      const wrappedContent = `<main>${bodyContent}</main>`;
       content = content.replace(bodyContent, wrappedContent);
     }
   }
@@ -120,7 +119,7 @@ function ensureUniqueLandmarks(filePath) {
       // Apply replacements from last to first so indices remain valid
       for (let i = matches.length - 1; i >= 0; i--) {
         const m = matches[i];
-        let attrs = m.attrs.replace(/\s*id=["'][^"']*["']/gi, '');
+        let attrs = m.attrs || '';
         const newId = `${landmark}-${i + 1}`;
         const replacement = `<${m.tag}${attrs ? ' ' + attrs.trim() : ''} id="${newId}">`;
         content = content.substring(0, m.index) + replacement + content.substring(m.index + m.fullMatch.length);
@@ -164,26 +163,26 @@ function replaceButtonId(filePath, newButtonId) {
   let countReplacements = 0;
 
   // Replace my-button with the actual button id
-  const buttonIdRegex = /id=["']my-button["']/gi;
+  const buttonIdRegex = /my-button/gi;
 
   // Replace id attributes
   const updatedContent = content.replace(buttonIdRegex, (match) => {
     countReplacements++;
-    return `id="${newButtonId}"`;
+    return newButtonId;
   });
 
   // Also replace any references in aria-controls, aria-labelledby, etc.
-  const ariaRefRegex = /(aria-controls|aria-labelledby|aria-describedby)=["']my-button["']/gi;
+  const ariaRefRegex = /aria-controls="my-button"|aria-labelledby="my-button"/gi;
   const finalContent = updatedContent.replace(ariaRefRegex, (match, attr) => {
     countReplacements++;
-    return `${attr}="${newButtonId}"`;
+    return match.replace('my-button', newButtonId);
   });
 
   // Replace data attributes if any
-  const dataRefRegex = /data-target=["']my-button["']/gi;
+  const dataRefRegex = /data-button="my-button"/gi;
   const finalFinalContent = finalContent.replace(dataRefRegex, (match, attr) => {
     countReplacements++;
-    return `data-target="${newButtonId}"`;
+    return match.replace('my-button', newButtonId);
   });
 
   fs.writeFileSync(filePath, finalFinalContent);
@@ -197,12 +196,12 @@ function fixSvgDataUriAccessibility(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   
   // Fix SVG data URIs in icons configuration (favicons)
-  // Pattern matches data:image/svg+xml,<svg...> strings
-  const dataUriRegex = /(icons:\s*\{[^}]*icon:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  // Pattern matches ... strings
+  const dataUriRegex = /data:image\/svg\+xml,.*?<svg([^>]*)>([\s\S]*?)<\/svg>/gi;
   
   let updatedContent = content.replace(dataUriRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
     // Check if SVG already has a title or aria-label
-    const hasTitle = svgContent.includes('<title>');
+    const hasTitle = /<title/i.test(svgContent);
     const hasAriaLabel = svgAttrs.includes('aria-label');
     const hasAriaHidden = svgAttrs.includes('aria-hidden');
     
@@ -211,32 +210,32 @@ function fixSvgDataUriAccessibility(filePath) {
     
     if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
       // Add aria-hidden="true" for decorative favicon SVGs
-      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+      newSvgAttrs = `${svgAttrs} aria-hidden="true"`;
     } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
       // SVG has title but no explicit accessible name on SVG element
       // Add role="img" to ensure title is used as accessible name
-      newSvgAttrs = ` role="img"${svgAttrs}`;
+      newSvgAttrs = `${svgAttrs} role="img"`;
     }
     
-    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${newSvgContent}</svg>${suffix}`;
+    return `data:image/svg+xml,<svg${newSvgAttrs}>${newSvgContent}</svg>`;
   });
   
   // Also handle apple touch icon if present
-  const appleIconRegex = /(apple:\s*')data:image\/svg\+xml,<svg([^>]*)>([\s\S]*?)<\/svg>(')/g;
+  const appleIconRegex = /apple-touch-icon.*?data:image\/svg\+xml,.*?<svg([^>]*)>([\s\S]*?)<\/svg>/gi;
   updatedContent = updatedContent.replace(appleIconRegex, (match, prefix, svgAttrs, svgContent, suffix) => {
-    const hasTitle = svgContent.includes('<title>');
+    const hasTitle = /<title/i.test(svgContent);
     const hasAriaLabel = svgAttrs.includes('aria-label');
     const hasAriaHidden = svgAttrs.includes('aria-hidden');
     
     let newSvgAttrs = svgAttrs;
     
     if (!hasTitle && !hasAriaLabel && !hasAriaHidden) {
-      newSvgAttrs = ` aria-hidden="true"${svgAttrs}`;
+      newSvgAttrs = `${svgAttrs} aria-hidden="true"`;
     } else if (hasTitle && !hasAriaLabel && !hasAriaHidden) {
-      newSvgAttrs = ` role="img"${svgAttrs}`;
+      newSvgAttrs = `${svgAttrs} role="img"`;
     }
     
-    return `${prefix}data:image/svg+xml,<svg${newSvgAttrs}>${svgContent}</svg>${suffix}`;
+    return match.replace(`<svg${svgAttrs}>`, `<svg${newSvgAttrs}>`);
   });
   
   if (updatedContent !== content) {
@@ -263,88 +262,4 @@ function addressAccessibilityIssues(reportPath) {
             break;
           case 'landmark':
             addMainLandmark(issue.file);
-            break;
-          case 'unique_landmarks':
-            ensureUniqueLandmarks(issue.file);
-            break;
-          case 'svg_accessible_name':
-            addSvgAccessibleNames(issue.file);
-            break;
-          case 'svg_data_uri_accessible_name':
-            fixSvgDataUriAccessibility(issue.file);
-            break;
-          case 'fake_link':
-            fixFakeLinkIssue(issue.file);
-            break;
-          case 'aria_attribute':
-            addAriaAttribute(issue.file);
-            break;
-          case 'alt_attribute':
-            addAltAttribute(issue.file);
-            break;
-          case 'button_id':
-            replaceButtonId(issue.file, issue.newButtonId || 'action-button');
-            break;
-          // ... (these cases were here previously)
-          case 'new_issue_type':
-            // Implementation for the new issue type goes here
-            break;
-          default:
-            console.log(`Unknown issue type: ${issue.type}`);
-        }
-      }
-    });
-  }
-
-  console.log(`Addressed accessibility issues from insight report in ${reportPath}`);
-}
-
-// Create a new function called implementAccessibilityFixesFromReport to wrap the addressAccessibilityIssues function
-function implementAccessibilityFixesFromReport(reportPath, buttonIdMap) {
-  try {
-    // If buttonIdMap is provided, apply button id replacements
-    if (buttonIdMap && typeof buttonIdMap === 'object') {
-      for (const [filePath, newButtonId] of Object.entries(buttonIdMap)) {
-        replaceButtonId(filePath, newButtonId);
-      }
-    }
-    addressAccessibilityIssues(reportPath);
-    console.log('All accessibility fixes have been successfully implemented.');
-    return true;
-  } catch (error) {
-    console.error(`Error implementing accessibility fixes: ${error.message}`);
-    return false;
-  }
-}
-
-/**
- * Renders a dependency graph based on the provided data.
- * @param {Object} graphData - The data representing the dependency graph.
- * @param {string} [containerId] - Optional container ID to render into.
- * @returns {string} - The rendered graph as a string (placeholder implementation).
- */
-function renderDependencyGraph(graphData, containerId) {
-  // Placeholder implementation: convert graph data to JSON string
-  const graphString = JSON.stringify(graphData, null, 2);
-  console.log(`Rendering dependency graph${containerId ? ' in ' + containerId : ''}:`, graphString);
-  return graphString;
-}
-
-module.exports = {
-  fixFakeLinkIssue,
-  addAriaAttribute,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAltAttribute,
-  replaceButtonId,
-  addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport,
-  renderDependencyGraph,
-  fixSvgDataUriAccessibility
-};
-=======
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
->>>>>>> origin/main
+            break

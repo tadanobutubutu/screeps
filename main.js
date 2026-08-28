@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Import accessibility helper functions
 const {
   getLangAttribute,
@@ -279,6 +276,3 @@ module.exports = {
   getSvgAccessibleName,
   newAccessibilityFunction
 };
-```
-
-This resolved file preserves both changes, addressing the new accessibility issues and rendering dependency graphs.

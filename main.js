@@ -19,7 +19,6 @@ function improveAccessibility() {
   });
 }
 
-// New function to address accessibility issues from insight report
 function addressAccessibilityInsightReport() {
   // Placeholder for the new function logic
   // This function should be implemented based on the specific insights from the report

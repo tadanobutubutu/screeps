@@ -5,7 +5,39 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
-// Accessibility fixes from origin/main
+function App() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // REACT_015: Set document language attribute
+    document.documentElement.lang = 'en';
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/data');
+      const result = await response.json();
+      setData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  // REACT_017: Ensure proper landmark structure
+  return (
+    <div className="app-container" lang="en">
+      <Header />
+      <Main data={data} loading={loading} />
+      <Footer />
+    </div>
+  );
+}
+
+// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
   if (!existingNames.includes(baseName)) {
     return baseName;
@@ -101,15 +133,7 @@ function executeCreepRole(creep) {
 }
 
 // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
-return (
-  <div className="app-container" lang="en">
-    <Header />
-    <Main data={data} loading={loading} />
-    <Footer />
-  </div>
-);
-
-// REACT_027: Add scope to table headers
+// REACT_027: Add scope="col" or scope="row" to <th> elements
 export function addScopeToHeaders(tableElement) {
   if (!tableElement) return [];
 
@@ -145,3 +169,12 @@ export function addScopeToHeaders(tableElement) {
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+export { App, getUniqueLandmarkName, validateUniqueLandmarks, addSvgAccessibleName, isValidLink, addScopeToHeaders };
+
+export default {};
+export const module = { exports: {} };
+module.exports = { App, getUniqueLandmarkName, validateUniqueLandmarks, addSvgAccessibleName, isValidLink, addScopeToHeaders };

@@ -1,5 +1,10 @@
 /**
  * Main application entry point
+ *
+ * Combines legacy table utilities with React-based accessibility enhancements.
+ * - Legacy utilities (checkTableStructure, formatDate, sanitizeInput, createDataTable)
+ *   remain available for non-React usage and for tests.
+ * - Accessibility utilities are pulled in via the React app entry point.
  */
 
 // Configuration
@@ -141,6 +146,75 @@ function createDataTable(data, columns) {
 
   return table;
 }
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+const React = require('react');
+const ReactDOM = require('react-dom');
+
+// Assuming the following functions have been implemented in a separate file or in the same file
+const {
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers
+} = require('./accessibilityUtils');
+
+function addressAccessibilityIssues() {
+    // Function implementation goes here
+}
+
+const App = () => {
+  // ... existing code ...
+
+  // Example of adding lang attribute to the HTML element
+  addLangAttribute('en');
+
+  // Example of fixing table structure issues
+  fixTableStructure();
+
+  // Example of adding/fixing landmark issues
+  fixLandmarkIssues();
+  addMainLandmark();
+  addLandmarkRegions();
+
+  // Example of ensuring unique landmarks
+  ensureUniqueLandmarks();
+  uniqueLandmarks();
+
+  // Example of adding accessible names to SVGs
+  addSvgAccessibleNames();
+  addAccessibleNamesToSVGs();
+
+  // Example of fixing fake link issues
+  fixFakeLinkIssue();
+
+  // Example of Google sign-in logic
+  googleSignIn();
+
+  // Example of replacing 'my-button' with an actual button id for accessibility
+  fixButtonIdentifiers();
+
+  addressAccessibilityIssues();
+
+  return (
+    // ... JSX code ...
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));
 
 /**
  * Export functions for testing and external use

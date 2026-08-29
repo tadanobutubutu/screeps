@@ -29,11 +29,11 @@ function addProperLandmarkRegions(landmarks) {
 // addProperLandmarkRegions(allLandmarks);
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
@@ -133,7 +133,13 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // ... existing code ...
+  // Check if element is a valid anchor tag
+  if (element.tagName !== 'ANCHOR') {
+    return false;
+  }
+  
+  // Additional validation could be added here
+  return true;
 }
 
 export function addScopeToHeaders(tableElement) {

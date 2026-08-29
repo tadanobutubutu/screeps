@@ -93,6 +93,11 @@ function removeLandmark(id) {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
+// New function to solve captcha
+function solveCaptcha() {
+  // Add captcha solving logic here
+}
+
 // Exporting all functions and utilities
 export {
   newFunction,
@@ -109,5 +114,6 @@ export {
   removeLandmarkRegion,
   addLandmark,
   getLandmarks,
-  removeLandmark
+  removeLandmark,
+  solveCaptcha // New export
 };

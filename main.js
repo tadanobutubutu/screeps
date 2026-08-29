@@ -1,36 +1,21 @@
-/**
- * Main entry point for the Frontend application.
- *
- * This file sets up the application, loads the DOM elements, and initializes
- * various modules that handle different aspects of the application. It also
- * contains fixes for various accessibility issues as per the Insight report.
- *
- * The following accessibility issues are addressed:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_017: Add landmark roles and fix landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks (2 issues)
- * - REACT_036: Fix 1 fake link issue
- * - REACT_025: Add scope="col" or scope="row" to <th> elements (already implemented)
- *
- * Also included are fixes for the landmark and uniqueness issues.
- *
- * @module main
- */
-
 import './styles.css';
 
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-import { appStarted } from './events/appStarted.js';
 
 // Landmark data structure
 const landmarks = [];
 
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
 /**
  * Function to check if the specified landmark element is in the document.
  * @param {string} id - The ID of the landmark element.
-//  * @returns {boolean} Returns true if the element exists; otherwise, false.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
@@ -41,7 +26,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
-        const key = landmark.role + '-' + (landmark.label || '');
+        const key = landmark.name + '_' + (landmark.role || 'default');
         if (seen.has(key)) {
             return false;
         }
@@ -51,21 +36,12 @@ function ensureUniqueLandmarks(landmarks) {
 }
 
 // Testing the checkLandmarkElement function:
-//
 // To test this function, we could create a test file with the following content:
-// (Testing is kept here as integration reference for the merged module.)
 const landmarkStructureCheck = (landmark) => {
-  // Implement your logic for checking the landmark structure
-  // For example, let's check if the landmark has required properties: name and coordinates
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
   return true;
-};
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: '<svg viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...'
 };
 
 /**
@@ -265,9 +241,7 @@ const appData = {
     version: '1.0.0'
 };
 
-/**
- * Initializes the application and applies accessibility fixes.
- */
+// Initialization function
 const initApp = () => {
   // Initialize the main application
   initializeApp();
@@ -275,20 +249,22 @@ const initApp = () => {
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
-  ensureUniqueLandmarkElements();
+  ensureUniqueLandmarks(landmarks);
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('.icon-home', 'Home icon');
   addSVGAccessibleName('.icon-settings', 'Settings icon');
+
+  // Define icons object
+  icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
+  };
 
   // Fix fake links
   fixFakeLinks();
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-
-  // Signal that the app has started
-  appStarted();
 };
 
 // Check if the environment is secure before initializing
@@ -302,24 +278,4 @@ if (isSecureContext()) {
 registerSW();
 
 // Export functions for testing
-export {
-    ensureUniqueLandmarks,
-    landmarkStructureCheck,
-    helloWorld,
-    initDependencyGraph,
-    renderDependencyGraph,
-    getElementById,
-    queryElements,
-    checkLandmarkElement,
-    checkLandmarkElements,
-    validateLandmarkStructure,
-    initApp,
-    icons,
-    isSecureContext,
-    setLanguageAttribute,
-    addLandmarkRoles,
-    ensureUniqueLandmarkElements,
-    addSVGAccessibleName,
-    fixFakeLinks,
-    landmarks
-};
+// ... (only include exported functions if needed and remove unrelated code)

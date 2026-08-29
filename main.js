@@ -60,5 +60,42 @@ function addressAccessibilityIssues() {
   checkLinkAndButtonAccessibility();
 }
 
+// REACT_015: Get the lang attribute to be applied to the HTML element
+function getLangAttribute() {
+  // Attempt to determine the page's language from various sources
+  const htmlElement = document.documentElement;
+
+  // 1. Check the existing lang attribute on <html>
+  let lang = htmlElement.getAttribute('lang');
+
+  // 2. If not set, check the <meta> tag with http-equiv="content-language"
+  if (!lang) {
+    const metaContentLanguage = document.querySelector('meta[http-equiv="content-language"]');
+    if (metaContentLanguage) {
+      lang = metaContentLanguage.getAttribute('content');
+    }
+  }
+
+  // 3. If still not set, check the <meta> tag for og:locale
+  if (!lang) {
+    const metaOgLocale = document.querySelector('meta[property="og:locale"]');
+    if (metaOgLocale) {
+      lang = metaOgLocale.getAttribute('content');
+    }
+  }
+
+  // 4. Fallback to 'en' if no language is detected
+  if (!lang) {
+    lang = 'en';
+  }
+
+  // Normalize: take only the primary language subtag (e.g., "en-US" -> "en")
+  if (lang.includes('-')) {
+    lang = lang.split('-')[0];
+  }
+
+  return lang;
+}
+
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+// export { rotateBack, addressAccessibilityIssues, getLangAttribute };

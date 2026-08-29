@@ -1,12 +1,9 @@
-// TODO: Create or update the affected functions to be accessible
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// main.js
 
-// Preserve existing functionality
-module.exports = {
-  // Existing exports preserved
-};
+// TODO: Add back any required exports that might have been?
+// Add any missing exports here based on test requirements
 
-// main.js - Combined utility and accessibility features
+// Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Ensure unique landmarks
@@ -380,6 +377,14 @@ function initializeButton() {
   replaceMyButtonId();
 }
 
+/**
+ * Example function from HEAD
+ * @returns {string} - 'example'
+ */
+function someFunction() {
+  return 'example';
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -403,6 +408,8 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    someFunction
   };
 }
+```

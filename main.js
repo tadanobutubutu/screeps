@@ -1,3 +1,6 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 // TODO: Address accessibility issues from insight report:
@@ -21,7 +24,7 @@ function setLanguage(lang) {
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -44,31 +47,33 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâäçéèêëîïôûüù]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 // New function to convert anchor tags to buttons with specific id and text
 function convertAnchorsToButtons() {
   if (typeof document !== 'undefined') {
-    const anchors = document.querySelectorAll('a#unrotate');
+    const anchors = document.querySelectorAll('a[href^="#"]');
     anchors.forEach(anchor => {
       const button = document.createElement('button');
       button.id = anchor.id;
       button.type = 'button';
       button.textContent = anchor.textContent;
+      button.onclick = anchor.onclick;
+      button.setAttribute('aria-label', anchor.getAttribute('aria-label') || anchor.textContent);
       anchor.parentNode.replaceChild(button, anchor);
     });
   }

@@ -1,17 +1,16 @@
-// TODO: Implement the new function as per the issue requirements
-
 /**
- * Implements the new feature as required by the issue.
- * @param {*} input - The input data to process
- * @returns {*} The processed result
+ * Adds the required lang attribute to the HTML element.
  */
-function implementNewFunction(input) {
-  // Implementation based on issue requirements
-  // This is a placeholder implementation that should be replaced
-  // with the actual logic once requirements are clarified
-  return input;
+function addLangAttribute() {
+  const htmlElement = document.getElementById("root");
+  if (htmlElement) {
+    htmlElement.setAttribute("lang", "en");
+  }
 }
 
+// ... Existing functions from main.js ...
+
 module.exports = {
-  implementNewFunction
+  // ... Existing exports from main.js ...
+  addLangAttribute // Adding the new function for the accessibility issue
 };

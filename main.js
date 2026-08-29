@@ -10,17 +10,12 @@ const logger = require('./utils/logger');
 let isInitialized = false;
 const appData = {};
 
-// TODO: Add back any required exports that might have been?
-
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//<!-- todo-hash: 4798ccecb0ac0a8f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
@@ -224,9 +219,47 @@ function fixLandmarkIssues(insightReport) {
   ensureUniqueLandmarks();
 }
 
-// Placeholder implementation for rendering a dependency graph
+// Updated function for rendering dependency graph with actual implementation
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  // Convert dependency data to HTML representation
+  const htmlContent = generateDependencyGraphHTML(dependencyData);
+  
+  // Render the content using the existing render function
+  renderDependencyGraphContent(htmlContent);
+  
+  // Apply accessibility attributes
+  addressAccessibilityIssues();
+}
+
+// Helper function to generate HTML for dependency graph
+function generateDependencyGraphHTML(data) {
+  if (!data || !Array.isArray(data.nodes)) {
+    return '<div class="no-data">No dependency data available</div>';
+  }
+  
+  let html = '<ul class="dependency-list">';
+  
+  data.nodes.forEach(node => {
+    html += `<li class="dependency-node" data-id="${node.id}">`;
+    html += `<span class="node-name">${node.name}</span>`;
+    
+    if (node.dependencies && node.dependencies.length > 0) {
+      html += '<ul class="sub-dependencies">';
+      node.dependencies.forEach(depId => {
+        const depNode = data.nodes.find(n => n.id === depId);
+        if (depNode) {
+          html += `<li class="dependency-item">${depNode.name}</li>`;
+        }
+      });
+      html += '</ul>';
+    }
+    
+    html += '</li>';
+  });
+  
+  html += '</ul>';
+  
+  return html;
 }
 
 // Placeholder function for index view rendering (to be replaced with actual implementation)
@@ -408,7 +441,7 @@ module.exports = {
   someFunction,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  addLandmarkRolesAndFixIssues
+  generateDependencyGraphHTML
 };
 
 // Execute main function

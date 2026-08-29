@@ -18,18 +18,18 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Implement this function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -38,9 +38,11 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Export functions for testing
-module.exports = {
-  calculateDistance,
-  toRad,
-  ensureUniqueLandmarks
-};
+// TODO: Re-add the required exports for functionA and functionB (if they exist)
+// Re-add them here and uncomment the line below
+// module.exports = {
+//   calculateDistance,
+//   toRad,
+//   ensureUniqueLandmarks,
+//   // Add functionA and functionB exports here, if they are implemented
+// };

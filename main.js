@@ -32,3 +32,8 @@ export function initializeApp() {
     version: '1.0.0'
   };
 }
+
+// REACT_015: Add lang attribute
+export function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
+}

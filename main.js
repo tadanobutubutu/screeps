@@ -31,17 +31,17 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      // tower.attack(hostiles[0]);
     });
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -57,9 +57,21 @@ const main = {
     }
   },
 
-  // Add the new function or change here:
-  myNewFunction: function() {
-    // your new function logic goes here
+  // TODO: Implement this function for accessibility checks on tables
+  checkTableAccessibility: function() {
+    const table = document.querySelector('table');
+    if (!table) {
+      return { accessible: false, message: 'No table found' };
+    }
+    
+    const rows = table.rows;
+    const tbody = table.t.getElementsByTagName('tbody')[0];
+    
+    return {
+      accessible: true,
+      rowCount: rows.length,
+      hasTbody: !!tbody
+    };
   }
 };
 

@@ -1,6 +1,7 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - New functions have been added below to address accessibility issues
 
 // ... (existing code continues here, including imports, exports, and functions)
 

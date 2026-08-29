@@ -8,8 +8,56 @@
 // Example new function exports:
 module.exports = {
   // ... existing exports ...
-  
+
   // Add new functions here:
   // functionName: function() { ... },
-  // anotherFunction: () => { ... }
+  // anotherFunction: () => { ... },
+  
+  getLangAttribute: function() {
+    // ... implementation ...
+  },
+  
+  createInPageButton: function() {
+    // ... implementation ...
+  },
+  
+  validateTableAccessibility: function() {
+    // ... implementation ...
+  },
+  
+  validateTableStructure: function() {
+    // ... implementation ...
+  },
+  
+  validateLandmark: function() {
+    // ... implementation ...
+  },
+  
+  validateLandmarkStructure: function() {
+    // ... implementation ...
+  },
+  
+  getSvgAccessibleName: function() {
+    // ... implementation ...
+  },
+  
+  setSvgAttributes: function() {
+    // ... implementation ...
+  },
+  
+  ensureUniqueLandmarks: function() {
+    // ... implementation ...
+  },
+  
+  createInPageButton: function() {
+    // ... implementation ...
+  },
+  
+  validateLinkAccessibility: function() {
+    // ... implementation ...
+  },
+  
+  handleFakeLinks: function() {
+    // ... implementation ...
+  }
 };

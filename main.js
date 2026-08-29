@@ -130,6 +130,21 @@ function addLandmarkRolesAndFixIssues() {
   });
 }
 
+// New functions for table validation
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = !!table.querySelector('caption');
+  const hasTh = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasTh;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  return !!(thead && tbody);
+}
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -145,5 +160,7 @@ module.exports = {
   addLandmarkRoles,
   addLandmarkRolesAndFixIssues,
   addAriaLabelToSVGsWithoutAccessibleName,
-  ensureLandmarkUniqueness
+  ensureLandmarkUniqueness,
+  validateTableAccessibility,
+  validateTableStructure
 };

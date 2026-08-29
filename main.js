@@ -10,7 +10,7 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = `${baseName}-${Date.now()}`;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -35,6 +35,17 @@ function uniqueLandmarks(landmarks) {
         }
     }
     return result;
+}
+
+/**
+ * Returns the base language attribute (without region) from the document.
+ * This is useful for accessibility purposes, such as ensuring proper
+ * language declaration for screen readers and assistive technologies.
+ * @returns {string} - the base language attribute (without region)
+ */
+function getLangAttribute() {
+  const fullLang = document.documentElement.lang || '';
+  return fullLang.split('-')[0];
 }
 
 /**

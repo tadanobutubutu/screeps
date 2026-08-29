@@ -187,6 +187,18 @@ function createInPageButton(text, id, className) {
   return button;
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role.
+ * Addresses the accessibility issue from the insight report.
+ * @param {HTMLElement} container - The dependency graph container element
+ */
+function setDependencyGraphAriaRole(container) {
+  if (!container) return;
+  container.setAttribute('role', 'graphics-document');
+  container.setAttribute('aria-label', 'Dependency graph');
+  container.setAttribute('aria-roledescription', 'dependency graph visualization');
+}
+
 // Assume YouHaveComponent is the component that needs ARIA roles and keyboard interaction
 
 function YouHaveComponent() {
@@ -212,7 +224,8 @@ export {
   calculateSum,
   addLangAttribute,
   fixTableStructure,
-  addMainLandmark
+  addMainLandmark,
+  setDependencyGraphAriaRole
 };
 
 // React-specific exports

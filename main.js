@@ -21,6 +21,7 @@ import { state, updateState } from './state.js';
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// Ensure the dependencyGraph container has a proper ARIA role
 
 // Accessibility function stubs
 
@@ -89,6 +90,15 @@ setSvgAttributes(svg, accessibleName);
 // This would be handled by the appropriate function call
 validateLinkAccessibility();
 handleFakeLinks();
+
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  if (dependencyGraphContainer) {
+    dependencyGraphContainer.setAttribute('role', 'region');
+    dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
 
 // ... rest of your code ...
 

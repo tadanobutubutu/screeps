@@ -58,6 +58,16 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // TODO: Update the existing function using the new functions for rendering graph/index
+  function renderGraph() {
+    // New function for rendering graph/index
+    // Placeholder for the new rendering logic
+    console.log('Rendering graph...');
+  }
+
+  // Call the new function to render the graph
+  renderGraph();
 }
 
 // Export functions if needed

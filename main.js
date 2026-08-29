@@ -14,10 +14,12 @@ const main = {
     }
     
     // TODO: Implement harvest and upgrade logic
+    this.automateCreeps();
     
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    this.automateSpawning();
   },
   
   manageRoom: function(room) {
@@ -31,17 +33,20 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      if (closestHostile) {
+        tower.attack(closestHostile);
+      }
     });
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByRange(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -60,6 +65,47 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  // Additional functions for TODO items:
+  automateCreeps: function() {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      
+      if (creep.memory.role === 'harvester') {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
+  },
+
+  automateSpawning: function() {
+    const spawns = Object.values(Game.spawns);
+    
+    spawns.forEach(spawn => {
+      const harvesterCount = _.filter(Game.creeps, { memory: { role: 'harvester' } }).length;
+      const upgraderCount = _.filter(Game.creeps, { memory: { role: 'upgrader' } }).length;
+      
+      if (harvesterCount < 2) {
+        this.spawnCreep(spawn, 'harvester');
+      } else if (upgraderCount < 2) {
+        this.spawnCreep(spawn, 'upgrader');
+      }
+    });
+  },
+
+  spawnCreep: function(spawn, role) {
+    const body = role === 'harvester' 
+      ? [WORK, CARRY, MOVE] 
+      : [WORK, CARRY, MOVE];
+    
+    const name = role + Game.time;
+    const memory = { role: role };
+    
+    if (!Game.creeps[name]) {
+      spawn.spawnCreep(body, name, { memory: memory });
+    }
   }
 };
 

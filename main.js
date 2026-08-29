@@ -30,7 +30,6 @@ function getSvgAccessibleName() {
   // ...
 }
 
-// Added missing exports as per the issue
 function validateTableAccessibility() {
   // Implementation for REACT_027: Fix 26 table structure issues
   // ...

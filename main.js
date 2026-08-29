@@ -38,20 +38,20 @@ function detectAndSetLang(content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
+    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
       lang = 'ja'; // Japanese
     } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 // New function to address REACT_015: Add lang attribute to HTML element

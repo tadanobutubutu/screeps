@@ -1,6 +1,19 @@
+const renderGraph = (graph) => {
+  // New function to render the graph data
+  const graphContent = graph;
+  return graphContent;
+};
+
+const renderIndex = (index) => {
+  // New function to render the index data
+  const indexContent = index;
+  return indexContent;
+};
+
 const renderDependencyGraph = (dependencyGraph, container) => {
-  const graphContent = dependencyGraph;
-  container.innerHTML = graphContent;
+  const graphContent = renderGraph(dependencyGraph);
+  const indexContent = renderIndex(dependencyGraph);
+  container.innerHTML = graphContent + indexContent;
 };
 
 const buttonElement = document.getElementById('buttonId');

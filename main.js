@@ -333,16 +333,21 @@ const a11yStore = {
 };
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+function wrapPrimaryContentInMain() {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('lang', document.documentElement.lang);
 
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+  // REACT_015: Ensure the <html> element has a lang attribute for accessibility
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+
+  mainElement.appendChild(document.body.cloneNode(true));
+  document.body.parentNode.insertBefore(mainElement, document.body);
 }
 
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
+// Execute wrapping
+wrapPrimaryContentInMain();
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {

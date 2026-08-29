@@ -2,6 +2,9 @@ import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 // ... (existing code, exports, and functions)
 
 function getLangAttribute() {
@@ -68,6 +71,33 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role
+ * to address accessibility issues from the insight report.
+ * @param {HTMLElement} container - The dependencyGraph container element
+ */
+function ensureDependencyGraphAriaRole(container) {
+  if (!container) {
+    return;
+  }
+
+  // Check if the container already has an ARIA role
+  const existingRole = container.getAttribute('role');
+  
+  // If no role exists, add an appropriate ARIA role
+  if (!existingRole) {
+    container.setAttribute('role', 'region');
+  }
+  
+  // Ensure the container has an accessible name via aria-label
+  const existingLabel = container.getAttribute('aria-label');
+  if (!existingLabel && container.id) {
+    container.setAttribute('aria-label', `Dependency graph: ${container.id}`);
+  } else if (!existingLabel) {
+    container.setAttribute('aria-label', 'Dependency graph');
+  }
+}
+
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure
@@ -78,6 +108,12 @@ function addressAccessibilityIssues(insightReport) {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
+  }
+  
+  // Address the dependencyGraph container ARIA role issue from the insight report
+  const dependencyGraphContainer = document.querySelector('[data-dependency-graph]');
+  if (dependencyGraphContainer) {
+    ensureDependencyGraphAriaRole(dependencyGraphContainer);
   }
 }
 
@@ -109,5 +145,6 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  missingExportPlaceholder
+  missingExportPlaceholder,
+  ensureDependencyGraphAriaRole
 };

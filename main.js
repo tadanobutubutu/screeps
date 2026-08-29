@@ -230,6 +230,10 @@ function enhanceAccessibility() {
   // Implement the function to enhance accessibility
 }
 
+function calculateDiscount(price, discountPercentage) {
+  return price * (discountPercentage / 100);
+}
+
 // ... rest of the code
 
 // React-specific exports

@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
 // Assuming this is what your main.js might look like before the implementation
 // You'll need to integrate this with your actual main.js content
 

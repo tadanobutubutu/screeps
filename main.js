@@ -28,6 +28,11 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  // Add the new function for REACT_017 and the new REACT_025
+  addLandmarkRoles,
+  fixLandmarkIssues,
+  fixFakeLink,
+  updateTableThScope
 } = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');
@@ -60,23 +65,24 @@ const config = {
 };
 
 module.exports = {
-    run,
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    a11yStore,
-    mainElement
+  run,
+  main,
+  SomeClass,
+  someUtility,
+  config,
+  countDependencies,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  a11yStore,
+  mainElement,
+  addLandmarkRoles,
+  fixLandmarkIssues,
+  fixFakeLink,
+  updateTableThScope
 };
-```
-
-This version of the file integrates both changes, keeps the accessibility improvements and the imported functions, and preserves the game-related functions and exports.

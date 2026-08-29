@@ -2,9 +2,9 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // TODO: Implement function for addressing accessibility issues from insight report
@@ -74,7 +74,20 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// New function to generate a summary report from fixed issues
+function generateAccessibilityReport(fixedIssues) {
+  const score = calculateAccessibilityScore(fixedIssues);
+  const unresolvedIssues = fixedIssues.filter(issue => issue.status !== 'resolved').length;
+
+  return {
+    score: score,
+    unresolvedIssues: unresolvedIssues,
+    summary: `Accessibility score: ${score}. Unresolved issues: ${unresolvedIssues}.`
+  };
+}
+
 module.exports = {
   addressAccessibilityIssues,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  generateAccessibilityReport
 };

@@ -60,5 +60,86 @@ function addressAccessibilityIssues() {
   checkLinkAndButtonAccessibility();
 }
 
+// Implement function for addressing accessibility issues from insight report
+function addressInsightReportIssues(insightReport) {
+  // Process the insight report to identify accessibility issues
+  if (!insightReport || !insightReport.issues) {
+    console.warn('No insight report or issues found. Skipping accessibility remediation.');
+    return;
+  }
+
+  console.log('Processing accessibility issues from insight report:', insightReport.issues);
+
+  // Map issue IDs to remediation actions
+  const issueRemediations = {
+    // REACT_015: Ensure lang attribute is set on document
+    REACT_015: () => {
+      if (!document.documentElement.hasAttribute('lang')) {
+        document.documentElement.setAttribute('lang', 'en');
+        console.log('Applied fix for REACT_015: Added lang="en" to document element');
+      }
+    },
+    // REACT_017: Ensure landmark elements have proper roles
+    REACT_017: () => {
+      const landmarks = document.querySelectorAll('.landmark');
+      landmarks.forEach((landmark, index) => {
+        if (!landmark.hasAttribute('role')) {
+          landmark.setAttribute('role', 'landmark');
+          landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
+          console.log(`Applied fix for REACT_017: Added role="landmark" to landmark element ${index}`);
+        }
+      });
+    },
+    // REACT_041: Ensure SVG elements have aria-labelledby attributes
+    REACT_041: () => {
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach(svg => {
+        if (!svg.hasAttribute('aria-labelledby')) {
+          const titleId = svg.getAttribute('id') + '-title';
+          const titleElement = svg.querySelector('title');
+          if (titleElement) {
+            titleElement.setAttribute('id', titleId);
+            svg.setAttribute('aria-labelledby', titleId);
+            console.log(`Applied fix for REACT_041: Added aria-labelledby="${titleId}" to SVG`);
+          } else {
+            console.warn('SVG without title element found, cannot apply aria-labelledby');
+          }
+        }
+      });
+    },
+    // REACT_036: Ensure faux links and buttons have proper roles
+    REACT_036: () => {
+      const fauxLinks = document.querySelectorAll('.fake-link, .faux-link');
+      fauxLinks.forEach(link => {
+        if (!link.hasAttribute('role')) {
+          link.setAttribute('role', 'presentation');
+          console.log('Applied fix for REACT_036: Added role="presentation" to faux link');
+        }
+      });
+    }
+  };
+
+  // Apply fixes for each issue found in the insight report
+  insightReport.issues.forEach(issue => {
+    const remediation = issueRemediations[issue.code];
+    if (remediation) {
+      try {
+        remediation();
+        console.log(`Successfully addressed issue: ${issue.code}`);
+      } catch (error) {
+        console.error(`Error addressing issue ${issue.code}:`, error);
+      }
+    } else {
+      console.warn(`No automated remediation available for issue: ${issue.code}`);
+    }
+  });
+
+  // Run additional accessibility checks
+  console.log('Running additional accessibility checks...');
+  checkLinkAndButtonAccessibility();
+
+  console.log('Finished processing insight report accessibility issues');
+}
+
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+// export { rotateBack, addressAccessibilityIssues, addressInsightReportIssues };

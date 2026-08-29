@@ -53,4 +53,4 @@ module.exports = {
   functionB,
   setLangAttribute,
   initAccessibility
-};
+;

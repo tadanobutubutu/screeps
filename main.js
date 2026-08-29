@@ -38,9 +38,67 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Sets an aria attribute on an element, with validation
+function setAriaAttribute(element, attribute, value) {
+  if (!element || !attribute) {
+    return;
+  }
+  // Ensure the attribute name is prefixed with 'aria-'
+  const attrName = attribute.startsWith('aria-') ? attribute : `aria-${attribute}`;
+  element.setAttribute(attrName, String(value));
+}
+
+// Removes an aria attribute from an element
+function removeAriaAttribute(element, attribute) {
+  if (!element || !attribute) {
+    return;
+  }
+  const attrName = attribute.startsWith('aria-') ? attribute : `aria-${attribute}`;
+  element.removeAttribute(attrName);
+}
+
+// Sets multiple aria attributes on an element from an object
+function setAriaAttributes(element, attributes) {
+  if (!element || !attributes || typeof attributes !== 'object') {
+    return;
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    setAriaAttribute(element, key, value);
+  }
+}
+
+// Makes an element focusable by adding tabindex and aria attributes
+function makeAccessible(element, options = {}) {
+  if (!element) {
+    return;
+  }
+  if (options.focusable) {
+    element.setAttribute('tabindex', options.tabindex || '0');
+  }
+  if (options.label) {
+    element.setAttribute('aria-label', options.label);
+  }
+  if (options.labelledBy) {
+    element.setAttribute('aria-labelledby', options.labelledBy);
+  }
+  if (options.describedBy) {
+    element.setAttribute('aria-describedby', options.describedBy);
+  }
+  if (options.role) {
+    element.setAttribute('role', options.role);
+  }
+  if (options.hidden !== undefined) {
+    element.setAttribute('aria-hidden', String(options.hidden));
+  }
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  setAriaAttribute,
+  removeAriaAttribute,
+  setAriaAttributes,
+  makeAccessible
 };

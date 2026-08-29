@@ -12,7 +12,7 @@ function getLangAttribute() {
 }
 
 function personName() {
-  return document.querySelector('[data-person-name]')?.textContent || 'Unknown';
+  return document.querySelector('[data-person-name]')?.textContent || document.querySelector('.person-name')?.textContent || 'Unknown';
 }
 
 function validateTableAccessibility(table) {
@@ -26,7 +26,7 @@ function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   let hasIssue = false;
   rows.forEach(row => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (cells.length === 0) hasIssue = true;
   });
   return !hasIssue;
@@ -39,7 +39,7 @@ function validateLandmark(element) {
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role="main"], main, [role="navigation"], nav, [role="banner"], header, [role="contentinfo"], footer');
+  const landmarks = document.querySelectorAll('main, [role="main"], nav, [role="navigation"], [role="banner"], header, [role="contentinfo"], footer, [role="search"], [role="form"]');
   let issues = 0;
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) issues += mains.length - 1;
@@ -52,13 +52,19 @@ function getSvgAccessibleName(svg) {
   if (title) return title.textContent;
   const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) return ariaLabel;
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const titleElement = document.getElementById(ariaLabelledby);
+    if (titleElement) return titleElement.textContent;
+  }
   return '';
 }
 
 function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
-  button.addEventListener('click', onClick);
+  if (onClick) button.addEventListener('click', onClick);
+  button.setAttribute('type', 'button');
   return button;
 }
 

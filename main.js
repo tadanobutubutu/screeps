@@ -28,6 +28,16 @@ const main = {
     if (hostileCreeps.length > 0) {
       this.defendRoom(room, hostileCreeps);
     }
+    
+    // Auto-assign idle creeps to harvest sources
+    const creeps = room.find(FIND_MY_CREEPS);
+    creeps.forEach(creep => {
+      if (creep.memory.role === 'harvester' && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader' && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        this.upgrade(creep);
+      }
+    });
   },
   
   defendRoom: function(room, hostiles) {
@@ -36,7 +46,9 @@ const main = {
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      if (tower.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        tower.attack(hostiles[0]);
+      }
     });
   },
   

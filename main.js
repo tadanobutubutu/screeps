@@ -61,6 +61,27 @@ function addSvgAccessibilityProps(props) {
   };
 }
 
+// ADD: Addressing new accessibility issues from insight report
+
+function fixAccessibilityIssues() {
+  getLangAttribute();
+
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table) => {
+    validateTableStructure(table);
+    validateTableAccessibility(table);
+  });
+
+  const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, form[aria-label], form[aria-labelledby], search');
+  landmarkElements.forEach((element) => {
+    validateLandmark(element);
+    validateLandmarkStructure(element);
+  });
+
+  const persons = document.querySelectorAll('[itemtype*="Person"]');
+  persons.forEach((person) => personName(person));
+}
+
 // TODO: Address accessibility issues from insight report — FIXED
 
 // Preserving existing code, exports, and functions
@@ -404,3 +425,4 @@ module.exports = {
     sanitizeFilename,
     processData
 };
+```

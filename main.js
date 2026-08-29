@@ -1,3 +1,38 @@
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');
 
@@ -21,69 +56,6 @@ function setLanguage(lang) {
 }
 
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-
-/**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
- */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
-  }
-  return lang || 'en';
-}
-
-/**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
- */
-function detectAndSetLang(content) {
-  // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
-  
-  if (content) {
-    // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u30ff]/.test(content)) {
-      lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
-      lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
-    }
-  }
-  
-  return setHtmlLangAttribute(lang);
-}
-
-function renderHomePage() {
-  return renderHeader() + '<div>Home Page</div>' + renderFooter();
-}
-
-function renderDashboard() {
-  return renderHeader() + '<div>Dashboard Content</div>' + renderFooter();
-}
-
-// New function to convert anchor tags to buttons with specific id and text
-function convertAnchorsToButtons() {
-  if (typeof document !== 'undefined') {
-    const anchors = document.querySelectorAll('a#unrotate');
-    anchors.forEach(anchor => {
-      const button = document.createElement('button');
-      button.id = anchor.id;
-      button.type = 'button';
-      button.textContent = anchor.textContent;
-      anchor.parentNode.replaceChild(button, anchor);
-    });
-  }
-}
 
 // Call the function to convert anchors to buttons if needed
 if (typeof document !== 'undefined') {
@@ -111,6 +83,7 @@ if (typeof module !== 'undefined' && module.exports) {
     detectAndSetLang,
     convertAnchorsToButtons,
     renderDependencyGraph,
-    renderIndexView
+    renderIndexView,
+    countDependencies
   };
 }

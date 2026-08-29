@@ -317,4 +317,10 @@ function renderDependencyGraphs(document) {
     svg.appendChild(title);
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of
+    desc.textContent = 'Visual representation of dependency graph';
+    svg.appendChild(desc);
+
+    graphContainer.appendChild(svg);
+  }
+  return document;
+}

@@ -58,8 +58,16 @@ const main = {
   },
 
   // Add the new function or change here:
-  myNewFunction: function() {
-    // your new function logic goes here
+  displayDependencyGraph: function() {
+    // Display the dependency graph of the current Screeps game
+    const graph = Game.cpu.getMemory();
+    console.log(graph);
+  },
+  
+  displayModuleStructure: function() {
+    // Display the structure of the modules loaded by the Screeps game
+    const modules = Object.keys(Game.modules);
+    console.log(modules);
   }
 };
 

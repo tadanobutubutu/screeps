@@ -96,6 +96,7 @@ function fixTableStructure(table) {
       const thead = document.createElement('thead');
       table.insertBefore(thead, table.firstChild);
     }
+    
     if (!table.querySelector('tbody')) {
       const tbody = document.createElement('tbody');
       table.appendChild(tbody);

@@ -158,7 +158,16 @@ const ensureUniqueLandmarkElements = () => {
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
   const svgs = document.querySelectorAll(svgSelector);
   svgs.forEach((svg) => {
-    // Check if the SVG already has a title element
     let titleElement = svg.querySelector('title');
     if (!titleElement) {
-      titleElement = document.createElement
+      titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement.textContent = accessibleName;
+      svg.appendChild(titleElement);
+    }
+  });
+};
+
+// Initialize application
+registerSW();
+initializeApp();
+appStarted();

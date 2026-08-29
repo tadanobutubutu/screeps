@@ -1,3 +1,13 @@
+// TODO: This is the existing code that needs to be preserved
+
+export function calculateSum(a, b) {
+    return a + b;
+}
+
+// Below is the existing code (preserving syntax and existing exports)
+// ...
+import react from 'react';
+
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // Sample data and state

@@ -31,6 +31,8 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
+  // TODO: This is the existing code that needs to be preserved
+  // (This comment remains as-is)
   // TODO: Implement this function for checking link and button accessibility
   function checkLinkAndButtonAccessibility() {
     const links = document.querySelectorAll('a');

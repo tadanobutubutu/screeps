@@ -13,4 +13,10 @@ module.exports = {
   AnotherExport: function() {
     // Implementation of the new export
   },
+
+  // New function to ensure unique landmarks
+  ensureUniqueLandmarks: function(landmarks) {
+    const uniqueLandmarks = new Set(landmarks);
+    return Array.from(uniqueLandmarks);
+  }
 };

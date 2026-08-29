@@ -89,6 +89,7 @@ const main = {
   },
 
   myNewFunction: function() {
-    // your new function logic goes here
+    // Implementation of the new function
+    return true;
   }
 };

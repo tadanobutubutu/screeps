@@ -9,7 +9,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibilityHelpers');
 
 const fs = require('fs');
 const path = require('path');
@@ -26,12 +26,15 @@ function run() {
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      const content = fs.readFileSync(filePath, 'utf8');
+      // Process HTML files for accessibility
+      const updatedContent = validateTableAccessibility(content);
+      fs.writeFileSync(filePath, updatedContent);
     });
 }
 
 // Start the game loop
-Module.onInit = function() {
+Module.hookNative = function() {
   setInterval(run, 1000);
 };
 
@@ -46,7 +49,7 @@ function checkTableStructure(tableName, expectedColumns) {
     return false;
   }
   
-  if (!Array.isArray(expectedColumns)) {
+  if (!expectedColumns || !Array.isArray(expectedColumns)) {
     return false;
   }
   
@@ -70,7 +73,7 @@ function checkTableStructure(tableName, expectedColumns) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};
@@ -126,5 +129,13 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink
 };

@@ -4,6 +4,7 @@ import desired-module from 'desired-module';
 // New Function
 function newFunction() {
   // implementation details
+  // This function should contain the code necessary to render the dependency graphs
 }
 
 // Preserve the existing code and functions

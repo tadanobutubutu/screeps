@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-
 // Import render functions
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');

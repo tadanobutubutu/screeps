@@ -37,7 +37,7 @@ function validateWebAccessibility(url) {
     };
     
     try {
-        results.accessibility = validateTableAccessibility(url);
+        results.accessibility = checkAccessibility(url);
         results.structure = validateTableStructure(url);
     } catch (error) {
         results.errors.push(error.message);
@@ -120,8 +120,8 @@ function validateTableAccessibility(tableOrUrl) {
         // Check for proper associations (id/headers)
         const cells = table.querySelectorAll('td');
         if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') || 
-                cells[0].hasAttribute('headers');
+            const hasProperAssociation = cells[0].hasAttribute('headers') || 
+                headers[0].hasAttribute('id');
             if (!hasProperAssociation) {
                 accessibilityResults.issues.push({
                     table: index,
@@ -206,11 +206,12 @@ function validateTableStructure(tableOrUrl) {
         // Check column consistency
         const rows = table.querySelectorAll('tr');
         if (rows.length > 1) {
-            const firstRowCells = rows[0].querySelectorAll('th, td').length;
+            const firstRowCells = rows[0].querySelectorAll('td, th').length;
             let inconsistent = false;
             
             rows.forEach((row, rIndex) => {
-                const cellCount = row.querySelectorAll('th, td').length;
+                if (rIndex === 0) return;
+                const cellCount = row.querySelectorAll('td, th').length;
                 if (cellCount !== firstRowCells) {
                     inconsistent = true;
                 }
@@ -236,7 +237,7 @@ function validateTableStructure(tableOrUrl) {
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
 function countDependencies() {
-  const packagePath = path.join(process.cwd(), 'package.json');
+  const packagePath = path.join(__dirname, 'package.json');
   
   try {
     const packageContent = fs.readFileSync(packagePath, 'utf8');

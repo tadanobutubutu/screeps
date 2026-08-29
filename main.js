@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 function addressAccessibilityIssues() {
   // Address new accessibility issues from insight report
   const issues = [];
@@ -83,7 +86,7 @@ function addressAccessibilityIssues() {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -91,15 +94,35 @@ function addressAccessibilityIssues() {
 // For example, if the page is in English, set lang to 'en'
 
 /**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
   }
-  return lang || 'en';
 }
 
 /**
@@ -131,4 +154,4 @@ function detectAndSetLang(content) {
   return lang;
 }
 
-module.exports = { setHtmlLangAttribute, detectAndSetLang, addressAccessibilityIssues };
+module.exports = { countDependencies, detectAndSetLang, addressAccessibilityIssues };

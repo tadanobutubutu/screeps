@@ -25,7 +25,7 @@
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/(<html[^>]*>)/i, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -56,7 +56,7 @@ export function fixTableStructureIssues(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -64,11 +64,11 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (beforeTr && !beforeTr.includes('<tbody') && (beforeTr.includes('</tbody>') || beforeTr.includes('<table') || beforeTr.includes('</table'))) {
       return `<tbody>${match}`;
     }
     return match;
@@ -83,8 +83,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && !table.includes('</tbody>')) {
+        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -101,7 +101,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main[\s>]/i.test(html)) {
     return html;
   }
   
@@ -110,8 +110,8 @@ export function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -135,7 +135,7 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
@@ -183,7 +183,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (attrs && attrs.includes('aria-label=') || attrs && attrs.includes('id=')) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -222,31 +222,4 @@ export function ensureUniqueLandmarks(html) {
     const openRegex = new RegExp(`<${lm}([^>]*)>`, 'gi');
     html = html.replace(openRegex, (match, inner) => {
       // Skip if an id attribute is already present
-      if (inner && inner.includes('id=')) {
-        return match;
-      }
-      seen[lm] = (seen[lm] || 0) + 1;
-      const id = `${lm}-${seen[lm]}`;
-      return `<${lm} id="${id}"${inner || ''}>`;
-    });
-  });
-  
-  return html;
-}
-
-/**
- * Fixes 1 fake link issue
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed fake link issues
- */
-export function fixFakeLinkIssue(html) {
-  if (typeof html !== 'string') return html;
-  
-  // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
-      return match;
-    }
-    return match.replace(/<a/, '<a href="#"');
-  });
-}
+      if (inner && inner

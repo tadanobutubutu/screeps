@@ -14,6 +14,24 @@ if (divElement) {
 
 // Your existing code... (ensuring all your exported functions and modules are intact)
 
+// Function to get the language attribute value
+function getLangAttribute() {
+  // Implementation of getLangAttribute function
+  // ...
+}
+
+// Function to create an in-page button and add the lang attribute
+function createInPageButton() {
+  // Implementation of createInPageButton function
+  // ...
+}
+
+// Adding the lang attribute to the HTML element
+const htmlElement = document.documentElement;
+if (htmlElement) {
+  htmlElement.setAttribute('lang', getLangAttribute());
+}
+
 module.exports = {
   // Your exported functions and modules here...
 };

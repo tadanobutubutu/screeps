@@ -29,7 +29,12 @@ const a11yStore = {
   // Existing code
 
   // New property to count dependencies
-  countDependencies,
+  countDependencies() {
+    // New implementation to count dependencies using Document and regex
+    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
+    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
+    return importCount;
+  },
 
   init() {
     this.createLiveRegion();
@@ -264,15 +269,23 @@ const a11yStore = {
   addressInsightReportIssues() {
     // Placeholder for implementing accessibility fixes from insight report
   },
+
+  // Setup keyboard navigation
+  setupKeyboardNavigation() {
+    // Placeholder for keyboard navigation setup
+  },
+
+  // Announce message to screen readers
+  announce(message, priority = 'polite') {
+    if (!this.liveRegion) {
+      this.createLiveRegion();
+    }
+    if (this.liveRegion) {
+      this.liveRegion.setAttribute('aria-live', priority);
+      this.liveRegion.textContent = message;
+    }
+  },
 };
-
-// ... rest of your main.js code ...
-
-  // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-  return importCount;
-}
 
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
@@ -346,25 +359,28 @@ function checkTableSchema(tableSchema) {
 
   // ... ( add checkTableSchema function and cool stuff )
 
-  expectedColumns.forEach((column expecting) => {
-    const found = tableSchema.columns.find((column found) => found.name === expecting.name);
+  const expectedColumns = tableSchema.expectedColumns || [];
+  const errors = [];
+  
+  expectedColumns.forEach((expecting) => {
+    const found = tableSchema.columns.find((col) => col.name === expecting.name);
     if (!found) {
-      return {isValid: false, errors: [`Missing expected column: ${expecting.name}`]};
+      errors.push(`Missing expected column: ${expecting.name}`);
+      return;
     }
 
-    const errors = [];
     if (expecting.type && found.type !== expecting.type) {
       errors.push(`Expected column ${found.name} to be a ${expecting.type}, but it is a ${found.type}`);
     }
 
-    if (expecting.unique && found.unique !== expecting.unique) {
-      errors.push(`Expected column ${found.name} to be ${expecting.unique ? 'unique' : 'not unique'}, but it is ${found.unique}`);
-    }
-
-    if (errors.length > 0) {
-      return {isValid: false, errors};
+    if (expecting.unique !== undefined && found.unique !== expecting.unique) {
+      errors.push(`Expected column ${found.name} to be ${expecting.unique ? 'unique' : 'not unique'}, but it is ${found.unique ? 'unique' : 'not unique'}`);
     }
   });
+
+  if (errors.length > 0) {
+    return {isValid: false, errors};
+  }
 
   return {isValid: true};
 }
@@ -372,20 +388,22 @@ function checkTableSchema(tableSchema) {
 // Exporting the new added function
 module.exports = {
   // Keep the existing exports here if any
-  newFunction,
+  newFunction: createInPageButton,
   a11yStore,
   checkLandmarkElements,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  countDependencies,
+  countDependencies: a11yStore.countDependencies.bind(a11yStore),
   createInPageButton,
 };
 
-// Export for module usage
-export { a11yStore };
-export { addressAccessibilityIssues };
-export { createInPageButton };
-export default a11yStore;
+// Export for module usage (ES modules)
+if (typeof exports !== 'undefined') {
+  exports.a11yStore = a11yStore;
+  exports.addressAccessibilityIssues = addressAccessibilityIssues;
+  exports.createInPageButton = createInPageButton;
+  exports.default = a11yStore;
+}
 
 // Import and export additional functions if needed (placeholder for actual modules)
 // Assuming 'utils' modules are required (example follows)

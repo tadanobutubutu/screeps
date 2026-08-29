@@ -1,6 +1,6 @@
 // TODO: Add any other missing exports that might have been?
 
-const config = require('./config');
+const config = {};
 const logger = require('./utils/logger');
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -33,7 +33,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  const dependencyGraph = document.querySelector('.dependencyGraph, [data-dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -44,7 +44,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  const container = document.querySelector('.dependencyGraph, [data-dependency-graph]');
   if (container) {
     container.innerHTML = data;
   }
@@ -61,7 +61,7 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('[tabindex], a, button, input, select, textarea, [role="button"]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -70,7 +70,7 @@ function improveAccessibility() {
 function addressInsightReportIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
-    const element = document.querySelector(issue.selector);
+    const element = issue.element || null;
     if (element) {
       // Add lang attribute to HTML element
       if (issue.code === 'REACT_015') {
@@ -123,16 +123,19 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function addLandmarkRoles(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      const element = issue.element || document.querySelector(issue.selector || '');
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
     }
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
+function placeholderForLandmarkFixes() {
   // Implementation for adding landmark roles and fixing landmark issues
   // This is a placeholder that would need to be implemented based on specific requirements
 }
@@ -157,12 +160,12 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
-  
-  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinks = [...fakeLinkAnchors, ...fakeLinkDivs];
+  fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
+    if (!link.hasAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
   });
@@ -181,13 +184,17 @@ function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure tables have proper structure
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
+    if (!table.querySelector('thead') && table.rows.length > 0) {
+      const firstRow = table.rows[0];
+      if (firstRow.querySelector('th')) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = document.createElement('tbody');
+        while (table.firstChild) {
+          tbody.appendChild(table.firstChild);
+        }
+        table.appendChild(thead);
+        table.appendChild(tbody);
         thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || firstRow);
       }
     }
   });
@@ -200,17 +207,15 @@ function fixTableHeaderCellScope() {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const rows = table.querySelectorAll('tr');
+        const cellIndex = Array.prototype.indexOf.call(cell.parentElement.children, cell);
         let isHeaderRow = true;
-        
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('td, th');
+          const rowCells = row.querySelectorAll('th');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
         });
-        
         cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
       }
     });
@@ -234,7 +239,7 @@ function addMainLandmark() {
       while (content.firstChild) {
         main.appendChild(content.firstChild);
       }
-      content.appendChild(main);
+      content.parentNode.replaceChild(main, content);
     }
   }
 }
@@ -243,41 +248,39 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
+    const titleId = `svg-title-${index}`;
     if (title) {
-      const titleId = `svg-title-${index}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
-      const title = document.createElement('title');
+      title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
+      title.setAttribute('id', titleId);
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function ensureUniqueLandmarksFromReport(insightReport) {
   const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
-      const element = document.querySelector(issue.selector);
-
-      // If the landmark role exists, add it to the unique landmarks object
+      const element = issue.element || document.querySelector(issue.selector || '');
       if (element && issue.ariaRole) {
         if (!uniqueLandmarks[issue.ariaRole]) {
           uniqueLandmarks[issue.ariaRole] = true;
         } else {
-          // Remove the role if it's not unique
           element.removeAttribute('role');
         }
       }
     }
   });
 
-  // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
 }
 
@@ -287,10 +290,10 @@ function implementNewFunction() {
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
-  fixTableStructureIssues();
   addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableStructureIssues();
   fixTableHeaderCellScope();
-  improveAccessibility();
 }
 
 // Existing code preserved below
@@ -306,8 +309,8 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addLandmarkRoles,
+  placeholderForLandmarkFixes,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -319,7 +322,8 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  ensureUniqueLandmarksFromReport
 };
 
 // Execute main function

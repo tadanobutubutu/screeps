@@ -279,3 +279,155 @@ function googleSignIn(document) {
       );
     }
   }
+}
+
+// REACT_015: Improved function to add lang attribute to HTML element
+function applyLangAttribute(document, lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return document;
+}
+
+// REACT_027: Improved function to fix table structure issues
+function applyTableStructureFixes(document) {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) return;
+
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+
+    if (!hasThead && rows.length > 0) {
+      const thead = document.createElement('thead');
+      const firstRow = rows[0];
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, table.firstChild);
+
+      const cells = firstRow.querySelectorAll('td');
+      cells.forEach(cell => {
+        const th = document.createElement('th');
+        th.textContent = cell.textContent;
+        th.scope = 'col';
+        firstRow.replaceChild(th, cell);
+      });
+    }
+
+    if (!hasTbody) {
+      const tbody = document.createElement('tbody');
+      const remainingRows = table.querySelectorAll('tr');
+      remainingRows.forEach(row => {
+        if (row.parentElement.tagName !== 'THEAD') {
+          tbody.appendChild(row);
+        }
+      });
+      table.appendChild(tbody);
+    }
+  });
+  return document;
+}
+
+// REACT_017: Improved function to add main landmark
+function applyMainLandmark(document) {
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    const body = document.body;
+    if (body) {
+      while (body.firstChild) {
+        const child = body.firstChild;
+        if (child.nodeType === 1) {
+          const tagName = child.tagName;
+          if (tagName !== 'SCRIPT' && tagName !== 'STYLE' && 
+              tagName !== 'LINK' && tagName !== 'META' && tagName !== 'HEAD') {
+            mainElement.appendChild(child);
+          } else {
+            break;
+          }
+        } else {
+          mainElement.appendChild(child);
+        }
+      }
+      body.appendChild(mainElement);
+    }
+  }
+
+  if (mainElement && mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  return document;
+}
+
+// REACT_041: Improved function to add accessible names to SVGs
+function applySvgAccessibleNames(document) {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const existingTitle = svg.querySelector('title');
+      const labelText = existingTitle ? existingTitle.textContent.trim() : `Icon ${index + 1}`;
+      svg.setAttribute('aria-label', labelText);
+      svg.setAttribute('role', 'img');
+    }
+  });
+  return document;
+}
+
+// REACT_025: Improved function to ensure unique landmarks
+function applyUniqueLandmarks(document) {
+  const landmarkSelectors = [
+    { selector: 'header, [role="banner"]', role: 'banner' },
+    { selector: 'nav, [role="navigation"]', role: 'navigation' },
+    { selector: 'main, [role="main"]', role: 'main' },
+    { selector: 'aside, [role="complementary"]', role: 'complementary' },
+    { selector: 'footer, [role="contentinfo"]', role: 'contentinfo' }
+  ];
+
+  landmarkSelectors.forEach(({ selector, role }) => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          el.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      const main = mains[i];
+      main.removeAttribute('role');
+      if (main.tagName === 'MAIN') {
+        main.setAttribute('role', 'region');
+        main.setAttribute('aria-label', `Additional content ${i}`);
+      }
+    }
+  }
+
+  return document;
+}
+
+// REACT_036: Improved function to fix fake link issues
+function applyFakeLinkFixes(document) {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="#!"], a[href="javascript:void(0)"]');
+  fakeLinks.forEach(link => {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '#!') {
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+    }
+  });
+
+  const roleLinks = document.querySelectorAll('[role="link"]:not(a)');
+  roleLinks.forEach(link => {
+    link.setAttribute('tabindex', '0');
+  });
+
+  return document;
+}

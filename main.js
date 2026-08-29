@@ -1,6 +1,3 @@
-Here is the resolved version of the 'main.js' file:
-
-```javascript
 // TODO: Add any other missing exports that might have been?
 const config = {};
 const logger = require('./utils/logger');
@@ -13,6 +10,7 @@ const appData = {};
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
+let uniqueLandmarks = {};
 
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -34,10 +32,56 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const container = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
   if (container) {
     container.innerHTML = data;
   }
+}
+
+// New function to address accessibility issues from insight report
+function improveAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent || 'Button');
+    }
+  });
+
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
+}
+
+function addressInsightReportIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    const element = document.querySelector(issue.selector);
+    if (element) {
+      if (issue.code === 'REACT_015') {
+        document.documentElement.lang = 'en';
+      }
+      if (issue.code === 'REACT_017') {
+        if (issue.ariaRole) {
+          element.setAttribute('role', issue.ariaRole);
+        }
+      }
+      if (issue.code === 'REACT_041') {
+        if (issue.ariaLabel) {
+          element.setAttribute('aria-label', issue.ariaLabel);
+        }
+      }
+      if (issue.code === 'REACT_025') {
+        // Implement logic to ensure unique landmarks if needed
+      }
+      if (issue.code === 'REACT_036') {
+        // Implement logic to fix fake link issues if needed
+      }
+      if (issue.code === 'REACT_027') {
+        // This issue is already implemented, so no action is needed here
+      }
+    }
+  });
 }
 
 function ensureUniqueLandmarks(insightReport) {
@@ -46,9 +90,9 @@ function ensureUniqueLandmarks(insightReport) {
   // Check if all landmarks exist, re-add if necessary
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    if (elements.length < landmarks.length) {
-      const uniqueLandmarkMap = {};
+    const uniqueLandmarkMap = {};
 
+    if (elements.length < landmarks.length) {
       landmarks.forEach(uniqueLandmark => {
         let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
         if (!element[0]) {
@@ -64,6 +108,15 @@ function ensureUniqueLandmarks(insightReport) {
       });
 
       uniqueLandmarks = uniqueLandmarkMap;
+    } else {
+      elements.forEach(el => {
+        const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+        if (isUnique) {
+          uniqueLandmarkMap[landmark].push(el);
+        } else {
+          el.removeAttribute('role');
+        }
+      });
     }
   });
 }
@@ -93,12 +146,37 @@ function fixLandmarkIssues(insightReport) {
   });
 }
 
+// New rendering functions for graph/index (to be used by existing functions)
+function renderGraphContentWithOptions(data, options = {}) {
+  console.log('Rendering graph content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    renderDependencyGraphContent(data);
+  }
+}
+
+function renderIndexContentWithOptions(data, options = {}) {
+  console.log('Rendering index content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    // Default rendering behavior for index
+    const container = document.querySelector('.index-content, [data-index-content]');
+    if (container) {
+      container.innerHTML = data;
+    }
+  }
+}
+
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
+  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
 }
 
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
 }
 
 function calculateSum(a, b) {
@@ -203,6 +281,35 @@ function addSvgAccessibleNames() {
   });
 }
 
+// Updated function for REACT_025 (ensuring unique landmarks)
+function fixUniqueLandmarks(insightReport) {
+  const issues = insightReport.issues || [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      const element = document.querySelector(issue.selector);
+
+      if (element && issue.ariaRole) {
+        uniqueLandmarks[issue.ariaRole] = element;
+      }
+    }
+  });
+
+  uniqueLandmarks = Object.values(uniqueLandmarks);
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
+}
+
+function implementAccessibilityFixes() {
+  // Placeholder for accessibility fixes implementation
+}
+
+function capitalizeFirstLetter(str) {
+  if (typeof str !== 'string') return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 function implementNewFunction() {
   addressAccessibilityIssues();
   implementAccessibilityFixes();
@@ -240,10 +347,11 @@ module.exports = {
   implementNewFunction,
   addLangAttribute,
   main,
+  renderGraphContentWithOptions,
+  renderIndexContentWithOptions,
+  fixUniqueLandmarks,
+  capitalizeFirstLetter
 };
 
 // Execute main function
 main();
-```
-
-The resolved file keeps both changes, addressing accessibility issues from the original code and implementing the newly added functions, resolving the Git merge conflict.

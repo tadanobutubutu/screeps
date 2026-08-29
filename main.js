@@ -3,7 +3,6 @@
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
 const { renderDependencyGraphContent } = require('./conflict-branch');
-const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
 const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 // Generalized accessibility functions
@@ -19,31 +18,7 @@ function improveAccessibility() {
 }
 
 // Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
-
-  landmarks.forEach(landmark => {
-    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-    const uniqueGameObjects = [];
-
-    matchingGameObjects.forEach(go => {
-      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
-      if (isUnique) {
-        uniqueGameObjects.push(go);
-      } else {
-        // Remove the landmark tag if it's not unique
-        go.remove(landmark);
-      }
-    });
-
-    uniqueElements[landmark] = uniqueGameObjects;
-  });
-
-  return uniqueElements;
-}
+// Note: ensureUniqueLandmarks is now imported from ./uniqueLandmarks instead of being defined here
 
 // New function to add landmark roles and fix issues
 function addLandmarkRoles(gameObjects) {
@@ -169,7 +144,6 @@ module.exports = {
   renderIndexView,
   calculateSum,
   addLandmarkRoles,
-  ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
   addProperLandmarkRegions,
   ensureLandmarkUniqueness,

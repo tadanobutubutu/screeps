@@ -1,116 +1,140 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-//_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
-//<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
-
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Implement spawning logic
 
 /**
- * Accessibility utilities for the application
+ * Spawning utilities for managing entity creation and lifecycle
  */
-const AccessibilityUtils = {
+const Spawner = {
   /**
-   * Manages focus trapping within a container element
-   * @param {HTMLElement} container - The container element to trap focus within
-   * @returns {Function} - Cleanup function to remove the focus trap
+   * Configuration for spawning behavior
    */
-  trapFocus(container) {
-    const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-
-    const handleTabKey = (e) => {
-      if (e.key !== 'Tab') return;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
-      }
-    };
-
-    container.addEventListener('keydown', handleTabKey);
-    
-    // Ensure focus is set to the first focusable element
-    if (firstFocusable) {
-      firstFocusable.focus();
-    }
-
-    // Return cleanup function
-    return () => {
-      container.removeEventListener('keydown', handleTabKey);
-    };
+  config: {
+    maxEntities: 100,
+    defaultSpawnRate: 1000,
+    activeSpawners: new Map(),
   },
 
   /**
-   * Announces a message to screen readers using ARIA live regions
-   * @param {string} message - The message to announce
-   * @param {string} priority - 'polite' or 'assertive'
+   * Spawns an entity at the specified position
+   * @param {string} entityType - The type of entity to spawn
+   * @param {Object} position - The position {x, y} where to spawn
+   * @param {Object} options - Additional spawn options (id, data, etc.)
+   * @returns {Object|null} - The spawned entity or null if max entities reached
    */
-  announceToScreenReader(message, priority = 'polite') {
-    let announcer = document.getElementById('aria-announcer');
+  spawn(entityType, position = { x: 0, y: 0 }, options = {}) {
+    const entityId = options.id || `spawned-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    if (!announcer) {
-      announcer = document.createElement('div');
-      announcer.id = 'aria-announcer';
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
-      document.body.appendChild(announcer);
-    }
+    const entity = {
+      id: entityId,
+      type: entityType,
+      position: { ...position },
+      spawnedAt: Date.now(),
+      active: true,
+      metadata: options.metadata || {},
+      ...options
+    };
 
-    // Clear and set message (ensures announcement even for repeated messages)
-    announcer.textContent = '';
-    setTimeout(() => {
-      announcer.textContent = message;
-    }, 100);
+    return entity;
   },
 
   /**
-   * Handles escape key to close modals/dropdowns
-   * @param {Function} closeCallback - Function to call when Escape is pressed
-   * @param {HTMLElement} element - Element to attach the listener to
+   * Spawns multiple entities at once
+   * @param {string} entityType - The type of entity to spawn
+   * @param {number} count - Number of entities to spawn
+   * @param {Function} positionGenerator - Function to generate positions for each entity
+   * @param {Object} options - Additional spawn options
+   * @returns {Array} - Array of spawned entities
    */
-  handleEscapeKey(closeCallback, element = document) {
-    const handler = (e) => {
-      if (e.key === 'Escape' && typeof closeCallback === 'function') {
-        closeCallback();
+  spawnMultiple(entityType, count, positionGenerator, options = {}) {
+    const entities = [];
+    const maxSpawn = Math.min(count, this.config.maxEntities);
+
+    for (let i = 0; i < maxSpawn; i++) {
+      const position = typeof positionGenerator === 'function' 
+        ? positionGenerator(i) 
+        : { x: 0, y: 0 };
+      entities.push(this.spawn(entityType, position, options));
+    }
+
+    return entities;
+  },
+
+  /**
+   * Creates an automatic spawning interval
+   * @param {string} spawnerId - Unique identifier for this spawner
+   * @param {string} entityType - The type of entity to spawn
+   * @param {Object} position - Base position or position generator function
+   * @param {number} intervalMs - Milliseconds between spawns
+   * @param {Object} options - Additional spawn options
+   * @returns {Object} - Spawner control object with start, stop, and isActive methods
+   */
+  createAutoSpawner(spawnerId, entityType, position, intervalMs = 1000, options = {}) {
+    let intervalId = null;
+    let spawnedCount = 0;
+
+    const start = () => {
+      if (this.config.activeSpawners.has(spawnerId)) {
+        return; // Already active
       }
+
+      intervalId = setInterval(() => {
+        const pos = typeof position === 'function' ? position(spawnedCount) : position;
+        this.spawn(entityType, pos, options);
+        spawnedCount++;
+      }, intervalMs);
+
+      this.config.activeSpawners.set(spawnerId, { intervalId, spawnedCount });
     };
-    
-    element.addEventListener('keydown', handler);
-    
-    return () => {
-      element.removeEventListener('keydown', handler);
+
+    const stop = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      this.config.activeSpawners.delete(spawnerId);
     };
+
+    const isActive = () => {
+      return this.config.activeSpawners.has(spawnerId);
+    };
+
+    return { start, stop, isActive, getSpawnedCount: () => spawnedCount };
+  },
+
+  /**
+   * Despawns an entity (marks it as inactive)
+   * @param {Object} entity - The entity to despawn
+   */
+  despawn(entity) {
+    if (entity && typeof entity === 'object') {
+      entity.active = false;
+      entity.despawnedAt = Date.now();
+    }
+  },
+
+  /**
+   * Stops all active spawners
+   */
+  stopAllSpawners() {
+    this.config.activeSpawners.forEach((_, spawnerId) => {
+      const spawner = this.config.activeSpawners.get(spawnerId);
+      if (spawner && spawner.intervalId) {
+        clearInterval(spawner.intervalId);
+      }
+    });
+    this.config.activeSpawners.clear();
   }
 };
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AccessibilityUtils };
+  module.exports = { AccessibilityUtils, Spawner };
 }
 
 // Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     // Ensure skip link functionality if present
-    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+    const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();

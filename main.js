@@ -21,7 +21,7 @@ function setLanguage(lang) {
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
+ * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
  * @returns {string} The lang attribute value that was set
  */
 function setHtmlLangAttribute(lang) {
@@ -50,25 +50,27 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâäçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 // New function to convert anchor tags to buttons with specific id and text
 function convertAnchorsToButtons() {
   if (typeof document !== 'undefined') {
-    const anchors = document.querySelectorAll('a#unrotate');
+    const anchors = document.querySelectorAll('a[href^="#"]');
     anchors.forEach(anchor => {
       const button = document.createElement('button');
       button.id = anchor.id;
       button.type = 'button';
       button.textContent = anchor.textContent;
+      button.setAttribute('aria-label', anchor.getAttribute('aria-label') || anchor.textContent);
+      button.className = anchor.className;
       anchor.parentNode.replaceChild(button, anchor);
     });
   }

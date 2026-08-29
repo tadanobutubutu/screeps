@@ -330,4 +330,90 @@ function renderDependencyGraphs(document) {
   if (graphContainer) {
     // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Dependency graph');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '400');
+    graphContainer.appendChild(svg);
+  }
+  return document;
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const myButtons = document.querySelectorAll('[id="my-button"], .my-button');
+  let count = 0;
+  myButtons.forEach((element, index) => {
+    const newId = element.dataset.id && element.dataset.id.length > 0
+      ? element.dataset.id
+      : `button-${index + 1}`;
+    element.id = newId;
+    count++;
+  });
+  return count;
+}
+
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphARIA(document) {
+  const graphContainer = document.querySelector('#dependencyGraph') || 
+                         document.querySelector('.dependency-graph') || 
+                         document.querySelector('[data-graph="dependencies"]') ||
+                         document.querySelector('[id*="dependency"]');
+  if (graphContainer) {
+    if (!graphContainer.hasAttribute('role')) {
+      graphContainer.setAttribute('role', 'img');
+    }
+    if (!graphContainer.hasAttribute('aria-label')) {
+      graphContainer.setAttribute('aria-label', 'Dependency graph container');
+    }
+  }
+  return document;
+}
+
+// Export all accessibility fix functions so they can be used and tested
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  ensureDependencyGraphARIA
+};
+
+// Default export for convenience
+export default {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  ensureDependencyGraphARIA
+};

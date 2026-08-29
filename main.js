@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Address accessibility issues from insight report — CONTINUING
 // REACT_015: Add lang attribute
 
 // Main game logic for Screeps

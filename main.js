@@ -37,8 +37,20 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
+/**
+ * Adds an aria-label attribute to an element if it doesn't already have one.
+ * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {string} label - The label text to be added.
+ */
+function addAriaLabel(element, label) {
+    if (!element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', label);
+    }
+}
+
 module.exports = {
     ensureUniqueLandmarkId,
     uniqueLandmarks,
+    addAriaLabel,
     // Preserve any other existing exports here
 };

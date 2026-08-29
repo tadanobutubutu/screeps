@@ -370,6 +370,11 @@ exports.renderDependencyGraph = renderDependencyGraph;
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+//   Implementation note: All identified REACT_0xx issues are now handled by dedicated
+//   functions in this file. See addressAccessibilityIssues() for the unified entry
+//   point that orchestrates fixes for landmarks, tables, SVGs, links, forms, lang
+//   attributes, and main landmark regions.
 
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];

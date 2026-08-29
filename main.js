@@ -497,3 +497,12 @@ function countDependencies() {
     total: scripts.length + styles.length + images.length + svgElements.length + fonts.length
   };
 }
+
+// TODO: Add these imported modules to the relevant rendering functions
+function renderDependencyGraph() {
+  validateTableAccessibility(document.querySelector('table'));
+  validateTableStructure(document.querySelector('table'));
+  setSvgAccessibilityProps(document.querySelector('svg'));
+  validateLinkAccessibility();
+  handleFakeLinks();
+}

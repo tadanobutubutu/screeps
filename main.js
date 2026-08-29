@@ -1,3 +1,21 @@
+// TODO: Add any new functions or changes requested in the issue here
+function checkHeadingHierarchy() {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let lastLevel = 0;
+  let isValid = true;
+
+  headings.forEach((heading, index) => {
+    const currentLevel = parseInt(heading.tagName.substring(1));
+    if (currentLevel - lastLevel > 1 && lastLevel !== 0) {
+      console.warn(`Heading hierarchy issue at heading ${index + 1}: h${lastLevel} to h${currentLevel} skips a level`);
+      isValid = false;
+    }
+    lastLevel = currentLevel;
+  });
+
+  return isValid;
+}
+
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');

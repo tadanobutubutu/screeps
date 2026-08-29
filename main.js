@@ -35,7 +35,8 @@ function getVersion() {
   return VERSION;
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root').parentElement;

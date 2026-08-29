@@ -14,7 +14,14 @@ const {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./utils/accessibility');
+
+const affectedFunctions = {
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
+};
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -24,12 +31,13 @@ module.exports = {
 
 const a11yStore = {
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
+    // REACT_015: Add lang attribute to HTML element
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
+    this.setupFocusManagement();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -60,8 +68,8 @@ const a11yStore = {
     });
 
     dialog.appendChild(titleEl);
-    dialog.appendChild(closeButton);
     dialog.appendChild(content);
+    dialog.appendChild(closeButton);
 
     return dialog;
   },
@@ -106,19 +114,21 @@ const a11yStore = {
         if (target) {
           target.tabIndex = -1;
           target.focus();
-          this.announce('Skipped to main content');
+          this.announceToScreenReader('Navigated to main content');
         }
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
@@ -127,6 +137,9 @@ const a11yStore = {
         input.setAttribute('aria-label', input.name || 'Form input');
       }
     });
+
+    this.checkLandmarkElements();
+    this.addAccessibilityPropertiesToSvgElements();
   },
 
   createLiveRegion() {
@@ -154,19 +167,52 @@ const a11yStore = {
   },
 
   makeAccessible(element) {
-    // Implement the function logic to address accessibility issues
+    if (!element) return;
+    
+    // Add basic accessibility attributes if missing
+    if (element.tagName === 'BUTTON' && !element.hasAttribute('aria-label')) {
+      const text = element.textContent.trim();
+      if (text) {
+        element.setAttribute('aria-label', text);
+      }
+    }
+    
+    if (element.tagName === 'A' && !element.hasAttribute('aria-label') && !element.textContent.trim()) {
+      element.setAttribute('aria-label', 'Link');
+    }
+    
+    // Ensure all interactive elements are keyboard accessible
+    const tabIndex = element.getAttribute('tabindex');
+    if (tabIndex === null && ['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName)) {
+      element.setAttribute('tabindex', '0');
+    }
   },
 
   newNecessaryFunction() {
     // Implement the new function logic here
+    this.createLiveRegion();
   },
 
   handleAccessibilityIssues() {
     // Implement the function logic to handle accessibility issues
+    this.initAccessibility();
+    this.setupFocusManagement();
+    this.checkLandmarkElements();
+    this.addAccessibilityPropertiesToSvgElements();
+    this.fixFakeLinks();
   },
 
   addressAccessibilityIssue038() {
     // Existing code for addressing accessibility issue 038
+    const elements = document.querySelectorAll('[role="button"]');
+    elements.forEach((el) => {
+      if (!el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
+      if (!el.hasAttribute('aria-label') && !el.textContent.trim()) {
+        el.setAttribute('aria-label', 'Button');
+      }
+    });
   },
 
   renderDependencyGraph() {
@@ -175,137 +221,68 @@ const a11yStore = {
 
   setupKeyboardNavigation() {
     // Setup keyboard navigation logic
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const dialogs = document.querySelectorAll('[role="dialog"]:not([hidden])');
+        dialogs.forEach((dialog) => {
+          dialog.hidden = true;
+          dialog.setAttribute('aria-hidden', 'true');
+        });
+      }
+    });
   },
 
   setupFocusManagement() {
     // Setup focus management logic
+    this.setupKeyboardNavigation();
   },
 
   setupSkipLinks() {
     // Setup skip links logic
+    const skipLink = document.createElement('a');
+    skipLink.href = '#main-content';
+    skipLink.className = 'skip-link';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.style.position = 'absolute';
+    skipLink.style.left = '-9999px';
+    skipLink.style.top = '0';
+    skipLink.addEventListener('focus', () => {
+      skipLink.style.left = '0';
+      skipLink.style.top = '0';
+    });
+    skipLink.addEventListener('blur', () => {
+      skipLink.style.left = '-9999px';
+    });
+    document.body.insertBefore(skipLink, document.body.firstChild);
   },
 
   checkLandmarkElements() {
     // Check and ensure proper landmark elements
+    const main = document.querySelector('main');
+    if (main && !main.id) {
+      main.id = 'main-content';
+    }
   },
 
-  addSVGAccessibilityProps() {
+  addAccessibilityPropertiesToSvgElements() {
     // Add accessibility properties to SVG elements
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+        const title = svg.querySelector('title');
+        if (title) {
+          svg.setAttribute('aria-labelledby', 'svg-title');
+          title.id = 'svg-title';
+        }
+      }
+    });
   },
 
   fixFakeLinks() {
     // Fix fake links to use proper anchor elements
-  },
-
-  updateLiveRegion() {
-    // Update live region for screen readers
-  },
-};
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
-}
-
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  report.forEach(issue => {
-    // Integrated the logic from both branches to address accessibility issues
-  });
-}
-
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
-export default function Main() {
-  return (
-    <>
-      {/* REACT_015: Lang attribute should be set at HTML document level */}
-      {/* This is typically set in index.html or via document.documentElement.lang */}
-
-      <header role="banner">
-        <nav role="navigation" aria-label="Main navigation">
-          <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/about">About</a></li>
-          </ul>
-        </nav>
-      </header>
-
-      <main role="main">
-        <h1>Welcome to our site</h1>
-
-        {/* REACT_041: Add accessible names to SVGs */}
-        <svg
-          role="img"
-          aria-label="Settings icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-
-        {/* REACT_041: Add accessible names to second SVG */}
-        <svg
-          role="img"
-          aria-label="User profile icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-        </svg>
-
-        {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
-          Go to Dashboard
-        </a>
-
-        {/* REACT_017 & REACT_025: Ensure unique landmarks */}
-        {/* Using proper landmark elements ensures unique landmarks */}
-      </main>
-    </>
-  );
-}
-
-export {
-  a11yStore,
-  handleAccessibilityIssues,
-  getSvgAccessibleName,
-  newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-};
-export default a11yStore;
+    const fakeLinks = document.querySelectorAll('[role="link"], a:not([href])');
+    fakeLinks.forEach((link) => {
+      if (link.tag

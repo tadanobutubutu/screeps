@@ -43,9 +43,11 @@ const config = {
 };
 
 // Start the game loop
-Module.onInit = function() {
-  setInterval(run, 1000);
-};
+if (typeof Module !== 'undefined') {
+  Module.onInit = function() {
+    setInterval(run, 1000);
+  };
+}
 
 // Update scope attributes in all .html files in the views directory
 const viewsDir = path.join(__dirname, 'views');
@@ -880,6 +882,7 @@ function renderDependencyGraphsInDoc(document) {
 // Validate table accessibility
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
+  const issues = [];
   let issuesCount = 0;
 
   tables.forEach((table) => {
@@ -925,7 +928,7 @@ function validateTableAccessibility() {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(th => {
       if (!th.hasAttribute('scope')) {
-        result.issues.push('Header cells should have scope attribute');
+        issues.push('Header cells should have scope attribute');
         issuesCount++;
       }
     });
@@ -1117,6 +1120,19 @@ const a11yStore = {
    * Sets accessibility properties on SVG elements.
    * @param {SVGElement} svgElement - The SVG element to modify
    */
+  setSvgAttributes(svgElement) {
+    if (!svgElement) return;
+
+    if (!svgElement.hasAttribute('role')) {
+      svgElement.setAttribute('role', 'img');
+    }
+
+    if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title')) {
+      const generatedLabel = 'SVG Image';
+      svgElement.setAttribute('aria-label', generatedLabel);
+    }
+  },
+
   setSvgAccessibilityProps(svgElement) {
     if (!svgElement) return;
 

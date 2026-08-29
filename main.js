@@ -1,3 +1,5 @@
+// Address accessibility issues from insight report
+
 const landmarkStructureCheck = (landmark) => {
   // Implement your logic for checking the landmark structure
   // For example, let's check if the landmark has required properties: name and coordinates
@@ -24,7 +26,40 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+function checkLandmarkAccessibility(landmark) {
+    const issues = [];
+    
+    if (!landmark.name || landmark.name.trim() === '') {
+        issues.push('Landmark must have a descriptive name for screen readers');
+    }
+    
+    if (!landmark.role) {
+        issues.push('Landmark should have a semantic role for accessibility');
+    }
+    
+    return {
+        accessible: issues.length === 0,
+        issues: issues
+    };
+}
+
+function ensureAccessibleLandmarks(landmarks) {
+    const accessibleLandmarks = [];
+    
+    for (const landmark of landmarks) {
+        const accessibilityCheck = checkLandmarkAccessibility(landmark);
+        
+        if (accessibilityCheck.accessible) {
+            accessibleLandmarks.push(landmark);
+        }
+    }
+    
+    return accessibleLandmarks;
+}
+
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    checkLandmarkAccessibility,
+    ensureAccessibleLandmarks
 };

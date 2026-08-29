@@ -98,12 +98,12 @@ function checkTableStructure(table) {
   }
 
   // Validate row consistency
-  const targetRow = tbody || allRows[0];
-  const firstRowCells = targetRow.querySelectorAll('td, th');
+  const targetRow = tbody ? tbody.querySelector('tr') : allRows[0];
+  const firstRowCells = targetRow ? targetRow.querySelectorAll('th') : [];
   const expectedCellCount = firstRowCells.length || result.columnCount;
 
   allRows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (cells.length !== expectedCellCount) {
       result.isValid = false;
       result.errors.push(`Row ${index} has ${cells.length} cells, expected ${expectedCellCount}`);
@@ -177,7 +177,7 @@ function validateInput(input) {
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -197,10 +197,38 @@ const {
   fixFakeLinkIssues,
   googleSignIn,
   fixButtonIdentifiers
-} = require('./accessibilityUtils');
+} = require('./accessibility-utils');
 
 function addressAccessibilityIssues() {
-    // Function implementation goes here
+    // Add lang attribute to HTML element for screen readers
+    addLangAttribute(document.documentElement, 'en');
+    
+    // Fix table structure issues for accessibility
+    fixTableStructure();
+    
+    // Fix landmark issues
+    fixLandmarkIssues();
+    
+    // Add main landmark
+    addMainLandmark();
+    
+    // Add landmark regions
+    addLandmarkRegions();
+    
+    // Ensure unique landmarks
+    ensureUniqueLandmarks();
+    uniqueLandmarks();
+    
+    // Add accessible names to SVGs
+    addSvgAccessibleNames();
+    addAccessibleNamesToSVGs();
+    
+    // Fix fake link issues
+    fixFakeLinkIssue();
+    fixFakeLinkIssues();
+    
+    // Fix button identifiers for accessibility
+    fixButtonIdentifiers();
 }
 
 const App = () => {
@@ -238,10 +266,17 @@ const App = () => {
 
   return (
     // ... JSX code ...
+    React.createElement('div', { className: 'app' },
+      React.createElement('header', { role: 'banner' },
+        React.createElement('nav', { role: 'navigation', 'aria-label': 'Main navigation' })
+      ),
+      React.createElement('main', { role: 'main', id: 'main-content' }),
+      React.createElement('footer', { role: 'contentinfo' })
+    )
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
 
 /**
  * Export functions for testing and external use

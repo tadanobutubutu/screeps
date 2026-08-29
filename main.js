@@ -1,3 +1,8 @@
+// TODO: Add back any required exports that might have been removed
+// Example: import a function from another file (util.js)
+// ------ IMPORTANT -------
+// Do not remove or rename any existing exports in main.js
+
 import { type Metadata } from "next";
 import "./globals.css";
 import {

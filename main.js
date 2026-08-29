@@ -23,9 +23,7 @@ function handleAccessibilityIssues() {
 // Call the new function to handle accessibility issues
 handleAccessibilityIssues();
 
-// Keep the existing exports
-// ...
-
+// New function to add proper Landmark Regions
 function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
@@ -109,6 +107,11 @@ function addProperLandmarkRegions() {
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
     landmark.setAttribute('role', 'landmark');
+
+    // Update the landmark if it has an ID attribute
+    if (landmark.id) {
+      landmark.setAttribute('aria-labelledby', landmark.id);
+    }
   });
 }
 

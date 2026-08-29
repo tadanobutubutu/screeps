@@ -8,15 +8,51 @@ export function newFunction() {
 // Assuming there's a variable `newVar` that needs to be exported
 export let newVar = 'some value';
 
-// Here's where you add new functions
-function addProperLandmarkRegions(landmarks) {
-  // Implement your new function to add proper landmark regions
-  // This is a placeholder implementation, replace it with the actual logic
-  landmarks.forEach(landmark => {
-    // Assuming landmark has a 'name' and 'coordinates' property
-    // You would add the logic to properly add the landmark region here
-    console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
-  });
+/**
+ * Adds proper landmark regions to improve accessibility
+ * Wraps content in appropriate ARIA landmarks and roles
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with proper landmark regions
+ */
+export function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Identify main content areas and add appropriate landmarks
+  // Find the main content div or section without a landmark
+  const mainContentSelection = result.match(/<div[^>]*>(?:(?!<main|\<nav|\<header|\<footer|\<aside).)*<\/div>/i);
+  
+  if (mainContentSelection) {
+    const mainContent = mainContentSelection[0];
+    // Check if it's not already wrapped in a main landmark
+    if (!/<main[^>]*>/i.test(mainContent)) {
+      result = result.replace(mainContent, `<main>${mainContent}</main>`);
+    }
+  }
+  
+  // Add lang attribute to html element if not present for accessibility
+  if (!/<html[^>]*lang=/i.test(result)) {
+    result = result.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
+  }
+  
+  // Ensure skip to content link exists for keyboard accessibility
+  if (!/role="skip-link"/i.test(result)) {
+    const bodyMatch = result.match(/<body([^>]*)>([\s\S]*?<\/body>)/i);
+    if (bodyMatch) {
+      const bodyAttrs = bodyMatch[1];
+      const bodyContent = bodyMatch[2];
+      const skipLink = '<a href="#main-content" class="skip-link" role="skip-link">Skip to main content</a>';
+      result = result.replace(bodyMatch[0], `<body${bodyAttrs}>${skipLink}${bodyContent}`);
+    }
+  }
+  
+  // Ensure main landmark has an id for skip link to work
+  if (/<main/i.test(result) && !/<main[^>]*id=/i.test(result)) {
+    result = result.replace(/<main([^>]*)>/i, '<main$1 id="main-content">');
+  }
+  
+  return result;
 }
 
 /**
@@ -123,7 +159,7 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']+)["']/);
+    const idMatch = attrs.match(/id=["\']([^\'"]+)["\']/);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-label="${label}">`;
     }
@@ -218,5 +254,3 @@ export function ensureUniqueLandmarks(html) {
 export { addProperLandmarkRegions };
 
 // existing code... (use the conflict markers to identify and preserve it)
-```
-In this case, I chose to preserve both changes. I kept the existing code, imported the `newFunction` and `newVar` functions, and added the `addProperLandmarkRegions` function. This way, both sets of added code are included, and the script should continue to work as intended for both branches. However, I strongly recommend checking if the `newFunction` and `newVar` are truly needed and non-redundant, as it's not clear from the provided context. If any of these are redundant or cause issues, they should be re-evaluated or removed.

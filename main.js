@@ -5,6 +5,22 @@
  * Main module functionality
  */
 
+const child_process = require('child_process');
+
+// ... existing code and exports
+
+function spawnSomeCommand(callback) {
+  child_process.spawn('someCommand', {}, {
+    stdio: 'inherit',
+  }).on('exit', (code, signal) => {
+    if (code === 0) {
+      callback(null, 'Successfully executed someCommand');
+    } else {
+      callback(new Error(`someCommand failed with code ${code}`));
+    }
+  });
+}
+
 const hello = () => {
   return 'Hello from main.js';
 };
@@ -28,15 +44,6 @@ const getConfig = () => {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
 // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-
-// Implement function to create in-page buttons
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  document.body.appendChild(button);
-  return button;
-}
 
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
@@ -125,97 +132,6 @@ function calculateAccessibilityScore(fixedIssues) {
 }
 
 /**
- * Checks for landmark elements within a given container or the document body.
- * Landmark elements include common semantic elements like header, nav, main,
- * aside, footer, and section with role="region".
- *
- * @param {HTMLElement} [container=document.body] - The container element to search within.
- * @returns {Array<HTMLElement>} An array of landmark elements found.
- */
-function checkLandmarkElements(container = document.body) {
-  const landmarkSelectors = [
-    'header',
-    'nav',
-    'main',
-    'aside',
-    'footer',
-    '[role="banner"]',
-    '[role="navigation"]',
-    '[role="main"]',
-    '[role="complementary"]',
-    '[role="contentinfo"]',
-    '[role="region"]',
-    'section[aria-label], section[aria-labelledby]'
-  ];
-
-  return Array.from(container.querySelectorAll(landmarkSelectors.join(',')));
-}
-
-// Function to render dependency graph
-function renderDependencyGraph() {
-  const container = document.getElementById('dependency-graph') || document.createElement('div');
-  container.id = 'dependency-graph';
-  
-  const title = document.createElement('h2');
-  title.textContent = 'Dependency Graph';
-  container.appendChild(title);
-  
-  // Example dependency nodes
-  const nodes = [
-    { id: 'main', name: 'main.js', type: 'module' },
-    { id: 'config', name: 'getConfig', type: 'function' },
-    { id: 'version', name: 'getVersion', type: 'function' }
-  ];
-  
-  nodes.forEach(node => {
-    const div = document.createElement('div');
-    div.className = 'dependency-node';
-    div.textContent = `${node.id}: ${node.name}`;
-    container.appendChild(div);
-  });
-  
-  return container;
-}
-
-// Function to display module structure
-function displayModuleStructure() {
-  const container = document.getElementById('module-structure') || document.createElement('div');
-  container.id = 'module-structure';
-  
-  const title = document.createElement('h2');
-  title.textContent = 'Module Structure';
-  container.appendChild(title);
-  
-  // Sample module structure
-  const modules = [
-    {
-      name: 'main',
-      exports: ['hello', 'getVersion', 'getConfig'],
-      description: 'Main entry point'
-    },
-    {
-      name: 'utils',
-      exports: ['createInPageButton'],
-      description: 'Utility functions'
-    }
-  ];
-  
-  modules.forEach(module => {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'module-item';
-    itemDiv.innerHTML = `
-      <strong>${module.name}</strong> (${module.description})
-      <ul>
-        ${module.exports.map(exp => `<li>${exp}</li>`).join('')}
-      </ul>
-    `;
-    container.appendChild(itemDiv);
-  });
-  
-  return container;
-}
-
-/**
  * Ensures that there is only one <main> landmark in the provided source code.
  * Additional <main> elements are replaced with <section> (preserving attributes)
  * to satisfy REACT_025 (Unique Landmarks).
@@ -267,8 +183,8 @@ function validateLandmark(element) {
     'form'
   ];
 
-  const role = element.getAttribute('role');
-  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute ? element.getAttribute('role') : element.role;
+  const tagName = element.tagName ? element.tagName.toLowerCase() : element.tagName;
 
   const implicitLandmarks = {
     'header': 'banner',
@@ -303,7 +219,7 @@ function validateLandmark(element) {
     };
   }
 
-  if (landmarkRole === 'region' && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+  if (landmarkRole === 'region' && !(element.hasAttribute ? element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby') : element['aria-label'] || element['aria-labelledby'])) {
     return { 
       valid: false, 
       error: 'Region landmark must have an accessible name (aria-label or aria-labelledby)',
@@ -320,8 +236,17 @@ function validateLandmark(element) {
 }
 
 function validateLandmarkStructure(documentOrElement) {
-  const root = documentOrElement || document;
-  const landmarks = root.querySelectorAll('[role="banner"], [role="main"], [role="navigation"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"], header, main, nav, aside, footer, section, form');
+  const root = documentOrElement || { querySelectorAll: () => [] };
+  const selectors = '[role="banner"], [role="main"], [role="navigation"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"], header, main, nav, aside, footer, section, form';
+  
+  let landmarks;
+  if (typeof root.querySelectorAll === 'function') {
+    landmarks = root.querySelectorAll(selectors);
+  } else if (Array.isArray(root)) {
+    landmarks = root;
+  } else {
+    landmarks = [];
+  }
   
   const results = [];
   const seenRoles = new Set();
@@ -371,14 +296,19 @@ function ensureUniqueLandmarks(documentOrElement) {
     elements.forEach((element, index) => {
       if (index > 0) {
         const uniqueLabel = `${role} ${index + 1}`;
-        if (element.hasAttribute('aria-labelledby')) {
+        const hasLabelledby = element.hasAttribute ? element.hasAttribute('aria-labelledby') : element['aria-labelledby'];
+        const hasLabel = element.hasAttribute ? element.hasAttribute('aria-label') : element['aria-label'];
+        
+        if (hasLabelledby) {
           fixes.push({
             element,
             fix: 'aria-labelledby',
             message: `Consider updating aria-labelledby for duplicate ${role} landmark`
           });
-        } else if (!element.hasAttribute('aria-label')) {
-          element.setAttribute('aria-label', uniqueLabel);
+        } else if (!hasLabel) {
+          if (element.setAttribute) {
+            element.setAttribute('aria-label', uniqueLabel);
+          }
           fixes.push({
             element,
             fix: 'aria-label',
@@ -397,24 +327,24 @@ function ensureUniqueLandmarks(documentOrElement) {
 }
 
 // Accessibility stubs from HEAD
-export function getLangAttribute() {
+function getLangAttribute() {
   // Implementation for REACT_015
 }
 
-export function validateTableAccessibility() {
+function validateTableAccessibility() {
   // Implementation for REACT_027
 }
 
-export function validateTableStructure() {
+function validateTableStructure() {
   // Implementation for REACT_027
 }
 
-export function getSvgAccessibleName() {
+function getSvgAccessibleName() {
   // Implementation for REACT_041
 }
 
 // Consolidated personName (combining REACT_015 and REACT_036 concerns from HEAD)
-export function personName() {
+function personName() {
   // Implementation for REACT_015 / REACT_036
 }
 
@@ -425,23 +355,17 @@ module.exports = {
   getConfig,
   VERSION: '1.0.0',
   NAME: 'main',
-  createInPageButton,
+  spawnSomeCommand,
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
-  checkLandmarkElements,
-  renderDependencyGraph,
-  displayModuleStructure,
-  validateLandmark,
-  validateLandmarkStructure,
   ensureUniqueLandmarks,
   ensureUniqueLandmarksFromString,
+  validateLandmark,
+  validateLandmarkStructure,
   getLangAttribute,
   validateTableAccessibility,
   validateTableStructure,
   getSvgAccessibleName,
   personName
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore, checkLandmarkElements, renderDependencyGraph, displayModuleStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, ensureUniqueLandmarksFromString, getLangAttribute, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, personName };

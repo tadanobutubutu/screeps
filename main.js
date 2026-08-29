@@ -11,7 +11,10 @@ let uniqueLandmarks = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
+    document.querySelector('.dependencyGraph') ||
+    document.querySelector('[data-testid="dependency-graph"]') ||
+    document.querySelector('div[data-testid=dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');

@@ -5,7 +5,6 @@ export function calculateSum(a, b) {
 }
 
 // Below is the existing code (preserving syntax and existing exports)
-// ...
 import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
@@ -60,6 +59,13 @@ const main = {
         creep.moveTo(creep.room.controller);
       }
     }
+  },
+
+  createInPageButton: function(buttonId, buttonText) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    document.body.appendChild(button);
   },
 
   harvestLoop: function() {

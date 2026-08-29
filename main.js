@@ -1,7 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
 
-// Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
-
 // ... (other code in main.js)
 
 document.querySelectorAll("a").forEach(a => {
@@ -20,10 +18,9 @@ document.querySelectorAll("a").forEach(a => {
 
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
-
-// Added: The requested function
-function rotateBack() {
+export function rotateBack() {
   // Your code to rotate back
+  console.log('Reverting back the rotation.');
 }
 
 // ... (other code in main.js)
@@ -48,7 +45,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', 'rotate back');
+  button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;
@@ -79,7 +76,7 @@ function ensureThScope() {
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
       const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
-      
+
       if (isFirstCell && parentTagName === 'tr') {
         th.setAttribute('scope', 'row');
       } else if (parentTagName === 'thead' || !isFirstCell) {
@@ -98,10 +95,10 @@ function initializeAccessibility() {
     const newButton = createUnrotateButton();
     parent.replaceChild(newButton, fakeLink);
   }
-  
+
   // Ensure table headers have proper scope
   ensureThScope();
-  
+
   // Add accessible names to SVGs
   const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
   svgs.forEach((svg, index) => {
@@ -142,7 +139,7 @@ function addMainLandmark(rootElement) {
 function ensureUniqueLandmarks() {
   // Ensure unique landmarks in the entire application
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
+
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(landmark);
     if (elements.length > 1) {
@@ -174,7 +171,7 @@ function addSvgAccessibleNames(svgElement) {
     newDesc.textContent = '';
     svgElement.appendChild(newDesc);
   }
-  
+
   return svgElement;
 }
 

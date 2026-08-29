@@ -25,10 +25,10 @@ function initialize() {
   console.log('Application initialized');
   
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.addEventListener('keydown', handleMainKeydown);
   }
   
   // Accessibility: Add skip link functionality
@@ -46,7 +46,7 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
+      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
       if (target) {
         target.focus();
         target.scrollIntoView();
@@ -61,10 +61,25 @@ function setupSkipLinks() {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
+}
+
+/**
+ * Count the total number of dependencies across all modules
+ * @param {Object} dependencies - Object mapping module names to their dependency arrays
+ * @returns {number} Total count of all dependencies
+ */
+function countDependencies(dependencies) {
+  let totalCount = 0;
+  for (const moduleName in dependencies) {
+    if (dependencies[moduleName] && Array.isArray(dependencies[moduleName])) {
+      totalCount += dependencies[moduleName].length;
+    }
+  }
+  return totalCount;
 }
 
 // Existing exports and code remain unchanged
@@ -75,7 +90,8 @@ module.exports = {
   initialize,
   setupSkipLinks,
   setupButtonAccessibility,
-  createInPageButton
+  createInPageButton,
+  countDependencies
 };
 
 // Initialize on DOM ready

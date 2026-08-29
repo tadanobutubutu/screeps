@@ -37,9 +37,9 @@ function addLangAttribute() {
 function ensureUniqueLandmarkId(baseName) {
   let candidate = baseName;
   if (_usedLandmarkIds.has(candidate)) {
-      // Collision handling: add random suffix
-      const suffix = generateRandomString(7);
-      candidate = `${baseName}-${suffix}`;
+    // Collision handling: add random suffix
+    const suffix = generateRandomString(7);
+    candidate = `${baseName}-${suffix}`;
   }
   _usedLandmarkIds.add(candidate);
   return candidate;
@@ -73,7 +73,7 @@ function getFullLangAttribute() {
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-  
+
   element.addEventListener('keydown', (event) => {
     switch (event.key) {
       case 'Enter':
@@ -112,7 +112,7 @@ function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -132,7 +132,7 @@ function trapFocus(container) {
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-  
+
   element.addEventListener('keydown', (event) => {
     switch (event.key) {
       case 'Enter':
@@ -189,8 +189,8 @@ function addProperLandmarkRegions() {
   // Initialize landmark elements
   const main = document.querySelector('main') || document.createElement('main');
   const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.createElement('nav');
-  const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
-  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
+  const header = document.querySelector('header') || document.createElement('header');
+  const footer = document.querySelector('footer') || document.createElement('footer');
   const asides = document.querySelectorAll('aside');
 
   // Set landmark roles and IDs
@@ -407,8 +407,6 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -430,12 +428,199 @@ function addressAccessibilityIssues(insightReport) {
   // Apply specific accessibility fixes here based on the report's structure.
   // For now, we simply return the report unchanged.
   return insightReport;
+<<<<<<< HEAD
+=======
+}
+
+/*
+ * Helper to manage focus within a container
+ * @param {HTMLElement} container - Container element
+ * @returns {void}
+ */
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  });
+}
+
+/**
+ * Function to ensure landmarks have unique identifiers
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  const result = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(landmark.id.split('-')[1])) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
+  });
+>>>>>>> origin/main
 }
 
 /**
  * Initialize accessibility features for the application.
  * @returns {Object} An object containing accessibility utility functions.
  */
+<<<<<<< HEAD
+=======
+function addProperLandmarkRegions() {
+  // Create main landmark
+  const main = document.querySelector('main') || document.createElement('main');
+  main.setAttribute('role', 'main');
+  main.id = 'main-content';
+
+  // Create navigation landmark
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  nav.setAttribute('role', 'navigation');
+  nav.id = nav.id || 'primary-navigation';
+
+  // Create banner/header landmark
+  const header = document.querySelector('header') || document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.id = header.id || 'site-header';
+
+  // Create contentinfo/footer landmark
+  const footer = document.querySelector('footer') || document.createElement('footer');
+  footer.setAttribute('role', 'contentinfo');
+  footer.id = footer.id || 'site-footer';
+
+  // Create aside landmark for complementary content
+  const asides = document.querySelectorAll('aside');
+  asides.forEach((aside, index) => {
+    aside.setAttribute('role', 'complementary');
+    if (!aside.id) aside.id = `sidebar-${index + 1}`;
+  });
+
+  // Append landmarks to the body if they were created
+  if (main) document.body.appendChild(main);
+  if (nav) document.body.appendChild(nav);
+  if (header) document.body.appendChild(header);
+  if (footer) document.body.appendChild(footer);
+}
+
+/**
+ * Adds proper ARIA account management elements to the document.
+ * This includes adding `aria-expanded` attributes for collapsible menus,
+ * and adding `aria-label` to form elements.
+ *
+ * @returns {void}
+ */
+function addProperAccountManagement() {
+  // Add aria-expanded to collapsible menus/buttons
+  const collapsibles = document.querySelectorAll('[aria-expanded]');
+  collapsibles.forEach(collapsible => {
+    if (collapsible.getAttribute('aria-expanded') === 'true') {
+      collapsible.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Add aria-labels to form inputs
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach((input, index) => {
+    const id = input.id || `input-${index}`;
+    input.id = id;
+    if (!input.getAttribute('aria-label')) {
+      input.setAttribute('aria-label', `Input field ${index + 1}`);
+    }
+  });
+}
+
+/**
+ * Adds ARIA attributes to form controls for better accessibility.
+ * This function focuses on ensuring that form controls have proper labeling and roles.
+ *
+ * @returns {void}
+ */
+function addAriaToFormControls() {
+  // Add required aria attributes to form controls
+  const formControls = document.querySelectorAll('input, select, textarea');
+
+  formControls.forEach(control => {
+    // Ensure all form controls have accessible names
+    if (control.id && !control.getAttribute('aria-label')) {
+      const label = document.querySelector(`label[for="${control.id}"]`) || null;
+      if (label) {
+        label.id = label.id || `label-${control.id}`;
+        control.setAttribute('aria-labelledby', label.id);
+      }
+    }
+
+    // Mark required fields appropriately
+    if (control.required && !control.getAttribute('aria-required')) {
+      control.setAttribute('aria-required', 'true');
+    }
+  });
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to improve keyboard navigation for interactive elements
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+// Function to add ARIA live regions for dynamic content updates
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
+// Initialize accessibility features
+>>>>>>> origin/main
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
@@ -638,6 +823,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     addProperLandmarkRegions,
     addProperAccountManagement,
+<<<<<<< HEAD
     addAriaToFormControls,
     getLangAttribute,
     getFullLangAttribute,
@@ -663,3 +849,6 @@ if (typeof document !== 'undefined') {
     window.accessibilityFeatures = initializeAccessibility();
   });
 }
+=======
+    addAriaToFormControls
+>>>>>>> origin/main

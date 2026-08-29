@@ -2,8 +2,8 @@
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -51,4 +51,33 @@ function detectAndSetLang(content) {
   return setHtmlLangAttribute(lang);
 }
 
-module.exports = { setHtmlLangAttribute, detectAndSetLang };
+/**
+ * Adds a landmark element with a given role and label to the document
+ * @param {string} role - The role attribute value for the landmark
+ * @param {string} label - The label text for the landmark
+ */
+function addLandmark(role, label) {
+  const landmark = document.createElement('div');
+  landmark.setAttribute('role', role);
+  landmark.setAttribute('aria-label', label);
+  document.body.appendChild(landmark);
+}
+
+/**
+ * Validates that all landmarks on the page have unique IDs
+ */
+function validateUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role]');
+  const idSet = new Set();
+  
+  landmarks.forEach(landmark => {
+    const id = landmark.getAttribute('id');
+    if (idSet.has(id)) {
+      console.error(`Duplicate ID found on landmark with role ${landmark.getAttribute('role')}: ${id}`);
+    } else {
+      idSet.add(id);
+    }
+  });
+}
+
+module.exports = { setHtmlLangAttribute, detectAndSetLang, addLandmark, validateUniqueLandmarks };

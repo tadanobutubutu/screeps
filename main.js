@@ -43,6 +43,8 @@ function handleAccessibilityIssues() {
   addFixLandmarkIssues();
   getSvgAccessibleName();
   createAccessibleLink();
+  addFixLandmarkIssues();
+  getSvgAccessibleName();
   ensureUniqueLandmarks();
 }
 

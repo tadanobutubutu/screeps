@@ -35,7 +35,7 @@ const newFunction = () => {
 const newFunction1 = () => { /* ... */ };
 const newFunction2 = () => { /* ... */ };
 
-// Ensure unique landmarks function
+// Ensure Unique landmarks function
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks would go here
   // This is a placeholder as per the TODO comment
@@ -175,7 +175,7 @@ function fixDependencyGraphAccessibility(document) {
   return null;
 }
 
-// Ensure unique landmarks function
+// Ensure Unique landmarks function
 function ensureUniqueLandmarks() {
   // Implementation to ensure unique landmarks would go here
   // This is a placeholder as per the TODO comment

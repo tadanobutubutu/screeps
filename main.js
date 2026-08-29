@@ -3,7 +3,7 @@
 // const { myFunction } = require('./otherFile');
 // module.exports = { myFunction };
 
-// TODO: Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report —
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
@@ -243,6 +243,146 @@ function addAriaToFormControls(doc) {
 }
 
 /**
+ * Address accessibility issues from the insight report
+ * Applies all relevant accessibility fixes to the document
+ * @param { Document } doc - The document object to operate on
+ * @returns { Object } A summary of the fixes applied
+ */
+function addressAccessibilityIssuesFromInsightReport(doc) {
+  const summary = {
+    langAttributeFixed: false,
+    landmarkIssuesFixed: 0,
+    fakeLinkIssuesFixed: 0,
+    formControlsFixed: 0,
+    buttonsFixed: 0,
+    svgsFixed: 0,
+    tablesValidated: 0
+  };
+
+  // REACT_015: Add lang attribute to HTML element if missing
+  if (!doc.documentElement.getAttribute('lang')) {
+    doc.documentElement.setAttribute('lang', getLangAttribute(doc));
+    summary.langAttributeFixed = true;
+  }
+
+  // REACT_017 & REACT_025: Add/fix landmark issues and ensure unique landmarks
+  const landmarkResults = validateLandmarkStructure(doc);
+  summary.landmarkIssuesFixed = landmarkResults.filter(r => !r.valid).length;
+  addFixLandmarkIssues(doc);
+
+  // REACT_027: Validate table structure
+  const tableResults = validateTableStructure(doc);
+  summary.tablesValidated = tableResults.length;
+
+  // REACT_036: Fix fake link issues
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.href || link.href === '#') {
+      link.setAttribute('role', 'presentation');
+      summary.fakeLinkIssuesFixed++;
+    }
+  });
+
+  // REACT_041: Add accessible names to SVGs
+  const svgs = doc.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!getSvgAccessibleName(svg)) {
+      svg.setAttribute('aria-label', `Image ${index + 1}`);
+      summary.svgsFixed++;
+    }
+  });
+
+  // Add ARIA to form controls
+  const inputs = doc.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    if (!input.id && input.type !== 'hidden') {
+      input.id = `input-${index}`;
+      summary.formControlsFixed++;
+    }
+  });
+
+  // Replace button IDs with accessible alternatives
+  const buttons = doc.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index}`;
+      summary.buttonsFixed++;
+    }
+  });
+
+  // Wrap primary content in main landmark if not present
+  if (!doc.querySelector('main, [role="main"]')) {
+    wrapPrimaryContentInMain(doc);
+  }
+
+  return summary;
+}
+
+function wrapPrimaryContentInMain(doc) {
+  const primaryContent = doc.querySelector('article, #content, .content');
+  if (!primaryContent) {
+    return;
+  }
+  
+  const main = doc.createElement('div');
+  main.className = 'main';
+  main.setAttribute('role', 'main');
+  
+  if (primaryContent && primaryContent.parentNode) {
+    primaryContent.parentNode.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
+  }
+}
+
+/**
+ * Add/fix landmark issues
+ * @param { Document } doc - The document object to operate on */
+function addFixLandmarkIssues(doc) {
+  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  ensureUniqueLandmarks(landmarks);
+}
+
+/**
+ * Fix fake link issues
+ * @param { Document } doc - The document object to operate on */
+function fixFakeLinkIssues(doc) {
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.href || link.href === '#') {
+      link.setAttribute('role', 'presentation');
+    }
+  });
+}
+
+/**
+ * Wrap primary content in main div
+ * @param { Document } doc - The document object to operate on */
+// Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
+
+/**
+ * Add proper landmark regions to the document
+ * @param { Document } doc - The document object to operate on */
+function addProperLandmarkRegions(doc) {
+  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  return Array.from(landmarks);
+}
+
+/**
+ * Add ARIA attributes to form controls
+ * @param { Document } doc - The document object to operate on */
+function addAriaToFormControls(doc) {
+  const inputs = doc.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    if (!input.id && input.type !== 'hidden') {
+      const label = input.id ? doc.getElementById(input.id) : null;
+      if (label) {
+        label.id = label.id || `label-${index}`;
+      }
+    }
+  });
+}
+
+/**
  * Replace button IDs with accessible alternatives
  * @param { Document } doc - The document object to operate on */
 function replaceMyButtonId(doc) {
@@ -289,7 +429,7 @@ function validateLandmark(element) {
 
 /**
  * Validate landmark structure in document
- * @param { Document } doc - The document object to validate
+ * @param { Document } doc - The document object to operate on
  * @returns { Array } Array of validation results */
 function validateLandmarkStructure(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
@@ -312,7 +452,7 @@ function validateTableAccessibility(table) {
 
 /**
  * Validate table structure
- * @param { Document } doc - The document object to validate
+ * @param { Document } doc - The document object to operate on
  * @returns { Array } Array of validation results */
 function validateTableStructure(doc) {
   const tables = doc.querySelectorAll('table');

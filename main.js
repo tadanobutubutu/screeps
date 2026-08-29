@@ -32,7 +32,7 @@ export function createInPageButton(href, label) {
   
   button.addEventListener('click', () => {
     const targetId = href.replace('#', '');
-    const target = document.getElementById(targetId) || document.querySelector(href);
+    const target = document.getElementById(targetId) || document.querySelector(targetId);
     if (target) {
       target.setAttribute('tabindex', '-1');
       target.focus();
@@ -103,7 +103,7 @@ export function validateTableStructure(table) {
   // Check for headers without scope attribute
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       issues.push(`Header at index ${index} missing scope attribute`);
     }
   });
@@ -112,7 +112,7 @@ export function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   let columnCount = 0;
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (columnCount === 0) {
       columnCount = cells.length;
     } else if (cells.length !== columnCount) {
@@ -140,4 +140,233 @@ export function getSvgAccessibleName(svg) {
     return ariaLabel.trim();
   }
   
-  //
+  // Check aria-labelledby (second priority)
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const targetElement = document.getElementById(ariaLabelledby);
+    if (targetElement && targetElement.textContent) {
+      return targetElement.textContent.trim();
+    }
+  }
+  
+  // Check for title element inside SVG
+  const title = svg.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+  
+  return '';
+}
+
+/**
+ * Sets proper accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} accessibleName - The accessible name to set
+ * @returns {SVGElement} The modified SVG element
+ */
+export function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return svg;
+  
+  svg.setAttribute('role', 'img');
+  
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+    
+    // Ensure title element exists
+    let title = svg.querySelector('title');
+    if (!title) {
+      title = document.createElement('title');
+      svg.insertBefore(title, svg.firstChild);
+    }
+    title.textContent = accessibleName;
+  }
+  
+  return svg;
+}
+
+/**
+ * Ensures all landmark elements have unique accessible names
+ * @returns {Object} Report of landmarks with duplicates
+ */
+export function ensureUniqueLandmarks() {
+  const landmarks = {
+    banner: [],
+    navigation: [],
+    main: [],
+   complementary: [],
+    contentinfo: [],
+    search: []
+  };
+  
+  // Find all landmark regions
+  const landmarkSelectors = [
+    '[role="banner"]',
+    '[role="navigation"]',
+    '[role="main"]',
+    '[role="complementary"]',
+    '[role="contentinfo"]',
+    '[role="search"]',
+    'header:not([role])',
+    'nav:not([role])',
+    'main:not([role])',
+    'aside:not([role])',
+    'footer:not([role])'
+  ];
+  
+  landmarkSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(element => {
+      const role = element.getAttribute('role') || element.tagName.toLowerCase();
+      if (landmarks[role]) {
+        landmarks[role].push(element);
+      }
+    });
+  });
+  
+  const duplicates = [];
+  
+  // Check for multiple landmarks of the same type without unique names
+  Object.keys(landmarks).forEach(role => {
+    const elements = landmarks[role];
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        const ariaLabel = el.getAttribute('aria-label');
+        const ariaLabelledby = el.getAttribute('aria-labelledby');
+        if (!ariaLabel && !ariaLabelledby) {
+          duplicates.push({
+            role: role,
+            index: index,
+            element: el
+          });
+        }
+      });
+    }
+  });
+  
+  return {
+    landmarks: landmarks,
+    duplicates: duplicates,
+    hasIssues: duplicates.length > 0
+  };
+}
+
+/**
+ * Validates link accessibility for proper href attributes
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result
+ */
+export function validateLinkAccessibility(link) {
+  const result = {
+    valid: true,
+    issues: []
+  };
+  
+  if (!link || link.tagName !== 'A') {
+    return { valid: false, issues: ['Not an anchor element'] };
+  }
+  
+  const href = link.getAttribute('href');
+  
+  // Check for missing href
+  if (!href) {
+    result.valid = false;
+    result.issues.push('Missing href attribute');
+  }
+  
+  // Check for empty href (current page)
+  if (href === '') {
+    result.valid = false;
+    result.issues.push('Empty href attribute (links to current page)');
+  }
+  
+  // Check for href with only hash
+  if (href === '#') {
+    result.valid = false;
+    result.issues.push('Href is only "#" - not a valid link target');
+  }
+  
+  // Check for missing accessible text
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.getAttribute('aria-label');
+  const hasAriaLabelledby = link.getAttribute('aria-labelledby');
+  const hasTitle = link.getAttribute('title');
+  const hasImgAlt = link.querySelector('img[alt]');
+  
+  if (!hasText && !hasAriaLabel && !hasAriaLabelledby && !hasTitle && !hasImgAlt) {
+    result.valid = false;
+    result.issues.push('Link has no accessible name');
+  }
+  
+  return result;
+}
+
+/**
+ * Handles fake links (links that should be buttons or have proper href)
+ * @param {HTMLElement} container - Container element to search within
+ * @returns {Object} Report of fake links found and fixed
+ */
+export function handleFakeLinks(container = document) {
+  const fakeLinks = container.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const report = {
+    fakeLinks: [],
+    fixed: []
+  };
+  
+  fakeLinks.forEach(link => {
+    const issues = validateLinkAccessibility(link);
+    
+    if (!issues.valid) {
+      report.fakeLinks.push({
+        element: link,
+        issues: issues.issues
+      });
+      
+      // Convert to button if it has click handlers but no valid href
+      const hasClickHandler = link.getAttribute('onclick') || 
+                              link.addEventListener.toString().includes('click');
+      
+      if (hasClickHandler && !link.getAttribute('href')) {
+        const newButton = document.createElement('button');
+        newButton.innerHTML = link.innerHTML;
+        
+        // Copy relevant attributes
+        Array.from(link.attributes).forEach(attr => {
+          if (attr.name !== 'href') {
+            newButton.setAttribute(attr.name, attr.value);
+          }
+        });
+        
+        link.parentNode.replaceChild(newButton, link);
+        report.fixed.push(newButton);
+      }
+    }
+  });
+  
+  return report;
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {HTMLElement} container - Container element to process
+ * @returns {Object} Report of landmarks found and added
+ */
+export function addProperLandmarkRegions(container = document) {
+  const report = {
+    landmarks: [],
+    added: [],
+    issues: []
+  };
+  
+  // Check for main landmark
+  let mainElement = container.querySelector('main, [role="main"]');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    const firstHeading = container.querySelector('h1, h2');
+    if (firstHeading && firstHeading.parentNode) {
+      firstHeading.parentNode.insertBefore(mainElement, firstHeading);
+    }
+    report.added.push({ type: 'main', element: mainElement });
+  }
+  
+  // Check for navigation landmarks
+  const navElements = container.querySelectorAll('nav');
+  navElements.forEach

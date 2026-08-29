@@ -40,13 +40,73 @@ function addressAccessibilityIssues() {
   // TODO: Implement the function for addressing new accessibility issues
 }
 
+// Validate that tables in the document are accessible
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(
+      th => th.hasAttribute('scope')
+    );
+    
+    results.push({
+      tableIndex: index,
+      hasCaption,
+      hasHeaders,
+      hasScope,
+      isAccessible: hasCaption && hasHeaders && hasScope
+    });
+  });
+  
+  return results;
+}
+
+// Validate the structure of tables in the document
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+    
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+      
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
+      }
+    }
+    
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+  
+  return results;
+}
+
 export {
   VERSION,
   CONFIG,
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the exports
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure
 };
 
 export default {
@@ -55,5 +115,7 @@ export default {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the default export
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure
 };

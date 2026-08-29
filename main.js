@@ -13,30 +13,74 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
-  // Existing function implementation
+  const warnings = [];
+  const foundLandmarks = {};
+
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
+    const matches = htmlContent.match(regex);
+    if (matches) {
+      foundLandmarks[landmark] = matches.length;
+    }
+  });
+
+  if (!foundLandmarks.main) {
+    warnings.push('Missing main landmark element');
+  }
+
+  // Add new checks for ARIA roles, labels, and unique IDs
+  Object.keys(foundLandmarks).forEach(landmark => {
+    const element = document.querySelector(landmark);
+    if (element) {
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        warnings.push(`Missing aria-label or aria-labelledby on ${landmark} landmark`);
+      }
+
+      if (!element.hasAttribute('role')) {
+        warnings.push(`Missing 'role' attribute on ${landmark} landmark`);
+      }
+
+      if (element.id === '') {
+        warnings.push(`Missing an ID on ${landmark} landmark`);
+      }
+    }
+  });
+
+  const landmarkIdSet = new Set();
+  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
+  landmarks.forEach(el => {
+    const id = el.id;
+    if (id) {
+      if (landmarkIdSet.has(id)) {
+        warnings.push('Duplicate landmark ID found:', id);
+      } else {
+        landmarkIdSet.add(id);
+      }
+    }
+  });
+
+  return {
+    foundLandmarks,
+    warnings,
+    hasMainLandmark: !!foundLandmarks.main
+  };
 }
 
-// TODO: Implement a function to count dependencies
-function countDependencies() {
-  // Existing function implementation
+/**
+ * ... (Leave the rest of the functions unchanged)
+ */
 
-  // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
-  return importCount;
-}
-
-// Store for accessibility announcements (screen reader support)
-const a11yStore = {
-  // Existing code
-
-  // New property to count dependencies
+export {
+  checkLandmarkElements,
+  createInPageButton,
   countDependencies,
+  a11yStore,
+  addLandmarkRegions,
+  // Add the new functions here
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks
 };
-
-// New function to handle adding landmark regions
-function addLandmarkRegions() {
-  // Existing function implementation
-}
-
-// ... ( Запишите все остальные функции и экспорты из вашего репозитория Screeps bot, включая добавленные функции для тестов, технической документации и препроцессоров )

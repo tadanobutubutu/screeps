@@ -1,10 +1,6 @@
-// main.js - Main application logic
-
-// Import necessary modules
-const { checkAccessibility } = require('./accessibility');
-const { checkStructure } = require('./structure');
-const fs = require('fs');
+const { greeting } = require('./utils');
 const path = require('path');
+const fs = require('fs');
 
 // Import and re-export someFunction from './utils'
 const _utils = require('./utils');
@@ -20,6 +16,83 @@ const config = {
         structure: true
     }
 };
+
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object|Array} insightReport - The insight report containing accessibility issues
+ * @param {Object} [options] - Options for handling the issues
+ * @param {boolean} [options.autoFix=false] - Whether to attempt automatic fixes
+ * @param {boolean} [options.verbose=false] - Whether to log detailed information
+ * @returns {Object} A report of addressed issues
+ */
+function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
+    const { autoFix = false, verbose = false } = options;
+
+    const result = {
+        totalIssues: 0,
+        addressed: 0,
+        remaining: 0,
+        details: [],
+        timestamp: new Date().toISOString()
+    };
+
+    if (!insightReport) {
+        result.details.push({
+            type: 'error',
+            message: 'No insight report provided'
+        });
+        return result;
+    }
+
+    // Normalize input to an array of issues
+    const issues = Array.isArray(insightReport)
+        ? insightReport
+        : (Array.isArray(insightReport.issues) ? insightReport.issues : []);
+
+    result.totalIssues = issues.length;
+
+    issues.forEach((issue, index) => {
+        if (!issue || typeof issue !== 'object') {
+            return;
+        }
+
+        const addressed = {
+            index,
+            type: issue.type || 'unknown',
+            severity: issue.severity || 'warning',
+            message: issue.message || 'No message provided',
+            action: 'reviewed'
+        };
+
+        if (autoFix && typeof issue.fix === 'function') {
+            try {
+                issue.fix();
+                addressed.action = 'auto-fixed';
+                result.addressed++;
+            } catch (error) {
+                addressed.action = 'auto-fix-failed';
+                addressed.error = error.message;
+                result.remaining++;
+            }
+        } else {
+            result.addressed++;
+        }
+
+        if (verbose) {
+            console.log(`[Accessibility] ${addressed.action}: ${addressed.message}`);
+        }
+
+        result.details.push(addressed);
+    });
+
+    if (result.totalIssues === 0) {
+        result.remaining = 0;
+    } else if (!autoFix) {
+        result.remaining = result.totalIssues - result.addressed;
+    }
+
+    return result;
+}
 
 // Main validation function for web accessibility
 function validateWebAccessibility(url) {
@@ -46,20 +119,16 @@ function validateWebAccessibility(url) {
     return results;
 }
 
-// Helper function to check if element exists
-function elementExists(selector) {
-    return document.querySelector(selector) !== null;
+function sayHello(name) {
+  return greeting(name);
 }
 
-// Helper function to get element text
-function getElementText(selector) {
-    const element = document.querySelector(selector);
-    return element ? element.textContent : '';
+function sayGoodbye(name) {
+  return `Goodbye, ${name}!`;
 }
 
-// Get all table elements
-function getAllTables() {
-    return document.querySelectorAll('table');
+function getDate() {
+  return new Date().toISOString();
 }
 
 // Get table headers
@@ -71,8 +140,6 @@ function getTableHeaders(table) {
 function getTableRows(table) {
     return table.querySelectorAll('tr');
 }
-
-// TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
 
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
@@ -263,7 +330,63 @@ function countDependencies() {
   }
 }
 
-// Export for testing and external use
+/**
+ * Renders a dependency graph summary based on dependency counts
+ * @param {Object} deps - Dependency information object from countDependencies()
+ * @returns {string} Formatted dependency graph string
+ */
+function renderDependencyGraph(deps) {
+    const lines = [
+        "Dependency Graph Report",
+        "=".repeat(20),
+        "",
+        "- Total Dependencies: " + deps.total,
+        "- Core Dependencies: " + deps.dependencies,
+        "- Development Dependencies: " + deps.devDependencies,
+        ""
+    ];
+    
+    if (deps.dependencies > 0) {
+        lines.push("Core Dependencies:");
+        deps.dependencies.forEach(dep => {
+            lines.push(`  • ${dep.name} (${dep.version})`);
+        });
+    }
+    
+    if (deps.devDependencies > 0) {
+        lines.push("Development Dependencies:");
+        deps.devDependencies.forEach(dep => {
+            lines.push(`  • ${dep.name} (${dep.version})`);
+        });
+    }
+    
+    return lines.join("\n");
+}
+
+function elementExists(selector) {
+    return typeof document !== 'undefined' && !!document.querySelector(selector);
+}
+
+function getElementText(selector) {
+    if (typeof document === 'undefined') return '';
+    const el = document.querySelector(selector);
+    return el ? (el.textContent || '') : '';
+}
+
+function getAllTables() {
+    return typeof document !== 'undefined' ? document.querySelectorAll('table') : [];
+}
+
+function getLangAttribute(el) {
+    const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
+    return element ? (element.getAttribute('lang') || '') : '';
+}
+
+function getFullLangAttribute(el) {
+    const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
+    return element ? (element.lang || element.getAttribute('lang') || '') : '';
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
@@ -275,5 +398,12 @@ module.exports = {
     getTableRows,
     config,
     countDependencies,
-    someFunction
+    someFunction,
+    renderDependencyGraph,
+    getLangAttribute,
+    getFullLangAttribute,
+    addressAccessibilityIssuesFromInsight,
+    sayHello,
+    sayGoodbye,
+    getDate
 };

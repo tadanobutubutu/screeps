@@ -38,9 +38,75 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// New accessibility-related functions
+function getLangAttribute(element) {
+  if (element && element.lang) return element.lang;
+  return 'en';
+}
+
+function personName(person) {
+  if (person && person.name) return person.name;
+  return '';
+}
+
+function validateTableAccessibility(table) {
+  if (!table || !table.rows) return true;
+  const firstRow = table.querySelector('tr');
+  if (firstRow && firstRow.querySelectorAll('th')) return true;
+  return false;
+}
+
+function validateTableStructure(table) {
+  // Basic structural validation – ensure table has at least one row with header cells
+  if (!table) return true;
+  const rows = Array.from(table.querySelectorAll('tr'));
+  if (rows.length === 0) return false;
+  const firstRow = rows[0];
+  return firstRow.querySelectorAll('th').length > 0;
+}
+
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  const id = landmark.id || landmark.name;
+  return !!id;
+}
+
+function validateLandmarkStructure(landmarks) {
+  const seen = new Set();
+  for (const lm of landmarks) {
+    if (!lm) continue;
+    const id = lm.id || lm.name;
+    if (seen.has(id)) return false;
+    seen.add(id);
+  }
+  return true;
+}
+
+function getSvgAccessibleName(svgElement) {
+  if (svgElement && svgElement.title) return svgElement.title;
+  if (svgElement && svgElement.ariaLabel) return svgElement.ariaLabel;
+  return '';
+}
+
+function createInPageButton() {
+  const btn = document.createElement('button');
+  btn.textContent = 'Click me';
+  btn.className = 'accessible-button';
+  document.body.appendChild(btn);
+  return btn;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

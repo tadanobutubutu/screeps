@@ -8,34 +8,158 @@
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-/**
- * Adds a `lang` attribute to the HTML element to specify the language of the document.
- *
- * @returns {void}
- */
-function addLangAttribute() {
-  const html = document.documentElement;
-  if (html) {
-    html.setAttribute('lang', getFullLangAttribute());
-  }
+// main.js - Combined utility and accessibility features
+
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
+// Accessibility helper function for keyboard navigation
+function setupKeyboardNavigation(element, options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+  
+  element.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+    }
+  });
+}
+
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  });
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
 }
 
 /**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
  */
-function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
-        const uniqueCandidate = `${candidate}-${suffix}`;
-        _usedLandmarkIds.add(uniqueCandidate);
-        return uniqueCandidate;
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
     }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
+    return cloned;
+  }
+  return obj;
 }
 
 /**
@@ -108,7 +232,7 @@ function addProperLandmarkRegions() {
   // Add other landmark roles as needed
 
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 
@@ -173,18 +297,6 @@ function addAriaToFormControls() {
   });
 }
 
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
-
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-addLangAttribute();
-
-addAccessibleNamesToSvg();
-fixFakeLinkIssue();
-
 /**
  * Implement validateTableAccessibility() function to check for accessibility issues in tables.
  * This function should check for proper table headers, roles, and other relevant ARIA attributes.
@@ -229,6 +341,25 @@ function validateTableStructure() {
 }
 
 /**
+ * Ensures unique landmark IDs in the document.
+ * Addresses REACT_025: Ensure unique landmarks.
+ * @returns {void}
+ */
+function ensureUniqueLandmarkId() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"], [role="region"]');
+  const seenIds = new Set();
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index}`;
+    }
+    if (seenIds.has(landmark.id)) {
+      landmark.id = `${landmark.id}-${index}`;
+    }
+    seenIds.add(landmark.id);
+  });
+}
+
+/**
  * Adds accessible names to SVG elements in the document.
  * Addresses REACT_041: Add accessible names to 2 SVGs.
  * @returns {void}
@@ -263,16 +394,58 @@ function fixFakeLinkIssue() {
   });
 }
 
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getFullLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  addAccessibleNamesToSvg,
-  fixFakeLinkIssue
-};
+/**
+ * Adds lang attribute to HTML element.
+ * Addresses REACT_015: Add lang attribute to HTML element.
+ * @returns {void}
+ */
+function addLangAttribute() {
+  if (!document.documentElement.hasAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+// Auto-initialize when DOM is ready
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.accessibilityFeatures = initializeAccessibility();
+    addAccessibleNamesToSvg();
+    replaceMyButtonId();
+    addProperLandmarkRegions();
+    addProperAccountManagement();
+    addAriaToFormControls();
+    addLangAttribute();
+    fixFakeLinkIssue();
+    ensureUniqueLandmarkId();
+    validateTableAccessibility();
+    validateTableStructure();
+  });
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initializeAccessibility,
+    setupKeyboardNavigation,
+    trapFocus,
+    createAnnouncer,
+    prefersReducedMotion,
+    isEmpty,
+    capitalize,
+    getRandomInt,
+    clamp,
+    deepClone,
+    addAccessibleNamesToSvg,
+    addProperLandmarkRegions,
+    addProperAccountManagement,
+    addAriaToFormControls,
+    replaceMyButtonId,
+    getFullLangAttribute,
+    ensureUniqueLandmarkId,
+    uniqueLandmarks,
+    validateTableAccessibility,
+    validateTableStructure,
+    fixFakeLinkIssue,
+    addLangAttribute
+  };
+}

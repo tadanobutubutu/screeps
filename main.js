@@ -1,5 +1,9 @@
 // main.js
 // Import accessibility helper functions
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 const {
   getLangAttribute,
   getFullLangAttribute,
@@ -27,6 +31,7 @@ function run() {
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
       updateThScopeAttribute(filePath);
+      setHtmlLangAttribute(filePath);
     });
 }
 
@@ -115,6 +120,26 @@ const config = {
   enabled: true
 };
 
+/**
+ * Adds a lang attribute to the <html> tag in the given HTML file.
+ * If the <html> tag already has a lang attribute, it is left unchanged.
+ * For demonstration purposes, the language is set to 'en'.
+ * @param {string} filePath - Path to the HTML file
+ */
+function setHtmlLangAttribute(filePath) {
+  const html = fs.readFileSync(filePath, 'utf8');
+  // Replace <html> tag (case-insensitive) and add lang="en" if not present
+  const updatedHtml = html.replace(/<html([^>]*)>/i, (match, attrs) => {
+    if (!attrs.includes('lang')) {
+      return `<html${attrs} lang="en">`;
+    }
+    return match;
+  });
+  if (updatedHtml !== html) {
+    fs.writeFileSync(filePath, updatedHtml, 'utf8');
+  }
+}
+
 module.exports = {
     main,
     SomeClass,
@@ -126,5 +151,6 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    setHtmlLangAttribute
 };

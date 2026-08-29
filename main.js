@@ -68,6 +68,23 @@ function loop() {
 }
 
 /**
+ * Count dependencies and return the number
+ */
+function countDependencies() {
+  let count = 0;
+
+  for (const key in require.cache) {
+    const file = require.cache[key];
+    if (file.parent && file.parent.filename === __filename) {
+      continue;
+    }
+    count++;
+  }
+
+  return count;
+}
+
+/**
  * Manages focus for accessibility (ARIA best practice)
  * @param {HTMLElement} element - The element to focus on
  */
@@ -261,11 +278,11 @@ module.exports = {
   writeFile,
   log,
   escapeHtml,
+  countDependencies, // New function for counting dependencies
   // Table validation
   validateTableAccessibility,
   validateTableStructure,
   // Accessibility functions
-  addLangAttribute,
   manageFocus,
   trapFocus,
   announceToScreenReader,
@@ -273,6 +290,9 @@ module.exports = {
   // Main loop
   loop
 };
+
+// Export the countDependencies function separately as well
+module.exports.countDependencies = countDependencies;
 
 // Main execution
 if (require.main === module) {

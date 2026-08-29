@@ -244,3 +244,56 @@ export function fixFakeLinkIssue(html) {
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+/**
+ * Applies all accessibility fixes to HTML
+ * @param {string} html - The HTML string to process
+ * @param {Object} options - Options for which fixes to apply
+ * @param {boolean} options.langAttribute - Apply lang attribute fix (default: true)
+ * @param {boolean} options.tableStructure - Apply table structure fixes (default: true)
+ * @param {boolean} options.mainLandmark - Apply main landmark fix (default: true)
+ * @param {boolean} options.svgAccessibleNames - Apply SVG accessible names (default: true)
+ * @param {boolean} options.uniqueLandmarks - Apply unique landmarks fix (default: true)
+ * @param {boolean} options.fakeLinkFix - Apply fake link fix (default: true)
+ * @returns {string} HTML with all requested accessibility fixes applied
+ */
+export default function applyAccessibilityFixes(html, options = {}) {
+  const {
+    langAttribute = true,
+    tableStructure = true,
+    mainLandmark = true,
+    svgAccessibleNames = true,
+    uniqueLandmarks = true,
+    fakeLinkFix = true
+  } = options;
+
+  if (typeof html !== 'string') return html;
+
+  let result = html;
+
+  if (langAttribute) {
+    result = addLangAttribute(result);
+  }
+
+  if (tableStructure) {
+    result = fixTableStructureIssues(result);
+  }
+
+  if (mainLandmark) {
+    result = addMainLandmark(result);
+  }
+
+  if (svgAccessibleNames) {
+    result = addSvgAccessibleNames(result);
+  }
+
+  if (uniqueLandmarks) {
+    result = ensureUniqueLandmarks(result);
+  }
+
+  if (fakeLinkFix) {
+    result = fixFakeLinkIssue(result);
+  }
+
+  return result;
+}

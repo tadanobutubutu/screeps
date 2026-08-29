@@ -127,13 +127,24 @@ function renderAccessibilityResults(container, outputContainer) {
   return issues;
 }
 
+/**
+ * Renders the index view of the application
+ */
+function renderIndexView() {
+  // Placeholder for the index view rendering logic
+  // This could involve creating elements, setting text content, and appending them to the DOM
+  // For the purpose of this example, we'll just log a message
+  console.log('Index view rendered');
+}
+
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
     checkLinkAndButtonAccessibility,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
-    renderAccessibilityResults
+    renderAccessibilityResults,
+    renderIndexView
   };
 }
 
@@ -143,4 +154,5 @@ if (typeof window !== 'undefined') {
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;
+  window.renderIndexView = renderIndexView;
 }

@@ -28,7 +28,7 @@ function addMainLandmark(reactRoot) {
   // Implement the function to add main landmark
   const mainLandmark = document.createElement('main');
   mainLandmark.id = "main-landmark";
-  reactRoot.appendChild(mainLandmark);
+  reactRoot.insertBefore(mainLandmark, reactRoot.firstChild);
 }
 
 // Addressed accessibility issues from insight report
@@ -42,8 +42,8 @@ function announceToScreenReader(message, politeness = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', politeness);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
-  announcement.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
+  announcement.className = 'sr-only';
+  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);
@@ -124,98 +124,41 @@ function createInPageButton(text, id, className) {
   // Handle REACT_027: Fix 26 table structure issues, REACT_017: Add/fix 4 landmark issues, REACT_041: Add accessible names to 2 SVGs, REACT_025: Ensure unique landmarks, REACT_036: Fix 1 fake link issue, REACT_037: Add proper landmark regions, and new function to address new accessibility issues from insight report
   function validateTableAccessibility() {
     // Implementation for validating table accessibility
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.id) {
+          th.id = `th-${Math.random().toString(36).substr(2, 9)}`;
+        }
+      });
+      const cells = table.querySelectorAll('td');
+      cells.forEach(cell => {
+        const headersAttr = cell.getAttribute('headers');
+        if (!headersAttr) {
+          const rowHeaders = cell.parentElement.querySelectorAll('th');
+          if (rowHeaders.length > 0) {
+            cell.setAttribute('headers', Array.from(rowHeaders).map(th => th.id).join(' '));
+          }
+        }
+      });
+    });
   }
 
   function validateTableStructure() {
     // Implementation for validating table structure
-  }
-
-  function validateLandmark() {
-    // Implementation for validating landmarks
-  }
-
-  function validateLandmarkStructure() {
-    // Implementation for validating the structure of landmarks
-  }
-
-  function validateLandmarkAttributes() {
-    // Implementation for validating attributes of landmarks
-  }
-
-  function getSvgAccessibleName(svgElement) {
-    // Implementation for getting accessible names for SVGs
-  }
-
-  function setSvgAttributes(svgElement) {
-    // Implementation for setting SVG attributes
-  }
-
-  function ensureUniqueLandmarks() {
-    // Implementation for ensuring unique landmarks
-  }
-
-  function validateLinkAccessibility() {
-    // Implementation for validating link accessibility
-  }
-
-  function handleFakeLinks() {
-    // Implementation for handling fake links
-  }
-
-  function addProperLandmarkRegions() {
-    // Implementation for adding proper landmark regions
-  }
-
-  function addressNewAccessibilityIssues() {
-    // Implementation for addressing new accessibility issues
-  }
-
-  // Return the created button and include new functions for addressing accessibility issues
-  button.validateTableAccessibility = validateTableAccessibility;
-  button.validateTableStructure = validateTableStructure;
-  button.validateLandmark = validateLandmark;
-  button.validateLandmarkStructure = validateLandmarkStructure;
-  button.validateLandmarkAttributes = validateLandmarkAttributes;
-  button.getSvgAccessibleName = getSvgAccessibleName;
-  button.setSvgAttributes = setSvgAttributes;
-  button.ensureUniqueLandmarks = ensureUniqueLandmarks;
-  button.validateLinkAccessibility = validateLinkAccessibility;
-  button.handleFakeLinks = handleFakeLinks;
-  button.addProperLandmarkRegions = addProperLandmarkRegions;
-  button.addressNewAccessibilityIssues = addressNewAccessibilityIssues;
-
-  return button;
-}
-
-// Assume YouHaveComponent is the component that needs ARIA roles and keyboard interaction
-
-function YouHaveComponent() {
-  return (
-    <div
-      tabIndex={0} // Add tabIndex to make the component interactable via keyboard
-      role="button" // Add a role to help screen readers identify this as a button
-      onClick={() => alert('Clicked!')}
-    >
-      You Have A Component
-    </div>
-  );
-}
-
-// Export functions for use in tests and other modules
-export { 
-  announceToScreenReader, 
-  updateContent, 
-  handleAccessibleKeyboard, 
-  trapFocus, 
-  createInPageButton,
-  processData,
-  calculateSum,
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark
-};
-
-// React-specific exports
-export { YouHaveComponent };
-export { default as App } from './App';
-export { default as reportWebVitals } from './reportWebVitals';
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const caption = table.querySelector('caption');
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      if (!caption) {
+        const newCaption = document.createElement('caption');
+        newCaption.textContent = 'Data table';
+        table.insertBefore(newCaption, table.firstChild);
+      }
+      if (!thead) {
+        const newThead = document.createElement('thead');
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          newThead.appendChild(first

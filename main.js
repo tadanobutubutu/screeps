@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // main.js - Main application logic
 
 // Import necessary modules
@@ -238,6 +242,18 @@ function getFullLangAttribute(el) {
     return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
 }
 
+function createInPageButton() {
+    const htmlEl = typeof document !== 'undefined' ? document.documentElement : null;
+    if (htmlEl && !getLangAttribute(htmlEl)) {
+        htmlEl.setAttribute('lang', 'en');
+    }
+    const button = document.createElement('button');
+    button.textContent = 'In-page button';
+    const lang = htmlEl ? (getLangAttribute(htmlEl) || 'en') : 'en';
+    button.setAttribute('lang', lang);
+    return button;
+}
+
 /**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
@@ -284,5 +300,6 @@ module.exports = {
     countDependencies,
     someFunction,
     getLangAttribute,
-    getFullLangAttribute
+    getFullLangAttribute,
+    createInPageButton
 };

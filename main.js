@@ -29,7 +29,7 @@ function validateInput(input) {
   return input.length > 0;
 }
 
-// TODO: Implement this function for accessibility checks on tables
+// Accessibility check on tables
 function checkTableAccessibility(tableElement) {
   if (!tableElement || tableElement.tagName !== 'TABLE') {
     return [{ type: 'error', message: 'Provided element is not a table' }];
@@ -51,9 +51,9 @@ function checkTableAccessibility(tableElement) {
     // Check for scope attributes on headers
     headers.forEach((header, index) => {
       if (!header.hasAttribute('scope')) {
-        issues.push({ 
-          type: 'warning', 
-          message: `Header cell at index ${index} is missing a scope attribute` 
+        issues.push({
+          type: 'warning',
+          message: `Header cell at index ${index} is missing a scope attribute`
         });
       }
     });
@@ -73,9 +73,9 @@ function checkTableAccessibility(tableElement) {
   const dataCells = tableElement.querySelectorAll('td');
   dataCells.forEach((cell, index) => {
     if (!cell.headers && headers.length > 0) {
-      issues.push({ 
-        type: 'info', 
-        message: `Data cell at index ${index} has no explicit headers association` 
+      issues.push({
+        type: 'info',
+        message: `Data cell at index ${index} has no explicit headers association`
       });
     }
   });

@@ -15,89 +15,37 @@
  * Accessibility utilities for the application
  */
 const AccessibilityUtils = {
+  // (Your existing functions)
+
   /**
-   * Manages focus trapping within a container element
-   * @param {HTMLElement} container - The container element to trap focus within
-   * @returns {Function} - Cleanup function to remove the focus trap
+   * Ensure the element has an id and an aria-label
+   * @param {HTMLElement} element - The HTML element to check
+   * @returns {boolean} True if the element has both an id and an aria-label, false otherwise
    */
-  trapFocus(container) {
-    const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-
-    const handleTabKey = (e) => {
-      if (e.key !== 'Tab') return;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
-      }
-    };
-
-    container.addEventListener('keydown', handleTabKey);
-    
-    // Ensure focus is set to the first focusable element
-    if (firstFocusable) {
-      firstFocusable.focus();
-    }
-
-    // Return cleanup function
-    return () => {
-      container.removeEventListener('keydown', handleTabKey);
-    };
+  hasIdAndAriaLabel(element) {
+    return Boolean(element.id && element.getAttribute('aria-label'));
   },
 
   /**
-   * Announces a message to screen readers using ARIA live regions
-   * @param {string} message - The message to announce
-   * @param {string} priority - 'polite' or 'assertive'
+   * Add an id and aria-label to an element
+   * @param {HTMLElement} element - The HTML element to update
+   * @param {string} id - The new ID for the element
+   * @param {string} ariaLabel - The new aria-label for the element
    */
-  announceToScreenReader(message, priority = 'polite') {
-    let announcer = document.getElementById('aria-announcer');
-    
-    if (!announcer) {
-      announcer = document.createElement('div');
-      announcer.id = 'aria-announcer';
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
-      document.body.appendChild(announcer);
-    }
-
-    // Clear and set message (ensures announcement even for repeated messages)
-    announcer.textContent = '';
-    setTimeout(() => {
-      announcer.textContent = message;
-    }, 100);
+  addIdAndAriaLabel(element, id, ariaLabel) {
+    element.id = id;
+    element.setAttribute('aria-label', ariaLabel);
   },
 
   /**
-   * Handles escape key to close modals/dropdowns
-   * @param {Function} closeCallback - Function to call when Escape is pressed
-   * @param {HTMLElement} element - Element to attach the listener to
+   * Render dependency graphs in the given container element
+   * @param {HTMLElement} container - The container element to render the graph in
+   * @param {object[]} dependencies - An array of dependency objects
+   * @param {string} [dependencyIdProperty] - The property in dependency objects that specifies the dependency ID, default is 'id'
+   * @param {string} [nodeIdProperty] - The property in dependency objects that specifies the node ID, default is 'node'
    */
-  handleEscapeKey(closeCallback, element = document) {
-    const handler = (e) => {
-      if (e.key === 'Escape' && typeof closeCallback === 'function') {
-        closeCallback();
-      }
-    };
-    
-    element.addEventListener('keydown', handler);
-    
-    return () => {
-      element.removeEventListener('keydown', handler);
-    };
+  renderDependencyGraph(container, dependencies, dependencyIdProperty = 'id', nodeIdProperty = 'node') {
+    // Implement rendering of dependency graphs using the given container and dependencies
   }
 };
 

@@ -192,6 +192,114 @@ const fixFakeLinks = () => {
   });
 };
 
+/**
+ * Fixes table structure issues.
+ *
+ * This addresses the REACT_027 issue by ensuring that tables have proper
+ * structure with appropriate <thead>, <tbody>, and <th> elements with scope
+ * attributes. It processes up to 26 table structure issues as reported.
+ *
+ * @returns {number} The number of table structure issues that were fixed.
+ */
+const fixTableStructure = () => {
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach((table) => {
+    // Ensure the table has a <thead> if it contains <th> elements
+    const thElements = table.querySelectorAll('th');
+    if (thElements.length > 0) {
+      let thead = table.querySelector('thead');
+      if (!thead) {
+        thead = document.createElement('thead');
+        // Find the first row that contains <th> elements and move it to <thead>
+        const firstRowWithTh = Array.from(table.rows).find((row) => row.querySelector('th'));
+        if (firstRowWithTh) {
+          thead.appendChild(firstRowWithTh);
+          table.insertBefore(thead, table.firstChild);
+          fixedCount++;
+        }
+      }
+
+      // Add scope="col" or scope="row" to <th> elements that are missing it
+      thElements.forEach((th) => {
+        if (!th.hasAttribute('scope')) {
+          // Determine if it's a column header or row header
+          const isInFirstRow = th.parentElement === thead || th.parentElement === table.rows[0];
+          th.setAttribute('scope', isInFirstRow ? 'col' : 'row');
+          fixedCount++;
+        }
+      });
+    }
+
+    // Ensure the table has a <tbody> if it has rows but no <tbody>
+    const hasTbody = table.querySelector('tbody');
+    const hasRows = table.rows.length > 0;
+    if (!hasTbody && hasRows) {
+      const tbody = document.createElement('tbody');
+      // Move all rows that are not in <thead> into <tbody>
+      const rows = Array.from(table.rows);
+      rows.forEach((row) => {
+        if (!row.closest('thead')) {
+          tbody.appendChild(row);
+        }
+      });
+      if (tbody.children.length > 0) {
+        table.appendChild(tbody);
+        fixedCount++;
+      }
+    }
+
+    // Ensure the table has a <caption> if missing
+    if (!table.querySelector('caption') && !table.hasAttribute('aria-label')) {
+      table.setAttribute('aria-label', 'Data table');
+      fixedCount++;
+    }
+  });
+
+  return fixedCount;
+};
+
+/**
+ * Adds a main landmark to the document.
+ *
+ * This addresses the REACT_017 issue by ensuring that the document has
+ * a <main> element. If one doesn't exist, it creates one and wraps the
+ * main content. Also addresses missing landmark issues.
+ */
+const addMainLandmark = () => {
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    // Create a <main> element if it doesn't exist
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+
+    // Find the body or content container to insert the main element
+    const body = document.body;
+    if (body) {
+      // Try to find existing content to wrap
+      const contentContainer = body.querySelector('#root, #app, .app, .content, .main-content');
+
+      if (contentContainer) {
+        // Move the content into the main element
+        while (contentContainer.firstChild) {
+          mainElement.appendChild(contentContainer.firstChild);
+        }
+        contentContainer.appendChild(mainElement);
+      } else {
+        // Otherwise, just append the main element to the body
+        body.appendChild(mainElement);
+      }
+    }
+  } else if (!mainElement.hasAttribute('role')) {
+    // Ensure the existing main element has a role
+    mainElement.setAttribute('role', 'main');
+  }
+
+  return mainElement;
+};
+
 function helloWorld() {
   return 'Hello, World!';
 }
@@ -268,12 +376,16 @@ const initApp = () => {
 
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
+  addMainLandmark();
   addLandmarkRoles();
   ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
   addSVGAccessibleName('svg#icon-home', 'Home icon');
   addSVGAccessibleName('svg#icon-settings', 'Settings icon');
+
+  // Fix table structure issues (REACT_027)
+  fixTableStructure();
 
   // Fix fake links
   fixFakeLinks();
@@ -316,5 +428,7 @@ export {
     ensureUniqueLandmarkElements,
     addSVGAccessibleName,
     fixFakeLinks,
+    fixTableStructure,
+    addMainLandmark,
     landmarks
 };

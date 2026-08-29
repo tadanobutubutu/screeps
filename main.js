@@ -38,9 +38,20 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function to ensure the dependencyGraph container has proper ARIA attributes
+function ensureAccessibility() {
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    // Set ARIA role and attributes for accessibility
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  ensureAccessibility
 };

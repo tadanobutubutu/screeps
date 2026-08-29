@@ -6,7 +6,7 @@ const path = require('path');
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
 function countDependencies() {
-  const packagePath = path.join(process.cwd(), 'package.json');
+  const packagePath = path.join(__dirname, 'package.json');
   
   try {
     const packageContent = fs.readFileSync(packagePath, 'utf8');

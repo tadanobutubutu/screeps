@@ -402,3 +402,62 @@ export function checkTableStructure(html) {
   
   return issues;
 }
+
+/**
+ * Returns the person's name
+ * @param {string} name - The name to return
+ * @returns {string} The person's name
+ */
+export function personName(name) {
+  return name;
+}
+
+/**
+ * Validates table accessibility
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateTableAccessibility(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates table structure
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateTableStructure(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates landmark usage
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateLandmark(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Validates landmark structure
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function validateLandmarkStructure(html) {
+  // Placeholder implementation
+  return [];
+}
+
+/**
+ * Gets accessible name for SVG
+ * @param {string} svg - The SVG element or HTML
+ * @returns {string} Accessible name
+ */
+export function getSvgAccessibleName(svg) {
+  // Placeholder implementation
+  return 'SVG image';
+}

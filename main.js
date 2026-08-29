@@ -58,7 +58,34 @@ function createInPageButton() {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code...
+  // 1. REACT_015: Ensure lang attribute is set on the HTML element
+  const lang = getLangAttribute();
+  document.documentElement.setAttribute('lang', lang);
+
+  // 2. REACT_027: Validate table accessibility and structure
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // 4. REACT_025: Ensure unique landmarks
+  validateLinkAccessibility();
+  handleFakeLinks();
+
+  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
+  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+
+  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
+  personName();
 }
 
 // DOM-based accessibility code

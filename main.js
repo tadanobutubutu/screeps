@@ -247,7 +247,7 @@ const a11yStore = {
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
+      const landmarks = document.querySelectorAll(`${element}, [role="${element}"]`);
       landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.setAttribute('id', `${element}-${index}`);
@@ -285,7 +285,7 @@ const a11yStore = {
   },
 
   fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    const fakeLinks = document.querySelectorAll('[href]:not(a):not([role="link"])');
     fakeLinks.forEach((link) => {
       link.setAttribute('role', 'link');
       link.setAttribute('tabindex', '0');
@@ -379,13 +379,18 @@ function newFunction() {
   // Your new function code here
 }
 
-const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+const banners = document.querySelectorAll('[role="banner"], [role="header"], header');
 if (banners.length > 1) {
   throw new Error('Document should have at most one banner or header landmark');
 }
 
 function checkLandmarkElement(role, element) {
   // (code for checkLandmarkElement remains the same)
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  if (role && !validRoles.includes(role)) {
+    return false;
+  }
+  return true;
 }
 
 function wrapPrimaryContentInMain() {
@@ -418,6 +423,15 @@ function wrapPrimaryContentInMain() {
 
 function checkLandmarks(container = document) {
   // (code for checkLandmarks remains the same)
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'];
+  const landmarks = container.querySelectorAll(landmarkRoles.map(r => `[role="${r}"]`).join(', '));
+  const nativeLandmarks = container.querySelectorAll('header, nav, main, aside, footer');
+  
+  return {
+    explicitLandmarks: landmarks.length,
+    nativeLandmarks: nativeLandmarks.length,
+    totalLandmarks: landmarks.length + nativeLandmarks.length
+  };
 }
 
 function ensureUniqueLandmarks() {
@@ -511,7 +525,6 @@ module.exports = {
   config,
   countDependencies,
   run,
-  checkTableStructure,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
@@ -519,17 +532,17 @@ module.exports = {
   getSvgAccessibleName,
   addressAccessibilityIssues,
   newFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  preserveExistingCode,
-  prefersReducedMotion,
-  prefersHighContrast,
+  createAccessibleButton: a11yStore.createAccessibleButton,
+  createAccessibleDialog: a11yStore.createAccessibleDialog,
+  announceToScreenReader: a11yStore.announceToScreenReader,
+  trapFocus: a11yStore.trapFocus,
+  initAccessibility: a11yStore.initAccessibility,
+  updateLiveRegion: a11yStore.updateLiveRegion,
+  checkLandmarkElements: a11yStore.checkLandmarkElements,
+  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+  preserveExistingCode: a11yStore.preserveExistingCode,
+  prefersReducedMotion: a11yStore.prefersReducedMotion,
+  prefersHighContrast: a11yStore.prefersHighContrast,
   standaloneAddressAccessibilityIssues,
   wrapPrimaryContentInMain,
   checkLandmarks,

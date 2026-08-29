@@ -172,6 +172,7 @@ function processAccessibilityReport(report) {
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
+// Add back removed exports
 module.exports = {
   config,
   appState,
@@ -198,5 +199,22 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addLandmarkRegions
+  addLandmarkRegions,
+  // Added from origin/main
+  someFunction: function() {
+    return 'some value';
+  },
+  CONFIG: {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+  },
+  helper: function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate: function(date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  }
 };

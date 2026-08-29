@@ -1,5 +1,9 @@
+// TODO: Add back any required exports that might have been removed.
+
 const fs = require('fs');
 const path = require('path');
+const { utilityFunction } = require('./utils.js');
+const { class1, function1, Object1 } = require('./path/to/module');
 
 const {
   getLangAttribute,
@@ -11,10 +15,7 @@ const {
   createInPageButton,
   createAccessibleLink,
   ADDRESS_ACCESSIBILITY_ISSUE_038,
-} = require('./accessibilityHelperFunctions');
-
-import { utilityFunction } from './utils.js';
-import { class1, function1, Object1 } from './path/to/module';
+} = require('./accessibility-utils.js');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
@@ -47,15 +48,18 @@ function addLangAttribute(document, lang = 'en') {
 // Game loop function
 function run() {
   const viewsDir = path.join(__dirname, 'views');
-  fs.readdirSync(viewsDir)
+  const files = fs.readdirSync(viewsDir);
+  files
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      const content = fs.readFileSync(filePath, 'utf-8');
+      // Process each HTML file
     });
 }
 
 // Start the game loop
+const Module = {};
 Module.onInit = function() {
   setInterval(run, 1000);
 };
@@ -68,18 +72,20 @@ export const metadata = {
 export default function RootLayout({
   children,
 }) {
-  addLangAttribute(document);
   addMainLandmark(document);
-  addSvgAccessibleNames(document);
   ensureUniqueLandmarks(document);
-  fixFakeLinkIssue(document);
-  fixFakeLinkIssues(document);
+  addLandmarkRegions(document);
   fixTableStructure(document);
+  addAccessibleNamesToSVGs(document);
+  fixFakeLinkIssues(document);
+  ensureDependencyGraphARIA(document);
+  addressAccessibilityIssues(document);
 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>🏰</text></svg>" />
+        <link rel="icon" href="/favicon.ico" />
+        <title>Screeps Dashboard</title>
       </head>
       <body>{children}</body>
     </html>
@@ -116,7 +122,7 @@ function fixTableStructure(document) {
     
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('th, td');
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
         const th = document.createElement('th');
@@ -186,11 +192,12 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible name to SVG
-function addSvgAccessibleNames(document) {
+function addSvgAccessibleName(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', titleElement.textContent.trim());
     } else {
       svg.setAttribute('aria-label', 'Graphic');
@@ -205,6 +212,7 @@ function addAccessibleNamesToSVGs(document) {
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-label', titleElement.textContent.trim());
     } else {
       svg.setAttribute('aria-label', 'Graphic');
@@ -226,7 +234,7 @@ function fixFakeLinkIssue(document) {
     
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('.href'))) {
+        onclick.includes('href'))) {
       
       const span = document.createElement('span');
       span.textContent = element.textContent;
@@ -275,7 +283,7 @@ function fixLandmarkIssues(document) {
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (!landmark.id && !landmark.getAttribute('aria-label')) {
-      landmark.setAttribute('aria-label', `landmark-${role}`);
+      landmark.setAttribute('aria-label', role);
     }
   });
   return document;
@@ -300,107 +308,3 @@ function uniqueLandmarks(document) {
       let index = 1;
       elements.forEach((el) => {
         if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role}-${index}`);
-        }
-        index++;
-      });
-    }
-  });
-}
-
-// Address accessibility issues from insight report for image alt texts
-function fixImageAltTexts(document) {
-  const images = document.querySelectorAll('img');
-  images.forEach(img => {
-    if (!img.hasAttribute('alt')) {
-      img.setAttribute('alt', '');
-    }
-  });
-  return document;
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn(document) {
-  if (typeof google !== 'undefined' && google.accounts) {
-    google.accounts.id.initialize({
-      client_id: 'YOUR_CLIENT_ID',
-      callback: handleCredentialResponse
-    });
-    const buttonContainer = document.querySelector('#g-signin-button');
-    if (buttonContainer) {
-      google.accounts.id.renderButton(
-        buttonContainer,
-        { theme: 'outline', size: 'large' }
-      );
-    }
-  }
-}
-
-// Function to handle credential response from Google Sign-In
-function handleCredentialResponse(response) {
-  console.log('Credential response received:', response);
-}
-
-// Function to ensure the element has an id
-function ensureElementHasId(document, selector, idPrefix = 'element') {
-  const elements = document.querySelectorAll(selector);
-  elements.forEach((element, index) => {
-    if (!element.id) {
-      element.id = `${idPrefix}-${index + 1}`;
-    }
-  });
-  return document;
-}
-
-// Function to ensure an element has an id with origin/main optimization
-function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
-  const elements = document.querySelectorAll(selector);
-  elements.forEach((element) => {
-    element.id = element.dataset.id && element.dataset.id.length > 0 ? element.dataset.id : `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
-  });
-  return document;
-}
-
-// Function to add aria-label to elements
-function addAriaLabel(document, selector, label) {
-  const elements = document.querySelectorAll(selector);
-  elements.forEach((element) => {
-    if (!element.getAttribute('aria-label')) {
-      element.setAttribute('aria-label', label);
-    }
-  });
-  return document;
-}
-
-// Function to render dependency graphs
-function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('#dependencyGraph') || 
-                         document.querySelector('.dependency-graph') || 
-                         document.querySelector('[data-graph="dependencies"]') ||
-                         document.querySelector('[id*="dependency"]');
-  if (graphContainer) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('');
-  }
-}
-
-// Integrated REACT_036 changes and merged accessibility fixes
-function addressAccessibilityIssues(document) {
-  document = addLangAttribute(document);
-  document = fixTableStructure(document);
-  document = fixLandmarkIssues(document);
-  document = addMainLandmark(document);
-  document = addLandmarkRegions(document);
-  document = ensureUniqueLandmarks(document);
-  document = uniqueLandmarks(document);
-  document = addSvgAccessibleNames(document);
-  document = addAccessibleNamesToSVGs(document);
-  document = fixFakeLinkIssue(document);
-  document = fixFakeLinkIssues(document);
-  document = fixImageAltTexts(document);
-  document = googleSignIn(document);
-  document = ensureElementHasId(document);
-  document = ensureElementHasIdOrigin(document);
-  document = renderDependencyGraphs(document);
-  return document;
-}

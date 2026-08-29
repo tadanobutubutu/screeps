@@ -13,6 +13,8 @@ function newFunction() {
 }
 
 // Exporting the new added function
+// TODO: Add any other missing exports that might have been?
+// Added missing exports as per the issue
 module.exports = {
   // Keep the existing exports here if any
   newFunction, // Export newFunction

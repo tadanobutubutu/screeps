@@ -117,10 +117,39 @@ function addLangAttribute() {
 
 // ... other fixes ...
 
+// New helper functions to address the additional accessibility requirements
+function ensureElementHasId(elementId) {
+  const element = document.getElementById(elementId);
+  if (element && !element.hasAttribute('id')) {
+    element.setAttribute('id', elementId);
+  }
+}
+
+function addAriaLabel(elementId, label) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+// Ensure elements have the required IDs
+ensureElementHasId('myTable');
+ensureElementHasId('mySvg');
+ensureElementHasId('inPageButton');
+
+// Add ARIA labels for better screen reader support
+addAriaLabel('myTable', 'Product data table');
+addAriaLabel('mySvg', 'Company logo');
+addAriaLabel('inPageButton', 'Accessibility menu');
+
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
 createInPageButton();
+
+// Ensure button has an id and appropriate ARIA label
+ensureElementHasId('inPageButton');
+addAriaLabel('inPageButton', 'Accessibility menu');
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible

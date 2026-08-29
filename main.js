@@ -1,3 +1,6 @@
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -34,4 +37,4 @@ function countDependencies() {
 }
 
 // Export for use in other modules
-module.exports = { countDependencies };
+module.exports = { countDependencies, dependencyGraphContent };

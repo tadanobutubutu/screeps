@@ -13,16 +13,27 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
-  // Existing function implementation
+  const warnings = [];
+  const elementsFound = {};
+
+  LANDMARK_ELEMENTS.forEach(tag => {
+    const regex = new RegExp(`<${tag}[^>]*>`, 'gi');
+    const matches = htmlContent.match(regex);
+    elementsFound[tag] = matches ? matches.length : 0;
+  });
+
+  return { elementsFound, warnings };
 }
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
-
   // New implementation to count dependencies using Document and regex
-  const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
-  const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
+  const importCommentRegExp = /import\s+.*?from\s+['"].*?['"]/g;
+  const requireRegExp = /require\s*\(\s*['"].*?['"]\s*\)/g;
+  const sourceCode = document.body.textContent || '';
+  const importMatches = sourceCode.match(importCommentRegExp) || [];
+  const requireMatches = sourceCode.match(requireRegExp) || [];
+  const importCount = importMatches.length + requireMatches.length;
   return importCount;
 }
 
@@ -37,11 +48,11 @@ const a11yStore = {
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
   // Implementation would iterate through LANDMARK_ELEMENTS and ensure they have proper IDs
-  LANDMARK_ELEMENTS.forEach(landmark => {
-    const element = document.querySelector(landmark);
+  LANDMARK_ELEMENTS.forEach(tag => {
+    const element = document.querySelector(tag);
     if (element) {
       if (!element.id) {
-        element.id = `landmark-${landmark}-${Date.now()}`;
+        element.id = `landmark-${tag}-${Math.random().toString(36).substr(2, 9)}`;
       }
     }
   });
@@ -51,12 +62,15 @@ function addLandmarkRegions() {
 
 // Update scope attributes in all .html files in the views directory
 const viewsDir = path.join(__dirname, 'views');
-fs.readdirSync(viewsDir)
-  .filter(file => file.endsWith('.html'))
-  .forEach(file => {
-    const filePath = path.join(viewsDir, file);
-    updateThScopeAttribute(filePath);
-  });
+if (fs.existsSync(viewsDir)) {
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      updateThScopeAttribute(filePath, content);
+    });
+}
 
 // Used for addressing React accessibility issues
 function addressAccessibilityIssues(report) {
@@ -75,7 +89,7 @@ function addressAccessibilityIssues(report) {
           skipLink.className = 'skip-link';
           skipLink.href = '#main-content';
           skipLink.textContent = 'Skip to main content';
-          document.body.prepend(skipLink);
+          document.body.insertBefore(skipLink, document.body.firstChild);
         }
         break;
       case 'missing-alt':
@@ -98,7 +112,3 @@ function addressAccessibilityIssues(report) {
 }
 
 // TODO: This is the existing code that needs to be preserved
-// TODO: Please provide the contents of `main.js` (including any conflict markers) so I can assist with implementing `addProperLandmarkRegions();`.
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
-=======

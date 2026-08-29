@@ -6,7 +6,7 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -47,13 +47,23 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             {error}
           </section>
         )}
+        <div
+          role="region"
+          aria-label="依存関係グラフ"
+          aria-describedby="dependencyGraphDesc"
+        >
+          <span id="dependencyGraphDesc" className="sr-only">
+            依存関係グラフは、コンポーネント間の依存関係を示します
+          </span>
+          {/* dependencyGraph content would be rendered here */}
+        </div>
         <button
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
+          onMouseLeave={() => ...
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
+          onBlur={() => ...
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -80,7 +90,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}

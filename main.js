@@ -1,4 +1,4 @@
-import react from 'react';
+import React from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 

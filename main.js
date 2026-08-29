@@ -1,7 +1,19 @@
+// TODO: Implement the new function as per the issue requirements
+
 // main.js - Combined utility and accessibility features
 
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
+// Existing functionality preserved
+function exampleFunction() {
+  return 'example';
+}
+
+// New function implementation
+function processData(input) {
+  if (!input) {
+    return null;
+  }
+  return input;
+}
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -80,7 +92,6 @@ function prefersReducedMotion() {
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
-  // Return the announcer for use in the app
   return {
     announce: announcer.announce,
     setupKeyboardNavigation,
@@ -166,6 +177,8 @@ function addAccessibleNamesToSvg() {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    exampleFunction,
+    processData,
     initializeAccessibility,
     setupKeyboardNavigation,
     trapFocus,

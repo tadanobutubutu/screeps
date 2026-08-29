@@ -10,7 +10,7 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = `${baseName}-${Date.now()}`;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -18,6 +18,15 @@ function ensureUniqueLandmarkId(baseName) {
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
+}
+
+/**
+ * Checks whether a given landmark ID has already been used.
+ * @param {string} id - The landmark ID to check.
+ * @returns {boolean} True if the ID is unique (not previously used), false otherwise.
+ */
+function isLandmarkIdUnique(id) {
+    return !_usedLandmarkIds.has(id);
 }
 
 /**
@@ -39,6 +48,7 @@ function uniqueLandmarks(landmarks) {
 
 module.exports = {
     ensureUniqueLandmarkId,
+    isLandmarkIdUnique,
     uniqueLandmarks,
     // Preserve any other existing exports here
 };

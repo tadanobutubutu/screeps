@@ -1,11 +1,11 @@
 import React from 'react';
 
+// Make role constants accessible at module level
+export const role = 'button';
+export const inputRole = 'checkbox';
+
 const MyComponent = () => {
   // Existing component code
-
-  // Add ARIA property role for better tab focusability
-  const role = 'button';
-  const inputRole = 'checkbox';
 
   return (
     <div>

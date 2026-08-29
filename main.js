@@ -1,7 +1,6 @@
 // Address accessibility issues from insight report
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
-const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
 const { addProperLandmarkRegions } = require('./properLandmarkRegions');
 
 function renderDependencyGraphContent(data) {

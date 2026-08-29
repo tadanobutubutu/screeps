@@ -6,8 +6,7 @@ const rotateBack = function () {
   // document.getElementById('someElement').classList.remove('rotate-forward');
   // document.getElementById('someElement').classList.add('rotate-backward');
 };
-
-exports.rotateBack = rotateBack;
+module.exports.rotateBack = rotateBack;
 
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // Code to address the specific accessibility issue on the element
@@ -15,7 +14,7 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
 };
 
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+module.exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 
 const renderDependencyGraph = (dependencyGraph, container) => {
   // Render the dependency graph using the dependencyGraphContent
@@ -24,7 +23,7 @@ const renderDependencyGraph = (dependencyGraph, container) => {
   container.innerHTML = graphContent;
 };
 
-exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.renderDependencyGraph = renderDependencyGraph;
 
 import { type Metadata } from "next";
 import "./globals.css";
@@ -56,7 +55,7 @@ import {
   isButtonAccessible,
   getSvgAccessibleName,
 } from "./accessibility";
-import { renderDependencyGraph } from "./dependencyGraph";
+import { renderDependencyGraph as renderDependencyGraphFromModule } from "./dependencyGraph";
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -65,7 +64,7 @@ import { renderDependencyGraph } from "./dependencyGraph";
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 
-export const addressAccessibilityIssue038 = (
+const addressAccessibilityIssue038 = (
   element,
   accessibilityInfo
 ) => {
@@ -253,7 +252,7 @@ const a11yStore = {
   },
 };
 
-function addressAccessibilityIssues(report) {
+function handleAccessibilityIssues(report) {
   if (!report) return;
   report.forEach(issue => {
     // Integrated the logic from both branches to address accessibility issues
@@ -335,7 +334,7 @@ export default function RootLayout({
             height="24"
             viewBox="0 0 24 24"
           >
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4 4 1.79 4 4z" />
           </svg>
 
           {/* REACT_036: Fix fake link issue - use proper anchor element */}
@@ -346,7 +345,7 @@ export default function RootLayout({
           {/* REACT_017 & REACT_025: Ensure unique landmarks */}
           {/* Using proper landmark elements ensures unique landmarks */}
         </main>
-        {renderDependencyGraph()}
+        {renderDependencyGraphFromModule()}
       </body>
     </html>
   );

@@ -9,7 +9,7 @@
  */
 function addLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && typeof lang === 'string') {
     htmlElement.setAttribute('lang', lang);
   }
 }
@@ -51,9 +51,11 @@ function trapFocus(container, event) {
  * @param {string} priority - 'polite' or 'assertive'
  */
 function announceToScreenReader(message, priority = 'polite') {
-  const announcementElement = document.getElementById('sr-announcer');
+  const announcementElement = document.createElement('div');
   if (announcementElement) {
     announcementElement.setAttribute('aria-live', priority);
+    announcementElement.setAttribute('aria-atomic', 'true');
+    announcementElement.className = 'sr-only';
     announcementElement.textContent = '';
     // Force screen reader to announce by removing and re-adding content
     setTimeout(() => {
@@ -148,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.closest('[rel="icon"]') !== null;
+                        svg.parentElement === null;
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');

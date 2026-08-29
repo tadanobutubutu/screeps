@@ -74,31 +74,30 @@ function addressInsightReportIssues(insightReport) {
     if (element) {
       // Add lang attribute to HTML element
       if (issue.code === 'REACT_015') {
-        document.documentElement.lang = 'en';
+        addLangAttribute();
       }
       // Add landmark roles and fix landmark issues
       if (issue.code === 'REACT_017') {
         if (issue.ariaRole) {
           element.setAttribute('role', issue.ariaRole);
         }
+        addLandmarkRolesAndFixIssues();
       }
       // Add accessible names to 2 SVGs
       if (issue.code === 'REACT_041') {
-        if (issue.ariaLabel) {
-          element.setAttribute('aria-label', issue.ariaLabel);
-        }
+        addSvgAccessibleNames();
       }
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
+        ensureUniqueLandmarks();
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
+        fixFakeLinks();
       }
       // Add scope="col" or scope="row" to <th> elements (already implemented)
       if (issue.code === 'REACT_027') {
-        // This issue is already implemented, so no action is needed here
+        fixTableHeaderCellScope();
       }
     }
   });
@@ -133,8 +132,9 @@ function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
 }
 
 function addLandmarkRolesAndFixIssues() {
-  // Implementation for adding landmark roles and fixing landmark issues
-  // This is a placeholder that would need to be implemented based on specific requirements
+  // Add main landmark if missing
+  addMainLandmark();
+  // Additional landmark fixes can be added here
 }
 
 // Placeholder implementation for rendering a dependency graph

@@ -28,7 +28,7 @@ function addressAccessibilityIssues() {
 
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
+    link.setAttribute('aria-labelledby', 'svg1-title');
   });
 
   // TODO: Implement this function for checking link and button accessibility

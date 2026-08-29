@@ -6,7 +6,6 @@ const myNewFunction = () => {
 // Preserve all current exports and functions
 // ... existing exports and functions ...
 
-// Function to ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     throw new TypeError('Input must be an array of landmarks');

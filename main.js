@@ -74,7 +74,48 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+function createInPageButton(options) {
+  const {
+    label,
+    onClick,
+    ariaLabel,
+    id,
+    className,
+    type = 'button',
+    disabled = false
+  } = options || {};
+
+  if (!label || typeof label !== 'string') {
+    throw new Error('createInPageButton: A non-empty "label" string is required.');
+  }
+  if (typeof onClick !== 'function') {
+    throw new Error('createInPageButton: A valid "onClick" function is required.');
+  }
+
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = label;
+
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  if (id) {
+    button.id = id;
+  }
+  if (className) {
+    button.className = className;
+  }
+  if (disabled) {
+    button.disabled = true;
+  }
+
+  button.addEventListener('click', onClick);
+
+  return button;
+}
+
 module.exports = {
   addressAccessibilityIssues,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  createInPageButton
 };

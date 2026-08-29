@@ -586,6 +586,7 @@ if (typeof module !== 'undefined' && module.exports) {
         fixTableStructureIssues,
         addMainLandmark,
         addSvgAccessibleNames,
-        fixFakeLinkIssue
+        fixFakeLinkIssue,
+        createAnnouncer
     };
 }

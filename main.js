@@ -16,8 +16,8 @@ const main = {
     // TODO: Implement harvest and upgrade logic
     
     // TODO: Implement tower defense
-    
     // TODO: Implement spawning logic
+    this.spawnCreeps();
   },
   
   manageRoom: function(room) {
@@ -31,7 +31,7 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
     
@@ -41,7 +41,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -60,6 +60,22 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+  
+  spawnCreeps: function() {
+    const spawns = Object.values(Game.spawns);
+    
+    spawns.forEach(spawn => {
+      if (!spawn.spawning) {
+        const body = [WORK, CARRY, MOVE];
+        const name = `Creep${Game.time}`;
+        const result = spawn.spawnCreep(body, name);
+        
+        if (result === OK) {
+          console.log(`Spawned new creep: ${name}`);
+        }
+      }
+    });
   }
 };
 

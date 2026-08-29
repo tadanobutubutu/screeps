@@ -30,4 +30,11 @@ export function handleAccessibilityIssues() {
   getSvgAccessibleName();
   createAccessibleLink();
   ensureUniqueLandmarks();
+
+  // Add code to ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraphContainer = document.querySelector('#dependencyGraph');
+  if (dependencyGraphContainer) {
+    // Assuming 'role="graph"' is needed, replace this with the correct role
+    dependencyGraphContainer.setAttribute('role', 'graph');
+  }
 }

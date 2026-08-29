@@ -117,43 +117,12 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
-// TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
-
-  if (!inputData) {
-    return null;
+// New function added as per issue
+function myNewFunction(input) {
+  if (typeof input === 'string') {
+    return input.toUpperCase();
   }
-
-  if (typeof inputData === 'string') {
-    let result = trimWhitespace ? inputData.trim() : inputData;
-    result = uppercase ? result.toUpperCase() : result;
-    if (maxLength && result.length > maxLength) {
-      result = result.substring(0, maxLength);
-    }
-    return result;
-  }
-
-  if (Array.isArray(inputData)) {
-    return inputData.map(item => transformInputData(item, options));
-  }
-
-  if (typeof inputData === 'object' && inputData !== null) {
-    const result = {};
-    for (const [key, value] of Object.entries(inputData)) {
-      let newKey = preserveKeys ? key : key.trim();
-      newKey = uppercase ? newKey.toUpperCase() : newKey;
-      result[newKey] = transformInputData(value, options);
-    }
-    return result;
-  }
-
-  return inputData;
+  return input;
 }
 
 // Additional utility functions for accessibility
@@ -167,11 +136,15 @@ function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
 
-function personName() {
-  // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
-  // ...
+// Added myNewFunction implementation
+function myNewFunction(input) {
+  if (typeof input !== 'string') {
+    return input;
+  }
+  return input.toUpperCase();
 }
 
+// Additional utility functions for accessibility
 function getSvgAccessibleName() {
   // Implementation for REACT_041: Add accessible names to 2 SVGs
   // ...
@@ -285,14 +258,16 @@ module.exports = {
   transformInputData,
   getLangAttribute,
   calculateSum,
+  myNewFunction,
   personName,
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  addLangAttribute: getLangAttribute,
-  fixTableStructure: validateTableStructure,
-  addSvgAccessibleNames: getSvgAccessibleName,
-  fixFakeLinkIssue: personName,
+  addLangAttribute,
+  fixTableStructure,
+  addSvgAccessibleName,
+  fixFakeLinkIssue,
+
   addAriaAttribute,
   addMainLandmark,
   ensureUniqueLandmarks,

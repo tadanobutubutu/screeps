@@ -1,4 +1,4 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Implement function for adding proper landmark regions
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -293,6 +293,78 @@ function implementNewFunction() {
   improveAccessibility();
 }
 
+// NEW FUNCTION: Adds proper landmark regions to the document
+// This function ensures all standard landmark regions have proper roles
+function addProperLandmarkRegions() {
+  // Process existing semantic HTML5 elements and assign appropriate landmark roles
+  const semanticElements = {
+    'header': 'banner',
+    'nav': 'navigation',
+    'main': 'main',
+    'article': 'article',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region'
+  };
+
+  Object.keys(semanticElements).forEach(tagName => {
+    const elements = document.querySelectorAll(tagName);
+    elements.forEach(element => {
+      // Skip if already has a role (either from HTML5 semantics or explicit role)
+      if (element.hasAttribute('role')) {
+        return;
+      }
+      
+      const landmarkRole = semanticElements[tagName];
+      
+      // Special handling for header and footer (can appear multiple times)
+      if (tagName === 'header' || tagName === 'footer') {
+        const parent = element.parentElement;
+        if (parent) {
+          if (parent.tagName.toLowerCase() === 'body') {
+            // Header/footer directly in body -> banner/contentinfo
+            element.setAttribute('role', tagName === 'header' ? 'banner' : 'contentinfo');
+          } else {
+            // Header/footer within other elements -> don't assign role (not top-level landmarks)
+            return;
+          }
+        }
+      } else {
+        element.setAttribute('role', landmarkRole);
+      }
+    });
+  });
+
+  // Ensure search landmarks
+  const searchElements = document.querySelectorAll('[role="search"], .search, #search');
+  searchElements.forEach(element => {
+    if (!element.hasAttribute('role')) {
+      element.setAttribute('role', 'search');
+    }
+  });
+
+  // Ensure form landmarks (forms with no other roles)
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    if (!form.hasAttribute('role')) {
+      form.setAttribute('role', 'form');
+    }
+  });
+
+  // Ensure at least one main landmark exists
+  const mainElements = document.querySelectorAll('[role="main"], main');
+  if (mainElements.length === 0) {
+    // Try to find main content area
+    const possibleMain = document.querySelector('.main, #main, .content, #content, [role="main"]');
+    if (possibleMain) {
+      possibleMain.setAttribute('role', 'main');
+    }
+  }
+
+  // Ensure unique landmarks after adding roles
+  ensureUniqueLandmarks();
+}
+
 // Existing code preserved below
 function main() {
   console.log('Running main application');
@@ -319,7 +391,8 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  addProperLandmarkRegions
 };
 
 // Execute main function

@@ -80,14 +80,38 @@ const icons = {};
 
 function processLandmarks(landmarks) {
   // Ensure all landmarks have valid structure
+  const landmarkStructureCheck = (landmark) => {
+    // Check landmark properties here
+    // ...
+    return true; // Add your own check logic
+  };
+
   const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
   // Ensure the landmarks are unique
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  const ensureUniqueLandmarks = (landmarks) => {
+    // Add your own unique landmark logic here
+    // ...
+    return landmarks;
+  };
 
-  return uniqueLandmarks;
+  return ensureUniqueLandmarks(validLandmarks);
 }
 
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
+  }
+
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  }
+}
+
+// Function to check if the specified landmark element is in the document.
+// @param {string} id - The ID of the landmark element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
@@ -116,3 +140,10 @@ ReactDOM.render(
 
 // Report web vitals
 reportWebVitals();
+
+export {
+  landmarkStructureCheck,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  checkLandmarkElement
+};

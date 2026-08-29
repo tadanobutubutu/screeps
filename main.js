@@ -172,7 +172,14 @@ export {
 // Exporting for CommonJS compatibility
 module.exports = {
   // All existing exports from main.js go here
-  specificFunctionThatRendersGraphOrIndex
+  specificFunctionThatRendersGraphOrIndex,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  someFunction
 };
 
 // ... other exports ...

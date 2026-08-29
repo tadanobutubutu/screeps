@@ -123,6 +123,23 @@ function generateSessionId() {
 }
 
 /**
+ * Validates the structure of the table to ensure accessibility.
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} True if the table is accessible, false otherwise
+ */
+function validateTableStructure(table) {
+  if (!table) {
+    throw new Error('Table is required');
+  }
+  
+  // Placeholder for table structure validation logic
+  // This should include checks for headers, caption, and row grouping
+  
+  // For now, we assume the table is valid
+  return true;
+}
+
+/**
  * Validate an existing session
  * @param {string} sessionId - The session ID to validate
  * @returns {Object|null} - Session data if valid, null otherwise
@@ -270,6 +287,8 @@ module.exports = {
     handleCredentialResponse,
     parseCredentialResponse,
     decodeJwtToken,
+    generateSessionId,
+    validateTableStructure,
     validateSession,
     revokeSession,
     getActiveSessionsCount,

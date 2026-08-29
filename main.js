@@ -1,6 +1,5 @@
 // main.js
 // Updated to import and use dependencyGraphContent and indexContent
-
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
@@ -25,4 +24,32 @@ export function renderIndex() {
   console.log('Rendering index', indexContent);
 }
 
-// Any other existing code remains unchanged
+export { makeHeaderFocusable }; // new export statement from conflicting branch
+
+function ensureElementId(element) {
+  // Combined and reconciled code from both branches
+  if (!element.id) {
+    element.id = element.id || element.name || '';
+  }
+}
+
+function addAriaLabel(element) {
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', 'View focus');
+  }
+}
+
+function renderDependencyGraph() {
+  // Combined and reconciled code from both branches
+  // Example usage: replace with actual rendering logic
+}
+
+const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+export { ensureElementId };
+export { addAriaLabel };
+export { renderDependencyGraph };
+export { dependencyGraphContainer };

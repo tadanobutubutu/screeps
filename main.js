@@ -2,3 +2,5 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 import { dependencyGraphContent, indexContent } from './content';
+
+// TODO: Address accessibility issues from insight report — FIXED

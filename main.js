@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report
-
+// Main module for calculator operations
 // Main entry point for dependency visualization tool
 
 const fs = require('fs');
@@ -31,6 +30,7 @@ function getDependencyDepth(dependencies, currentKey = '') {
 }
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+// TODO: Address accessibility issues from insight report
 
 /**
  * Renders a dependency graph as ASCII art for debugging purposes.
@@ -322,43 +322,6 @@ function addMainLandmark(reactRoot) {
   reactRoot.appendChild(mainLandmark);
 }
 
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
-      }
-    }
-  };
-  
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
-  
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
-/**
- * Validates table accessibility
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableAccessibility(table) {
-  // Implementation for table accessibility validation
-  if (!table) return false;
-  return true;
-}
-
-/**
- * Validates table structure
- * @param {HTMLElement} table - The table element to validate
- */
-function validateTableStructure(table) {
-  // Implementation for table structure validation
-  if (!table) return false;
-  return true;
-}
-
 /**
  * Validates landmark accessibility
  */
@@ -374,34 +337,9 @@ function validateLandmarkStructure() {
 }
 
 /**
- * Gets accessible name for SVG element
- * @param {HTMLElement} svg - The SVG element
- * @returns {string} Accessible name
- */
-function getSvgAccessibleName(svg) {
-  // Implementation for getting SVG accessible name
-  return svg ? svg.getAttribute('aria-label') || '' : '';
-}
-
-/**
- * Sets SVG attributes for accessibility
- * @param {HTMLElement} svg - The SVG element
- * @param {string} accessibleName - The accessible name
- */
-function setSvgAttributes(svg, accessibleName) {
-  // Implementation for setting SVG attributes
-  if (svg) {
-    svg.setAttribute('role', 'img');
-    if (accessibleName) {
-      svg.setAttribute('aria-label', accessibleName);
-    }
-  }
-}
-
-/**
  * Creates an in-page button with accessibility considerations
  */
-function createInPageButton() {
+function createInPageButtonImplementation() {
   // Implementation for creating in-page button
 }
 
@@ -436,16 +374,9 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * Validates link accessibility
- */
-function validateLinkAccessibility() {
-  // Implementation for link accessibility validation
-}
-
-/**
  * Handles fake links appropriately
  */
-function handleFakeLinks() {
+function handleFakeLinksImplementation() {
   // Implementation for handling fake links
 }
 
@@ -461,13 +392,22 @@ function fixAccessibilityIssues() {
  * @returns {number} Result of division
  */
 function divide(dividend, divisor) {
-  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-    throw new Error('Both dividend and divisor must be numbers');
-  }
-  if (divisor === 0) {
-    throw new Error('Division by zero is not allowed');
-  }
-  return dividend / divisor;
+    // Check if inputs are valid numbers
+    if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+        throw new Error('Both dividend and divisor must be numbers');
+    }
+    
+    // Check for NaN
+    if (isNaN(dividend) || isNaN(divisor)) {
+        throw new Error('Both dividend and divisor must be valid numbers');
+    }
+    
+    // Check for division by zero
+    if (divisor === 0) {
+        throw new Error('Cannot divide by zero');
+    }
+    
+    return dividend / divisor;
 }
 
 function formatProductName(product) {
@@ -538,6 +478,7 @@ function exportedFunction() {
 
 // Export UI / product functions
 module.exports = {
+  divide,
   renderDependencyGraph,
   displayModuleStructure,
   addMainLandmark,
@@ -557,20 +498,11 @@ module.exports = {
   addProperLandmarkRegions,
   getDependencyDepth,
   generateDependencyReport,
-  main,
-  validateTableAccessibility,
-  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  fixAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  divide,
+  fixAccessibilityIssues,
   formatProductName,
   renderProductList,
   calculateTotalPrice,
@@ -580,6 +512,23 @@ module.exports = {
   someFunction,
   exportedFunction
 };
+
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraph(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
+}
 
 // Run if executed directly
 if (require.main === module) {

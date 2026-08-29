@@ -58,6 +58,45 @@ function validateLandmarkStructure() {
         validation.warnings.push('No <footer> landmark element found');
     }
     
+    // New accessibility features
+    if (results.main.exists) {
+        const mainElement = getElementById('main');
+        mainElement.setAttribute('role', 'main');
+    }
+    
+    // Ensure that all interactive elements have ARIA labels
+    queryElements('button, a, input').forEach(element => {
+        if (!element.hasAttribute('aria-label')) {
+            element.setAttribute('aria-label', 'Accessible label');
+        }
+    });
+    
+    // Ensure that all modals have focus trapping
+    queryElements('.modal').forEach(modal => {
+        modal.setAttribute('tabindex', '-1');
+        modal.setAttribute('aria-hidden', 'true');
+        
+        modal.addEventListener('keydown', function(event) {
+            let focusableElements = modal.querySelectorAll('a, area, input, select, textarea, button, iframe, object, embed, [tabindex="0"], [contenteditable]');
+            let firstElement = focusableElements[0];
+            let lastElement = focusableElements[focusableElements.length - 1];
+            
+            if (event.key === 'Tab') {
+                if (event.shiftKey) /* shift + tab */ {
+                    if (document.activeElement === firstElement) {
+                        event.preventDefault();
+                        lastElement.focus();
+                    }
+                } else /* tab */ {
+                    if (document.activeElement === lastElement) {
+                        event.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            }
+        });
+    });
+    
     return validation;
 }
 

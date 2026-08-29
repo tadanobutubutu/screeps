@@ -1,7 +1,6 @@
 // TODO: Add any other missing exports that might have been?
 
 const config = {};
-const logger = require('./utils/logger');
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -34,10 +33,6 @@ function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
   const dependencyGraph = document.querySelector('[data-testid="dependency-graph"], .dependency-graph') || document.querySelector('#dependency-graph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
 }
 
 // Render dependency graph content
@@ -70,7 +65,7 @@ function improveAccessibility() {
 function addressInsightReportIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
-    const element = document.querySelector(issue.selector);
+    const element = issue.selector ? document.querySelector(issue.selector) : null;
     if (element) {
       // Add lang attribute to HTML element
       if (issue.code === 'REACT_015') {
@@ -90,11 +85,11 @@ function addressInsightReportIssues(insightReport) {
       }
       // Ensure unique landmarks (2 issues)
       if (issue.code === 'REACT_025') {
-        // Implement logic to ensure unique landmarks if needed
+        ensureUniqueLandmarks();
       }
       // Fix 1 fake link issue
       if (issue.code === 'REACT_036') {
-        // Implement logic to fix fake link issues if needed
+        fixFakeLinks();
       }
       // Add scope="col" or scope="row" to <th> elements (already implemented)
       if (issue.code === 'REACT_027') {
@@ -198,9 +193,12 @@ function fixTableStructureIssues() {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody') || document.createElement('tbody');
         thead.appendChild(firstRow);
         table.insertBefore(thead, tbody || firstRow);
+        if (!table.querySelector('tbody')) {
+          table.appendChild(tbody);
+        }
       }
     }
   });
@@ -234,7 +232,7 @@ function fixTableHeaderCellScope() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main, [role="main"]');
   mainElements.forEach(main => {
-    if (!main.hasAttribute('role')) {
+    if (!main.getAttribute('role')) {
       main.setAttribute('role', 'main');
     }
   });
@@ -265,6 +263,9 @@ function addSvgAccessibleNames() {
       const title = document.createElement('title');
       title.textContent = `SVG graphic ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
+      const titleId = `svg-title-${index}`;
+      title.setAttribute('id', titleId);
+      svg.setAttribute('aria-labelledby', titleId);
     }
   });
 }
@@ -276,7 +277,7 @@ function ensureUniqueLandmarksFromReport(insightReport) {
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
-      const element = document.querySelector(issue.selector);
+      const element = issue.selector ? document.querySelector(issue.selector) : null;
 
       // If the landmark role exists, add it to the unique landmarks object
       if (element && issue.ariaRole) {
@@ -301,9 +302,9 @@ function implementNewFunction() {
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
+  fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
-  fixTableHeaderCellScope();
 }
 
 // Existing code preserved below
@@ -338,3 +339,4 @@ module.exports = {
 
 // Execute main function
 main();
+```

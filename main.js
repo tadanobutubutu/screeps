@@ -10,7 +10,7 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = `${baseName}-${Date.now()}`;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -35,6 +35,14 @@ function uniqueLandmarks(landmarks) {
         }
     }
     return result;
+}
+
+/**
+ * Gets the language attribute from the HTML element.
+ * @returns {string} - the language attribute value
+ */
+function getLangAttribute() {
+    return document.documentElement.lang || '';
 }
 
 /**

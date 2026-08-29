@@ -33,6 +33,122 @@ function renderDependencyGraphContent(data) {
   }
 }
 
+// Function to check landmark elements for accessibility compliance
+function checkLandmarkElements() {
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const results = {
+    valid: true,
+    landmarks: [],
+    issues: []
+  };
+
+  // Check for landmark elements using both role attribute and semantic HTML elements
+  const landmarkSelectors = [
+    ...landmarkRoles.map(role => `[role="${role}"]`),
+    'main', 'nav', 'aside', 'header', 'footer', 'section', 'form', 'search'
+  ];
+
+  const landmarkElements = document.querySelectorAll(landmarkSelectors.join(', '));
+
+  landmarkElements.forEach((element, index) => {
+    const role = element.getAttribute('role') || getImplicitRole(element);
+    const label = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || getElementLabel(element);
+    
+    const landmarkInfo = {
+      index,
+      element: element.tagName.toLowerCase(),
+      role,
+      label: label || 'No accessible name',
+      hasAccessibleName: !!label,
+      selector: getElementSelector(element)
+    };
+
+    results.landmarks.push(landmarkInfo);
+
+    // Check for duplicate roles (excluding region which can be multiple)
+    if (role !== 'region') {
+      const sameRoleLandmarks = results.landmarks.filter(l => l.role === role && l.index !== index);
+      if (sameRoleLandmarks.length > 0) {
+        results.valid = false;
+        results.issues.push({
+          type: 'duplicate-landmark',
+          role,
+          message: `Multiple landmarks with role="${role}" found. Each landmark role (except region) should be unique.`,
+          elements: [landmarkInfo.selector, ...sameRoleLandmarks.map(l => l.selector)]
+        });
+      }
+    }
+
+    // Check for missing accessible names
+    if (!label && role !== 'region') {
+      results.valid = false;
+      results.issues.push({
+        type: 'missing-accessible-name',
+        role,
+        message: `Landmark with role="${role}" is missing an accessible name (aria-label or aria-labelledby).`,
+        element: landmarkInfo.selector
+      });
+    }
+  });
+
+  // Check for required landmarks
+  const hasMain = results.landmarks.some(l => l.role === 'main');
+  if (!hasMain) {
+    results.valid = false;
+    results.issues.push({
+      type: 'missing-main-landmark',
+      message: 'Page is missing a main landmark (role="main" or <main> element).'
+    });
+  }
+
+  return results;
+}
+
+// Helper function to get implicit ARIA role from semantic HTML elements
+function getImplicitRole(element) {
+  const tagName = element.tagName.toLowerCase();
+  const implicitRoles = {
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'header': 'banner',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'form',
+    'search': 'search'
+  };
+  return implicitRoles[tagName] || null;
+}
+
+// Helper function to get element label from various sources
+function getElementLabel(element) {
+  // Check for aria-labelledby
+  const labelledBy = element.getAttribute('aria-labelledby');
+  if (labelledBy) {
+    const labelElement = document.getElementById(labelledBy);
+    if (labelElement) return labelElement.textContent.trim();
+  }
+  
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+  
+  // Check for heading inside section/region
+  if (element.tagName.toLowerCase() === 'section' || element.getAttribute('role') === 'region') {
+    const heading = element.querySelector('h1, h2, h3, h4, h5, h6');
+    if (heading) return heading.textContent.trim();
+  }
+  
+  return null;
+}
+
+// Helper function to generate a selector for an element
+function getElementSelector(element) {
+  if (element.id) return `#${element.id}`;
+  if (element.className) return `.${element.className.split(' ').join('.')}`;
+  return element.tagName.toLowerCase();
+}
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
@@ -302,7 +418,8 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  checkLandmarkElements
 };
 
 // Execute main function

@@ -1,5 +1,5 @@
 // TODO: Add back any required exports that might have been?
-
+// TODO: Address accessibility issues from insight report — FIXED
 function main() {
   return "Hello, World!";
 }

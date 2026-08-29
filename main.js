@@ -37,6 +37,7 @@ const App = () => {
 
   // Example of fixing fake link issues
   fixFakeLinkIssue();
+  fixFakeLinkIssues();
 
   // Example of Google sign-in logic
   googleSignIn();
@@ -51,4 +52,7 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+export { fixLandmarkIssues };
+
+ReactDOM.render(<App />, ...);

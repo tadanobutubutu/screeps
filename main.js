@@ -3,6 +3,11 @@
 const config = require('./config');
 const logger = require('./utils/logger');
 
+// Import rendering modules
+const { renderDependencyGraphContent: renderDependencyGraphContentImported } = require('./renderDependencyGraphContent');
+const { renderDependencyGraph: renderDependencyGraphImported } = require('./renderDependencyGraph');
+const { renderIndexView: renderIndexViewImported } = require('./renderIndexView');
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
 // Application state
@@ -42,6 +47,10 @@ function addressAccessibilityIssues() {
 
 // Render dependency graph content
 function renderDependencyGraphContent(data) {
+  // Use imported rendering module
+  if (typeof renderDependencyGraphContentImported === 'function') {
+    renderDependencyGraphContentImported(data);
+  }
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
   const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
@@ -139,11 +148,19 @@ function addLandmarkRolesAndFixIssues() {
 
 // Placeholder implementation for rendering a dependency graph
 function renderDependencyGraph(dependencyData) {
+  // Use imported rendering module
+  if (typeof renderDependencyGraphImported === 'function') {
+    renderDependencyGraphImported(dependencyData);
+  }
   console.log('Rendering dependency graph with data:', dependencyData);
 }
 
 // Placeholder function for index view rendering (to be replaced with actual implementation)
 function renderIndexView(indexData) {
+  // Use imported rendering module
+  if (typeof renderIndexViewImported === 'function') {
+    renderIndexViewImported(indexData);
+  }
   console.log('Rendering index view with data:', indexData);
 }
 

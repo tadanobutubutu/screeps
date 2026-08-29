@@ -18,7 +18,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-helpers');
 
 const fs = require('fs');
 const path = require('path');
@@ -33,7 +33,7 @@ function run() {
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      // Process HTML file here
     });
 }
 
@@ -64,12 +64,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='90'>🏰</text></svg>" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <title>Screeps Dashboard</title>
+        <svg viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y='.9em' fontSize="80">S</text></svg>
         {checkAccessibility()}
         {checkLandmarks()}
-        {ensureUniqueLandmarks()}
-        {fixFakeLinkIssue()}
-        {fixTableStructureIssues()}
         {renderDependencyGraph()}
       </head>
       <body>{children}</body>
@@ -93,13 +92,13 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
     if (!Array.isArray(expectedColumns)) {
       result.isValid = false;
-      result.errors.push('expectedColumns must be an array');
+      result.errors.push('Expected columns must be an array');
       return result;
     }
 
     if (expectedColumns.length === 0) {
       result.isValid = false;
-      result.errors.push('expectedColumns must not be empty');
+      result.errors.push('Expected columns must not be empty');
       return result;
     }
 
@@ -115,7 +114,7 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
   }
 
   // Check if table has columns property
-  if (!Array.isArray(tableOrName.columns)) {
+  if (!tableOrName.columns || !Array.isArray(tableOrName.columns)) {
     result.isValid = false;
     result.errors.push('Table must have a columns array');
     return result;
@@ -137,9 +136,8 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
     const expectedColumnNames = expectedColumns.map(e =>
       typeof e === 'string' ? e : e.name
     );
-    tableOrName.columns.forEach(col => {
-      const colName = col.name || col;
-      if (!expectedColumnNames.includes(colName)) {
+    tableColumns.forEach(colName => {
+      if (colName && !expectedColumnNames.includes(colName)) {
         result.isValid = false;
         result.errors.push(`Unexpected column found: ${colName}`);
       }
@@ -151,7 +149,7 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};
@@ -210,10 +208,10 @@ function isButtonAccessible(button) {
   if (!button) return false;
   
   const hasText = button.textContent && button.textContent.trim().length > 0;
-  const hasAriaLabel = button.hasAttribute('aria-label');
-  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
+  const hasAriaLabel = button.getAttribute('aria-label');
+  const hasAriaLabelledBy = button.getAttribute('aria-labelledby');
   const hasTitle = button.hasAttribute('title');
-  const hasIcon = button.querySelector('svg, img, icon');
+  const hasIcon = button.querySelector && button.querySelector('img, icon');
   
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
 }
@@ -231,7 +229,7 @@ function checkAccessibility(container = document) {
   
   if (!container) return results;
   
-  const links = container.querySelectorAll('a[href]');
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);
@@ -240,7 +238,7 @@ function checkAccessibility(container = document) {
     }
   });
   
-  const buttons = container.querySelectorAll('button');
+  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
   buttons.forEach(button => {
     if (isButtonAccessible(button)) {
       results.buttons.accessible.push(button);
@@ -261,7 +259,7 @@ function checkLandmarkElement(role, element) {
   if (!element || !role) return { valid: false, issues: [] };
   
   const issues = [];
-  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
+  const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
   
   if (!hasLabel && role !== 'main') {
     issues.push(`Landmark with role "${role}" is missing accessible label`);
@@ -290,12 +288,12 @@ function wrapPrimaryContentInMain() {
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
     if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
+        child.getAttribute('data-keep-outside-main') !== 'true') {
       main.appendChild(child);
     }
   });
   
-  document.body.insertBefore(main, document.body.firstChild);
+  document.body.appendChild(main);
   return main;
 }
 
@@ -315,7 +313,7 @@ function checkLandmarks(container = document) {
   const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
   
   roles.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
+    const elements = container.querySelectorAll ? container.querySelectorAll(`[role="${role}"]`) : [];
     elements.forEach(element => {
       const checkResult = checkLandmarkElement(role, element);
       results.landmarks.push({
@@ -346,33 +344,8 @@ function isLinkAccessible(link) {
   if (!link) return false;
   
   const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
+  const hasAriaLabel = link.getAttribute('aria-label');
+  const hasAriaLabelledBy = link.getAttribute('aria-labelledby');
   const hasTitle = link.hasAttribute('title');
   
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
-// Exports
-module.exports = {
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    run,
-    checkTableStructure,
-    ensureElementHasId,
-    addAriaLabel,
-    renderDependencyGraphs,
-    myNewFunction,
-    newFunction,
-    isLinkAccessible,
-    isButtonAccessible,
-    checkAccessibility,
-    checkLandmarkElement,
-    wrapPrimaryContentInMain,
-    checkLandmarks,
-    validateTableAccessibility,
-    validateTableStructure
-};
+  return hasText

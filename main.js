@@ -28,7 +28,7 @@ function run() {
     });
 }
 
-// ----- END ORIGINAL CODE -------
+// ----- END ORIGINAL CODE ---
 
 /**
  * Check if a value is a number
@@ -186,6 +186,10 @@ const config = {
   enabled: true
 };
 
+// Re-add functionA and functionB as objects with properties X, Y, Z
+const functionA = { X: 'x', Y: 'y', Z: 'z' };
+const functionB = { X: 'x', Y: 'y', Z: 'z' };
+
 module.exports = {
     main,
     SomeClass,
@@ -199,5 +203,7 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     isNumber,
-    clamp
+    clamp,
+    functionA,
+    functionB
 };

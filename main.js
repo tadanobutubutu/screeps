@@ -1,32 +1,28 @@
-// TODO: Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
-  return button;
-}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-/**
- * Implement this function for creating in-page buttons
- */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
-  const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
-}
+document.documentElement.lang = 'en';
 
-/**
- * Initialize the application with accessibility improvements
- */
+reportWebVitals();
+
+const VERSION = '1.0.0';
+
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
+};
+
 function initialize() {
-  // Existing initialization logic preserved
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
@@ -47,23 +43,15 @@ function initialize() {
   if(depGraphContainer) {
     createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
   }
+  return true;
 }
 
 /**
- * Setup skip link functionality for keyboard navigation
+ * Implement this function for creating in-page buttons
  */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
-      if (target) {
-        target.focus();
-        target.scrollIntoView();
-      }
-    });
-  }
+function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+  const button = createInPageButton('Render Dependency Graph', renderFunction);
+  depGraphContainer.appendChild(button);
 }
 
 /**
@@ -78,23 +66,130 @@ function setupButtonAccessibility() {
   });
 }
 
-// Existing exports and code remain unchanged
-
 // Define new render function for dependency graph
 function renderDependencyGraph() {
   // Add logic to render the dependency graph
   // ...
 }
 
+function getConfig() {
+  return CONFIG;
+}
+
+function getVersion() {
+  return VERSION;
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function addressAccessibilityIssues() {
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root').parentElement;
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Create a hidden live region for dynamic announcements
+  const announcementId = 'accessibility-announcement';
+  const announcement = document.createElement('div');
+  announcement.id = announcementId;
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  // Hide off-screen
+  announcement.style.position = 'absolute';
+  announcement.style.left = '-9999px';
+  announcement.style.top = '-9999px';
+  document.body.appendChild(announcement);
+}
+
+// Validate that tables in the document are accessible
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(
+      th => th.hasAttribute('scope')
+    );
+    
+    results.push({
+      tableIndex: index,
+      hasCaption,
+      hasHeaders,
+      hasScope,
+      isAccessible: hasCaption && hasHeaders && hasScope
+    });
+  });
+  
+  return results;
+}
+
+// Validate the structure of tables in the document
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+    
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+      
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
+      }
+    }
+    
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+  
+  return results;
+}
+
 // Export existing functionality
-module.exports = {
+export {
+  VERSION,
+  CONFIG,
   initialize,
-  setupSkipLinks,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure,
   setupButtonAccessibility,
-  createInPageButton
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  setupSkipLinks
 };
 
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initialize);
-}
+// Add the new function to the default export
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  root,
+  validateTableAccessibility,
+  validateTableStructure,
+  setupButtonAccessibility,
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  setupSkipLinks
+};

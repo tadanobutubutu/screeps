@@ -49,8 +49,47 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
   return button;
+}
+
+// Spawning logic implementation
+function spawnProcess(command, args = [], options = {}) {
+  const { spawn } = require('child_process');
+  
+  const defaultOptions = {
+    cwd: process.cwd(),
+    env: process.env,
+    shell: true,
+    stdio: ['pipe', 'pipe', 'pipe']
+  };
+  
+  const spawnOptions = { ...defaultOptions, ...options };
+  
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, spawnOptions);
+    let stdout = '';
+    let stderr = '';
+    
+    child.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    
+    child.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+    
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve({ stdout, stderr, code });
+      } else {
+        reject(new Error(`Process exited with code ${code}: ${stderr}`));
+      }
+    });
+    
+    child.on('error', (error) => {
+      reject(new Error(`Failed to spawn process: ${error.message}`));
+    });
+  });
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
@@ -102,8 +141,31 @@ function addressAccessibilityIssues(insightReport) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  // Generate a structured report from accessibility issues
+  if (!accessibilityReport || !accessibilityReport.issues) {
+    return {
+      summary: {
+        totalIssues: 0,
+        resolvedIssues: 0,
+        unresolvedIssues: 0
+      },
+      issues: []
+    };
+  }
+
+  const issues = accessibilityReport.issues;
+  const resolvedIssues = issues.filter(issue => issue.status === 'resolved');
+  const unresolvedIssues = issues.filter(issue => issue.status !== 'resolved');
+
+  return {
+    summary: {
+      totalIssues: issues.length,
+      resolvedIssues: resolvedIssues.length,
+      unresolvedIssues: unresolvedIssues.length
+    },
+    issues: issues,
+    timestamp: new Date().toISOString()
+  };
 }
 
 // New function for the issue
@@ -143,7 +205,8 @@ export {
   createInPageButton, 
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
-  calculateAccessibilityScore 
+  calculateAccessibilityScore,
+  spawnProcess
 };
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -157,6 +220,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,
+    spawnProcess,
     renderIndexView
   };
 }

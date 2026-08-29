@@ -25,3 +25,10 @@ function newFunction() {
 
 // Export new function if necessary
 export { newFunction };
+
+// dependencyGraph container with proper ARIA role for accessibility
+const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+export { dependencyGraphContainer };

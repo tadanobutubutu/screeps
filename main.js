@@ -9,11 +9,15 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import Header from './components/Header';
+import Main from './components/Main';
+import Footer from './components/Footer';
+import './styles.css';
 
 // REACT_015: Add lang attribute to HTML element
-function addLangAttribute(document, lang = 'en') {
+export function addLangAttribute(document, lang = 'en') {
   const html = document.documentElement;
   if (!html.hasAttribute('lang')) {
     html.setAttribute('lang', lang);
@@ -22,7 +26,7 @@ function addLangAttribute(document, lang = 'en') {
 }
 
 // REACT_027: Fix table structure issues
-function fixTableStructureIssues(document) {
+export function fixTableStructureIssues(document) {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure tables have proper structure
@@ -67,7 +71,7 @@ function fixTableStructureIssues(document) {
   return tables.length;
 }
 
-function App() {
+export function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -215,7 +219,7 @@ export function addScopeToHeaders(tableElement) {
 }
 
 // REACT_017: Add/fix landmark issues - Add main landmark
-function addMainLandmark(document) {
+export function addMainLandmark(document) {
   const mainElements = document.querySelectorAll('main');
 
   if (mainElements.length === 0) {
@@ -240,7 +244,7 @@ function addMainLandmark(document) {
 }
 
 // REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames(document) {
+export function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
 
@@ -265,7 +269,7 @@ function addSvgAccessibleNames(document) {
 }
 
 // REACT_036: Fix fake link issue
-function fixFakeLinkIssue(document) {
+export function fixFakeLinkIssue(document) {
   // Find elements that look like links but aren't <a> tags
   const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
   let count = 0;
@@ -367,7 +371,7 @@ export function hasAccessibleName(element) {
 }
 
 // Main accessibility fix function
-function applyAccessibilityFixes(document, options = {}) {
+export function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
 
   return {
@@ -383,27 +387,3 @@ function applyAccessibilityFixes(document, options = {}) {
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
-
-// Export all functions
-module.exports = {
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  applyAccessibilityFixes,
-  App,
-  getUniqueName,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  newFunction,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName
-};

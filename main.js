@@ -36,7 +36,7 @@ function App() {
 
   // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
   }, []);
 
   // REACT_017: Add landmark roles and fix landmark issues
@@ -46,7 +46,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div id="app" role="application">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -55,22 +55,22 @@ function App() {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+export function getUniqueName(baseName, existingNames) {
+  if (!existingNames || existingNames.length === 0) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function ensureUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -94,15 +94,15 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+};
 
 // REACT_041: Add accessible names to SVGs
-export function addSvgAccessibleName(svgElement, accessibleName) {
+export function addAccessibleNameToSVG(svgElement, accessibleName) {
   if (!svgElement) return;
   
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
   
   // Insert title as first child
@@ -118,7 +118,7 @@ export function isValidLink(element) {
   
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
-  const onClick = element.getAttribute('onclick');
+  const onClick = element.onclick || element.getAttribute('onclick');
   
   // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
@@ -134,7 +134,7 @@ export function isValidLink(element) {
 }
 
 // REACT_027: Add scope to table headers
-export function addScopeToHeaders(tableElement) {
+export function addScopeToTableHeaders(tableElement) {
   if (!tableElement) return [];
   
   const headers = tableElement.querySelectorAll('th');
@@ -142,7 +142,7 @@ export function addScopeToHeaders(tableElement) {
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
     const cellIndex = Array.from(row.children).indexOf(th);
     
     // Determine if scope should be 'col' or 'row'
@@ -169,7 +169,7 @@ export function addScopeToHeaders(tableElement) {
 // Accessibility issue addressing functions
 function addressAccessibilityIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -183,7 +183,7 @@ function newFunction() {
   // implementation of new function
 }
 
-module.exports.newFunction = newFunction;
+export const something = newFunction;
 
 // Accessibility Helper Functions
 
@@ -196,7 +196,7 @@ function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', priority);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
+  announcement.className = 'sr-only';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);

@@ -25,7 +25,7 @@ function setupAccessibility() {
   skipLink.href = '#main-content';
   skipLink.className = 'skip-link';
   skipLink.textContent = 'Skip to main content';
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  document.body.appendChild(skipLink);
   
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');

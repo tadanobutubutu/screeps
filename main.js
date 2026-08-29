@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -12,31 +9,36 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  addLangAttribute();
+  // REACT_015: Add lang attribute to HTML element
+  document.documentElement.setAttribute('lang', 'en');
+
+  // REACT_017: Add/fix 4 landmark issues
   addMainLandmark();
 
-  document.documentElement.setAttribute('lang', 'en');
+  // REACT_025: Ensure unique landmarks
   const landmarks = document.querySelectorAll('.landmark');
   landmarks.forEach((landmark, index) => {
     landmark.setAttribute('role', 'landmark');
     landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
   });
 
+  // REACT_041: Add accessible names to 2 SVGs
   const svg1 = document.querySelector('#svg1');
   const svg2 = document.querySelector('#svg2');
-  svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
+  if (svg1) {
+    svg1.setAttribute('aria-labelledby', 'svg1-title');
+  }
+  if (svg2) {
+    svg2.setAttribute('aria-labelledby', 'svg2-title');
   }
 
+  // REACT_036: Fix 1 fake link issue
   const fakeLinks = document.querySelectorAll('.fake-link');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'presentation');
   });
 
+  // Additional accessibility checks
   const links = document.querySelectorAll('a');
   const buttons = document.querySelectorAll('button');
 
@@ -58,6 +60,14 @@ export default function RootLayout({ children }) {
     }
   });
 
+  // REACT_027: Add scope="col" or scope="row" to <th> elements
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+
   return (
     <html lang="en">
       <head>
@@ -68,6 +78,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-```
-
-This resolved file integrates both changes, addressing the accessibility issues and providing the initial rotateBack function. I've added missing Link and Button accessibility checks, kept the original layout as is, and merged the comments and styling from both versions.

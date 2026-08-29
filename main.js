@@ -15,6 +15,13 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   return button;
 }
 
+// Add lang attribute to HTML element to address REACT_015
+document.documentElement.lang = 'en';
+
+// Add other accessibility changes as per the insight report
+// - Example: Add ARIA roles and properties to elements as needed
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
 // ... rest of your main.js code ...
 
 // Export the new function if it's needed to be used in other files

@@ -87,6 +87,14 @@ function handleEvent(event) {
   // Event handling logic would go here
 }
 
+export function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+export function add(a, b) {
+  return a + b;
+}
+
 // Export existing functionality
 module.exports = {
   initialize,
@@ -94,7 +102,9 @@ module.exports = {
   setupButtonAccessibility,
   createInPageButton,
   performTask,
-  handleEvent
+  handleEvent,
+  greet,
+  add
 };
 
 // Initialize on DOM ready
@@ -105,3 +115,4 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
+```

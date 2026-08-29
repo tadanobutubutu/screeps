@@ -31,7 +31,7 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
     
@@ -41,7 +41,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -62,6 +62,8 @@ const main = {
     // your new function logic goes here
   }
 };
+
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // Export the new function if needed:
 module.exports = main;

@@ -28,6 +28,20 @@ function checkLandmarkElement(id) {
  * @param {Function} onClickHandler - Callback function triggered when the button is clicked.
  * @returns {HTMLElement} The created button element.
  */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  if (!element) {
+    return false;
+  }
+  
+  // Validate that the landmark has required properties
+  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
+    return true;
+  }
+  
+  return false;
+}
+
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
@@ -436,6 +450,7 @@ export {
   getConfig, 
   setupSkipLinks, 
   setupButtonAccessibility, 
+  checkLandmarkElement, 
   createInPageButton, 
   performTask, 
   handleEvent, 

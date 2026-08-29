@@ -25,6 +25,8 @@ function rotateBack() {
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
 
+function fixTableStructure(table) {
+  // ... (existing code to fix table structure)
   return table;
 }
 
@@ -34,14 +36,14 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('[role="main"]');
+  const existingMain = rootElement.querySelector('main');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
     while (rootElement.firstChild) {
       mainElement.appendChild(rootElement.firstChild);
     }
-    rootElement.insertBefore(mainElement, rootElement.firstChild);
+    rootElement.insertBefore(mainElement, null);
   }
 
   return rootElement;
@@ -71,14 +73,14 @@ function addSvgAccessibleNames(svgElement) {
 
   const title = svgElement.querySelector('title');
   if (!title) {
-    const newTitle = document.createElement('title');
+    const newTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
     newTitle.textContent = 'Decorative graphic';
     svgElement.insertBefore(newTitle, svgElement.firstChild);
   }
 
   const desc = svgElement.querySelector('desc');
   if (!desc) {
-    const newDesc = document.createElement('desc');
+    const newDesc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
     newDesc.textContent = '';
     svgElement.appendChild(newDesc);
   }
@@ -103,6 +105,12 @@ function fixFakeLinkIssue(link) {
   }
 
   return link;
+}
+
+function addLangAttribute(rootElement, lang) {
+  if (rootElement) {
+    rootElement.setAttribute('lang', lang);
+  }
 }
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT

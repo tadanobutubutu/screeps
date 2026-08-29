@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
@@ -5,12 +7,13 @@ import { state, updateState } from './state.js';
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ${product.description || 'No description'}`;
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = document.createElement('div');
+  container.className = 'product-list';
+  container.innerHTML = products.map(product => renderProductCard(product)).join('');
   return container;
 }
 
@@ -33,14 +36,14 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input.products);
+    return `<div class="validated">${input.value}</div>`;
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
+  const content = data.content || '';
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }

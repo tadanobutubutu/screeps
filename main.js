@@ -1,6 +1,6 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark'); // assuming there's another file for Landmark component
+const Landmark = require('./Landmark');
 
 // existing functions and variables, if any
 
@@ -14,30 +14,17 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-// existing exports, if any
-
-// Testing the checkLandmarkElement function:
-//
-// To test this function, we could create a test file with the following content:
-const test = require('jest');
-// const ReactDOM = require('react-dom'); // already defined above
-// const { checkLandmarkElement } = require('./main'); // not needed, function is in scope
-const landmark = document.createElement('div');
-landmark.id = 'test-landmark';
-document.body.appendChild(landmark);
-test.test('Check landmark element', () => {
-  expect(checkLandmarkElement('test-landmark')).toBeTruthy();
-});
-test.run();
-
-const landmarkStructureCheck = (landmark) => {
-  // Implement your logic for checking the landmark structure
-  // For example, let's check if the landmark has required properties: name and coordinates
+/**
+ * Function to check the structure of a landmark object.
+ * @param {Object} landmark - A landmark object to check.
+//  * @returns {boolean} Returns true if the landmark object has required properties: name and coordinates; otherwise, false.
+ */
+function landmarkStructureCheck(landmark) {
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
   return true;
-};
+}
 
 function ensureUniqueLandmarks(landmarks) {
     const uniqueLandmarks = [];
@@ -56,7 +43,14 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// existing exports, if any
+
+// Testing the landmarkStructureCheck and ensureUniqueLandmarks functions:
+//
+// To test these functions, add tests in a separate file (e.g., /tests/main.test.js)
+
 module.exports = {
+    checkLandmarkElement,
     landmarkStructureCheck,
     ensureUniqueLandmarks
 };

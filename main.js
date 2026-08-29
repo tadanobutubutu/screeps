@@ -37,6 +37,25 @@ function ... {
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
+// REACT_015: Add lang attribute to HTML element
+export function addLangAttribute(lang = 'en') {
+  document.documentElement.setAttribute('lang', lang);
+}
+
+// REACT_017: Add landmark roles to fix landmark issues
+export function addMainLandmark(appElement) {
+  if (!appElement) return;
+  appElement.setAttribute('role', 'main');
+  appElement.setAttribute('aria-label', 'Main application');
+}
+
+// REACT_041: Get SVG accessible name
+export function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return null;
+  const title = svgElement.querySelector('title');
+  return title ? title.textContent : null;
+}
+
 function function3() {
   // TODO: Implement new function3 logic here
 }
@@ -58,7 +77,7 @@ function App() {
   };
 
   useEffect(() => {
-    ... 'en');
+    addLangAttribute('en');
     fetchData();
   }, []);
 
@@ -77,8 +96,8 @@ function App() {
   );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+export function ... existingNames) {
+  if ... {
     return baseName;
   }
   let counter = 2;
@@ -96,9 +115,9 @@ export function checkLandmarks() {
   const issues = [];
 
   landmarks.forEach((landmark) => {
-    const ariaLabel = landmark.getAttribute('aria-label');
-    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
+    const ariaLabel = ...
+    const ariaLabelledby = ...
+    const tagName = ...
 
     // Determine the landmark name
     let landmarkName = ariaLabel || ariaLabelledby || tagName;
@@ -205,5 +224,8 @@ export {
   setAriaExpanded,
   hasAccessibleName,
   myFunction,
-  newFunction
+  newFunction,
+  addLangAttribute,
+  addMainLandmark,
+  getSvgAccessibleName
 };

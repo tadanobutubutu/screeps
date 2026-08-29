@@ -173,14 +173,32 @@ function addAriaToFormControls() {
   });
 }
 
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
+/**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach(svg => {
+    const id = `svg-${Date.now()}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.parentNode.insertBefore(label, svg);
+  });
+}
 
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-addLangAttribute();
+/**
+ * Removes fake links from the document.
+ * @returns {void}
+ */
+function removeFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
 
 /**
  * Implement validateTableAccessibility() function to check for accessibility issues in tables.
@@ -234,5 +252,7 @@ module.exports = {
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  addAccessibleNamesToSVGs,
+  removeFakeLinks
 };

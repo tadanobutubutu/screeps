@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
 
+/*=<? HEAD ====== */ 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
@@ -68,11 +69,11 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     output += `${prefix}${connector}${key}`;
     
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      output += '/\n';
+      output += '/\\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\n`;
+      output += ` -> ${value}\\n`;
     }
   });
   
@@ -383,230 +384,7 @@ function addProperLandmarkRegions(element) {
 }
 
 /**
+<<<<<<< HEAD
  * Main processing function
  */
-function addMainLandmark(reactRoot) {
-  const mainLandmark = document.createElement('main');
-  mainLandmark.id = "main-landmark";
-  mainLandmark.setAttribute('role', 'main');
-  reactRoot.appendChild(mainLandmark);
-}
-
-/**
- * Validates landmark accessibility
- */
-function validateLandmark() {
-  // Implementation for landmark validation
-}
-
-/**
- * Validates landmark structure
- */
-function validateLandmarkStructure() {
-  // Implementation for landmark structure validation
-}
-
-/**
- * Creates an in-page button with accessibility considerations
- */
-function createInPageButtonImplementation() {
-  // Implementation for creating in-page button
-}
-
-/**
- * Ensures that an element has an id attribute. If missing, generates a unique id.
- * @param {HTMLElement} element - The element to check.
- * @returns {string|null} The element's id or null if element is invalid.
- */
-function ensureElementHasId(element) {
-  if (!element || typeof element.setAttribute !== 'function') {
-    return null;
-  }
-  if (!element.id) {
-    const id = 'generated-id-' + Math.random().toString(36).substr(2, 9);
-    element.id = id;
-  }
-  return element.id;
-}
-
-/**
- * Adds an aria-label to an element.
- * @param {HTMLElement} element - The element to add the label to.
- * @param {string} label - The accessible label text.
- */
-function addAriaLabel(element, label) {
-  if (!element || typeof element.setAttribute !== 'function') {
-    return;
-  }
-  element.setAttribute('aria-label', label);
-}
-
-/**
- * Handles fake links appropriately
- */
-function handleFakeLinksImplementation() {
-  // Implementation for handling fake links
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-}
-
-/**
- * Divides two numbers with proper error handling
- * @param {number} dividend - The number to be divided
- * @param {number} divisor - The number to divide by
- * @returns {number} Result of division
- */
-function divide(dividend, divisor) {
-    if (typeof dividend !== 'number' || typeof divisor !== 'number') {
-        throw new Error('Both dividend and divisor must be numbers');
-    }
-    
-    if (isNaN(dividend) || isNaN(divisor)) {
-        throw new Error('Both dividend and divisor must be valid numbers');
-    }
-    
-    if (divisor === 0) {
-        throw new Error('Cannot divide by zero');
-    }
-    
-    return dividend / divisor;
-}
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
-}
-
-function renderProductCard(product) {
-  return `<div class="product-card"><h3>${product.name}</h3><p>${product.category}</p></div>`;
-}
-
-function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
-  return container;
-}
-
-function calculateDiscount(subtotal) {
-  return subtotal > 100 ? subtotal * 0.1 : 0;
-}
-
-function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString();
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateInput(input) {
-  return input && input.products && Array.isArray(input.products);
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return renderProductList(input.products);
-  }
-  return null;
-}
-
-function renderPage() {
-  // Implementation for rendering the page
-}
-
-function someFunction() {
-  // ... implementation ...
-}
-
-function exportedFunction() {
-  return 'This is an exported function';
-}
-
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph';
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-module.exports = {
-  main,
-  divide,
-  renderDependencyGraph,
-  displayModuleStructure,
-  addMainLandmark,
-  addLandmarkRegionToElement,
-  addLandmark,
-  getLandmarks,
-  removeLandmark,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  getDependencyDepth,
-  generateDependencyReport,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureElementHasId,
-  addAriaLabel,
-  fixAccessibilityIssues,
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  someFunction,
-  exportedFunction,
-  greet
-};
-
-export { ensureElementHasId };
-export { addAriaLabel };
-export { dependencyGraphContainer };
-export { checkTableAccessibility, updateAriaAttributes, handleErrorState, handleAccessibilityError, triggerAccessibilityMode, renderIndexView, dependencyGraphContent, indexContent };
-
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
-      }
-    }
-  };
-  
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
-  
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
+function addMain

@@ -7,6 +7,11 @@ const MyComponent = () => {
   const role = 'button';
   const inputRole = 'checkbox';
 
+  // New changes or functions
+  const newFunction = () => {
+    console.log('This is a new function added to main.js');
+  };
+
   return (
     <div>
       {/* Existing component JSX */}
@@ -21,6 +26,7 @@ const MyComponent = () => {
       <div>
         {/* Example of a new function or change */}
         <p>Example of new functionality or change</p>
+        <button onClick={newFunction}>Run New Function</button>
       </div>
     </div>
   );

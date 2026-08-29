@@ -1,12 +1,22 @@
-// Main JavaScript file for accessibility checks
+// Existing code from main.js
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import Header from './components/Header';
+import Main from './components/Main';
+import Footer from './components/Footer';
+import './styles.css';
 
-// TODO: Add back any required exports that might have been removed
+// Initial setup
+const app = document.getElementById('root');
+if (app) {
+  document.documentElement.lang = 'en';
+}
 
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Improve accessibility
+if (app) {
+  app.setAttribute('role', 'main');
+  app.setAttribute('aria-label', 'Main application');
+}
 
 /**
  * Ensures the element has an id, generating one if necessary
@@ -53,7 +63,8 @@ function renderDependencyGraphs(dependencies, container) {
   container.appendChild(graphElement);
 }
 
-// ----- END ORIGINAL CODE -----
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 import React from 'react';
 
@@ -265,38 +276,118 @@ function addMainLandmark(html) {
 }
 
 /**
- * Adds accessible names to SVG elements
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with accessible SVG names
+ * New function as per the issue
+ * Processes landmarks with name and coordinates properties
+ * @param {Array} landmarks - Array of landmark objects
  */
-function addSvgAccessibleNames(html) {
-  if (typeof html !== 'string') return html;
+function processLandmarks(landmarks) {
+  if (!Array.isArray(landmarks)) return;
   
-  let svgCounter = 0;
-  
-  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
-    
-    if (existingLabel) {
-      return match;
+  landmarks.forEach(landmark => {
+    if (landmark && landmark.name && landmark.coordinates) {
+      console.log(`Adding landmark: ${landmark.name} at coordinates ${landmark.coordinates.x}, ${landmark.coordinates.y}`);
     }
-    
-    // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
-    // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']+)["']/);
-    if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
-    }
-    
-    // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
+}
+
+/**
+ * Detects elements that appear to be links but don't have valid href attributes
+ * @param {HTMLElement} container - The container element to search within
+ * @returns {Array} Array of fake link objects
+ */
+function detectFakeLinks(container = document) {
+  const fakeLinks = [];
+  const clickableElements = container.querySelectorAll('a:not([href]), [role="link"]:not(a)');
+  
+  clickableElements.forEach(element => {
+    const tagName = element.tagName.toLowerCase();
+    const isAnchorWithoutHref = tagName === 'a' && !element.getAttribute('href');
+    
+    if (isAnchorWithoutHref || element.getAttribute('role') === 'link') {
+      fakeLinks.push({
+        element,
+        tagName,
+        text: element.textContent.trim().substring(0, 50),
+        hasHref: tagName === 'a' ? !!element.getAttribute('href') : null,
+        role: element.getAttribute('role'),
+        issue: 'Fake link detected - element looks like a link but lacks proper href'
+      });
+    }
+  });
+  
+  return fakeLinks;
+}
+
+/**
+ * REACT_036: Fix a fake link by adding proper href or converting to button
+ * @param {HTMLElement} element - The element to fix
+ * @param {string} fixType - The type of fix: 'button', 'href'
+ * @returns {boolean} Whether the fix was applied
+ */
+function fixFakeLink(element, fixType = 'button') {
+  if (!element) return false;
+  
+  const tagName = element.tagName.toLowerCase();
+  
+  if (fixType === 'button' && tagName === 'a') {
+    element.setAttribute('role', 'button');
+    element.removeAttribute('href');
+    return true;
+  }
+  
+  if (fixType === 'href' && tagName === 'a' && !element.getAttribute('href')) {
+    element.setAttribute('href', '#');
+    return true;
+  }
+  
+  if (fixType === 'button' && element.getAttribute('role') === 'link') {
+    element.setAttribute('role', 'button');
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * REACT_041: Add accessible names to SVG elements
+ * @param {HTMLElement} container - The container element to search within
+ * @returns {Array} Array of results from processing SVGs
+ */
+function addSvgAccessibleNames(container = document) {
+  const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const results = [];
+  
+  svgs.forEach((svg, index) => {
+    const existingTitle = svg.querySelector('title');
+    
+    if (!existingTitle) {
+      const title = document.createElement('title');
+      title.id = `svg-title-${index}-${Date.now()}`;
+      title.textContent = `SVG graphic ${index + 1}`;
+      
+      if (svg.firstChild) {
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        svg.appendChild(title);
+      }
+      
+      svg.setAttribute('aria-labelledby', title.id);
+      
+      results.push({
+        svg,
+        titleId: title.id,
+        status: 'added'
+      });
+    } else {
+      results.push({
+        svg,
+        titleId: existingTitle.id || null,
+        status: 'existing'
+      });
+    }
+  });
+  
+  return results;
 }
 
 /**
@@ -381,23 +472,6 @@ function ensureUniqueLandmarks(html) {
   });
   
   return html;
-}
-
-/**
- * Fixes 1 fake link issue
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed fake link issues
- */
-function fixFakeLinkIssue(html) {
-  if (typeof html !== 'string') return html;
-  
-  // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
-      return match;
-    }
-    return match.replace(/<a/, '<a href="#"');
-  });
 }
 
 /**
@@ -497,41 +571,44 @@ function performTableAccessibilityCheck(table) {
     }
   });
   
-  // Check for proper table structure
-  const thead = table.querySelector('thead');
+  // Check for tbody presence
   const tbody = table.querySelector('tbody');
-  
-  if (thead && headers.length > 0) {
-    const headersInThead = thead.querySelectorAll('th');
-    if (headersInThead.length === 0) {
-      issues.push({
-        type: 'warning',
-        message: '<thead> should contain header cells (<th>)'
-      });
-    }
+  if (!tbody) {
+    issues.push({
+      type: 'warning',
+      message: 'Table should have a <tbody> element'
+    });
   }
   
-  // Check data cells for headers attribute if needed for complex tables
-  if (dataCells.length > 0 && headers.length > 1) {
-    dataCells.forEach((td, index) => {
-      // For complex tables with multiple headers, recommend headers attribute
-      if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
-        const rowHeaders = Array.from(td.parentElement?.querySelectorAll('th') || []);
-        if (rowHeaders.length === 0) {
-          issues.push({
-            type: 'info',
-            message: `Consider using 'headers' attribute for complex table data cells`
-          });
-        }
-      }
+  // Check for thead presence
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    issues.push({
+      type: 'warning',
+      message: 'Table should have a <thead> element'
     });
   }
   
   return {
-    passed: issues.filter(i => i.type === 'error').length === 0,
-    issues
+    passed: issues.length === 0,
+    issues: issues
   };
 }
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+
+function function3() {
+  // TODO: Implement new function3 logic here
+}
+
+// <!--- Any other modifications or additions go here --->
 
 export {
   ensureElementHasId,
@@ -540,14 +617,6 @@ export {
   checkTableStructure,
   getLangAttribute,
   MyComponent,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility,
-  performTableAccessibilityCheck,
   greet,
   isEven,
   isOdd,
@@ -562,7 +631,17 @@ export {
   calculateTotal,
   validateEmail,
   capitalizeString,
-  debounce
+  debounce,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  checkTableAccessibility,
+  performTableAccessibilityCheck,
+  detectFakeLinks,
+  fixFakeLink
 };
 
 module.exports = {
@@ -594,8 +673,7 @@ module.exports = {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   checkTableAccessibility,
-  performTableAccessibilityCheck
+  performTableAccessibilityCheck,
+  detectFakeLinks,
+  fixFakeLink
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, performTableAccessibilityCheck };

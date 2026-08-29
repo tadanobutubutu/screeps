@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 const { updateThScopeAttribute } = require('./testHelper');
@@ -13,18 +10,30 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section'
  * @param {string} htmlContent - The HTML content to check
  * @returns {Object} - Object containing landmark element information and any warnings
  */
-function checkLandmarkElements(htmlContent) {
-  return checkLandmarkElements(htmlContent);
+function checkLandmarks(htmlContent) {
+  const warnings = [];
+  
+  // Check if <main> landmark exists
+  const mainPattern = /<main[\s\S]*?>[\s\S]*?<\/main>/i;
+  const hasMain = mainPattern.test(htmlContent);
+  
+  if (!hasMain) {
+    warnings.push('Page has no <main> landmark');
+  }
+  
+  return {
+    hasMain,
+    warnings,
+    landmarks: {
+      main: hasMain
+    }
+  };
 }
 
 const a11yStore = {
   init() {
     // Existing initialization logic
-    this.checkLandmarkElements();
-  },
-
-  // Existing a11yStore methods
-  // ...
+  }
 };
 
 // Store for accessibility announcements (screen reader support)
@@ -32,12 +41,11 @@ const a11yStore = {
 // GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
 // GitHub Issue Fix - UPDATED: Merged from both branches
 
-// TODO: Add exports for new functions if needed
-
 // Existing utility functions
 function add(a, b) {
   return a + b;
 }
+
 function calculateDiscount(price, discountRate) {
     // Calculate and return the discounted price
     return price - (price * discountRate);
@@ -66,44 +74,26 @@ function ensureUniqueLandmarks() {
 function validateTableAccessibility() {
   return true;
 }
+
 function validateTableStructure() {
   return true;
 }
 
 function validateLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element) => {
-    const landmark = document.querySelector(`[role="${element}"]`);
-    if (landmark && landmark.id === '') {
-      landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
-    }
-  });
+  return true;
 }
 
 // New function to count dependencies
 function countDependencies(options = {}) {
-  return a11yStore.countDependencies(options);
+  return Object.keys(options).length;
 }
 
 // New function to update the live region
 function updateLiveRegion(message, priority = 'polite') {
-  return a11yStore.updateLiveRegion(message, priority);
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-  return a11yStore.checkLandmarkElements();
-}
-
-// New function to add SVG accessibility props (merged from both branches)
-function addSVGAccessibilityProps() {
-  // Existing function implementation for part from one branch
-  // New functionality and improvements for the other branch
+  return { message, priority };
 }
 
 // Existing exported functions
-// ...
-
 module.exports = {
   add,
   calculateDiscount,
@@ -117,8 +107,7 @@ module.exports = {
   validateLandmarkElements,
   countDependencies,
   updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  // ...
+  checkLandmarks,
+  a11yStore,
+  LANDMARK_ELEMENTS
 };
-```

@@ -45,11 +45,11 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
+  ...
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -96,13 +96,35 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// Function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  const totalIssues = accessibilityReport ? accessibilityReport.length : 0;
+  const resolvedIssues = accessibilityReport 
+    ? accessibilityReport.filter(issue => issue.status === 'resolved').length 
+    : 0;
+  const pendingIssues = totalIssues - resolvedIssues;
+  
+  const issuesByType = {};
+  if (accessibilityReport) {
+    accessibilityReport.forEach(issue => {
+      const type = issue.type || 'other';
+      issuesByType[type] = (issuesByType[type] || 0) + 1;
+    });
+  }
+
+  return {
+    generatedAt: new Date().toISOString(),
+    summary: {
+      totalIssues,
+      resolvedIssues,
+      pendingIssues
+    },
+    issuesByType,
+    issues: accessibilityReport || []
+  };
 }
 
-// New function for the issue
+// Function for calculating accessibility score based on fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -113,6 +135,11 @@ function calculateAccessibilityScore(fixedIssues) {
     'missing-alt-text': 3,
     'missing-aria-label': 5,
     'heading-order': 2,
+    'add-lang-attribute': 4,
+    'add-landmark-roles': 4,
+    'add-accessible-names-to-svgs': 3,
+    'ensure-unique-landmarks': 3,
+    'fix-fake-link': 4,
     'other': 1
   };
 

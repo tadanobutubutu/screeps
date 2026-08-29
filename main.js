@@ -1,4 +1,5 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Add back any required exports that might have been removed
+// Line 1 - Preserving original TODO comment
 
 const config = {};
 const logger = require('./utils/logger');
@@ -134,7 +135,94 @@ function addLandmarkRoles(insightReport) {
 
 function fixLandmarkIssues(insightReport) {
   // Implementation for adding landmark roles and fixing landmark issues
-  // This is a placeholder that would need to be implemented based on specific requirements
+  // Check for landmark elements and add proper ARIA roles
+  const landmarkSelectors = [
+    { selector: 'header:not([role])', role: 'banner' },
+    { selector: 'nav:not([role])', role: 'navigation' },
+    { selector: 'main:not([role])', role: 'main' },
+    { selector: 'aside:not([role])', role: 'complementary' },
+    { selector: 'footer:not([role])', role: 'contentinfo' },
+    { selector: 'form:not([role])', role: 'form' },
+    { selector: '[role="search"]:not([aria-label])', ariaLabel: 'Search' },
+    { selector: 'section:not([role]):not([aria-label]):not([aria-labelledby])', role: 'region' }
+  ];
+
+  landmarkSelectors.forEach(({ selector, role, ariaLabel }) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+      // Skip empty section elements that don't have an accessible name
+      if (role === 'region' && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        // Only add region role if the section has a heading or accessible name
+        if (!element.querySelector('h1, h2, h3, h4, h5, h6')) {
+          return;
+        }
+      }
+
+      // Add the appropriate role
+      if (role && !element.hasAttribute('role')) {
+        element.setAttribute('role', role);
+      }
+
+      // Add aria-label if specified
+      if (ariaLabel && !element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', ariaLabel);
+      }
+    });
+  });
+
+  // Ensure landmark elements have accessible names where required
+  const requiredNamedLandmarks = ['navigation', 'region', 'form', 'search'];
+  requiredNamedLandmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach((element, index) => {
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        // Try to find a heading within the landmark
+        const heading = element.querySelector('h1, h2, h3, h4, h5, h6');
+        if (heading) {
+          // Generate an id for the heading if it doesn't have one
+          if (!heading.id) {
+            heading.id = `${landmark}-heading-${index}`;
+          }
+          element.setAttribute('aria-labelledby', heading.id);
+        } else {
+          // Provide a default accessible name
+          element.setAttribute('aria-label', `${landmark.charAt(0).toUpperCase() + landmark.slice(1)} ${index + 1}`);
+        }
+      }
+    });
+  });
+
+  // Fix nested landmark issues - landmarks should not be nested within themselves
+  const allLandmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"]');
+  allLandmarks.forEach(landmark => {
+    const parentLandmark = landmark.parentElement && landmark.parentElement.closest('[role="main"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="banner"]');
+    if (parentLandmark) {
+      const parentRole = parentLandmark.getAttribute('role');
+      const currentRole = landmark.getAttribute('role');
+      // Main should not be nested inside another main or banner
+      if (currentRole === 'main' && (parentRole === 'main' || parentRole === 'banner')) {
+        landmark.removeAttribute('role');
+      }
+    }
+  });
+
+  // Ensure there is exactly one main landmark
+  const mainLandmarks = document.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length === 0) {
+    // Try to add a main landmark
+    addMainLandmark();
+  } else if (mainLandmarks.length > 1) {
+    // Keep only the first one as a landmark
+    for (let i = 1; i < mainLandmarks.length; i++) {
+      const element = mainLandmarks[i];
+      if (element.tagName.toLowerCase() !== 'main') {
+        element.removeAttribute('role');
+      }
+    }
+  }
+
+  // Run unique landmarks check as part of the fix
+  ensureUniqueLandmarks();
 }
 
 // Placeholder implementation for rendering a dependency graph
@@ -320,7 +408,8 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  addLandmarkRolesAndFixIssues
 };
 
 // Execute main function

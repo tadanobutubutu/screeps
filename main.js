@@ -343,3 +343,5 @@ function validateLandmarkStructure() {
         message: `Missing required landmark: ${landmark}`
       });
     }
+  });
+}

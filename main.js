@@ -169,7 +169,6 @@ function ensureUniqueLandmarks() {
 }
 
 // - REACT_017: Add/fix 4 landmark issues
-// Assuming landmarks are represented by ARIA roles, you might add or correct them like this:
 const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
 landmarks.forEach((landmark, index) => {
   // Assuming you know which ARIA roles are correct for your landmarks
@@ -188,9 +187,6 @@ if (svg2) {
 }
 
 // - REACT_025: Ensure unique landmarks (2 issues)
-// Fix: For components with conditional <main> elements (e.g., Dashboard error/success states),
-// ensure only ONE <main> landmark exists in the source. Replace duplicate <main> tags
-// in conditional branches with <section> elements. For runtime validation:
 const mainElements = document.querySelectorAll('main');
 if (mainElements.length > 1) {
   // Log warning for debugging purposes

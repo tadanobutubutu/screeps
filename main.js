@@ -52,3 +52,6 @@ export let newVar = 'some value';
 
 // Export the newly added functions
 export { addProperLandmarkRegions, addLandmarkRegion };
+
+// TODO: Add code to set the lang attribute for an HTML element
+document.documentElement.lang = 'en';

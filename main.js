@@ -185,6 +185,27 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Accessibility function to ensure form controls have associated labels
+function addFormLabels(container = document) {
+  const formControls = container.querySelectorAll('input, select, textarea');
+  formControls.forEach((control, index) => {
+    const id = control.id || `auto-form-control-${index}`;
+    control.id = id;
+
+    const hasLabel = control.labels && control.labels.length > 0;
+    const hasAriaLabel = control.hasAttribute('aria-label');
+    const hasAriaLabelledby = control.hasAttribute('aria-labelledby');
+
+    if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby) {
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.textContent = `Field ${index + 1}`;
+      label.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
+      control.parentNode.insertBefore(label, control);
+    }
+  });
+}
+
 // Initialize accessibility features on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure all form inputs have associated labels
@@ -220,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addSvgAccessibleNames();
   ensureUniqueLandmarks();
   fixFakeLinkIssue();
+  addFormLabels(document);
 
   announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
 });
@@ -236,6 +258,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addMainLandmark,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    addFormLabels
   };
 }

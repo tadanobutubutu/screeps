@@ -275,5 +275,7 @@ module.exports = {
     getTableRows,
     config,
     countDependencies,
-    someFunction
+    someFunction,
+    checkAccessibility,
+    checkStructure
 };

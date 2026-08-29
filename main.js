@@ -1,32 +1,49 @@
-// ... existing code ...
+// main.js
+
+// Utility functions
 
 /**
- * Implementation of getSvgAccessibleName
- * @param {SVGSVGElement} svgElement 
- * @returns {string|null}
+ * Creates a button element for in-page use.
+ * @param {string} text - The text/label for the button
+ * @param {Function} onClick - Click handler callback
+ * @param {Object} options - Optional configuration
+ * @param {string} [options.className] - CSS class(es) to apply
+ * @param {string} [options.id] - Element ID
+ * @param {Object} [options.styles] - Inline styles to apply
+ * @param {string} [options.type] - Button type (default: 'button')
+ * @returns {HTMLButtonElement} The created button element
  */
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
+function createInPageButton(text, onClick, options = {}) {
+  const {
+    className = '',
+    id = '',
+    styles = {},
+    type = 'button',
+    disabled = false,
+  } = options;
 
-  // 1. Check aria-label
-  if (svgElement.getAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = text;
+  button.disabled = disabled;
+
+  if (className) {
+    button.className = className;
   }
 
-  // 2. Check aria-labelledby
-  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) return labelElement.textContent;
+  if (id) {
+    button.id = id;
   }
 
-  // 3. Check <title> element inside SVG
-  const titleElement = svgElement.querySelector('title');
-  if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
+  if (styles && typeof styles === 'object') {
+    Object.assign(button.style, styles);
   }
 
-  return null;
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  return button;
 }
 
 // Export functionA and functionB as required
@@ -36,6 +53,13 @@ export function functionA() {
 
 export function functionB() {
   // Placeholder implementation – replace with actual logic
+}
+
+// Export for module usage and testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    createInPageButton,
+  };
 }
 
 // ... existing code and exports ...

@@ -18,24 +18,24 @@ function addressAccessibilityIssues(insightReport) {
   insightReport.issues.forEach(issue => {
     switch (issue.type) {
       case 'missing_lang_attribute':
-        addLangAttribute();
+        addLangAttribute('');
         processedIssues.push({ ...issue, status: 'fixed' });
         break;
       case 'table_structure':
-        fixTableStructureIssues();
+        fixTableStructureIssues('');
         processedIssues.push({ ...issue, status: 'fixed' });
         break;
       case 'landmark_issues':
-        addMainLandmark();
-        ensureUniqueLandmarks();
+        addMainLandmark('');
+        ensureUniqueLandmarks('');
         processedIssues.push({ ...issue, status: 'fixed' });
         break;
       case 'svg_accessibility':
-        addSvgAccessibleNames();
+        addSvgAccessibleNames('');
         processedIssues.push({ ...issue, status: 'fixed' });
         break;
       case 'fake_link':
-        fixFakeLinkIssue();
+        fixFakeLinkIssue('');
         processedIssues.push({ ...issue, status: 'fixed' });
         break;
       default:

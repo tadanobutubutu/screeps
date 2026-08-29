@@ -543,12 +543,11 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     // Handle missing alt text for images
     handleMissingAltText(document.body);
 
-    // Run origin/main accessibility improvements
+    // Run original/main accessibility improvements
     addLangAttribute();
     fixTableStructureIssues();
     addMainLandmark();
     addSvgAccessibleNames();
-    ensureUniqueLandmarks();
     fixFakeLinkIssue();
 
     announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');

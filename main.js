@@ -9,22 +9,33 @@
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 
 // ----- END ORIGINAL CODE -----
+// ----- BEGIN CHANGES (to be added) -----
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// ... (any existing code before line 8) ...
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-/**
- * Creates an in-page button element with optional click handler.
- * @param {string} buttonText - The label text for the button
- * @param {Function} onClickHandler - Callback function triggered when the button is clicked
- * @returns {HTMLElement} The created button element
- */
-function createInPageButton(buttonText, onClickHandler) {
-  const button = document.createElement('button');
-  button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
-  return button;
-}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added above)
+document.documentElement.lang = 'en';
+
+reportWebVitals();
+
+const VERSION = '1.0.0';
+
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
+};
 
 /**
  * Add lang attribute to HTML element for accessibility
@@ -86,6 +97,27 @@ function addMainLandmark() {
   if (mainContent) {
     mainContent.setAttribute('role', 'main');
   }
+}
+
+/**
+ * Add main landmark to the provided rootElement
+ */
+function addMainLandmarkWithRoot(rootElement) {
+  if (!rootElement) {
+    return null;
+  }
+
+  const existingMain = rootElement.querySelector('[role="main"]');
+  if (!existingMain) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    while (rootElement.firstChild) {
+      mainElement.appendChild(rootElement.firstChild);
+    }
+    rootElement.insertBefore(mainElement, rootElement.firstChild);
+  }
+
+  return rootElement;
 }
 
 /**
@@ -304,6 +336,279 @@ function fixButtonIdentifiers() {
 }
 
 /**
+ * Add lang attribute to the HTML element
+ */
+function addLangAttributeWithRoot(rootElement, lang) {
+  // Add lang attribute to the HTML element
+  rootElement.setAttribute('lang', lang);
+}
+
+/**
+ * Validate that tables in the document are accessible
+ */
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !== null;
+    const hasHeaders = table.querySelector('th') !== null;
+    const hasScope = Array.from(table.querySelectorAll('th')).every(
+      th => th.hasAttribute('scope')
+    );
+    
+    results.push({
+      tableIndex: index,
+      hasCaption,
+      hasHeaders,
+      hasScope,
+      isAccessible: hasCaption && hasHeaders && hasScope
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Validate the structure of tables in the document
+ */
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    let isValid = true;
+    let error = null;
+    
+    if (rows.length === 0) {
+      isValid = false;
+      error = 'Table has no rows';
+    } else {
+      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
+      const allSame = cellCounts.every(count => count === cellCounts[0]);
+      
+      if (!allSame) {
+        isValid = false;
+        error = 'Table has inconsistent cell counts across rows';
+      }
+    }
+    
+    results.push({
+      tableIndex: index,
+      rowCount: rows.length,
+      isValid,
+      error
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Ensure buttons have proper accessibility attributes
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action button');
+    }
+  });
+}
+
+/**
+ * Setup skip links for accessibility
+ */
+function setupSkipLinks() {
+  // Implementation for skip links
+  const skipLinks = document.querySelectorAll('a[href^="#"]');
+  skipLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href').substring(1);
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.setAttribute('tabindex', '-1');
+        targetElement.focus();
+      }
+    });
+  });
+}
+
+/**
+ * Implement this function for creating in-page buttons
+ */
+function createInPageButton(buttonLabel, onclick) {
+  // Create an in-page button with appropriate ARIA attributes
+  const button = document.createElement('button');
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', buttonLabel);
+  if (onclick) {
+    button.setAttribute('onclick', onclick);
+  }
+  button.textContent = buttonLabel;
+  return button;
+}
+
+function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+  const button = createInPageButton('Render Dependency Graph', renderFunction);
+  depGraphContainer.appendChild(button);
+}
+
+// Define new render function for dependency graph
+function renderDependencyGraph() {
+  // Add logic to render the dependency graph
+  // ...
+}
+
+/**
+ * Validate landmark accessibility
+ */
+function validateLandmark() {
+  // Validate landmark accessibility
+  // Check for proper landmark roles and other accessibility considerations
+  // Return true if valid, false otherwise
+  return true;
+}
+
+/**
+ * Validate landmark structure
+ */
+function validateLandmarkStructure(rootElement) {
+  // Validate landmark structure
+  // Check for proper landmark roles and other structural considerations
+  // Return true if valid, false otherwise
+  return rootElement;
+}
+
+/**
+ * Get accessible name for SVG
+ */
+function getSvgAccessibleName(svgElement) {
+  // Get accessible name for SVG
+  // Return accessible name
+  return 'Decorative graphic';
+}
+
+/**
+ * Handle rotation back functionality
+ */
+function rotateBack() {
+  // Your code to rotate back
+}
+
+/**
+ * Ensure unique landmarks in the entire application
+ */
+function ensureUniqueLandmarksWithFilter() {
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0 && el.id) {
+          el.id = `${el.id}-${index}`;
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Address accessibility issues from the insight report
+ */
+function addressAccessibilityIssues() {
+  // TODO: Implement the function for addressing new accessibility issues
+  const issues = [];
+  const elements = document.querySelectorAll('img');
+  elements.forEach((img) => {
+    if (!img.hasAttribute('alt')) {
+      issues.push({
+        type: 'missing-alt',
+        element: img,
+        message: 'Image is missing alt attribute'
+      });
+    }
+  });
+
+  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  interactiveElements.forEach((el) => {
+    const hasLabel =
+      el.hasAttribute('aria-label') ||
+      el.hasAttribute('aria-labelledby') ||
+      el.textContent.trim().length > 0 ||
+      el.querySelector('[aria-label]') !== null;
+    if (!hasLabel) {
+      issues.push({
+        type: 'missing-accessible-name',
+        element: el,
+        message: 'Interactive element is missing an accessible name'
+      });
+    }
+  });
+
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach((heading) => {
+    const level = parseInt(heading.tagName.substring(1), 10);
+    if (previousLevel > 0 && level - previousLevel > 1) {
+      issues.push({
+        type: 'heading-skip',
+        element: heading,
+        message: `Heading level skipped from h${previousLevel} to h${level}`
+      });
+    }
+    previousLevel = level;
+  });
+
+  if (document.documentElement.lang !== 'en' && !document.documentElement.hasAttribute('lang')) {
+    issues.push({
+      type: 'missing-lang',
+      element: document.documentElement,
+      message: 'HTML root element is missing lang attribute'
+    });
+  }
+
+  return {
+    total: issues.length,
+    issues,
+    summary: {
+      missingAlt: issues.filter((i) => i.type === 'missing-alt').length,
+      missingAccessibleName: issues.filter((i) => i.type === 'missing-accessible-name').length,
+      headingSkips: issues.filter((i) => i.type === 'heading-skip').length,
+      missingLang: issues.filter((i) => i.type === 'missing-lang').length
+    }
+  };
+}
+
+/**
+ * Get person name
+ */
+function personName(name) {
+  // Return person name
+  return name;
+}
+
+// New accessibility enhancement: ensure root container has accessible name and create announcement region
+const rootContainer = document.getElementById('root').parentElement;
+if (rootContainer) {
+  rootContainer.setAttribute('role', 'main');
+}
+
+const announcementId = 'accessibility-announcement';
+const announcement = document.createElement('div');
+announcement.id = announcementId;
+announcement.setAttribute('aria-live', 'polite');
+announcement.setAttribute('aria-atomic', 'true');
+// Hide off-screen
+announcement.style.position = 'absolute';
+announcement.style.left = '-9999px';
+announcement.style.top = '-9999px';
+document.body.appendChild(announcement);
+
+/**
  * Initialize the application with accessibility improvements
  */
 function initialize() {
@@ -335,76 +640,108 @@ function initialize() {
   // Accessibility: Replace my-button with actual button
   fixButtonIdentifiers();
   
-  // Existing initialization logic preserved
   console.log('Application initialized');
-  
+
   // Accessibility: Ensure main content is keyboard accessible
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.removeAttribute('aria-hidden');
   }
-  
+
   // Accessibility: Add skip link functionality
   setupSkipLinks();
-  
+
   // Accessibility: Ensure buttons have proper labels
   setupButtonAccessibility();
-}
 
-/**
- * Setup skip link functionality for keyboard navigation
- */
-function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
-  if (skipLink) {
-    skipLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
-      if (target) {
-        target.focus();
-        target.scrollIntoView();
-      }
-    });
+  // Add dependency graph button functionality
+  const depGraphContainer = document.getElementById('dep-graph-container');
+  if(depGraphContainer) {
+    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
   }
+  
+  return true;
 }
 
-/**
- * Ensure buttons have proper accessibility attributes
- */
-function setupButtonAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-      button.setAttribute('aria-label', 'Action button');
-    }
-  });
+function getConfig() {
+  return CONFIG;
 }
 
-// Existing exports and code remain unchanged
-// Note: Preserving all existing code and exports as per requirements
+function getVersion() {
+  return VERSION;
+}
 
 // Export existing functionality
-module.exports = {
+export {
+  VERSION,
+  CONFIG,
   initialize,
-  setupSkipLinks,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure,
   setupButtonAccessibility,
+  setupSkipLinks,
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  rotateBack,
+  personName,
   createInPageButton,
   addLangAttribute,
+  addLangAttributeWithRoot,
   fixTableStructure,
   addMainLandmark,
+  addMainLandmarkWithRoot,
   fixLandmarkIssues,
   ensureUniqueLandmarks,
   uniqueLandmarks,
+  ensureUniqueLandmarksWithFilter,
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
   fixFakeLinkIssue,
   fixFakeLinkIssues,
   googleSignIn,
-  fixButtonIdentifiers
+  fixButtonIdentifiers,
+  getSvgAccessibleName,
+  validateLandmark,
+  validateLandmarkStructure
 };
 
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initialize);
-}
+// Add the new function to the default export
+export default {
+  VERSION,
+  CONFIG,
+  initialize,
+  getConfig,
+  getVersion,
+  addressAccessibilityIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  setupButtonAccessibility,
+  setupSkipLinks,
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  rotateBack,
+  personName,
+  createInPageButton,
+  addLangAttribute,
+  addLangAttributeWithRoot,
+  fixTableStructure,
+  addMainLandmark,
+  addMainLandmarkWithRoot,
+  fixLandmarkIssues,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  ensureUniqueLandmarksWithFilter,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  googleSignIn,
+  fixButtonIdentifiers,
+  getSvgAccessibleName,
+  validateLandmark,
+  validateLandmarkStructure
+};

@@ -1509,8 +1509,11 @@ globalObject.validateTableAccessibility = validateTableAccessibility;
 globalObject.validateTableStructure = validateTableStructure;
 globalObject.addMainLandmark = addMainLandmark;
 globalObject.addSvgAccessibleNames = addSvgAccessibleNames;
+globalObject.addSvgAccessibleNamesFromOrigin = addSvgAccessibleNamesFromOrigin;
 globalObject.ensureUniqueLandmarks = ensureUniqueLandmarks;
+globalObject.ensureUniqueLandmarksFromOrigin = ensureUniqueLandmarksFromOrigin;
 globalObject.fixFakeLinkIssue = fixFakeLinkIssue;
+globalObject.fixFakeLinkIssueFromOrigin = fixFakeLinkIssueFromOrigin;
 globalObject.setFormElementAccessibleNames = setFormElementAccessibleNames;
 globalObject.addA11yAttributesToInteractiveElements = addA11yAttributesToInteractiveElements;
 globalObject.hasMissingAriaProperties = hasMissingAriaProperties;
@@ -1656,3 +1659,6 @@ export default {
   LANDMARK_ELEMENTS,
   loop
 };
+
+// TODO: Address missing export that might have been removed — ADD CODE HERE
+export { renderDependencyGraph as dependencyGraphRenderer };

@@ -6,7 +6,9 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
+const Dashboard = (props: DashboardProps) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -28,7 +30,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   };
 
   return (
-    <main role="main" ...
+    <main role="main">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -80,7 +82,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}

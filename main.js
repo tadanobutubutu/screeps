@@ -1,23 +1,7 @@
 import { class1, function1, Object1 } from './path/to/module';
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
 document.documentElement.lang = getLangAttribute();
-
-// - REACT_027: Validate table accessibility (DONE: validateTableAccessibility)
-
-// - REACT_017: Add/fix landmark issues (DONE: checkLandmarkElements, addMainLandmark, ensureUniqueLandmarks, addLandmarkRegions)
-
-// - REACT_025: Ensure unique landmarks (DONE: uniqueLandmarks)
-
-// - REACT_041: Add accessible names to SVGs (DONE: addSvgAccessibleNames)
-
-// - REACT_036: Fix fake link issues (DONE: fixFakeLinkIssues)
-
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 
 // Utility functions
 function formatDate(date) {

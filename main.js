@@ -62,8 +62,8 @@ function getSvgAccessibleName(element) {
 function addProperLandmarkRegions(container) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   landmarks.forEach(landmark => {
-    const elements = container.getElementsByTagName(landmark);
-    Array.from(elements).forEach(el => {
+    const elements = container.querySelectorAll(landmark);
+    elements.forEach(el => {
       if (!el.getAttribute('role')) {
         el.setAttribute('role', landmark === 'header' ? 'banner' : 
                                landmark === 'nav' ? 'navigation' : 
@@ -89,7 +89,7 @@ addAriaLabel(myElement, 'A descriptive text for myElement');
  * @param { Document } doc - The document object to operate on
  * @returns { Object } A summary of the fixes applied
  */
-function addressAccessibilityIssuesFromInsightReport(doc) {
+function applyAccessibilityFixes(doc) {
   const summary = {
     langAttributeFixed: false,
     landmarkIssuesFixed: 0,
@@ -101,15 +101,14 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   };
 
   // REACT_015: Add lang attribute to HTML element if missing
-  if (!doc.documentElement.getAttribute('lang')) {
-    doc.documentElement.setAttribute('lang', getLangAttribute(doc));
+  if (!doc.documentElement.lang) {
+    doc.documentElement.lang = 'en';
     summary.langAttributeFixed = true;
   }
 
   // REACT_017 & REACT_025: Add/fix landmark issues and ensure unique landmarks
   const landmarkResults = validateLandmarkStructure(doc);
   summary.landmarkIssuesFixed = landmarkResults.filter(r => !r.valid).length;
-  addFixLandmarkIssues(doc);
 
   // REACT_027: Validate table structure
   const tableResults = validateTableStructure(doc);
@@ -152,7 +151,7 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   });
 
   // Wrap primary content in main landmark if not present
-  if (!doc.querySelector('main, [role="main"]')) {
+  if (!doc.querySelector('[role="main"]')) {
     wrapPrimaryContentInMain(doc);
   }
 
@@ -165,12 +164,12 @@ function wrapPrimaryContentInMain(doc) {
     return;
   }
   
-  const main = doc.createElement('div');
+  const main = doc.createElement('main');
   main.className = 'main';
   main.setAttribute('role', 'main');
   
   if (primaryContent && primaryContent.parentNode) {
-    primaryContent.parentNode.insertBefore(main, primaryContent);
+    primaryContent.parentNode.replaceChild(main, primaryContent);
     main.appendChild(primaryContent);
   }
 }
@@ -180,7 +179,7 @@ function wrapPrimaryContentInMain(doc) {
  * @param { Document } doc - The document object to operate on
  */
 function addFixLandmarkIssues(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('header, nav, main, footer, aside, section, article');
   ensureUniqueLandmarks(landmarks);
 }
 
@@ -205,8 +204,8 @@ function fixFakeLinkIssues(doc) {
 /**
  * Add proper landmark regions to the document
  * @param { Document } doc - The document object to operate on */
-function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+function findLandmarks(doc) {
+  const landmarks = doc.querySelectorAll('header, nav, main, footer, aside, section, article');
   return Array.from(landmarks);
 }
 
@@ -217,7 +216,7 @@ function addAriaToFormControls(doc) {
   const inputs = doc.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
     if (!input.id && input.type !== 'hidden') {
-      const label = input.id ? doc.getElementById(input.id) : null;
+      const label = input.id ? doc.querySelector(`label[for="${input.id}"]`) : null;
       if (label) {
         label.id = label.id || `label-${index}`;
       }
@@ -275,7 +274,7 @@ function validateLandmark(element) {
  * @param { Document } doc - The document object to validate
  * @returns { Array } Array of validation results */
 function validateLandmarkStructure(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('header, nav, main, footer, aside, section, article');
   return Array.from(landmarks).map(el => ({
     element: el,
     valid: validateLandmark(el),
@@ -319,90 +318,3 @@ function getSvgAccessibleName(svg) {
   }
   
   if (title) {
-    return title.textContent;
-  }
-  
-  if (describedBy) {
-    const describedElement = svg.ownerDocument
-      ? svg.ownerDocument.getElementById(describedBy)
-      : null;
-    return describedElement ? describedElement.textContent : '';
-  }
-  
-  return '';
-}
-
-/**
- * Ensure landmarks are unique in the document
- * @param { NodeList | Array } landmarks - The landmarks to check */
-function ensureUniqueLandmarks(landmarks) {
-  const seen = new Map();
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (role && seen.has(role)) {
-      landmark.removeAttribute('role');
-    } else if (role) {
-      seen.set(role, landmark);
-    }
-  });
-}
-
-/**
- * Create an accessible link element
- * @param { string } href - The href attribute
- * @param { string } text - The link text
- * @param { Document } doc - The document object
- * @returns { HTMLAnchorElement } The created link */
-function createAccessibleLink(href, text, doc) {
-  const link = doc.createElement('a');
-  link.href = href;
-  link.textContent = text;
-  return link;
-}
-
-/**
- * Create an in-page button element
- * @param { string } text - The button text
- * @param { Document } doc - The document object
- * @returns { HTMLButtonElement } The created button */
-function createInPageButton(text, doc) {
-  const button = doc.createElement('button');
-  button.textContent = text;
-  button.id = button.id || `button-${Date.now()}`;
-  return button;
-}
-
-// ... (The rest of the existing functions and exports remain unchanged)
-
-// ADD THE NEW FUNCTION TO THE EXPORTS
-const { addMissingExportFunction } = require('./utils');
-
-module.exports = {
-  addressAccessibilityIssuesFromInsightReport,
-  addProperLandmarkRegions,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  wrapPrimaryContentInMain,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  createAccessibleLink,
-  getSvgAccessibleName,
-  addFixLandmarkIssues,
-  fixFakeLinkIssues,
-  // Exports from the right side
-  findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
-  addressAccessibilityIssues,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  resolveConflicts
-};

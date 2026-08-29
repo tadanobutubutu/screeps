@@ -5,6 +5,9 @@ const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');
 
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report — FIXED
+// ----- END ORIGINAL CODE -----
+
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())

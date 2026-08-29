@@ -58,9 +58,9 @@ const config = {
  * @returns {boolean} - True if the element is a landmark
  */
 function isLandmark(element) {
-  // TODO: Implement this function for checking landmark elements
-  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
-  return landmarkTags.includes(element.tagName.toLowerCase());
+  if (!element || !element.tagName) return false;
+  const landmarkTags = ['HEADER', 'MAIN', 'NAV', 'ASIDE', 'SECTION', 'ARTICLE', 'FOOTER'];
+  return landmarkTags.includes(element.tagName);
 }
 
 /**
@@ -81,7 +81,9 @@ function validateLandmarks(doc) {
     return results;
   }
 
-  const landmarks = doc.body.querySelectorAll('header, main, nav, aside, section, article, footer');
+  const landmarkTags = ['header', 'main', 'nav', 'aside', 'section', 'article', 'footer'];
+  const selector = landmarkTags.join(', ');
+  const landmarks = doc.querySelectorAll(selector);
 
   landmarks.forEach(landmark => {
     results.landmarks.push({
@@ -133,7 +135,7 @@ module.exports.SomeModule = SomeModule;
 
 function setSvgAccessibleName(svg, name) {
   if (!svg) {
-    console.warn('setSvgAccessibleName: SVG element is required');
+    throw new Error('SVG element is required');
     return;
   }
   svg.setAttribute('aria-label', name);
@@ -141,14 +143,14 @@ function setSvgAccessibleName(svg, name) {
 
 function improveAccessibility(container) {
   if (!container) {
-    container = document.querySelector('.dependency-graph_content, [data-dependency-graph-content]');
+    container = document.body;
   }
   if (container) {
     renderDependencyGraphContent(container);
   }
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = container.querySelectorAll('a, button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -157,9 +159,9 @@ function improveAccessibility(container) {
 function renderDependencyGraphContent(container) {
   if (!container) return;
   // Process the container for dependency graph content
-  const elements = container.querySelectorAll('*');
+  const elements = container.querySelectorAll('[data-dependency]');
   elements.forEach(el => {
-    if (el.hasAttribute('data-dependency')) {
+    if (el.dataset) {
       // Process dependency data
     }
   });
@@ -189,24 +191,26 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
-function ensureUniqueLandmarkRoles() {
+function ensureUniqueLandmarks() {
   return {};
 }
 
-function addAriaLabelToSVGsWithoutAccessibleName() {
+function validateSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = svg.querySelector('title');
       if (title) {
-        svg.setAttribute('aria-label', title.textContent);
+        const titleId = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = titleId;
+        svg.setAttribute('aria-labelledby', titleId);
       }
     }
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
-  const uniqueElements = ensureUniqueLandmarkRoles();
+function processUniqueElements() {
+  const uniqueElements = [];
   // Process unique elements for landmark roles
   return uniqueElements;
 }
@@ -224,7 +228,7 @@ function addressInsightIssues(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
-      addProperLandmarkRegions(issue.data || []);
+      const react017Elements = issue.elements || [];
     }
   });
 }
@@ -245,7 +249,7 @@ function addProperLandmarkRegions(affectedElements) {
   if (!affectedElements || !Array.isArray(affectedElements)) return;
 
   affectedElements.forEach(el => {
-    if (!el.hasAttribute('role') && !el.classList.contains('landmark')) {
+    if (el && el.tagName && !el.hasAttribute('role')) {
       el.setAttribute('role', 'region');
     }
   });
@@ -262,9 +266,9 @@ module.exports = {
   improveAccessibility,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
-  ensureUniqueLandmarkRoles,
-  addLandmarkRolesAndFixIssues,
-  addAriaLabelToSVGsWithoutAccessibleName,
+  ensureUniqueLandmarks,
+  validateSvgAccessibility,
+  processUniqueElements,
   addressInsightIssues,
   renderDependencyGraph,
   renderIndexView,

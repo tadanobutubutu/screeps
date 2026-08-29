@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// <<<<<<< HEAD
+function updateProfile(newInfo) {
+    // ... current branch changes ...
+}
+
+// =======
+function handleUserAction(action) {
+    // ... incoming changes from origin/main ...
+}
+
+// >>>>>>> origin/main

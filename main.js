@@ -449,6 +449,58 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Wraps primary content in a main landmark for proper document structure
+ * Identifies the main content area and wraps it in a <main> element
+ * @param {string} html - The HTML string to process
+ * @param {string} [selector] - Optional CSS selector to identify primary content
+ * @returns {string} HTML with primary content wrapped in main landmark
+ */
+export function wrapPrimaryContentInMain(html, selector) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if main landmark already exists
+  if (/<main[\s>]/i.test(html)) {
+    return html;
+  }
+  
+  // If a selector is provided, try to find and wrap that element
+  if (selector) {
+    // Escape special regex characters for selector
+    const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Try to match by id
+    const idPattern = new RegExp(`<([^\\s>]+)(\\s[^>]*)?(id=["']?${escapedSelector}["']?)[^>]*>([\\s\\S]*?)<\\/\\2>`, 'gi');
+    if (idPattern.test(html)) {
+      return html.replace(idPattern, '<main>$&</main>');
+    }
+    
+    // Try to match by class
+    const classPattern = new RegExp(`<([^\\s>]+)(\\s[^>]*)?(class=["']?[^"']*${escapedSelector}[^"']*["']?)[^>]*>([\\s\\S]*?)<\\/\\2>`, 'gi');
+    if (classPattern.test(html)) {
+      return html.replace(classPattern, '<main>$&</main>');
+    }
+  }
+  
+  // Default: look for common main content containers
+  const mainContentPatterns = [
+    /<div[^>]*\b(id|class)=["'][^"']*\bmain-content\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+    /<div[^>]*\b(id|class)=["'][^"']*\bcontent\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
+    /<article[^>]*>([\s\S]*?)<\/article>/i
+  ];
+  
+  for (const pattern of mainContentPatterns) {
+    if (pattern.test(html)) {
+      return html.replace(pattern, '<main>$&</main>');
+    }
+  }
+  
+  // Fallback: wrap the entire body content
+  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+    return `<body${attrs || ''}><main>`;
+  }).replace(/<\/body>/i, '</main></body>');
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,
@@ -462,7 +514,8 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  wrapPrimaryContentInMain
 };
 
 module.exports = {
@@ -493,8 +546,9 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  wrapPrimaryContentInMain
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };
+// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, wrapPrimaryContentInMain };

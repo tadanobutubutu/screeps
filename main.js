@@ -72,7 +72,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -123,9 +123,21 @@ function ensureUniqueLandmarks() {
 }
 
 // New function for REACT_017 (adding landmark roles and fixing landmark issues)
-function addLandmarkRolesAndFixIssues() {
-  // Hypothetical code to add landmark roles and fix landmark issues
-  // ...
+function addMainLandmark(htmlContent) {
+  // Implementation for REACT_017: Add/fix 2 landmark issues
+  if (!htmlContent || typeof htmlContent !== 'string') {
+    return htmlContent;
+  }
+
+  // Check if main landmark already exists
+  const mainRegex = /<main[^>]*>/gi;
+  if (mainRegex.test(htmlContent)) {
+    return htmlContent;
+  }
+
+  // Add main landmark after body tag
+  const bodyRegex = /<body([^>]*)>/i;
+  return htmlContent.replace(bodyRegex, '<body$1><main>');
 }
 
 // New function for REACT_027 (fixing table structure issues)
@@ -209,6 +221,75 @@ function personName() {
   // ...
 }
 
+// Function to address accessibility issues as per REACT_025 requirement
+function addressAccessibilityIssues(htmlContent, options = {}) {
+  if (!htmlContent || typeof htmlContent !== 'string') {
+    return htmlContent;
+  }
+
+  let result = htmlContent;
+
+  // Add main landmark if required
+  if (options.addMainLandmark !== false) {
+    result = addMainLandmark(result);
+  }
+
+  // Add lang attribute if required
+  if (options.addLangAttribute) {
+    const langAttr = getLangAttribute();
+    if (langAttr && !result.includes('lang=')) {
+      const htmlRegex = /<html([^>]*)>/i;
+      result = result.replace(htmlRegex, `<html$1 lang="${langAttr}">`);
+    }
+  }
+
+  // Add SVG accessible names if required
+  if (options.addSvgNames) {
+    const svgName = getSvgAccessibleName();
+    if (svgName) {
+      const svgRegex = /<svg([^>]*)>/gi;
+      result = result.replace(svgRegex, (match, attrs) => {
+        if (attrs.includes('aria-label') || attrs.includes('aria-labelledby')) {
+          return match;
+        }
+        return `<svg${attrs} aria-label="${svgName}">`;
+      });
+    }
+  }
+
+  return result;
+}
+
+// Function to replace button ID as per accessibility requirements
+function replaceButtonId(buttonElement, newId) {
+  if (!buttonElement || typeof buttonElement !== 'object') {
+    return buttonElement;
+  }
+
+  return {
+    ...buttonElement,
+    id: newId || `button-${Date.now()}`
+  };
+}
+
+// Function to add alt attribute to images
+function addAltAttribute(imgElement, altText = 'Image') {
+  if (!imgElement || typeof imgElement !== 'object') {
+    return imgElement;
+  }
+
+  // If alt attribute already exists, return as is
+  if (imgElement.alt !== undefined) {
+    return imgElement;
+  }
+
+  // Add default alt attribute
+  return {
+    ...imgElement,
+    alt: altText
+  };
+}
+
 // Export all functions
 module.exports = {
   CONFIG,
@@ -237,8 +318,6 @@ module.exports = {
   addAltAttribute,
   replaceButtonId,
   addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport,
   renderDependencyGraph,
-  fixSvgDataUriAccessibility,
   fixFakeLinkIssue
 };

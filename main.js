@@ -1,7 +1,5 @@
 // main.js
 
-// TODO: Add back any required exports that might have been?
-
 const fs = require('fs');
 const path = require('path');
 
@@ -86,6 +84,11 @@ const config = {
   enabled: true
 };
 
+// Add the new function calculateSum
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
     main,
     SomeClass,
@@ -93,5 +96,6 @@ module.exports = {
     config,
     countDependencies,
     run,
-    checkTableStructure
+    checkTableStructure,
+    calculateSum // Export the new function
 };

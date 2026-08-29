@@ -110,6 +110,42 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
+// New function to add landmark roles and fix issues (Screeps-oriented)
+function addLandmarkRolesAndFixIssues() {
+  // This function adds appropriate landmark roles to Screeps structures
+  const landmarkTypes = ['spawn', 'extension', 'tower', 'storage', 'terminal'];
+
+  landmarkTypes.forEach(type => {
+    const structures = _.filter(Game.structures, s => s.structureType === type);
+    structures.forEach(structure => {
+      if (!structure.landmarkType) {
+        structure.landmarkType = 'region';
+      }
+    });
+  });
+}
+
+// New functions for table validation
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = !!table.querySelector('caption');
+  const hasTh = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasTh;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  return !!(thead && tbody);
+}
+
+// Address missing export that might have been removed — ADD CODE HERE
+function someFunction() {
+  // Placeholder function for missing export
+  return true;
+}
+
 // TODO: Add back any required exports that might have been removed
 // For example, if a function called 'someFunction' was required elsewhere
 // function someFunction() {
@@ -134,12 +170,7 @@ if (require.main === module) {
 // const report = getInsightReport(); // Hypothetical function to get the insight report
 // addressAccessibilityIssues(report);
 
-// Address missing export that might have been removed — ADD CODE HERE
-function someFunction() {
-  // Placeholder function for missing export
-  return true;
-}
-
+// Export all functions for use elsewhere in the repository
 module.exports = {
   config: config,
   appState: appState,
@@ -150,5 +181,18 @@ module.exports = {
   initialize: initialize,
   validateInput: validateInput,
   addressAccessibilityIssues: addressAccessibilityIssues,
-  someFunction: someFunction
+  someFunction: someFunction,
+  improveAccessibility: improveAccessibility,
+  addressInsightIssues: addressInsightIssues,
+  addressREACT017: addressREACT017,
+  renderDependencyGraphContent: renderDependencyGraphContent,
+  renderDependencyGraph: renderDependencyGraph,
+  renderIndexView: renderIndexView,
+  calculateSum: calculateSum,
+  ensureUniqueLandmarkRoles: ensureUniqueLandmarkRoles,
+  ensureUniqueLandmarks: ensureUniqueLandmarks,
+  addLandmarkRoles: addLandmarkRoles,
+  addLandmarkRolesAndFixIssues: addLandmarkRolesAndFixIssues,
+  addAriaLabelToSVGsWithoutAccessibleName: addAriaLabelToSVGsWithoutAccessibleName,
+  ensureLandmarkUniqueness: ensureLandmarkUniqueness
 };

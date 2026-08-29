@@ -14,19 +14,19 @@ app.setAttribute('role', 'main');
 app.setAttribute('aria-label', 'Main application');
 
 // New function as per the issue
-function addProperLandmarkRegions(landmarks) {
+function addLandmarks(landmarks) {
   // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
   landmarks.forEach(landmark => {
     // Perform any necessary operations on the landmark
     // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates ${landmark.coordinates}`);
+    console.log(`Adding landmark: ${landmark.name} at coordinates (${landmark.coordinates})`);
     // Add your logic here
   });
 }
 
 // Assuming there's a way to retrieve landmarks, you would call the function like this:
 // const allLandmarks = getLandmarks(); // Placeholder function
-// addProperLandmarkRegions(allLandmarks);
+// addLandmarks(allLandmarks);
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -58,7 +58,7 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
     fetchData();
   }, []);
 
@@ -69,7 +69,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div className="app">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -82,16 +82,16 @@ export function getUniqueLandmarkName(baseName, existingNames) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function validateLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -122,7 +122,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `${svgElement.id || 'svg'}-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -134,19 +134,81 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
 export function isValidLink(element) {
   // ... existing code ...
+  if (!element) return false;
+  return element.tagName === 'A' && element.href && element.href.length > 0;
 }
 
-export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
+export function addScopeToHeaders(table) {
+  if (!table) return;
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
+    const scope = th.closest('thead') ? 'col' : 'row';
+    th.setAttribute('scope', scope);
+  });
 }
 
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
+export function addressAccessibilityIssues(issues) {
+  issues.forEach(issue => {
     console.log(`Addressing issue: ${issue.issue}`);
     // TODO: Implement solution to the issue
     console.log(`Solution: ${issue.solution}`);
     // ... code to apply the solution ...
   });
+}
+
+export function announceToScreenReader(message) {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+export function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  });
+}
+
+export function manageFocusOnNavigation() {
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
+}
+
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function setAriaExpanded(element, isExpanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', isExpanded);
+  }
+}
+
+export function hasAccessibleName(element) {
+  return element.hasAttribute('aria-label') || 
+         element.hasAttribute('aria-labelledby') || 
+         element.hasAttribute('aria-describedby') ||
+         (element.tagName === 'IMG' && element.hasAttribute('alt'));
 }
 
 export function myFunction() {
@@ -162,12 +224,18 @@ module.exports = { addProperLandmarkRegions };
 
 // Export accessibility functions
 module.exports.getUniqueLandmarkName = getUniqueLandmarkName;
-module.exports.validateUniqueLandmarks = validateUniqueLandmarks;
+module.exports.validateLandmarks = validateLandmarks;
 module.exports.addSvgAccessibleName = addSvgAccessibleName;
 module.exports.isValidLink = isValidLink;
 module.exports.addScopeToHeaders = addScopeToHeaders;
 module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-module.exports.newFunction = newFunction;
+module.exports.announceToScreenReader = announceToScreenReader;
+module.exports.trapFocus = trapFocus;
+module.exports.manageFocusOnNavigation = manageFocusOnNavigation;
+module.exports.prefersReducedMotion = prefersReducedMotion;
+module.exports.setAriaExpanded = setAriaExpanded;
+module.exports.hasAccessibleName = hasAccessibleName;
+module.exports.addLandmarks = addLandmarks;
 
 // <!--- END ADDITIONAL FUNCTION --->
 // <!--- START MODIFIED FUNCTION --->
@@ -178,14 +246,14 @@ function modifiedFunction() {
 
 // <!--- END MODIFIED FUNCTION --->
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
+//<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 // <!--- Any other modifications or additions go here --->
 
 export {
   function3,
   App,
   getUniqueLandmarkName,
-  validateUniqueLandmarks,
+  validateLandmarks,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,
@@ -197,5 +265,7 @@ export {
   setAriaExpanded,
   hasAccessibleName,
   myFunction,
-  newFunction
+  newFunction,
+  modifiedFunction,
+  addLandmarks
 };

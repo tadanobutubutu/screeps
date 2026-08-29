@@ -277,6 +277,16 @@ function ensureUniqueLandmarks() {
 }
 
 /**
+ * Validates that landmarks are unique in the document.
+ * This function ensures there is only one main, banner, and contentinfo landmark,
+ * and that landmark labels are unique.
+ * @returns {Object} An object containing uniqueness information
+ */
+function validateLandmarkUniqueness() {
+  return ensureUniqueLandmarks();
+}
+
+/**
  * Fixes fake link issues by converting links without href to buttons.
  * @returns {Array} Array of fixed link elements
  */
@@ -335,5 +345,6 @@ module.exports = {
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
-  getLandmarkData
+  getLandmarkData,
+  validateLandmarkUniqueness
 };

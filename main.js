@@ -1,8 +1,3 @@
-// TODO: Add back any required exports that might have been removed
-// Example: import a function from another file (util.js)
-// ------ IMPORTANT -------
-// Do not remove or rename any existing exports in main.js
-
 const { functionName } = require('./util');
 
 // Existing exports and functions in main.js
@@ -11,6 +6,9 @@ module.exports = {
 };
 
 // main.js
+
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 // TODO: Implement this function for checking landmark structure
 function checkLandmarkStructure(html) {
@@ -37,14 +35,6 @@ function checkLandmarkStructure(html) {
  * - REACT_025: Ensure unique landmarks
  * - REACT_036: Fix 1 fake link issue
  */
-
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 /**
  * Adds lang attribute to HTML element
@@ -289,5 +279,5 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  functionName // Preserve existing export
+  functionName
 };

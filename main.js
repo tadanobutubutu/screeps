@@ -63,6 +63,11 @@ function focusFirstInputInModal(modal) {
 }
 
 // Address accessibility issues from insight report
+// - Added keyboard navigation support
+// - Added ARIA labels for interactive elements
+// - Added screen reader announcements
+// - Added focus trapping for modals
+// Imported from conflicting changes (FIXME: review and merge correctly)
 import { ensureUniqueLandmarks, landmarkStructureCheck, helloWorld, initDependencyGraph, renderDependencyGraph, getElementById, queryElements, checkLandmarkElement, checkLandmarkElements, validateLandmarkStructure, icons, isSecureContext, setLanguageAttribute, addLandmarkRoles, ensureUniqueLandmarkElements, addSVGAccessibleName, fixFakeLinks, landmarks } from './temp-import.js';
 
 class AccessibleModal {
@@ -150,4 +155,80 @@ function initAccessibleNavigation() {
   }
 }
 
-// ... (Existing code, exports, and functions continue here)
+function makeFormAccessible(form) {
+  const inputs = form.querySelectorAll('input, select, textarea');
+
+  inputs.forEach(input => {
+    const label = form.querySelector(`label[for="${input.id}"]`) ||
+                  input.closest('label') ||
+                  input.parentElement.querySelector('label');
+
+    if (!input.getAttribute('aria-describedby') && !input.getAttribute('aria-label')) {
+      if (label) {
+        const labelId = label.id || 'label-' + input.id;
+        if (!label.id) label.id = labelId;
+        input.setAttribute('aria-describedby', labelId);
+      }
+    }
+
+    if (!input.getAttribute('autocomplete') && (input.type === 'email' || input.type === 'tel')) {
+      input.setAttribute('autocomplete', input.type === 'email' ? 'email' : 'tel');
+    }
+  });
+}
+
+function initSkipLink() {
+  const skipLink = document.querySelector('a[href="#main-content"]');
+  const mainContent = document.getElementById('main-content');
+
+  if (skipLink && mainContent) {
+    if (!mainContent.hasAttribute('tabindex')) {
+      mainContent.setAttribute('tabindex', '-1');
+    }
+  }
+}
+
+function initAccessibility() {
+  initSkipLink();
+  initAccessibleNavigation();
+
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => makeFormAccessible(form));
+
+  const modals = document.querySelectorAll('[data-modal]');
+  modals.forEach(modal => new AccessibleModal(modal));
+
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
+      console.warn('Button missing accessible name:', button);
+    }
+  });
+
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      console.warn('Image missing alt attribute:', img);
+    }
+  });
+
+  announceToScreenReader('Page loaded', 'assertive');
+  validateLandmarkStructure();
+  checkLandmarkElements();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccessibility);
+} else {
+  initAccessibility();
+}
+
+export {
+  trapFocus,
+  announceToScreenReader,
+  AccessibleModal,
+  initAccessibleNavigation,
+  makeFormAccessible,
+  initSkipLink,
+  initAccessibility
+};

@@ -28,7 +28,7 @@ function ensureUniqueLandmarks(landmarks) {
   return landmarks.filter(landmark => {
     if (!landmark) return false;
     
-    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+    const identifier = landmark.id || landmark.name;
     
     if (seen.has(identifier)) {
       return false;

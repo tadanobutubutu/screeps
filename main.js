@@ -6,6 +6,59 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
+// Function to create in-page buttons
+const createInPageButton = (options: {
+  onClick: () => void;
+  label: string;
+  icon: string;
+  disabled?: boolean;
+  isActive?: boolean;
+  hoverState: boolean;
+  setHoverState: (value: boolean) => void;
+  ariaLabel?: string;
+  title?: string;
+}) => {
+  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+
+  const getBackgroundColor = () => {
+    if (disabled) return '#999';
+    if (isActive) return '#155d27';
+    return '#004b73';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+      aria-label={ariaLabel || label}
+      aria-pressed={isActive}
+      title={title || label}
+      onMouseEnter={() => setHoverState(true)}
+      onMouseLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
+      style={{
+        backgroundColor: getBackgroundColor(),
+        color: 'white',
+        padding: '0.5rem 1rem',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease-in-out',
+        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none',
+      }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span> {label}</span>
+    </button>
+  );
+};
+
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -24,11 +77,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     // Implement the fetch stats logic
     setRefreshing(true);
     // Reset refreshing state after some time
-    setTimeout(() => setRefreshing(false), 2000);
+    setTimeout(() => setRefreshing(false), 20000);
   };
 
   return (
-    <main role="main" ...
+    <main role="main" ...>
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -47,62 +100,28 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             {error}
           </section>
         )}
-        <button
-          type="button"
-          onClick={copyErr}
-          onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
-          onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
-          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-          aria-pressed={copied}
-          title={copied ? 'コピー済み' : 'エラーをコピー'}
-          style={{
-            backgroundColor: copied ? '#155d27' : '#004b73',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease-in-out',
-            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-            filter: errCopyHover ? 'brightness(1.1)' : 'none',
-          }}
-        >
-          <span>{copied ? '✅' : '📋'}</span>
-          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => fetchStats(true)}
-          disabled={refreshing}
-          aria-disabled={refreshing}
-          aria-busy={refreshing}
-          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
-          onMouseEnter={() => setErrRetryHover(true)}
-          onMouseLeave={() => setErrRetryHover(false)}
-          onFocus={() => setErrRetryHover(true)}
-          onBlur={() => setErrRetryHover(false)}
-          style={{
-            backgroundColor: refreshing ? '#999' : '#004b73',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: refreshing ? 'not-allowed' : 'pointer',
-            opacity: refreshing ? 0.6 : 1,
-            marginLeft: '0.5rem',
-            transition: 'all 0.2s ease-in-out',
-            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-            filter: errRetryHover ? 'brightness(1.1)' : 'none',
-          }}
-        >
-          <span aria-hidden="true">{refreshing ? '🔄' : '🔁'}</span>
-          <span> {refreshing ? '再試行中...' : '再試行'}</span>
-        </button>
+        {createInPageButton({
+          onClick: copyErr,
+          label: copied ? 'コピー済み' : 'エラーをコピー',
+          icon: copied ? '✅' : '📋',
+          disabled: false,
+          isActive: copied,
+          hoverState: errCopyHover,
+          setHoverState: setErrCopyHover,
+          ariaLabel: copied ? 'コピー済み' : 'エラーをコピー',
+          title: copied ? 'コピー済み' : 'エラーをコピー',
+        })}
+        {createInPageButton({
+          onClick: () => fetchStats(true),
+          label: refreshing ? '再試行中...' : '再試行',
+          icon: refreshing ? '🔄' : '🔁',
+          disabled: refreshing,
+          isActive: false,
+          hoverState: errRetryHover,
+          setHoverState: setErrRetryHover,
+          ariaLabel: refreshing ? '再試行中...' : 'エラーの再試行',
+          title: refreshing ? '再試行中...' : 'エラーの再試行',
+        })}
       </div>
     </main>
   );

@@ -286,6 +286,30 @@ const {
   fixButtonIdentifiers
 } = require('./accessibilityUtils');
 
+/**
+ * Renders a dependency graph or module structure for debugging purposes.
+ * @param {Object} dependencyMap - A map representing the dependency structure.
+ * @returns {string} A string representation of the graph.
+ */
+function renderDependencyGraph(dependencyMap) {
+  if (!dependencyMap || typeof dependencyMap !== 'object') {
+    return 'Invalid dependency map provided.';
+  }
+  return JSON.stringify(dependencyMap, null, 2);
+}
+
+/**
+ * Displays the module structure for debugging purposes.
+ * @param {Array} modules - An array of module objects.
+ * @returns {string} A string representation of the module structure.
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Invalid module structure provided.';
+  }
+  return modules.map(m => `Module: ${m.name || 'Unknown'}`).join('\n');
+}
+
 function addressAccessibilityIssues() {
     // Function implementation goes here
 }
@@ -342,5 +366,7 @@ module.exports = {
   checkTableStructure,
   sanitizeInput,
   createDataTable,
-  createInPageButton
+  createInPageButton,
+  renderDependencyGraph,
+  displayModuleStructure
 };

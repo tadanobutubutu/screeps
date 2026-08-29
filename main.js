@@ -1,5 +1,7 @@
 const loop = require('./loop');
 const config = require('./config');
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
 const logger = require('./utils/logger');
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----

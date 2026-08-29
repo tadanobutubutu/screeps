@@ -7,7 +7,7 @@
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  button.onclick = onClickHandler;
   return button;
 }
 
@@ -16,3 +16,5 @@ function createInPageButton(buttonText, onClickHandler) {
 
 // Existing exports and code remain unchanged
 // Note: Preserving all existing code and exports as per requirements
+
+module.exports = { createInPageButton };

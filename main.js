@@ -36,7 +36,7 @@ function App() {
 
   // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
   }, []);
 
   // REACT_017: Add landmark roles and fix landmark issues
@@ -46,7 +46,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div id="app" role="application">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -55,22 +55,22 @@ function App() {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+export function generateUniqueName(baseName, existingNames) {
+  if (!existingNames || !existingNames.includes(baseName)) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function checkUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -134,7 +134,7 @@ export function isValidLink(element) {
 }
 
 // REACT_027: Add scope to table headers
-export function addScopeToHeaders(tableElement) {
+export function addScopeToTableHeaders(tableElement) {
   if (!tableElement) return [];
 
   const headers = tableElement.querySelectorAll('th');
@@ -142,8 +142,8 @@ export function addScopeToHeaders(tableElement) {
 
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.children).indexOf(th);
+    const rowIndex = Array.from(tableElement.querySelectorAll('tr')).indexOf(row);
+    const cellIndex = Array.from(row.querySelectorAll('th, td')).indexOf(th);
 
     // Determine if scope should be 'col' or 'row'
     let scope = 'col';
@@ -153,7 +153,7 @@ export function addScopeToHeaders(tableElement) {
       scope = 'row';
     }
 
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       th.setAttribute('scope', scope);
       updates.push({
         element: th,
@@ -169,7 +169,7 @@ export function addScopeToHeaders(tableElement) {
 // Accessibility issue addressing functions
 function addressAccessibilityIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -181,6 +181,50 @@ function addressAccessibilityIssues(insightReport) {
 // New function to address accessibility issues from insight report
 function newFunction() {
   // implementation of new function
+}
+
+/**
+ * Manages keyboard shortcuts for improved keyboard navigation
+ * Ensures unique shortcut combinations and prevents conflicts
+ * @param {string} key - The key combination (e.g., 'ctrl+a')
+ * @param {Function} callback - The function to execute when shortcut is triggered
+ * @param {Object} options - Configuration options
+ * @returns {Function} - Cleanup function to remove the shortcut
+ */
+export function manageKeyboardShortcut(key, callback, options = {}) {
+  const { element = document, preventDefault = true, allowInInput = false } = options;
+  
+  const handleShortcut = (event) => {
+    // Check if shortcut should work in input fields
+    const isInputField = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName);
+    if (isInputField && !allowInInput) return;
+    
+    // Parse the key combination
+    const modifiers = {
+      ctrl: event.ctrlKey,
+      alt: event.altKey,
+      shift: event.shiftKey,
+      meta: event.metaKey
+    };
+    
+    const pressedKey = event.key.toLowerCase();
+    
+    // Check if all required modifiers are pressed
+    const requiredModifiers = key.split('+').slice(0, -1).map(m => m.trim().toLowerCase());
+    const isMatch = requiredModifiers.every(m => modifiers[m]);
+    const keyMatches = key.split('+').pop().toLowerCase() === pressedKey;
+    
+    if (isMatch && keyMatches) {
+      if (preventDefault) {
+        event.preventDefault();
+      }
+      callback(event);
+    }
+  };
+  
+  element.addEventListener('keydown', handleShortcut);
+  
+  return () => element.removeEventListener('keydown', handleShortcut);
 }
 
 // Accessibility Helper Functions
@@ -239,7 +283,7 @@ function manageFocusOnNavigation(selector) {
   if (target) {
     target.setAttribute('tabindex', '-1');
     target.focus();
-    target.removeAttribute('tabindex');
+    target.scrollIntoView({ behavior: 'smooth' });
   }
 }
 
@@ -258,7 +302,7 @@ function prefersReducedMotion() {
  */
 function setAriaExpanded(trigger, isExpanded) {
   if (trigger) {
-    trigger.setAttribute('aria-expanded', String(isExpanded));
+    trigger.setAttribute('aria-expanded', isExpanded.toString());
   }
 }
 
@@ -278,7 +322,7 @@ function hasAccessibleName(element) {
 }
 
 // Export the newFunction for use in other modules
-export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName };
+export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName, manageKeyboardShortcut };
 
 const container = document.getElementById('root');
 const root = createRoot(container);

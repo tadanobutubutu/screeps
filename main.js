@@ -489,7 +489,188 @@ function ensureDependencyGraphAriaRole(document) {
 
 // Function to add the main landmark to docs/index.html
 function addMainLandmarkToIndex(document) {
-  // ... existing implementation
+  const body = document.body;
+  if (!body) return document;
+  
+  let mainElement = document.getElementById('main-content');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    mainElement.id = 'main-content';
+    mainElement.setAttribute('role', 'main');
+    
+    // Move non-script/style/link/meta children to main
+    const childrenToMove = [];
+    for (const child of body.children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
+          child.tagName !== 'LINK' && child.tagName !== 'META' &&
+          child.tagName !== 'HEADER' && child.tagName !== 'FOOTER' &&
+          child.tagName !== 'NAV' && child.tagName !== 'ASIDE') {
+        childrenToMove.push(child);
+      }
+    }
+    
+    childrenToMove.forEach(child => mainElement.appendChild(child));
+    
+    // Insert main after header or at beginning of body
+    const header = body.querySelector('header');
+    if (header) {
+      body.insertBefore(mainElement, header.nextSibling);
+    } else {
+      body.insertBefore(mainElement, body.firstChild);
+    }
+  }
+  
+  return document;
+}
+
+// NEW: Add skip link for keyboard navigation
+function addSkipLink(document) {
+  if (!document.querySelector('#skip-link')) {
+    const skipLink = document.createElement('a');
+    skipLink.id = 'skip-link';
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    skipLink.style.cssText = `
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: #000;
+      color: #fff;
+      padding: 8px 16px;
+      z-index: 10000;
+      text-decoration: none;
+      font-weight: bold;
+    `;
+    skipLink.addEventListener('focus', () => {
+      skipLink.style.top = '0';
+    });
+    skipLink.addEventListener('blur', () => {
+      skipLink.style.top = '-40px';
+    });
+    
+    if (document.body) {
+      document.body.insertBefore(skipLink, document.body.firstChild);
+    }
+  }
+  return document;
+}
+
+// NEW: Ensure focus indicators are visible
+function ensureFocusIndicators(document) {
+  const style = document.createElement('style');
+  style.textContent = `
+    *:focus-visible {
+      outline: 3px solid #005fcc !important;
+      outline-offset: 2px !important;
+    }
+    *:focus:not(:focus-visible) {
+      outline: none;
+    }
+  `;
+  document.head.appendChild(style);
+  return document;
+}
+
+// NEW: Add ARIA live regions for dynamic content
+function addAriaLiveRegions(document) {
+  const dynamicRegions = document.querySelectorAll('[data-dynamic], [aria-live], .dynamic-content, .notification, .alert, .toast');
+  dynamicRegions.forEach(region => {
+    if (!region.getAttribute('aria-live')) {
+      region.setAttribute('aria-live', 'polite');
+    }
+    if (!region.getAttribute('aria-atomic')) {
+      region.setAttribute('aria-atomic', 'true');
+    }
+  });
+  return document;
+}
+
+// NEW: Ensure proper heading hierarchy
+function fixHeadingHierarchy(document) {
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let lastLevel = 0;
+  
+  headings.forEach(heading => {
+    const level = parseInt(heading.tagName.charAt(1), 10);
+    if (level > lastLevel + 1) {
+      // Heading level skips - adjust to proper hierarchy
+      const newLevel = Math.min(lastLevel + 1, 6);
+      const newTag = `h${newLevel}`;
+      const newHeading = document.createElement(newTag);
+      newHeading.textContent = heading.textContent;
+      // Copy attributes
+      Array.from(heading.attributes).forEach(attr => {
+        newHeading.setAttribute(attr.name, attr.value);
+      });
+      heading.parentNode.replaceChild(newHeading, heading);
+      lastLevel = newLevel;
+    } else {
+      lastLevel = level;
+    }
+  });
+  return document;
+}
+
+// NEW: Add accessible names to form controls
+function addFormControlLabels(document) {
+  const inputs = document.querySelectorAll('input:not([type="hidden"]), textarea, select');
+  inputs.forEach(input => {
+    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+      const id = input.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+      input.id = id;
+      
+      // Check for associated label
+      const label = document.querySelector(`label[for="${id}"]`);
+      if (!label) {
+        // Check for wrapping label
+        const wrappingLabel = input.closest('label');
+        if (!wrappingLabel) {
+          // Check for adjacent text
+          const prevText = input.previousElementSibling;
+          if (prevText && prevText.textContent.trim()) {
+            input.setAttribute('aria-label', prevText.textContent.trim());
+          } else {
+            input.setAttribute('aria-label', input.placeholder || input.name || 'Form field');
+          }
+        }
+      }
+    }
+  });
+  return document;
+}
+
+// NEW: Fix color contrast issues (add high contrast mode support)
+function addHighContrastSupport(document) {
+  const style = document.createElement('style');
+  style.textContent = `
+    @media (prefers-contrast: high) {
+      * {
+        border-color: currentColor !important;
+      }
+      a, button, input, select, textarea {
+        border: 2px solid currentColor !important;
+      }
+      :focus-visible {
+        outline: 3px solid currentColor !important;
+        outline-offset: 2px !important;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+  return document;
+}
+
+// Function to add accessible names to SVGs (for export compatibility)
+function addSvgAccessibleNames(document) {
+  return addAccessibleNamesToSVGs(document);
 }
 
 // Implement function for addressing accessibility issues from insight report
@@ -509,9 +690,18 @@ function addressAccessibilityIssues(document) {
   document = googleSignIn(document);
   document = fixButtonIdentifiers(document);
   document = addMainLandmarkToIndex(document);
-  document = ensureElementHasId(document);
+  document = ensureElementHasId(document, '*:not([id])', 'element');
   document = renderDependencyGraphs(document);
   document = ensureDependencyGraphAriaRole(document);
+  
+  // NEW: Continuing accessibility improvements from insight report
+  document = addSkipLink(document);
+  document = ensureFocusIndicators(document);
+  document = addAriaLiveRegions(document);
+  document = fixHeadingHierarchy(document);
+  document = addFormControlLabels(document);
+  document = addHighContrastSupport(document);
+  
   return document;
 }
 

@@ -1,5 +1,5 @@
-// Accessible Insight Report Interface
-// Address accessibility issues from insight report
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');
@@ -16,6 +16,92 @@ const { formatData, validateInput } = require('./utils');
 // _Commit: be4de8ba2d8cf662acf5fe4b707e0c73c8001161
 
 // <!-- todo-hash: d14d2179a6882376acb8784b647ec3c7b0df2897 -->
+
+/**
+ * Renders a dependency graph as an ASCII visualization
+ * @param {Array} nodes - Array of node objects with id and label properties
+ * @param {Array} edges - Array of edge objects with source and target properties
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(nodes, edges) {
+    if (!nodes || !nodes.length) {
+        return 'No dependencies to display';
+    }
+    
+    const graphLines = [];
+    graphLines.push('Dependency Graph:');
+    graphLines.push('================');
+    
+    // Build adjacency representation
+    const adjacency = {};
+    nodes.forEach(node => {
+        adjacency[node.id] = {
+            label: node.label || node.id,
+            dependencies: []
+        };
+    });
+    
+    edges.forEach(edge => {
+        if (adjacency[edge.source] && adjacency[edge.target]) {
+            adjacency[edge.source].dependencies.push(adjacency[edge.target].label);
+        }
+    });
+    
+    // Render each node with its dependencies
+    Object.values(adjacency).forEach(node => {
+        const deps = node.dependencies.length > 0 
+            ? ` -> [${node.dependencies.join(', ')}]` 
+            : '';
+        graphLines.push(`• ${node.label}${deps}`);
+    });
+    
+    return graphLines.join('\n');
+}
+
+/**
+ * Renders an index view with a list of items and their details
+ * @param {Array} items - Array of item objects to display in the index
+ * @param {Object} options - Rendering options (limit, offset, sortBy)
+ * @returns {string} ASCII representation of the index view
+ */
+function renderIndexView(items, options = {}) {
+    if (!items || !items.length) {
+        return 'No items to display';
+    }
+    
+    const { limit = items.length, offset = 0, sortBy = 'id' } = options;
+    const sortedItems = [...items].sort((a, b) => {
+        if (typeof a[sortBy] === 'string') {
+            return a[sortBy].localeCompare(b[sortBy]);
+        }
+        return (a[sortBy] || 0) - (b[sortBy] || 0);
+    });
+    
+    const paginatedItems = sortedItems.slice(offset, offset + limit);
+    const viewLines = [];
+    
+    viewLines.push('Index View:');
+    viewLines.push('==========');
+    viewLines.push(`Total: ${items.length} items | Showing: ${paginatedItems.length}`);
+    viewLines.push('');
+    
+    paginatedItems.forEach((item, index) => {
+        viewLines.push(`${offset + index + 1}. ${item.name || item.label || item.id}`);
+        if (item.description) {
+            viewLines.push(`   ${item.description}`);
+        }
+        if (item.metadata) {
+            viewLines.push(`   [${item.metadata}]`);
+        }
+    });
+    
+    if (items.length > limit) {
+        viewLines.push('');
+        viewLines.push(`Page ${Math.floor(offset / limit) + 1} of ${Math.ceil(items.length / limit)}`);
+    }
+    
+    return viewLines.join('\n');
+}
 
 /**
  * Gets the language attribute value from the document
@@ -586,6 +672,8 @@ if (typeof module !== 'undefined' && module.exports) {
         fixTableStructureIssues,
         addMainLandmark,
         addSvgAccessibleNames,
-        fixFakeLinkIssue
+        fixFakeLinkIssue,
+        renderDependencyGraph,
+        renderIndexView
     };
 }

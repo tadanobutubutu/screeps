@@ -98,6 +98,18 @@ describe('add-contributor', () => {
         });
     });
 
+    describe('getRepo', () => {
+        it('should return valid repo name', () => {
+            process.env.GITHUB_REPOSITORY = 'owner/repo';
+            expect(script.getRepo()).toBe('owner/repo');
+        });
+
+        it('should throw error on invalid/malicious GITHUB_REPOSITORY', () => {
+            process.env.GITHUB_REPOSITORY = '../malicious/path';
+            expect(() => script.getRepo()).toThrow('Invalid GITHUB_REPOSITORY format');
+        });
+    });
+
     describe('getUserInfo', () => {
         it('should fetch user info', async () => {
             const mockUser = { login: 'testuser', name: 'Test User' };

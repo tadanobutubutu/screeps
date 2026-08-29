@@ -91,14 +91,11 @@ function prefersReducedMotion() {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion
-  };
+  replaceMyButtonId();
+  addProperLandmarkRegions();
+  addProperAccountManagement();
+  addARIAAttributes();
+  addAccessibleNamesToSvg();
 }
 
 // TODO: add the new functions or changes requested in the issue
@@ -164,15 +161,6 @@ function deepClone(obj) {
     return cloned;
   }
   return obj;
-}
-
-// Add accessible names to SVG elements
-function addAccessibleNamesToSvg() {
-  const svgs = document.querySelectorAll('svg');
-  if (svgs.length >= 2) {
-    svgs[0].setAttribute('aria-label', 'First SVG');
-    svgs[1].setAttribute('aria-label', 'Second SVG');
-  }
 }
 
 // Export for use in other modules

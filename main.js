@@ -49,7 +49,6 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
   return button;
 }
 
@@ -102,8 +101,30 @@ function addressAccessibilityIssues(insightReport) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  if (!accessibilityReport) {
+    return {
+      totalIssues: 0,
+      resolvedIssues: 0,
+      unresolvedIssues: 0,
+      reportDate: new Date().toISOString(),
+      summary: 'No accessibility data available.',
+      issues: []
+    };
+  }
+
+  const issues = accessibilityReport.issues || [];
+  const resolvedIssues = issues.filter(issue => issue.status === 'resolved');
+  const unresolvedIssues = issues.filter(issue => issue.status !== 'resolved');
+
+  return {
+    totalIssues: issues.length,
+    resolvedIssues: resolvedIssues.length,
+    unresolvedIssues: unresolvedIssues.length,
+    reportDate: new Date().toISOString(),
+    summary: `Accessibility report: ${resolvedIssues.length} of ${issues.length} issues resolved.`,
+    issues: issues,
+    score: calculateAccessibilityScore(resolvedIssues)
+  };
 }
 
 // New function for the issue

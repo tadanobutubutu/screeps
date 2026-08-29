@@ -96,6 +96,59 @@ function addressAccessibilityIssues(insightReport) {
   }
 }
 
+function checkTableAccessibility() {
+  // Implementation for accessibility checks on tables
+  // Verifies table structure, headers, captions, and ARIA attributes
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    // Check for table caption
+    if (!table.querySelector('caption')) {
+      issues.push({
+        type: 'missing-caption',
+        tableIndex: index,
+        message: 'Table is missing a caption element'
+      });
+    }
+
+    // Check for proper header structure
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push({
+        type: 'missing-headers',
+        tableIndex: index,
+        message: 'Table is missing header cells (th)'
+      });
+    }
+
+    // Check for scope attribute on headers
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        issues.push({
+          type: 'missing-scope',
+          tableIndex: index,
+          message: 'Table header is missing scope attribute'
+        });
+      }
+    });
+
+    // Check for proper table semantics
+    if (!table.querySelector('thead') && !table.querySelector('tbody')) {
+      issues.push({
+        type: 'missing-sections',
+        tableIndex: index,
+        message: 'Table is missing thead/tbody sections'
+      });
+    }
+  });
+
+  return {
+    tablesChecked: tables.length,
+    issues
+  };
+}
+
 // TODO: Add back any required exports that might have been removed
 // For example, if a function called 'someFunction' was required elsewhere
 // function someFunction() {
@@ -130,6 +183,7 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
+  checkTableAccessibility,
   config,
   missingExportPlaceholder,
   missingExportPlaceholder

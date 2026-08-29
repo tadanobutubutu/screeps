@@ -1,64 +1,45 @@
-// main.js - Accessibility Checker Module
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Checks accessibility of links and buttons within a given container
- * @param {HTMLElement} container - The container element to check for accessibility issues
- * @returns {Array} - Array of accessibility issues found
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
-function checkLinkAndButtonAccessibility(container) {
-  const issues = [];
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
   
-  // Check links for accessibility
-  const links = container.querySelectorAll('a');
-  links.forEach((link, index) => {
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    const title = link.getAttribute('title');
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
     
-    if (!text && !ariaLabel && !title) {
-      issues.push({
-        type: 'link',
-        index,
-        element: link,
-        message: 'Link is missing accessible text content. Add visible text, aria-label, or title attribute.'
-      });
-    }
-  });
-  
-  // Check buttons for accessibility
-  const buttons = container.querySelectorAll('button, [role="button"]');
-  buttons.forEach((button, index) => {
-    const text = button.textContent.trim();
-    const ariaLabel = button.getAttribute('aria-label');
-    const ariaLabelledby = button.getAttribute('aria-labelledby');
-    const title = button.getAttribute('title');
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
     
-    if (!text && !ariaLabel && !ariaLabelledby && !title) {
-      issues.push({
-        type: 'button',
-        index,
-        element: button,
-        message: 'Button is missing accessible name. Add visible text, aria-label, aria-labelledby, or title attribute.'
-      });
-    }
-  });
-  
-  return issues;
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
 }
 
 // TODO: Create or update the affected functions to be accessible
 
 // Link the new functions to the exports
-import { class1, function1, Object1 } from './path/to/module';
-import dependencyGraphContent from './dependencyGraph';
-
-const fs = require('fs');
-const path = require('path');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: ensureDependencyGraphARIA, getLangAttribute)
 const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
-document.documentElement.lang = getLangAttribute();
 
 // Functions from both branches
 function newFunction1() {
@@ -79,7 +60,7 @@ function rotateBack() {
   // document.getElementById('someElement').classList.add('rotate-backward');
 };
 
-export const metadata = {
+const metadata = {
   title: "Screeps Dashboard",
   description: "Dashboard for Screeps",
 };
@@ -128,6 +109,7 @@ function ensureUniqueLandmarks(document) {
 
 // Export the new functions and merged functions
 module.exports = {
+  countDependencies,
   newFunction1,
   newFunction2,
   rotateBack,
@@ -135,6 +117,7 @@ module.exports = {
   addMainLandmark,
   ensureUniqueLandmarks,
   checkLinkAndButtonAccessibility,
+  metadata,
   //........ (leave any existing exports as is)
 };
 

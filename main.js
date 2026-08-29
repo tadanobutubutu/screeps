@@ -1,3 +1,4 @@
+export { class1, function1, Object1 } from './path/to/module';
 import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Address accessibility issues from insight report:

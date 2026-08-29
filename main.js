@@ -64,7 +64,10 @@ export const validateLandmark = (element) => {
 // Add accessible names to SVGs
 export const fixAccessibleSVGs = () => {
   document.querySelectorAll('svg').forEach(svg => {
-    // ... (add accessible names)
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (!ariaLabel) {
+      svg.setAttribute('aria-label', 'Unnamed SVG');
+    }
   });
 };
 

@@ -96,6 +96,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDashboard,
     setHtmlLangAttribute,
     detectAndSetLang,
-    convertAnchorsToButtons
+    convertAnchorsToButtons,
+    setLanguage
   };
 }

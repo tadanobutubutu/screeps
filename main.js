@@ -115,7 +115,7 @@ function renderPage(data) {
 function specificFunctionThatRendersGraphOrIndex() {
   // Call the updated functions to render the graph or index as needed
   renderDependencyGraph(dependencyGraphContent);
-  renderIndex();
+  renderIndex(indexContent);
 }
 
 // Exporting if necessary (no exports were requested to be removed)

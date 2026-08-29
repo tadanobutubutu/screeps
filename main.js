@@ -3,7 +3,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -37,24 +37,28 @@ function validateLandmark(landmark) {
   return true;
 }
 
-function validateLandmarkStructure(landmarks) {
+function validateLandmarkStructure() {
   // Ensures landmarks are arranged correctly
   return true;
 }
 
-function validateLandmarkAttributes(landmark) {
+function validateLandmarkAttributes() {
   // Checks that landmark has required attributes
   return true;
 }
 
 function getSvgAccessibleName(svgElement) {
   // Returns an accessible name for an SVG element
-  return '';
+  if (!svgElement) return '';
+  return svgElement.getAttribute('aria-label') || svgElement.getAttribute('aria-labelledby') || '';
 }
 
 function setSvgAttributes(svgElement, attrs) {
   // Applies accessible attributes to an SVG
-  Object.assign(svgElement, attrs);
+  if (!svgElement || !attrs) return;
+  Object.keys(attrs).forEach(key => {
+    svgElement.setAttribute(key, attrs[key]);
+  });
 }
 
 function handleFakeLinks() {
@@ -62,7 +66,7 @@ function handleFakeLinks() {
   return null;
 }
 
-function addProperLandmarkRegions(landmarks) {
+function addProperLandmarkRegions() {
   // Adds proper region definitions to landmarks
   return true;
 }

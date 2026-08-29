@@ -12,4 +12,12 @@ function addLandmarkRegions() {
   }
 }
 
-export { addLandmarkRegions };
+// New function to ensure proper ARIA role for the container
+function setARIAroleForContainer() {
+  const container = document.getElementById('landmark-regions-container');
+  if (container) {
+    container.setAttribute('role', 'landmark');
+  }
+}
+
+export { addLandmarkRegions, setARIAroleForContainer };

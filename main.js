@@ -150,11 +150,30 @@ function addAriaToFormControls() {
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
+// [NEW] Example of a new function to address a hypothetical accessibility issue
+function improveTableAccessibility() {
+  // Example: Adding ARIA roles to table headers for better screen reader support
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach((header, index) => {
+      if (!header.hasAttribute('role')) {
+        header.setAttribute('role', 'columnheader');
+      }
+      // If the header has content, add it as the column's label
+      if (header.textContent) {
+        header.setAttribute('aria-label', header.textContent);
+      }
+    });
+  });
+}
+
 replaceMyButtonId();
 
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
+improveTableAccessibility();
 
 module.exports = {
   addProperLandmarkRegions,

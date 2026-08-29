@@ -10,10 +10,10 @@ const SomeModule = {
 module.exports = SomeModule;
 
 // Export any constants or configurations that might be used elsewhere
-module.exports.ROLE_SOME_ROLE = 'someRole';
+const ROLE_SOME_ROLE = 'someRole';
 
 // Export any additional helper functions that others might need access to
-module.exports.someHelperFunction = function() {
+const someHelperFunction = function() {
   return 'This is a helper function';
 };
 
@@ -21,23 +21,22 @@ module.exports.someHelperFunction = function() {
 const config = {
   SOME_SETTING: true
 };
-module.exports.config = config;
 
 // Generalized accessibility functions
 
 function setSvgAccessibleName(svg, name) {
   if (!svg) {
-    console.warn('setSvgAccessibleName: SVG element is required');
+    console.error('SVG element is required');
     return;
   }
   svg.setAttribute('aria-label', name);
 }
 
 function improveAccessibility() {
-  renderDependencyGraphContent(document.querySelector('.dependency-graph_content, [data-dependency-graph-content]'));
+  // ... ...
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -62,7 +61,7 @@ function ensureLandmarkUniqueness(elements) {
         uniqueElements.push(el);
       } else {
         // Remove the role if it's not unique
-        elementsById[id].forEach(el => delete el.role);
+        elementsById[id].forEach(elem => delete elem.role);
       }
     });
   });
@@ -86,19 +85,20 @@ function ensureLandmarkUniqueness(elements) {
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
+function ensureUniqueLandmarks() {
+  // Wrapper function for ensureLandmarkUniqueness
   // Adapted for Screeps environment
-  const uniqueElements = ensureUniqueLandmarkRoles();
+  const uniqueElements = {};
 
-  Game.spawns.forEach((spawn, id) => {
+  Object.keys(Game.spawns).forEach(id => {
     if (uniqueElements.spawn) {
-      spawn.memory.landmarkRole = uniqueElements.spawn[0].name;
+      Game.spawns[id].memory.landmarkRole = uniqueElements.spawn[0].name;
     }
   });
 
-  Game.extensions.forEach((extension, id) => {
+  Object.keys(Game.extensions).forEach(id => {
     if (uniqueElements.extension) {
-      extension.memory.landmarkRole = uniqueElements.extension[0].name;
+      Game.extensions[id].memory.landmarkRole = uniqueElements.extension[0].name;
     }
   });
 
@@ -108,7 +108,16 @@ function addLandmarkRolesAndFixIssues() {
     }
   });
 
-  addAriaLabelToSVGsWithoutAccessibleName();
+  // Additional structures handling
+  Object.keys(Game.structures).forEach(id => {
+    const structure = Game.structures[id];
+    if (structure.structureType === 'storage' && uniqueElements.storage) {
+      structure.memory.landmarkRole = uniqueElements.storage[0].name;
+    }
+    if (structure.structureType === 'terminal' && uniqueElements.terminal) {
+      structure.memory.landmarkRole = uniqueElements.terminal[0].name;
+    }
+  });
 }
 
 function addressInsightIssues(insightReport) {
@@ -125,9 +134,13 @@ function addressInsightIssues(insightReport) {
           el['aria-label'] = el.id || 'unnamed-element';
         }
       });
-      addProperLandmarkRegions(issue.data || []);
+      const nestedElements = issue.nestedElements || [];
     }
   });
+}
+
+function renderDependencyGraphContent(dependencyData) {
+  console.log('Rendering dependency graph content with data:', dependencyData);
 }
 
 function renderDependencyGraph(dependencyData) {
@@ -150,15 +163,10 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues,
+  ensureLandmarkUniqueness,
   // Additional exports from left side
   ROLE_SOME_ROLE: 'someRole',
-  someHelperFunction: function() {
-    return 'This is a helper function';
-  },
-  config: {
-    SOME_SETTING: true
-  }
+  someHelperFunction: someHelperFunction,
+  config: config
 };

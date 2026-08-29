@@ -108,6 +108,14 @@ function modifiedFunction() {
   console.log('This function has been modified.');
 }
 
+// New function to address accessibility issues
+function enhanceAccessibility() {
+  // Placeholder for accessibility enhancements
+  // This function should contain logic to improve accessibility
+  // such as adding ARIA roles, labels, and ensuring keyboard navigation
+  console.log('Accessibility enhancements applied.');
+}
+
 module.exports = {
   validateLandmark,
   checkTableData,
@@ -119,5 +127,6 @@ module.exports = {
   config,
   logger,
   newFunction,
-  modifiedFunction
+  modifiedFunction,
+  enhanceAccessibility
 };

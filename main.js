@@ -1,13 +1,24 @@
-// Could you please provide the complete current contents of main.js?
-// The issue described is about adding <main> landmarks to HTML files (docs/index.html),
-// not about modifying main.js itself.
+// Assuming you have getHTMLDocument() and getCurrentLanguage() functions
+import { getHTMLDocument, getCurrentLanguage } from './utils';
 
-// If you're experiencing merge conflicts in main.js, please share:
-// 1. The current content of main.js
-// 2. Any error messages you're seeing
+// Get the HTML document
+const htmlDocument = getHTMLDocument();
 
-// Based on the issue description, it appears the fix should be applied to:
-// - docs/index.html (add <main> landmark around primary content)
+// Add lang attribute to HTML element
+htmlDocument.lang = getCurrentLanguage();
 
-// Please paste the main.js content so I can help you preserve existing code
-// while making any necessary additions.
+// Add main landmark
+const mainContent = htmlDocument.getElementsByTagName('main')[0] ||
+                     htmlDocument.querySelector('main');
+if (!mainContent) {
+  const main = document.createElement('main');
+  main.id = 'main-content';
+  // Place the main content inside the main element
+  // This should be replaced with appropriate HTML structure from your page
+  main.innerHTML = `
+    <article>
+      <!-- Other existing content here -->
+    </article>
+  `;
+  htmlDocument.body.insertBefore(main, htmlDocument.body.firstChild);
+}

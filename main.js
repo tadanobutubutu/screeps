@@ -10,11 +10,45 @@ const appData = {};
 
 let uniqueLandmarks = {};
 
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
+function toRad(deg) {
+  return deg * (Math.PI / 180);
+}
+
+// Function for checking landmark elements
+function checkLandmarkElements(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return false;
+  }
+  
+  if (landmarks.length === 0) {
+    return false;
+  }
+  
+  return landmarks.every(landmark => {
+    if (!landmark) return false;
+    return landmark.id || landmark.name;
+  });
+}
+
+// Function for ensuring unique landmarks
+function ensureUniqueLandmarks(insightReport) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark) return false;
+    
+    const identifier = landmark.id || landmark.name;
+    
+    if (seen.has(identifier)) {
+      return false;
+    }
+    seen.add(identifier);
+    return true;
+  });
+}
 
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
@@ -43,7 +77,6 @@ function implementNewFunction() {
   addSvgAccessibleNames();
 }
 
-// Address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
@@ -130,6 +163,7 @@ module.exports = {
   calculateDistance,
   toRad,
   ensureUniqueLandmarks,
+  checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
   newFunction

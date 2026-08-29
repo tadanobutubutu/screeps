@@ -4,16 +4,17 @@
 // Sample main.js with dependencyGraph container
 function renderDependencyGraph() {
   const container = document.getElementById('dependencyGraph');
-  
+
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
   }
-  
+
   return container;
 }
 
 // TODO: Implement the new function as per the issue requirements
+// TODO: Add back any required exports that might have been removed
 
 /**
  * Implements the new feature as required by the issue.
@@ -27,7 +28,12 @@ function implementNewFunction(input) {
   return input;
 }
 
-module.exports = {
+/**
+ * @type {{ renderDependencyGraph: Function, implementNewFunction: Function }}
+ */
+const mainExports = {
   renderDependencyGraph,
   implementNewFunction
 };
+
+module.exports = mainExports;

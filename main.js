@@ -60,6 +60,15 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  createInPageButton: function(label, onClick) {
+    const button = document.createElement('button');
+    button.textContent = label;
+    button.type = 'button';
+    button.addEventListener('click', onClick);
+    document.body.appendChild(button);
+    return button;
   }
 };
 

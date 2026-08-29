@@ -178,3 +178,12 @@ const Dashboard = (props) => {
 };
 
 export default Dashboard;
+
+// Implement wrapPrimaryContentInMain function, including the added logic
+export const wrapPrimaryContentInMain = (content) => {
+  return (
+    <main role="main" aria-label="Primary Content">
+      {content}
+    </main>
+  );
+};

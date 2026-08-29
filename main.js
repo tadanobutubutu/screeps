@@ -18,7 +18,6 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -38,9 +37,110 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+function validateTableAccessibility(table) {
+  if (!table) {
+    return { valid: false, errors: ['Table is not provided'] };
+  }
+
+  const errors = [];
+  const warnings = [];
+
+  if (!table.tagName || table.tagName.toLowerCase() !== 'table') {
+    errors.push('Element is not a <table> element');
+  }
+
+  if (table.caption && !table.caption.trim()) {
+    errors.push('Table has an empty <caption> element');
+  } else if (!table.caption && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+    warnings.push('Table is missing a <caption> or aria-label/aria-labelledby attribute');
+  }
+
+  if (table.summary && !table.summary.trim()) {
+    errors.push('Table has an empty summary attribute');
+  }
+
+  const rows = table.rows || [];
+  if (rows.length === 0) {
+    errors.push('Table has no rows');
+  } else {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const cells = row.cells || [];
+      for (let j = 0; j < cells.length; j++) {
+        const cell = cells[j];
+        if (cell.tagName && cell.tagName.toLowerCase() === 'td' && !cell.scope) {
+          const rowSpan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+          if (rowSpan > 1) {
+            warnings.push(`Cell at row ${i}, column ${j} uses rowspan but is not a <th> with scope`);
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+function validateTableStructure(table) {
+  if (!table) {
+    return { valid: false, errors: ['Table is not provided'] };
+  }
+
+  const errors = [];
+  const warnings = [];
+
+  if (!table.tagName || table.tagName.toLowerCase() !== 'table') {
+    errors.push('Element is not a <table> element');
+  }
+
+  const rows = table.rows || [];
+  if (rows.length === 0) {
+    errors.push('Table has no rows');
+    return { valid: false, errors, warnings };
+  }
+
+  const firstRowCellCount = (rows[0].cells || []).length;
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].cells || [];
+    if (cells.length !== firstRowCellCount) {
+      errors.push(`Row ${i} has ${cells.length} cells, expected ${firstRowCellCount}`);
+    }
+  }
+
+  const thead = table.tHead;
+  const tbody = table.tBodies;
+  const tfoot = table.tFoot;
+
+  if (thead && thead.rows.length > 0) {
+    const headerCells = thead.rows[0].cells || [];
+    for (let i = 0; i < headerCells.length; i++) {
+      const cell = headerCells[i];
+      if (cell.tagName && cell.tagName.toLowerCase() === 'th' && !cell.scope) {
+        warnings.push(`Header cell at index ${i} is missing a scope attribute`);
+      }
+    }
+  }
+
+  if (tbody.length === 0) {
+    errors.push('Table has no <tbody> section');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure
 };

@@ -29,14 +29,14 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Apply ARIA attributes to SVG elements
+  // Apply ARIA attributes to SVG elements (dependency graph renderers)
   addSVGAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
       svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', 'svg-title');
       const titleText = svg.getAttribute('title') || 'Image description';
-      const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
+      const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
       svg.setAttribute('aria-describedby', descriptionId);
 
       const descriptionElement = document.createElement('desc');
@@ -53,7 +53,7 @@ const a11yStore = {
       svg.setAttribute('role', 'img');
       if (!svg.getAttribute('aria-labelledby')) {
         const titleText = svg.getAttribute('title') || 'Image description';
-        const descriptionId = `svg-description-${Math.round(Math.random() * 1000)}`;
+        const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
         svg.setAttribute('aria-labelledby', descriptionId);
 
         const descriptionElement = document.createElement('desc');

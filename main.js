@@ -1,12 +1,9 @@
-Here is the resolved file content:
-
-```javascript
-const {
+import {
   getLangAttribute,
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} from './accessibilityHelperFunctions';
 
 const a11yStore = {
   init() {
@@ -218,6 +215,3 @@ export {
   renderDependencyGraph,
 };
 export default a11yStore;
-```
-
-The differences between the two branches have been resolved by integrating the methods `makeAccessible` and `newNecessaryFunction`, and their respective logic. The function `handleAccessibilityIssues` has been created to encompass the logic from both branches to address accessibility issues. The remaining functions and the `a11yStore` object have been preserved, with some line adjustments to accommodate the new code.

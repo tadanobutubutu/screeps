@@ -8,8 +8,13 @@
 // Example new function exports:
 module.exports = {
   // ... existing exports ...
-  
+
   // Add new functions here:
   // functionName: function() { ... },
-  // anotherFunction: () => { ... }
+  // anotherFunction: () => { ... },
+
+  // New function example:
+  calculateSum: function(a, b) {
+    return a + b;
+  }
 };

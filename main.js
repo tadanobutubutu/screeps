@@ -58,7 +58,7 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    ... 'en');
     fetchData();
   }, []);
 
@@ -126,10 +126,10 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   title.textContent = accessibleName;
 
   // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
+  svgElement.insertBefore(title, ...);
 
   // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
+  ... title.id);
 }
 
 export function isValidLink(element) {
@@ -193,6 +193,11 @@ function generateAccessibilityReport(insightReport) {
 
   return lines.join('\n');
 }
+
+// <!--- END MODIFIED FUNCTION --->
+//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
+//<!-- todo-hash: ... -->
+// <!--- Any other modifications or additions go here --->
 
 module.exports.generateAccessibilityReport = generateAccessibilityReport;
 

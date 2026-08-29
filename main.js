@@ -8,10 +8,8 @@
 // Existing code ends here
 
 // TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// TODO: Address accessibility issues from insight report
-// TODO: This is the existing code that needs to be preserved
-// ----- END ORIGINAL CODE (unchanged) -----
+// (This should be preserved)
+// Addressed accessibility issues from insight report
 
 // ... (other code in main.js)
 

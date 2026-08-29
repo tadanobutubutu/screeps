@@ -65,9 +65,7 @@ const a11yStore = {
     this.setupFocusStyles();
     this.setupFocusVisiblePolyfill();
     this.validateARIA();
-    this.checkLandmarkElements();
     this.addProperLandmarkRegions();
-    this.addSVGAccessibility();
     this.validateARIAUsage();
   },
 
@@ -83,7 +81,52 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  // Announce message to screen readers
+  // Apply ARIA attributes to SVG elements (dependency graph renderers)
+  addSVGAccessibility() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      // Ensure SVG has a title for accessible name
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image'; // Default accessible name
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      // Ensure title has an ID for aria-labelledby
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      // Set aria-labelledby to point to the title
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      // Add role img if not present (redundant but safe)
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  // Apply ARIA attributes to dynamically added elements
+  enhanceSVG() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      svg.setAttribute('role', 'img');
+      if (!svg.getAttribute('aria-labelledby')) {
+        const titleText = svg.getAttribute('title') || 'Image description';
+        const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
+        svg.setAttribute('aria-labelledby', descriptionId);
+
+        const descriptionElement = document.createElement('desc');
+        descriptionElement.id = descriptionId;
+        descriptionElement.textContent = titleText;
+        svg.appendChild(descriptionElement);
+      }
+    });
+  },
+
+  // Announce message to screen reader via live region
   announce(message, priority = 'polite') {
     if (!this.liveRegion) return;
 
@@ -330,33 +373,6 @@ const a11yStore = {
     });
   },
 
-  // New function to add SVG accessibility props
-  addSVGAccessibility() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      // Ensure SVG has a title for accessible name
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image'; // Default accessible name
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      // Ensure title has an ID for aria-labelledby
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      // Set aria-labelledby to point to the title
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      // Add role img if not present (redundant but safe)
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
   // New function to validate ARIA usage
   validateARIAUsage() {
     const ariaElements = document.querySelectorAll('[role]');
@@ -533,17 +549,8 @@ const a11yStore = {
     
     const handlePointerDown = () => {
       hadKeyboardEvent = false;
-    };
-    
-    const showRemaining = () => {
       document.documentElement.classList.remove('focus-visible');
       document.documentElement.classList.add('focus-hidden');
-    };
-    
-    const handleBlur = (e) => {
-      if (e.target.matches(':focus-visible')) {
-        hadKeyboardEvent = true;
-      }
     };
     
     const handleKeydown = (e) => {
@@ -636,11 +643,13 @@ function dependencyGraph() {
   // ... existing code ...
 }
 
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//<!-- todo-hash: 7f2ab35b57bfccc9cfa0cc855b6cbfb5f8b90694 -->
+
+//_Commit: aa1879c8278e8e6ef85c5690a343653ff5c5e3d8_
+
+// Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// Commit: aa1879c8278e8e6ef85c5690a343653ff5c5e3d8_
 
 const existingConst1 = {
   // Existing constant 1 definition
@@ -723,11 +732,6 @@ function validateLinkAccessibility() {
 function handleFakeLinks() {
   // ... existing code ...
 }
-
-// Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
 
 module.exports = {
   existingFunction1,

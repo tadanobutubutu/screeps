@@ -59,6 +59,17 @@ const config = {
   enabled: true
 };
 
+// Implement this function for accessibility checks on tables
+function accessibilityCheckTables() {
+  // Your implementation for accessibility checks on tables goes here
+  // For example, you could iterate over all tables and call the existing validation functions
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+}
+
 module.exports = {
     run,
     main,
@@ -75,8 +86,6 @@ module.exports = {
     createInPageButton,
     createAccessibleLink,
     a11yStore,
-    mainElement
+    mainElement,
+    accessibilityCheckTables
 };
-```
-
-This version of the file integrates both changes, keeps the accessibility improvements and the imported functions, and preserves the game-related functions and exports.

@@ -294,7 +294,7 @@ const a11yStore = {
   },
 
   // Create skip-to-main-content button
-  createInPageButton() {
+  createSkipToMainButton() {
     const button = document.createElement('button');
     button.textContent = 'Skip to main content';
     button.addEventListener('click', () => {

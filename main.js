@@ -206,6 +206,10 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
+function calculateSum(a, b) {
+  return a + b;
+}
+
 module.exports = {
   rotateBack,
   createUnrotateButton,
@@ -217,5 +221,6 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
-  fixTableStructure
+  fixTableStructure,
+  calculateSum
 };

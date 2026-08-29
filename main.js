@@ -10,7 +10,7 @@ module.exports.loop = function() {
     }
 
     // TODO: Add implementation details
-    
+
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
 
@@ -38,5 +38,10 @@ module.exports.loop = function() {
         if(creep.memory.role == 'upgrader') {
             roleUpgrader.run(creep);
         }
+    }
+
+    // Add the new calculateSum function
+    function calculateSum(a, b) {
+        return a + b;
     }
 }

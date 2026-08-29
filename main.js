@@ -36,6 +36,30 @@ const mainElement = document.createElement('main');
 document.documentElement.setAttribute('lang', 'en');
 document.body.appendChild(mainElement);
 
+// Add the requested function here
+function updateThScopeAttribute(filePath) {
+  // Open the HTML file
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+
+  // Find all the <th> elements
+  const thElements = fileContent.match(/<th.*?>/g);
+
+  if (thElements) {
+    for (const th of thElements) {
+      // Generate a unique id for each TH element
+      const id = `th-${Date.now()}-${Math.floor(Math.random() * 1e5)}`;
+      // Add 'scope="col"' attribute to the TH element using the id
+      const updatedTh = th.replace(/<\/th>/, ` id="${id}" scope="col" />`);
+
+      // Replace the originally found TH element with the updated one in the HTML content
+      fileContent = fileContent.replace(th, updatedTh);
+    }
+
+    // Save the updated HTML file
+    fs.writeFileSync(filePath, fileContent, 'utf8');
+  }
+}
+
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
@@ -73,5 +97,7 @@ module.exports = {
   createInPageButton,
   createAccessibleLink,
   a11yStore,
-  mainElement
+  mainElement,
+  // Add the new export here
+  updateThScopeAttribute
 };

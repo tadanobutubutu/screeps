@@ -651,6 +651,22 @@ function newFunction() {
 
 // Original code with accessibility issue
 function dependencyGraph() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  let container = document.getElementById('dependencyGraph');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'dependencyGraph';
+    document.body.appendChild(container);
+  }
+
+  // Set appropriate ARIA role and label
+  if (!container.getAttribute('role')) {
+    container.setAttribute('role', 'region');
+  }
+  if (!container.getAttribute('aria-label')) {
+    container.setAttribute('aria-label', 'Dependency graph');
+  }
+
   // ... existing code ...
 }
 

@@ -19,6 +19,8 @@ const newFunction = () => {
 };
 
 // TODO: Address accessibility issues from insight report:
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 // ... (Keep the existing functions that have been marked as 'DONE:')
 function validateTableAccessibility(document) {
   // Implementation for table accessibility validation

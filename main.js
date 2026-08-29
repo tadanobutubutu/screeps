@@ -1,68 +1,86 @@
-// main.js
-// Implementation of unique landmark functions
+// main.js - Combined utility and accessibility features
 
-// Global set to track used landmark IDs
-const _usedLandmarkIds = new Set();
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
 
-/**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
- */
 function ensureUniqueLandmarkId(baseName) {
-    let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
-    }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
-}
+  let candidate = baseName;
+  const _usedLandmarkIds = new Set();
 
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
-}
-
-/**
- * This function gets the full language attribute with region (if provided)
- * @returns {string} - the full language attribute with region (if provided)
- */
-function getFullLangAttribute() {
-    return document.documentElement.lang || '';
-}
-
-/**
- * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
- * Assumes you have already set the id on the button element in your code.
- */
-function replaceMyButtonId() {
-  const button = document.querySelector('.my-button');
-  if (button) {
-    button.id = 'exampleButton';
-    button.classList.remove('my-button');
+  if (_usedLandmarkIds.has(candidate)) {
+    // Collision handling: add random suffix
+    const suffix = Math.random().toString(36).substring(2, 9);
+    candidate = `${baseName}-${suffix}`;
   }
+
+  _usedLandmarkIds.add(candidate);
+
+  return candidate;
 }
 
-/**
- * Adds proper ARIA landmark regions to the document.
- * This improves screen reader navigation by ensuring proper landmark roles.
- *
- * @returns {void}
- */
+function uniqueLandmarks(landmarks) {
+  const seen = new Set();
+  const result = [];
+
+  for (const lm of landmarks) {
+    if (!seen.has(lm.id)) {
+      seen.add(lm.id);
+      result.push(lm);
+    }
+  }
+
+  return result;
+}
+
+// Accessibility helper function for keyboard navigation
+function setupKeyboardNavigation(element, options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+
+  element.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'Enter':
+        if (onEnter) onEnter(event);
+        break;
+      case 'Escape':
+        if (onEscape) onEscape(event);
+        break;
+      case 'ArrowUp':
+        if (onArrowUp) {
+          event.preventDefault();
+          onArrowUp(event);
+        }
+        break;
+      case 'ArrowDown':
+        if (onArrowDown) {
+          event.preventDefault();
+          onArrowDown(event);
+        }
+        break;
+    }
+  });
+}
+
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  });
+}
+
 function addProperLandmarkRegions() {
   // Create main landmark
   const main = document.querySelector('main') || document.createElement('main');
@@ -92,73 +110,22 @@ function addProperLandmarkRegions() {
   });
 }
 
-/**
- * Adds proper ARIA account management elements to the document.
- * This includes adding `aria-expanded` attributes for collapsible menus,
- * and adding `aria-label` to form elements.
- *
- * @returns {void}
- */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
   const collapsibles = document.querySelectorAll('[aria-expanded]');
   collapsibles.forEach(collapsible => {
     if (collapsible.getAttribute('aria-expanded') === 'true') {
       collapsible.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach((input, index) => {
-    const id = input.id || `input-${index}`;
-    input.id = id;
-    if (!input.getAttribute('aria-label')) {
-      input.setAttribute('aria-label', `Input field ${index + 1}`);
+>>>>>>> origin/main
     }
   });
 }
 
-/**
- * Adds ARIA attributes to form controls for better accessibility.
- * This function focuses on ensuring that form controls have proper labeling and roles.
- *
- * @returns {void}
- */
-function addAriaToFormControls() {
-  // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('input, select, textarea');
+function addressAccessibilityIssues(insightReport) {
+  // Implementation to address accessibility issues from an insight report.
+  // Apply specific accessibility fixes here based on the report's structure.
+  // For now, we simply return the report unchanged.
+  return insightReport;
 
-  formControls.forEach(control => {
-    // Ensure all form controls have accessible names
-    if (control.id && !control.getAttribute('aria-label')) {
-      const label = document.querySelector(`label[for="${control.id}"]`) || null;
-      if (label) {
-        label.id = label.id || `label-${control.id}`;
-        control.setAttribute('aria-labelledby', label.id);
-      }
-    }
-
-    // Mark required fields appropriately
-    if (control.required && !control.getAttribute('aria-required')) {
-      control.setAttribute('aria-required', 'true');
-    }
-  });
+  // ... other existing code ...
 }
-
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-
-replaceMyButtonId();
-addProperLandmarkRegions();
-
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getLangAttribute,
-  getFullLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks
-};

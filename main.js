@@ -28,6 +28,20 @@ import { appStarted } from './events/appStarted.js';
 // Landmark data structure
 const landmarks = [];
 
+// TODO: Re-add the required exports for functionA and functionB
+// Assuming that they are objects with properties X, Y, and Z
+const functionA = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
+const functionB = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
 /**
  * Function to check if the specified landmark element is in the document.
  * @param {string} id - The ID of the landmark element.
@@ -317,5 +331,7 @@ export {
     ensureUniqueLandmarkElements,
     addSVGAccessibleName,
     fixFakeLinks,
-    landmarks
+    landmarks,
+    functionA,
+    functionB
 };

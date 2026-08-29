@@ -279,3 +279,58 @@ function googleSignIn(document) {
       );
     }
   }
+}
+
+// Function to render the index view
+function renderIndexView(document, data = {}) {
+  const mainElement = document.querySelector('main') || document.getElementById('main-content') || document.body;
+
+  // Clear existing content in the main element
+  while (mainElement.firstChild) {
+    mainElement.removeChild(mainElement.firstChild);
+  }
+
+  // Create the index view container
+  const indexView = document.createElement('div');
+  indexView.className = 'index-view';
+  indexView.setAttribute('role', 'region');
+  indexView.setAttribute('aria-label', 'Index View');
+
+  // Add a heading
+  const heading = document.createElement('h1');
+  heading.textContent = data.title || 'Index';
+  heading.id = 'index-view-heading';
+  indexView.appendChild(heading);
+
+  // Create a list to hold index items
+  const list = document.createElement('ul');
+  list.setAttribute('aria-labelledby', 'index-view-heading');
+  list.className = 'index-list';
+
+  const items = Array.isArray(data.items) ? data.items : [];
+  items.forEach((item) => {
+    const listItem = document.createElement('li');
+    listItem.className = 'index-item';
+
+    if (item && item.url) {
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.textContent = item.label || item.url;
+      if (item.description) {
+        link.setAttribute('aria-label', item.description);
+      }
+      listItem.appendChild(link);
+    } else if (item && item.label) {
+      const text = document.createElement('span');
+      text.textContent = item.label;
+      listItem.appendChild(text);
+    }
+
+    list.appendChild(listItem);
+  });
+
+  indexView.appendChild(list);
+  mainElement.appendChild(indexView);
+
+  return indexView;
+}

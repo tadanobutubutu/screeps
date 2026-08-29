@@ -1,5 +1,6 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
+//   <html lang="en">
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
@@ -247,4 +248,3 @@ if (typeof module !== 'undefined' && module.exports) {
     addUniqueLandmarkId
   };
 }
-```

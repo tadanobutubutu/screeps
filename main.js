@@ -58,7 +58,18 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
+  function renderDependencyGraph() {
+    // Placeholder for rendering dependency graph logic
+    console.log('Rendering dependency graph...');
+  }
+
+  function displayModuleStructure() {
+    // Placeholder for displaying module structure logic
+    console.log('Displaying module structure...');
+  }
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues, renderDependencyGraph, displayModuleStructure };

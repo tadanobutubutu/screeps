@@ -414,6 +414,11 @@ export {
   setAccessibleName,
   addProperLandmarkRegions,
   addressAccessibilityIssues,
+  addLangAttribute,
+  fixTableStructureIssues,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
 };
 
 // New functions to be added

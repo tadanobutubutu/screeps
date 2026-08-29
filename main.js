@@ -1,6 +1,3 @@
-Here is the resolved version of the file, merging both changes:
-
-```javascript
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -51,7 +48,54 @@ function renderDependencyGraphContent(data) {
   }
 }
 
-// Rest of the code remains unchanged
-```
+// Render dependency graph
+function renderDependencyGraph(modules) {
+  let graphHTML = '<ul class="dependency-list">';
+  modules.forEach(module => {
+    graphHTML += `<li>${module.name}`;
+    if (module.dependencies && module.dependencies.length > 0) {
+      graphHTML += renderDependencyGraph(module.dependencies);
+    }
+    graphHTML += '</li>';
+  });
+  graphHTML += '</ul>';
+  renderDependencyGraphContent(graphHTML);
+}
 
-This resolves the merge conflict by preserving both changes, importing/requiring the functions necessary from both branches, and integrating the original code while adding the new functions for ensuring unique landmarks and adding proper landmark regions. Also, I've added the necessary exports for those functions.
+// Display module structure
+function displayModuleStructure(modules) {
+  let structureHTML = '<div class="module-structure">';
+  modules.forEach(module => {
+    structureHTML += `<div class="module" data-module-name="${module.name}">`;
+    structureHTML += `<h3>${module.name}</h3>`;
+    if (module.imports) {
+      structureHTML += '<details><summary>Imports</summary><ul>';
+      module.imports.forEach(imp => {
+        structureHTML += `<li>${imp}</li>`;
+      });
+      structureHTML += '</ul></details>';
+    }
+    if (module.exports) {
+      structureHTML += '<details><summary>Exports</summary><ul>';
+      module.exports.forEach(exp => {
+        structureHTML += `<li>${exp}</li>`;
+      });
+      structureHTML += '</ul></details>';
+    }
+    structureHTML += '</div>';
+  });
+  structureHTML += '</div>';
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  if (container) {
+    container.innerHTML = structureHTML;
+  }
+}
+
+// Export the new functions
+module.exports = {
+  renderDependencyGraph,
+  displayModuleStructure,
+  renderDependencyGraphContent
+};
+
+// Rest of the code remains unchanged

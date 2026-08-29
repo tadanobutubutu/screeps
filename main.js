@@ -110,11 +110,12 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     // Ensure skip link functionality if present
-    const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
+    const skipLink = document.querySelector('a[href^="#"]');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href') || '#main-content');
+        const targetId = skipLink.getAttribute('href') || '#main-content';
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();

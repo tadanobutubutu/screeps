@@ -85,7 +85,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// 73: // TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   // ...
@@ -124,6 +124,152 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// TODO: Implement this function for checking landmark elements
+function validateLandmark(element) {
+  if (!element) {
+    return { valid: false, error: 'Element is required' };
+  }
+
+  const landmarkRoles = [
+    'banner',
+    'main',
+    'navigation',
+    'search',
+    'contentinfo',
+    'complementary',
+    'region',
+    'form'
+  ];
+
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+
+  const implicitLandmarks = {
+    'header': 'banner',
+    'main': 'main',
+    'nav': 'navigation',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'form'
+  };
+
+  let landmarkRole = role;
+
+  if (!landmarkRole && implicitLandmarks[tagName]) {
+    landmarkRole = implicitLandmarks[tagName];
+  }
+
+  if (!landmarkRole) {
+    return { 
+      valid: false, 
+      error: 'Element does not have a valid landmark role',
+      element: tagName
+    };
+  }
+
+  if (!landmarkRoles.includes(landmarkRole)) {
+    return { 
+      valid: false, 
+      error: `Invalid landmark role: ${landmarkRole}`,
+      element: tagName,
+      role: landmarkRole
+    };
+  }
+
+  if (landmarkRole === 'region' && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+    return { 
+      valid: false, 
+      error: 'Region landmark must have an accessible name (aria-label or aria-labelledby)',
+      element: tagName,
+      role: landmarkRole
+    };
+  }
+
+  return { 
+    valid: true, 
+    role: landmarkRole,
+    element: tagName
+  };
+}
+
+function validateLandmarkStructure(documentOrElement) {
+  const root = documentOrElement || document;
+  const landmarks = root.querySelectorAll('[role="banner"], [role="main"], [role="navigation"], [role="search"], [role="contentinfo"], [role="complementary"], [role="region"], [role="form"], header, main, nav, aside, footer, section, form');
+  
+  const results = [];
+  const seenRoles = new Set();
+  const duplicateRoles = [];
+
+  landmarks.forEach((landmark) => {
+    const validation = validateLandmark(landmark);
+    results.push({
+      element: landmark,
+      ...validation
+    });
+
+    if (validation.valid && validation.role) {
+      if (seenRoles.has(validation.role)) {
+        duplicateRoles.push(validation.role);
+      } else {
+        seenRoles.add(validation.role);
+      }
+    }
+  });
+
+  const hasMain = results.some(r => r.valid && r.role === 'main');
+  const mainCount = results.filter(r => r.valid && r.role === 'main').length;
+
+  return {
+    landmarks: results,
+    summary: {
+      total: results.length,
+      valid: results.filter(r => r.valid).length,
+      invalid: results.filter(r => !r.valid).length,
+      hasMainLandmark: hasMain,
+      mainLandmarkCount: mainCount,
+      duplicateRoles: [...new Set(duplicateRoles)]
+    }
+  };
+}
+
+function ensureUniqueLandmarks(documentOrElement) {
+  const validation = validateLandmarkStructure(documentOrElement);
+  const fixes = [];
+
+  validation.summary.duplicateRoles.forEach(role => {
+    const elements = validation.landmarks
+      .filter(l => l.valid && l.role === role)
+      .map(l => l.element);
+
+    elements.forEach((element, index) => {
+      if (index > 0) {
+        const uniqueLabel = `${role} ${index + 1}`;
+        if (element.hasAttribute('aria-labelledby')) {
+          fixes.push({
+            element,
+            fix: 'aria-labelledby',
+            message: `Consider updating aria-labelledby for duplicate ${role} landmark`
+          });
+        } else if (!element.hasAttribute('aria-label')) {
+          element.setAttribute('aria-label', uniqueLabel);
+          fixes.push({
+            element,
+            fix: 'aria-label',
+            value: uniqueLabel,
+            message: `Added aria-label="${uniqueLabel}" to duplicate ${role} landmark`
+          });
+        }
+      }
+    });
+  });
+
+  return {
+    ...validation,
+    fixes
+  };
+}
+
 // Export all functions and values
 module.exports = {
   hello,
@@ -134,5 +280,11 @@ module.exports = {
   createInPageButton,
   addressAccessibilityIssues,
   generateAccessibilityReport,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks
 };
+
+// If using ES6 modules, also ensure functions are exported:
+// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore };

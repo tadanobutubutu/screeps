@@ -142,7 +142,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -156,12 +156,12 @@ export function validateEmail(email) {
 
 export function capitalizeString(str) {
   if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function debounced(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -225,16 +225,16 @@ export function fixTableStructureIssues(html) {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
-    return `<th${attrs} scope="col">`;
+    return `<th${attrs || ''} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
     // Add summary attribute for screen readers
-    return `<table${attrs} summary="Data table">`;
+    return `<table${attrs || ''} summary="Data table">`;
   });
   
   // Note: The following complex tbody/thead wrapping logic has been removed
@@ -254,12 +254,12 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main ')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+  return html.replace(/<body(\s[^>]*)?>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/i, '</main></body>');
 }
@@ -288,13 +288,13 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']+)["']/);
+    const idMatch = attributes.match(/id="([^"]*)"/);
     if (idMatch) {
       return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter}`;
     return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -332,7 +332,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -343,158 +343,4 @@ export function ensureUniqueLandmarks(html) {
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
   const mainOpenCount = (html.match(/<main\b/gi) || []).length;
-  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
-  if (mainCloseCount > mainOpenCount) {
-    const extras = mainCloseCount - mainOpenCount;
-    let replaced = 0;
-    html = html.replace(/<\/main>/gi, (match) => {
-      if (replaced < extras) {
-        replaced += 1;
-        return '</section>';
-      }
-      return match;
-    });
-  }
-  
-  // Recompute counters after main -> section conversion
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    counters[lm] = matches ? matches.length : 0;
-  });
-  
-  // Assign unique IDs to remaining landmarks
-  landmarks.forEach(lm => {
-    const count = counters[lm] || 0;
-    if (count === 0) return;
-    const seen = {};
-    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
-    html = html.replace(openRegex, (match, inner) => {
-      // Skip if an id attribute is already present
-      if (inner && inner.includes('id=')) {
-        return match;
-      }
-      seen[lm] = (seen[lm] || 0) + 1;
-      const id = `${lm}-${seen[lm]}`;
-      return `<${lm} id="${id}"${inner || ''}>`;
-    });
-  });
-  
-  return html;
-}
-
-/**
- * Fixes 1 fake link issue
- * @param {string} html - The HTML string to process
- * @returns {string} HTML with fixed fake link issues
- */
-export function fixFakeLinkIssue(html) {
-  if (typeof html !== 'string') return html;
-  
-  // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
-      return match;
-    }
-    return match.replace(/<a/, '<a href="#"');
-  });
-}
-
-/**
- * Checks table structure for accessibility issues
- * @param {string} html - The HTML string to check
- * @returns {string[]} Array of error messages
- */
-export function checkTableAccessibility(html) {
-  if (typeof html !== 'string') return [];
-  
-  const issues = [];
-  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
-  let tableMatch;
-  
-  while ((tableMatch = tableRegex.exec(html)) !== null) {
-    const tableHtml = tableMatch[0];
-    
-    // Check for caption
-    if (!/<caption\b/i.test(tableHtml)) {
-      issues.push('Table missing <caption> element');
-    }
-    
-    // Check for summary attribute
-    if (!/\bsummary=/i.test(tableHtml)) {
-      issues.push('Table missing summary attribute');
-    }
-    
-    // Check for th with scope
-    const thRegex = /<th\b([^>]*)>/gi;
-    let thMatch;
-    let thMissingScope = false;
-    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
-      const attrs = thMatch[1];
-      if (!/\bscope=/i.test(attrs)) {
-        thMissingScope = true;
-        break;
-      }
-    }
-    if (thMissingScope) {
-      issues.push('<th> missing scope attribute');
-    }
-    
-    // Check for thead/tbody
-    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
-      issues.push('Table missing <thead> or <tbody> structure');
-    }
-  }
-  
-  return issues;
-}
-
-export {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  checkTableStructure,
-  getLangAttribute,
-  MyComponent,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility
-};
-
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  checkTableStructure,
-  getLangAttribute,
-  MyComponent,
-  greet,
-  isEven,
-  isOdd,
-  sumArray,
-  averageArray,
-  findMax,
-  findMin,
-  reverseString,
-  capitalize,
-  capitalizeWords,
-  formatDate,
-  calculateTotal,
-  validateEmail,
-  capitalizeString,
-  debounce,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility
-};
-
-// If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };
+  const mainCloseCount = (html.match(/

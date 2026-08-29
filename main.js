@@ -83,6 +83,122 @@ function checkTableAccessibility(tableElement) {
   return issues;
 }
 
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function personName(firstName, lastName) {
+  if (!firstName || !lastName) {
+    return 'Anonymous';
+  }
+  return `${firstName} ${lastName}`;
+}
+
+function validateTableAccessibility(tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, issues: [{ type: 'error', message: 'Provided element is not a table' }] };
+  }
+
+  const issues = [];
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    issues.push({ type: 'warning', message: 'Table is missing a <caption> element' });
+  }
+
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({ type: 'error', message: 'Table has no header cells (<th>)' });
+  }
+
+  return { valid: issues.length === 0, issues };
+}
+
+function validateTableStructure(tableElement) {
+  if (!tableElement || tableElement.tagName !== 'TABLE') {
+    return { valid: false, issues: [{ type: 'error', message: 'Provided element is not a table' }] };
+  }
+
+  const issues = [];
+  if (!tableElement.querySelector('thead')) {
+    issues.push({ type: 'warning', message: 'Table is missing a <thead> element' });
+  }
+  if (!tableElement.querySelector('tbody')) {
+    issues.push({ type: 'warning', message: 'Table is missing a <tbody> element' });
+  }
+
+  return { valid: issues.length === 0, issues };
+}
+
+function validateLandmark(element) {
+  if (!element) {
+    return { valid: false, issues: ['Element is null'] };
+  }
+
+  const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  const role = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+
+  const isLandmark = validLandmarkRoles.includes(role) || 
+                     ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName);
+
+  if (!isLandmark) {
+    return { valid: false, issues: ['Element does not have a valid landmark role or tag'] };
+  }
+
+  return { valid: true, issues: [] };
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) {
+    return { valid: false, issues: ['Element is null'] };
+  }
+
+  const landmarks = element.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], header, nav, main, aside, footer');
+  const seenRoles = new Set();
+  const issues = [];
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (['banner', 'contentinfo'].includes(role)) {
+      if (seenRoles.has(role)) {
+        issues.push({ type: 'error', message: `Duplicate landmark found: ${role}` });
+      }
+      seenRoles.add(role);
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
+}
+
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) {
+    return '';
+  }
+
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  return 'Untitled SVG';
+}
+
+function createInPageButton(text) {
+  const button = document.createElement('button');
+  button.textContent = text || 'Back to Top';
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', 'Back to top');
+  button.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  return button;
+}
+
 // Main execution
 function main() {
   initialize();
@@ -99,5 +215,13 @@ module.exports = {
   processData,
   validateInput,
   checkTableAccessibility,
-  config
+  config,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };

@@ -8,13 +8,25 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// main.js
-// TODO: add the new functions or changes requested in the issue
-// Here is the implementation for checking link accessibility
-// The existing isLinkAccessible function implementation
+// Preserve existing functionality
 
-// Implementation of unique landmark functions
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+// main.js - Accessibility improvements implementation
+// main.js - Combined utility and accessibility features
 
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Internal set to track used landmark IDs
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 

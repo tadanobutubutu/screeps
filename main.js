@@ -88,7 +88,7 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
   }, []);
 
   // New function to render dependency graphs
@@ -104,7 +104,7 @@ function App() {
   }
 
   return (
-    <div className="app-container">
+    <div id="app" role="application">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -112,20 +112,21 @@ function App() {
   );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+// REACT_017: Add landmark roles to fix landmark issues
+export function getUniqueName(baseName, existingNames) {
+  if (!existingNames || existingNames.length === 0 || !existingNames.includes(baseName)) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
-export function validateUniqueLandmarks(container) {
+export function ensureUniqueLandmarks(container = document) {
   const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
@@ -155,7 +156,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
 
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   svgElement.insertBefore(title, svgElement.firstChild);
@@ -168,8 +169,9 @@ export function isValidLink(element) {
 
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
-  const onClick = element.getAttribute('onclick');
-
+  const onClick = element.onclick || element.getAttribute('onclick');
+  
+  // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
 
   if (isFakeLink) {
@@ -190,7 +192,7 @@ export function addScopeToHeaders(tableElement) {
 
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
     const cellIndex = Array.from(row.children).indexOf(th);
 
     let scope = 'col';
@@ -262,41 +264,6 @@ function addSvgAccessibleNames(document) {
   return count;
 }
 
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(document) {
-  // Ensure only one main landmark
-  const mains = document.querySelectorAll('main, [role="main"]');
-
-  if (mains.length > 1) {
-    // Keep the first main, remove role="main" from others or convert them
-    for (let i = 1; i < mains.length; i++) {
-      const main = mains[i];
-      if (main.tagName === 'MAIN') {
-        main.setAttribute('role', 'presentation');
-      } else {
-        main.removeAttribute('role');
-        main.setAttribute('role', 'region');
-      }
-    }
-  }
-
-  // Ensure unique IDs for landmarks with labels
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="contentinfo"]');
-  const seenIds = new Set();
-
-  landmarks.forEach(landmark => {
-    const id = landmark.id;
-    if (id) {
-      if (seenIds.has(id)) {
-        landmark.id = `${id}-unique-${Math.random().toString(36).substr(2, 9)}`;
-      }
-      seenIds.add(id);
-    }
-  });
-
-  return mains.length;
-}
-
 // REACT_036: Fix fake link issue
 function fixFakeLinkIssue(document) {
   // Find elements that look like links but aren't <a> tags
@@ -342,7 +309,7 @@ export function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', priority);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
+  announcement.className = 'sr-only';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);
@@ -427,8 +394,7 @@ module.exports = {
   fixFakeLinkIssue,
   applyAccessibilityFixes,
   App,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
+  getUniqueName,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,

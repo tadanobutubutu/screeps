@@ -225,22 +225,6 @@ function fixImageAltTexts(document) {
   return document;
 }
 
-// Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.querySelector('title')) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = 'Accessible SVG';
-      svg.insertBefore(title, svg.firstChild);
-    }
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-  });
-  return document;
-}
-
 // REACT_037: Google sign-in logic
 function googleSignIn(document) {
   // Check if Google Identity Services is available
@@ -317,4 +301,11 @@ function renderDependencyGraphs(document) {
     svg.appendChild(title);
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of
+    desc.textContent = 'Visual representation of dependencies in the application';
+    svg.appendChild(desc);
+
+    graphContainer.appendChild(svg);
+  }
+
+  return document;
+}

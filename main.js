@@ -2,7 +2,7 @@
 
 // Function to calculate distance between two points
 function calculateDistance(point1, point2) {
-  const R = 6371; // Earth's radius in km
+  const R = 6.371; // Earth's radius in km
   const dLat = toRad(point2.lat - point1.lat);
   const dLon = toRad(point2.lon - point1.lon);
   const lat1 = toRad(point1.lat);
@@ -18,7 +18,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Function to ensure unique landmarks by filtering out duplicates
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -28,7 +28,7 @@ function ensureUniqueLandmarks(landmarks) {
   return landmarks.filter(landmark => {
     if (!landmark) return false;
     
-    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+    const identifier = landmark.id || landmark.name || null;
     
     if (seen.has(identifier)) {
       return false;

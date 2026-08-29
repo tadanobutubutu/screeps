@@ -30,7 +30,7 @@ const newFunction2 = () => { /* ... */ };
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
 
@@ -40,8 +40,6 @@ function addLangAttribute(document, lang = 'en') {
     htmlElement.lang = lang;
   }
 }
-
-// main.js
 
 /**
  * Analyzes accessibility issues from an insight report

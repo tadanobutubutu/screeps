@@ -425,38 +425,6 @@ function myFunction2(parameter3) {
   // Your implementation goes here
 }
 
-// Function to address accessibility issues from insight report (merged)
-function addressAccessibilityIssues(insightReport) {
-  // Support both insight report (HEAD) and direct element usage via branch logic
-  if (insightReport && typeof insightReport === 'object' && Array.isArray(insightReport.issues)) {
-    if (!insightReport.issues) return [];
-    insightReport.issues.forEach(issue => {
-      console.log(`Addressing issue: ${issue.issue}`);
-      console.log(`Solution: ${issue.solution}`);
-    });
-    return insightReport.issues;
-  }
-  return [];
-}
-
-// Placeholder for dependency graph rendering (requires external modules)
-let dependencyGraphContent = null;
-let renderDependencyGraph = null;
-
-try {
-  dependencyGraphContent = require('./dependencyGraph');
-  renderDependencyGraph = (dependencyGraph, container) => {
-    const graphContent = dependencyGraphContent;
-    if (container && typeof container.write === 'function') {
-      container.write(graphContent);
-    } else if (container && typeof container === 'object') {
-      container.content = graphContent;
-    }
-  };
-} catch (e) {
-  // Modules not available, functions remain null
-}
-
 function formatDate(date) {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',

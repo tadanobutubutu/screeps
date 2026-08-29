@@ -1,11 +1,13 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_017: Add/fix 4 landmark issues (DONE: addProperLandmarkRegions)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarkId, uniqueLandmarks)
+// - REACT_027: Fix 26 table structure issues (DONE: validateTableAccessibility, validateTableStructure)
+// - REACT_036: Fix 1 fake link issue (TODO: pending)
+// - REACT_037: Google sign-in logic (TODO: pending)
+// - REACT_040: Replace my-button with actual button id for accessibility (DONE: replaceMyButtonId)
+// - REACT_041: Add accessible names to 2 SVGs (TODO: pending)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (TODO: pending)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 /**
@@ -108,7 +110,7 @@ function addProperLandmarkRegions() {
   // Add other landmark roles as needed
 
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 

@@ -15,5 +15,29 @@ export function initAccessibility() {
 }
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', initAccessibility);
+  window.addEventListener('DOMContentLoaded', () => {
+    initAccessibility();
+  });
+}
+
+export function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"]):not([aria-label]):not([aria-labelledby])');
+  svgs.forEach((svg) => {
+    if (!svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = 'Screeps Dashboard';
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
+export function initSvgAccessibility() {
+  addSvgAccessibleNames();
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    initAccessibility();
+    initSvgAccessibility();
+  });
 }

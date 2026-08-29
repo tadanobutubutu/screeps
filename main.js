@@ -1,5 +1,6 @@
-const renderHeader = require('./renderHeader');
-const renderFooter = require('./renderFooter');
+const dependencyGraphContent = require('./dependencyGraph');
+const fs = require('fs');
+const path = require('path');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -13,27 +14,51 @@ const renderFooter = require('./renderFooter');
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 
-// Example: Set the lang attribute on the root element dynamically
-function setLanguage(lang) {
-  document.documentElement.lang = lang;
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
 }
 
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-
 /**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
  */
 function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
+  if (typeof document !== 'undefined') {
     document.documentElement.lang = lang || 'en';
   }
   return lang || 'en';
 }
 
 /**
- * Detects the language of the given content and sets the HTML lang attribute
+ * Detects the language of the given content and returns the language code
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
  */
@@ -61,6 +86,7 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 function renderHomePage() {
   return renderHeader() + '<div>Home Page</div>' + renderFooter();
 }
@@ -69,7 +95,10 @@ function renderDashboard() {
   return renderHeader() + '<div>Dashboard Content</div>' + renderFooter();
 }
 
-// New function to convert anchor tags to buttons with specific id and text
+/**
+ * Converts anchor tags to buttons with proper accessibility attributes
+ * If the anchor has specific id and text, it converts them to buttons
+ */
 function convertAnchorsToButtons() {
   if (typeof document !== 'undefined') {
     const anchors = document.querySelectorAll('a[role="button"], a.fake-link');
@@ -95,13 +124,15 @@ if (typeof document !== 'undefined') {
   convertAnchorsToButtons();
 }
 
+// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    countDependencies,
+    dependencyGraphContent,
+    convertAnchorsToButtons,
     renderHomePage,
     renderDashboard,
     setHtmlLangAttribute,
-    detectAndSetLang,
-    convertAnchorsToButtons,
-    setLanguage
+    detectAndSetLang
   };
 }

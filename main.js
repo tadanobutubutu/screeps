@@ -58,5 +58,6 @@ function ensureUniqueLandmarks(landmarks) {
 
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    checkLandmarkElement
 };

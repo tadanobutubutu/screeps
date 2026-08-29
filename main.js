@@ -466,7 +466,51 @@ function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
 
-// ... (The rest of the existing functions and exports remain unchanged)
+// Missing function definitions that were referenced in exports
+function ensureElementHasId(element) {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}`;
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
+function originalFilterLandmarks(landmarks) {
+  const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
+  return landmarks.filter(landmark => {
+    const role = landmark.getAttribute('role');
+    return role && validRoles.includes(role);
+  });
+}
+
+function originalSortLandmarksByName(landmarks) {
+  return landmarks.slice().sort((a, b) => {
+    const nameA = a.getAttribute('aria-label') || a.tagName.toLowerCase();
+    const nameB = b.getAttribute('aria-label') || b.tagName.toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+}
+
+function originalAddRequiredLandmarks(doc) {
+  const requiredLandmarks = ['header', 'nav', 'main', 'footer'];
+  const existingLandmarks = doc.querySelectorAll('header, nav, main, footer');
+  const existingTags = Array.from(existingLandmarks).map(el => el.tagName.toLowerCase());
+  
+  requiredLandmarks.forEach(landmark => {
+    if (!existingTags.includes(landmark)) {
+      const element = doc.createElement(landmark);
+      doc.body.appendChild(element);
+    }
+  });
+  
+  return doc;
+}
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
 const { addMissingExportFunction } = require('./utils');

@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Add any updates related to new functions
+
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+  
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  }
+};
+
+module.exports = main;

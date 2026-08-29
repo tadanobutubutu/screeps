@@ -406,6 +406,132 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Validates HTML for accessibility issues based on the insight report.
+ * Aggregates results from individual accessibility checks and returns a
+ * comprehensive report describing any issues found.
+ *
+ * Addresses the accessibility checks referenced in the issue:
+ * - REACT_015: Validates lang attribute on <html>
+ * - REACT_027: Validates table structure
+ * - REACT_017: Validates landmark presence/structure/attributes
+ * - REACT_041: Validates accessible names for SVGs
+ * - REACT_025: Validates unique landmarks
+ * - REACT_036: Validates links have valid href attributes
+ * - REACT_037: Validates that proper landmark regions are present
+ *
+ * @param {string} html - The HTML string to validate
+ * @returns {{
+ *   isValid: boolean,
+ *   issues: string[],
+ *   summary: { lang: boolean, tables: string[], landmarks: string[], svgs: string[], links: string[], mainLandmark: boolean, uniqueLandmarks: boolean }
+ * }} Accessibility validation report
+ */
+export function validateAccessibility(html) {
+  const issues = [];
+  const summary = {
+    lang: false,
+    tables: [],
+    landmarks: [],
+    svgs: [],
+    links: [],
+    mainLandmark: false,
+    uniqueLandmarks: false
+  };
+
+  if (typeof html !== 'string') {
+    issues.push('Provided HTML is not a string');
+    return { isValid: false, issues, summary };
+  }
+
+  // REACT_015: Validate lang attribute on <html> element
+  const htmlTagMatch = html.match(/<html\b([^>]*)>/i);
+  if (htmlTagMatch) {
+    const htmlAttrs = htmlTagMatch[1] || '';
+    if (/\blang\s*=/i.test(htmlAttrs)) {
+      summary.lang = true;
+    } else {
+      issues.push('REACT_015: <html> element is missing the lang attribute');
+    }
+  } else {
+    issues.push('REACT_015: No <html> element found in the document');
+  }
+
+  // REACT_027: Validate table structure
+  summary.tables = checkTableAccessibility(html);
+  if (summary.tables.length > 0) {
+    issues.push(
+      `REACT_027: Found ${summary.tables.length} table structure issue(s)`
+    );
+  }
+
+  // REACT_017 & REACT_037: Validate landmark presence/structure
+  const landmarkTypes = ['header', 'nav', 'main', 'aside', 'footer'];
+  landmarkTypes.forEach((lm) => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (!matches || matches.length === 0) {
+      summary.landmarks.push(`Missing <${lm}> landmark`);
+      issues.push(`REACT_017: Missing <${lm}> landmark`);
+    }
+  });
+
+  // Check for <main> landmark specifically (REACT_017/REACT_037)
+  if (/<main\b/i.test(html)) {
+    summary.mainLandmark = true;
+  } else {
+    issues.push('REACT_017/REACT_037: Document is missing a <main> landmark');
+  }
+
+  // REACT_025: Validate unique landmarks
+  const mainMatches = html.match(/<main\b/gi) || [];
+  if (mainMatches.length > 1) {
+    summary.uniqueLandmarks = false;
+    issues.push(
+      `REACT_025: Found ${mainMatches.length} <main> landmarks; only one is allowed per page`
+    );
+  } else {
+    summary.uniqueLandmarks = true;
+  }
+
+  // REACT_041: Validate accessible names for SVG elements
+  const svgRegex = /<svg\b([^>]*)>/gi;
+  let svgMatch;
+  let svgIndex = 0;
+  while ((svgMatch = svgRegex.exec(html)) !== null) {
+    svgIndex += 1;
+    const svgAttrs = svgMatch[1] || '';
+    const hasAriaLabel = /\baria-label\s*=/i.test(svgAttrs);
+    const hasAriaLabelledby = /\baria-labelledby\s*=/i.test(svgAttrs);
+    const hasTitle = /<title\b/i.test(svgMatch.input.slice(svgMatch.index, svgMatch.index + 500));
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      const msg = `SVG #${svgIndex} is missing an accessible name (aria-label, aria-labelledby, or <title>)`;
+      summary.svgs.push(msg);
+      issues.push(`REACT_041: ${msg}`);
+    }
+  }
+
+  // REACT_036: Validate links have valid href attributes
+  const anchorRegex = /<a\b([^>]*)>/gi;
+  let anchorMatch;
+  let anchorIndex = 0;
+  while ((anchorMatch = anchorRegex.exec(html)) !== null) {
+    anchorIndex += 1;
+    const anchorAttrs = anchorMatch[1] || '';
+    if (!/\bhref\s*=/i.test(anchorAttrs)) {
+      const msg = `Anchor #${anchorIndex} is missing a valid href attribute (fake link)`;
+      summary.links.push(msg);
+      issues.push(`REACT_036: ${msg}`);
+    }
+  }
+
+  return {
+    isValid: issues.length === 0,
+    issues,
+    summary
+  };
+}
+
 module.exports = {
   MyComponent,
   getLangAttribute,
@@ -431,5 +557,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  validateAccessibility
 };

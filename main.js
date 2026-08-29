@@ -12,8 +12,15 @@ if (!document.documentElement.getAttribute('lang')) {
 }
 
 // Adding the new function at the end
-function newFunction() {
+function addProperLandmarkRegions() {
   // Your new function code here
+  // Example: Add ARIA landmark roles to elements
+  const landmarkElements = document.querySelectorAll('.landmark');
+  landmarkElements.forEach(element => {
+    if (!element.getAttribute('role')) {
+      element.setAttribute('role', 'landmark');
+    }
+  });
 }
 
 // Initialize accessibility features
@@ -33,7 +40,7 @@ function addressAccessibilityIssues(report) {
 // Exporting the new added function
 module.exports = {
   // Keep the existing exports here if any
-  newFunction, // Export newFunction
+  addProperLandmarkRegions, // Export addProperLandmarkRegions
 };
 
 // Export for module usage

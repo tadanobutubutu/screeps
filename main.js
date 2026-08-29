@@ -1,3 +1,5 @@
+// Checking test files...
+
 // main.js
 
 import react from 'react';

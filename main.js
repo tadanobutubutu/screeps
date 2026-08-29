@@ -14,7 +14,7 @@ function main() {
 
 // Accessibility helper function to announce dynamic content changes to screen readers
 function announceToScreenReader(message, priority = 'polite') {
-  const announcer = document.getElementById('sr-announcer') || createAnnouncer();
+  const announcer = createAnnouncer();
   announcer.setAttribute('aria-live', priority);
   announcer.textContent = message;
   
@@ -30,7 +30,7 @@ function createAnnouncer() {
   announcer.setAttribute('aria-live', 'polite');
   announcer.setAttribute('aria-atomic', 'true');
   announcer.className = 'sr-only';
-  announcer.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+  announcer.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);';
   document.body.appendChild(announcer);
   return announcer;
 }
@@ -61,11 +61,11 @@ function trapFocus(element) {
     if (e.key === 'Escape') {
       element.setAttribute('aria-hidden', 'true');
       element.style.display = 'none';
-      document.removeEventListener('keydown', handleTabKey);
+      element.removeEventListener('keydown', handleTabKey);
     }
   }
 
-  document.addEventListener('keydown', handleTabKey);
+  element.addEventListener('keydown', handleTabKey);
   firstFocusable && firstFocusable.focus();
 }
 
@@ -84,8 +84,8 @@ function toggleAriaExpanded(element) {
 }
 
 // Handle missing alt text for images
-function handleMissingAltText(container) {
-  const images = container.querySelectorAll('img:not([alt])');
+function handleMissingAltText() {
+  const images = document.querySelectorAll('img:not([alt])');
   images.forEach((img, index) => {
     img.setAttribute('alt', `Image ${index + 1} - description unavailable`);
     img.setAttribute('role', 'presentation');
@@ -93,7 +93,7 @@ function handleMissingAltText(container) {
   
   // Add warning for accessibility audit
   if (images.length > 0) {
-    console.warn(`Accessibility: ${images.length} image(s) had missing alt text and were assigned default descriptions.`);
+    console.warn(`${images.length} image(s) had missing alt text and were assigned default descriptions.`);
   }
 }
 
@@ -110,7 +110,7 @@ function fixTableStructureIssues() {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody') || document.createElement('tbody');
         thead.appendChild(firstRow);
         table.insertBefore(thead, tbody || table.firstChild);
       }
@@ -139,9 +139,9 @@ function addMainLandmark() {
 
 // Accessibility function to add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const titleId = `svg-title-${index}`;
+    const titleId = `svg-title-${index + 1}`;
     let title = svg.querySelector('title');
     if (!title) {
       title = document.createElement('title');
@@ -157,18 +157,18 @@ function addSvgAccessibleNames() {
 
 // Accessibility function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], main');
   landmarks.forEach(landmark => {
     const tagName = landmark.tagName.toLowerCase();
     if ((tagName === 'header' || tagName === 'footer') && !landmark.closest('main')) {
       // Keep multiple headers/footers outside main
-    } else if (landmark.querySelector('main') || landmark.closest('main')) {
+    } else if (tagName === 'main' && landmark.closest('main')) {
       // Ensure main is not nested incorrectly
-      const nestedMain = landmark.querySelector('main');
-      if (nestedMain && !landmark.closest('section') && !landmark.closest('article')) {
+      const nestedMain = landmark;
+      if (nestedMain && nestedMain.tagName === 'MAIN') {
         const parent = landmark.parentNode;
         if (parent) {
-          parent.insertBefore(nestedMain, landmark.nextSibling);
+          parent.insertBefore(nestedMain, parent.firstChild);
         }
       }
     }
@@ -177,7 +177,7 @@ function ensureUniqueLandmarks() {
 
 // Accessibility function to fix fake link issues
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href=""], a:not([href])');
   fakeLinks.forEach(link => {
     const onclick = link.getAttribute('onclick');
     const isButton = link.getAttribute('role') === 'button' || link.tagName === 'BUTTON';
@@ -188,9 +188,9 @@ function fixFakeLinkIssue() {
       }
     }
   });
-  const buttonsAsLinks = document.querySelectorAll('button[href], a[onclick]');
+  const buttonsAsLinks = document.querySelectorAll('a[onclick]');
   buttonsAsLinks.forEach(element => {
-    if (element.tagName === 'BUTTON' && element.hasAttribute('href')) {
+    if (element.tagName === 'BUTTON' && element.getAttribute('href')) {
       element.removeAttribute('href');
     }
   });
@@ -202,10 +202,10 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     // Ensure all form inputs have associated labels
     const inputs = document.querySelectorAll('input:not([id]), select:not([id]), textarea:not([id])');
     inputs.forEach((input, index) => {
-      const id = input.id || `auto-input-${index}`;
+      const id = input.id || `auto-label-${index + 1}`;
       input.id = id;
       
-      if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
+      if (!input.hasAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
         const label = document.createElement('label');
         label.htmlFor = id;
         label.textContent = `Input ${index + 1}`;
@@ -217,13 +217,13 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     // Ensure buttons are keyboard accessible
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
-      if (!button.hasAttribute('tabindex') && !button.hasAttribute('aria-label')) {
+      if (button.tabIndex === -1 && !button.hasAttribute('disabled')) {
         // Button is accessible by default
       }
     });
 
     // Handle missing alt text for images
-    handleMissingAltText(document.body);
+    handleMissingAltText();
 
     // Run origin/main accessibility improvements
     addLangAttribute();

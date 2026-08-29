@@ -1,4 +1,10 @@
 import React from 'react';
+import { getLangAttribute } from './utils/accessibility.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/table.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmark.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svg.js';
+import { ensureUniqueLandmarks } from './utils/landmark.js';
+import { createInPageButton as createButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
 
 // TODO: Add back any required exports that might have been?
 // (This comment remains as-is)
@@ -24,8 +30,9 @@ const getConfig = () => {
 
 function MyComponent() {
   // Existing code that needs to be updated
+  const langAttr = getLangAttribute();
   return (
-    <div lang="en">
+    <div lang={langAttr}>
       {/* Content */}
     </div>
   );
@@ -37,7 +44,7 @@ function MyComponent() {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Implement function to create in-page buttons
@@ -45,6 +52,8 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
+  validateLinkAccessibility(button);
+  handleFakeLinks(button);
   document.body.appendChild(button);
   return button;
 }
@@ -126,6 +135,29 @@ function renderIndexView() {
   // TODO: Implement renderIndexView functionality
   // Placeholder for now, replace with actual implementation
   console.log('renderIndexView function called');
+  
+  // Add lang attribute to the HTML element
+  const langAttr = getLangAttribute();
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', langAttr);
+  }
+  
+  // Validate tables on the page
+  validateTableAccessibility();
+  validateTableStructure();
+  
+  // Validate landmarks
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  
+  // Set SVG attributes
+  setSvgAttributes();
+  
+  // Handle fake links
+  handleFakeLinks();
 }
 
 // Export all functions and values

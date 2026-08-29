@@ -15,8 +15,21 @@ export function getConfig() {
   };
 }
 
+// Add the necessary new functions (without strict mode)
+export function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
+}
+
+export function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
+
 export default {
   VERSION,
   initialize,
-  getConfig
+  getConfig,
+  performTask,
+  handleEvent
 };

@@ -1,4 +1,8 @@
 // main.js
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
+
 // Implementation of unique landmark functions
 
 // Global set to track used landmark IDs
@@ -146,6 +150,48 @@ function addAriaToFormControls() {
   });
 }
 
+/**
+ * Checks whether a link is accessible.
+ * A link is considered accessible if it has a non-empty text content
+ * or an accessible name (via aria-label, aria-labelledby, or title attribute).
+ * @param {HTMLAnchorElement} link - The link element to check.
+ * @returns {boolean} True if the link is accessible, false otherwise.
+ */
+function isLinkAccessible(link) {
+  if (!(link instanceof HTMLAnchorElement)) {
+    return false;
+  }
+
+  // Check for non-empty text content
+  const textContent = link.textContent.trim();
+  if (textContent.length > 0) {
+    return true;
+  }
+
+  // Check for aria-label with non-empty value
+  const ariaLabel = link.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return true;
+  }
+
+  // Check for aria-labelledby referencing existing element with text
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledByElement = document.getElementById(ariaLabelledby);
+    if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
+      return true;
+    }
+  }
+
+  // Check for title attribute with non-empty value
+  const title = link.getAttribute('title');
+  if (title && title.trim().length > 0) {
+    return true;
+  }
+
+  return false;
+}
+
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
@@ -162,5 +208,6 @@ module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
-  uniqueLandmarks
+  uniqueLandmarks,
+  isLinkAccessible
 };

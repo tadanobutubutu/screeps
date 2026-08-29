@@ -72,9 +72,11 @@ function setSvgAttributes(svgElement) {
   }
   // Ensure the SVG has an id for accessibility
   ensureElementHasId(svgElement);
-  // Add a default aria-label if none exists
+  // Add a default aria-label if none exists, using accessible name if possible
   if (!svgElement.getAttribute('aria-label')) {
-    addAriaLabel(svgElement, 'SVG graphic');
+    const accessibleName = getSvgAccessibleName(svgElement);
+    const label = accessibleName || 'SVG graphic';
+    addAriaLabel(svgElement, label);
   }
 }
 
@@ -91,10 +93,13 @@ function addAriaLabel(element, label) {
     element.setAttribute('aria-label', label);
   }
 
-  // Check for duplicate banners
+  // Check for duplicate banners and auto-fix by removing roles from duplicates
   const banners = document.querySelectorAll('[role="banner"], [role="header"]');
   if (banners.length > 1) {
-    throw new Error('Document should have at most one banner or header landmark');
+    for (let i = 1; i < banners.length; i++) {
+      banners[i].removeAttribute('role');
+    }
+    console.warn('Multiple banner/header landmarks detected. Extra banners have had their roles removed.');
   }
 }
 
@@ -162,7 +167,13 @@ function ensureUniqueLandmarks() {
 
   // Ensure only one contentinfo/footer landmark
   const footers = document.querySelectorAll('[role="contentinfo"], footer');
-  // (code for ensureUniqueLandmarks continues...)
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
 }
 
 // NEW: Implement this function for checking landmark elements
@@ -171,15 +182,25 @@ function checkLandmarkElements() {
   landmarks.forEach((landmark, index) => {
     // Additional checks or logic to validate landmark elements
     // This could be additional attributes, structure checks, etc.
-    if (landmark.hasAttribute('aria-labelledby') && !landmark.querySelector(`#landmark-label-${index}`)) {
-      console.warn(`REACT_017: ARIA-labelledby attribute exists without corresponding element for landmark at index ${index}`);
+    if (landmark.hasAttribute('aria-labelledby')) {
+      const ids = landmark.getAttribute('aria-labelledby').split(' ');
+      const validIds = ids.filter(id => document.getElementById(id));
+      if (validIds.length === 0) {
+        landmark.removeAttribute('aria-labelledby');
+        console.warn(`Removed aria-labelledby from landmark at index ${index} because no referenced elements were found.`);
+      } else if (validIds.length < ids.length) {
+        landmark.setAttribute('aria-labelledby', validIds.join(' '));
+        console.warn(`Updated aria-labelledby for landmark at index ${index} to only include valid references.`);
+      }
     }
-    // You can add more checks here based on the requirements
   });
 }
 
 // Run the function to check landmark elements
-checkLandmarkElements();
+if (typeof document !== 'undefined') {
+  checkLandmarkElements();
+  ensureUniqueLandmarks();
+}
 
 // Preserve the existing exports and add new functions
 module.exports = {

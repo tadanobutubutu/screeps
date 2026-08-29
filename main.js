@@ -1,7 +1,3 @@
-// Only includes the sections with conflict markers
-// Preserves existing code and functions as much as possible
-// Adds the new implementation at the TODO location
-
 function newFeature() {
   // Version 1 implementation (HEAD branch)
   // Code for version 1 implementation goes here.
@@ -15,6 +11,30 @@ function newFeature() {
 
   // Existing exports as they were before the conflict
   // No changes needed since they were not part of the conflict
+}
+
+// Tower defense implementation
+function towerDefense(roomName) {
+  const room = Game.rooms[roomName];
+  if (!room) return;
+
+  const towers = room.find(FIND_MY_STRUCTURES, {
+    filter: (structure) => structure.structureType === STRUCTURE_TOWER
+  });
+
+  towers.forEach(tower => {
+    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    if (closestHostile) {
+      tower.attack(closestHostile);
+    } else {
+      const closestDamaged = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: (structure) => structure.hits < structure.hitsMax
+      });
+      if (closestDamaged) {
+        tower.repair(closestDamaged);
+      }
+    }
+  });
 }
 
 // main.js
@@ -125,5 +145,6 @@ module.exports = {
   loop: function() {
     console.log('Running screeps loop');
   },
-  newFeature: newFeature // Export the updated newFeature function
+  newFeature: newFeature,
+  towerDefense: towerDefense
 };

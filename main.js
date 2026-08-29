@@ -90,5 +90,6 @@ const main = {
 
   myNewFunction: function() {
     // your new function logic goes here
+    console.log("myNewFunction called");
   }
 };

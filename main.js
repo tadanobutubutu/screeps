@@ -3,27 +3,26 @@
 // ... (existing code, exports, and functions)
 
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 4 landmark issues
-// - REACT_025: Ensure unique landmarks
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_036: Fix 1 fake link issue
-// - REACT_037: Google sign-in logic
-// - REACT_040: Replace my-button with actual button id for accessibility
 
-import react from 'react';
-const HTML = ({ lang }) => <html lang={lang}>{/* other children */}</html>;
+import { useEffect } from 'react';
 
-// ... (existing code, exports, and functions)
+function addLangAttribute(element) {
+  if (element.type === 'html') {
+    element.props.lang = getLangAttribute();
+  }
+}
 
 function getLangAttribute() {
   // Code for getting the language attribute
 }
 
-function addLangAttribute(element) {
-  // Code for adding the language attribute to the specified element
-}
+const HTMLWithLang = (props) => {
+  useEffect(() => {
+    addLangAttribute(props.element);
+  }, [props.element]);
+
+  return <html {...props}>{props.children}</html>;
+};
 
 function validateTableAccessibility() {
   // Code for validating table accessibility
@@ -81,6 +80,11 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+function Table(props) {
+  // Code for making the table accessible
+  return <table aria-label={props.ariaLabel}>{props.children}</table>;
+}
+
 // ... other existing code in main.js ...
 
 export default function main() {
@@ -89,11 +93,15 @@ export default function main() {
   };
 
   return (
-    <HTML lang="en">
+    <HTMLWithLang element={<html />}>
       <react.Fragment>
         <App />
         {/* Render your HTML structure */}
       </react.Fragment>
-    </HTML>
+      <main role="main">
+        {/* Add your main content here */}
+      </main>
+      {/* Other existing code... */}
+    </HTMLWithLang>
   );
 }

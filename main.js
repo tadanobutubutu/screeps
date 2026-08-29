@@ -56,9 +56,22 @@ addProperAccountManagement();
 addProperFormAccessibility();
 replaceMyButtonId();
 
+// ----- END OF ORIGINAL CODE -----
+
+/**
+ * Function to calculate a discount based on a percentage and the original price.
+ * @param {number} percentage - The discount percentage.
+ * @param {number} originalPrice - The original price of the item.
+ * @returns {number} The discounted price.
+ */
+function calculateDiscount(percentage, originalPrice) {
+  return originalPrice - (originalPrice * (percentage / 100));
+}
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addProperFormAccessibility,
-  replaceMyButtonId
+  replaceMyButtonId,
+  calculateDiscount
 };

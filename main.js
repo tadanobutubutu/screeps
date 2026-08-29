@@ -1,5 +1,35 @@
 const dependencyGraphContent = require('./dependencyGraph');
 
+function makeAccessible(element, options = {}) {
+  if (!element) return element;
+  
+  const { role, label, description } = options;
+  
+  // Set role if provided
+  if (role) {
+    element.setAttribute('role', role);
+  }
+  
+  // Set aria-label if provided
+  if (label) {
+    element.setAttribute('aria-label', label);
+  }
+  
+  // Set aria-description if provided
+  if (description) {
+    element.setAttribute('aria-description', description);
+  }
+  
+  // Ensure element is focusable if it's interactive
+  if (role === 'button' || role === 'link') {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+  }
+  
+  return element;
+}
+
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement) {
@@ -601,6 +631,7 @@ function decodeJwtResponse() {
 }
 
 module.exports = {
+  makeAccessible,
   addLangAttribute,
   fixTableStructure,
   addMainLandmark,

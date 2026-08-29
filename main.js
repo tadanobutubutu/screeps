@@ -93,6 +93,7 @@ function generateAccessibilityReport(accessibilityReport) {
 // TODO: Implement a function to count dependencies
 function countDependencies(obj) {
   let count = 0;
+  const funcNames = [];
   for (const key in obj) {
     if (typeof obj[key] === 'object' && obj[key] !== null) {
       count += countDependencies(obj[key]);

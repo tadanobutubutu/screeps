@@ -1,6 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+let funcNames = [];
+
+function countDependencies(obj) {
+  let count = 0;
+  for (const key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      count += countDependencies(obj[key]);
+    } else if (typeof obj[key] === 'function') {
+      let funcName = obj[key].name || '<anonymous>';
+      if (!funcNames.includes(funcName)) {
+        funcNames.push(funcName);
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
 function MainApp() {
   return (
     <div lang="en">

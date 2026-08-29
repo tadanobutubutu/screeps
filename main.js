@@ -46,12 +46,23 @@ function checkLinkAndButtonAccessibility(container) {
   return issues;
 }
 
+/**
+ * Renders the index view of the application
+ */
+function renderIndexView() {
+  // Placeholder for the index view rendering logic
+  // This could involve creating elements, setting text content, and appending them to the DOM
+  // For the purpose of this example, we'll just log a message
+  console.log('Index view rendered');
+}
+
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility };
+  module.exports = { checkLinkAndButtonAccessibility, renderIndexView };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
   window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
+  window.renderIndexView = renderIndexView;
 }

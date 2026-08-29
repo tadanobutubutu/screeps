@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // Add the new function or change here:
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {
@@ -60,6 +63,11 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    // Example: Print out the number of creeps in each room
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      console.log(`Room ${name} has ${room.creeps.length} creeps.`);
+    }
   }
 };
 

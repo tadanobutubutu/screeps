@@ -120,6 +120,39 @@ if (document.readyState === 'loading') {
 
 return table;
 
+// REACT_015 Fix: Add lang attribute to HTML element
+function addLangAttribute(element, lang) {
+  if (element && element.setAttribute) {
+    element.setAttribute('lang', lang);
+  }
+  return element;
+}
+
+// REACT_017 Fix: Add landmark roles and fix landmark issues
+function addRoleToLandmark(element, role) {
+  if (element) {
+    element.setAttribute('role', role);
+  }
+  return element;
+}
+
+// REACT_025 Fix: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Ensure unique landmarks in the entire application
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
+  
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0 && el.id) {
+          el.id = `${el.id}-${index}`;
+        }
+      });
+    }
+  });
+}
+
 function addMainLandmark(rootElement) {
   // Add main landmark to the provided rootElement
   if (!rootElement) {

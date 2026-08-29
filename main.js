@@ -34,21 +34,22 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 exports.renderDependencyGraph = renderDependencyGraph;
 
+function fixTableStructureIssues(document) {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
     if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        const theadRowCount = existingThead.querySelectorAll('tr').length;
-        remainingRows = remainingRows.slice(theadRowCount);
-      } else {
-        remainingRows = [];
-      }
-=======
       let remainingRows = Array.from(rows);
       if (existingThead) {
         remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
       } else {
         remainingRows = remainingRows.slice(1);
->>>>>>> origin/main
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
@@ -86,11 +87,12 @@ exports.renderDependencyGraph = renderDependencyGraph;
   return fixedCount;
 }
 
-// Function to addMainLandmark(document) {
+// Function to wrap the primary content in a <main> element
+function wrapPrimaryContentInMain(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
-    // Find the main content area and wrap it or create main element
+    // Find the primary content area and wrap it or create main element
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('id', 'main-content');
@@ -150,12 +152,12 @@ function fixFakeLinkIssue(document) {
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
-    
+
     // Check if it's a fake link (clickable but not a real anchor)
-    if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('document.location') || 
+    if (!isAnchor && (onclick.includes('window.location') ||
+        onclick.includes('document.location') ||
         onclick.includes('href'))) {
-      
+
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
@@ -164,12 +166,12 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('onclick', onclick);
       element.setAttribute('onclick', '');
       span.onclick = element.onclick;
-      
+
       // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
-      
+
       element.parentNode.replaceChild(span, element);
       count++;
     }
@@ -268,11 +270,11 @@ function renderDependencyGraphs(document) {
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph visualization');
     graphContainer.appendChild(svg);
-    
+
     // Render the graph content
     if (dependencyGraphContent) {
-      const graphContent = typeof dependencyGraphContent === 'string' 
-        ? dependencyGraphContent 
+      const graphContent = typeof dependencyGraphContent === 'string'
+        ? dependencyGraphContent
         : JSON.stringify(dependencyGraphContent);
       const parser = new DOMParser();
       const doc = parser.parseFromString(graphContent, 'image/svg+xml');
@@ -468,59 +470,6 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-function fixTableStructureIssues(document) {
-  // Function to fix table structure issues for accessibility
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-    
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
-      } else {
-        remainingRows = remainingRows.slice(1);
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-
-    // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        fixedCount++;
-      }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
-}
-
 function renderIndexView() {
   // Function to render the index view
 }
@@ -571,7 +520,7 @@ function addMainLandmarkToIndex() {
 
 // Export all functions and utilities
 exports.addLangAttribute = addLangAttribute;
-exports.addMainLandmark = addMainLandmark;
+exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
 exports.checkAccessibility = checkAccessibility;
 exports.checkLandmarks = checkLandmarks;
@@ -584,4 +533,4 @@ exports.addLandmarkRegions = addLandmarkRegions;
 exports.uniqueLandmarks = uniqueLandmarks;
 exports.fixImageAltTexts = fixImageAltTexts;
 exports.googleSignIn = googleSignIn;
-exports.handleCredentialResponse = handleCredentialResponse
+exports.handleCredentialResponse = handleCredentialResponse;

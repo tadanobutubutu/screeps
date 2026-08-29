@@ -5,6 +5,8 @@ const logger = require('./utils/logger');
 let isInitialized = false;
 const appData = {};
 
+let uniqueLandmarks = {};
+
 // Address accessibility issues from insight report:
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
@@ -30,20 +32,40 @@ function addressAccessibilityIssues() {
     });
   }
 
-  function ensureUniqueLandmarks() {
-    const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-    const uniqueLandmarkMap = {};
+  function ensureUniqueLandmarks(insightReport) {
+    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
 
+    // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(landmark => {
       const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      elements.forEach(el => {
-        const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
-        if (isUnique) {
-          uniqueLandmarkMap[landmark].push(el);
-        } else {
-          el.removeAttribute('role');
-        }
-      });
+      if (elements.length < landmarks.length) {
+        const uniqueLandmarkMap = {};
+
+        landmarks.forEach(uniqueLandmark => {
+          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+          if (!element[0]) {
+            element = document.createElement(`div`);
+            element.setAttribute('role', uniqueLandmark);
+            if (!document.querySelector(`#${uniqueLandmark}`)) {
+              const id = uniqueLandmark;
+              element.setAttribute('id', id);
+            }
+            document.body.appendChild(element);
+          }
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+
+        uniqueLandmarks = uniqueLandmarkMap;
+      } else {
+        elements.forEach(el => {
+          const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+          if (isUnique) {
+            uniqueLandmarkMap[landmark].push(el);
+          } else {
+            el.removeAttribute('role');
+          }
+        });
+      }
     });
   }
 
@@ -121,17 +143,231 @@ function renderSvg(svgElement) {
   // ... existing code ...
 }
 
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+// New rendering functions for graph/index (to be used by existing functions)
+function renderGraphContentWithOptions(data, options = {}) {
+  console.log('Rendering graph content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    renderDependencyGraphContent(data);
+  }
+}
+
+function renderIndexContentWithOptions(data, options = {}) {
+  console.log('Rendering index content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    // Default rendering behavior for index
+    const container = document.querySelector('.index-content, [data-index-content]');
+    if (container) {
+      container.innerHTML = data;
+    }
+  }
+}
+
+// Updated function for rendering dependency graph using new render function
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
+}
+
+function renderIndexView(indexData) {
+  console.log('Rendering index view with data:', indexData);
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
+}
+
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function fixFakeLinks() {
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
+    link.setAttribute('role', 'button');
+    link.tabIndex = 0;
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Button');
+    }
+  });
+}
+
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const tbody = table.querySelector('tbody');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, tbody || firstRow);
+      }
+    }
+  });
+}
+
+function fixTableHeaderCellScope() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headerCells = table.querySelectorAll('th, td');
+    headerCells.forEach(cell => {
+      if (!cell.hasAttribute('scope')) {
+        const rows = table.querySelectorAll('tr');
+        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        let isHeaderRow = true;
+
+        rows.forEach(row => {
+          const rowCells = row.querySelectorAll('th, td');
+          if (rowCells[cellIndex] !== cell) {
+            isHeaderRow = false;
+          }
+        });
+
+        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+      }
+    });
+  });
+}
+
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  mainElements.forEach(main => {
+    if (!main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
+    }
+  });
+  if (mainElements.length === 0) {
+    const content = document.querySelector('#content, .content, [role="main"]');
+    if (content) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      while (content.firstChild) {
+        main.appendChild(content.firstChild);
+      }
+      content.appendChild(main);
+    }
+  }
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${index}`;
+      title.setAttribute('id', titleId);
+      svg.setAttribute('aria-labelledby', titleId);
+    } else {
+      const title = document.createElement('title');
+      title.textContent = `SVG graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
+// Updated function for REACT_025 (ensuring unique landmarks)
+function fixUniqueLandmarks(insightReport) {
+  const issues = insightReport.issues || [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      const element = document.querySelector(issue.selector);
+
+      if (element && issue.ariaRole) {
+        uniqueLandmarks[issue.ariaRole] = element;
+      }
+    }
+  });
+
+  uniqueLandmarks = Object.values(uniqueLandmarks);
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks(insightReport);
+}
+
+function implementAccessibilityFixes() {
+  improveAccessibility();
+  fixFakeLinks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableHeaderCellScope();
+}
+
+function implementNewFunction() {
+  addressAccessibilityIssues();
+  implementAccessibilityFixes();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableHeaderCellScope();
+  fixUniqueLandmarks();
+}
+
+function main() {
+  console.log('Running main application');
+  implementNewFunction(); // Address accessibility issues from insight report
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function someFunction() {
+  // Some implementation
+}
+
 module.exports = {
   config,
   logger,
   addressAccessibilityIssues,
   renderSvg,
-  // ... existing exports ...
   improveAccessibility,
   ensureUniqueLandmarks,
   addressInsightReportIssues,
   addLandmarkRoles,
-  fixLandmarkIssues
+  fixLandmarkIssues,
+  renderDependencyGraphContent,
+  renderGraphContentWithOptions,
+  renderIndexContentWithOptions,
+  renderDependencyGraph,
+  renderIndexView,
+  calculateSum,
+  someFunction,
+  implementAccessibilityFixes,
+  fixFakeLinks,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  implementNewFunction,
+  addLangAttribute,
+  main,
+  fixUniqueLandmarks,
+  capitalizeFirstLetter
 };
 
 addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

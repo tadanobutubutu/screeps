@@ -108,7 +108,7 @@ function addProperLandmarkRegions() {
   // Add other landmark roles as needed
 
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 
@@ -173,6 +173,110 @@ function addAriaToFormControls() {
   });
 }
 
+/**
+ * Adds accessible names to SVG elements that lack them.
+ * This addresses REACT_041: Add accessible names to 2 SVGs.
+ *
+ * @returns {void}
+ */
+function addAccessibleNamesToSvgs() {
+  // Find all SVG elements without accessible names
+  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby]):not([role="img"][aria-label]):not(:has(title))');
+  
+  svgs.forEach((svg, index) => {
+    // Check if SVG already has a title element (which provides accessible name)
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+    
+    if (!hasTitle && !hasAriaLabel) {
+      // Try to get context from parent or use a generic name
+      const parentLabel = svg.closest('[aria-label]')?.getAttribute('aria-label');
+      const parentText = svg.closest('button, a, [role="button"], [role="link"]')?.textContent?.trim();
+      
+      if (parentLabel) {
+        svg.setAttribute('aria-label', parentLabel);
+      } else if (parentText) {
+        svg.setAttribute('aria-label', parentText);
+      } else {
+        // Add a descriptive title element as fallback
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.id = `svg-title-${index}`;
+        title.textContent = `Icon ${index + 1}`;
+        svg.insertBefore(title, svg.firstChild);
+        svg.setAttribute('aria-labelledby', title.id);
+        svg.setAttribute('role', 'img');
+      }
+    } else if (hasTitle && !svg.hasAttribute('role')) {
+      // Ensure SVG with title has proper role
+      svg.setAttribute('role', 'img');
+      const titleId = svg.querySelector('title')?.id || `svg-title-${index}`;
+      if (!svg.querySelector('title').id) {
+        svg.querySelector('title').id = titleId;
+      }
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
+
+/**
+ * Fixes fake link issues by ensuring elements that act as links have proper ARIA roles and keyboard support.
+ * This addresses REACT_036: Fix 1 fake link issue.
+ *
+ * @returns {void}
+ */
+function fixFakeLinkIssues() {
+  // Find elements that look like links but aren't <a> tags
+  // These are elements with click handlers or href-like behavior but missing link semantics
+  const fakeLinks = document.querySelectorAll(
+    '[onclick]:not(a):not(button):not([role]), ' +
+    '[href]:not(a):not(link):not(area), ' +
+    '[role="link"]:not(a), ' +
+    '.fake-link, .link-button, [data-link]'
+  );
+  
+  fakeLinks.forEach((element, index) => {
+    // If it has an onclick but no role, add role="link" or role="button" based on behavior
+    if (element.hasAttribute('onclick') && !element.hasAttribute('role')) {
+      const onclick = element.getAttribute('onclick');
+      // Heuristic: if it navigates, it's a link; if it performs action, it's a button
+      if (onclick.includes('location.href') || onclick.includes('window.open') || onclick.includes('navigate')) {
+        element.setAttribute('role', 'link');
+      } else {
+        element.setAttribute('role', 'button');
+      }
+    }
+    
+    // If it has href but isn't an anchor, add role="link"
+    if (element.hasAttribute('href') && element.tagName !== 'A') {
+      element.setAttribute('role', 'link');
+    }
+    
+    // Ensure keyboard accessibility for fake links
+    if (element.getAttribute('role') === 'link' && !element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
+    
+    // Add keydown handler for Enter/Space activation if it's a fake link/button
+    if ((element.getAttribute('role') === 'link' || element.getAttribute('role') === 'button') && 
+        element.tagName !== 'A' && element.tagName !== 'BUTTON') {
+      if (!element.hasAttribute('data-keyboard-handler')) {
+        element.setAttribute('data-keyboard-handler', 'true');
+        element.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === ' ') e.preventDefault(); // Prevent scrolling on space
+            element.click();
+          }
+        });
+      }
+    }
+    
+    // Ensure accessible name for fake links
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby') && !element.textContent.trim()) {
+      element.setAttribute('aria-label', `Link ${index + 1}`);
+    }
+  });
+}
+
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
@@ -181,6 +285,8 @@ addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
 addLangAttribute();
+addAccessibleNamesToSvgs();
+fixFakeLinkIssues();
 
 /**
  * Implement validateTableAccessibility() function to check for accessibility issues in tables.
@@ -199,6 +305,10 @@ function validateTableAccessibility() {
       headers.forEach(header => {
         if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
           console.error('Table header without proper role attribute:', header);
+        }
+        // Check for scope attribute (REACT_027)
+        if (!header.hasAttribute('scope')) {
+          console.warn('Table header missing scope attribute:', header);
         }
       });
     }
@@ -225,6 +335,9 @@ function validateTableStructure() {
   });
 }
 
+// Initialize the set of used landmark IDs
+const _usedLandmarkIds = new Set();
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
@@ -234,5 +347,7 @@ module.exports = {
   ensureUniqueLandmarkId,
   uniqueLandmarks,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  addAccessibleNamesToSvgs,
+  fixFakeLinkIssues
 };

@@ -9,25 +9,25 @@ import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility,
 function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   getLangAttribute();
-  wrapPrimaryContentInMain();
+  ...
   validateTableAccessibility();
   validateTableStructure();
   validateLandmark();
-  validateLandmarkStructure();
-  addFixLandmarkIssues();
-  getSvgAccessibleName();
+  ...
+  ...
+  ...
   createAccessibleLink();
   ensureUniqueLandmarks();
 }
 
 // Call the new function to handle accessibility issues
-handleAccessibilityIssues();
+...
 
 // Keep the existing exports
 // ...
 
-function addProperLandmarkRegions() {
-  const header = document.querySelector('header');
+function ... {
+  const header = ...
   if (header) {
     header.setAttribute('role', 'banner');
   }
@@ -38,11 +38,11 @@ function addProperLandmarkRegions() {
       return;
     }
 
-    const svgs = document.querySelectorAll('svg');
+    const svgs = ...
     svgs.forEach((svg) => {
       // Check if SVG is hidden
-      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                        svg.getAttribute('hidden') !== null ||
+      const isHidden = ... === 'true' ||
+                        ... !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -51,10 +51,10 @@ function addProperLandmarkRegions() {
       }
 
       // Check for existing accessible name
-      const hasAriaLabel = svg.getAttribute('aria-label');
-      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
+      const hasAriaLabel = ...
+      const hasAriaLabelledBy = ...
+      const hasTitle = ...
+      const hasDesc = ...
 
       if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
         return;
@@ -63,18 +63,18 @@ function addProperLandmarkRegions() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-favicon') === 'true';
+                        ... === 'true';
 
       if (isFavicon) {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
+        ... 'true');
+        ... 'false');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        const title = ... 'title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-label', 'Icon');
+        ... 'Icon');
       }
     });
   };
@@ -82,16 +82,16 @@ function addProperLandmarkRegions() {
   // Function to handle updating accessible SVG names when DOM mutates
   const updateAccessibleSvgNames = () => {
     setTimeout(() => {
-      ensureSvgAccessibleNames();
+      ...
     }, 0);
   };
 
-  ensureSvgAccessibleNames();
+  ...
 
   // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
-      updateAccessibleSvgNames();
+      ...
     });
 
     if (document.body) {
@@ -105,33 +105,33 @@ function addProperLandmarkRegions() {
   }
 
   // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('.landmark');
+  const landmarks = ...
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
-    landmark.setAttribute('role', 'landmark');
+    ... 'landmark');
   });
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+function ... {
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (title) {
       const titleId = title.getAttribute('id');
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 }
 
 // Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+function ... {
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (!title) {
       const svgText = svg.textContent || svg.innerText || 'Image';
-      svg.setAttribute('aria-label', svgText);
+      ... svgText);
     }
   });
 }
@@ -139,12 +139,48 @@ function addAriaLabelToSVGs() {
 // Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
 // - REACT_041: Add accessible names to 2 SVGs
 // These are decorative favicon SVGs, so marking them as hidden from assistive tech
-// const svg1 = document.querySelector('#svg1');
-// const svg2 = document.querySelector('#svg2');
-// if (svg1) svg1.setAttribute('aria-hidden', 'true');
-// if (svg2) svg2.setAttribute('aria-hidden', 'true');
+// const svg1 = ...
+// const svg2 = ...
+// if (svg1) ... 'true');
+// if (svg2) ... 'true');
 
 // Call the new landmark and SVG accessibility functions
-addProperLandmarkRegions();
-addAriaLabelledbyToSVGs();
-addAriaLabelToSVGs();
+...
+...
+...
+
+// Implement function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  // Map of ARIA landmark roles to their corresponding selectors
+  const landmarkRoles = {
+    'banner': 'header:not([role="presentation"])',
+    'navigation': 'nav',
+    'main': 'main',
+    'contentinfo': 'footer:not([role="presentation"])',
+    'complementary': 'aside',
+    'region': 'section[aria-label], section[aria-labelledby]',
+    'search': '[role="search"]',
+    'form': 'form[aria-label], form[aria-labelledby]'
+  };
+
+  Object.entries(landmarkRoles).forEach(([role, selector]) => {
+    const landmarks = document.querySelectorAll(selector);
+    
+    // If multiple landmarks of the same type exist, ensure they have unique accessible names
+    if (landmarks.length > 1) {
+      landmarks.forEach((landmark, index) => {
+        const hasAriaLabel = landmark.getAttribute('aria-label');
+        const hasAriaLabelledBy = landmark.getAttribute('aria-labelledby');
+        
+        if (!hasAriaLabel && !hasAriaLabelledBy) {
+          // Add a descriptive label based on the landmark type and its position
+          landmark.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+}

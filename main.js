@@ -13,14 +13,6 @@ const {
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
-const {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  countDependencies,
-  myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
-
 // Import your custom functions if they exist
 // const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
 

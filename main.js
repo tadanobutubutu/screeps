@@ -1,6 +1,46 @@
 const dependencyGraphContent = require('./dependencyGraphContent');
 
-// TODO: Add back any required exports that might have been?
+// TODO: Address accessibility issues from insight report:
+
+// Function to ensure HTML element has a lang attribute
+function ensureHtmlLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return htmlElement.getAttribute('lang');
+}
+
+// Update getLangAttribute to use ensureHtmlLangAttribute
+function getLangAttribute() {
+  return ensureHtmlLangAttribute('en');
+}
+
+// Update getFullLangAttribute to use ensureHtmlLangAttribute
+function getFullLangAttribute() {
+  return ensureHtmlLangAttribute('en-US');
+}
+
+// Function to check if HTML element has a properly formatted lang attribute
+function checkHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  const lang = htmlElement.getAttribute('lang');
+  
+  if (!lang) {
+    throw new Error('HTML element should have a lang attribute');
+  }
+  
+  // Basic validation for language tag format (BCP 47)
+  const langRegex = /^[a-z]{2,3}(?:-[A-Z]{2,3})?$/i;
+  if (!langRegex.test(lang)) {
+    throw new Error('HTML lang attribute should follow BCP 47 language tag format (e.g., "en", "en-US")');
+  }
+}
+
+// Function to handle REACT_015: Add lang attribute to HTML element
+function handleReact015() {
+  ensureHtmlLangAttribute('en');
+}
 
 function main() {
   return "Hello, World!";
@@ -29,20 +69,6 @@ const logger = {
   }
 };
 
-// Function to handle REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  // Code to get the language and return it
-  // Placeholder example:
-  return 'en';
-}
-
-function getFullLangAttribute() {
-  // Code to get full localized language and return it
-  // Placeholder example:
-  return 'en-US';
-}
-
-// New function: validateTableStructure
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
@@ -192,6 +218,7 @@ function addressAccessibilityIssue(issue, element) {
 function addressAccessibilityIssues() {
   validateTableStructure();
   validateLandmarkStructure();
+  checkHtmlLangAttribute();
   // Additional accessibility issue handling can be added here
 }
 
@@ -329,5 +356,8 @@ module.exports = {
   dependencyGraphContent,
   main,
   config,
-  version
+  version,
+  ensureHtmlLangAttribute,
+  checkHtmlLangAttribute,
+  handleReact015
 };

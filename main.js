@@ -22,7 +22,7 @@ module.exports.loop = function() {
     
     if(upgraders.length < 2) {
         var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, 
             {memory: {role: 'upgrader'}});
     }
 

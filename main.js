@@ -1,4 +1,11 @@
-// ... existing code ...
+const config = require('./config');
+const logger = require('./utils/logger');
+
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+
+let isInitialized = false;
+const appData = {};
+let uniqueLandmarks = {};
 
 /**
  * Implementation of getLangAttribute
@@ -72,26 +79,67 @@ function createInPageButton() {
  */
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return null;
-
-  // 1. Check aria-label
-  if (svgElement.getAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
-  }
-
-  // 2. Check aria-labelledby
-  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) return labelElement.textContent;
-  }
-
-  // 3. Check <title> element inside SVG
+  const ariaLabel = svgElement.getAttribute('aria-label');
   const titleElement = svgElement.querySelector('title');
-  if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
-  }
-
-  return null;
+  const title = titleElement ? titleElement.textContent : null;
+  const id = svgElement.id;
+  return ariaLabel || title || id || null;
 }
 
-// ... existing code and exports ...
+function addressAccessibilityIssues() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
+    document.querySelector('.dependencyGraph') ||
+    document.querySelector('[data-testid="dependency-graph"]') ||
+    document.querySelector('div[data-testid=dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // New accessibility functions
+  function improveAccessibility() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', button.textContent || 'Button');
+      }
+    });
+
+    const focusable = document.querySelectorAll('[role="link"]');
+    focusable.forEach(el => {
+      if (el.tabIndex < 0) el.tabIndex = 0;
+    });
+  }
+
+  function ensureUniqueLandmarks(insightReport) {
+    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+
+    // Check if all landmarks exist, re-add if necessary
+    const updatedLandmarks = {};
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length < landmarks.length) {
+        let existingElement = null;
+        elements.forEach(el => {
+          const role = el.getAttribute('role');
+          if (!updatedLandmarks[role]) {
+            updatedLandmarks[role] = el;
+            existingElement = el;
+          }
+        });
+        if (!existingElement) {
+          const newElement = document.createElement(`div`);
+          newElement.setAttribute('role', landmark);
+          if (!document.querySelector(`#${landmark}`)) {
+            newElement.setAttribute('id', landmark);
+          }
+          document.body.appendChild(newElement);
+          updatedLandmarks[landmark] = newElement;
+        }
+      }
+    });
+    uniqueLandmarks = updatedLandmarks;
+  }
+}

@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// <<<<<<< HEAD
+function renderComponent() {
+  // Code that renders a component
+}
+
+// ========
+
+// TODO: Address accessibility issues from insight report
+
+// >>>>>>> origin/branch-name

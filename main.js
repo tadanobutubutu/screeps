@@ -1,24 +1,24 @@
-const { add } = require('./mathHelpers');
-const { subtract } = require('./mathHelpers');
-const { multiply } = require('./mathHelpers');
-const { divide } = require('./mathHelpers');
-const { power } = require('./mathHelpers');
-const { squareRoot } = require('./mathHelpers');
-const { factorial } = require('./mathHelpers');
-const { fibonacci } = require('./mathHelpers');
-const { sum } = require('./mathHelpers');
-const { average } = require('./mathHelpers');
-const { max } = require('./mathHelpers');
-const { min } = require('./mathHelpers');
-const { mode } = require('./mathHelpers');
-const { median } = require('./mathHelpers');
-const { newFunction1 } = require('./mathHelpers');
-const { newFunction2 } = require('./mathHelpers');
+const { add } = require('./math/operations');
+const { subtract } = require('./math/operations');
+const { multiply } = require('./math/operations');
+const { divide } = require('./math/operations');
+const { power } = require('./math/operations');
+const { squareRoot } = require('./math/operations');
+const { factorial } = require('./math/operations');
+const { fibonacci } = require('./math/operations');
+const { sum } = require('./statistics/operations');
+const { average } = require('./statistics/operations');
+const { max } = require('./statistics/operations');
+const { min } = require('./statistics/operations');
+const { mode } = require('./statistics/operations');
+const { median } = require('./statistics/operations');
+const { newFunction1 } = require('./newModule');
+const { newFunction2 } = require('./newModule');
 
 import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Add back any required exports that might have been removed
-const missingModule = require('./path/to/missing/module');
+const missingModule = require('./missing/module');
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
@@ -27,20 +27,25 @@ function addLangAttribute() {
 }
 
 // - REACT_027: Validate table accessibility (DONE: validateTableAccessibility)
-function validateTableAccessibility(document) {
+function validateTableAccessibility(table) {
   // Implementation for table accessibility validation
 }
 
 // - REACT_017: Add/fix landmark issues (DONE: checkLandmarkElements, addMainLandmark, ensureUniqueLandmarks, addLandmarkRegions)
-function checkLandmarkElements(htmlContent) {
+function checkLandmarkElements(document) {
   // Implementation for landmark check
 }
 
 function addMainLandmark(document) {
-  // ... existing implementation ...
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const newMain = document.createElement('main');
+    document.body.insertBefore(newMain, document.body.firstChild);
+  }
+  return document;
 }
 
-function uniqueLandmarks(document) {
+function ensureUniqueLandmarks(document) {
   // Combined approach using both role-based and element-based selection
   const landmarkSelectors = [
     { selector: '[role="navigation"]', name: 'navigation' },
@@ -70,12 +75,12 @@ function uniqueLandmarks(document) {
   return document;
 }
 
-function ensureUniqueLandmarks(document) {
-  // ... updated implementation for restricting multiple instances of landmarks ...
-}
-
 function addLandmarkRegions(document) {
   // Implementation for adding landmark regions
+}
+
+function uniqueLandmarks(document) {
+  // Implementation for restricting multiple instances of landmarks
 }
 
 function validateLandmarkStructure(landmark) {
@@ -86,7 +91,7 @@ function validateLandmark(landmark) {
   // Implementation for landmark validation
 }
 
-function fixTableStructure(document) {
+function fixTableStructure(tables) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
 
@@ -102,17 +107,17 @@ function fixLandmarkIssues(document) {
 }
 
 // - REACT_025: Ensure unique landmarks (combined approach)
-function ensureUniqueLandmarks(document) {
+function validateLandmarkAccessibility(landmark) {
   // ... updated implementation for restricting multiple instances of landmarks ...
 }
 
 // - REACT_041: Add accessible names to SVGs (DONE: addSvgAccessibleNames)
-function addSvgAccessibleNames(document) {
+function addSvgAccessibleNames(svgElement) {
   // Implementation for adding accessible names to SVGs
 }
 
 // - REACT_036: Fix fake link issues (DONE: fixFakeLinkIssues)
-function fixFakeLinkIssues(document) {
+function fixFakeLinkIssues(links) {
   // Implementation for fixing fake link issues
 }
 
@@ -126,41 +131,147 @@ function fixButtonIdentifiers(button, buttonId) {
   button.id = buttonId;
 }
 
-// Utility functions
-function formatDate(date) {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-}
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderGraph(data, options = {}) {
+  const {
+    type = 'line',
+    title = 'Graph',
+    xLabel = 'X',
+    yLabel = 'Y',
+    width = 600,
+    height = 400
+  } = options;
 
-function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+  // Process data using new functions for rendering graph/index
+  const processedData = newFunction1(data);
+  const indexedData = newFunction2(processedData);
+
+  // Calculate statistics for the graph data
+  const graphStats = {
+    total: sum(data),
+    avg: average(data),
+    min: min(data),
+    max: max(data),
+    median: median(data)
   };
-}
 
-function generateId() {
-  return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-}
+  // Create graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'graph-container';
+  graphContainer.style.width = `${width}px`;
+  graphContainer.style.height = `${height}px`;
 
-module.exports = {
-  add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
-  newFunction1, newFunction2,
-  addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, uniqueLandmarks, ensureUniqueLandmarks, addLandmarkRegions,
-  validateTableAccessibility, checkLandmarkElements, validateLandmarkStructure, validateLandmark, addSvgAccessibleNames, fixFakeLinkIssues, googleSignIn, fixButtonIdentifiers,
-  missingModule,
-  MyExport: function() {
-    // Existing implementation...
-  },
-  AnotherExport: function() {
-    // Implementation of the new export
+  // Create title
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = title;
+  titleElement.setAttribute('aria-label', `Graph: ${title}`);
+  graphContainer.appendChild(titleElement);
+
+  // Create graph canvas element
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height - 50;
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', `Visual representation of ${title}`);
+  graphContainer.appendChild(canvas);
+
+  // Create labels container
+  const labelsContainer = document.createElement('div');
+  labelsContainer.className = 'graph-labels';
+
+  const xLabelElement = document.createElement('span');
+  xLabelElement.textContent = xLabel;
+  xLabelElement.className = 'x-label';
+
+  const yLabelElement = document.createElement('span');
+  yLabelElement.textContent = yLabel;
+  yLabelElement.className = 'y-label';
+
+  labelsContainer.appendChild(yLabelElement);
+  labelsContainer.appendChild(xLabelElement);
+  graphContainer.appendChild(labelsContainer);
+
+  // Render graph using the new functions
+  const ctx = canvas.getContext('2d');
+  
+  // Use processed and indexed data for rendering
+  if (type === 'line') {
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height);
+    
+    indexedData.forEach((point, index) => {
+      const x = (index / indexedData.length) * canvas.width;
+      const y = canvas.height - (point.value / graphStats.max) * canvas.height;
+      ctx.lineTo(x, y);
+    });
+    
+    ctx.stroke();
+  } else if (type === 'bar') {
+    const barWidth = canvas.width / indexedData.length;
+    
+    indexedData.forEach((point, index) => {
+      const x = index * barWidth;
+      const barHeight = (point.value / graphStats.max) * canvas.height;
+      ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+    });
   }
-};
+
+  // Add data summary
+  const summaryElement = document.createElement('div');
+  summaryElement.className = 'graph-summary';
+  summaryElement.innerHTML = `
+    <span>Total: ${graphStats.total}</span>
+    <span>Average: ${graphStats.avg.toFixed(2)}</span>
+    <span>Min: ${graphStats.min}</span>
+    <span>Max: ${graphStats.max}</span>
+  `;
+  graphContainer.appendChild(summaryElement);
+
+  return graphContainer;
+}
+
+function renderIndex(data, options = {}) {
+  const {
+    title = 'Index',
+    showSummary = true,
+    sortable = true
+  } = options;
+
+  // Process data using new functions
+  const indexedData = newFunction2(newFunction1(data));
+
+  // Create index container
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-container';
+
+  // Create title
+  const titleElement = document.createElement('h2');
+  titleElement.textContent = title;
+  titleElement.setAttribute('id', 'index-title');
+  indexContainer.appendChild(titleElement);
+
+  // Create index list
+  const listElement = document.createElement('ul');
+  listElement.setAttribute('role', 'list');
+  listElement.setAttribute('aria-labelledby', 'index-title');
+
+  indexedData.forEach((item, index) => {
+    const listItem = document.createElement('li');
+    listItem.setAttribute('role', 'listitem');
+    
+    const linkElement = document.createElement('a');
+    linkElement.href = `#section-${index}`;
+    linkElement.textContent = item.label || `Item ${index + 1}`;
+    linkElement.id = `index-link-${index}`;
+    
+    listItem.appendChild(linkElement);
+    listElement.appendChild(listItem);
+  });
+
+  indexContainer.appendChild(listElement);
+
+  // Add summary if enabled
+  if (showSummary) {
+    const summaryElement = document.createElement('div');
+    summaryElement.className = 'index-summary';
+    summaryElement.setAttribute('role', '

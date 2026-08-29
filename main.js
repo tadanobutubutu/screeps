@@ -15,10 +15,10 @@ function checkTableData(tableData, requiredColumns) {
     if (!Array.isArray(tableData) || tableData.length === 0) {
         return { valid: false, missingColumns: requiredColumns };
     }
-    
+
     const headers = tableData[0];
     const missingColumns = requiredColumns.filter(col => !headers.includes(col));
-    
+
     return {
         valid: missingColumns.length === 0,
         missingColumns
@@ -28,18 +28,18 @@ function checkTableData(tableData, requiredColumns) {
 // Implement validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
-  
+
   // Check if landmark exists
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
   }
-  
+
   // Validate name
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
-  
+
   // Validate latitude
   if (landmark.latitude === undefined || landmark.latitude === null) {
     errors.push('Landmark must have a latitude');
@@ -48,7 +48,7 @@ function validateLandmark(landmark) {
   } else if (landmark.latitude < -90 || landmark.latitude > 90) {
     errors.push('Landmark latitude must be between -90 and 90');
   }
-  
+
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
@@ -57,7 +57,12 @@ function validateLandmark(landmark) {
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
-  
+
+  // New function: Validate if a landmark has an accessible name
+  if (!landmark.accessibleName || typeof landmark.accessibleName !== 'string' || landmark.accessibleName.trim() === '') {
+    errors.push('A landmark must have an accessibleName');
+  }
+
   return {
     valid: errors.length === 0,
     errors
@@ -69,7 +74,7 @@ function initialize(options = {}) {
     logger.warn('App already initialized');
     return false;
   }
-  
+
   config.set(options);
   isInitialized = true;
   logger.info('Application initialized');

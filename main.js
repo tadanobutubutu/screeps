@@ -1,4 +1,4 @@
-// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+// TODO: This is the existing code that needs to be preserved; add new functions to ensure elements have an id, add aria-label, and render dependency graphs
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -11,6 +11,19 @@ let uniqueLandmarks = {};
 
 function toRad(deg) {
   return deg * (Math.PI / 180);
+}
+
+// Function for calculating distance between two coordinates
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 // Function for checking landmark elements
@@ -62,7 +75,6 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
-  // New accessibility functions
   function improveAccessibility() {
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
@@ -77,32 +89,32 @@ function addressAccessibilityIssues() {
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
 
-    // Check if all landmarks exist, re-add if necessary
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length < landmarks.length) {
-        const uniqueLandmarkMap = {};
+  // Check if all landmarks exist, re-add if necessary
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length < landmarks.length) {
+      const uniqueLandmarkMap = {};
 
-        landmarks.forEach(uniqueLandmark => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
-          if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
-              const id = uniqueLandmark;
-              element.setAttribute('id', id);
-            }
-            document.body.appendChild(element);
+      landmarks.forEach(uniqueLandmark => {
+        let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+        if (!element[0]) {
+          element = document.createElement('div');
+          element.setAttribute('role', uniqueLandmark);
+          if (!document.querySelector(`#${uniqueLandmark}`)) {
+            const id = uniqueLandmark;
+            element.setAttribute('id', id);
           }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
-        });
-        uniqueLandmarks = uniqueLandmarkMap;
-      }
-    });
-  }
+          document.body.appendChild(element);
+        }
+        uniqueLandmarkMap[uniqueLandmark] = element[0];
+      });
+      uniqueLandmarks = uniqueLandmarkMap;
+    }
+  });
+
+  improveAccessibility();
 }
 
 // New function to render dependency graphs

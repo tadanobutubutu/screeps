@@ -58,6 +58,17 @@ const main = {
   },
 
   // Add the new function or change here:
+  ensureUniqueLandmarks: function(landmarks) {
+    const uniqueLandmarks = [];
+    landmarks.forEach(landmark => {
+      if (!uniqueLandmarks.includes(landmark)) {
+        uniqueLandmarks.push(landmark);
+      }
+    });
+    return uniqueLandmarks;
+  },
+
+  // Export the new function if needed:
   myNewFunction: function() {
     // your new function logic goes here
   }

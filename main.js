@@ -63,5 +63,27 @@ const main = {
   }
 };
 
+// Accessibility fixes
+// REACT_015: Add lang attribute to HTML element
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = 'en';
+}
+
+// Validate table structures
+validateTableAccessibility();
+validateTableStructure();
+
+// Landmark issues
+validateLandmark();
+validateLandmarkStructure();
+
+// Accessible names for SVGs
+getSvgAccessibleName('player');
+getSvgAccessibleName('map');
+
+// Fix fake link issue
+createInPageButton();
+personName();
+
 // Export the new function if needed:
 module.exports = main;

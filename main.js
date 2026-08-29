@@ -54,8 +54,8 @@ function renderIndexView(container) {
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (doc.documentElement.getAttribute('lang') !== lang) {
-      doc.documentElement.setAttribute('lang', lang);
+    if (doc.documentElement.lang !== lang) {
+      doc.documentElement.lang = lang;
     }
   }
 }
@@ -64,9 +64,8 @@ function addLangAttribute(lang = 'en') {
 function updateAriaAttributes() {
   const doc = getDocument();
   if (doc) {
-    // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.getAttribute('role')) {
+    if (body && !body.hasAttribute('role')) {
       body.setAttribute('role', 'document');
     }
   }
@@ -87,6 +86,7 @@ function handleErrorState(errorElement, container, trigger = false) {
   if (typeof errorElement === 'string') {
     errorSection.textContent = errorElement;
   } else if (errorElement instanceof HTMLElement) {
+    errorSection.innerHTML = '';
     errorSection.appendChild(errorElement);
   } else {
     errorSection.textContent = String(errorElement);
@@ -122,6 +122,30 @@ function triggerAccessibilityMode() {
   }
 }
 
+// Implementation for checking link accessibility
+function isLinkAccessible(link) {
+  if (!link || typeof link !== 'object') {
+    return false;
+  }
+
+  const doc = getDocument();
+  if (!doc) return false;
+
+  if (!(link instanceof doc.defaultView.Element) && link.nodeType !== 1) {
+    return false;
+  }
+
+  if (link.hasAttribute('href')) {
+    const href = link.getAttribute('href');
+    if (href === null || href === '' || href === '#' || href === 'javascript:void(0)' || href === 'javascript:void(0);') {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
 // Export the existing handleErrorState function
 export { handleErrorState };
 
@@ -138,3 +162,6 @@ export { triggerAccessibilityMode };
 // Export functions that render dependency graphs and index views
 export { renderDependencyGraph };
 export { renderIndexView };
+
+// Export the new isLinkAccessible function
+export { isLinkAccessible };

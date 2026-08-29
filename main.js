@@ -17,6 +17,26 @@ function renderDependencyGraphs(dependencyGraphData) {
   // ...
 }
 
+// Function for counting dependencies
+function countDependencies(obj) {
+  let count = 0;
+  for (const key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      count += countDependencies(obj[key]);
+    } else if (typeof obj[key] === 'function') {
+      let funcName = obj[key].name || '<anonymous>';
+      if (!funcNames.includes(funcName)) {
+        funcNames.push(funcName);
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+// Assuming funcNames is a global array to store function names
+let funcNames = [];
+
 // TODO: Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   // ... (the rest of the existing code remains the same)
@@ -48,5 +68,7 @@ module.exports = {
   // ... (the existing exports remain the same)
   ensureElementAccessibility,
   renderDependencyGraphs,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  countDependencies,
+  funcNames
 };

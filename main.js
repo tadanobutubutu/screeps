@@ -175,6 +175,129 @@ function newFunction() {
 
 module.exports.newFunction = newFunction;
 
+// REACT_015: Add lang attribute to HTML element
+export function addLangAttribute(lang = 'en') {
+  if (typeof document === 'undefined') return;
+  const htmlElement = document.documentElement;
+  if (!htmlElement) return;
+  if (!htmlElement.getAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+// REACT_027: Fix table structure issues (header scope, caption, etc.)
+export function fixTableStructure(tableElement) {
+  if (!tableElement) return [];
+  const updates = [];
+
+  // Add scope to <th> elements lacking it
+  const scopeUpdates = addScopeToHeaders(tableElement);
+  updates.push(...scopeUpdates);
+
+  // Ensure table has a caption for accessibility
+  if (!tableElement.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = tableElement.getAttribute('aria-label') || 'Data table';
+    tableElement.insertBefore(caption, tableElement.firstChild);
+    updates.push({ element: caption, scope: 'caption' });
+  }
+
+  return updates;
+}
+
+// REACT_017: Add main landmark to the document
+export function addMainLandmark(content) {
+  if (typeof document === 'undefined') return null;
+  if (!content) return null;
+
+  let main = document.querySelector('main');
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    if (typeof content === 'string') {
+      main.id = content;
+    } else if (content && content.id) {
+      main.id = content.id;
+    }
+    document.body.appendChild(main);
+  } else if (!main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  return main;
+}
+
+// REACT_025: Ensure unique landmarks by adding unique aria-labels
+export function ensureUniqueLandmarks(container) {
+  if (!container) return [];
+  const fixedIssues = [];
+
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const seen = new Map();
+
+  landmarks.forEach((landmark) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const currentLabel = landmark.getAttribute('aria-label');
+    const currentLabelledby = landmark.getAttribute('aria-labelledby');
+    const key = currentLabel || currentLabelledby || tagName;
+
+    if (seen.has(key)) {
+      const count = seen.get(key);
+      seen.set(key, count + 1);
+      const uniqueName = getUniqueLandmarkName(tagName, Array.from(seen.keys()));
+      landmark.setAttribute('aria-label', uniqueName);
+      seen.set(uniqueName, 1);
+      fixedIssues.push({
+        element: landmark,
+        message: `Assigned unique aria-label "${uniqueName}" to duplicate landmark.`
+      });
+    } else {
+      seen.set(key, 1);
+    }
+  });
+
+  return fixedIssues;
+}
+
+// REACT_041: Add accessible names to multiple SVGs
+export function addSvgAccessibleNames(svgElements, names) {
+  if (!Array.isArray(svgElements)) return [];
+  const updates = [];
+
+  svgElements.forEach((svg, index) => {
+    const name = Array.isArray(names) ? names[index] : names;
+    if (svg && name) {
+      addSvgAccessibleName(svg, name);
+      updates.push({ element: svg, accessibleName: name });
+    }
+  });
+
+  return updates;
+}
+
+// REACT_036: Fix fake link issues
+export function fixFakeLinkIssue(element) {
+  if (!element) return null;
+  const validity = isValidLink(element);
+  if (validity.valid) return element;
+
+  const tagName = element.tagName.toLowerCase();
+  if ((tagName === 'div' || tagName === 'span') && element.hasAttribute('onclick')) {
+    const button = document.createElement('button');
+    button.innerHTML = element.innerHTML;
+    const attributes = Array.from(element.attributes);
+    attributes.forEach((attr) => {
+      if (attr.name !== 'onclick') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    });
+    if (element.parentNode) {
+      element.parentNode.replaceChild(button, element);
+    }
+    return button;
+  }
+  return element;
+}
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);

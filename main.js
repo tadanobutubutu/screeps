@@ -1,6 +1,5 @@
 import React from 'react';
 
-// TODO: Add back any required exports that might have been?
 // (This comment remains as-is)
 
 /**
@@ -49,7 +48,7 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
+  ...
   return button;
 }
 

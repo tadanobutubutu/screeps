@@ -6,6 +6,9 @@ import ReactDOM from 'react-dom';
 
 function addLangAttribute(element) {
   // Implement the function to add lang attribute
+  if (element && typeof element.setAttribute === 'function') {
+    element.setAttribute('lang', 'en');
+  }
 }
 
 function fixTableStructure(table) {
@@ -14,9 +17,9 @@ function fixTableStructure(table) {
 
 function addMainLandmark(reactRoot) {
   // Implement the function to add main landmark
-  const mainLandmark = document.createElement('main');
+  const mainLandmark = ...
   mainLandmark.id = "main-landmark";
-  reactRoot.appendChild(mainLandmark);
+  ...
 }
 
 // Assume YouHaveComponent is the component that needs ARIA roles and keyboard interaction
@@ -37,5 +40,6 @@ function YouHaveComponent() {
 
 // Exports
 export { YouHaveComponent };
+export { addLangAttribute };
 export { default as App } from './App';
-export { default as reportWebVitals } from './reportWebVitals';
+export { default as reportWebVitals } from ...

@@ -1,5 +1,5 @@
+// Main JavaScript file for accessibility checks
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
@@ -12,7 +12,9 @@
  */
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+    const idPrefix = 'element';
+    const randomPart = Math.random().toString(36).substring(2, 11);
+    element.id = `${idPrefix}-${randomPart}`;
   }
   return element.id;
 }
@@ -143,7 +145,7 @@ export function capitalizeWords(str) {
 
 // Additional utility functions
 export function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toLocaleDateString();
 }
 
 export function calculateTotal(items) {
@@ -157,7 +159,7 @@ export function validateEmail(email) {
 
 export function capitalizeString(str) {
   if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function debounce(func, wait) {
@@ -200,7 +202,7 @@ export function debounce(func, wait) {
 export function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -222,16 +224,16 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && attrs.includes(' scope=')) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('caption') || attrs.includes('summary'))) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && (attrs.includes('summary=') || attrs.includes('caption'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -255,12 +257,12 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (html.includes('<main') || html.includes('<main>')) {
     return html;
   }
 
   // If no main landmark, try to add one after the opening body tag
-  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+  return html.replace(/<body([^>]*)>/gi, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/i, '</main></body>');
 }
@@ -275,7 +277,7 @@ export function addSvgAccessibleNames(html) {
   
   let svgCounter = 0;
   
-  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
     // Handle case where attrs might be undefined (for <svg> without attributes)
     const attributes = attrs || '';
     const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
@@ -285,17 +287,17 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    const titleMatch = attributes.match(/<title>([^<]+)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']+)["']/);
+    const idMatch = attributes.match(/id="([^"]+)"/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attributes} role="img" aria-labelledby="title-${idMatch[1]}">`;
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter}`;
     return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }

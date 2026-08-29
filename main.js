@@ -305,5 +305,47 @@ export function getSvgAccessibleName(svg) {
   if (ariaLabel && ariaLabel.trim()) {
     return ariaLabel.trim();
   }
-  
-  //
+
+  // Check for <title> element
+  const title = svg.querySelector('title');
+  if (title && title.textContent.trim()) {
+    return title.textContent.trim();
+  }
+
+  // Check for <desc> element
+  const desc = svg.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+
+  // Check for aria-labelledby
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledbyElement = document.getElementById(ariaLabelledby);
+    if (labelledbyElement && labelledbyElement.textContent.trim()) {
+      return labelledbyElement.textContent.trim();
+    }
+  }
+
+  // Fallback to role description or text content
+  return svg.getAttribute('role') || svg.textContent.trim() || '';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} accessibleName - The accessible name to set
+ */
+export function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+
+  const name = accessibleName || getSvgAccessibleName(svg);
+
+  if (name && name.trim()) {
+    svg.setAttribute('aria-label', name);
+    svg.setAttribute('role', 'img');
+  } else {
+    // Hide decorative SVGs from assistive technologies
+    svg.setAttribute('aria-hidden', 'true');
+  }
+}

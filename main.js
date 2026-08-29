@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
 // Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
@@ -199,6 +199,162 @@ function addressAccessibilityIssues() {
   }
 }
 
+// NEW FUNCTION: Ensure the element has an id, generating a unique one if needed
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    return null;
+  }
+  
+  if (!element.id) {
+    // Generate a unique id using timestamp and random string
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 9);
+    element.id = `${prefix}-${timestamp}-${randomStr}`;
+  }
+  
+  return element.id;
+}
+
+// NEW FUNCTION: Add aria-label to any element
+function addAriaLabelToElement(element, label) {
+  if (!element) {
+    return null;
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+// NEW FUNCTION: Render dependency graphs
+function renderDependencyGraph(containerSelector, dependencies, options = {}) {
+  const container = typeof containerSelector === 'string' 
+    ? document.querySelector(containerSelector) 
+    : containerSelector;
+  
+  if (!container) {
+    console.error('Container element not found for dependency graph');
+    return null;
+  }
+  
+  if (!Array.isArray(dependencies) || dependencies.length === 0) {
+    console.warn('No dependencies provided for rendering');
+    return null;
+  }
+  
+  const {
+    width = 600,
+    height = 300,
+    nodeWidth = 120,
+    nodeHeight = 50,
+    gapX = 20,
+    gapY = 30,
+    title = 'Dependency Graph'
+  } = options;
+  
+  // Create SVG element
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', title);
+  
+  // Add title for accessibility
+  const svgTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  svgTitle.textContent = title;
+  svg.appendChild(svgTitle);
+  
+  // Calculate layout
+  const totalNodesWidth = dependencies.length * nodeWidth + (dependencies.length - 1) * gapX;
+  const startX = Math.max((width - totalNodesWidth) / 2, 10);
+  const startY = Math.max((height - nodeHeight) / 2, 10);
+  
+  // Draw nodes and connections
+  dependencies.forEach((dep, index) => {
+    const x = startX + index * (nodeWidth + gapX);
+    const y = startY;
+    
+    // Draw connection line (except for first node)
+    if (index > 0) {
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const prevX = startX + (index - 1) * (nodeWidth + gapX) + nodeWidth;
+      const prevY = startY + nodeHeight / 2;
+      line.setAttribute('x1', String(prevX));
+      line.setAttribute('y1', String(prevY));
+      line.setAttribute('x2', String(x));
+      line.setAttribute('y2', String(y + nodeHeight / 2));
+      line.setAttribute('stroke', '#666');
+      line.setAttribute('stroke-width', '2');
+      line.setAttribute('marker-end', 'url(#arrowhead)');
+      svg.appendChild(line);
+    }
+    
+    // Draw node rectangle
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(x));
+    rect.setAttribute('y', String(y));
+    rect.setAttribute('width', String(nodeWidth));
+    rect.setAttribute('height', String(nodeHeight));
+    rect.setAttribute('rx', '5');
+    rect.setAttribute('ry', '5');
+    rect.setAttribute('fill', '#4CAF50');
+    rect.setAttribute('stroke', '#2E7D32');
+    rect.setAttribute('stroke-width', '2');
+    svg.appendChild(rect);
+    
+    // Draw node label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(x + nodeWidth / 2));
+    text.setAttribute('y', String(y + nodeHeight / 2 + 5));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', 'white');
+    text.setAttribute('font-family', 'Arial, sans-serif');
+    text.setAttribute('font-size', '12');
+    text.textContent = dep.name || dep;
+    svg.appendChild(text);
+    
+    // Draw version if available
+    if (dep.version) {
+      const versionText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      versionText.setAttribute('x', String(x + nodeWidth / 2));
+      versionText.setAttribute('y', String(y + nodeHeight / 2 + 18));
+      versionText.setAttribute('text-anchor', 'middle');
+      versionText.setAttribute('fill', '#c8e6c9');
+      versionText.setAttribute('font-family', 'Arial, sans-serif');
+      versionText.setAttribute('font-size', '10');
+      versionText.textContent = `v${dep.version}`;
+      svg.appendChild(versionText);
+    }
+  });
+  
+  // Add arrowhead marker definition
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '10');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#666');
+  
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.insertBefore(defs, svg.firstChild);
+  
+  // Append to container
+  container.appendChild(svg);
+  
+  return svg;
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
@@ -266,6 +422,9 @@ if (typeof module !== 'undefined' && module.exports) {
     addSvgAccessibleNames,
     fixFakeLinkIssue,
     addLangAttribute,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    ensureElementHasId,
+    addAriaLabelToElement,
+    renderDependencyGraph
   };
 }

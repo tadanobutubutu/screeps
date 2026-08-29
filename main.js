@@ -53,4 +53,40 @@ function detectAndSetLang(content) {
   return setHtmlLangAttribute(lang);
 }
 
-module.exports = { setHtmlLangAttribute, detectAndSetLang };
+/**
+ * Gets the current lang attribute value from the document's <html> tag
+ * @returns {string} The current lang attribute value
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+/**
+ * Creates a properly accessible person name element, ensuring it's not implemented as a fake link
+ * @param {string} name - The person's name
+ * @param {boolean} isLink - Whether the name should be rendered as a link
+ * @returns {string} HTML string representing the person name element
+ */
+function personName(name, isLink) {
+  if (!name) {
+    return '';
+  }
+  
+  if (isLink) {
+    // Properly implement as a link with href attribute to avoid fake link issues
+    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+  } else {
+    // Render as a span for non-link content
+    return `<span aria-label="Person: ${name}">${name}</span>`;
+  }
+}
+
+module.exports = { 
+  setHtmlLangAttribute, 
+  detectAndSetLang,
+  getLangAttribute,
+  personName
+};

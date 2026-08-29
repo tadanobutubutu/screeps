@@ -123,7 +123,6 @@ const main = {
     console.log('Accessibility function is running...');
   },
 
-  // Additional functions for TODO items:
   automateCreeps: function() {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];

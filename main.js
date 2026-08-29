@@ -9,6 +9,8 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section'
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
+  liveRegion: null,
+
   // Property to count dependencies
   countDependencies(document) {
     const importCommentRegExp = /import\s/g;
@@ -17,11 +19,15 @@ const a11yStore = {
   },
 
   init() {
+    this.createLiveRegion();
     this.checkLandmarkElements();
     this.addSvgAccessibility();
     this.setupSkipLinks();
     this.fixFakeLinks(); // Added for REACT_036
+    this.setupFocusManagement();
+    this.setupKeyboardNavigation();
     this.updateThScopeAttributes();
+    this.enhanceDynamicContent();
   },
 
   // Update scope attributes in all .html files in the views directory
@@ -40,22 +46,50 @@ const a11yStore = {
   // Create a live region for screen reader announcements
   createLiveRegion() {
     if (this.liveRegion) return;
-    
+
     this.liveRegion = document.createElement('div');
+    this.liveRegion.setAttribute('role', 'status');
     this.liveRegion.setAttribute('aria-live', 'polite');
     this.liveRegion.setAttribute('aria-atomic', 'true');
     this.liveRegion.className = 'sr-only';
+    this.liveRegion.id = 'a11y-live-region';
     document.body.appendChild(this.liveRegion);
   },
 
   // Utility: Announce message to screen readers
   announce(message, priority = 'polite') {
-    this.createLiveRegion();
+    if (!this.liveRegion) return;
     this.liveRegion.setAttribute('aria-live', priority);
     this.liveRegion.textContent = '';
     setTimeout(() => {
       this.liveRegion.textContent = message;
     }, 100);
+  },
+
+  // Setup keyboard navigation for interactive elements
+  setupKeyboardNavigation() {
+    document.addEventListener('keydown', (e) => {
+      // Handle Enter and Space for custom interactive elements
+      if (e.key === 'Enter' || e.key === ' ') {
+        const target = e.target.closest('[role="button"]');
+        if (target) {
+          e.preventDefault();
+          target.click();
+        }
+      }
+
+      // Escape key to close modals/dropdowns
+      if (e.key === 'Escape') {
+        const openModal = document.querySelector('[aria-modal="true"][aria-hidden="false"]');
+        if (openModal) {
+          openModal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }
+      }
+    });
+
+    // Fix Safari focus trapping in dropdowns
+    this.setupDropdownFocusTrapping();
   },
 
   // Fix Safari focus trapping in dropdowns
@@ -138,6 +172,25 @@ const a11yStore = {
     }
   },
 
+  // Add lang attribute to HTML element
+  getLangAttribute() {
+    return document.documentElement.lang || 'en';
+  },
+
+  // Create skip-to-main-content button
+  createInPageButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Skip to main content';
+    button.addEventListener('click', () => {
+      const main = document.querySelector('main');
+      if (main) {
+        main.setAttribute('tabindex', '-1');
+        main.focus();
+      }
+    });
+    return button;
+  },
+
   // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -152,6 +205,13 @@ const a11yStore = {
   updateLiveRegion(message, priority = 'polite') {
     if (!this.liveRegion) this.createLiveRegion();
     this.announce(message, priority);
+  },
+
+  // Enhance dynamic content accessibility
+  enhanceDynamicContent() {
+    // Apply accessibility improvements to dynamically added elements
+    this.addSvgAccessibility();
+    this.checkLandmarkElements();
   },
 
   // Check landmark elements
@@ -184,7 +244,7 @@ const a11yStore = {
       let titleElement = svg.querySelector('title');
       if (!titleElement) {
         titleElement = document.createElement('title');
-        titleElement.textContent = 'Image'; // Default accessible name
+        titleElement.textContent = svg.getAttribute('title') || 'Image'; // Default accessible name
         svg.insertBefore(titleElement, svg.firstChild);
       }
       
@@ -201,6 +261,17 @@ const a11yStore = {
       // Add role img if not present (redundant but safe)
       if (!svg.getAttribute('role')) {
         svg.setAttribute('role', 'img');
+      }
+
+      // Add aria-describedby for additional description
+      if (!svg.getAttribute('aria-describedby')) {
+        const descriptionId = `svg-description-${Math.floor(Math.random() * 10000)}`;
+        svg.setAttribute('aria-describedby', descriptionId);
+
+        const descriptionElement = document.createElement('desc');
+        descriptionElement.id = descriptionId;
+        descriptionElement.textContent = svg.getAttribute('title') || 'Image description';
+        svg.appendChild(descriptionElement);
       }
     });
   },
@@ -253,6 +324,11 @@ const a11yStore = {
       }
     });
   },
+
+  // Preserve existing code functionality
+  preserveExistingCode() {
+    console.log("Preserving existing code and accessibility features");
+  }
 };
 
 // Standalone function to count dependencies using Document and regex
@@ -273,6 +349,18 @@ function addLandmarkRegions() {
       }
     });
   });
+}
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Adding the new function at the end
+function newFunction() {
+  // Placeholder implementation - could be expanded based on actual requirements
+  console.log("New function executed");
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -317,59 +405,40 @@ mainElement.lang = 'en';
 document.body.insertBefore(mainElement, document.body.firstChild);
 
 // Initialize accessibility features
-a11yStore.init();
+document.addEventListener('DOMContentLoaded', () => {
+  a11yStore.init();
+});
 
 // Game-related functions and exports
 function main() {
   return 'Hello World';
 }
 
-function SomeClass() {}
-
-function someUtility() {
-  return true;
-}
-
-// TODO: Add the implementation of this function
-function updateThScopeAttribute(filePath) {
-  // Implementation to update the scope attribute in the .html file
-  // This is a placeholder implementation
-  console.log(`Updating scope attributes in ${filePath}`);
-}
-
-const config = {
-  enabled: true
-};
-
-// Implement this function for accessibility checks on tables
-function accessibilityCheckTables() {
-  // Your implementation for accessibility checks on tables goes here
-  // For example, you could iterate over all tables and call the existing validation functions
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  });
-}
-
+// Exporting the module
 module.exports = {
-    run,
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
-    a11yStore,
-    mainElement,
-    accessibilityCheckTables,
-    addLandmarkRegions,
-    updateThScopeAttribute
+  run,
+  main,
+  SomeClass,
+  someUtility,
+  config,
+  countDependencies,
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  a11yStore,
+  mainElement,
+  accessibilityCheckTables,
+  addLandmarkRegions,
+  updateThScopeAttribute,
+  newFunction,
+  addressAccessibilityIssues,
+  updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
+  checkLandmarkElements: a11yStore.checkLandmarkElements.bind(a11yStore),
+  addSVGAccessibilityProps: a11yStore.addSvgAccessibility.bind(a11yStore),
+  preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore)
 };

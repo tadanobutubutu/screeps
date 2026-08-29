@@ -36,7 +36,7 @@ function App() {
 
   // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
   }, []);
 
   // REACT_017: Add landmark roles and fix landmark issues
@@ -55,22 +55,25 @@ function App() {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function getUniqueLandmarkName(baseName, existingNames) {
+export function ensureUniqueName(baseName, existingNames) {
+  if (!existingNames || !Array.isArray(existingNames)) {
+    return baseName;
+  }
   if (!existingNames.includes(baseName)) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function validateLandmarkUniqueness(container = document) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -102,7 +105,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `${svgElement.id || 'svg'}-title`;
   title.textContent = accessibleName;
   
   // Insert title as first child
@@ -134,7 +137,7 @@ export function isValidLink(element) {
 }
 
 // REACT_027: Add scope to table headers
-export function addScopeToHeaders(tableElement) {
+export function validateTableAccessibility(tableElement) {
   if (!tableElement) return [];
   
   const headers = tableElement.querySelectorAll('th');
@@ -142,7 +145,7 @@ export function addScopeToHeaders(tableElement) {
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
     const cellIndex = Array.from(row.children).indexOf(th);
     
     // Determine if scope should be 'col' or 'row'
@@ -169,7 +172,7 @@ export function addScopeToHeaders(tableElement) {
 // Accessibility issue addressing functions
 function addressAccessibilityIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -192,9 +195,10 @@ function newFunction() {
  */
 function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
   announcement.setAttribute('aria-live', priority);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
+  announcement.className = 'sr-only';
   announcement.textContent = message;
   document.body.appendChild(announcement);
   setTimeout(() => announcement.remove(), 1000);
@@ -225,7 +229,6 @@ function trapFocus(element) {
   };
 
   element.addEventListener('keydown', handleKeyDown);
-  firstElement?.focus();
 
   return () => element.removeEventListener('keydown', handleKeyDown);
 }

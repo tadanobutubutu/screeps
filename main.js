@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 /**
  * Accessibility improvement functions for main.js
  * Addressing issues from insight report:

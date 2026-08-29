@@ -1,6 +1,5 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 
 /**
  * Add your code here to replace `my-button` with a concrete button id

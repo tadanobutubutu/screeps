@@ -2,11 +2,11 @@
 // Add new functions (no existing functions should be removed or renamed)
 
 function addressAccessibilityIssues() {
-  // TODO: Implement the required changes to improve accessibility
+  // Implement the required changes to improve accessibility
   
   // REACT_015: Add lang attribute to HTML element
   function setHtmlLangAttribute(lang = 'en', doc = document) {
-    if (doc.documentElement) {
+    if (doc && doc.documentElement) {
       doc.documentElement.setAttribute('lang', lang);
     }
   }
@@ -28,7 +28,10 @@ function addressAccessibilityIssues() {
   // REACT_025: Ensure unique landmarks (2 issues)
   // Helper to ensure landmark IDs are unique
   function getUniqueLandmarkId(baseId) {
-    if (!document.getElementById(baseId)) {
+    if (typeof document !== 'undefined' && document.getElementById && !document.getElementById(baseId)) {
+      return baseId;
+    }
+    if (typeof document === 'undefined' || !document.getElementById) {
       return baseId;
     }
     let counter = 1;
@@ -65,6 +68,25 @@ function addressAccessibilityIssues() {
       }
     }
     return linkElement;
+  }
+
+  // Apply accessibility fixes
+  if (typeof document !== 'undefined') {
+    try {
+      setHtmlLangAttribute();
+    } catch (e) {
+      // ignore if document is not available
+    }
+    try {
+      document.querySelectorAll('a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || href === '') {
+          fixFakeLink(link);
+        }
+      });
+    } catch (e) {
+      // ignore if query is unavailable
+    }
   }
 
   return {

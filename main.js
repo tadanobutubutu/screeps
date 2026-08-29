@@ -958,3 +958,5 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks
 };
+
+module.exports.a11yStore = a11yStore;

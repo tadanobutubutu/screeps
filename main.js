@@ -49,105 +49,127 @@ export const validateLandmark = (element) => {
   };
 };
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
-  const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
+// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
 
-  const copyErr = () => {
-    // Implement the copy error logic
-    setCopied(true);
-    // Reset copied state after some time
-    setTimeout(() => setCopied(false), 3000);
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Object containing module dependencies
+ * @param {Object} options - Configuration options for rendering
+ * @returns {string} String representation of the dependency graph
+ */
+export const renderDependencyGraph = (dependencies = {}, options = {}) => {
+  const {
+    maxDepth = 3,
+    showVersions = false,
+    format = 'text'
+  } = options;
+
+  const visited = new Set();
+  const lines = [];
+
+  const formatNode = (name, version) => {
+    const versionStr = showVersions && version ? `@${version}` : '';
+    return `${name}${versionStr}`;
   };
 
-  const fetchStats = (shouldRetry: boolean) => {
-    // Implement the fetch stats logic
-    setRefreshing(true);
-    // Reset refreshing state after some time
-    setTimeout(() => setRefreshing(false), 2000);
+  const traverse = (moduleName, depth = 0, parentPath = []) => {
+    if (depth > maxDepth) return;
+    if (visited.has(moduleName)) {
+      lines.push(`${'  '.repeat(depth)}└── ${formatNode(moduleName, dependencies[moduleName]?.version)} (circular)`);
+      return;
+    }
+    if (parentPath.includes(moduleName)) {
+      lines.push(`${'  '.repeat(depth)}└── ${formatNode(moduleName, dependencies[moduleName]?.version)} (duplicate)`);
+      return;
+    }
+
+    visited.add(moduleName);
+    const prefix = '  '.repeat(depth);
+    const nodeInfo = formatNode(moduleName, dependencies[moduleName]?.version);
+    
+    if (depth === 0) {
+      lines.push(nodeInfo);
+    } else {
+      lines.push(`${prefix}└── ${nodeInfo}`);
+    }
+
+    const deps = dependencies[moduleName]?.dependencies || [];
+    deps.forEach((dep, index) => {
+      const isLast = index === deps.length - 1;
+      const connector = isLast ? '    ' : '│   ';
+      const depVersion = dependencies[dep]?.version;
+      
+      if (depth === 0) {
+        lines.push(`${connector}└── ${formatNode(dep, depVersion)}`);
+      } else {
+        lines.push(`${prefix}${connector}└── ${formatNode(dep, depVersion)}`);
+      }
+      
+      if (dependencies[dep] && depth < maxDepth) {
+        const newVisited = new Set(visited);
+        const newPath = [...parentPath, moduleName];
+        traverse(dep, depth + 1, newPath);
+        visited.delete(dep);
+      }
+    });
   };
 
-  return (
-    <main role="main" aria-label="Dashboard">
-      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-        {error && (
-          <section
-            role="alert"
-            aria-label="エラーメッセージ詳細"
-            aria-live="polite"
-            style={{
-              color: '#c53030',
-              backgroundColor: '#fff5f5',
-              padding: '1rem',
-              borderRadius: '4px',
-              overflow: 'auto',
-            }}
-          >
-            {error}
-          </section>
-        )}
-        <button
-          type="button"
-          onClick={copyErr}
-          onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
-          onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
-          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-          aria-pressed={copied}
-          title={copied ? 'コピー済み' : 'エラーをコピー'}
-          style={{
-            backgroundColor: copied ? '#155d27' : '#004b73',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease-in-out',
-            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-            filter: errCopyHover ? 'brightness(1.1)' : 'none',
-          }}
-        >
-          <span>{copied ? '✅' : '📋'}</span>
-          <span> {copied ? 'コピー済み' : 'エラーをコピー'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => fetchStats(true)}
-          disabled={refreshing}
-          aria-disabled={refreshing}
-          aria-busy={refreshing}
-          aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーの再試行'}
-          onMouseEnter={() => setErrRetryHover(true)}
-          onMouseLeave={() => setErrRetryHover(false)}
-          onFocus={() => setErrRetryHover(true)}
-          onBlur={() => setErrRetryHover(false)}
-          style={{
-            backgroundColor: refreshing ? '#999' : '#004b73',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: refreshing ? 'not-allowed' : 'pointer',
-            opacity: refreshing ? 0.6 : 1,
-            marginLeft: '0.5rem',
-            transition: 'all 0.2s ease-in-out',
-            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-          }}
-        >
-          <span>{refreshing ? '🔄' : '🔁'}</span>
-          <span> {refreshing ? '再試行中...' : 'エラーの再試行'}</span>
-        </button>
-      </div>
-    </main>
-  );
+  const rootModules = Object.keys(dependencies);
+  rootModules.forEach((moduleName, index) => {
+    if (index > 0) {
+      lines.push('');
+    }
+    traverse(moduleName);
+  });
+
+  if (format === 'json') {
+    return JSON.stringify(dependencies, null, 2);
+  }
+
+  return lines.join('\n');
 };
 
-export default Dashboard;
+/**
+ * Displays module structure for debugging purposes
+ * @param {Object} structure - Object containing module structure
+ * @param {Object} options - Configuration options for display
+ * @returns {string} String representation of the module structure
+ */
+export const displayModuleStructure = (structure, options = {}) => {
+  const {
+    maxDepth = 5,
+    showHidden = false,
+    showSizes = false,
+    indentType = 'ascii'
+  } = options;
+
+  const indent = indentType === 'unicode' ? '  ' : '  ';
+  const visited = new Set();
+  const lines = [];
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return `${bytes}B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  };
+
+  const displayNode = (name, node, depth, path = []) => {
+    if (depth > maxDepth) return;
+    if (path.includes(name)) return;
+    if (!showHidden && name.startsWith('.')) return;
+
+    const currentPath = [...path, name];
+    const prefix = indent.repeat(depth);
+    
+    let displayName = name;
+    if (showSizes && node.size) {
+      displayName = `${name} (${formatSize(node.size)})`;
+    }
+    if (node.type) {
+      displayName = `${name} [${node.type}]`;
+    }
+
+    if (depth === 0) {
+      lines.push(displayName);
+    } else {
+      lines.push(`${

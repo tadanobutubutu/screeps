@@ -20,6 +20,77 @@ const getConfig = () => {
   };
 };
 
+// TODO: Implement harvest and upgrade logic
+const harvest = (resources, resourceType, amount) => {
+  if (!resources || !Array.isArray(resources)) {
+    return { success: false, message: 'Invalid resources array', harvested: 0 };
+  }
+  
+  const resourceIndex = resources.findIndex(r => r.type === resourceType);
+  
+  if (resourceIndex === -1) {
+    return { success: false, message: `Resource type '${resourceType}' not found`, harvested: 0 };
+  }
+  
+  const harvestedAmount = Math.min(amount, resources[resourceIndex].available);
+  
+  if (harvestedAmount <= 0) {
+    return { success: false, message: 'No resources available to harvest', harvested: 0 };
+  }
+  
+  resources[resourceIndex].available -= harvestedAmount;
+  resources[resourceIndex].harvested = (resources[resourceIndex].harvested || 0) + harvestedAmount;
+  
+  return { 
+    success: true, 
+    message: `Harvested ${harvestedAmount} ${resourceType}`, 
+    harvested: harvestedAmount,
+    remaining: resources[resourceIndex].available
+  };
+};
+
+const upgrade = (currentLevel, upgradeCost, availableResources) => {
+  if (typeof currentLevel !== 'number' || currentLevel < 0) {
+    return { success: false, message: 'Invalid current level', newLevel: currentLevel };
+  }
+  
+  if (typeof upgradeCost !== 'number' || upgradeCost < 0) {
+    return { success: false, message: 'Invalid upgrade cost', newLevel: currentLevel };
+  }
+  
+  if (typeof availableResources !== 'number' || availableResources < upgradeCost) {
+    return { 
+      success: false, 
+      message: `Insufficient resources. Need ${upgradeCost}, have ${availableResources}`, 
+      newLevel: currentLevel,
+      shortfall: upgradeCost - availableResources
+    };
+  }
+  
+  const newLevel = currentLevel + 1;
+  const remainingResources = availableResources - upgradeCost;
+  
+  return { 
+    success: true, 
+    message: `Upgraded from level ${currentLevel} to level ${newLevel}`, 
+    newLevel: newLevel,
+    resourcesSpent: upgradeCost,
+    remainingResources: remainingResources
+  };
+};
+
+const canUpgrade = (currentLevel, maxLevel, upgradeCost, availableResources) => {
+  if (currentLevel >= maxLevel) {
+    return { canUpgrade: false, reason: 'Already at maximum level' };
+  }
+  
+  if (availableResources < upgradeCost) {
+    return { canUpgrade: false, reason: 'Insufficient resources for upgrade' };
+  }
+  
+  return { canUpgrade: true, reason: 'Ready to upgrade' };
+};
+
 // Add any updates related to new functions
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
@@ -34,7 +105,6 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
   return button;
 }
 
@@ -87,8 +157,29 @@ function addressAccessibilityIssues(insightReport) {
 
 // 73: // TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  if (!accessibilityReport) {
+    return {
+      totalIssues: 0,
+      resolvedIssues: 0,
+      pendingIssues: 0,
+      reportDate: new Date().toISOString()
+    };
+  }
+
+  const issues = accessibilityReport.issues || [];
+  const resolvedIssues = issues.filter(issue => issue.status === 'resolved');
+  const pendingIssues = issues.filter(issue => issue.status !== 'resolved');
+
+  return {
+    totalIssues: issues.length,
+    resolvedIssues: resolvedIssues.length,
+    pendingIssues: pendingIssues.length,
+    issuesByType: issues.reduce((acc, issue) => {
+      acc[issue.type] = (acc[issue.type] || 0) + 1;
+      return acc;
+    }, {}),
+    reportDate: new Date().toISOString()
+  };
 }
 
 // New function for the issue
@@ -121,8 +212,11 @@ module.exports = {
   createInPageButton,
   addressAccessibilityIssues,
   generateAccessibilityReport,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  harvest,
+  upgrade,
+  canUpgrade
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore };
+// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore, harvest, upgrade, canUpgrade };

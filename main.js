@@ -7,7 +7,9 @@ const appData = {};
 
 // Address accessibility issues from insight report:
 function addressAccessibilityIssues() {
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -15,12 +17,15 @@ function addressAccessibilityIssues() {
 }
 
 function renderDependencyGraphContent(data) {
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
   if (container) {
     container.innerHTML = data;
   }
 }
 
+// Address accessibility issues from insight report
 function improveAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
@@ -66,15 +71,17 @@ function addressInsightReportIssues(insightReport) {
   });
 }
 
+// New function to address accessibility issues from insight report
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueLandmarkMap = {};
+
   landmarks.forEach(landmark => {
     const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    const uniqueElements = [];
     elements.forEach(el => {
-      const isUnique = !uniqueElements.some(uEl => uEl === el);
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
-        uniqueElements.push(el);
+        uniqueLandmarkMap[landmark].push(el);
       } else {
         el.removeAttribute('role');
       }
@@ -82,18 +89,31 @@ function ensureUniqueLandmarks() {
   });
 }
 
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+// New function to add landmark roles and fix issues
+function addLandmarkRoles(insightReport) {
   const issues = insightReport.issues || [];
+
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
     }
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
-  // Implementation for adding landmark roles and fixing landmark issues
-  // This is a placeholder that would need to be implemented based on specific requirements
+// Address other insight report issues
+function fixLandmarkIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
+    }
+  });
 }
 
 function renderDependencyGraph(dependencyData) {
@@ -110,11 +130,11 @@ function calculateSum(a, b) {
 
 function fixFakeLinks() {
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
-  
-  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    link.tabIndex = 0;
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
@@ -123,7 +143,7 @@ function fixFakeLinks() {
 
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.lang) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
@@ -149,17 +169,17 @@ function fixTableHeaderCellScope() {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
+        const rows = table.querySelectorAll('tr');
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
-        
+
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('td, th');
+          const rowCells = row.querySelectorAll('th, td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
         });
-        
+
         cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
       }
     });
@@ -202,24 +222,25 @@ function addSvgAccessibleNames() {
   });
 }
 
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+let uniqueLandmarks = {};
+
+// Updated function for REACT_025 (ensuring unique landmarks)
+function fixUniqueLandmarks(insightReport) {
   const issues = insightReport.issues || [];
-  let uniqueLandmarks = {};
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
       const element = document.querySelector(issue.selector);
 
       if (element && issue.ariaRole) {
-        if (!uniqueLandmarks[issue.ariaRole]) {
-          uniqueLandmarks[issue.ariaRole] = true;
-        } else {
-          element.removeAttribute('role');
-        }
+        uniqueLandmarks[issue.ariaRole] = element;
       }
     }
   });
 
+  uniqueLandmarks = Object.values(uniqueLandmarks);
+
+  // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
 }
 
@@ -230,8 +251,9 @@ function implementNewFunction() {
   addLangAttribute();
   fixTableStructureIssues();
   addMainLandmark();
+  addSvgAccessibleNames();
   fixTableHeaderCellScope();
-  improveAccessibility();
+  fixUniqueLandmarks(insightReport);
 }
 
 function main() {
@@ -240,13 +262,15 @@ function main() {
 }
 
 module.exports = {
+  config,
+  logger,
   improveAccessibility,
   addressInsightReportIssues,
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  fixLandmarkIssues,
+  addLandmarkRoles,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -256,9 +280,9 @@ module.exports = {
   implementNewFunction,
   addLangAttribute,
   main,
-  someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  fixUniqueLandmarks
 };
 
 main();

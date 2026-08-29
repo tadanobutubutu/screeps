@@ -61,4 +61,4 @@ function addressAccessibilityIssues() {
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues };

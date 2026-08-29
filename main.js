@@ -1,27 +1,7 @@
-// TODO: Implement the feature
-
-const main = () => {
-  // Implementation here
-  return true;
-};
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
 // main.js - Combined utility and accessibility features
 
-// Existing functionality preserved
-function exampleFunction() {
-  return 'example';
-}
-
-// New function implementation
-function processData(input) {
-  if (!input) {
-    return null;
-  }
-  return input;
-}
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -73,6 +53,28 @@ function trapFocus(container) {
   });
 }
 
+// Function to ensure landmarks have unique identifiers
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="region"]');
+  let uniqueIds = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(landmark.id.split('-')[1])) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
+  });
+}
+
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
@@ -102,17 +104,22 @@ function initializeAccessibility() {
   addProperLandmarkRegions();
   addProperAccountManagement();
   addAriaToFormControls();
-  replaceMyButtonId();
-  addProperLandmarkRegions();
-  addProperAccountManagement();
-  addAriaToFormControls();
-  addProperLandmarkRegions();
-  addProperAccountManagement();
   addARIAAttributes();
   addAccessibleNamesToSVGs();
-}
 
-// TODO: add the new functions or changes requested in the issue
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
+}
 
 /**
  * Checks if a value is an empty string, null, or undefined
@@ -125,10 +132,7 @@ function isEmpty(value) {
 
 /**
  * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
+ * @param {string} str - The string to capitalize capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -206,9 +210,6 @@ function fixFakeLinkIssues() {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    main,
-    exampleFunction,
-    processData,
     initializeAccessibility,
     setupKeyboardNavigation,
     trapFocus,
@@ -231,3 +232,4 @@ if (typeof document !== 'undefined') {
     addAccessibleNamesToSVGs();
   });
 }
+};

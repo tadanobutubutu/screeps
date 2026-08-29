@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -18,7 +20,7 @@
  * @param {string} [options.type] - Button type attribute (default: 'button')
  * @returns {HTMLButtonElement} The created button element
  */
-function createInPageButton(doc, text = '', options = {}) {
+const createInPageButton = (doc, text = '', options = {}) => {
   const button = doc.createElement('button');
   button.textContent = text;
   button.type = options.type || 'button';
@@ -40,20 +42,20 @@ function createInPageButton(doc, text = '', options = {}) {
   }
 
   return button;
-}
+};
 
 /**
  * Adds lang attribute to HTML element for accessibility
  * @param {Document} doc - The document object
  * @param {string} lang - Language code (e.g., 'en', 'es', 'fr')
  */
-function addLangAttribute(doc, lang = 'en') {
+const addLangAttribute = (doc, lang = 'en') => {
   const html = doc.documentElement;
   if (html && !html.hasAttribute('lang')) {
     html.setAttribute('lang', lang);
   }
   return html;
-}
+};
 
 /**
  * Fixes table structure issues for accessibility
@@ -61,7 +63,7 @@ function addLangAttribute(doc, lang = 'en') {
  * @param {Document} doc - The document object
  * @returns {number} Number of tables fixed
  */
-function fixTableStructure(doc) {
+const fixTableStructure = (doc) => {
   const tables = doc.querySelectorAll('table');
   let fixedCount = 0;
   
@@ -108,7 +110,7 @@ function fixTableStructure(doc) {
   });
   
   return fixedCount;
-}
+};
 
 /**
  * Adds and fixes landmark issues for accessibility
@@ -116,7 +118,7 @@ function fixTableStructure(doc) {
  * @param {Document} doc - The document object
  * @returns {number} Number of landmark issues fixed
  */
-function addLandmarkIssues(doc) {
+const addLandmarkIssues = (doc) => {
   let fixedCount = 0;
   
   // Ensure there's a main landmark
@@ -164,14 +166,14 @@ function addLandmarkIssues(doc) {
   }
   
   return fixedCount;
-}
+};
 
 /**
  * Adds accessible names to SVG elements
  * @param {Document} doc - The document object
  * @returns {number} Number of SVGs fixed
  */
-function addSvgAccessibleNames(doc) {
+const addSvgAccessibleNames = (doc) => {
   const svgs = doc.querySelectorAll('svg');
   let fixedCount = 0;
   
@@ -192,14 +194,14 @@ function addSvgAccessibleNames(doc) {
   });
   
   return fixedCount;
-}
+};
 
 /**
  * Ensures unique landmarks across the page
  * @param {Document} doc - The document object
  * @returns {number} Number of landmark issues fixed
  */
-function ensureUniqueLandmarks(doc) {
+const ensureUniqueLandmarks = (doc) => {
   let fixedCount = 0;
   
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
@@ -230,14 +232,14 @@ function ensureUniqueLandmarks(doc) {
   }
   
   return fixedCount;
-}
+};
 
 /**
  * Fixes fake link issues - converts non-navigation elements styled as links
  * @param {Document} doc - The document object
  * @returns {number} Number of fake links fixed
  */
-function fixFakeLinkIssue(doc) {
+const fixFakeLinkIssue = (doc) => {
   let fixedCount = 0;
   
   // Find elements with role="link" that aren't anchor elements
@@ -270,20 +272,20 @@ function fixFakeLinkIssue(doc) {
   });
   
   return fixedCount;
-}
+};
 
 /**
  * Main initialization function that applies all accessibility fixes
  * @param {Document} doc - The document object (defaults to window.document)
  */
-function initializeAccessibility(doc = window.document) {
+const initializeAccessibility = (doc = window.document) => {
   addLangAttribute(doc);
   fixTableStructure(doc);
   addLandmarkIssues(doc);
   addSvgAccessibleNames(doc);
   ensureUniqueLandmarks(doc);
   fixFakeLinkIssue(doc);
-}
+};
 
 // Accessibility utilities export
 const accessibilityExports = {

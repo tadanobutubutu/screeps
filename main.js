@@ -31,10 +31,9 @@ function addProperLandmarkRegions(landmarks) {
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_041: Add accessible names to 2 SVGs
 // (Added functions for REACT_017 and new REACT_025)
 
 function function3() {
@@ -180,7 +179,6 @@ function modifiedFunction() {
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
 // <!--- Any other modifications or additions go here --->
-
 export {
   function3,
   App,

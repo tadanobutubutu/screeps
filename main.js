@@ -128,13 +128,42 @@ function addFixLandmarkIssues(doc) {
 }
 
 /**
+ * Validate link accessibility
+ * @param { HTMLAnchorElement } link - The link to validate
+ * @returns { boolean } Whether the link is a fake link
+ */
+function validateLinkAccessibility(link) {
+  return !link.href || link.href === '#' || link.href === 'undefined';
+}
+
+/**
+ * Handle fake links by converting them to buttons
+ * @param { HTMLAnchorElement } link - The fake link to handle
+ * @param { Document } doc - The document object
+ * @returns { HTMLButtonElement } The created button */
+function handleFakeLinks(link, doc) {
+  const button = createInPageButton(link.textContent || '', doc);
+  if (link.id) {
+    button.id = link.id;
+  }
+  if (link.className) {
+    button.className = link.className;
+  }
+  if (link.getAttribute('aria-label')) {
+    button.setAttribute('aria-label', link.getAttribute('aria-label'));
+  }
+  link.parentNode.replaceChild(button, link);
+  return button;
+}
+
+/**
  * Fix fake link issues
  * @param { Document } doc - The document object to operate on
  */
 function fixFakeLinkIssues(doc) {
   const links = doc.querySelectorAll('a');
   links.forEach(link => {
-    if (!link.href || link.href === '#') {
+    if (validateLinkAccessibility(link)) {
       link.setAttribute('role', 'presentation');
     }
   });
@@ -184,8 +213,7 @@ function wrapPrimaryContentInMain(doc) {
 /**
  * Add proper landmark regions to the document
  * @param { Document } doc - The document object to operate on
- * @returns { Array } Array of landmark elements found
- */
+ * @returns { Array } Array of landmark elements found */
 function addProperLandmarkRegions(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks);
@@ -250,10 +278,10 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   summary.tablesValidated = tableResults.length;
 
   // REACT_036: Fix fake link issues
-  const links = doc.querySelectorAll('a');
+  const links = Array.from(doc.querySelectorAll('a'));
   links.forEach(link => {
-    if (!link.href || link.href === '#') {
-      link.setAttribute('role', 'presentation');
+    if (validateLinkAccessibility(link)) {
+      handleFakeLinks(link, doc);
       summary.fakeLinkIssuesFixed++;
     }
   });
@@ -312,6 +340,21 @@ function addAndEnsureUniqueLandmarkRegions(doc) {
   return ensureUniqueLandmarks(landmarks);
 }
 
+/**
+ * TODO: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+ * 
+ * This function applies comprehensive fake link handling
+ * @param { Document } doc - The document object to operate on
+ */
+function handleAllFakeLinks(doc) {
+  const links = doc.querySelectorAll('a');
+  links.forEach(link => {
+    if (validateLinkAccessibility(link)) {
+      handleFakeLinks(link, doc);
+    }
+  });
+}
+
 // Export the main function and other exported functions
 export function formatTableRow(rowData, columnWidths) {
   return rowData.map((cell, i) => {
@@ -364,4 +407,7 @@ module.exports = {
   renderUserProfile,
   renderDashboard,
   renderSettings,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  handleAllFakeLinks,
 };

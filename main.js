@@ -115,6 +115,7 @@ exports.anotherFunction = function() {
 
 exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 exports.renderDependencyGraph = renderDependencyGraph;
+exports.countDependencies = countDependencies;
 
 // The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
 
@@ -318,11 +319,4 @@ export default function RootLayout({
       <body>{children}</body>
     </html>
   );
-}
-
-// TODO: Implement a function to count dependencies
-// This is a placeholder for the actual implementation
-function countDependencies() {
-  // Placeholder implementation
-  return 0;
 }

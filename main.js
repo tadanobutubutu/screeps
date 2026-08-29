@@ -221,6 +221,7 @@ const a11yStore = {
     region.id = 'a11y-live-region';
     
     this.liveRegion = region;
+    document.body.appendChild(region);
   },
 
   // Announce message to screen readers

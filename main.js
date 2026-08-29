@@ -15,7 +15,8 @@ function run() {
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      const content = fs.readFileSync(filePath, 'utf8');
+      // Process HTML file content as needed
     });
 }
 
@@ -35,7 +36,7 @@ function checkTableStructure(tableName, expectedColumns) {
     return false;
   }
   
-  if (!Array.isArray(expectedColumns)) {
+  if (!expectedColumns || !Array.isArray(expectedColumns)) {
     return false;
   }
   
@@ -59,7 +60,7 @@ function checkTableStructure(tableName, expectedColumns) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};

@@ -415,6 +415,7 @@ function fixFakeLinkIssue() {
       link.parentNode.replaceChild(button, link);
       fixedLinks.push(button);
     }
+
   });
 
   return fixedLinks;
@@ -485,5 +486,7 @@ module.exports = {
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
-  getLandmarkData
+  getLandmarkData,
+  newFunction,
+  totalDependencies
 };

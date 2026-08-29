@@ -18,7 +18,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Function to ensure unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];

@@ -88,7 +88,7 @@ function handleErrorState(errorElement, container, trigger = false) {
   if (typeof errorElement === 'string') {
     errorSection.textContent = errorElement;
   } else if (errorElement instanceof HTMLElement) {
-    errorSection.appendChild(errorElement);
+    errorSection.appendChild(errorElement.cloneNode(true));
   } else {
     errorSection.textContent = String(errorElement);
   }
@@ -131,11 +131,3 @@ export { handleAccessibilityError };
 
 // Export addLangAttribute function
 export { addLangAttribute };
-
-// Export the new functions/modules if needed
-export { updateAriaAttributes };
-export { triggerAccessibilityMode };
-
-// Export functions that render dependency graphs and index views
-export { renderDependencyGraph };
-export { renderIndexView };

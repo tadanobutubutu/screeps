@@ -515,7 +515,58 @@ const a11yStore = {
   },
 
   checkLandmarkElements() {
-    // Check and ensure proper landmark elements
+    const landmarks = {
+      header: document.querySelector('header'),
+      nav: document.querySelectorAll('nav'),
+      main: document.querySelector('main'),
+      aside: document.querySelectorAll('aside'),
+      footer: document.querySelector('footer')
+    };
+
+    const roleLandmarks = {
+      banner: document.querySelectorAll('[role="banner"]'),
+      navigation: document.querySelectorAll('[role="navigation"]'),
+      main: document.querySelectorAll('[role="main"]'),
+      complementary: document.querySelectorAll('[role="complementary"]'),
+      contentinfo: document.querySelectorAll('[role="contentinfo"]')
+    };
+
+    const results = {
+      hasMain: false,
+      hasHeader: false,
+      hasNav: false,
+      hasFooter: false,
+      issues: []
+    };
+
+    if (landmarks.main || roleLandmarks.main.length > 0) {
+      results.hasMain = true;
+    } else {
+      results.issues.push('Missing main landmark');
+    }
+
+    if (landmarks.header || roleLandmarks.banner.length > 0) {
+      results.hasHeader = true;
+    } else {
+      results.issues.push('Missing header/banner landmark');
+    }
+
+    if (landmarks.nav.length > 0 || roleLandmarks.navigation.length > 0) {
+      results.hasNav = true;
+    }
+
+    if (landmarks.footer || roleLandmarks.contentinfo.length > 0) {
+      results.hasFooter = true;
+    } else {
+      results.issues.push('Missing footer/contentinfo landmark');
+    }
+
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    if (mainElements.length > 1) {
+      results.issues.push('Multiple main landmarks found - only one main landmark should exist');
+    }
+
+    return results;
   },
 
   addSVGAccessibilityProps() {

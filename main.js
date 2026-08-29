@@ -1,5 +1,6 @@
-// main.js
-// Implementation of unique landmark functions
+// After
+// <html lang="en">
+// </html>
 
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();

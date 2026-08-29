@@ -38,9 +38,63 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Render dependency graph as a visual structure for debugging
+function renderDependencyGraph(modules, options = {}) {
+  const indent = options.indent || '  ';
+  const visited = new Set();
+  const result = [];
+  
+  function traverse(module, depth = 0) {
+    const prefix = indent.repeat(depth);
+    if (visited.has(module)) {
+      result.push(`${prefix}└── ${module} (circular)`);
+      return;
+    }
+    visited.add(module);
+    
+    result.push(`${prefix}└── ${module}`);
+    
+    if (options.showDependencies && modules[module]) {
+      const deps = modules[module].dependencies || [];
+      deps.forEach(dep => {
+        traverse(dep, depth + 1);
+      });
+    }
+  }
+  
+  Object.keys(modules).forEach(module => {
+    if (!visited.has(module)) {
+      traverse(module);
+    }
+  });
+  
+  return result.join('\n');
+}
+
+// Display module structure for debugging purposes
+function displayModuleStructure(modules, options = {}) {
+  const output = [];
+  const format = options.format || 'table';
+  
+  if (format === 'table') {
+    output.push('Module Structure:');
+    output.push('================');
+    Object.entries(modules).forEach(([name, info]) => {
+      const deps = info.dependencies ? info.dependencies.join(', ') : 'none';
+      output.push(`${name.padEnd(20)} | Dependencies: ${deps}`);
+    });
+  } else if (format === 'json') {
+    output.push(JSON.stringify(modules, null, 2));
+  }
+  
+  return output.join('\n');
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  renderDependencyGraph,
+  displayModuleStructure
 };

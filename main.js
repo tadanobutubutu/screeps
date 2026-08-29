@@ -5,14 +5,14 @@ const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');
 
 // Import utility functions from existing main.js
-const formatDate = require('./main').formatDate;
-const validateEmail = require('./main').validateEmail;
-const calculateTotal = require('./main').calculateTotal;
-const fetchData = require('./main').fetchData;
-const saveData = require('./main').saveData;
-const parseJSON = require('./main').parseJSON;
-const debounce = require('./main').debounce;
-const throttle = require('./main').throttle;
+const formatDate = require('./utils/formatDate');
+const validateEmail = require('./utils/validateEmail');
+const calculateTotal = require('./utils/calculateTotal');
+const fetchData = require('./utils/fetchData');
+const saveData = require('./utils/saveData');
+const parseJSON = require('./utils/parseJSON');
+const debounce = require('./utils/debounce');
+const throttle = require('./utils/throttle');
 
 // Additional utility functions for accessibility
 function getLangAttribute() {

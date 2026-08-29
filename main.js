@@ -13,20 +13,19 @@ const {
   ADDRESS_ACCESSIBILITY_ISSUE_038,
 } = require('./accessibilityHelperFunctions');
 
+// Import utility functions and module constants
 import { utilityFunction } from './utils.js';
 import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphARIA)
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
+// Original existing code from commit preserved
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   const hasIssue038 = accessibilityInfo && accessibilityInfo.issueType === ADDRESS_ACCESSIBILITY_ISSUE_038;
   return {
@@ -35,7 +34,7 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   };
 };
 
-// Function to add lang attribute to HTML element
+// Function to add lang attribute to HTML element (maintains REACT_015)
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
@@ -68,6 +67,7 @@ export const metadata = {
 export default function RootLayout({
   children,
 }) {
+  // Apply all required accessibility fixes as per original TODO
   addLangAttribute(document);
   addMainLandmark(document);
   addSvgAccessibleNames(document);
@@ -86,7 +86,7 @@ export default function RootLayout({
   );
 }
 
-// Function to fix table structure issues
+// Function to fix table structure issues (maintains REACT_027)
 function fixTableStructure(document) {
   const tables = document.querySelectorAll('table');
   let fixedCount = 0;
@@ -139,7 +139,7 @@ function fixTableStructure(document) {
   return fixedCount;
 }
 
-// Function to add/main landmark
+// Function to add/main landmark (maintains REACT_017)
 function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
   
@@ -168,7 +168,7 @@ function addMainLandmark(document) {
   return mainElement;
 }
 
-// Function to ensure unique landmarks (combined approach)
+// Function to ensure unique landmarks (maintains REACT_025)
 function ensureUniqueLandmarks(document) {
   const main = document.querySelector('main');
   if (main && !main.id) {
@@ -185,7 +185,7 @@ function ensureUniqueLandmarks(document) {
   return document;
 }
 
-// Function to add accessible name to SVG
+// Function to add accessible name to SVG (maintains REACT_041)
 function addSvgAccessibleNames(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
@@ -199,7 +199,7 @@ function addSvgAccessibleNames(document) {
   return document;
 }
 
-// Function to add accessible names to SVG elements
+// Function to add accessible names to SVG elements (maintains REACT_041)
 function addAccessibleNamesToSVGs(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
@@ -213,7 +213,7 @@ function addAccessibleNamesToSVGs(document) {
   return document;
 }
 
-// Function to fix fake link issue (merged fixes)
+// Function to fix fake link issue (maintains REACT_036)
 function fixFakeLinkIssue(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
   let count = 0;
@@ -251,7 +251,7 @@ function fixFakeLinkIssue(document) {
   return count;
 }
 
-// Function to fix fake link issues (handles both role="link" elements and anchors with href="#")
+// Function to fix fake link issues (maintains REACT_036)
 function fixFakeLinkIssues(document) {
   const roleLinks = document.querySelectorAll('[role="link"]');
   roleLinks.forEach(link => {

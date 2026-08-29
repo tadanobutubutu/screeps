@@ -43,6 +43,19 @@ function getSvgAccessibleName(svgElement) {
   return svgElement.textContent.trim() || '';
 }
 
+function updateSvgAccessibleName(svgElement, name) {
+  if (!svgElement) return false;
+  
+  // Remove existing accessible name attributes
+  svgElement.removeAttribute('aria-label');
+  svgElement.removeAttribute('aria-labelledby');
+  
+  // Set the new accessible name using aria-label
+  svgElement.setAttribute('aria-label', name);
+  
+  return true;
+}
+
 function setSvgAttributes(svgElement) {
   if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
     return;
@@ -260,6 +273,7 @@ module.exports = {
   main,
   myNewFunction,
   getSvgAccessibleName,
+  updateSvgAccessibleName,
   setSvgAttributes,
   setSvgAttributesArray,
   validateLandmark,

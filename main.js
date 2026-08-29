@@ -22,7 +22,7 @@ export function newNecessaryFunction() {
 /**
  * Calculate the sum of two numbers
  * @param {number} a - First number
- * @param {b} - Second number
+ * @param {number} b - Second number
  * @returns {number} Sum of a and b
  */
 export function calculateSum(a, b) {
@@ -246,7 +246,7 @@ function addressAccessibilityIssues() {
       const hasText = button.textContent.trim().length > 0;
       const hasAriaLabel = button.hasAttribute('aria-label');
       const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-      
+
       if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
         console.error('Accessibility Error: Button without accessible name', button);
       }
@@ -257,7 +257,12 @@ function addressAccessibilityIssues() {
   checkLinksAndButtons();
 }
 
-// Export functions if needed
+export function rotateBack() {
+  // Implementation for rotateBack function
+  console.log('rotateBack called');
+  return true;
+}
+
 export { addressAccessibilityIssues };
 
 module.exports.getLangAttribute = getLangAttribute;

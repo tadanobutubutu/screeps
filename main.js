@@ -1,27 +1,7 @@
-// TODO: Implement the feature
-
-const main = () => {
-  // Implementation here
-  return true;
-};
-
-// TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
-
 // main.js - Combined utility and accessibility features
 
-// Existing functionality preserved
-function exampleFunction() {
-  return 'example';
-}
-
-// New function implementation
-function processData(input) {
-  if (!input) {
-    return null;
-  }
-  return input;
-}
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
 
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
@@ -73,6 +53,28 @@ function trapFocus(container) {
   });
 }
 
+// Function to ensure landmarks have unique identifiers
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="region"]');
+  let uniqueIds = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(landmark.id.split('-')[1])) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
+  });
+}
+
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
@@ -98,14 +100,19 @@ function prefersReducedMotion() {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  replaceMyButtonId();
-  addProperLandmarkRegions();
-  addProperAccountManagement();
-  addARIAAttributes();
-  addAccessibleNamesToSvg();
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
 }
-
-// TODO: add the new functions or changes requested in the issue
 
 /**
  * Checks if a value is an empty string, null, or undefined
@@ -143,7 +150,8 @@ function getRandomInt(min, max) {
  * @param {number} num - Number to clamp
  * @param {number} min - Minimum value
  * @param {number} max - Maximum value
- * @returns {number} - Clamped number */
+ * @returns {number} - Clamped number
+ */
 function clamp(num, min, max) {
   return Math.min(Math.max(num, min), max);
 }
@@ -172,9 +180,6 @@ function deepClone(obj) {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    main,
-    exampleFunction,
-    processData,
     initializeAccessibility,
     setupKeyboardNavigation,
     trapFocus,
@@ -184,8 +189,7 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone,
-    addAccessibleNamesToSvg
+    deepClone
   };
 }
 
@@ -193,6 +197,5 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
-    addAccessibleNamesToSvg();
   });
 }

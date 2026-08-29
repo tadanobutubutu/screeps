@@ -6,13 +6,14 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
+import React from 'react';
+
 export function calculateSum(a, b) {
     return a + b;
 }
 
 // Below is the existing code (preserving syntax and existing exports)
 // ...
-import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
@@ -24,6 +25,9 @@ function getLangAttribute() {
 
 function addLangAttribute(element) {
   // Code for adding the language attribute to the specified element
+  if (element && element.setAttribute) {
+    element.setAttribute('lang', 'en');
+  }
 }
 
 function processData(data) {
@@ -80,12 +84,26 @@ function validateTableStructure() {
   // Code for validating table structure
 }
 
-function fixTableStructure() {
+function fixTableStructure(table) {
   // Code for fixing table structure issues
+  if (table && table.querySelector) {
+    // Ensure table has proper structure with thead, tbody, etc.
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      table.insertBefore(thead, table.firstChild);
+    }
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      table.appendChild(tbody);
+    }
+  }
 }
 
-function addMainLandmark() {
+function addMainLandmark(element) {
   // Code for adding main landmark
+  if (element && element.setAttribute) {
+    element.setAttribute('role', 'main');
+  }
 }
 
 function validateLandmark() {
@@ -106,6 +124,10 @@ function getSvgAccessibleName() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Code for setting SVG attributes with the accessible name
+  if (svg && svg.setAttribute) {
+    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('role', 'img');
+  }
 }
 
 function ensureUniqueLandmarks() {

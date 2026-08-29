@@ -38,9 +38,28 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// TODO: Implement this function for calculating the bearing between two points
+function calculateBearing(point1, point2) {
+  const R = 6371; // Earth's radius in km
+  const lat1 = toRad(point1.lat);
+  const lat2 = toRad(point2.lat);
+  const dLon = toRad(point2.lon - point1.lon);
+  
+  const x = Math.sin(dLon) * Math.cos(lat2);
+  const y = Math.cos(lat1) * Math.sin(lat2) -
+            Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  const initialBearing = Math.atan2(x, y);
+  
+  const initialBearingDegree = initialBearing * (180 / Math.PI);
+  const initialBearingDegreeRounded = ((initialBearingDegree + 360) % 360);
+  
+  return initialBearingDegreeRounded;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  calculateBearing
 };

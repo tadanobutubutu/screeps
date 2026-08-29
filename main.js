@@ -496,6 +496,44 @@ function loop() {
   // Your game logic here
 }
 
+// Function to ensure HTML element has lang attribute
+function addLangAttribute(document) {
+  const htmlElement = document.documentElement || document.getElementsByTagName('html')[0];
+  if (htmlElement) {
+    const currentLang = htmlElement.getAttribute('lang') || getLangAttribute();
+    htmlElement.setAttribute('lang', currentLang);
+  }
+  return document;
+}
+
+// Function to ensure dependency graph HTML file has lang attribute
+function ensureDependencyGraphHTMLLang() {
+  const fs = require('fs');
+  const path = require('path');
+  const dependencyGraphPath = path.join(__dirname, 'docs', 'dependency-graph.html');
+  
+  try {
+    if (fs.existsSync(dependencyGraphPath)) {
+      let htmlContent = fs.readFileSync(dependencyGraphPath, 'utf8');
+      
+      // Check if html tag already has lang attribute
+      if (htmlContent.includes('<html ') && !htmlContent.includes('<html lang=')) {
+        // Add lang attribute to html tag
+        htmlContent = htmlContent.replace(
+          /<html(\s[^>]*)?>/,
+          '<html lang="en"$1>'
+        );
+        fs.writeFileSync(dependencyGraphPath, htmlContent, 'utf8');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating dependency-graph.html lang attribute:', error);
+  }
+}
+
+// Execute the fix when this module loads
+ensureDependencyGraphHTMLLang();
+
 module.exports = {
   loop,
   run,
@@ -535,4 +573,5 @@ module.exports = {
 
   a11yStore,
   ...a11yStore,
+  ensureDependencyGraphHTMLLang,
 };

@@ -1,4 +1,7 @@
 // Main JavaScript file for accessibility checks
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -49,7 +52,7 @@ function renderDependencyGraphs(dependencies, container) {
   container.appendChild(graphElement);
 }
 
-// ----- END ORIGINAL CODE -----
+// ----- END ORIGINAL CODE (unchanged) -----
 
 import React from 'react';
 
@@ -230,7 +233,7 @@ export function fixTableStructureIssues(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
+    if (attrs && (attrs.includes('summary=') || attrs.includes('caption'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -303,4 +306,210 @@ export function addSvgAccessibleNames(html) {
  * Ensures unique landmark identifiers for screen readers
  * Converts additional <main> landmarks to <section> so only one <main> exists per page.
  * Also assigns unique IDs to other landmark types.
- * @param {string} html - The HTML string
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with unique landmarks
+ */
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+    // Replace additional <main> tags with <section> while preserving any attributes
+    const safeAttrs = attrs || '';
+    // Avoid duplicating an aria-label if one already exists
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
+      return `<section${safeAttrs}>`;
+    }
+    return `<section${safeAttrs} aria-label="Content section">`;
+  });
+  
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <main> opening tags in the original-like state and
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
+  if (mainCloseCount > mainOpenCount) {
+    const extras = mainCloseCount - mainOpenCount;
+    let replaced = 0;
+    html = html.replace(/<\/main>/gi, (match) => {
+      if (replaced < extras) {
+        replaced += 1;
+        return '</section>';
+      }
+      return match;
+    });
+  }
+  
+  // Recompute counters after main -> section conversion
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+  
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
+    const count = counters[lm] || 0;
+    if (count === 0) return;
+    const seen = {};
+    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
+    html = html.replace(openRegex, (match, inner) => {
+      // Skip if an id attribute is already present
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
+  });
+  
+  return html;
+}
+
+/**
+ * Fixes 1 fake link issue
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with fixed fake link issues
+ */
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('href=')) {
+      return match;
+    }
+    return match.replace(/<a/, '<a href="#"');
+  });
+}
+
+/**
+ * Checks table structure for accessibility issues
+ * @param {string} html - The HTML string to check
+ * @returns {string[]} Array of error messages
+ */
+export function checkTableAccessibility(html) {
+  if (typeof html !== 'string') return [];
+  
+  const issues = [];
+  const tableRegex = /<table\b[^>]*>([\s\S]*?)<\/table>/gi;
+  let tableMatch;
+  
+  while ((tableMatch = tableRegex.exec(html)) !== null) {
+    const tableHtml = tableMatch[0];
+    
+    // Check for caption
+    if (!/<caption\b/i.test(tableHtml)) {
+      issues.push('Table missing <caption> element');
+    }
+    
+    // Check for summary attribute
+    if (!/\bsummary=/i.test(tableHtml)) {
+      issues.push('Table missing summary attribute');
+    }
+    
+    // Check for th with scope
+    const thRegex = /<th\b([^>]*)>/gi;
+    let thMatch;
+    let thMissingScope = false;
+    while ((thMatch = thRegex.exec(tableHtml)) !== null) {
+      const attrs = thMatch[1];
+      if (!/\bscope=/i.test(attrs)) {
+        thMissingScope = true;
+        break;
+      }
+    }
+    if (thMissingScope) {
+      issues.push('<th> missing scope attribute');
+    }
+    
+    // Check for thead/tbody
+    if (!/<thead\b/i.test(tableHtml) || !/<tbody\b/i.test(tableHtml)) {
+      issues.push('Table missing <thead> or <tbody> structure');
+    }
+  }
+  
+  return issues;
+}
+
+export {
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  checkTableStructure,
+  getLangAttribute,
+  MyComponent,
+  greet,
+  isEven,
+  isOdd,
+  sumArray,
+  averageArray,
+  findMax,
+  findMin,
+  reverseString,
+  capitalize,
+  capitalizeWords,
+  formatDate,
+  calculateTotal,
+  validateEmail,
+  capitalizeString,
+  debounce,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  checkTableAccessibility
+};
+
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  checkTableStructure,
+  getLangAttribute,
+  MyComponent,
+  greet,
+  isEven,
+  isOdd,
+  sumArray,
+  averageArray,
+  findMax,
+  findMin,
+  reverseString,
+  capitalize,
+  capitalizeWords,
+  formatDate,
+  calculateTotal,
+  validateEmail,
+  capitalizeString,
+  debounce,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  checkTableAccessibility
+};

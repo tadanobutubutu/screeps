@@ -1,6 +1,11 @@
-// Only includes the sections with conflict markers
-// Preserves existing code and functions as much as possible
-// Adds the new implementation at the TODO location
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c691a97b2237d968a50cc419 -->
 
 function newFeature() {
   // Version 1 implementation (HEAD branch)
@@ -38,6 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const footer = document.querySelector('footer');
   if (footer) {
     footer.setAttribute('role', 'contentinfo');
+  }
+
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.getElementById('dependencyGraph') ||
+                          document.querySelector('.dependencyGraph') ||
+                          document.querySelector('[data-dependency-graph]') ||
+                          document.querySelector('#dependencyGraphContainer');
+
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
   // Function to ensure all SVG elements have accessible names

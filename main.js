@@ -93,6 +93,26 @@ function ensureThScope() {
   });
 }
 
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph') || 
+                          document.querySelector('.dependencyGraph') || 
+                          document.querySelector('[data-dependency-graph]');
+  
+  if (dependencyGraph) {
+    // Add ARIA role if not present
+    if (!dependencyGraph.hasAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    
+    // Add accessible name if not present
+    if (!dependencyGraph.hasAttribute('aria-label') && 
+        !dependencyGraph.hasAttribute('aria-labelledby')) {
+      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
@@ -113,6 +133,9 @@ function initializeAccessibility() {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
     }
   });
+  
+  // Ensure dependencyGraph container has proper ARIA role
+  ensureDependencyGraphAriaRole();
 }
 
 // Run accessibility initialization when DOM is ready
@@ -218,5 +241,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  addLangAttribute
+  addLangAttribute,
+  ensureDependencyGraphAriaRole
 };

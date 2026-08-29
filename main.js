@@ -90,8 +90,6 @@ function setSvgAttributesArray(svgElements) {
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
-// TODO: Implement validateLandmark functionality
-
 function validateLandmark(landmark) {
   if (!landmark) return false;
   if (!landmark.name || typeof landmark.name !== 'string') return false;

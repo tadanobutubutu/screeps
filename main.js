@@ -22,6 +22,7 @@ function countDependencies() {
 
 // ... existing code below ...
 
+// TODO: Import required modules and export the new necessary function(s) here in main.js ( preserving the original code )
 module.exports = {
     countDependencies
 };

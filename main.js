@@ -37,8 +37,19 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
+/**
+ * Calculates the discount for a given price.
+ * @param {number} price - The price of the item.
+ * @param {number} discountRate - The discount rate as a decimal (e.g., 0.10 for 10%).
+ * @returns {number} The discounted price.
+ */
+function calculateDiscount(price, discountRate) {
+    return price * (1 - discountRate);
+}
+
 module.exports = {
     ensureUniqueLandmarkId,
     uniqueLandmarks,
+    calculateDiscount,
     // Preserve any other existing exports here
 };

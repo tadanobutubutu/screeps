@@ -25,7 +25,9 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  const levels = ['info', 'warn', 'error'];
+  const logLevel = levels.includes(level) ? level : 'info';
+  console[logLevel === 'error' ? 'error' : 'log'](`[${timestamp}] [${logLevel.toUpperCase()}] ${message}`);
 }
 
 function validateInput(input) {
@@ -72,7 +74,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_\-\.]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -123,7 +125,7 @@ function ensureUniqueLandmarks() {
 }
 
 // New function for REACT_017 (adding landmark roles and fixing landmark issues)
-function addLandmarkRolesAndFixIssues() {
+function addMainLandmark() {
   // Hypothetical code to add landmark roles and fix landmark issues
   // ...
 }
@@ -237,8 +239,6 @@ module.exports = {
   addAltAttribute,
   replaceButtonId,
   addressAccessibilityIssues,
-  implementAccessibilityFixesFromReport,
   renderDependencyGraph,
-  fixSvgDataUriAccessibility,
   fixFakeLinkIssue
 };

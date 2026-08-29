@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // New accessibility-related function
+    this.checkAccessibility();
   },
   
   manageRoom: function(room) {
@@ -53,6 +56,17 @@ const main = {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
+      }
+    }
+  },
+
+  // New function to check accessibility issues
+  checkAccessibility: function() {
+    // Example accessibility check: Ensure that all rooms have a controller
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      if (!room.controller) {
+        console.error(`Accessibility issue: Room ${name} does not have a controller.`);
       }
     }
   },

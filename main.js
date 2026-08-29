@@ -1,11 +1,13 @@
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+/*
+ * TODO: This is the existing code that needs to be preserved
+ * Addressed accessibility issues from insight report:
+ * - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+ * - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+ * - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+ * - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+ * - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+ * - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+ */
 
 /**
  * Main entry point for the Frontend application.
@@ -31,15 +33,20 @@ import './styles.css';
 
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-import { appStarted } from './events/appStarted.js';
 
 // Landmark data structure
 const landmarks = [];
 
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
+
 /**
  * Function to check if the specified landmark element is in the document.
  * @param {string} id - The ID of the landmark element.
-//  * @returns {boolean} Returns true if the element exists; otherwise, false.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
@@ -50,7 +57,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
-        const key = `${landmark.name}-${landmark.coordinates}`;
+        const key = landmark.name + '_' + (landmark.role || 'default');
         if (seen.has(key)) {
             return false;
         }
@@ -60,21 +67,12 @@ function ensureUniqueLandmarks(landmarks) {
 }
 
 // Testing the checkLandmarkElement function:
-//
 // To test this function, we could create a test file with the following content:
-// (Testing is kept here as integration reference for the merged module.)
 const landmarkStructureCheck = (landmark) => {
-  // Implement your logic for checking the landmark structure
-  // For example, let's check if the landmark has required properties: name and coordinates
   if (!landmark.name || !landmark.coordinates) {
     return false;
   }
   return true;
-};
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
 };
 
 /**
@@ -95,7 +93,7 @@ const isSecureContext = () => {
  * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
   }
@@ -121,19 +119,19 @@ function getFullLangAttribute() {
 const addLandmarkRoles = () => {
   // Navigation landmark
   const navElement = document.querySelector('nav');
-  if (navElement && !navElement.hasAttribute('role')) {
+  if (navElement && !navElement.getAttribute('role')) {
     navElement.setAttribute('role', 'navigation');
   }
 
   // Main content landmark
   const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.hasAttribute('role')) {
+  if (mainElement && !mainElement.getAttribute('role')) {
     mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
   const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.hasAttribute('role')) {
+  if (headerElement && !headerElement.getAttribute('role')) {
     headerElement.setAttribute('role', 'banner');
   }
 };
@@ -146,7 +144,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav[role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   if (navElements.length > 1) {
     navElements.forEach((nav, index) => {
       if (index > 0) {
@@ -156,7 +154,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main[role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -181,7 +179,7 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
     // Check if the SVG already has a title element
     let titleElement = svg.querySelector('title');
     if (!titleElement) {
-      titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
     }
     titleElement.textContent = accessibleName;
@@ -199,6 +197,29 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
 function getSvgAccessibleName(svg) {
     const title = svg.querySelector('title');
     return title ? title.textContent : null;
+}
+
+/**
+ * Fixes fake links by converting elements with onclick to buttons.
+ *
+ * This addresses REACT_036 by ensuring elements with onclick attributes
+ * that are not actual links are properly styled as buttons with ARIA roles.
+ */
+const fixFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('[onclick]');
+  fakeLinks.forEach((element) => {
+    if (element.tagName.toLowerCase() !== 'a') {
+      // Add role="button" and appropriate ARIA attributes
+      element.setAttribute('role', 'button');
+      if (!element.getAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+      if (!element.getAttribute('aria-label')) {
+        // Use the element's text content as the aria-label if not present
+        element.setAttribute('aria-label', element.textContent.trim() || 'Link');
+      }
+    }
+  });
 };
 
 function helloWorld() {
@@ -217,7 +238,7 @@ function initDependencyGraph(containerId) {
 
 // Function to render the dependency graph
 function renderDependencyGraph(containerId) {
-  const container = initDependencyGraph(containerId);
+  const container = document.getElementById(containerId);
   if (container) {
     // Add the logic to render the dependency graph inside the container
     // This is a placeholder for the actual rendering logic
@@ -240,7 +261,7 @@ function checkLandmarkElements() {
     const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
     const results = {};
 
-    landmarkSelectors.forEach(landmark => {
+    landmarkSelectors.forEach((landmark) => {
         const elements = document.querySelectorAll(landmark);
         results[landmark] = {
             count: elements.length,
@@ -368,8 +389,30 @@ function handleAccessibilityIssues() {
 }
 
 /**
- * Initializes the application and applies accessibility fixes.
+ * Validates and ensures uniqueness of landmarks in the application.
+ *
+ * @param {Array} landmarkList - Array of landmarks to validate.
+ * @returns {Array} Filtered array of unique landmarks.
  */
+function ensureUniqueLandmarks(landmarkList) {
+    const seen = new Set();
+    return landmarkList.filter(landmark => {
+        const key = landmark.name + '_' + (landmark.role || 'default');
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+// Application data placeholder
+const appData = {
+    title: 'Application',
+    version: '1.0.0'
+};
+
+// Initialization function
 const initApp = () => {
   // Initialize the main application
   initializeApp();
@@ -377,21 +420,22 @@ const initApp = () => {
   // Apply accessibility fixes
   setLanguageAttribute(); // Default to 'en'
   addLandmarkRoles();
-  ensureUniqueLandmarkElements();
+  ensureUniqueLandmarks(landmarks);
 
   // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('svg#icon-home', 'Home icon');
-  addSVGAccessibleName('svg#icon-settings', 'Settings icon');
+  addSVGAccessibleName('.icon-home', 'Home icon');
+  addSVGAccessibleName('.icon-settings', 'Settings icon');
 
   // Fix fake links
   fixFakeLinks();
 
+  // Define icons object
+  const icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>'
+  };
+
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-  checkLandmarkElements();
-
-  // Signal that the app has started
-  appStarted();
 };
 
 // Check if the environment is secure before initializing
@@ -433,5 +477,6 @@ export {
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
-    handleAccessibilityIssues
+    handleAccessibilityIssues,
+    ensureUniqueLandmarks
 };

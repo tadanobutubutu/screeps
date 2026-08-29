@@ -38,9 +38,15 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function to get a unique landmark identifier
+function getUniqueLandmarkIdentifier(landmark) {
+  return landmark.id || landmark.name || JSON.stringify(landmark);
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  getUniqueLandmarkIdentifier
 };

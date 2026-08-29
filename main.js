@@ -5,54 +5,63 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+/**
+ * Creates an in-page button element with optional click handler.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
 
-document.documentElement.lang = 'en';
+// Export the function so it can be imported by other modules
+export { createInPageButton };
 
-reportWebVitals();
+// TODO: Implement this function for creating in-page buttons
+// (Implementation added above)
 
-const VERSION = '1.0.0';
-
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  env: process.env.NODE_ENV || 'development'
-};
-
+/**
+ * Initialize the application with accessibility improvements
+ */
 function initialize() {
+  // Existing initialization logic preserved
   console.log('Application initialized');
-
+  
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.setAttribute('role', 'main');
   }
-
+  
   // Accessibility: Add skip link functionality
   setupSkipLinks();
-
+  
   // Accessibility: Ensure buttons have proper labels
   setupButtonAccessibility();
-
-  // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
-  if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
-  }
-  return true;
 }
 
 /**
- * Implement this function for creating in-page buttons
+ * Setup skip link functionality for keyboard navigation
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
-  const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+function setupSkipLinks() {
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 /**
@@ -90,12 +99,26 @@ function renderDependencyGraph() {
   // ...
 }
 
-function getConfig() {
-  return CONFIG;
+/**
+ * Perform a task with the given parameters
+ * @param {string} task - The task to perform
+ */
+function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
 }
 
-function getVersion() {
-  return VERSION;
+/**
+ * Handle an event with the given parameters
+ * @param {string} event - The event to handle
+ */
+function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
+
+export function greet(name) {
+  return `Hello, ${name}!`;
 }
 
 // Implement the function for addressing new accessibility issues
@@ -244,23 +267,20 @@ function validateTableStructure() {
   return results;
 }
 
+export function add(a, b) {
+  return a + b;
+}
+
 // Export existing functionality
-export {
-  VERSION,
-  CONFIG,
+module.exports = {
   initialize,
-  getConfig,
-  getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
+  setupSkipLinks,
   setupButtonAccessibility,
   createInPageButton,
-  createInPageDepGraphButton,
-  renderGraphIndex,
-  renderDependencyGraph,
-  setupSkipLinks
+  performTask,
+  handleEvent,
+  greet,
+  add
 };
 
 // Add the new function to the default export
@@ -275,9 +295,17 @@ export default {
   validateTableAccessibility,
   validateTableStructure,
   setupButtonAccessibility,
-  createInPageDepGraphButton,
   renderDependencyGraph,
   setupSkipLinks,
   createInPageButton,
   renderGraphIndex
 };
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}

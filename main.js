@@ -142,3 +142,70 @@ function addAriaLabelToSVGs() {
 addProperLandmarkRegions();
 addAriaLabelledbyToSVGs();
 addAriaLabelToSVGs();
+
+// New functions to render dependency graphs or display module structure for debugging purposes
+
+/**
+ * Renders a visual representation of the module dependency graph in the console.
+ * Useful for debugging which modules are loaded and their interconnections.
+ */
+function renderModuleDependencyGraph() {
+  if (typeof console !== 'undefined' && console.group && console.log) {
+    console.group('Module Dependency Graph');
+    console.log('Accessibility Utilities Module Dependencies:');
+    console.log('  - getLangAttribute');
+    console.log('  - wrapPrimaryContentInMain');
+    console.log('  - validateTableAccessibility');
+    console.log('  - validateTableStructure');
+    console.log('  - validateLandmark');
+    console.log('  - validateLandmarkStructure');
+    console.log('  - addFixLandmarkIssues');
+    console.log('  - getSvgAccessibleName');
+    console.log('  - createAccessibleLink');
+    console.log('  - ensureUniqueLandmarks');
+    console.groupEnd();
+  }
+}
+
+/**
+ * Displays the current structure of loaded modules and their usage context.
+ * Helps developers understand the execution flow and module organization.
+ */
+function displayModuleStructure() {
+  if (typeof console !== 'undefined' && console.table) {
+    const moduleStructure = [
+      { Module: 'getLangAttribute', Purpose: 'Retrieves language attribute from document' },
+      { Module: 'wrapPrimaryContentInMain', Purpose: 'Wraps primary content in main landmark' },
+      { Module: 'validateTableAccessibility', Purpose: 'Validates table accessibility compliance' },
+      { Module: 'validateTableStructure', Purpose: 'Validates table structural integrity' },
+      { Module: 'validateLandmark', Purpose: 'Validates landmark accessibility' },
+      { Module: 'validateLandmarkStructure', Purpose: 'Validates landmark structural correctness' },
+      { Module: 'addFixLandmarkIssues', Purpose: 'Adds fixes for identified landmark issues' },
+      { Module: 'getSvgAccessibleName', Purpose: 'Retrieves accessible name for SVG elements' },
+      { Module: 'createAccessibleLink', Purpose: 'Creates accessible link elements' },
+      { Module: 'ensureUniqueLandmarks', Purpose: 'Ensures uniqueness of landmark regions' }
+    ];
+    console.group('Module Execution Structure');
+    console.table(moduleStructure);
+    console.groupEnd();
+  }
+}
+
+/**
+ * Renders a simplified dependency graph focusing on function relationships within main.js
+ */
+function renderFunctionDependencyGraph() {
+  if (typeof console !== 'undefined' && console.group && console.log) {
+    console.group('Function Dependency Relationships (main.js)');
+    console.log('handleAccessibilityIssues -> [All imported utilities]');
+    console.log('addProperLandmarkRegions -> [SVG accessibility helpers, landmark processing]');
+    console.log('addAriaLabelledbyToSVGs -> [document.querySelectorAll, title processing]');
+    console.log('addAriaLabelToSVGs -> [document.querySelectorAll, aria-label assignment]');
+    console.groupEnd();
+  }
+}
+
+// Execute the debugging/rendering functions
+renderModuleDependencyGraph();
+displayModuleStructure();
+renderFunctionDependencyGraph();

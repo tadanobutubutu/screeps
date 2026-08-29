@@ -1,3 +1,6 @@
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
 /**
  * Creates an in-page button element with optional click handler.
  * @param {string} buttonText - The label text for the button
@@ -7,7 +10,10 @@
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  button.type = 'button'; // Accessibility: explicit button type
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
   return button;
 }
 

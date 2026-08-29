@@ -135,7 +135,17 @@ function dependencyGraph() {
     container.setAttribute('aria-label', 'Dependency graph');
   }
 
+  // Add an accessible name for screen readers
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // If the graph is interactive, consider adding appropriate attributes
+  // For example, if it contains interactive elements:
+  // container.setAttribute('aria-describedby', 'graph-description');
+
   // ... existing code ...
+
+  // Additional accessibility features can be added here
+  container.setAttribute('tabindex', '0'); // Make container focusable
 }
 
 // (This comment remains as-is)

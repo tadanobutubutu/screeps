@@ -1,3 +1,6 @@
+// Import dependencyGraphContent
+const dependencyGraphContent = require('./dependencyGraph');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -154,4 +157,10 @@ function detectAndSetLang(content) {
   return lang;
 }
 
-module.exports = { countDependencies, detectAndSetLang, addressAccessibilityIssues };
+// Export for use in other modules
+module.exports = { 
+  countDependencies, 
+  addressAccessibilityIssues, 
+  detectAndSetLang, 
+  dependencyGraphContent 
+};

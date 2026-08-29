@@ -30,7 +30,14 @@ function addAriaLabelByIdToHeadings() {
   });
 }
 
+// New function requested in the issue: calculateSum
+function calculateSum(num1, num2) {
+  return num1 + num2;
+}
+
 // Preserve the existing code here
+
+// Preserve the existing exports here
 
 // Add the new code to improve accessibility
 function makeInteractiveElementAccessible(element) {
@@ -51,7 +58,14 @@ addAriaHiddenToDecorativeSVGs();
 addAriaLabelToFormInputs();
 addAriaLabelByIdToHeadings();
 
+// Call the new calculateSum function
+calculateSum(7, 3); // Example usage
+
 module.exports = {
   makeInteractiveElementAccessible,
+  addAriaHiddenToDecorativeSVGs,
+  addAriaLabelToFormInputs,
+  addAriaLabelByIdToHeadings,
+  calculateSum,
   // Your existing exports...
 };

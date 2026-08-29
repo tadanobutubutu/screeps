@@ -328,17 +328,28 @@ function addAriaLabel(document, selector, label) {
   return document;
 }
 
-// Function to render dependency graphs
+// Function to render dependency graphs and index views
 function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('#dependencyGraph') ||
-                         document.querySelector('.dependency-graph') ||
-                         document.querySelector('[data-graph="dependencies"]') ||
-                         document.querySelector('[id*="dependency"]');
-  if (graphContainer) {
+  const selectors = [
+    '#dependencyGraph',
+    '.dependency-graph',
+    '[data-graph="dependencies"]',
+    '[id*="dependency"]',
+    '#indexView',
+    '.index-view',
+    '[data-view="index"]',
+    '[id*="index"]'
+  ];
+  let container = null;
+  for (const sel of selectors) {
+    container = document.querySelector(sel);
+    if (container) break;
+  }
+  if (container) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('role', 'img');
     setSvgAccessibilityProps(svg);
-    graphContainer.appendChild(svg);
+    container.appendChild(svg);
   }
 }
 

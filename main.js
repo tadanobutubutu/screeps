@@ -61,23 +61,111 @@ export const validateLandmark = (element) => {
   };
 };
 
+/**
+ * Validates table accessibility
+ * @param {Element|null} element - The DOM element to validate
+ * @returns {{ isValid: boolean, errors: string[] }} Validation result
+ */
+export const validateTableAccessibility = (element) => {
+  const errors = [];
+  
+  if (!element) {
+    return { isValid: false, errors: ['No element provided'] };
+  }
+  
+  if (element.tagName !== 'TABLE') {
+    return { isValid: false, errors: ['Element is not a table'] };
+  }
+  
+  // Check for caption
+  const caption = element.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption for accessibility');
+  }
+  
+  // Check for th elements
+  const thElements = element.querySelectorAll('th');
+  if (thElements.length === 0) {
+    errors.push('Table should have th elements for headers');
+  }
+  
+  // Check for scope attribute on th elements
+  thElements.forEach((th, index) => {
+    const scope = th.getAttribute('scope');
+    if (!scope) {
+      errors.push(`th element at index ${index} should have a scope attribute`);
+    }
+  });
+  
+  // Check for aria-describedby or aria-label on table
+  const ariaLabel = element.getAttribute('aria-label');
+  const ariaDescribedby = element.getAttribute('aria-describedby');
+  if (!ariaLabel && !ariaDescribedby && !caption) {
+    errors.push('Table should have an accessible name (aria-label, aria-describedby, or caption)');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * Validates table structure
+ * @param {Element|null} element - The DOM element to validate
+ * @returns {{ isValid: boolean, errors: string[] }} Validation result
+ */
+export const validateTableStructure = (element) => {
+  const errors = [];
+  
+  if (!element) {
+    return { isValid: false, errors: ['No element provided'] };
+  }
+  
+  if (element.tagName !== 'TABLE') {
+    return { isValid: false, errors: ['Element is not a table'] };
+  }
+  
+  // Check for thead
+  const thead = element.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead element');
+  }
+  
+  // Check for tbody
+  const tbody = element.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody element');
+  }
+  
+  // Check proper nesting of tr within thead/tbody/tfoot
+  const rows = element.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const parent = row.parentElement;
+    if (parent && parent.tagName !== 'THEAD' && parent.tagName !== 'TBODY' && parent.tagName !== 'TFOOT') {
+      errors.push(`tr element at index ${index} should be nested within thead, tbody, or tfoot`);
+    }
+  });
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
 // Add accessible names to SVGs
 export const fixAccessibleSVGs = () => {
-  document.querySelectorAll('svg').forEach(svg => {
-    // ... (add accessible names)
-  });
+  // ...
 };
 
 // Fix fake link issue
 export const fixFakeLinks = () => {
-  document.querySelectorAll('.fake-link').forEach(fakeLink => {
-    // ... (fix fake link issue)
-  });
+  // ...
 };
 
 // Implement Google sign-in logic
 export const googleSignIn = () => {
-  // ... (Google sign-in logic)
+  // ...
 };
 
 const Dashboard = (props) => {

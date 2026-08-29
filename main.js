@@ -197,5 +197,55 @@ export {
   setAriaExpanded,
   hasAccessibleName,
   myFunction,
-  newFunction
+  newFunction,
+  createInPageButtons
 };
+
+// TODO: Implement this function for creating in-page buttons
+// (Implementation added above)
+export function createInPageButtons(container, landmarks) {
+  if (!container || !landmarks || !Array.isArray(landmarks)) {
+    return;
+  }
+
+  const buttonsContainer = document.createElement('nav');
+  buttonsContainer.setAttribute('aria-label', 'In-page navigation');
+  buttonsContainer.className = 'in-page-buttons';
+
+  landmarks.forEach(landmark => {
+    const button = document.createElement('button');
+    button.textContent = landmark.name;
+    button.setAttribute('aria-label', `Navigate to ${landmark.name}`);
+    
+    button.addEventListener('click', () => {
+      let targetElement = null;
+      
+      if (landmark.id) {
+        targetElement = document.getElementById(landmark.id);
+      } else if (landmark.selector) {
+        targetElement = document.querySelector(landmark.selector);
+      } else if (landmark.name) {
+        // Try to find element by aria-label or text content
+        const elements = document.querySelectorAll('[aria-label]');
+        for (const el of elements) {
+          if (el.getAttribute('aria-label') === landmark.name) {
+            targetElement = el;
+            break;
+          }
+        }
+      }
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        targetElement.setAttribute('tabindex', '-1');
+        targetElement.focus();
+      }
+    });
+    
+    buttonsContainer.appendChild(button);
+  });
+
+  container.appendChild(buttonsContainer);
+
+  return buttonsContainer;
+}

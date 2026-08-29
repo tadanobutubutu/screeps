@@ -256,6 +256,150 @@ function setupAccessibilityEventListeners() {
   }
 }
 
+// ----- DEPENDENCY GRAPH RENDERING FUNCTIONS -----
+
+/**
+ * Builds an adjacency list representation of a dependency graph.
+ * @param {Array<Object>} dependencies - List of dependency objects { from, to }
+ * @returns {Object} - { nodes: string[], edges: Array, adjacency: Object }
+ */
+function buildDependencyGraph(dependencies) {
+  const nodeSet = new Set();
+  const adjacency = {};
+  const edges = [];
+
+  if (!Array.isArray(dependencies)) {
+    return { nodes: [], edges: [], adjacency: {} };
+  }
+
+  dependencies.forEach((dep) => {
+    if (!dep || typeof dep !== 'object') return;
+    const { from, to } = dep;
+    if (!from || !to) return;
+
+    nodeSet.add(from);
+    nodeSet.add(to);
+
+    if (!adjacency[from]) adjacency[from] = [];
+    adjacency[from].push(to);
+
+    edges.push({ from, to });
+  });
+
+  return {
+    nodes: Array.from(nodeSet),
+    edges,
+    adjacency
+  };
+}
+
+/**
+ * Detects cycles in the dependency graph using DFS.
+ * @param {Object} graph - Graph object produced by buildDependencyGraph
+ * @returns {Array<string>} - List of nodes involved in cycles (empty if none)
+ */
+function detectCycles(graph) {
+  if (!graph || !graph.adjacency) return [];
+
+  const visited = {};
+  const stack = {};
+  const inCycle = new Set();
+
+  function dfs(node) {
+    visited[node] = true;
+    stack[node] = true;
+
+    const neighbors = graph.adjacency[node] || [];
+    for (const neighbor of neighbors) {
+      if (!visited[neighbor]) {
+        dfs(neighbor);
+      } else if (stack[neighbor]) {
+        inCycle.add(node);
+        inCycle.add(neighbor);
+      }
+    }
+
+    stack[node] = false;
+  }
+
+  graph.nodes.forEach((node) => {
+    if (!visited[node]) dfs(node);
+  });
+
+  return Array.from(inCycle);
+}
+
+/**
+ * Renders a dependency graph as an SVG element.
+ * @param {Object} graph - Graph object produced by buildDependencyGraph
+ * @param {Object} options - Rendering options { width, height, nodeRadius }
+ * @returns {string} - SVG markup string
+ */
+function renderDependencyGraph(graph, options = {}) {
+  if (!graph || !Array.isArray(graph.nodes)) {
+    return '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
+  }
+
+  const width = options.width || 600;
+  const height = options.height || 400;
+  const nodeRadius = options.nodeRadius || 20;
+
+  const positions = {};
+  const nodeCount = graph.nodes.length || 1;
+  graph.nodes.forEach((node, index) => {
+    const angle = (2 * Math.PI * index) / nodeCount;
+    positions[node] = {
+      x: width / 2 + (width / 3) * Math.cos(angle),
+      y: height / 2 + (height / 3) * Math.sin(angle)
+    };
+  });
+
+  const edgeMarkup = graph.edges
+    .map((edge) => {
+      const from = positions[edge.from];
+      const to = positions[edge.to];
+      if (!from || !to) return '';
+      return `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="#666" stroke-width="1.5" />`;
+    })
+    .join('');
+
+  const nodeMarkup = graph.nodes
+    .map((node) => {
+      const pos = positions[node];
+      const safeLabel = String(node).replace(/[<>&"]/g, (c) => ({
+        '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'
+      }[c]));
+      return `<g><circle cx="${pos.x}" cy="${pos.y}" r="${nodeRadius}" fill="#4a90e2" stroke="#2c5d99" stroke-width="2" /><text x="${pos.x}" y="${pos.y + 5}" text-anchor="middle" fill="#fff" font-size="12">${safeLabel}</text></g>`;
+    })
+    .join('');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${edgeMarkup}${nodeMarkup}</svg>`;
+}
+
+/**
+ * Renders a dependency graph into a DOM container.
+ * @param {string|HTMLElement} container - Container selector or element
+ * @param {Array<Object>} dependencies - Dependency list
+ * @param {Object} options - Rendering options
+ * @returns {boolean} - true on success, false otherwise
+ */
+function renderDependencyGraphToDOM(container, dependencies, options = {}) {
+  if (typeof document === 'undefined') return false;
+
+  const target = typeof container === 'string'
+    ? document.getElementById(container) || document.querySelector(container)
+    : container;
+
+  if (!target) {
+    logger.warn('renderDependencyGraphToDOM: container not found');
+    return false;
+  }
+
+  const graph = buildDependencyGraph(dependencies);
+  target.innerHTML = renderDependencyGraph(graph, options);
+  return true;
+}
+
 // Export functions for testing
 module.exports = {
   loop,
@@ -274,7 +418,11 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  buildDependencyGraph,
+  detectCycles,
+  renderDependencyGraph,
+  renderDependencyGraphToDOM
 };
 
 // Initialize on DOM ready

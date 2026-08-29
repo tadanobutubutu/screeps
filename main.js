@@ -64,8 +64,6 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -87,11 +85,13 @@ function addressAccessibilityIssues(insightReport) {
   // Apply specific accessibility fixes here based on the report's structure.
   // For now, we simply return the report unchanged.
   return insightReport;
-=======
-  });
 }
 
-// Helper to manage focus within a container
+/*
+ * Helper to manage focus within a container
+ * @param {HTMLElement} container - Container element
+ * @returns {void}
+ */
 function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -111,13 +111,16 @@ function trapFocus(container) {
       firstElement.focus();
     }
   });
->>>>>>> origin/main
 }
 
-// Function to ensure landmarks have unique identifiers
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="region"]');
-  let uniqueIds = [];
+/**
+ * Function to ensure landmarks have unique identifiers
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  const result = [];
 
   function generateUniqueId() {
     return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -366,29 +369,4 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     addProperLandmarkRegions,
     addProperAccountManagement,
-    addAriaToFormControls,
-    replaceMyButtonId,
-    getLangAttribute,
-    getFullLangAttribute,
-    ensureUniqueLandmarkId,
-    uniqueLandmarks,
-    ensureUniqueLandmarks,
-    initializeAccessibility,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone
-  };
-}
-
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.accessibilityFeatures = initializeAccessibility();
-  });
-}
+    addAriaToFormControls

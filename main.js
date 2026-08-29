@@ -149,12 +149,13 @@ function ... {
   });
 }
 
-export function myFunction() {
+export function newFunction() {
   // Your code for the new function goes here
 }
 
-function newFunction() {
-  // implementation of new function
+function modifiedFunction() {
+  // Modified implementation of the function
+  console.log('This function has been modified.');
 }
 
 // Export Screeps bot functions
@@ -169,17 +170,31 @@ module.exports.addScopeToHeaders = addScopeToHeaders;
 ... = addressAccessibilityIssues;
 ... = newFunction;
 
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-function modifiedFunction() {
-  // Modified implementation of the function
-  console.log('This function has been modified.');
+// New function for generating accessibility report
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !Array.isArray(insightReport)) {
+    return 'No accessibility issues reported.';
+  }
+
+  const lines = [
+    '=== Accessibility Report ===',
+    'Generated from insight report',
+    ''
+  ];
+
+  insightReport.forEach((issue, index) => {
+    lines.push(`Issue #${index + 1}:`);
+    lines.push(`  Description: ${issue.message}`);
+    lines.push(`  Severity: ${issue.severity}`);
+    lines.push('');
+  });
+
+  return lines.join('\n');
 }
 
-// <!--- END MODIFIED FUNCTION --->
+module.exports.generateAccessibilityReport = generateAccessibilityReport;
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
-// <!--- Any other modifications or additions go here --->
 
 export {
   function3,

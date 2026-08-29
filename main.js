@@ -373,7 +373,7 @@ module.exports = {
 // Export for module usage (ES modules)
 if (typeof exports !== 'undefined') {
   exports.a11yStore = a11yStore;
-  exports.addLandmarkRegions = addLandmarkRegions;
+  exports.addLandmarkRegions = addLandmarkRegins;
   exports.checkLandmarkElements = checkLandmarkElements;
   exports.addSVGAccessibilityProps = a11yStore.addSvgAccessibilityProps;
   exports.fixFakeLinks = a11yStore.fixFakeLinks;

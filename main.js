@@ -8,17 +8,7 @@ import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
+const createInPageButton = (options) => {
   const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
 
   const getBackgroundColor = () => {
@@ -63,43 +53,32 @@ const createInPageButton = (options: {
 // Placeholder for the affected SVGs
 const icons = {};
 
-function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const landmarkStructureCheck = (landmark) => {
-    // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
-  };
-
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
-
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
-}
-
-function addLangAttribute(htmlElement) {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
-    return;
-  }
-
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
-  }
-}
-
 // Function to check if the specified landmark element is in the document.
 // @param {string} id - The ID of the landmark element.
 // @returns {boolean} Returns true if the element exists; otherwise, false.
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
   return element !== null;
+}
+
+/**
+ * Function to render a dependency graph
+ * @param {Array} landmarks - Array of landmark objects
+ */
+function renderDependencyGraph(landmarks) {
+  // Implement the logic to render a dependency graph for the landmarks
+  // This is a placeholder for the actual implementation
+  console.log('Rendering dependency graph for landmarks:', landmarks);
+}
+
+/**
+ * Function to render an index view
+ * @param {Array} landmarks - Array of landmark objects
+ */
+function renderIndexView(landmarks) {
+  // Implement the logic to render an index view for the landmarks
+  // This is a placeholder for the actual implementation
+  console.log('Rendering index view for landmarks:', landmarks);
 }
 
 /**
@@ -114,9 +93,49 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
+  }
+
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  }
+}
+
+const landmarkStructureCheck = (landmark) => {
+  // Implement your logic for checking the landmark structure
+  // For example, let's check if the landmark has required properties: name and coordinates
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+};
+
+const ensureUniqueLandmarks = (landmarks) => {
+  // Add your own unique landmark logic here
+  // For now, we'll use a simple filter to remove duplicates based on name
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    const duplicate = seen.has(landmark.name);
+    seen.add(landmark.name);
+    return !duplicate;
+  });
+};
+
+function processLandmarks(landmarks) {
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  return ensureUniqueLandmarks(validLandmarks);
+}
+
 module.exports = {
+  landmarkStructureCheck,
+  ensureUniqueLandmarks,
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  renderDependencyGraph,
+  renderIndexView
 };

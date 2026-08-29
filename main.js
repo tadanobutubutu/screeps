@@ -58,6 +58,25 @@ const main = {
   },
 
   // Add the new function or change here:
+  addLandmarkRegions: function(room) {
+    // Example logic for adding landmark regions
+    const landmarkPositions = [
+      { x: 25, y: 25 },
+      { x: 25, y: 50 },
+      { x: 50, y: 25 },
+      { x: 50, y: 50 }
+    ];
+
+    landmarkPositions.forEach(pos => {
+      const position = new RoomPosition(pos.x, pos.y, room.name);
+      const landmark = room.createStructures([STRUCTURE_LANDMARK], position);
+      if (landmark) {
+        landmark.setFlag('landmark', 'landmark');
+      }
+    });
+  },
+
+  // Export the new function if needed:
   myNewFunction: function() {
     // your new function logic goes here
   }

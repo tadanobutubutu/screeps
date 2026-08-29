@@ -8,7 +8,9 @@
 // Application state
 const appState = {
   isInitialized: false,
-  currentView: null
+  currentView: null,
+  appData: {},
+  uniqueLandmarks: {}
 };
 
 /**

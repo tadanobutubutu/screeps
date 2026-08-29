@@ -405,112 +405,128 @@ export function checkTableStructure(html) {
 
 //------ END OF ORIGINAL CODE ------
 
-// Export all functions for use in tests and other parts of the application
-export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
-  addressAccessibilityIssues,
-};
-
-// New functions to be added
-const addLangAttribute = (document) => {
-  const html = document.documentElement;
-  if (html && !html.lang) {
-    html.lang = 'en';
+// Function to wrap primary content in main element
+function wrapPrimaryContentInMain(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if main element already exists
+  if (/<main[\s>]/i.test(html)) {
+    return html;
   }
-  return document;
-};
+  
+  // Try to find body content and wrap it in main
+  const bodyMatch = html.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
+  if (bodyMatch) {
+    const bodyAttrs = bodyMatch[1] || '';
+    const bodyContent = bodyMatch[2];
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+  }
+  
+  return html;
+}
 
-const fixTableStructureIssues = (document) => {
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, table.firstChild);
-      }
+// Function to add skip link for accessibility
+function addSkipLink(html) {
+  if (typeof html !== 'string') return html;
+  
+  const skipLink = '<a href="#main-content" class="skip-link">Skip to main content</a>';
+  
+  // Add skip link after opening body tag
+  if (/<body[^>]*>/i.test(html)) {
+    return html.replace(/(<body[^>]*>)/i, `$1${skipLink}`);
+  }
+  
+  // If no body tag, prepend skip link
+  return skipLink + html;
+}
+
+// Helper function to get accessible name of an element
+function getAccessibleName(element) {
+  if (!element) return '';
+  
+  // Check for aria-label first
+  if (element.getAttribute && element.getAttribute('aria-label')) {
+    return element.getAttribute('aria-label');
+  }
+  
+  // Check for aria-labelledby
+  if (element.getAttribute && element.getAttribute('aria-labelledby')) {
+    const labelledById = element.getAttribute('aria-labelledby');
+    const labelledElement = document.getElementById(labelledById);
+    if (labelledElement) {
+      return labelledElement.textContent || '';
     }
+  }
+  
+  // Fall back to text content
+  if (element.textContent) {
+    return element.textContent.trim();
+  }
+  
+  return '';
+}
 
-    if (table.querySelector('tbody') === null) {
-      const rows = Array.from(table.querySelectorAll('tr'));
-      if (rows.length > 0) {
-        const newTbody = document.createElement('tbody');
-        rows.forEach((row) => newTbody.appendChild(row));
-        table.appendChild(newTbody);
-      }
+// Helper function to set accessible name of an element
+function setAccessibleName(element, name) {
+  if (!element) return;
+  
+  element.setAttribute('aria-label', name);
+}
+
+// Function to add proper landmark regions
+function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Ensure header has aria-label if not present
+  result = result.replace(/<header(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('aria-label=')) {
+      return match;
     }
-
-    const thead = table.querySelector('thead');
-    if (thead) {
-      thead.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'col'));
-    }
-
-    const tbodies = table.querySelectorAll('tbody');
-    tbodies.forEach(tbody => {
-      tbody.querySelectorAll('th').forEach(th => th.setAttribute('scope', 'row'));
-    });
+    return `<header${attrs || ''} role="banner" aria-label="Site header">`;
   });
-  return document;
-};
-
-const ensureUniqueLandmarks = (document) => {
-  const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
-  const usedIds = new Set();
-
-  landmarkTypes.forEach(type => {
-    const elements = document.querySelectorAll(`[role="${type}"], ${type}`);
-    elements.forEach((element) => {
-      if (!element.id) {
-        let idSuffix = 1;
-        const existingIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-        let id = `${type}-${idSuffix}`;
-        while (existingIds.includes(id)) {
-          idSuffix++;
-          id = `${type}-${idSuffix}`;
-        }
-        element.id = id;
-      }
-    });
+  
+  // Ensure nav has aria-label if not present
+  result = result.replace(/<nav(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('aria-label=')) {
+      return match;
+    }
+    return `<nav${attrs || ''} role="navigation" aria-label="Site navigation">`;
   });
-};
-
-const addSvgAccessibleNames = (document) => {
-  const svgs = document.querySelectorAll('svg');
-  let svgIndex = 0;
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = `SVG ${svgIndex + 1}`;
-      title.id = `svg-title-${svgIndex + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('aria-labelledby', title.id);
+  
+  // Ensure footer has aria-label if not present
+  result = result.replace(/<footer(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('aria-label=')) {
+      return match;
     }
-    svgIndex++;
+    return `<footer${attrs || ''} role="contentinfo" aria-label="Site footer">`;
   });
-  return document;
-};
+  
+  return result;
+}
 
-const fixFakeLinkIssue = (document) => {
-  const fakeLinks = document.querySelectorAll('a:not([href])');
-  fakeLinks.forEach(link => {
-    // Add role="link" to ensure it's recognized as a link by screen readers
-    if (!link.getAttribute('role') || link.getAttribute('role') === 'button') {
-      link.setAttribute('role', 'link');
-    }
-    // Ensure the link has accessible name
-    if (link.getAttribute('role') === 'link' && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Link');
-    }
-    // Remove href="#" and add href="#" with proper handling
-    if (link.getAttribute('href') === '#') {
-      link.setAttribute('href', 'javascript:void(0);');
-    }
-  });
-  return document;
-};
+// TODO: Update the existing function using the new functions for rendering graph/index
+// This function uses all the new accessibility functions to render the graph/index
+export function renderGraphIndex(html) {
+  if (typeof html !== 'string') return html;
+  
+  let result = html;
+  
+  // Apply all accessibility improvements in the correct order
+  result = addLangAttribute(result);
+  result = addMainLandmark(result);
+  result = fixTableStructureIssues(result);
+  result = addSvgAccessibleNames(result);
+  result = ensureUniqueLandmarks(result);
+  result = fixFakeLinkIssue(result);
+  result = addProperLandmarkRegions(result);
+  
+  return result;
+}
+
+// Export the renderGraphIndex function for use in tests and other parts
+export function addressAccessibilityIssues(html) {
+  return renderGraphIndex(html);
+}

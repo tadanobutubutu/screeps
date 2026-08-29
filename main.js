@@ -1,4 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
+// Existing imports, constants, and functions
+
+// TODO: Create or update the affected functions to be accessible
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
@@ -24,5 +26,9 @@ async function makeAPICall() {
   // Your implementation goes here
 }
 
-// Export the new functions if they are needed to be used in other files
-export { createInPageButton, makeAPICall };
+// Export the new functions if they are needed to be used in other files (CommonJS)
+module.exports = {
+  // Existing exports
+  createInPageButton,
+  makeAPICall,
+};

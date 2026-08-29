@@ -35,14 +35,6 @@ function personName() {
   // Existing code...
 }
 
-function validateTableAccessibility() {
-  // Existing code...
-}
-
-function validateTableStructure() {
-  // Existing code...
-}
-
 function validateLandmark() {
   // Existing code...
 }

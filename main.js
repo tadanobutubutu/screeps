@@ -24,7 +24,57 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// Accessibility utility function to validate landmark accessibility attributes
+const validateLandmarkAccessibility = (landmark) => {
+    const issues = [];
+    
+    // Check for accessible name
+    if (!landmark.name || landmark.name.trim() === '') {
+        issues.push('Landmark must have a meaningful accessible name');
+    }
+    
+    // Check for aria-label or description
+    if (!landmark.ariaLabel && !landmark.description) {
+        issues.push('Consider adding aria-label or description for screen readers');
+    }
+    
+    // Check for role if it's a custom landmark
+    if (landmark.isCustom && !landmark.role) {
+        issues.push('Custom landmarks should specify an appropriate ARIA role');
+    }
+    
+    return {
+        isAccessible: issues.length === 0,
+        issues: issues
+    };
+};
+
+// Check if document has lang attribute set
+const checkDocumentLangAttribute = (doc) => {
+    if (!doc) return { isAccessible: false, issues: ['Document is undefined'] };
+    
+    const lang = doc.documentElement?.getAttribute('lang');
+    
+    if (!lang) {
+        return { 
+            isAccessible: false, 
+            issues: ['HTML element is missing lang attribute (REACT_015)'] 
+        };
+    }
+    
+    if (lang.length < 2) {
+        return { 
+            isAccessible: false, 
+            issues: ['Lang attribute must contain a valid language code'] 
+        };
+    }
+    
+    return { isAccessible: true, issues: [], lang };
+};
+
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    validateLandmarkAccessibility,
+    checkDocumentLangAttribute
 };

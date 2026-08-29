@@ -252,7 +252,8 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  handleEscapeKey
 };
 
 // Initialize on DOM ready

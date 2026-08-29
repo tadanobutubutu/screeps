@@ -39,9 +39,9 @@ function initializeAccessibility() {
     svgs.forEach((svg) => {
       // Check if SVG is hidden
       const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                       svg.getAttribute('hidden') !== null ||
-                       svg.style.display === 'none' ||
-                       svg.style.visibility === 'hidden';
+                        svg.getAttribute('hidden') !== null ||
+                        svg.style.display === 'none' ||
+                        svg.style.visibility === 'hidden';
 
       if (isHidden) {
         return;

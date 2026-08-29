@@ -118,7 +118,10 @@ function ensureUniqueLandmarks(landmarks) {
   }
 
   // Return the processed array with duplicate landmarks removed
-  return landmarks.filter(({ name }) => uniqueLandmarks.includes(name));
+  return landmarks.filter(({ name }) => {
+    const seen = new Set();
+    return !seen.has(name) && seen.add(name);
+  });
 }
 
 function createInPageButton() {
@@ -144,8 +147,8 @@ function addressAccessibilityIssues(insightReport) {
   // This should be replaced with actual logic based on the insight report structure
 
   // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
@@ -155,8 +158,7 @@ function addressAccessibilityIssues(insightReport) {
 // - REACT_041: Add accessible names to 2 SVGs
 // ... your accessible names for SVGs refactoring code ...
 
-// ADD CODE HERE if the missing export should be implemented
-export function missingExportPlaceholder() {}
+export function someNewFunction() {}
 
 // ... (Existing code from main.js)
 

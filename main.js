@@ -16,7 +16,21 @@ function addressAccessibilityIssues() {
   }
   // ... any new code or functions requested in the issue ...
 
+  // TODO: This is the existing code that needs to be preserved
+  // _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+  // <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+
   return null;
+}
+
+// <!--- START ADDITIONAL FUNCTION --->
+/**
+ * New function to be added as per the issue
+ * @param {string} text
+ * @returns {string}
+ */
+function capitalizeFirstLetter(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // New function to address accessibility issues from insight report
@@ -117,66 +131,6 @@ function renderDependencyGraphContent(data) {
   if (container) {
     container.innerHTML = data;
   }
-}
-
-// Address accessibility issues from insight report
-function improveAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
-    }
-  });
-
-  const focusable = document.querySelectorAll('[role="link"]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
-}
-
-// New function to address accessibility issues from insight report
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueLandmarkMap = {};
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
-      if (isUnique) {
-        uniqueLandmarkMap[landmark].push(el);
-      } else {
-        el.removeAttribute('role');
-      }
-    });
-  });
-}
-
-// New function to add landmark roles and fix issues
-function addLandmarkRoles(insightReport) {
-  const issues = insightReport.issues || [];
-
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
-}
-
-// Address other insight report issues
-function fixLandmarkIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
 }
 
 function renderDependencyGraph(dependencyData) {
@@ -339,7 +293,8 @@ module.exports = {
   main,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  fixUniqueLandmarks
+  fixUniqueLandmarks,
+  capitalizeFirstLetter
 };
 
 main();

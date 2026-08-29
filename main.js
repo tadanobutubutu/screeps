@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Main module entry point
+
+const main = {
+  // Add your module exports here
+};
+
+module.exports = main;
+module.exports.default = main;

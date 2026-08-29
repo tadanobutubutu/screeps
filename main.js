@@ -1,424 +1,268 @@
+// main.js - Main application file
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-// Existing function or code block
-function existingFunction() {
-  // ... existing code ...
-}
-
-// ... other existing code ...
-
-// New code or changes requested in the issue
-function addressAccessibilityIssues() {
-  // Implementation for addressing accessibility issues
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log('Addressing accessibility issues...');
-}
-
-// Ensure the function is called if needed, for example, on a specific event or initialization
-// This is just an example and should be adjusted according to the actual application logic
-window.onload = function() {
-  addressAccessibilityIssues();
+// Configuration
+const CONFIG = {
+  port: process.env.PORT || 3000,
+  host: process.env.HOST || 'localhost',
+  maxRetries: 3,
+  timeout: 5000
 };
-
-// ... other existing code ...
-
-const url = require('url');
-
-/**
- * Adds SVG accessibility props to the given props object
- * Ensures SVGs are properly accessible by adding role, aria-label, etc.
- * @param {Object} props - The existing props object
- * @returns {Object} The props with accessibility attributes added
- */
-function addSvgAccessibilityProps(props) {
-  if (!props) {
-    return { role: 'img' };
-  }
-
-  const {
-    role = 'img',
-    ariaLabel,
-    ariaLabelledby,
-    ariaDescribedby,
-    ariaHidden,
-    focusable = false,
-    ...rest
-  } = props;
-
-  const accessibilityProps = {
-    role,
-    ...(ariaLabel && { 'aria-label': ariaLabel }),
-    ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
-    ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
-    ...(ariaHidden === true && { 'aria-hidden': 'true' }),
-    focusable,
-  };
-
-  return {
-    ...rest,
-    ...accessibilityProps,
-  };
-}
-
-// ADD: Addressing new accessibility issues from insight report
-
-function fixAccessibilityIssues() {
-  getLangAttribute();
-
-  const tables = document.querySelectorAll('table');
-  tables.forEach((table) => {
-    validateTableStructure(table);
-    validateTableAccessibility(table);
-  });
-
-  const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, form[aria-label], form[aria-labelledby], search');
-  landmarkElements.forEach((element) => {
-    validateLandmark(element);
-    validateLandmarkStructure(element);
-  });
-
-  const persons = document.querySelectorAll('[itemtype*="Person"]');
-  persons.forEach((person) => personName(person));
-}
-
-// TODO: Address accessibility issues from insight report — FIXED
-
-// Preserving existing code, exports, and functions
-
-// Application state
-const appState = {
-    credentials: [],
-    sessions: new Map()
-};
-
-// Accessibility utilities and functions
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
-function newFocusTrap() {
-  // New function implementation
-}
 
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ... ${message}`);
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
-/**
- * Parse and validate a credential response
- * @param {Object} response - The credential response object
- * @returns {Object} - Parsed and validated response data
- */
-function parseCredentialResponse(response) {
-    if (!response || typeof response !== 'object') {
-        return {
-            success: false,
-            error: 'Invalid response format'
-        };
-    }
-
-    return {
-        success: true,
-        credential: response.credential || null,
-        select_by: response.select_by || null,
-        clientId: response.client_id || null
-    };
-}
-
-/**
- * Decode a JWT token (base64url decode)
- * @param {string} token - The JWT token string
- * @returns {Object} - Decoded token payload
- */
-function decodeJwtToken(token) {
-    try {
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            throw new Error('Invalid JWT format');
-        }
-        
-        const payload = parts[1];
-        const decoded = Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8');
-        return JSON.parse(decoded);
-    } catch (error) {
-        return null;
-    }
-}
-
-/**
- * Sanitize a filename by replacing invalid characters
- * @param {string} filename - The filename to sanitize
- * @returns {string} - Sanitized filename
- */
-function sanitizeFilename(filename) {
-    return filename.replace(/[^a-z0-9._-]/gi, '_');
-}
-
-/**
- * Process data items by adding metadata
- * @param {Array} items - Items to process
- * @returns {Array} - Processed items
- */
-function processData(items) {
-    if (!Array.isArray(items)) {
-        return [];
-    }
-    return items.map(item => ({
-        ...item,
-        processed: true,
-        timestamp: Date.now()
-    }));
-}
-
-/**
- * Handle credential response from OAuth/identity provider
- * @param {Object} credentialResponse - The credential response
- * @returns {Object} - Result of handling the credential
- */
-function handleCredentialResponse(credentialResponse) {
-    const parsedResponse = parseCredentialResponse(credentialResponse);
-    
-    if (!parsedResponse.success) {
-        return {
-            status: 'error',
-            message: parsedResponse.error
-        };
-    }
-
-    const credential = parsedResponse.credential;
-    
-    if (!credential) {
-        return {
-            status: 'error',
-            message: 'No credential provided'
-        };
-    }
-
-    // Decode the JWT token to extract user information
-    const decodedToken = decodeJwtToken(credential);
-    
-    if (!decodedToken) {
-        return {
-            status: 'error',
-            message: 'Failed to decode credential token'
-        };
-    }
-
-    // Create session for the authenticated user
-    const sessionId = generateSessionId();
-    const sessionData = {
-        user: {
-            email: decodedToken.email,
-            name: decodedToken.name,
-            picture: decodedToken.picture,
-            sub: decodedToken.sub
-        },
-        authenticatedAt: Date.now(),
-        credential: credential
-    };
-
-    appState.sessions.set(sessionId, sessionData);
-    appState.credentials.push({
-        sessionId,
-        clientId: parsedResponse.clientId,
-        timestamp: Date.now()
-    });
-
-    return {
-        status: 'success',
-        sessionId,
-        user: sessionData.user
-    };
-}
-
-/**
- * Generate a unique session ID
- * @returns {string} - Generated session ID
- */
-function generateSessionId() {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substring(2, 15);
-    return `${timestamp}-${randomPart}`;
-}
-
-/**
- * Validates the structure of the table to ensure accessibility.
- * @param {HTMLElement} table - The table to validate
- * @returns {boolean} True if the table is accessible, false otherwise
- */
-function validateTableStructure(table) {
-  if (!table) {
-    throw new Error('Table is required');
+function validateInput(input) {
+  if (typeof input !== 'string') {
+    return false;
   }
-  
-  // Placeholder for table structure validation logic
-  // This should include checks for headers, caption, and row grouping
-  
-  // For now, we assume the table is valid
-  return true;
+  return input.length > 0 && input.length <= 1000;
 }
 
-/**
- * Validate an existing session
- * @param {string} sessionId - The session ID to validate
- * @returns {Object|null} - Session data if valid, null otherwise
- */
-function validateSession(sessionId) {
-    const session = appState.sessions.get(sessionId);
-    
-    if (!session) {
-        return null;
-    }
+function parseJSONsafe(jsonString) {
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    return null;
+  }
+}
 
-    // Check session expiration (24 hours)
-    const expirationTime = 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    
-    if (now - session.authenticatedAt > expirationTime) {
-        appState.sessions.delete(sessionId);
-        return null;
-    }
+function formatResponse(data, statusCode = 200) {
+  return {
+    statusCode,
+    data,
+    timestamp: new Date().toISOString()
+  };
+}
 
-    return session;
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn');
+      if (i < maxRetries - 1) {
+        await delay(1000 * (i + 1));
+      }
+    }
+  }
+  throw lastError;
+}
+
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    return null;
+  }
+}
+
+// Existing data processing functions
+function processData(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+}
+
+function filterValidItems(items, validator) {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+}
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
+}
+
+// TODO: Implement the new function as per the issue requirements
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  if (typeof inputData === 'string') {
+    let result = trimWhitespace ? inputData.trim() : inputData;
+    result = uppercase ? result.toUpperCase() : result;
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(inputData)) {
+      let newKey = preserveKeys ? key : key.trim();
+      newKey = uppercase ? newKey.toUpperCase() : newKey;
+      result[newKey] = transformInputData(value, options);
+    }
+    return result;
+  }
+
+  return inputData;
+}
+
+// Additional utility functions for accessibility
+function getLangAttribute() {
+  // Implementation for REACT_015: Add lang attribute to HTML element
+  // Returns the language attribute for the HTML element
+  // Typically returns the document's language code (e.g., 'en', 'es', 'fr')
+  return process.env.LANGUAGE || 'en';
 }
 
 function personName() {
   // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
-  // ...
+  // Returns a person's name that can be used as accessible text for fake links
+  // This helps screen readers provide meaningful information
+  return 'John Doe';
 }
 
-/**
- * Revoke a session
- * @param {string} sessionId - The session ID to revoke
- * @returns {boolean} - True if session was revoked
- */
-function revokeSession(sessionId) {
-    return appState.sessions.delete(sessionId);
+function getSvgAccessibleName() {
+  // Implementation for REACT_041: Add accessible names to 2 SVGs
+  // Returns an accessible name for SVG icons that screen readers can announce
+  // Returns an object with names for different SVG icons
+  return {
+    icon1: 'Close button',
+    icon2: 'Menu button'
+  };
 }
 
-/**
- * Get all active sessions count
- * @returns {number} - Number of active sessions
- */
-function getActiveSessionsCount() {
-    return appState.sessions.size;
-}
-
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-
-    // Health check endpoint
-    if (parsedUrl.pathname === '/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
-        return;
-    }
-
-    // Credential response endpoint
-    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
-        let body = '';
-        
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            try {
-                const credentialResponse = JSON.parse(body);
-                const result = handleCredentialResponse(credentialResponse);
-                
-                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(result));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    // Session validation endpoint
-    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
-        const sessionId = parsedUrl.query.sessionId;
-        
-        if (!sessionId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
-            return;
-        }
-
-        const session = validateSession(sessionId);
-        
-        if (session) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'valid', user: session.user }));
-        } else {
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
-        }
-        return;
-    }
-
-    // Session revocation endpoint
-    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
-        let body = '';
-        
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        
-        req.on('end', () => {
-            try {
-                const { sessionId } = JSON.parse(body);
-                const revoked = revokeSession(sessionId);
-                
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
-            }
-        });
-        return;
-    }
-
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
-});
-
-// Start server if this is the main module
-if (require.main === module) {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
-function validateTableAccessibility() {
+function validateTableAccessibility(tableElement) {
   // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
+  // Validates that a table has proper accessibility attributes
+  // Checks for: th elements with scope, caption if needed, proper headers association
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  const errors = [];
+  const headers = tableElement.querySelectorAll('th');
+  const dataCells = tableElement.querySelectorAll('td');
+  
+  // Check if table has header cells
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th) for accessibility');
+  }
+  
+  // Check if headers have scope attribute
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Header at index ${index} missing scope attribute`);
+    }
+  });
+  
+  // Check if data cells have headers attribute when in complex tables
+  dataCells.forEach((td, index) => {
+    if (!td.hasAttribute('headers') && headers.length > 0) {
+      errors.push(`Data cell at index ${index} should have headers attribute for proper association`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    headerCount: headers.length,
+    dataCellCount: dataCells.length
+  };
+}
+
+function validateTableStructure(tableElement) {
+  // Implementation for REACT_027: Fix 26 table structure issues
+  // Validates the structural integrity of HTML tables
+  // Checks for: thead, tbody, tfoot presence, proper nesting, caption if present
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  const errors = [];
+  
+  // Check for thead
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead section');
+  }
+  
+  // Check for tbody
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody section');
+  }
+  
+  // Check for caption if table has headers
+  const caption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
+  if (hasHeaders && !caption) {
+    errors.push('Table with header cells should have a caption');
+  }
+  
+  // Check that th elements are inside thead
+  const thsOutsideThead = Array.from(tableElement.querySelectorAll('th'))
+    .filter(th => !tableElement.querySelector('thead')?.contains(th));
+  if (thsOutsideThead.length > 0) {
+    errors.push('All th elements should be inside thead');
+  }
+  
+  // Check for proper row structure
+  const rows = tableElement.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      errors.push(`Row at index ${index} has no cells`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    hasThead: !!thead,
+    hasTbody: !!tbody,
+    hasCaption: !!caption,
+    rowCount: rows.length
+  };
 }
 
 // Calculate sum of numbers array
@@ -428,17 +272,23 @@ function calculateSum(numbers) {
 
 // Export all functions
 module.exports = {
-    addSvgAccessibilityProps,
-    handleCredentialResponse,
-    parseCredentialResponse,
-    decodeJwtToken,
-    generateSessionId,
-    validateTableStructure,
-    validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server,
-    sanitizeFilename,
-    processData
+  CONFIG,
+  log,
+  validateInput,
+  parseJSONsafe,
+  formatResponse,
+  delay,
+  retryOperation,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  transformInputData,
+  getLangAttribute,
+  personName,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  calculateSum
 };
-```

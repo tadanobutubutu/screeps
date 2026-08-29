@@ -56,10 +56,12 @@ const main = {
       }
     }
   },
-
+  
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    console.log('myNewFunction executed');
+    return true;
   }
 };
 

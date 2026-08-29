@@ -211,6 +211,58 @@ const config = {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<MainApp />);
 
+// REACT_015: Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.getAttribute('lang')) {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
+mainElement.appendChild(document.body.cloneNode(true));
+document.body.parentNode.insertBefore(mainElement, document.body);
+
+// Initialize accessibility features
+document.addEventListener('DOMContentLoaded', () => {
+  a11yStore.init();
+});
+
+// Preserve existing code
+a11yStore.preserveExistingCode();
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Standalone utility function to check if user prefers reduced motion
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Standalone utility function to check if user prefers high contrast
+export function prefersHighContrast() {
+  return window.matchMedia('(prefers-contrast: more)').matches;
+}
+
+// Restored function to wrap primary content in a <main> element (required export)
+function wrapPrimaryContentInMain() {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('lang', document.documentElement.lang);
+
+  // Ensure html lang attribute
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+
+  mainElement.appendChild(document.body.cloneNode(true));
+  document.body.parentNode.insertBefore(mainElement, document.body);
+}
+
+// Export for module usage
+export { a11yStore };
+export { addressAccessibilityIssues };
+export default a11yStore;
+export { wrapPrimaryContentInMain };
+
 module.exports = {
     main,
     SomeClass,

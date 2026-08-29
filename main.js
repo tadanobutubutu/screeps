@@ -1,13 +1,11 @@
-/**
- * Accessibility improvements for main.js
- * Addresses issues from insight report:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_027: Fix 26 table structure issues
- * - REACT_017: Add/fix 2 landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks
- * - REACT_036: Fix 1 fake link issue
- */
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// - REACT_041: Add accessible names to SVGs
+// (Added functions for REACT_017 and new REACT_025)
 
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';

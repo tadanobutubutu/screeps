@@ -449,6 +449,19 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Creates an in-page button with specified text and click handler
+ * @param {string} text - The text content of the button
+ * @param {Function} onClick - Click event handler for the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,

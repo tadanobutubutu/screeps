@@ -194,8 +194,7 @@ function wrapPrimaryContentInMain(doc) {
 
 /**
  * Add/fix landmark issues
- * @param { Document } doc - The document object to operate on
- */
+ * @param { Document } doc - The document object to operate on */
 function addFixLandmarkIssues(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   ensureUniqueLandmarks(landmarks);
@@ -203,8 +202,7 @@ function addFixLandmarkIssues(doc) {
 
 /**
  * Fix fake link issues
- * @param { Document } doc - The document object to operate on
- */
+ * @param { Document } doc - The document object to operate on */
 function fixFakeLinkIssues(doc) {
   const links = doc.querySelectorAll('a');
   links.forEach(link => {
@@ -218,14 +216,6 @@ function fixFakeLinkIssues(doc) {
  * Wrap primary content in main div
  * @param { Document } doc - The document object to operate on */
 // Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
-
-/**
- * Add proper landmark regions to the document
- * @param { Document } doc - The document object to operate on */
-function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
-  return Array.from(landmarks);
-}
 
 /**
  * Add ARIA attributes to form controls

@@ -1,6 +1,10 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 
+// TODO: Add back any required exports that might have been removed
+// Example of how to export a required function from another file
+// const { myFunction } = require('./otherFile');
+
 // Main game logic for Screeps
 const main = {
   loop: function() {

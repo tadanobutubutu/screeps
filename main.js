@@ -154,6 +154,15 @@ function deepClone(obj) {
   return obj;
 }
 
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg() {
+  const svgs = document.querySelectorAll('svg');
+  if (svgs.length >= 2) {
+    svgs[0].setAttribute('aria-label', 'First SVG');
+    svgs[1].setAttribute('aria-label', 'Second SVG');
+  }
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -166,7 +175,8 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    addAccessibleNamesToSvg
   };
 }
 
@@ -174,5 +184,6 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     window.accessibilityFeatures = initializeAccessibility();
+    addAccessibleNamesToSvg();
   });
 }

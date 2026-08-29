@@ -57,6 +57,14 @@ const main = {
     }
   },
 
+  // Divide function with proper error handling
+  divide: function(numerator, denominator) {
+    if (denominator === 0) {
+      return "Error: Division by zero";
+    }
+    return numerator / denominator;
+  },
+
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here

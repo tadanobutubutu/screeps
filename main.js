@@ -21,7 +21,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = id;
   return id;
 }
@@ -86,11 +86,42 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   return graphData;
 }
 
+// TODO: Implement the new function as per the issue requirements
+
+/**
+ * Checks if the element has accessible naming (via id, aria-label, or aria-labelledby).
+ * @param {HTMLElement} element - The element to check
+ * @returns {Object} Object with hasAccessibleName boolean and namingMethods array
+ */
+function checkElementAccessibility(element) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  const namingMethods = [];
+  
+  if (element.id) {
+    namingMethods.push('id');
+  }
+  if (element.getAttribute('aria-label')) {
+    namingMethods.push('aria-label');
+  }
+  if (element.getAttribute('aria-labelledby')) {
+    namingMethods.push('aria-labelledby');
+  }
+  
+  return {
+    hasAccessibleName: namingMethods.length > 0,
+    namingMethods: namingMethods
+  };
+}
+
 // ... [Any other existing code here] ...
 
 // Export functions for testing and external use
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  checkElementAccessibility
 };

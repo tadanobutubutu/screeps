@@ -14,22 +14,11 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
-// existing exports, if any
-
-// Testing the checkLandmarkElement function:
-//
-// To test this function, we could create a test file with the following content:
-const test = require('jest');
-// const ReactDOM = require('react-dom'); // already defined above
-// const { checkLandmarkElement } = require('./main'); // not needed, function is in scope
-const landmark = document.createElement('div');
-landmark.id = 'test-landmark';
-document.body.appendChild(landmark);
-test.test('Check landmark element', () => {
-  expect(checkLandmarkElement('test-landmark')).toBeTruthy();
-});
-test.run();
-
+/**
+ * Function to check the landmark structure.
+ * @param {object} landmark - The landmark object to be checked.
+ * @returns {boolean} Returns true if the landmark has required properties: name and coordinates; otherwise, false.
+ */
 const landmarkStructureCheck = (landmark) => {
   // Implement your logic for checking the landmark structure
   // For example, let's check if the landmark has required properties: name and coordinates
@@ -39,6 +28,11 @@ const landmarkStructureCheck = (landmark) => {
   return true;
 };
 
+/**
+ * Function to ensure unique landmarks based on their ID or name.
+ * @param {array} landmarks - An array of landmark objects to check for uniqueness.
+ * @returns {array} Returns an array of unique landmark objects.
+ */
 function ensureUniqueLandmarks(landmarks) {
     const uniqueLandmarks = [];
     const seen = new Set();
@@ -57,6 +51,7 @@ function ensureUniqueLandmarks(landmarks) {
 }
 
 module.exports = {
+    checkLandmarkElement,
     landmarkStructureCheck,
     ensureUniqueLandmarks
 };

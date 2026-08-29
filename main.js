@@ -1,12 +1,28 @@
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 
 function wrapPrimaryContentInMain() {
-  // Your implementation here
+  // Assuming primary content is within a div with id 'primary-content'
+  const primaryContent = document.getElementById('primary-content');
+  if (!primaryContent) {
+    console.error('Primary content not found');
+    return;
+  }
+
+  // Create a new main element
+  const mainElement = document.createElement('main');
+  mainElement.id = 'main';
+  mainElement.appendChild(primaryContent);
+
+  // Optionally add ARIA roles for accessibility
+  mainElement.setAttribute('role', 'main');
+
+  // Replace the original primary content div with the new main element
+  primaryContent.parentNode.replaceChild(mainElement, primaryContent);
 }
 
 // Add your new function here
 const myNewFunction = () => {
-  // Implementation of your new function goes here
+  // Placeholder for new function logic
 };
 
 // Function to ensure unique landmarks

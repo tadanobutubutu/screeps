@@ -1,5 +1,6 @@
 // REACT_015: Add lang attribute
 const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
+const _ = require('lodash');
 
 const main = {
   loop: function() {
@@ -317,6 +318,11 @@ function addLandmarkRegions() {
   return landmarks;
 }
 
+function addProperLandmarkRegions() {
+  // Code for adding proper landmark regions
+  return addLandmarkRegions();
+}
+
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks() {
   // Ensure all landmarks have unique labels/IDs
@@ -511,6 +517,7 @@ module.exports = {
   validateLandmarkStructure,
   validateLandmarkAttributes,
   addLandmarkRegions,
+  addProperLandmarkRegions,
   ensureUniqueLandmarks,
   getSvgAccessibleName,
   setSvgAttributes,

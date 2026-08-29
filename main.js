@@ -33,6 +33,7 @@ const landmarks = [];
 //  * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
+  // TODO: This is the existing code that needs to be preserved
   const element = document.getElementById(id);
   return element !== null;
 }
@@ -41,7 +42,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
-        const key = `${landmark.name}-${landmark.coordinates}`;
+        const key = landmark.name || landmark; // use name as unique key if available
         if (seen.has(key)) {
             return false;
         }
@@ -65,7 +66,7 @@ const landmarkStructureCheck = (landmark) => {
 
 // Placeholder for the affected SVGs
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
+  icon: '<svg viewBox="0 0 100 100" role="img" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em">Dashboard</text></svg>'
 };
 
 /**
@@ -86,7 +87,7 @@ const isSecureContext = () => {
  * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
   }
@@ -126,7 +127,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav[role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   if (navElements.length > 1) {
     navElements.forEach((nav, index) => {
       if (index > 0) {
@@ -136,7 +137,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main[role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -176,9 +177,9 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[class*="link"], [class*="button"]');
-  fakeLinks.forEach((element) => {
-    if (element.tagName.toLowerCase() !== 'a') {
+  const fakeLinks = document.querySelectorAll('[onclick]');
+  fakeLinks.forEach(element => {
+    if (element.tagName.toLowerCase() !== 'a' && element.tagName.toLowerCase() !== 'button') {
       // Add role="button" and appropriate ARIA attributes
       element.setAttribute('role', 'button');
       if (!element.hasAttribute('tabindex')) {
@@ -208,7 +209,7 @@ function initDependencyGraph(containerId) {
 
 // Function to render the dependency graph
 function renderDependencyGraph(containerId) {
-  const container = initDependencyGraph(containerId);
+  const container = document.getElementById(containerId);
   if (container) {
     // Add the logic to render the dependency graph inside the container
     // This is a placeholder for the actual rendering logic
@@ -272,15 +273,16 @@ const initApp = () => {
   ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('svg#icon-home', 'Home icon');
-  addSVGAccessibleName('svg#icon-settings', 'Settings icon');
+  addSVGAccessibleName('.icon-home', 'Home icon');
+  addSVGAccessibleName('.icon-settings', 'Settings icon');
 
   // Fix fake links
   fixFakeLinks();
 
   // Initialize the application data
+  const appData = { title: 'Frontend Application', version: '1.0.0' }; // Define application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-  checkLandmarkElements();
+  // ... (additional initialization can be added here)
 
   // Signal that the app has started
   appStarted();

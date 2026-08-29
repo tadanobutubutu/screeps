@@ -1,4 +1,5 @@
 const { add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median } = require('./mathHelpers');
+// TODO: This is the existing code that needs to be preserved
 const { class1, function1, Object1 } = require('./path/to/module');
 
 const newFunction = () => {

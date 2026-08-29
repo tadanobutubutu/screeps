@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -86,7 +83,120 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+}
+
+export function validateTableAccessibility(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push({
+      element: tableElement,
+      message: 'Element is not a valid table.',
+      severity: 'error'
+    });
+    return issues;
+  }
+
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption || !caption.textContent.trim()) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing a <caption> element with descriptive text.',
+      severity: 'warning'
+    });
+  }
+
+  // Check for headers
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing <th> elements to define header cells.',
+      severity: 'error'
+    });
+  }
+
+  // Check headers for scope or id
+  headers.forEach((header) => {
+    const hasScope = header.hasAttribute('scope');
+    const hasId = header.hasAttribute('id');
+    if (!hasScope && !hasId) {
+      issues.push({
+        element: header,
+        message: 'Table header cell is missing a "scope" or "id" attribute.',
+        severity: 'warning'
+      });
+    }
+  });
+
+  // Check for table role
+  const hasRole = tableElement.getAttribute('role') === 'table';
+  if (!hasRole) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing role="table" attribute.',
+      severity: 'warning'
+    });
+  }
+
+  return issues;
+}
+
+export function validateTableStructure(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push({
+      element: tableElement,
+      message: 'Element is not a valid table.',
+      severity: 'error'
+    });
+    return issues;
+  }
+
+  // Check for thead, tbody, tfoot
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+
+  if (!hasThead) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing a <thead> section.',
+      severity: 'warning'
+    });
+  }
+
+  if (!hasTbody) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing a <tbody> section.',
+      severity: 'warning'
+    });
+  }
+
+  // Check for proper row structure
+  const rows = tableElement.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push({
+      element: tableElement,
+      message: 'Table contains no rows.',
+      severity: 'error'
+    });
+  }
+
+  // Check for nested tables
+  const nestedTables = tableElement.querySelectorAll('table table');
+  if (nestedTables.length > 0) {
+    issues.push({
+      element: tableElement,
+      message: 'Table contains nested tables, which can be confusing for screen readers.',
+      severity: 'warning'
+    });
+  }
+
+  return issues;
+}
 
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
@@ -131,6 +241,8 @@ export {
   App,
   getUniqueLandmarkName,
   validateUniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,
@@ -143,6 +255,3 @@ export {
   hasAccessibleName,
   newFunction
 };
-```
-
-This resolved file integrates both changes and addresses the Git merge conflict in a meaningful, logical manner. I've preserved comments, style, and function names as much as possible while keeping functionality intact.

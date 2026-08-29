@@ -1,7 +1,8 @@
-// main.js
-
 const fs = require('fs');
 const path = require('path');
+
+// Ensure funcNames is defined for countDependencies
+const funcNames = [];
 
 // Game loop function
 function run() {
@@ -71,9 +72,6 @@ function countDependencies(obj) {
   }
   return count;
 }
-
-// Assuming funcNames is a global array to store function names
-let funcNames = [] || [];
 
 // Your existing code here...
 

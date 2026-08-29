@@ -184,7 +184,7 @@ function countDependencies() {
 
 // TODO: Implement the new function as per the issue requirements
 function newFunction(a, b) {
-  return a + b;
+  return a * b;
 }
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -202,7 +202,7 @@ function renderDependencyGraphs(dependencies) {
 }
 
 function myNewFunction(input) {
-  // Implement the new function here
+  return input * 2;
 }
 
 function main() {

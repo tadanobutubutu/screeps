@@ -1,3 +1,5 @@
+// TODO: Add any other missing exports that might have been?
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
@@ -139,3 +141,15 @@ function rotateBack() {
 /**
  * ... (existing code remains the same)
  */
+
+// Additional exports for missing functions
+exports.getSvgAccessibleName = getSvgAccessibleName;
+exports.setSvgAccessibilityProps = setSvgAccessibilityProps;
+exports.isLinkAccessible = isLinkAccessible;
+exports.isButtonAccessible = isButtonAccessible;
+exports.checkAccessibility = checkAccessibility;
+exports.checkLandmarkElement = checkLandmarkElement;
+exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+exports.checkLandmarks = checkLandmarks;
+exports.makeAccessible = makeAccessible;
+exports.rotateBack = rotateBack;

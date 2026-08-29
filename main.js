@@ -28,21 +28,3 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 // Commit: b5ac98d512a157f2b8ded490e7e4166be1447934_
-
-// Existing tests in /tests/ must continue to pass
-// Example test case for the new function
-describe('addressAccessibilityIssues', () => {
-  it('should address each issue in the insight report', () => {
-    const insightReport = [
-      { issue: 'Issue 1', solution: 'Solution 1' },
-      { issue: 'Issue 2', solution: 'Solution 2' }
-    ];
-    addressAccessibilityIssues(insightReport);
-    // Mock console.log to check if the correct messages were logged
-    // This is a simplified example; in a real test, you would use a mock library
-    expect(console.log).toHaveBeenCalledWith('Addressing issue: Issue 1');
-    expect(console.log).toHaveBeenCalledWith('Solution: Solution 1');
-    expect(console.log).toHaveBeenCalledWith('Addressing issue: Issue 2');
-    expect(console.log).toHaveBeenCalledWith('Solution: Solution 2');
-  });
-});

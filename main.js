@@ -254,6 +254,73 @@ function setupAccessibilityEventListeners() {
   }
 }
 
+// NEW FUNCTIONS ADDED PER ISSUE REQUIREMENTS
+
+/**
+ * Ensures the element has an ID, generating one if missing
+ * @param {Element} element - DOM element to check
+ * @returns {string} The element's ID
+ */
+function ensureElementHasId(element) {
+  if (typeof document === 'undefined') return '';
+  if (!element) return '';
+  
+  if (!element.id) {
+    // Generate a unique ID using timestamp and random number
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 10000);
+    element.id = `auto-id-${timestamp}-${random}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds aria-label to an element if not present
+ * @param {Element} element - DOM element to modify
+ * @param {string} label - The aria-label value to set
+ */
+function addAriaLabel(element, label) {
+  if (typeof document === 'undefined') return;
+  if (!element || typeof label !== 'string') return;
+  
+  if (!element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a simple dependency graph visualization
+ * @param {Object} data - Dependency data { nodes: Array, edges: Array }
+ * @param {Element} container - DOM element to render the graph in
+ */
+function renderDependencyGraph(data, container) {
+  if (typeof document === 'undefined') return;
+  if (!container || !data) return;
+  
+  // Clear container
+  container.innerHTML = '';
+  
+  // Create SVG container
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('style', 'border: 1px solid #ccc;');
+  container.appendChild(svg);
+  
+  // Simple placeholder implementation - in reality would use a graphing library
+  const text = document.createElementNS(svgNS, "text");
+  text.setAttribute('x', '50%');
+  text.setAttribute('y', '50%');
+  text.setAttribute('dominant-baseline', 'middle');
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('fill', '#666');
+  text.textContent = 'Dependency Graph Visualization\n(Data: ' + 
+    (data.nodes ? data.nodes.length : 0) + ' nodes, ' + 
+    (data.edges ? data.edges.length : 0) + ' edges)';
+  svg.appendChild(text);
+}
+
 // Export functions for testing
 module.exports = {
   loop,
@@ -272,7 +339,11 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  // NEW EXPORTS
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };
 
 // Initialize on DOM ready

@@ -179,7 +179,17 @@ function newFunction() {
 }
 
 function totalDependencies() {
-  // Placeholder implementation
+  if (dependencyGraphContent && typeof dependencyGraphContent === 'object') {
+    if (Array.isArray(dependencyGraphContent.nodes)) {
+      return dependencyGraphContent.nodes.length;
+    }
+    if (Array.isArray(dependencyGraphContent.edges)) {
+      return dependencyGraphContent.edges.length;
+    }
+    if (Array.isArray(dependencyGraphContent.dependencies)) {
+      return dependencyGraphContent.dependencies.length;
+    }
+  }
   return 0;
 }
 
@@ -200,9 +210,69 @@ const newAccessibilityFunction = () => {
   return 'new accessibility function';
 };
 
-// Export the old function to address accessibility issues
 function addressOldAccessibilityIssues() {
   return 'addressing old issues';
+}
+
+// New function to render dependency graph
+function renderDependencyGraph() {
+  const { nodes, edges } = dependencyGraphContent;
+  
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '800');
+  svg.setAttribute('height', '600');
+  svg.setAttribute('viewBox', '0 0 800 600');
+  
+  const nodePositions = {};
+  const radius = 250;
+  const centerX = 400;
+  const centerY = 300;
+  
+  if (Array.isArray(nodes)) {
+    nodes.forEach((node, index) => {
+      const angle = (index / nodes.length) * 2 * Math.PI;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      nodePositions[node] = { x, y };
+      
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', '20');
+      circle.setAttribute('fill', '#69b3a2');
+      circle.setAttribute('stroke', '#333');
+      circle.setAttribute('stroke-width', '2');
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', x);
+      text.setAttribute('y', y + 5);
+      text.setAttribute('text-anchor', 'middle');
+      text.textContent = node;
+      svg.appendChild(circle);
+      svg.appendChild(text);
+    });
+  }
+  
+  if (Array.isArray(edges)) {
+    edges.forEach(edge => {
+      const from = nodePositions[edge.from];
+      const to = nodePositions[edge.to];
+      if (from && to) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', from.x);
+        line.setAttribute('y1', from.y);
+        line.setAttribute('x2', to.x);
+        line.setAttribute('y2', to.y);
+        line.setAttribute('stroke', '#333');
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+      }
+    });
+  }
+  
+  // Apply accessibility properties
+  setSvgAccessibilityProps(svg);
+  
+  return svg;
 }
 
 /**
@@ -321,6 +391,7 @@ module.exports = {
   addressAccessibilityIssues,
   newAccessibilityFunction,
   addressOldAccessibilityIssues,
+  renderDependencyGraph,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,

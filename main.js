@@ -294,13 +294,8 @@ const a11yStore = {
   },
 
   preserveExistingCode() {
-    // TODO: This is the existing code that needs to be preserved
-    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+    addLangAttribute();
+    addOtherAccessibilityChanges();
   }
 };
 
@@ -451,6 +446,43 @@ function ensureUniqueLandmarks() {
   return { removedMains, removedBanners, removedFooters };
 }
 
+function addLangAttribute() {
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+function addOtherAccessibilityChanges() {
+  // Ensure there is a main landmark
+  if (typeof wrapPrimaryContentInMain === 'function') {
+    wrapPrimaryContentInMain();
+  }
+  // Ensure unique landmarks
+  if (typeof ensureUniqueLandmarks === 'function') {
+    ensureUniqueLandmarks();
+  }
+  // Ensure all images have alt attributes
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.getAttribute('alt')) {
+      img.setAttribute('alt', 'Image description');
+    }
+  });
+  // Ensure all form inputs have labels
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
+      el.setAttribute('aria-label', 'Form field');
+    }
+  });
+  // Add skip link if missing
+  if (!document.querySelector('.skip-link')) {
+    const skipLink = document.createElement('a');
+    skipLink.className = 'skip-link';
+    skipLink.href = '#main-content';
+    skipLink.textContent = 'Skip to main content';
+    document.body.insertBefore(skipLink, document.body.firstChild);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
@@ -533,7 +565,9 @@ module.exports = {
   standaloneAddressAccessibilityIssues,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  addOtherAccessibilityChanges
 };
 export default a11yStore;
 export { addressAccessibilityIssues };

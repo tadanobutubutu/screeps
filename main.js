@@ -228,5 +228,7 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     isNumber,
-    clamp
+    clamp,
+    addLandmarkRegions,
+    generateAccessibilityReport
 };

@@ -1,4 +1,3 @@
-// Existing code from main.js (with conflict markers removed for clarity)
 const existingFunction = () => {
   // Existing function logic
 };

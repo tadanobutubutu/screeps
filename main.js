@@ -226,7 +226,7 @@ function fixImageAltTexts(document) {
 }
 
 // Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
+function addAccessibleNamesToSVGsAlias(document) {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     if (!svg.querySelector('title')) {
@@ -304,12 +304,23 @@ function addAriaLabel(document, selector, label) {
 function renderDependencyGraphs(document) {
   const graphContainer = document.querySelector('#dependencyGraph');
   if (graphContainer) {
+    // Ensure proper ARIA role for accessibility
+    if (!graphContainer.getAttribute('role')) {
+      graphContainer.setAttribute('role', 'img');
+    }
+    
+    // Add accessible name
+    if (!graphContainer.getAttribute('aria-label')) {
+      graphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+    
     // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'dependency-graph');
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '400');
     svg.setAttribute('viewBox', '0 0 800 400');
+    svg.setAttribute('role', 'img');
 
     // Add accessible title and description
     const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -317,4 +328,59 @@ function renderDependencyGraphs(document) {
     svg.appendChild(title);
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of
+    desc.textContent = 'Visual representation of dependencies';
+
+    svg.appendChild(desc);
+    graphContainer.appendChild(svg);
+  }
+  
+  return document;
+}
+
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const buttons = document.querySelectorAll('my-button');
+  buttons.forEach((button, index) => {
+    const actualButton = document.createElement('button');
+    actualButton.id = button.id || `button-${index + 1}`;
+    actualButton.setAttribute('type', 'button');
+    
+    // Copy attributes
+    Array.from(button.attributes).forEach(attr => {
+      if (attr.name !== 'id') {
+        actualButton.setAttribute(attr.name, attr.value);
+      }
+    });
+    
+    // Copy children
+    while (button.firstChild) {
+      actualButton.appendChild(button.firstChild);
+    }
+    
+    // Replace the custom element with the actual button
+    button.parentNode.replaceChild(actualButton, button);
+  });
+  
+  return document;
+}
+
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  uniqueLandmarks,
+  addAccessibleNamesToSVGs,
+  addAccessibleNamesToSVGsAlias,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers
+};

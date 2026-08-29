@@ -12,6 +12,11 @@ if (!document.documentElement.getAttribute('lang')) {
 }
 
 // Adding the new function at the end
+function ensureUniqueLandmarks(landmarks) {
+  const uniqueLandmarks = new Set(landmarks);
+  return Array.from(uniqueLandmarks);
+}
+
 function newFunction() {
   // Your new function code here
 }
@@ -32,6 +37,7 @@ function addressAccessibilityIssues(report) {
 
 // Exporting the new added function
 module.exports = {
+  ensureUniqueLandmarks, // Export ensureUniqueLandmarks
   // Keep the existing exports here if any
   newFunction, // Export newFunction
 };

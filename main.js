@@ -1,5 +1,12 @@
 // Main application file
 
+// Function to get a random integer between min and max inclusive
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Function to calculate distance between two points
 function calculateDistance(point1, point2) {
   const R = 6371; // Earth's radius in km
@@ -18,24 +25,32 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Function to ensure unique landmarks using random ids
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!landmark) return false;
-    
-    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-    
+  const ids = new Set();
+
+  return landmarks.map(landmark => {
+    if (!landmark) return null;
+
+    // Generate random id if no id or name provided
+    let identifier = landmark.id || landmark.name || JSON.stringify(landmark);
+
+    // Generate a new id if the provided identifier is already used
     if (seen.has(identifier)) {
-      return false;
+      identifier = `landmark_${getRandomInt(1, 99999)}`;
     }
+
+    // Allow the new id to be assigned as landmark's id in further usage
     seen.add(identifier);
-    return true;
-  });
+    ids.add(identifier);
+
+    return { ...landmark, id: identifier };
+  }).filter(landmark => landmark);
 }
 
 // Export functions for testing

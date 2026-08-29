@@ -1,6 +1,6 @@
 // Example: Set the lang attribute on the root element dynamically
 function setLanguage(lang) {
-  document.documentElement.lang = lang;
+    document.documentElement.setAttribute('lang', lang);
 }
 
 // main.js - Main application logic
@@ -33,6 +33,32 @@ function addressAccessibilityIssues() {
   // TODO: Implement the required changes to improve accessibility
   // Placeholder implementation – actual accessibility enhancements would be added here
   console.log('Accessibility improvements to be implemented.');
+}
+
+// Implement credential response handling
+function handleCredentialResponse(credentialResponse) {
+    if (!credentialResponse) {
+        throw new Error('Credential response is required');
+    }
+
+    const { id, rawId, response, type } = credentialResponse;
+
+    const handledResponse = {
+        id: id || rawId,
+        type: type,
+        response: {
+            clientDataJSON: response.clientDataJSON,
+            attestationObject: response.attestationObject || response.authenticatorData,
+            token: response.token || null
+        },
+        timestamp: Date.now()
+    };
+
+    if (config.verbose) {
+        console.log('Credential response handled:', handledResponse.id);
+    }
+
+    return handledResponse;
 }
 
 // Main validation function for web accessibility
@@ -317,5 +343,6 @@ module.exports = {
     setLanguage,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    handleCredentialResponse
 };

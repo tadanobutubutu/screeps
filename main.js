@@ -60,6 +60,13 @@ export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+// TODO: Implement tower defense
+export function towerDefense() {
+  // Placeholder for tower defense implementation
+  console.log('Tower defense game initialized');
+  // Add the actual tower defense logic here
+}
+
 // Default export for backwards compatibility
 export default {
   calculateSum,
@@ -70,7 +77,8 @@ export default {
   start() {
     console.log('Application started');
     return Promise.resolve();
-  }
+  },
+  towerDefense // Adding the new tower defense function to the default export
 };
 
 export const logger = {

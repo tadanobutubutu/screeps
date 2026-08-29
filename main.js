@@ -121,9 +121,25 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// New function to render dependency graphs
+function renderDependencyGraph() {
+  // Implementation for rendering dependency graphs
+  // This is a placeholder for the actual implementation
+  console.log('Rendering dependency graph...');
+}
+
+// New function to render index views
+function renderIndexView() {
+  // Implementation for rendering index views
+  // This is a placeholder for the actual implementation
+  console.log('Rendering index view...');
+}
+
 module.exports = {
   loop: function() {
     console.log('Running screeps loop');
   },
-  newFeature: newFeature // Export the updated newFeature function
+  newFeature: newFeature, // Export the updated newFeature function
+  renderDependencyGraph: renderDependencyGraph, // Export the new renderDependencyGraph function
+  renderIndexView: renderIndexView // Export the new renderIndexView function
 };

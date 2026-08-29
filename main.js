@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report: add aria attributes
+
 // existing code...
 
 // Assuming there's a function `newFunction` that needs to be exported
@@ -9,13 +11,27 @@ export function newFunction() {
 export let newVar = 'some value';
 
 // Here's where you add new functions
-function addProperLandmarkRegions(landmarks) {
+/**
+ * Adds proper landmark regions for accessibility
+ * @param {Array} landmarks - Array of landmark objects with name and coordinates
+ * @returns {Array} Array of processed landmarks
+ */
+export function addProperLandmarkRegions(landmarks) {
   // Implement your new function to add proper landmark regions
   // This is a placeholder implementation, replace it with the actual logic
-  landmarks.forEach(landmark => {
+  if (!Array.isArray(landmarks)) return landmarks;
+  
+  return landmarks.map(landmark => {
     // Assuming landmark has a 'name' and 'coordinates' property
     // You would add the logic to properly add the landmark region here
     console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
+    
+    // Return landmark with accessibility properties added
+    return {
+      ...landmark,
+      role: landmark.role || 'region',
+      ariaLabel: landmark.name
+    };
   });
 }
 
@@ -25,22 +41,22 @@ function addProperLandmarkRegions(landmarks) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+export function fixTableAccessibility(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && /scope=/i.test(attrs)) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs.includes('caption')) {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
+    if (attrs && /caption=/i.test(attrs) || attrs && /summary=/i.test(attrs)) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -48,18 +64,18 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr\b([^>]*)>/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('</tbody>')) {
+    if (beforeTr && !/<tbody/i.test(beforeTr.slice(-100)) && !/<thead/i.test(beforeTr.slice(-100))) {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table\b[^>]*>[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -67,8 +83,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<tbody[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && !/<\/tbody>/i.test(table)) {
+        result = result.replace(table, table.replace(/(<table\b[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -85,17 +101,17 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = html.match(/<body\b([^>]*)>([\s\S]*)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(/<body[^>]*>[\s\S]*<\/body>/i, wrappedContent);
+    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -106,24 +122,24 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+export function addSvgAccessibility(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+    const existingLabel = attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i);
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']+)["']/);
+    const idMatch = attrs.match(/id=["']([^"']*)["']/i);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-label="${label}">`;
     }
@@ -159,7 +175,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -167,7 +183,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (safeAttrs && /aria-label=/i.test(safeAttrs)) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -200,9 +216,9 @@ export function ensureUniqueLandmarks(html) {
   
   // Assign unique IDs to remaining landmarks
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const regex = new RegExp(`<${lm}\\b([^>]*)>`, 'gi');
     html = html.replace(regex, (match, attrs) => {
-      if (attrs && attrs.includes('id=')) {
+      if (attrs && /id=/i.test(attrs)) {
         return match;
       }
       const count = (counters[lm] || 0) + 1;
@@ -218,5 +234,3 @@ export function ensureUniqueLandmarks(html) {
 export { addProperLandmarkRegions };
 
 // existing code... (use the conflict markers to identify and preserve it)
-```
-In this case, I chose to preserve both changes. I kept the existing code, imported the `newFunction` and `newVar` functions, and added the `addProperLandmarkRegions` function. This way, both sets of added code are included, and the script should continue to work as intended for both branches. However, I strongly recommend checking if the `newFunction` and `newVar` are truly needed and non-redundant, as it's not clear from the provided context. If any of these are redundant or cause issues, they should be re-evaluated or removed.

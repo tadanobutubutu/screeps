@@ -1,4 +1,3 @@
-// Existing code from main.js
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -9,9 +8,26 @@ import './styles.css';
 // Initial setup
 const app = ...
 
-// Improve accessibility
-app.setAttribute('role', 'main');
-app.setAttribute('aria-label', 'Main application');
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(container) {
+  if (!container) return null;
+
+  const main = container.querySelector('main');
+  if (main) return main;
+
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  mainElement.setAttribute('aria-label', 'Content area');
+
+  container.appendChild(mainElement);
+
+  const primaryContent = container.querySelector('[role="main"] ~ *');
+  if (primaryContent) {
+    mainElement.appendChild(primaryContent);
+  }
+
+  return mainElement;
+}
 
 // Divide function with proper error handling
 function divide(dividend, divisor) {
@@ -39,22 +55,13 @@ function ... {
 // const allLandmarks = getLandmarks(); // Placeholder function
 // ...
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -68,24 +75,27 @@ function App() {
     }
   };
 
+  // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
-    ... 'en');
+    document.documentElement.lang = 'en';
     fetchData();
   }, []);
 
-  // REACT_017: Add landmark roles to fix landmark issues
+  const mainElement = wrapPrimaryContentInMain(document.body);
+
+  // REACT_017: Add landmark roles and fix landmark issues
   // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
+  // REACT_036: Fix 1 fake link issue
   // REACT_041: Add accessible names to SVGs
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
-  return (
-    <div ...
+  return mainElement ? (
+    <div className="app-container">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
     </div>
-  );
+  ) : null;
 }
 
 export function ... existingNames) {

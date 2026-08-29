@@ -1,4 +1,5 @@
-// Your existing code...
+// Updated code
+// <img src="example.jpg" id="image1" alt="Description of the image" /> // Added alt attribute
 
 // Adding an alt attribute to an image
 const imageElement = document.querySelector('img');

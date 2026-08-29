@@ -126,10 +126,14 @@ function initializeAccessibility() {
   modalClose = document.getElementById('modal-close');
 
   // Ensure all interactive elements are keyboard accessible
+  // Only set tabindex if not already present - preserve natural tab order
   const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   
-  interactiveElements.forEach((element, index) => {
-    element.setAttribute('tabindex', index === 0 ? '0' : '1');
+  interactiveElements.forEach((element) => {
+    // Only set tabindex="0" if not already set, preserving natural order
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+    }
   });
 
   // Add focus indicators for keyboard navigation

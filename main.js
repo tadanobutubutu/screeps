@@ -77,6 +77,7 @@ function renderApp(context) {
 
 const myNewFunction = () => {
   // Implementation of your new function goes here
+  // Example: Log a message for accessibility purposes
   console.log('myNewFunction has been executed');
 };
 

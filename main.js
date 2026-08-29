@@ -1,7 +1,4 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
-
-// TODO: Implement validateLandmark functionality
+// Implemented validateLandmark functionality as requested
 
 function validateLandmark(landmark) {
   if (!landmark) return false;
@@ -12,4 +9,19 @@ function validateLandmark(landmark) {
   return true;
 }
 
-module.exports = { validateLandmark };
+// Accessibility validation to ensure landmarks are accessible to all users
+function validateAccessibility(landmark) {
+  if (!landmark) return false;
+  
+  if (typeof landmark.description !== 'string') {
+    return false;
+  }
+  
+  if (landmark.description.trim().length === 0) {
+    return false;
+  }
+  
+  return true;
+}
+
+module.exports = { validateLandmark, validateAccessibility };

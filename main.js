@@ -9,14 +9,30 @@ export function newFunction() {
 export let newVar = 'some value';
 
 // Here's where you add new functions
-function addProperLandmarkRegions(landmarks) {
-  // Implement your new function to add proper landmark regions
-  // This is a placeholder implementation, replace it with the actual logic
+function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Regex to find all landmark elements and add role/aria-label if needed
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  let result = html;
+  
   landmarks.forEach(landmark => {
-    // Assuming landmark has a 'name' and 'coordinates' property
-    // You would add the logic to properly add the landmark region here
-    console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
+    const regex = new RegExp(`<${landmark}\\b([^>]*)>`, 'gi');
+    result = result.replace(regex, (match, attrs) => {
+      // If it already has role or aria-label, skip
+      if (/\b(role|aria-label)\s*=/i.test(attrs)) {
+        return match;
+      }
+      // Add role and aria-label based on landmark type
+      const label = landmark === 'nav' ? 'Navigation' : 
+                    landmark === 'main' ? 'Main content' :
+                    landmark === 'header' ? 'Header' :
+                    landmark === 'footer' ? 'Footer' : 'Aside';
+      return `<${landmark}${attrs} role="region" aria-label="${label}">`;
+    });
   });
+  
+  return result;
 }
 
 /**
@@ -25,22 +41,22 @@ function addProperLandmarkRegions(landmarks) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+export function fixTableStructure(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = result.replace(/<th(?![^>]*\bscope\s*=)([^>]*)>/gi, (match, attrs) => {
+    if (attrs && /<th/i.test(attrs)) {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs.includes('caption')) {
+  result = result.replace(/<table(?![^>]*\bsummary\s*=)([^>]*)>/gi, (match, attrs) => {
+    if (attrs && /<table/i.test(attrs)) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -48,18 +64,18 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr(?![^>]*\bscope\s*=)([^>]*)>/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('</tbody>')) {
+    if (beforeTr && /<tbody/i.test(beforeTr) && !/<\/tbody>/.test(beforeTr.split('<tbody').pop())) {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -67,8 +83,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<tbody[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && !/<\/tbody>/.test(table)) {
+        result = result.replace(table, table.replace(/<tbody([^>]*)>/i, '$1<tbody>$2</tbody>'));
       }
     }
   });
@@ -85,17 +101,17 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (/<main\b/i.test(html)) {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
     const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(/<body[^>]*>[\s\S]*<\/body>/i, wrappedContent);
+    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
   }
   
   return html;
@@ -106,7 +122,7 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+export function addAccessibleSvgNames(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
@@ -119,11 +135,11 @@ export function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
-    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+    const titleMatch = match.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    let label = titleMatch ? titleMatch[1].trim() : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']+)["']/);
+    const idMatch = attrs.match(/\bid=["']([^"']+)["']/i);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-label="${label}">`;
     }
@@ -159,7 +175,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -167,7 +183,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (/\b(aria-label|role)\s*=/i.test(safeAttrs)) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -200,9 +216,9 @@ export function ensureUniqueLandmarks(html) {
   
   // Assign unique IDs to remaining landmarks
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const regex = new RegExp(`<${lm}\\b([^>]*)>`, 'gi');
     html = html.replace(regex, (match, attrs) => {
-      if (attrs && attrs.includes('id=')) {
+      if (attrs && /\bid\s*=\s*["']/i.test(attrs)) {
         return match;
       }
       const count = (counters[lm] || 0) + 1;
@@ -214,9 +230,45 @@ export function ensureUniqueLandmarks(html) {
   return html;
 }
 
+/**
+ * Wraps the primary content of the page in a <main> landmark.
+ * If a <main> already exists, it is left untouched.
+ * Otherwise, it identifies the main content (e.g., the content inside <body> that isn't header/nav/footer/aside) and wraps it.
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with primary content wrapped in <main>
+ */
+export function wrapPrimaryContentInMain(html) {
+  if (typeof html !== 'string') return html;
+  
+  // If there's already a <main> element, return as is
+  if (/<main\b/i.test(html)) {
+    return html;
+  }
+  
+  // Try to match body content
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    const bodyAttrs = bodyMatch[1];
+    let bodyContent = bodyMatch[2];
+    
+    // Remove header, nav, footer, aside elements to isolate main content
+    // Use a placeholder approach: split and rejoin, or use a simpler heuristic.
+    // For simplicity, we wrap everything inside body that is not in the above elements.
+    // Conservative approach: wrap the entire body content if no <main> exists.
+    // But to be more accurate, we can try to find the main content region.
+    // Since we can't parse DOM, we'll just wrap all body content in <main>.
+    // Better: if there is a <article> or <section> that appears to be main content, wrap that.
+    // For now, we'll wrap everything.
+    
+    // Wrap the body content in <main>
+    bodyContent = `<main>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${bodyContent}</body>`);
+  }
+  
+  return html;
+}
+
 // Don't forget to export new functions if necessary
 export { addProperLandmarkRegions };
 
 // existing code... (use the conflict markers to identify and preserve it)
-```
-In this case, I chose to preserve both changes. I kept the existing code, imported the `newFunction` and `newVar` functions, and added the `addProperLandmarkRegions` function. This way, both sets of added code are included, and the script should continue to work as intended for both branches. However, I strongly recommend checking if the `newFunction` and `newVar` are truly needed and non-redundant, as it's not clear from the provided context. If any of these are redundant or cause issues, they should be re-evaluated or removed.

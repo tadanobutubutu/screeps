@@ -23,13 +23,13 @@ function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -38,9 +38,28 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// TODO: Address accessibility issues from insight report:
+// Implement aria-label for an accessibility-friendly landmark identification
+
+function createAccessibleLandmark(landmark) {
+  if (!landmark) return null;
+
+  // Create a unique aria-label for the landmark
+  let ariaLabel;
+
+  if (landmark.name) {
+    ariaLabel = `landmark-${landmark.name.replace(/\W/g, '-')}`;
+  } else {
+    ariaLabel = `landmark-${landmark.id || JSON.stringify(landmark)}`;
+  }
+
+  return { ...landmark, ariaLabel };
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  createAccessibleLandmark
 };

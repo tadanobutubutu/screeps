@@ -19,6 +19,7 @@ const a11yStore = {
   },
 
   init() {
+    this.setLangAttribute();
     this.createLiveRegion();
     this.setupSkipLinks();
     this.enhanceDynamicContent();
@@ -31,6 +32,13 @@ const a11yStore = {
     this.wrapPrimaryContentInMain();
     this.addFocusVisibilityStyles();
     this.validateARIAUsage();
+  },
+
+  // Set lang attribute on document (REACT_015)
+  setLangAttribute() {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
   },
 
   // Create a live region for screen reader announcements

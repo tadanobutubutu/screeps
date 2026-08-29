@@ -1,3 +1,6 @@
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
 // Add your new function here
 const myNewFunction = () => {
   // Implementation of your new function goes here

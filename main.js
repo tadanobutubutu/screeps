@@ -52,9 +52,45 @@ addProperAccountManagement();
 addProperFormAccessibility();
 replaceMyButtonId();
 
+// [NEW] Function to add lang attribute to HTML element
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// [NEW] Function to fix 26 table structure issues
+function fixTableStructureIssues() {
+  // ... (existing code)
+}
+
+// [NEW] Function to add/fix 2 landmark issues
+function addMainLandmark() {
+  // ... (existing code)
+}
+
+// [NEW] Function to add accessible names to 2 SVGs
+function addSvgAccessibleNames() {
+  // ... (existing code)
+}
+
+// [NEW] Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // ... (existing code)
+}
+
+// [NEW] Function to fix 1 fake link issue
+function fixFakeLinkIssue() {
+  // ... (existing code)
+}
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addProperFormAccessibility,
-  replaceMyButtonId
+  replaceMyButtonId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

@@ -8,96 +8,38 @@
 //<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 //_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
 //<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
-
-// TODO: Address accessibility issues from insight report — FIXED
+//_Commit: Address accessibility issues from insight report — FIXED
 
 /**
  * Accessibility utilities for the application
  */
 const AccessibilityUtils = {
+  // ... Existing code ...
+
   /**
-   * Manages focus trapping within a container element
-   * @param {HTMLElement} container - The container element to trap focus within
-   * @returns {Function} - Cleanup function to remove the focus trap
+   * Notifies screen readers of a change in active element focus
+   * @param {HTMLElement} element - The element that has been focused
    */
-  trapFocus(container) {
-    const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-
-    const handleTabKey = (e) => {
-      if (e.key !== 'Tab') return;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstFocusable) {
-          lastFocusable.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastFocusable) {
-          firstFocusable.focus();
-          e.preventDefault();
-        }
-      }
-    };
-
-    container.addEventListener('keydown', handleTabKey);
-    
-    // Ensure focus is set to the first focusable element
-    if (firstFocusable) {
-      firstFocusable.focus();
+  notifyFocusChange(element) {
+    // New function requested to handle focus change notification for screen readers
+    if (element && document.activeElement !== element) {
+      AccessibilityUtils.announceToScreenReader(`Focus moved to ${element.getAttribute('aria-labelledby') || element.textContent || element.tagName}`);
     }
-
-    // Return cleanup function
-    return () => {
-      container.removeEventListener('keydown', handleTabKey);
-    };
   },
 
   /**
-   * Announces a message to screen readers using ARIA live regions
-   * @param {string} message - The message to announce
-   * @param {string} priority - 'polite' or 'assertive'
+   * Ensures that the specified accessible name (`aria-label`) is set for any element with a `tabindex` attribute.
    */
-  announceToScreenReader(message, priority = 'polite') {
-    let announcer = document.getElementById('aria-announcer');
-    
-    if (!announcer) {
-      announcer = document.createElement('div');
-      announcer.id = 'aria-announcer';
-      announcer.setAttribute('aria-live', priority);
-      announcer.setAttribute('aria-atomic', 'true');
-      announcer.className = 'sr-only';
-      announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
-      document.body.appendChild(announcer);
-    }
+  ensureAccessibleNameOnTabbable() {
+    // New function requested to enforce accessible names for tabbable elements
+    // Initial implementation focuses on buttons and form elements, but can be extended to additional tabbable elements as needed.
+    const tabbableElements = document.querySelectorAll('button[tabindex]:not([aria-label]), input[tabindex]:not([aria-label]), select[tabindex]:not([aria-label]), textarea[tabindex]:not([aria-label])');
 
-    // Clear and set message (ensures announcement even for repeated messages)
-    announcer.textContent = '';
-    setTimeout(() => {
-      announcer.textContent = message;
-    }, 100);
-  },
-
-  /**
-   * Handles escape key to close modals/dropdowns
-   * @param {Function} closeCallback - Function to call when Escape is pressed
-   * @param {HTMLElement} element - Element to attach the listener to
-   */
-  handleEscapeKey(closeCallback, element = document) {
-    const handler = (e) => {
-      if (e.key === 'Escape' && typeof closeCallback === 'function') {
-        closeCallback();
+    tabbableElements.forEach((element) => {
+      if (!element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', element.textContent || element.tagName);
       }
-    };
-    
-    element.addEventListener('keydown', handler);
-    
-    return () => {
-      element.removeEventListener('keydown', handler);
-    };
+    });
   }
 };
 
@@ -118,8 +60,12 @@ if (typeof document !== 'undefined') {
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
+          AccessibilityUtils.notifyFocusChange(target);
         }
       });
     }
+
+    // Ensure accessibility names for tabbable elements
+    AccessibilityUtils.ensureAccessibleNameOnTabbable();
   });
 }

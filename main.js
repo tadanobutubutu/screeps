@@ -423,6 +423,10 @@ module.exports = {
   updateAccessibleSvgNames,
   checkTableStructure,
   validateTableSchema,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  addSvgAccessibleName,
+  addressAccessibilityIssues,
 };
 
 // Auto-initialize if in browser environment

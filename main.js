@@ -58,7 +58,10 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // Add back export for checkLinkAndButtonAccessibility function
+  export { checkLinkAndButtonAccessibility };
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues };

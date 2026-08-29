@@ -7,7 +7,7 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -54,7 +54,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// New function for the issue
+// Function for calculating accessibility score from fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;

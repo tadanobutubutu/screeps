@@ -38,9 +38,44 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function for adding proper landmark regions
+function createLandmarkRegions(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  
+  const regions = [];
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+  let minLon = Infinity;
+  let maxLon = -Infinity;
+  
+  for (const landmark of landmarks) {
+    if (!landmark) continue;
+    
+    const lat = toRad(landmark.lat);
+    const lon = toRad(landmark.lon);
+    
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
+    if (lon < minLon) minLon = lon;
+    if (lon > maxLon) maxLon = lon;
+  }
+  
+  return [{
+    id: 'landmark_region',
+    minLat: minLat,
+    maxLat: maxLat,
+    minLon: minLon,
+    maxLon: maxLon,
+    count: landmarks.length
+  }];
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  createLandmarkRegions
 };

@@ -1,7 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
 
-<<<<<<< HEAD
-// Main game logic for Screeps
 const main = {
   loop: function() {
     // Game loop
@@ -12,52 +10,85 @@ const main = {
         this.manageRoom(room);
       }
     }
-    
-    // TODO: Implement harvest and upgrade logic
-    
-    // TODO: Implement tower defense
-    
-    // TODO: Implement spawning logic
-    
+
+    // Harvest and upgrade loops
+    this.harvestLoop();
+    this.upgradeLoop();
+
+    // Tower defense, spawning, new function
+    this.towerDefense();
+    this.spawningLogic();
+    this.myNewFunction();
+
     // Render graph/index for visualization
     this.renderAll(Game);
   },
-  
+
   manageRoom: function(room) {
     // Room management
     const sources = room.find(FIND_SOURCES);
     const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-    
+
     if (hostileCreeps.length > 0) {
       this.defendRoom(room, hostileCreeps);
     }
   },
-  
+
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_STRUCTURES, {
+    const towers = room.find(FIND_MY_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
-    
+
     towers.forEach(tower => {
       tower.attack(hostiles[0]);
     });
   },
-  
+
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
       }
     }
   },
-  
+
   upgrade: function(creep) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
       }
     }
+  },
+
+  harvestLoop: function() {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.memory.role === 'harvest') {
+        this.harvest(creep);
+      }
+    }
+  },
+
+  upgradeLoop: function() {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
+  },
+
+  towerDefense: function() {
+    // Implement tower defense logic
+  },
+
+  spawningLogic: function() {
+    // Implement spawning logic
+  },
+
+  myNewFunction: function() {
+    // your new function logic goes here
   },
 
   // Rendering functions for graph/index
@@ -113,77 +144,5 @@ const main = {
   renderAll: function(Game) {
     this.renderGraph(Game);
     this.renderIndex(Game);
-  },
-=======
-export function calculateSum(a, b) {
-    return a + b;
-}
-
-// Below is the existing code (preserving syntax and existing exports)
-// ...
-import react from 'react';
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-// Sample data and state
-const config = {
-  appName: 'DependencyGraphViewer',
-  version: '1.0.0',
-  settings: {
-    showGrid: true,
-    maxNodes: 100
->>>>> origin/main
-// ... (Existing code from main.js)
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Added new function for export
-function someNewFunction() {
-  console.log('This is a new function added for export');
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export function calculateSum(a, b) {
-  return a + b;
-}
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-// Fix fake link issue
-function fixFakeLinks() {
-  // Implementation for fixing fake link issues goes here.
-  // Handle both anchor tags with href="#" and div elements with role="link"
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
-  
-  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
-    link.setAttribute('role', 'button');
-    link.tabIndex = 0;
-    if (!link.getAttribute('aria-label')) {
-      link
+  }
+};

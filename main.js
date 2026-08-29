@@ -4,15 +4,15 @@
 
 // ... (other code in main.js)
 
-document.querySelectorAll("a").forEach(a => {
+document.querySelectorAll('button').forEach(a => {
   const id = a.id;
   const button = document.createElement("button");
   button.id = id;
   button.role = "button";
   button.ariaLabel = a.innerHTML;
   button.onclick = function () {
-    a.addEventListener("click", this.dispatchEvent.bind(this));
-    a.dispatchEvent(new MouseEvent("click"));
+    // Preserve existing behavior by dispatching the original click event
+    a.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   };
   button.innerHTML = a.innerHTML;
   a.parentNode.replaceChild(button, a);
@@ -23,7 +23,11 @@ document.querySelectorAll("a").forEach(a => {
 
 // Added: The requested function
 function rotateBack() {
-  // Your code to rotate back
+  // Rotate the element back to its original position
+  const element = document.querySelector('.rotated');
+  if (element) {
+    element.classList.remove('rotated');
+  }
 }
 
 // ... (other code in main.js)
@@ -50,24 +54,25 @@ function createUnrotateButton() {
   button.setAttribute('role', 'button');
   button.setAttribute('aria-label', 'rotate back');
   button.textContent = 'rotate back';
-  button.addEventListener('click', rotateBack);
+  button.onclick = rotateBack;
   return button;
 }
 
 // REACT_041: Add accessible names to 2 SVGs
 // Add aria-label or aria-labelledby to SVG elements
-function addSvgAccessibility(svgElement, label) {
-  if (svgElement) {
-    svgElement.setAttribute('aria-label', label);
-    svgElement.removeAttribute('aria-hidden');
+function addSvgAccessibleNames(svgElement, label) {
+  if (!svgElement || svgElement.tagName !== 'SVG') {
+    return;
   }
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', label);
 }
 
 // Example usage for SVGs:
-// const svg1 = document.querySelector('.icon-svg-1');
-// const svg2 = document.querySelector('.icon-svg-2');
-// addSvgAccessibility(svg1, 'Description of first icon');
-// addSvgAccessibility(svg2, 'Description of second icon');
+// const svg1 = document.querySelector('svg.icon1');
+// const svg2 = document.querySelector('svg.icon2');
+// addSvgAccessibleNames(svg1, 'Description of first icon');
+// addSvgAccessibleNames(svg2, 'Description of second icon');
 
 // REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // Ensure all <th> elements have scope attribute
@@ -78,7 +83,7 @@ function ensureThScope() {
       // Determine if it's a column header or row header based on context
       const parent = th.parentElement;
       const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+      const isFirstCell = parent && parent.children[0] === th;
       
       if (isFirstCell && parentTagName === 'tr') {
         th.setAttribute('scope', 'row');
@@ -92,8 +97,8 @@ function ensureThScope() {
 // Initialize accessibility improvements
 function initializeAccessibility() {
   // Replace fake links with proper buttons
-  const fakeLink = document.getElementById('unrotate');
-  if (fakeLink && fakeLink.tagName === 'A') {
+  const fakeLink = document.querySelector('a[href="#"]');
+  if (fakeLink) {
     const parent = fakeLink.parentElement;
     const newButton = createUnrotateButton();
     parent.replaceChild(newButton, fakeLink);
@@ -103,9 +108,9 @@ function initializeAccessibility() {
   ensureThScope();
   
   // Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.hasAttribute('aria-hidden') || svg.getAttribute('aria-hidden') !== 'true') {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', `Icon ${index + 1}`);
     }
   });
@@ -118,7 +123,104 @@ if (document.readyState === 'loading') {
   initializeAccessibility();
 }
 
-return table;
+// Additional functions for module structure and dependency graph (new)
+/**
+ * Renders a dependency graph as an SVG.
+ * @param {Object} graph - The graph data with nodes and edges.
+ * @returns {SVGElement} The SVG element representing the graph.
+ */
+function renderDependencyGraph(graph) {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "800");
+  svg.setAttribute("height", "600");
+  svg.setAttribute("viewBox", "0 0 800 600");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Dependency graph");
+
+  // Define arrowhead marker
+  const defs = document.createElementNS(svgNS, "defs");
+  const marker = document.createElementNS(svgNS, "marker");
+  marker.setAttribute("id", "arrowhead");
+  marker.setAttribute("markerWidth", "10");
+  marker.setAttribute("markerHeight", "7");
+  marker.setAttribute("refX", "10");
+  marker.setAttribute("refY", "3.5");
+  marker.setAttribute("orient", "auto");
+  const polygon = document.createElementNS(svgNS, "polygon");
+  polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+  polygon.setAttribute("fill", "#333");
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  // Draw edges
+  if (graph.edges && Array.isArray(graph.edges)) {
+    graph.edges.forEach(edge => {
+      const line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", edge.from.x);
+      line.setAttribute("y1", edge.from.y);
+      line.setAttribute("x2", edge.to.x);
+      line.setAttribute("y2", edge.to.y);
+      line.setAttribute("stroke", "#333");
+      line.setAttribute("stroke-width", "2");
+      line.setAttribute("marker-end", "url(#arrowhead)");
+      svg.appendChild(line);
+    });
+  }
+
+  // Draw nodes
+  if (graph.nodes && Array.isArray(graph.nodes)) {
+    graph.nodes.forEach(node => {
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("cx", node.x);
+      circle.setAttribute("cy", node.y);
+      circle.setAttribute("r", "20");
+      circle.setAttribute("fill", node.color || "#4CAF50");
+      circle.setAttribute("stroke", "#333");
+      circle.setAttribute("stroke-width", "2");
+      svg.appendChild(circle);
+      const text = document.createElementNS(svgNS, "text");
+      text.setAttribute("x", node.x);
+      text.setAttribute("y", node.y + 5);
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("fill", "white");
+      text.setAttribute("font-size", "12");
+      text.textContent = node.label;
+      svg.appendChild(text);
+    });
+  }
+
+  return svg;
+}
+
+/**
+ * Displays module structure as a tree in a DOM element.
+ * @param {Object} modules - The module hierarchy data (tree structure).
+ * @returns {HTMLElement} The DOM element containing the structure.
+ */
+function displayModuleStructure(modules) {
+  const container = document.createElement("div");
+  container.className = "module-structure";
+  container.setAttribute("role", "tree");
+
+  function buildTree(module, level) {
+    const item = document.createElement("div");
+    item.setAttribute("role", "treeitem");
+    item.setAttribute("aria-level", level);
+    item.style.marginLeft = (level * 20) + "px";
+    item.textContent = module.name;
+    container.appendChild(item);
+    if (module.children && module.children.length) {
+      module.children.forEach(child => buildTree(child, level + 1));
+    }
+  }
+
+  buildTree(modules, 0);
+  return container;
+}
+
+// ... (rest of existing code)
 
 function addMainLandmark(rootElement) {
   // Add main landmark to the provided rootElement
@@ -126,14 +228,14 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('[role="main"]');
+  const existingMain = rootElement.querySelector('main');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
     while (rootElement.firstChild) {
       mainElement.appendChild(rootElement.firstChild);
     }
-    rootElement.insertBefore(mainElement, rootElement.firstChild);
+    rootElement.appendChild(mainElement);
   }
 
   return rootElement;
@@ -155,27 +257,9 @@ function ensureUniqueLandmarks() {
   });
 }
 
-function addSvgAccessibleNames(svgElement) {
-  // Add accessible names to the provided svgElement
-  if (!svgElement || svgElement.tagName !== 'SVG') {
-    return svgElement;
-  }
-
-  const title = svgElement.querySelector('title');
-  if (!title) {
-    const newTitle = document.createElement('title');
-    newTitle.textContent = 'Decorative graphic';
-    svgElement.insertBefore(newTitle, svgElement.firstChild);
-  }
-
-  const desc = svgElement.querySelector('desc');
-  if (!desc) {
-    const newDesc = document.createElement('desc');
-    newDesc.textContent = '';
-    svgElement.appendChild(newDesc);
-  }
-  
-  return svgElement;
+function addSvgAccessibility(svgElement, label) {
+  // Backward-compatible wrapper (used for addSvgAccessibleNames)
+  addSvgAccessibleNames(svgElement, label);
 }
 
 function fixFakeLinkIssue(link) {
@@ -197,11 +281,38 @@ function fixFakeLinkIssue(link) {
   return link;
 }
 
+function addLangAttribute(lang) {
+  // Add lang attribute to the root HTML element
+  const root = document.documentElement;
+  if (root && !root.hasAttribute('lang')) {
+    root.setAttribute('lang', lang || 'en');
+  }
+}
+
+function fixTableStructure() {
+  // Ensure table headers have correct scope (already done by ensureThScope)
+  // Additional fix: move any stray table elements into a proper <table>
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Simple validation; production code would be more comprehensive
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      // Assume first row is header
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    ensureThScope();
+  });
+}
+
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT
 const rootElement = document.documentElement || document.body;
 
 if (rootElement) {
-  addLangAttribute(rootElement, 'en');
+  addLangAttribute('en');
 }
 
 ensureUniqueLandmarks();
@@ -217,5 +328,7 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
-  fixTableStructure
+  fixTableStructure,
+  renderDependencyGraph,
+  displayModuleStructure
 };

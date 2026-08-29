@@ -117,6 +117,19 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+// New function to count dependencies
+function countDependencies(dependencyData) {
+  const dependencyCounts = {};
+  dependencyData.forEach(dep => {
+    if (!dependencyCounts[dep.name]) {
+      dependencyCounts[dep.name] = 1;
+    } else {
+      dependencyCounts[dep.name]++;
+    }
+  });
+  return dependencyCounts;
+}
+
 module.exports = {
   improveAccessibility,
   addressInsightIssues,
@@ -127,5 +140,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues
+  addLandmarkRolesAndFixIssues,
+  countDependencies
 };

@@ -1,6 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -53,7 +51,6 @@ function renderDependencyGraphs(dependencies, container) {
 
 import React from 'react';
 
-// TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
 

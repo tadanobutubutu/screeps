@@ -4,14 +4,13 @@ const logger = require('./utils/logger');
 // Application state
 let isInitialized = false;
 const appData = {};
-
 let uniqueLandmarks = {};
 
 // Address accessibility issues from insight report:
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -130,7 +129,23 @@ function addressAccessibilityIssues() {
   return null;
 }
 
-// <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+/**
+ * New function to be added as per the issue
+ * @param {string} text
+ * @returns {string}
+ */
+function capitalizeFirstLetter(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 // Optimized and added function to render Svg elements with accessible names:
 function renderSvg(svgElement) {
@@ -139,18 +154,6 @@ function renderSvg(svgElement) {
   // New code that uses the imported modules
   const { someModule } = require('some-module');
   const someValue = someModule.someFunction(svgElement);
-
-  // ... existing code ...
-}
-
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (container) {
-    container.innerHTML = data;
-  }
-}
 
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
@@ -178,7 +181,14 @@ function renderIndexContentWithOptions(data, options = {}) {
 // Updated function for rendering dependency graph using new render function
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
-  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
+  // Convert dependency data to HTML representation
+  const htmlContent = generateDependencyGraphHTML(dependencyData);
+  
+  // Render the content using the existing render function
+  renderDependencyGraphContent(htmlContent);
+
+  // Apply accessibility attributes
+  addressAccessibilityIssues();
 }
 
 function renderIndexView(indexData) {
@@ -204,9 +214,8 @@ function fixFakeLinks() {
 }
 
 function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en');
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
   }
 }
 
@@ -347,18 +356,46 @@ function implementNewFunction() {
   fixUniqueLandmarks();
 }
 
+function generateDependencyGraphHTML(data) {
+  if (!data || !Array.isArray(data.nodes)) {
+    return '<div class="no-data">No dependency data available</div>';
+  }
+
+  let html = '<ul class="dependency-list">';
+
+  data.nodes.forEach(node => {
+    html += `<li class="dependency-node" data-id="${node.id}">`;
+    html += `<span class="node-name">${node.name}</span>`;
+
+    if (node.dependencies && node.dependencies.length > 0) {
+      html += '<ul class="sub-dependencies">';
+      node.dependencies.forEach(depId => {
+        const depNode = data.nodes.find(n => n.id === depId);
+        if (depNode) {
+          html += `<li class="dependency-item">${depNode.name}</li>`;
+        }
+      });
+      html += '</ul>';
+    }
+
+    html += '</li>';
+  });
+
+  html += '</ul>';
+
+  return html;
+}
+
 function main() {
   console.log('Running main application');
   implementNewFunction(); // Address accessibility issues from insight report
 }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 function someFunction() {
   // Some implementation
 }
+
+const someFunction = () => 'someFunction result';
 
 module.exports = {
   config,
@@ -374,7 +411,6 @@ module.exports = {
   renderGraphContentWithOptions,
   renderIndexContentWithOptions,
   renderDependencyGraph,
-  renderIndexView,
   calculateSum,
   someFunction,
   implementAccessibilityFixes,
@@ -388,7 +424,8 @@ module.exports = {
   addLangAttribute,
   main,
   fixUniqueLandmarks,
-  capitalizeFirstLetter
+  capitalizeFirstLetter,
+  generateDependencyGraphHTML
 };
 
 addressAccessibilityIssues(); // Call the combined function to address accessibility issues.

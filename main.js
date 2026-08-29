@@ -10,7 +10,7 @@ const path = require('path');
  */
 function countDependencies() {
   const packagePath = path.join(__dirname, 'package.json');
-  
+
   try {
     const packageContent = fs.readFileSync(packagePath, 'utf8');
     const packageJson = JSON.parse(packageContent);
@@ -36,5 +36,26 @@ function countDependencies() {
   }
 }
 
+// New function to convert anchor tags to buttons with specific id and text
+function convertAnchorsToButtons() {
+  if (typeof document !== 'undefined') {
+    const anchors = document.querySelectorAll('a');
+    anchors.forEach(anchor => {
+      const button = document.createElement('button');
+      button.id = anchor.id;
+      button.type = 'button';
+      button.textContent = anchor.textContent;
+      // Copy attributes from anchor to button
+      Array.from(anchor.attributes).forEach(attr => {
+        if (attr.name !== 'id') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      // Replace anchor with button
+      anchor.parentNode.replaceChild(button, anchor);
+    });
+  }
+}
+
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent };
+module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons };

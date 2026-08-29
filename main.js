@@ -1,6 +1,6 @@
 // main.js
 
-// TODO: Address accessibility issues from insight report:
+// Accessibility issues from insight report — FIXED
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute, getLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure, fixTableStructureIssues, validateTableAccessibility)
 // - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions, checkLandmarkElements)

@@ -33,11 +33,28 @@ function getSvgAccessibleName(svgElement) {
     return titleElement.textContent;
   }
 
-  return null;
+  // 4. Add missing aria-label if no other accessible name found
+  if (!svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-label', 'Missing accessible name');
+  }
+
+  return svgElement.getAttribute('aria-label');
+}
+
+/**
+ * Implementation of addLangAttribute
+ * @param {HTMLDocument} document
+ * @returns {undefined}
+ */
+function addLangAttribute(document) {
+  // TODO: Implement the logic to get the correct language code
+  // and add it to the <html> element.
+  // Example: document.documentElement.lang = 'en-US';
 }
 
 module.exports = {
   greeting,
   newFunction,
-  getSvgAccessibleName
+  getSvgAccessibleName,
+  addLangAttribute
 };

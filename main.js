@@ -107,7 +107,7 @@ function newFocusTrap() {
 
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
-export function calculateSum(a, b) { return a + b; }
+function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
 async function handleCredentialResponse(response) {
@@ -133,7 +133,7 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
 }
 
 // Export functionality with accessibility support
@@ -180,7 +180,7 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-z0-9_.-]/gi, '_');
+  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
 }
 
 function readFileSafe(filePath) {

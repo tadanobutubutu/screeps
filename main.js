@@ -1,14 +1,9 @@
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 import { requiredModule } from './required-module.js';
 
 export function newNecessaryFunction() {
   // Implementation of the new function
   return "New function implemented";
 }
-
-// TODO: Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
 
 /**
  * Calculate the sum of two numbers
@@ -58,6 +53,51 @@ export function isNumber(value) {
  */
 export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Check if an element has the specified accessibility attribute
+ * @param {HTMLElement} element - The DOM element to check
+ * @param {string} attribute - The accessibility attribute to check for
+ * @returns {boolean} True if the attribute is present and non-empty, false otherwise
+ */
+export function checkAccessibilityAttribute(element, attribute) {
+  if (!element || typeof element.getAttribute !== 'function') {
+    return false;
+  }
+  const value = element.getAttribute(attribute);
+  return value !== null && value !== '';
+}
+
+/**
+ * Ensure an element has a non-empty accessibility label
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element has an aria-label or accessible name, false otherwise
+ */
+export function ensureAccessibleLabel(element) {
+  if (!element) {
+    return false;
+  }
+  return checkAccessibilityAttribute(element, 'aria-label') ||
+         checkAccessibilityAttribute(element, 'aria-labelledby') ||
+         checkAccessibilityAttribute(element, 'alt');
+}
+
+/**
+ * Validate that an element has proper focusability for accessibility
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element is focusable, false otherwise
+ */
+export function validateFocusableElement(element) {
+  if (!element) {
+    return false;
+  }
+  const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
+  const tagName = element.tagName?.toLowerCase();
+  const isFocusable = focusableTags.includes(tagName) ||
+                      element.tabIndex >= 0 ||
+                      checkAccessibilityAttribute(element, 'tabindex');
+  return isFocusable && !element.hasAttribute('disabled');
 }
 
 // Default export for backwards compatibility

@@ -26,7 +26,6 @@ function rotateBack() {
 // Check that ARIA attributes are correctly paired and have appropriate values
 
   return table;
-}
 
 function addMainLandmark(rootElement) {
   // Add main landmark to the provided rootElement

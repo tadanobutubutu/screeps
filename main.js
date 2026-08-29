@@ -148,6 +148,11 @@ function checkLandmarks(container = document) {
  * Renders the index view of the application.
  */
 function renderIndexView() {
+  // Use the imported dependencyGraphContent module
+  if (dependencyGraphContent && typeof dependencyGraphContent.render === 'function') {
+    dependencyGraphContent.render();
+  }
+
   // Implement your code here.
   // Example of creating a button in-page:
   const button = document.createElement('button');

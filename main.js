@@ -1,4 +1,5 @@
 // main.js - Main application file
+// Added missing exports as per the issue
 
 const http = require('http');
 const fs = require('fs');
@@ -15,7 +16,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -62,7 +63,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {

@@ -25,6 +25,12 @@ function rotateBack() {
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
 
+// TODO: Implement the new function as described in the issue
+
+function fixTableStructure(table) {
+  if (!table) {
+    return table;
+  }
   return table;
 }
 
@@ -34,7 +40,7 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('[role="main"]');
+  const existingMain = rootElement.querySelector('main, [role="main"]');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
@@ -50,13 +56,13 @@ function addMainLandmark(rootElement) {
 function ensureUniqueLandmarks() {
   // Ensure unique landmarks in the entire application
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  
-  landmarks.forEach(landmark => {
+
+  landmarks.forEach(function(landmark) {
     const elements = document.querySelectorAll(landmark);
     if (elements.length > 1) {
-      elements.forEach((el, index) => {
+      elements.forEach(function(el, index) {
         if (index > 0 && el.id) {
-          el.id = `${el.id}-${index}`;
+          el.id = el.id + '-' + index;
         }
       });
     }
@@ -82,7 +88,7 @@ function addSvgAccessibleNames(svgElement) {
     newDesc.textContent = '';
     svgElement.appendChild(newDesc);
   }
-  
+
   return svgElement;
 }
 
@@ -103,6 +109,13 @@ function fixFakeLinkIssue(link) {
   }
 
   return link;
+}
+
+function addLangAttribute(rootElement, lang) {
+  if (!rootElement) {
+    return;
+  }
+  rootElement.setAttribute('lang', lang || 'en');
 }
 
 // ADD THESE LINES TO ADD ACCESSIBILITY ATTRIBUTES TO ROOT ELEMENT

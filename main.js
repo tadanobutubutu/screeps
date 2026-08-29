@@ -80,8 +80,14 @@ export { someFunction, someVariable } from './source';
 export const version = '1.0.0';
 
 // New function or changes requested in the issue
-function newFunction() {
-  // Implementation of the new function
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  landmarks.forEach(landmark => {
+    if (seen.has(landmark.id)) {
+      throw new Error(`Duplicate landmark ID found: ${landmark.id}`);
+    }
+    seen.add(landmark.id);
+  });
 }
 
 // Existing exports (do not remove or rename)

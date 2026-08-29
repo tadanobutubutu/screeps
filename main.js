@@ -154,6 +154,11 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
+// New function as requested in the issue
+function calculateSum(a, b) {
+  return a + b;
+}
+
 // Exporting if necessary (no exports were requested to be removed)
 export function someFunction() {
   // ... implementation ...

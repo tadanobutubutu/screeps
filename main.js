@@ -7,26 +7,26 @@ import Footer from './components/Footer';
 import './styles.css';
 
 // Initial setup
-const app = document.getElementById('root');
+const app = ...
 
 // Improve accessibility
 app.setAttribute('role', 'main');
 app.setAttribute('aria-label', 'Main application');
 
 // New function as per the issue
-function addProperLandmarkRegions(landmarks) {
+function processLandmarks(landmarks) {
   // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
   landmarks.forEach(landmark => {
     // Perform any necessary operations on the landmark
     // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates ${landmark.coordinates}`);
+    console.log(`Adding landmark: ${landmark.name} at coordinates: ${landmark.coordinates}`);
     // Add your logic here
   });
 }
 
 // Assuming there's a way to retrieve landmarks, you would call the function like this:
 // const allLandmarks = getLandmarks(); // Placeholder function
-// addProperLandmarkRegions(allLandmarks);
+// processLandmarks(allLandmarks);
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -58,7 +58,8 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    addLangAttribute(document.documentElement, 'en');
+    addMainLandmark(app);
     fetchData();
   }, []);
 
@@ -69,7 +70,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div className="app">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -82,16 +83,16 @@ export function getUniqueLandmarkName(baseName, existingNames) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -122,7 +123,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -133,69 +134,53 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // ... existing code ...
+  // Check if element has proper link semantics
+  const role = element.getAttribute('role');
+  const tabindex = element.getAttribute('tabindex');
+  const href = element.getAttribute('href');
+  
+  // A valid link should either:
+  // 1. Be an anchor with href
+  // 2. Have role="link" with proper keyboard navigation
+  if (element.tagName === 'A' && href) {
+    return true;
+  }
+  
+  if (role === 'link') {
+    // Must be keyboard accessible
+    return tabindex !== null || element.tabIndex >= 0;
+  }
+  
+  return false;
 }
 
-export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
-}
-
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    // TODO: Implement solution to the issue
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
+export function addScopeToHeaders(table) {
+  if (!table) return;
+  
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
+    const row = th.parentElement;
+    const rowIndex = Array.from(row.children).indexOf(th);
+    const cellsAbove = Array.from(table.querySelectorAll('tr')).slice(0, rowIndex);
+    
+    // Check if this header has cells below it in the same column
+    const hasCellsBelow = cellsAbove.length > 0;
+    
+    // Check if this header has cells to the right in the same row
+    const cellsInRow = Array.from(row.children);
+    const hasCellsRight = cellsInRow.indexOf(th) < cellsInRow.length - 1;
+    
+    if (hasCellsBelow) {
+      th.setAttribute('scope', 'col');
+    } else if (hasCellsRight || cellsAbove.some(r => r.children[rowIndex])) {
+      th.setAttribute('scope', 'row');
+    }
   });
 }
 
-export function myFunction() {
-  // Your code for the new function goes here
-}
-
-function newFunction() {
-  // implementation of new function
-}
-
-// Export Screeps bot functions
-module.exports = { addProperLandmarkRegions };
-
-// Export accessibility functions
-module.exports.getUniqueLandmarkName = getUniqueLandmarkName;
-module.exports.validateUniqueLandmarks = validateUniqueLandmarks;
-module.exports.addSvgAccessibleName = addSvgAccessibleName;
-module.exports.isValidLink = isValidLink;
-module.exports.addScopeToHeaders = addScopeToHeaders;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-module.exports.newFunction = newFunction;
-
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-function modifiedFunction() {
-  // Modified implementation of the function
-  console.log('This function has been modified.');
-}
-
-// <!--- END MODIFIED FUNCTION --->
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
-// <!--- Any other modifications or additions go here --->
-
-export {
-  function3,
-  App,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
-  myFunction,
-  newFunction
-};
+export function addressAccessibilityIssues(issues) {
+  issues.forEach(issue => {
+    console.log(`Addressing issue: ${issue.issue}`);
+    // TODO: Implement solution to the issue
+    console.log(`Solution: ${issue.solution}`);
+    // ... code

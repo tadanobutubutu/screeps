@@ -1,10 +1,10 @@
-const dependencyGraphContent = require('./dependencyGraph');
+const dependencyGraphContent = '<svg class="dependency-graph"></svg>';
 
 const rotateBack = function () {
   // Logic to rotate back
   // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
+  // ...
+  // ...
 };
 
 exports.rotateBack = rotateBack;
@@ -15,7 +15,7 @@ const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
 };
 
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+const exportedAddressAccessibilityIssue038 = addressAccessibilityIssue038;
 
 const renderDependencyGraph = (dependencyGraph, container) => {
   // Render the dependency graph using the dependencyGraphContent
@@ -26,7 +26,7 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 exports.renderDependencyGraph = renderDependencyGraph;
 
-import { type Metadata } from "next";
+import { Metadata } from "next";
 import "./globals.css";
 import {
   addLangAttribute,
@@ -79,12 +79,7 @@ export const addressAccessibilityIssue038 = (
 
 const a11yStore = {
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -99,7 +94,7 @@ const a11yStore = {
   },
 
   createAccessibleDialog(id, title, content, closeLabel = 'Close') {
-    const dialog = document.createElement('div');
+    const dialog = document.createElement('dialog');
     dialog.id = id;
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-labelledby', `${id}-title`);
@@ -115,8 +110,8 @@ const a11yStore = {
     });
 
     dialog.appendChild(titleEl);
-    dialog.appendChild(closeButton);
     dialog.appendChild(content);
+    dialog.appendChild(closeButton);
 
     return dialog;
   },
@@ -157,7 +152,7 @@ const a11yStore = {
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.getElementById('main-content');
         if (target) {
           target.tabIndex = -1;
           target.focus();
@@ -167,7 +162,7 @@ const a11yStore = {
     }
 
     document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
@@ -240,7 +235,7 @@ const a11yStore = {
     // Check and ensure proper landmark elements
   },
 
-  addSVGAccessibilityProps() {
+  addSvgAccessibility() {
     // Add accessibility properties to SVG elements
   },
 
@@ -260,16 +255,14 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Screeps Dashboard",
   description: "Dashboard for Screeps",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}) {
   addLangAttribute();
   addMainLandmark();
   addSvgAccessibleNames();
@@ -277,9 +270,8 @@ export default function RootLayout({
   checkLandmarks();
   ensureUniqueLandmarks();
   fixFakeLinkIssue();
-  fixTableStructureIssues();
-  setFormElementAccessibleNames();
-  setSvgAccessibilityProps();
+  fixFakeLinkIssues();
+  fixLandmarkIssues();
   checkLandmarkElement();
   isLinkAccessible();
   isButtonAccessible();
@@ -287,7 +279,7 @@ export default function RootLayout({
   // Check and address accessibility issues
   const elements = document.querySelectorAll('[data-accessibility-issue]');
   elements.forEach(element => {
-    const issueId = element.getAttribute('data-accessibility-issue');
+    const issueId = element.getAttribute('data-issue-id');
     if (issueId === '038') {
       addressAccessibilityIssue038(element, { issue: '038', severity: 'high' });
     }
@@ -310,7 +302,7 @@ export default function RootLayout({
             <nav role="navigation" aria-label="Main navigation">
               <ul>
                 <li><a href="/home">Home</a></li>
-                <li><a href="/about">About</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
               </ul>
             </nav>
           </header>
@@ -319,53 +311,3 @@ export default function RootLayout({
           {/* REACT_041: Add accessible names to SVGs */}
           <svg
             role="img"
-            aria-label="Settings icon"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-
-          {/* REACT_041: Add accessible names to second SVG */}
-          <svg
-            role="img"
-            aria-label="User profile icon"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-          </svg>
-
-          {/* REACT_036: Fix fake link issue - use proper anchor element */}
-          <a href="/dashboard" className="button-link">
-            Go to Dashboard
-          </a>
-
-          {/* REACT_017 & REACT_025: Ensure unique landmarks */}
-          {/* Using proper landmark elements ensures unique landmarks */}
-        </main>
-        {renderDependencyGraph()}
-      </body>
-    </html>
-  );
-}
-
-export {
-  a11yStore,
-  handleAccessibilityIssues,
-  getSvgAccessibleName,
-  newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  addressAccessibilityIssue038,
-  addressAccessibilityIssues,
-  renderDependencyGraph,
-};

@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from ...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -35,9 +35,27 @@ function getVersion() {
   return VERSION;
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+// Implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
-  // TODO: Implement the function for addressing new accessibility issues
+  // Find the dependencyGraph container and ensure it has a proper ARIA role
+  const dependencyGraphContainer = document.querySelector('[data-testid="dependencyGraph"], #dependencyGraph, .dependency-graph, [class*="dependencyGraph"]');
+  
+  if (dependencyGraphContainer) {
+    // Ensure the dependencyGraph container has a proper ARIA role for accessibility
+    if (!dependencyGraphContainer.getAttribute('role')) {
+      dependencyGraphContainer.setAttribute('role', 'img');
+    }
+    
+    // Ensure the container has an accessible label
+    if (!dependencyGraphContainer.getAttribute('aria-label') && !dependencyGraphContainer.getAttribute('aria-labelledby')) {
+      const label = dependencyGraphContainer.getAttribute('aria-label') || 'Dependency graph visualization';
+      dependencyGraphContainer.setAttribute('aria-label', label);
+    }
+    
+    return true;
+  }
+  
+  return false;
 }
 
 export {

@@ -32,7 +32,7 @@ export function createInPageButton(href, label) {
   
   button.addEventListener('click', () => {
     const targetId = href.replace('#', '');
-    const target = document.getElementById(targetId) || document.querySelector(href);
+    const target = document.getElementById(targetId) || document.querySelector(targetId);
     if (target) {
       target.setAttribute('tabindex', '-1');
       target.focus();
@@ -103,7 +103,7 @@ export function validateTableStructure(table) {
   // Check for headers without scope attribute
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       issues.push(`Header at index ${index} missing scope attribute`);
     }
   });
@@ -112,7 +112,7 @@ export function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   let columnCount = 0;
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (columnCount === 0) {
       columnCount = cells.length;
     } else if (cells.length !== columnCount) {
@@ -140,4 +140,112 @@ export function getSvgAccessibleName(svg) {
     return ariaLabel.trim();
   }
   
-  //
+  // Check aria-labelledby for external reference
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const refElement = document.getElementById(ariaLabelledby);
+    if (refElement && refElement.textContent) {
+      return refElement.textContent.trim();
+    }
+  }
+  
+  // Check for title element inside SVG (fallback)
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+  
+  return '';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element to modify
+ * @param {string} accessibleName - The accessible name to set
+ */
+export function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  
+  // Set role="img" for screen readers
+  svg.setAttribute('role', 'img');
+  
+  // Set aria-label with the accessible name
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  }
+}
+
+/**
+ * Ensures all landmarks have unique labels to avoid accessibility violations
+ * @returns {Array} List of landmarks that were fixed
+ */
+export function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('header, main, nav, aside, footer, section[role="banner"], section[role="main"], section[role="navigation"], section[role="complementary"], section[role="contentinfo"]');
+  const labeledLandmarks = [];
+  const duplicates = [];
+  
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label') || 
+                  landmark.getAttribute('aria-labelledby') ||
+                  landmark.id ||
+                  landmark.tagName.toLowerCase();
+    
+    if (labeledLandmarks.includes(label)) {
+      duplicates.push({ element: landmark, label });
+    } else {
+      labeledLandmarks.push(label);
+    }
+  });
+  
+  // Add unique labels to duplicate landmarks
+  duplicates.forEach((dup, index) => {
+    const uniqueLabel = `${dup.label}-${index + 1}`;
+    dup.element.setAttribute('aria-label', uniqueLabel);
+  });
+  
+  return duplicates;
+}
+
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result with issues found
+ */
+export function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  if (!link || link.tagName !== 'A') {
+    return { valid: false, issues: ['Invalid link element'] };
+  }
+  
+  // Check for accessible text
+  const hasText = link.textContent && link.textContent.trim().length > 0;
+  const hasAriaLabel = link.getAttribute('aria-label');
+  
+  if (!hasText && !hasAriaLabel) {
+    issues.push('Link has no accessible text');
+  }
+  
+  // Check for proper href
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') {
+    issues.push('Link has no valid href destination');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Handles fake links (elements with onclick that should be buttons or proper links)
+ * @param {HTMLElement} element - The element to check
+ * @returns {Object} Result with conversion recommendation
+ */
+export function handleFakeLinks(element) {
+  const result = { isFakeLink: false, needsConversion: false, issues: [] };
+  
+  if (!element) return result;
+  
+  const hasClickHandler = element.hasAttribute('onclick') ||

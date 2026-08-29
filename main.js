@@ -3,7 +3,6 @@ function rotateBack() {
   console.log('Rotating back...');
 }
 
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
   document.documentElement.setAttribute('lang', 'en');
 

@@ -58,6 +58,14 @@ const main = {
   },
 
   // Add the new function or change here:
+  createInPageButton: function(buttonId, buttonText) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    document.body.appendChild(button);
+  },
+
+  // Export the new function if needed:
   myNewFunction: function() {
     // your new function logic goes here
   }

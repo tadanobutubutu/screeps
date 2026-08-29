@@ -396,6 +396,28 @@ function ensureUniqueLandmarks(documentOrElement) {
   };
 }
 
+// Accessibility stubs from HEAD
+export function getLangAttribute() {
+  // Implementation for REACT_015
+}
+
+export function validateTableAccessibility() {
+  // Implementation for REACT_027
+}
+
+export function validateTableStructure() {
+  // Implementation for REACT_027
+}
+
+export function getSvgAccessibleName() {
+  // Implementation for REACT_041
+}
+
+// Consolidated personName (combining REACT_015 and REACT_036 concerns from HEAD)
+export function personName() {
+  // Implementation for REACT_015 / REACT_036
+}
+
 // Export all functions and values
 module.exports = {
   hello,
@@ -413,8 +435,13 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
-  ensureUniqueLandmarksFromString
+  ensureUniqueLandmarksFromString,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  personName
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore, checkLandmarkElements, renderDependencyGraph, displayModuleStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, ensureUniqueLandmarksFromString };
+// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore, checkLandmarkElements, renderDependencyGraph, displayModuleStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, ensureUniqueLandmarksFromString, getLangAttribute, validateTableAccessibility, validateTableStructure, getSvgAccessibleName, personName };

@@ -1,5 +1,4 @@
-// TODO: Implement validateLandmark functionality
-
+// Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
   

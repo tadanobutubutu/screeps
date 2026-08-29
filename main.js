@@ -290,6 +290,70 @@ function setupAccessibilityEventListeners() {
   }
 }
 
+// Credential response handling
+function decodeJwtPayload(credential) {
+  try {
+    const parts = credential.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+    const payload = parts[1];
+    // Base64URL decode
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const decoded = Buffer.from(padded, 'base64').toString('utf-8');
+    return JSON.parse(decoded);
+  } catch (e) {
+    logger.error('Failed to decode credential payload:', e);
+    return null;
+  }
+}
+
+function handleCredentialResponse(response) {
+  if (!response || typeof response !== 'object') {
+    logger.error('Invalid credential response received');
+    return { success: false, error: 'Invalid response' };
+  }
+
+  if (!response.credential) {
+    logger.error('Credential response missing credential field');
+    return { success: false, error: 'Missing credential' };
+  }
+
+  try {
+    const payload = decodeJwtPayload(response.credential);
+    
+    if (!payload) {
+      logger.error('Failed to decode credential');
+      return { success: false, error: 'Failed to decode credential' };
+    }
+
+    // Store user credential information
+    const userInfo = {
+      credential: response.credential,
+      sub: payload.sub,
+      email: payload.email,
+      email_verified: payload.email_verified,
+      name: payload.name,
+      picture: payload.picture,
+      issuedAt: new Date().toISOString()
+    };
+
+    setData('user', userInfo);
+    setData('isAuthenticated', true);
+    
+    logger.info('User authenticated successfully:', payload.email);
+    
+    return {
+      success: true,
+      user: userInfo
+    };
+  } catch (error) {
+    logger.error('Error processing credential response:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 module.exports = {
   loop,
   validateLandmark,
@@ -310,7 +374,8 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  handleCredentialResponse
 };
 
 // Initialize on DOM ready

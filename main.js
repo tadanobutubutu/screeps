@@ -15,8 +15,18 @@ function countDependencies(deps) {
 
 // Existing code...
 
-// Replace the TODO line with the actual implementation
-return countDependencies(dependencies);
+// Replace the TODO line with the actual implementation for calculateDiscount
+function calculateDiscount(price, discountPercentage) {
+  if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) {
+    throw new Error('Invalid price provided');
+  }
+
+  if (typeof discountPercentage !== 'number' || !Number.isFinite(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+    throw new Error('Invalid discount percentage provided');
+  }
+
+  return price * (1 - discountPercentage / 100);
+}
 
 // Existing code...
 
@@ -48,10 +58,10 @@ function ensureUniqueLandmarks(landmarks) {
     if (!landmark || typeof landmark !== 'object') {
       return false;
     }
-    
+
     // Create a unique identifier based on landmark name and coordinates (if available)
     const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -74,6 +84,7 @@ function addressAccessibilityIssues(insightReport) {
 
 module.exports = {
   countDependencies,
+  calculateDiscount, // Add this line to export the new function
   wrapPrimaryContentInMain,
   myNewFunction,
   ensureUniqueLandmarks,

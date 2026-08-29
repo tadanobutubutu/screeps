@@ -1,4 +1,10 @@
-// Existing code... (use the conflict markers to identify and preserve it)
+// Existing code...
+// Use the conflict markers to identify and preserve the following code:
+
+// Conflict markers (do not include these in the output)
+// <!-- CONFLICT_START -->
+// /* Existing code here */
+// <!-- CONFLICT_END -->
 
 // Here's where you add new functions
 function addProperLandmarkRegions(landmarks) {
@@ -14,4 +20,10 @@ function addProperLandmarkRegions(landmarks) {
 // Don't forget to export new functions if necessary
 export { addProperLandmarkRegions };
 
-// Existing code... (use the conflict markers to identify and preserve it)
+// Existing code...
+// Use the conflict markers to identify and preserve the following code:
+
+// Conflict markers (do not include these in the output)
+// <!-- CONFLICT_START -->
+// /* Existing code here */
+// <!-- CONFLICT_END -->

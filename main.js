@@ -45,12 +45,34 @@ function addProperFormAccessibility() {
 }
 
 /**
+ * New function to improve keyboard navigation for interactive elements
+ */
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+/**
+ * New function to add ARIA live regions for dynamic content updates
+ */
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
+/**
  * Function to replace `my-button` with actual button id
  */
 addProperLandmarkRegions();
 addProperAccountManagement();
 addProperFormAccessibility();
 replaceMyButtonId();
+improveKeyboardNavigation();
+addLiveRegionForDynamicContent();
 
 module.exports = {
   addProperLandmarkRegions,

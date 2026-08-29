@@ -25,40 +25,176 @@ import { state, updateState } from './state.js';
 // Accessibility function stubs
 
 function getLangAttribute() {
-  // Existing code...
+  return document.documentElement.lang || 'en';
 }
 
 function personName() {
-  // Existing code...
+  return 'John Doe'; // Default person name
 }
 
-function validateTableAccessibility() {
-  // Existing code...
+function validateTableAccessibility(table) {
+  if (!table || !table.tagName) return [];
+  const errors = [];
+  const rows = table.querySelectorAll('tr');
+  let hasHeader = false;
+  for (const row of rows) {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) continue;
+    if (row.querySelector('th')) hasHeader = true;
+    if (cells.length !== table.querySelectorAll('th').length) {
+      errors.push(`Row ${Array.from(rows).indexOf(row) + 1}: Inconsistent number of cells`);
+    }
+  }
+  if (!hasHeader) errors.push('Table lacks a header row (th elements)');
+  return errors;
 }
 
 function validateTableStructure() {
-  // Existing code...
+  const tables = document.querySelectorAll('table');
+  const results = [];
+  for (const table of tables) {
+    const errors = validateTableAccessibility(table);
+    if (errors.length > 0) {
+      results.push({
+        table,
+        errors
+      });
+    }
+  }
+  return results;
 }
 
 function validateLandmark() {
-  // Existing code...
+  const landmarks = document.querySelectorAll('main, header, footer, nav, aside, section, article, aside');
+  const results = [];
+  for (const landmark of landmarks) {
+    results.push(landmark.id || landmark.tagName.toLowerCase());
+  }
+  return results;
 }
 
 function validateLandmarkStructure() {
-  // Existing code...
+  const results = [];
+  const landmarks = document.querySelectorAll('main, header, footer, nav, aside, section, article, aside');
+  for (const landmark of landmarks) {
+    const id = landmark.id;
+    if (id) {
+      results.push({
+        element: landmark,
+        type: landmark.tagName.toLowerCase(),
+        id: id
+      });
+    }
+  }
+  return results;
 }
 
-function getSvgAccessibleName() {
-  // Existing code...
+function getSvgAccessibleName(svg) {
+  if (!svg || svg.tagName !== 'svg') return null;
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const desc = svg.querySelector('desc');
+  if (desc) return desc.textContent;
+  return 'SVG image';
 }
 
 function createInPageButton() {
-  // Existing code...
+  const button = document.createElement('button');
+  button.textContent = 'Skip to content';
+  button.className = 'skip-to-content';
+  button.setAttribute('aria-label', 'Skip to main content');
+  button.onclick = function() {
+    const main = document.querySelector('main');
+    if (main) main.focus();
+  };
+  document.body.appendChild(button);
+  return button;
 }
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code...
+  // Ensure lang attribute is set
+  const lang = getLangAttribute();
+  document.documentElement.setAttribute('lang', lang);
+  
+  // Create in-page button for keyboard navigation
+  createInPageButton();
+  
+  // Validate and fix table structure issues
+  const tableResults = validateTableStructure();
+  tableResults.forEach(result => {
+    const table = result.table;
+    if (result.errors.length > 0) {
+      // Mark table with accessibility issues
+      table.classList.add('accessibility-issue');
+      const errorList = document.createElement('ul');
+      result.errors.forEach(error => {
+        const li = document.createElement('li');
+        li.textContent = error;
+        errorList.appendChild(li);
+      });
+      table.insertAdjacentElement('afterend', errorList);
+    }
+  });
+  
+  // Validate and fix landmark issues
+  const landmarkResults = validateLandmark();
+  const uniqueLandmarks = new Set(landmarkResults);
+  const duplicateLandmarks = Array.from(landmarkResults).filter((item, index) => landmarkResults.indexOf(item) !== index);
+  
+  // Validate landmark structure and ensure uniqueness
+  const landmarkStructureResults = validateLandmarkStructure();
+  const uniqueIds = new Set();
+  const duplicateIds = [];
+  
+  for (const result of landmarkStructureResults) {
+    if (result.id) {
+      if (uniqueIds.has(result.id)) {
+        duplicateIds.push(result.id);
+      } else {
+        uniqueIds.add(result.id);
+      }
+    }
+  }
+  
+  // Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  for (const svg of svgs) {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      const title = svg.querySelector('title');
+      if (!title) {
+        const newTitle = document.createElement('title');
+        newTitle.textContent = accessibleName;
+        svg.insertBefore(newTitle, svg.firstChild);
+      }
+      setSvgAttributes(svg, accessibleName);
+    }
+  }
+  
+  // Handle fake links and ensure link accessibility
+  validateLinkAccessibility();
+  handleFakeLinks();
+  
+  // Log accessibility fixes
+  console.log('Accessibility issues fixed:', {
+    tableIssues: tableResults.length,
+    landmarkIssues: duplicateLandmarks.length,
+    duplicateLandmarkIds: duplicateIds.length,
+    svgCount: svgs.length
+  });
+  
+  return {
+    tablesProcessed: tableResults.length,
+    landmarksProcessed: landmarkStructureResults.length,
+    svgsProcessed: svgs.length,
+    issuesFound: {
+      duplicateLandmarks: duplicateLandmarks.length,
+      duplicateIds: duplicateIds.length
+    }
+  };
 }
 
 // DOM-based accessibility code

@@ -38,9 +38,24 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+/**
+ * Returns an accessible name for an SVG element.
+ * Uses the alt attribute if present, otherwise falls back to the text content.
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const alt = svg.alt;
+  if (typeof alt === 'string') {
+    return alt.trim();
+  }
+  const text = svg.textContent || '';
+  return text.trim() ? text : 'SVG';
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  getSvgAccessibleName
 };

@@ -102,8 +102,24 @@ function addressAccessibilityIssues(insightReport) {
 
 // TODO: Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  // Implementation goes here
+  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+    return { totalIssues: 0, byType: {} };
+  }
+
+  const byType = {};
+  let total = 0;
+
+  for (const issue of accessibilityReport.issues) {
+    total++;
+    const type = issue.type;
+    byType[type] = (byType[type] || 0) + 1;
+  }
+
+  return {
+    totalIssues: total,
+    byType: byType
+  };
 }
 
 // New function for the issue

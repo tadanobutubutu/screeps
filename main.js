@@ -1,25 +1,30 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
-
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom/client';
 import './styles.css';
 import { initializeApp, appData } from './app.js';
 import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
+import Landmark from './Landmark';
+
+// TODO: Add the implementation of this function
+// Example function, replace with actual implementation
+function exampleFunction() {
+  // Function implementation
+}
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+const createInPageButton = (options) => {
+  const {
+    onClick,
+    label,
+    icon,
+    disabled = false,
+    isActive = false,
+    hoverState,
+    setHoverState,
+    ariaLabel,
+    title
+  } = options;
 
   const getBackgroundColor = () => {
     if (disabled) return '#999';
@@ -114,9 +119,37 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
-module.exports = {
+// Initialize the application
+initializeApp();
+
+// Register service worker if available
+if ('serviceWorker' in navigator) {
+  registerSW();
+}
+
+// Dispatch app started event
+appStarted();
+
+// React 18 rendering
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+    {/* Assuming Dashboard is a component used inside App, it would be rendered here */}
+    {/* <Dashboard /> */}
+  </React.StrictMode>
+);
+
+// Report web vitals (if available)
+if (typeof reportWebVitals === 'function') {
+  reportWebVitals();
+}
+
+export {
+  createInPageButton,
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  icons,
+  exampleFunction
 };

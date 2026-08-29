@@ -38,9 +38,42 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssues(insightReport) {
+  // Handle case where insightReport is not provided or invalid
+  if (!insightReport || typeof insightReport !== 'object') {
+    return [];
+  }
+  
+  const accessibilityIssues = insightReport.accessibilityIssues || [];
+  
+  if (!Array.isArray(accessibilityIssues)) {
+    return [];
+  }
+  
+  // Log each accessibility issue for review
+  accessibilityIssues.forEach(issue => {
+    if (issue && typeof issue === 'object') {
+      const location = issue.location || 'unknown location';
+      const description = issue.description || 'No description';
+      const severity = issue.severity || 'unknown severity';
+      const guidance = issue.guidance || 'No guidance available';
+      
+      console.log(`Accessibility Issue at ${location}:`);
+      console.log(`  Description: ${description}`);
+      console.log(`  Severity: ${severity}`);
+      console.log(`  Guidance: ${guidance}`);
+      console.log('---');
+    }
+  });
+  
+  return accessibilityIssues;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addressAccessibilityIssues
 };

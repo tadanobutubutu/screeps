@@ -95,3 +95,7 @@ function googleSignIn(document) {
 function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
+
+function calculateSum(a, b) {
+  return a + b;
+}

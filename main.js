@@ -1,10 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: This is the existing code that needs to be preserved
 
 export function calculateSum(a, b) {
     return a + b;
@@ -135,8 +129,8 @@ function addressAccessibilityIssues(insightReport) {
   // This should be replaced with actual logic based on the insight report structure
 
   // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });

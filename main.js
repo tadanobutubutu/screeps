@@ -15,11 +15,6 @@ function countDependencies(deps) {
 
 // Existing code...
 
-// Replace the TODO line with the actual implementation
-return countDependencies(dependencies);
-
-// Existing code...
-
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 
 function wrapPrimaryContentInMain() {
@@ -50,7 +45,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
+    const identifier = landmark.id || JSON.stringify(landmark);
     
     if (seen.has(identifier)) {
       return false;

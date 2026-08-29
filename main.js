@@ -14,7 +14,6 @@ export function calculateSum(a, b) {
 
 // Below is the existing code (preserving syntax and existing exports)
 // ...
-
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 // ... (existing code, exports, and functions)
@@ -162,19 +161,20 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+  // Support both insightReport.issues and insightReport.accessibilityIssues
+  const issues = insightReport?.issues?.length ? insightReport.issues : insightReport?.accessibilityIssues;
+  if (!issues || !Array.isArray(issues)) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.accessibilityIssues.forEach((issue, index) => {
+  issues.forEach((issue, index) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
     
-    // Address specific issues based on their codes
     switch(issue.code) {
       case 'REACT_015':
         // Add lang attribute to HTML element

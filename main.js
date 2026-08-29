@@ -11,6 +11,7 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
+import React from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -55,8 +56,7 @@ function detectAndSetLang(content) {
 
 // New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
-  // This function should return the current lang attribute value
-  return document.documentElement.lang;
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -88,12 +88,27 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createInPageButton() {
-  // This function should create an in-page button
-}
-
 function createAccessibleLink() {
   // This function should create an accessible link
+}
+
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = (typeof document !== 'undefined' ? document.body : null)) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Open modal');
+  if (parent) {
+    parent.appendChild(btn);
+  }
+  return btn;
 }
 
 // Export all functions to maintain current exports

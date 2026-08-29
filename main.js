@@ -19,7 +19,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
+    const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
     
     if (seen.has(identifier)) {
       return false;

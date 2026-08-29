@@ -2,16 +2,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const {
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+const getLangAttribute = require('./accessibilityHelperFunctions').getLangAttribute;
+const getFullLangAttribute = require('./accessibilityHelperFunctions').getFullLangAttribute;
+const validateTableAccessibility = require('./accessibilityHelperFunctions').validateTableAccessibility;
+const validateTableStructure = require('./accessibilityHelperFunctions').validateTableStructure;
+const validateLandmarkStructure = require('./accessibilityHelperFunctions').validateLandmarkStructure;
+const getSvgAccessibleName = require('./accessibilityHelperFunctions').getSvgAccessibleName;
+const createInPageButton = require('./accessibilityHelperFunctions').createInPageButton;
+const createAccessibleLink = require('./accessibilityHelperFunctions').createAccessibleLink;
 
 const {
   ensureElementHasId,
@@ -19,7 +17,7 @@ const {
   renderDependencyGraphs,
   countDependencies,
   myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
+} = require('./additionalHelperFunctions');
 
 // Import your custom functions if they exist
 // const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
@@ -67,9 +65,8 @@ function checkTableStructure(tableName, expectedColumns) {
   // ... existing implementation ...
 }
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
 function ensureElementHasId(element) {
-  // ... existing implementation ...
+    // ... existing implementation ...
 }
 
 function addAriaLabel(element, label) {

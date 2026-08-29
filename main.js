@@ -65,9 +65,7 @@ const a11yStore = {
     this.setupFocusStyles();
     this.setupFocusVisiblePolyfill();
     this.validateARIA();
-    this.checkLandmarkElements();
     this.addProperLandmarkRegions();
-    this.addSVGAccessibility();
     this.validateARIAUsage();
   },
 
@@ -455,7 +453,7 @@ const a11yStore = {
     document.body.appendChild(mainElement);
   },
 
-  // NEW: Add focus visibility styles for keyboard navigation
+  // Add focus visibility styles for keyboard navigation
   setupFocusStyles() {
     // Check if styles already added
     if (document.getElementById('a11y-focus-styles')) return;
@@ -494,19 +492,12 @@ const a11yStore = {
     }
   },
   
-  // NEW: Setup focus-visible polyfill for better focus management
+  // Setup focus-visible polyfill for better focus management
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
     
-    const showRemaining = () => {
-      document.documentElement.classList.remove('focus-visible');
-      document.documentElement.classList.add('focus-hidden');
-    };
-    
-    const handleBlur = (e) => {
-      if (e.target.matches(':focus-visible')) {
-        hadKeyboardEvent = true;
-      }
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
     };
     
     const handleKeydown = (e) => {
@@ -526,31 +517,7 @@ const a11yStore = {
     }, true);
   },
   
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  },
-  
-  // NEW: Apply ARIA attributes to dynamically added elements
+  // Apply ARIA attributes to dynamically added elements
   applyARIAtoNode(node) {
     if (!node || !node.setAttribute) return;
     
@@ -583,7 +550,7 @@ const a11yStore = {
     });
   },
   
-  // NEW: Validate and improve ARIA usage
+  // Validate and improve ARIA usage
   validateARIA() {
     // Remove duplicate IDs
     const allElements = document.querySelectorAll('[id]');
@@ -631,9 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
-// Preserve existing code
-a11yStore.preserveExistingCode();
-
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
@@ -654,7 +618,6 @@ function dependencyGraph() {
   // ... existing code ...
 }
 
-// (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -741,11 +704,6 @@ function validateLinkAccessibility() {
 function handleFakeLinks() {
   // ... existing code ...
 }
-
-// Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
 
 module.exports = {
   existingFunction1,

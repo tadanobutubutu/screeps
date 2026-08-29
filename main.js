@@ -92,9 +92,23 @@ function isButtonAccessible(button) {
  * Checks landmark element has appropriate accessibility attributes.
  * @param {string} role - The landmark role to check
  * @param {HTMLElement} element - The element to check
+ * @returns {boolean} True if the landmark is accessible, false otherwise
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  // Check if element has appropriate accessible name
+  const hasAriaLabel = element.getAttribute('aria-label');
+  const hasAriaLabelledby = element.getAttribute('aria-labelledby');
+  
+  // Most landmarks should have an accessible name (except main, which can be implicit)
+  const landmarkRolesWithoutRequiredLabel = ['main', 'region'];
+  
+  if (!landmarkRolesWithoutRequiredLabel.includes(role)) {
+    if (!hasAriaLabel && !hasAriaLabelledby) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 /**
@@ -141,7 +155,31 @@ function wrapPrimaryContentInMain() {
  * @returns {Object} An object containing landmark accessibility check results
  */
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const results = {
+    accessible: [],
+    inaccessible: [],
+    isFullyAccessible: true
+  };
+  
+  const landmarks = container.querySelectorAll(
+    'main, [role="main"], header, [role="banner"], nav, [role="navigation"], ' +
+    'aside, [role="complementary"], footer, [role="contentinfo"], ' +
+    '[role="search"], [role="form"], section, [role="region"]'
+  );
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.tagName.toLowerCase() === 'main' ? 'main' : 
+                 landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    
+    if (checkLandmarkElement(role, landmark)) {
+      results.accessible.push(landmark);
+    } else {
+      results.inaccessible.push(landmark);
+      results.isFullyAccessible = false;
+    }
+  });
+  
+  return results;
 }
 
 /**
@@ -173,10 +211,38 @@ function addLangAttribute() {
 /**
  * Fixes table structure issues in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to fix table issues in
- * @returns {NodeList} NodeList of fixed tables
+ * @returns {Object} An object containing fixed tables and accessibility info
  */
 function fixTableStructureIssues(container = document) {
-  // (code for fixTableStructureIssues remains the same)
+  const tables = container.querySelectorAll('table');
+  const results = {
+    totalTables: tables.length,
+    fixedTables: [],
+    accessibleTables: [],
+    inaccessibleTables: []
+  };
+  
+  tables.forEach(table => {
+    // Check if table has proper structure
+    const hasCaption = table.querySelector('caption');
+    const headers = table.querySelectorAll('th');
+    const hasProperHeaders = headers.length > 0;
+    
+    if (hasCaption && hasProperHeaders) {
+      results.accessibleTables.push(table);
+    } else {
+      results.inaccessibleTables.push(table);
+      // Try to fix common issues
+      if (!hasCaption) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table';
+        table.insertBefore(caption, table.firstChild);
+        results.fixedTables.push(table);
+      }
+    }
+  });
+  
+  return results;
 }
 
 /**
@@ -277,13 +343,19 @@ function ensureUniqueLandmarks() {
 }
 
 /**
- * Fixes fake link issues by converting links without href to buttons.
- * @returns {Array} Array of fixed link elements
+ * Checks and reports link and button accessibility in a container.
+ * @param {HTMLElement} [container=document] - The container to check
+ * @returns {Object} Accessibility check results
  */
-function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a');
-  const fixedLinks = [];
+function checkLinkAndButtonAccessibility(container = document) {
+  const results = {
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] },
+    isFullyAccessible: true
+  };
 
+  // Check all links in the container
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);
@@ -307,6 +379,47 @@ function fixFakeLinkIssue() {
   return results;
 }
 
+/**
+ * Fixes fake link issues by converting links without href to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    // Check if it's a fake link (no href, or href is '#', or empty)
+    if (!href || href === '#' || href === '') {
+      // Create a button to replace the fake link
+      const button = document.createElement('button');
+      
+      // Copy text content
+      button.textContent = link.textContent || '';
+      
+      // Copy aria-label if present
+      const ariaLabel = link.getAttribute('aria-label');
+      if (ariaLabel) {
+        button.setAttribute('aria-label', ariaLabel);
+      }
+      
+      // Copy aria-labelledby if present
+      const ariaLabelledby = link.getAttribute('aria-labelledby');
+      if (ariaLabelledby) {
+        button.setAttribute('aria-labelledby', ariaLabelledby);
+      }
+      
+      // Replace the link with the button
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
+        fixedLinks.push(button);
+      }
+    }
+  });
+
+  return fixedLinks;
+}
+
 // Function to render dependency graphs
 function renderDependencyGraph(dependencies) {
   const graph = {};
@@ -328,11 +441,22 @@ function getLandmarkData(id) {
 
 // Export all functions
 module.exports = {
+  dependencyGraphContent,
   ensureElementHasId,
   addAriaLabel,
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
+  checkLandmarkElement,
+  checkLandmarks,
+  wrapPrimaryContentInMain,
+  renderIndexView,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
   getLandmarkData

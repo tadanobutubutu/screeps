@@ -9,7 +9,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility');
 
 const fs = require('fs');
 const path = require('path');
@@ -24,7 +24,8 @@ function run() {
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      const content = fs.readFileSync(filePath, 'utf8');
+      // Process HTML files as needed
     });
 }
 
@@ -77,13 +78,13 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
         if (!Array.isArray(expectedColumns)) {
             result.isValid = false;
-            result.errors.push('expectedColumns must be an array');
+            result.errors.push('Expected columns must be an array');
             return result;
         }
 
         if (expectedColumns.length === 0) {
             result.isValid = false;
-            result.errors.push('expectedColumns must not be empty');
+            result.errors.push('Expected columns must not be empty');
             return result;
         }
 
@@ -107,7 +108,7 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
     }
 
     // Check if table has columns property
-    if (!Array.isArray(tableOrName.columns)) {
+    if (!tableOrName.columns || !Array.isArray(tableOrName.columns)) {
         result.isValid = false;
         result.errors.push('Table must have a columns array');
         return result;
@@ -141,7 +142,7 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};
@@ -199,5 +200,13 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     isNumber,
-    clamp
+    clamp,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink
 };

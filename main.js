@@ -1,1 +1,23 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+import PropTypes from 'prop-types';
+
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
+
+const Main = ({ children, title, lang = 'en' }) => {
+  return (
+    <main lang={lang}>
+      {title && <h1>{title}</h1>}
+      {children}
+    </main>
+  );
+};
+
+Main.propTypes = {
+  children: PropTypes.node,
+  title: PropTypes.string,
+  lang: PropTypes.string,
+};
+
+export default Main;
+export { Main };

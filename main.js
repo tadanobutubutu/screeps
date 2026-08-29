@@ -7,6 +7,7 @@
 
 import { inspectElement } from './src/inspector.js';
 import { generateReport } from './src/reporter.js';
+import { readFileSync } from 'fs';
 
 /**
  * Checks a given DOM element for common accessibility violations.
@@ -84,7 +85,45 @@ export function generateReport(violations) {
  * Reads the input file, runs accessibility checks, and prints the report.
  */
 export function run() {
-  // TODO: Implement CLI logic
+  // TODO: Implement spawning logic
+  // Spawn a child process to read the input file, run accessibility checks,
+  // and print the formatted report to stdout.
+  const { spawn } = require('child_process');
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    console.error('Usage: node main.js <input-file>');
+    process.exit(1);
+  }
+
+  const inputFile = args[0];
+  let fileContent = '';
+
+  try {
+    fileContent = readFileSync(inputFile, 'utf8');
+  } catch (err) {
+    console.error(`Error reading file: ${err.message}`);
+    process.exit(1);
+  }
+
+  // Spawn a child process to perform the accessibility analysis
+  const child = spawn(process.execPath, ['-e', `
+    const { checkTables, generateReport } = require('./main.js');
+    (async () => {
+      const violations = await checkTables(${JSON.stringify(fileContent)});
+      const report = generateReport(violations);
+      console.log(report);
+    })();
+  `], { stdio: 'inherit' });
+
+  child.on('error', (err) => {
+    console.error(`Spawn failed: ${err.message}`);
+    process.exit(1);
+  });
+
+  child.on('exit', (code) => {
+    process.exit(code || 0);
+  });
 }
 
 /**

@@ -316,4 +316,11 @@ function validateLandmark(root = document) {
   // Check for footer landmark
   const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
-    issues.push('Page
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}

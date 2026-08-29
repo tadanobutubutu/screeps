@@ -1,11 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -41,16 +33,6 @@ function App() {
       <Footer />
     </div>
   );
-}
-
-// REACT_015: Add lang attribute to HTML element
-export function addLangAttribute(document, lang = 'en') {
-  const html = document.documentElement;
-  if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', lang);
-    return true;
-  }
-  return false;
 }
 
 // REACT_017: Add landmark roles to fix landmark issues

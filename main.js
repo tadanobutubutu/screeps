@@ -176,6 +176,13 @@ function openModal() {
   if (firstElement) {
     firstElement.tabIndex = 0;
     
+    // Set tabindex to -1 for all focusable elements except the last one
+    focusableElements.forEach((element, index) => {
+      if (index !== focusableElements.length - 1) {
+        element.tabIndex = -1;
+      }
+    });
+
     lastElement.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         e.preventDefault();
@@ -207,6 +214,12 @@ function closeModal() {
 
   modal.hidden = true;
   modal.removeAttribute('aria-modal');
+  
+  // Reset tabindex for all focusable elements
+  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  focusableElements.forEach((element) => {
+    element.tabIndex = 1; // Reset tabindex to original state (if it was 1)
+  });
   
   // Return focus to trigger element
   const triggerId = modal.dataset.triggerId;

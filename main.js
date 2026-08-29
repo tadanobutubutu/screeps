@@ -143,8 +143,7 @@ function getRandomInt(min, max) {
  * @param {number} num - Number to clamp
  * @param {number} min - Minimum value
  * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
+ * @returns {number} - Clamped number */
 function clamp(num, min, max) {
   return Math.min(Math.max(num, min), max);
 }

@@ -19,11 +19,10 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// Export the function so it can be imported by other modules
+/**
+ * Export the function so it can be imported by other modules
+ */
 export { createInPageButton };
-
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added above)
 
 /**
  * Initialize the application with accessibility improvements
@@ -31,19 +30,30 @@ export { createInPageButton };
 function initialize() {
   // Existing initialization logic preserved
   console.log('Application initialized');
-  
+
   // Accessibility: Ensure main content is keyboard accessible
   const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.setAttribute('role', 'main');
   }
-  
+
   // Accessibility: Add skip link functionality
   setupSkipLinks();
-  
+
   // Accessibility: Ensure buttons have proper labels
   setupButtonAccessibility();
+}
+
+/**
+ * Get the application configuration
+ * @returns {Object} The configuration object with apiUrl and timeout properties
+ */
+export function getConfig() {
+  return {
+    apiUrl: process.env.API_URL || '',
+    timeout: 5000
+  };
 }
 
 /**
@@ -104,6 +114,7 @@ export function add(a, b) {
 // Export existing functionality
 module.exports = {
   initialize,
+  getConfig,
   setupSkipLinks,
   setupButtonAccessibility,
   createInPageButton,

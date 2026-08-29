@@ -34,7 +34,16 @@ const landmarks = [];
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
-  return element !== null;
+  if (!element) {
+    return false;
+  }
+  
+  // Validate that the landmark has required properties
+  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
+    return true;
+  }
+  
+  return false;
 }
 
 // Ensure unique landmarks by filtering duplicates

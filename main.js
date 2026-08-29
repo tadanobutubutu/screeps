@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with merged changes:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -21,9 +18,6 @@ function checkLandmarkElements(htmlContent) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-  // Existing function implementation
-
-  // New implementation to count dependencies using Document and regex
   const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
   const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
   return importCount;
@@ -43,4 +37,3 @@ function addLandmarkRegions() {
 }
 
 // ... ( Запишите все остальные функции и экспорты из вашего репозитория Screeps bot, включая добавленные функции для тестов, технической документации и препроцессоров )
-```

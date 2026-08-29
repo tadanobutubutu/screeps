@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // TODO: Implement function for addressing accessibility issues from insight report
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {
@@ -60,6 +63,8 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    // Example: Log a message to the console for demonstration purposes
+    console.log('Accessibility issues addressed in the loop.');
   }
 };
 

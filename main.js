@@ -1,11 +1,11 @@
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 
-// Commit: a3c5cf541ab167e23402b298c1007dab267aff41
+// Commit: a1b76c558a04b5add2d9001c234dd80c5c58ff6c
 
 import React from 'react';
 
@@ -14,7 +14,14 @@ const {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./utils');
+
+const affectedFunctions = {
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
+};
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -23,15 +30,15 @@ module.exports = {
 };
 
 const a11yStore = {
+  liveRegion: null,
+
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
-    this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
-    this.fixFakeLinks();
     this.initAccessibility();
+    this.setupSkipLinks();
+    this.setupFocusManagement();
+    this.setupKeyboardNavigation();
+    this.checkLandmarkElements();
+    this.fixFakeLinks();
   },
 
   createAccessibleButton(id, label, onClick) {
@@ -39,7 +46,7 @@ const a11yStore = {
     button.id = id;
     button.setAttribute('aria-label', label);
     button.textContent = label;
-    button.addEventListener('click', onClick);
+    if (onClick) button.addEventListener('click', onClick);
     return button;
   },
 
@@ -98,6 +105,11 @@ const a11yStore = {
   },
 
   initAccessibility() {
+    // REACT_015: Ensure lang attribute is set on HTML element
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
+
     const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
@@ -111,14 +123,18 @@ const a11yStore = {
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    // REACT_041: Add accessibility to images with empty alt
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    // Ensure form inputs have accessible names
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
@@ -154,158 +170,158 @@ const a11yStore = {
   },
 
   makeAccessible(element) {
-    // Implement the function logic to address accessibility issues
+    if (!element) return;
+
+    // Add basic accessibility attributes if missing
+    if (!element.hasAttribute('tabindex') && !element.matches('a, button, input, select, textarea')) {
+      element.setAttribute('tabindex', '0');
+    }
+
+    // Ensure semantic elements have proper roles
+    const tagName = element.tagName.toLowerCase();
+    const semanticRoles = {
+      header: 'banner',
+      nav: 'navigation',
+      main: 'main',
+      aside: 'complementary',
+      footer: 'contentinfo',
+      section: 'region',
+      article: 'article',
+    };
+
+    if (semanticRoles[tagName] && !element.hasAttribute('role')) {
+      element.setAttribute('role', semanticRoles[tagName]);
+    }
   },
 
   newNecessaryFunction() {
-    // Implement the new function logic here
+    // Set up accessibility attributes for dynamically added content
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            this.makeAccessible(node);
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
   },
 
   handleAccessibilityIssues() {
-    // Implement the function logic to handle accessibility issues
+    // Ensure all interactive elements are keyboard accessible
+    const interactiveElements = document.querySelectorAll('[role="button"], [role="link"]');
+    interactiveElements.forEach((el) => {
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          el.click();
+        }
+      });
+    });
   },
 
   addressAccessibilityIssue038() {
-    // Existing code for addressing accessibility issue 038
+    // Fix clickable divs that should be buttons or links
+    const clickableDivs = document.querySelectorAll('div[onclick], div[role="button"]');
+    clickableDivs.forEach((div) => {
+      if (!div.querySelector('button') && !div.querySelector('a')) {
+        console.warn('REACT_038: Clickable div should be a button or link:', div);
+      }
+    });
   },
 
   renderDependencyGraph() {
     // Existing code for rendering dependency graph
+    console.log('Rendering dependency graph');
   },
 
   setupKeyboardNavigation() {
     // Setup keyboard navigation logic
+    document.addEventListener('keydown', (e) => {
+      // Handle escape key to close modals/dialogs
+      if (e.key === 'Escape') {
+        const openDialog = document.querySelector('dialog:not([hidden]), [role="dialog"]:not([hidden])');
+        if (openDialog) {
+          const closeBtn = openDialog.querySelector('button');
+          if (closeBtn) closeBtn.click();
+        }
+      }
+    });
   },
 
   setupFocusManagement() {
     // Setup focus management logic
+    // Store previously focused element when opening modal
+    document.addEventListener('focusin', (e) => {
+      // Focus management logic can be expanded here
+    });
   },
 
   setupSkipLinks() {
     // Setup skip links logic
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = skipLink.getAttribute('href')?.slice(1);
+        const target = targetId ? document.getElementById(targetId) : null;
+        if (target) {
+          target.tabIndex = -1;
+          target.focus();
+          this.announce('Skipped to main content');
+        }
+      });
+    }
   },
 
   checkLandmarkElements() {
-    // Check and ensure proper landmark elements
+    // REACT_025: Check and ensure proper landmark elements with unique labels
+    const landmarks = {
+      banner: document.querySelectorAll('[role="banner"], header'),
+      navigation: document.querySelectorAll('[role="navigation"], nav'),
+      main: document.querySelectorAll('[role="main"], main'),
+      complementary: document.querySelectorAll('[role="complementary"], aside'),
+      contentinfo: document.querySelectorAll('[role="contentinfo"], footer'),
+    };
+
+    // Ensure each landmark type is unique (only one per page)
+    Object.entries(landmarks).forEach(([role, elements]) => {
+      if (elements.length > 1 && (role === 'banner' || role === 'main' || role === 'contentinfo')) {
+        console.warn(`REACT_025: Multiple ${role} landmarks found. Only one should exist per page.`);
+      }
+    });
+
+    // Ensure navigation landmarks have accessible labels
+    landmarks.navigation.forEach((nav, index) => {
+      if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+        const label = index === 0 ? 'Main navigation' : `Navigation ${index + 1}`;
+        nav.setAttribute('aria-label', label);
+      }
+    });
   },
 
-  addSVGAccessibilityProps() {
-    // Add accessibility properties to SVG elements
+  addAccessibleSvgProperties() {
+    // REACT_041: Add accessible properties to SVG elements
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+        const title = svg.querySelector('title');
+        if (title) {
+          const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+          title.id = titleId;
+          svg.setAttribute('aria-labelledby', titleId);
+        } else {
+          svg.setAttribute('aria-label', 'SVG graphic');
+        }
+      }
+    });
   },
 
   fixFakeLinks() {
-    // Fix fake links to use proper anchor elements
-  },
-
-  updateLiveRegion() {
-    // Update live region for screen readers
-  },
-};
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
-}
-
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  report.forEach(issue => {
-    // Integrated the logic from both branches to address accessibility issues
-  });
-}
-
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
-export default function Main() {
-  return (
-    <>
-      {/* REACT_015: Lang attribute should be set at HTML document level */}
-      {/* This is typically set in index.html or via document.documentElement.lang */}
-
-      <header role="banner">
-        <nav role="navigation" aria-label="Main navigation">
-          <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/about">About</a></li>
-          </ul>
-        </nav>
-      </header>
-
-      <main role="main">
-        <h1>Welcome to our site</h1>
-
-        {/* REACT_041: Add accessible names to SVGs */}
-        <svg
-          role="img"
-          aria-label="Settings icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-
-        {/* REACT_041: Add accessible names to second SVG */}
-        <svg
-          role="img"
-          aria-label="User profile icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-        </svg>
-
-        {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
-          Go to Dashboard
-        </a>
-
-        {/* REACT_017 & REACT_025: Ensure unique landmarks */}
-        {/* Using proper landmark elements ensures unique landmarks */}
-      </main>
-    </>
-  );
-}
-
-export {
-  a11yStore,
-  handleAccessibilityIssues,
-  getSvgAccessibleName,
-  newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-};
-export default a11yStore;
+    // REACT_036: Fix fake links to use proper

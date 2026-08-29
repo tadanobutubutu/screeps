@@ -1,3 +1,4 @@
+// Import dependencyGraphContent
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
@@ -19,13 +20,8 @@ function addAriaLabel(element, label) {
 
 const dependencyGraphContent = require('./dependencyGraph');
 
-// Update the renderDependencyGraph function
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraphContent;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
+const fs = require('fs');
+const path = require('path');
 
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, [PERSON_NAME], addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
@@ -518,9 +514,46 @@ module.exports = {
   addA11yAttributesToInteractiveElements,
   addressAccessibilityIssuesFromInsightReport,
   formatDate,
-  generateId
+  generateId,
+  countDependencies
 };
 
 export { a11yStore };
 export { addressAccessibilityIssues };
 export default a11yStore;
+
+// Counts the total number of dependencies in package.json
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
+// Export for use in other modules
+module.exports = { countDependencies, dependencyGraphContent };

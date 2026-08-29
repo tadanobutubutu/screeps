@@ -17,4 +17,18 @@ const { subtract } = require('./mathHelpers');
 const { multiply } = require('./mathHelpers');
 const { divide } = require('./mathHelpers');
 const { power } = require('./mathHelpers');
-const { squareRoot } =
+const { squareRoot } = require('./mathHelpers');
+
+// New function added as per the issue
+const calculateAverage = (numbers) => {
+  const sum = numbers.reduce((acc, curr) => acc + curr, 0);
+  return sum / numbers.length;
+};
+
+// Preserve the existing code and exports
+export {
+  renderDependencyGraph,
+  buttonElement,
+  addressAccessibilityIssue038,
+  calculateAverage, // New export added
+};

@@ -21,7 +21,6 @@ export {
 export function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   getLangAttribute();
-  wrapPrimaryContentInMain();
   validateTableAccessibility();
   validateTableStructure();
   validateLandmark();

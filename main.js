@@ -183,6 +183,7 @@ if (typeof document !== 'undefined' && document.body) {
 // Initialize accessibility features
 const a11yStore = {
   init() {
+    this.setLangAttribute();
     this.createLiveRegion();
     this.setupKeyboardNavigation();
     this.setupSkipLinks();
@@ -200,6 +201,13 @@ const a11yStore = {
     this.validateARIAUsage();
     if (typeof validateLandmarkStructure === 'function') {
       validateLandmarkStructure();
+    }
+  },
+
+  // Set lang attribute on document (REACT_015)
+  setLangAttribute() {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
     }
   },
 

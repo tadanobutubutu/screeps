@@ -18,15 +18,24 @@ function handleAccessibilityIssues() {
   getSvgAccessibleName();
   createAccessibleLink();
   ensureUniqueLandmarks();
+  ensureSvgAccessibleNames();
+  addAriaLabelledByToSvgsWithTitles();
+  addAriaLabelToSvgsWithoutTitles();
 }
 
 // Call the new function to handle accessibility issues
-handleAccessibilityIssues();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleAccessibilityIssues);
+  } else {
+    handleAccessibilityIssues();
+  }
+}
 
 // Keep the existing exports
 // ...
 
-function addProperLandmarkRegions() {
+function setupAccessibility() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -42,7 +51,7 @@ function addProperLandmarkRegions() {
     svgs.forEach((svg) => {
       // Check if SVG is hidden
       const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                        svg.getAttribute('hidden') !== null ||
+                        svg.closest('[hidden]') !== null ||
                         svg.style.display === 'none' ||
                         svg.style.visibility === 'hidden';
 
@@ -51,10 +60,10 @@ function addProperLandmarkRegions() {
       }
 
       // Check for existing accessible name
-      const hasAriaLabel = svg.getAttribute('aria-label');
-      const hasAriaLabelledBy = svg.getAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title');
-      const hasDesc = svg.querySelector('desc');
+      const hasAriaLabel = svg.hasAttribute('aria-label');
+      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+      const hasTitle = svg.querySelector('title') !== null;
+      const hasDesc = svg.querySelector('desc') !== null;
 
       if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
         return;
@@ -63,14 +72,14 @@ function addProperLandmarkRegions() {
       // Determine if decorative - SVGs used for favicons/decorative purposes
       const isFavicon = svg.closest('link') !== null ||
                         (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('data-favicon') === 'true';
+                        svg.closest('[role="img"]') !== null;
 
       if (isFavicon) {
         svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('role', 'presentation');
       } else {
         // Add a generic title for non-decorative SVGs
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        const title = document.createElement('title');
         title.textContent = 'Icon';
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('role', 'img');
@@ -80,65 +89,3 @@ function addProperLandmarkRegions() {
   };
 
   // Function to handle updating accessible SVG names when DOM mutates
-  const updateAccessibleSvgNames = () => {
-    setTimeout(() => {
-      ensureSvgAccessibleNames();
-    }, 0);
-  };
-
-  ensureSvgAccessibleNames();
-
-  // Run again after DOM mutations
-  if (typeof MutationObserver !== 'undefined') {
-    const observer = new MutationObserver(() => {
-      updateAccessibleSvgNames();
-    });
-
-    if (document.body) {
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['aria-hidden', 'aria-label', 'aria-labelledby']
-      });
-    }
-  }
-
-  // - REACT_017: Add/fix 4 landmark issues
-  const landmarks = document.querySelectorAll('.landmark');
-  landmarks.forEach((landmark) => {
-    // Assuming you know which ARIA roles are correct for your landmarks
-    landmark.setAttribute('role', 'landmark');
-  });
-}
-
-// Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = title.getAttribute('id');
-      if (titleId) {
-        svg.setAttribute('aria-labelledby', titleId);
-      }
-    }
-  });
-}
-
-// Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSVGs() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const title = svg.querySelector('title');
-    if (!title) {
-      const svgText = svg.textContent || svg.innerText || 'Image';
-      svg.setAttribute('aria-label', svgText);
-    }
-  });
-}
-
-// Call the new landmark and SVG accessibility functions
-addProperLandmarkRegions();
-addAriaLabelledbyToSVGs();
-addAriaLabelToSVGs();

@@ -260,9 +260,190 @@ if (!document.documentElement.getAttribute('lang')) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
+// New functions for accessibility issues from insight report
+
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return document.documentElement.getAttribute('lang') || 'en';
+}
+
+function createInPageButton(label, targetId) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  button.addEventListener('click', () => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  });
+  return button;
+}
+
+// REACT_027: Fix table structure issues
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      const cap = document.createElement('caption');
+      cap.textContent = `Table ${index + 1}`;
+      table.insertBefore(cap, table.firstChild);
+    }
+
+    const thInHeader = table.querySelectorAll('thead th');
+    if (thInHeader.length === 0) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow && firstRow.children.length > 0) {
+        Array.from(firstRow.children).forEach(cell => {
+          const th = document.createElement('th');
+          th.setAttribute('scope', 'col');
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+        });
+      }
+    }
+  });
+}
+
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const headerRow = table.querySelector('tr');
+      if (headerRow) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        const rows = Array.from(table.querySelectorAll('tr'));
+        
+        if (rows.length > 1) {
+          thead.appendChild(rows[0]);
+          rows.slice(1).forEach(row => {
+            tbody.appendChild(row);
+          });
+          table.appendChild(thead);
+          table.appendChild(tbody);
+        }
+      }
+    }
+  });
+}
+
+// REACT_041: Add accessible names to SVGs
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || 
+         svg.getAttribute('title') || 
+         svg.querySelector('title')?.textContent || 
+         'Image description';
+}
+
+function setSvgAttributes(svg) {
+  svg.setAttribute('role', 'img');
+  
+  const accessibleName = getSvgAccessibleName(svg);
+  svg.setAttribute('aria-label', accessibleName);
+  
+  const title = svg.querySelector('title');
+  const titleId = `svg-title-${Math.floor(Math.random() * 1000)}`;
+  
+  if (!title) {
+    const newTitle = document.createElement('title');
+    newTitle.id = titleId;
+    newTitle.textContent = accessibleName;
+    svg.insertBefore(newTitle, svg.firstChild);
+  } else if (!title.id) {
+    title.id = titleId;
+  }
+  
+  svg.setAttribute('aria-labelledby', titleId);
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], main, nav, header, footer, aside');
+  const landmarkTypes = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    if (!landmarkTypes[role]) {
+      landmarkTypes[role] = 0;
+    }
+    landmarkTypes[role]++;
+    
+    if (landmarkTypes[role] > 1) {
+      landmark.setAttribute('aria-label', `${role} ${landmarkTypes[role]}`);
+    } else if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      landmark.setAttribute('aria-label', role);
+    }
+  });
+}
+
+// REACT_036: Fix fake link issues
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('href')) {
+      link.setAttribute('href', '#');
+      link.setAttribute('aria-label', link.textContent || 'Link');
+    } else if (!link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[data-fake-link], .fake-link, [role="link"]');
+  fakeLinks.forEach(fakeLink => {
+    const text = fakeLink.textContent || fakeLink.getAttribute('aria-label') || 'Link';
+    fakeLink.setAttribute('role', 'link');
+    fakeLink.setAttribute('tabindex', '0');
+    fakeLink.setAttribute('aria-label', text);
+    
+    fakeLink.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fakeLink.click();
+      }
+    });
+  });
+}
+
+// REACT_037: Add proper landmark regions
+function addProperLandmarkRegions() {
+  // Ensure proper landmark structure
+  const mainContent = document.querySelector('main, [role="main"]');
+  if (mainContent && !mainContent.id) {
+    mainContent.id = 'main-content';
+  }
+  
+  const navigation = document.querySelector('nav, [role="navigation"]');
+  if (navigation && !navigation.id) {
+    navigation.id = 'navigation';
+  }
+  
+  const banner = document.querySelector('header, [role="banner"]');
+  if (banner && !banner.id) {
+    banner.id = 'banner';
+  }
+  
+  const contentInfo = document.querySelector('footer, [role="contentinfo"]');
+  if (contentInfo && !contentInfo.id) {
+    contentInfo.id = 'contentinfo';
+  }
+}
+
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
+  validateTableAccessibility();
+  validateTableStructure();
+  document.querySelectorAll('svg').forEach(setSvgAttributes);
+  ensureUniqueLandmarks();
+  validateLinkAccessibility();
+  handleFakeLinks();
+  addProperLandmarkRegions();
 });
 
 // CommonJS exports (preserved from HEAD)
@@ -281,7 +462,17 @@ module.exports = {
   addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
   preserveExistingCode: a11yStore.preserveExistingCode,
   prefersReducedMotion: a11yStore.prefersReducedMotion,
-  prefersHighContrast: a11yStore.prefersHighContrast
+  prefersHighContrast: a11yStore.prefersHighContrast,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };
 
 // ES6 module exports (preserved from origin/main)
@@ -293,4 +484,14 @@ export { addSVGAccessibilityProps };
 export { preserveExistingCode };
 export { prefersReducedMotion };
 export { prefersHighContrast };
+export { getLangAttribute };
+export { createInPageButton };
+export { validateTableAccessibility };
+export { validateTableStructure };
+export { getSvgAccessibleName };
+export { setSvgAttributes };
+export { ensureUniqueLandmarks };
+export { validateLinkAccessibility };
+export { handleFakeLinks };
+export { addProperLandmarkRegions };
 export default a11yStore;

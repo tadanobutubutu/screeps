@@ -47,24 +47,6 @@ function setSvgAccessibilityProps(svgElement) {
 }
 
 /**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  // (code for isLinkAccessible remains the same)
-}
-
-/**
- * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
- * @returns {boolean} True if the button is accessible, false otherwise
- */
-function isButtonAccessible(button) {
-  // (code for isButtonAccessible remains the same)
-}
-
-/**
  * Checks link and button accessibility in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to check for accessibility
  * @returns {Object} An object containing accessibility check results
@@ -79,7 +61,62 @@ function checkAccessibility(container = document) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  if (!element) return false;
+
+  // Determine the effective role: explicit role attribute or implicit from tag name
+  const explicitRole = element.getAttribute('role');
+  let actualRole = explicitRole ? explicitRole.toLowerCase() : role.toLowerCase();
+
+  // Map common HTML5 landmark elements to their implicit ARIA roles
+  const implicitLandmarkRoles = {
+    nav: 'navigation',
+    main: 'main',
+    header: 'banner',
+    footer: 'contentinfo',
+    section: 'region',
+    article: 'region',
+    aside: 'region',
+    form: 'form',
+    // Add more as needed
+  };
+
+  // If no explicit role, infer from the element's tag name
+  if (!explicitRole) {
+    const tag = element.tagName.toLowerCase();
+    actualRole = implicitLandmarkRoles[tag] || null;
+  }
+
+  // If no role can be determined, it's not a landmark element
+  if (!actualRole) return false;
+
+  // The element's role must match the expected role (case‑insensitive)
+  if (actualRole !== role.toLowerCase()) return false;
+
+  // Verify that the landmark has an accessible name
+  const hasAccessibleName = (function () {
+    // Check for a <title> element inside the landmark
+    const title = element.querySelector('title');
+    if (title && title.textContent.trim()) return true;
+
+    // Check for an aria-label attribute
+    if (element.hasAttribute('aria-label') && element.getAttribute('aria-label').trim()) return true;
+
+    // Check for aria-labelledby referencing another element
+    const labelledBy = element.getAttribute('aria-labelledby');
+    if (labelledBy) {
+      const lbl = document.getElementById(labelledBy);
+      if (lbl && lbl.textContent.trim()) return true;
+    }
+
+    // Check for visible text content (non‑empty and not hidden)
+    const style = window.getComputedStyle(element);
+    const isVisible = style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    if (isVisible && element.textContent.trim()) return true;
+
+    return false;
+  })();
+
+  return hasAccessibleName;
 }
 
 /**
@@ -136,6 +173,4 @@ function rotateBack() {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-/**
- * ... (existing code remains the same)
- */
+// ... (existing code remains the same)

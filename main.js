@@ -1,3 +1,6 @@
+// Updated code
+// <img src="example.jpg" id="image1" alt="Description of the image" /> // Added alt attribute
+
 const fs = require('fs');
 const path = require('path');
 

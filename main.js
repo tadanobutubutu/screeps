@@ -298,3 +298,23 @@ export const addSvgAccessibilityProps = () => a11yStore.addSvgAccessibilityProps
 export const preserveExistingCode = () => a11yStore.preserveExistingCode();
 export const prefersReducedMotion = () => a11yStore.prefersReducedMotion();
 export const prefersHighContrast = () => a11yStore.prefersHighContrast();
+
+// Adding the function to count dependencies
+function countDependencies(obj) {
+  let count = 0;
+  for (const key in obj) {
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      count += countDependencies(obj[key]);
+    } else if (typeof obj[key] === 'function') {
+      let funcName = obj[key].name || '<anonymous>';
+      if (!funcNames.includes(funcName)) {
+        funcNames.push(funcName);
+        count++;
+      }
+    }
+  }
+  return count;
+}
+
+// Assuming funcNames is a global array to store function names
+let funcNames = [];

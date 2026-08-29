@@ -78,7 +78,7 @@ const Dashboard: DashboardProps = (props) => {
           aria-disabled={refreshing}
           aria-busy={refreshing}
           aria-label={refreshing ? '再試行中...' : 'エラーの再試行'}
-          title={refreshing ? '再試行中...' : 'エラーを再試行'}
+          title={refreshing ? '再試行中...' : 'エラーの再試行'}
           onMouseEnter={() => setErrRetryHover(true)}
           onMouseLeave={() => setErrRetryHover(false)}
           onFocus={() => setErrRetryHover(true)}
@@ -104,6 +104,50 @@ const Dashboard: DashboardProps = (props) => {
       </div>
     </main>
   );
+};
+
+// Function to render dependency graph for debugging purposes
+export const renderDependencyGraph = (dependencies = {}) => {
+  const nodes = [];
+  const edges = [];
+  
+  Object.entries(dependencies).forEach(([name, version], index) => {
+    const nodeId = `node_${index}`;
+    nodes.push({
+      id: nodeId,
+      label: `${name}\n${version}`,
+      name,
+      version,
+    });
+  });
+  
+  // Create edges between nodes to show relationships
+  for (let i = 0; i < nodes.length - 1; i++) {
+    edges.push({
+      source: nodes[i].id,
+      target: nodes[i + 1].id,
+    });
+  }
+  
+  return { nodes, edges };
+};
+
+// Function to display module structure for debugging purposes
+export const displayModuleStructure = (moduleData = {}) => {
+  const structure = {
+    name: moduleData.name || 'Unknown Module',
+    version: moduleData.version || '0.0.0',
+    main: moduleData.main || 'index.js',
+    dependencies: Object.keys(moduleData.dependencies || {}),
+    devDependencies: Object.keys(moduleData.devDependencies || {}),
+    peerDependencies: Object.keys(moduleData.peerDependencies || {}),
+    exports: moduleData.exports || null,
+    files: moduleData.files || [],
+  };
+  
+  console.log('Module Structure:', JSON.stringify(structure, null, 2));
+  
+  return structure;
 };
 
 export default Dashboard;

@@ -1,4 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
@@ -49,7 +50,7 @@ function renderDependencyGraphs(dependencies, container) {
   container.appendChild(graphElement);
 }
 
-// ----- END ORIGINAL CODE -----
+// ----- END ORIGINAL CODE (unchanged) -----
 
 import React from 'react';
 
@@ -230,7 +231,7 @@ export function fixTableStructureIssues(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+    if (attrs && (attrs.includes('caption') || attrs.includes('summary'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -456,6 +457,21 @@ export {
   checkTableStructure,
   getLangAttribute,
   MyComponent,
+  greet,
+  isEven,
+  isOdd,
+  sumArray,
+  averageArray,
+  findMax,
+  findMin,
+  reverseString,
+  capitalize,
+  capitalizeWords,
+  formatDate,
+  calculateTotal,
+  validateEmail,
+  capitalizeString,
+  debounce,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
@@ -495,6 +511,3 @@ module.exports = {
   fixFakeLinkIssue,
   checkTableAccessibility
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };

@@ -28,12 +28,10 @@ function validateLandmark(landmark) {
   if (!landmark) {
     return false;
   }
-
   // Validate name is present and non-empty
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     return false;
   }
-
   // Validate coordinates if present
   if (landmark.latitude !== undefined || landmark.longitude !== undefined) {
     if (typeof landmark.latitude !== 'number' || typeof landmark.longitude !== 'number') {
@@ -50,6 +48,33 @@ function validateLandmark(landmark) {
   }
 
   return true;
+}
+
+/**
+ * Validates the structure of a landmark in the DOM
+ * @param {Element} landmarkElement - The landmark element to validate
+ * @returns {boolean} - Returns true if the landmark structure is valid
+ */
+function validateLandmarkStructure(landmarkElement) {
+  if (!landmarkElement || !landmarkElement.nodeType === Node.ELEMENT_NODE) {
+    return false;
+  }
+
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  const role = landmarkElement.getAttribute('role');
+
+  if (validRoles.includes(role)) {
+    return true;
+  }
+
+  const validTags = ['header', 'nav', 'main', 'aside', 'footer'];
+  const tagName = landmarkElement.tagName.toLowerCase();
+
+  if (validTags.includes(tagName)) {
+    return true;
+  }
+
+  return false;
 }
 
 // Add the new function
@@ -375,6 +400,7 @@ module.exports.renderDependencyGraph = function renderDependencyGraph(data) {
 module.exports = {
   ...module.exports,
   validateLandmark,
+  validateLandmarkStructure,
   myNewFunction,
   ...accessibilityExports,
   main,
@@ -394,11 +420,13 @@ module.exports = {
 if (typeof exports !== 'undefined') {
   exports.default = {
     validateLandmark,
+    validateLandmarkStructure,
     myNewFunction,
     ...accessibilityExports,
     main,
   };
   exports.validateLandmark = validateLandmark;
+  exports.validateLandmarkStructure = validateLandmarkStructure;
   exports.myNewFunction = myNewFunction;
   exports.addLangAttribute = addLangAttribute;
   exports.fixTableStructure = fixTableStructure;

@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
+// main.js
 
 // Main game logic for Screeps
 const main = {
@@ -67,5 +66,4 @@ const main = {
   anotherFunction: require('./path/to/anotherFile').someFunction,
 };
 
-// Export the new function if needed:
 module.exports = main;

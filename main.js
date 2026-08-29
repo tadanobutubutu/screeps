@@ -402,7 +402,7 @@ export function fixFakeLinkIssue(html) {
 
 /**
  * Checks table structure for accessibility issues
- * @param {string} html - The HTML string to check
+ * @param {string} html - The HTML string to process
  * @returns {string[]} Array of error messages
  */
 export function checkTableAccessibility(html) {
@@ -583,6 +583,3 @@ module.exports = {
   checkTableAccessibility,
   performTableAccessibilityCheck
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, calculateSum, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, performTableAccessibilityCheck };

@@ -132,12 +132,12 @@ export function debounce(func, wait) {
 /**
  * Accessibility improvements for main.js
  * Addresses issues from insight report:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_027: Fix 26 table structure issues
- * - REACT_017: Add/fix 2 landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks
- * - REACT_036: Fix 1 fake link issue
+ * - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+ * - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+ * - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+ * - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+ * - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+ * - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
  */
 
 // Accessibility functions are now accessible in main.js:
@@ -145,7 +145,7 @@ export function debounce(func, wait) {
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
 /**
@@ -299,7 +299,7 @@ export function ensureUniqueLandmarks(html) {
   // Count occurrences of <main> opening tags in the original-like state and
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainOpenCount = (html.match(/<main\\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;

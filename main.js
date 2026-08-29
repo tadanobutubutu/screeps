@@ -83,6 +83,31 @@ function countDependencies() {
     };
 }
 
+/**
+ * Generates a report summarizing application state and configuration
+ * @returns {Object} A report object containing application metadata and diagnostics
+ */
+function generateReport() {
+  const config = {
+    enabled: true
+  };
+  
+  const dependencies = countDependencies();
+  
+  return {
+    appName: 'Main Application',
+    version: process.version,
+    timestamp: new Date().toISOString(),
+    configuration: config,
+    dependencies: {
+      libraryDependencies: dependencies.dependencies,
+      devDependencies: dependencies.devDependencies,
+      total: dependencies.total
+    },
+    reportGeneratedAt: new Date().toISOString()
+  };
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 function ensureElementHasId(element) {
@@ -126,5 +151,6 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    generateReport
 };

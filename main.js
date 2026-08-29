@@ -36,7 +36,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div ...
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -45,22 +45,35 @@ function App() {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+export function generateUniqueName(baseName, existingNames) {
+  if (existingNames.includes(baseName)) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `${baseName} ${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
+// REACT_015: Add lang attribute to HTML element
+export function ensureLangAttribute(lang = 'en') {
+  const htmlElement = document.querySelector('html');
+  if (!htmlElement) return { success: false, message: 'HTML element not found' };
+  
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+    return { success: true, message: `Added lang="${lang}" attribute to HTML element` };
+  }
+  
+  return { success: true, message: `HTML element already has lang="${htmlElement.getAttribute('lang')}" attribute` };
+}
+
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function ensureUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -92,7 +105,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
   
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
   
   // Insert title as first child
@@ -132,8 +145,8 @@ export function addScopeToHeaders(tableElement) {
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.children).indexOf(th);
+    const rowIndex = Array.from(tableElement.querySelectorAll('tr')).indexOf(row);
+    const cellIndex = Array.from(row.querySelectorAll('th, td')).indexOf(th);
     
     // Determine if scope should be 'col' or 'row'
     let scope = 'col';
@@ -143,7 +156,7 @@ export function addScopeToHeaders(tableElement) {
       scope = 'row';
     }
     
-    if (!th.getAttribute('scope')) {
+    if (!th.hasAttribute('scope')) {
       th.setAttribute('scope', scope);
       updates.push({
         element: th,
@@ -157,9 +170,9 @@ export function addScopeToHeaders(tableElement) {
 }
 
 // Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
+function addressIssuesFromInsightReport(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -173,7 +186,7 @@ function newFunction() {
   // implementation of new function
 }
 
-module.exports.newFunction = newFunction;
+export const accessibilityFixer = newFunction;
 
 // REACT_015: Add lang attribute to HTML element
 export function addLangAttribute(lang = 'en') {
@@ -243,7 +256,7 @@ export function ensureUniqueLandmarks(container) {
     if (seen.has(key)) {
       const count = seen.get(key);
       seen.set(key, count + 1);
-      const uniqueName = getUniqueLandmarkName(tagName, Array.from(seen.keys()));
+      const uniqueName = generateUniqueName(tagName, Array.from(seen.keys()));
       landmark.setAttribute('aria-label', uniqueName);
       seen.set(uniqueName, 1);
       fixedIssues.push({

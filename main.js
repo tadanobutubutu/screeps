@@ -2,7 +2,7 @@
 import desired-module from 'desired-module';
 
 // New Function
-function newFunction() {
+function wrapPrimaryContentInMain() {
   // implementation details
 }
 
@@ -10,7 +10,7 @@ function newFunction() {
 // ...
 
 // Create a new named export for the new function
-export { newFunction as newExport };
+export { wrapPrimaryContentInMain };
 
 // Re-export the existing default export
 export * from './path-to-the-current-default-export';

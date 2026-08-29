@@ -38,9 +38,42 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function to improve accessibility by ensuring landmark names are screen-reader friendly
+function improveAccessibility(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return landmark;
+  }
+
+  // Ensure each landmark has an accessible name and description for screen readers
+  if (landmark.name && !landmark.ariaLabel) {
+    landmark.ariaLabel = landmark.name;
+  }
+
+  if (landmark.description && !landmark.ariaDescription) {
+    landmark.ariaDescription = landmark.description;
+  }
+
+  // Provide a default accessible role if missing
+  if (!landmark.role) {
+    landmark.role = 'region';
+  }
+
+  return landmark;
+}
+
+// Function to enhance accessibility across a collection of landmarks
+function enhanceLandmarksAccessibility(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  return landmarks.map(improveAccessibility);
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  improveAccessibility,
+  enhanceLandmarksAccessibility
 };

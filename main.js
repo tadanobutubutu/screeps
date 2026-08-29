@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const dependencyGraphContent = require('./dependencyGraphContent');
+const dependencyGraphContent = {};
 
 // Main module entry point
 // This file serves as the main entry for the application
@@ -40,7 +40,7 @@ function getSvgAccessibleName(svgElement) {
   }
   // Check for aria-labelledby
   if (svgElement.hasAttribute('aria-labelledby')) {
-    const ids = svgElement.getAttribute('aria-labelledby').split(' ');
+    const ids = svgElement.getAttribute('aria-labelledby').split(' ').filter(id => id.trim());
     let labels = [];
     ids.forEach(id => {
       const labelElement = document.getElementById(id);
@@ -67,21 +67,21 @@ function getSvgAccessibleName(svgElement) {
 }
 
 function setSvgAttributes(svgElement) {
-  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     return;
   }
   // Ensure the SVG has an id for accessibility
   ensureElementHasId(svgElement);
   // Add a default aria-label if none exists
-  if (!svgElement.getAttribute('aria-label')) {
-    addAriaLabel(svgElement, 'SVG graphic');
+  if (!svgElement.hasAttribute('aria-label') && !svgElement.hasAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', 'SVG graphic');
   }
 }
 
 // Landmark Accessibility Functions
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `auto-id-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -92,7 +92,7 @@ function addAriaLabel(element, label) {
   }
 
   // Check for duplicate banners
-  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+  const banners = document.querySelectorAll('header[role="banner"], [role="header"], banner');
   if (banners.length > 1) {
     throw new Error('Document should have at most one banner or header landmark');
   }
@@ -108,14 +108,14 @@ function wrapPrimaryContentInMain() {
   }
 
   // Check if a <main> element already exists
-  let mainElement = document.querySelector('main');
+  let mainElement = document.querySelector('main, [role="main"]');
   if (mainElement) {
     return mainElement;
   }
 
   // Identify landmark elements that should remain outside of <main>
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   // Create a new <main> element
@@ -151,7 +151,7 @@ function ensureUniqueLandmarks() {
   }
 
   // Ensure only one banner landmark
-  const banners = document.querySelectorAll('[role="banner"], header');
+  const banners = document.querySelectorAll('header, [role="banner"]');
   const removedBanners = [];
   if (banners.length > 1) {
     for (let i = 1; i < banners.length; i++) {
@@ -161,7 +161,7 @@ function ensureUniqueLandmarks() {
   }
 
   // Ensure only one contentinfo/footer landmark
-  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const footers = document.querySelectorAll('footer, [role="contentinfo"]');
   // (code for ensureUniqueLandmarks continues...)
 }
 

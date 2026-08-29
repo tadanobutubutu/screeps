@@ -1,5 +1,7 @@
 // Main JavaScript file for accessibility checks
 
+// TODO: Add back any required exports that might have been removed
+
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
@@ -55,10 +57,6 @@ function renderDependencyGraphs(dependencies, container) {
 
 import React from 'react';
 
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-
 function getLangAttribute() {
   // Implementation of the getLangAttribute function
   // This is a placeholder for the actual implementation
@@ -98,70 +96,70 @@ function MyComponent() {
   );
 }
 
-export function greet(name) {
+function greet(name) {
   return `Hello, ${name}!`;
 }
 
-export function isEven(num) {
+function isEven(num) {
   return num % 2 === 0;
 }
 
-export function isOdd(num) {
+function isOdd(num) {
   return num % 2 !== 0;
 }
 
 // Array utility functions
-export function sumArray(arr) {
+function sumArray(arr) {
   return arr.reduce((acc, val) => acc + val, 0);
 }
 
-export function averageArray(arr) {
+function averageArray(arr) {
   if (arr.length === 0) return 0;
   return sumArray(arr) / arr.length;
 }
 
-export function findMax(arr) {
+function findMax(arr) {
   return Math.max(...arr);
 }
 
-export function findMin(arr) {
+function findMin(arr) {
   return Math.min(...arr);
 }
 
 // String utility functions
-export function reverseString(str) {
+function reverseString(str) {
   return str.split('').reverse().join('');
 }
 
-export function capitalize(str) {
+function capitalize(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function capitalizeWords(str) {
+function capitalizeWords(str) {
   return str.split(' ').map(capitalize).join(' ');
 }
 
 // Additional utility functions
-export function formatDate(date) {
+function formatDate(date) {
   return new Date(date).toISOString().split('T')[0];
 }
 
-export function calculateTotal(items) {
+function calculateTotal(items) {
   return items.reduce((sum, item) => sum + (item.price || 0), 0);
 }
 
-export function validateEmail(email) {
+function validateEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
-export function capitalizeString(str) {
+function capitalizeString(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-export function debounce(func, wait) {
+function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
     const later = () => {
@@ -198,7 +196,7 @@ export function debounce(func, wait) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
  */
-export function addLangAttribute(html) {
+function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
   return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
@@ -217,7 +215,7 @@ export function addLangAttribute(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+function fixTableStructureIssues(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
@@ -252,7 +250,7 @@ export function fixTableStructureIssues(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with main landmark added
  */
-export function addMainLandmark(html) {
+function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
@@ -271,7 +269,7 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+function addSvgAccessibleNames(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
@@ -308,7 +306,7 @@ export function addSvgAccessibleNames(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with unique landmarks
  */
-export function ensureUniqueLandmarks(html) {
+function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
   
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
@@ -390,7 +388,7 @@ export function ensureUniqueLandmarks(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed fake link issues
  */
-export function fixFakeLinkIssue(html) {
+function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
   
   // Fix any fake links that do not have a valid href attribute
@@ -407,7 +405,7 @@ export function fixFakeLinkIssue(html) {
  * @param {string} html - The HTML string to check
  * @returns {string[]} Array of error messages
  */
-export function checkTableAccessibility(html) {
+function checkTableAccessibility(html) {
   if (typeof html !== 'string') return [];
   
   const issues = [];
@@ -549,7 +547,22 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
   checkTableAccessibility,
-  performTableAccessibilityCheck
+  performTableAccessibilityCheck,
+  greet,
+  isEven,
+  isOdd,
+  sumArray,
+  averageArray,
+  findMax,
+  findMin,
+  reverseString,
+  capitalize,
+  capitalizeWords,
+  formatDate,
+  calculateTotal,
+  validateEmail,
+  capitalizeString,
+  debounce
 };
 
 module.exports = {

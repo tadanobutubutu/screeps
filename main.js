@@ -1,8 +1,12 @@
 // Main JavaScript file for accessibility checks
 
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+// Accessibility functions implemented below:
+// - REACT_015: addLangAttribute
+// - REACT_027: fixTableStructureIssues / checkTableAccessibility / performTableAccessibilityCheck
+// - REACT_017: addMainLandmark
+// - REACT_041: addSvgAccessibleNames
+// - REACT_025: ensureUniqueLandmarks
+// - REACT_036: fixFakeLinkIssue
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 

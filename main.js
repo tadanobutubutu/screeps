@@ -142,6 +142,33 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+function addLangAttributeToHtmlElement() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en'); // Assuming English, adjust as needed
+  }
+}
+
+function fixFakeLinkIssues() {
+  const fakeLinks = document.querySelectorAll('.fake-link');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'link');
+    link.setAttribute('href', '#');
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+    });
+  });
+}
+
+function addScopeToTableHeaders() {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+}
+
 module.exports = {
   setSvgAccessibleName,
   improveAccessibility,
@@ -153,6 +180,9 @@ module.exports = {
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
+  addLangAttributeToHtmlElement,
+  fixFakeLinkIssues,
+  addScopeToTableHeaders,
   // Additional exports from left side
   ROLE_SOME_ROLE: 'someRole',
   someHelperFunction: function() {

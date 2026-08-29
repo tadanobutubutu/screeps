@@ -149,8 +149,8 @@ function renderPage(data) {
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
-  // Call the updated functions to render the graph or index as needed
-  renderDependencyGraph(dependencyGraphContent);
+  // Updated to use new rendering functions
+  renderGraph(dependencyGraphContent);
   renderIndex();
 }
 

@@ -4,17 +4,74 @@
 // Placeholder for dependency graph rendering utility.
 // This function can be expanded to visualize how modules depend on each other.
 function renderDependencyGraph(modules) {
-  // Future implementation could traverse and log module dependencies
+  // Build a dependency graph showing module relationships
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  if (!modules || typeof modules !== 'object') {
+    console.log('Rendering dependency graph for modules:', modules);
+    return graph;
+  }
+
+  // Add nodes for each module
+  Object.keys(modules).forEach(moduleName => {
+    graph.nodes.push({ id: moduleName, label: moduleName });
+  });
+
+  // Detect dependencies by checking require/import statements in module source
+  // This is a simplified version - in practice you'd parse the AST
+  Object.keys(modules).forEach(moduleName => {
+    const moduleExports = modules[moduleName];
+    if (moduleExports && typeof moduleExports === 'object') {
+      // Check for dependencies in the module's exports
+      Object.keys(moduleExports).forEach(exportName => {
+        const exportValue = moduleExports[exportName];
+        if (exportValue && typeof exportValue === 'object' && exportValue.constructor) {
+          const depName = exportValue.constructor.name;
+          if (modules[depName] && depName !== moduleName) {
+            graph.edges.push({ from: moduleName, to: depName });
+          }
+        }
+      });
+    }
+  });
+
   console.log('Rendering dependency graph for modules:', modules);
-  return {};
+  return graph;
 }
 
 // Placeholder for module structure display utility.
 // Helps developers understand the current structure of loaded modules.
 function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
+  // Format and return a readable module hierarchy
+  const structure = {
+    timestamp: new Date().toISOString(),
+    moduleCount: 0,
+    modules: {}
+  };
+
+  if (!modules || typeof modules !== 'object') {
+    console.log('Displaying module structure for modules:', modules);
+    return structure;
+  }
+
+  structure.moduleCount = Object.keys(modules).length;
+
+  Object.keys(modules).forEach(moduleName => {
+    const moduleExports = modules[moduleName];
+    structure.modules[moduleName] = {
+      type: typeof moduleExports,
+      exports: typeof moduleExports === 'object' && moduleExports !== null
+        ? Object.keys(moduleExports)
+        : [],
+      size: JSON.stringify(moduleExports).length
+    };
+  });
+
   console.log('Displaying module structure for modules:', modules);
-  return {};
+  return structure;
 }
 
 module.exports = {

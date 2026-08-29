@@ -11,4 +11,10 @@ module.exports.loop = function () {
       }
     }
   }
+
+  // Add lang attribute to HTML element
+  document.documentElement.lang = 'en';
+
+  // Add other accessibility changes as per the insight report
+  // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 };

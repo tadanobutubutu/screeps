@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -94,7 +96,7 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+}
 
 // REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {

@@ -5,11 +5,15 @@
 // New function or changes requested in the issue
 function newFunction() {
   // Implementation of the new function
+  // Example:
+  console.log('New function has been called.');
 }
 
 // Existing exports (do not remove or rename)
 export function existingFunction() {
   // Implementation of the existing function
+  // Example:
+  console.log('Existing function is working.');
 }
 
 // Additional code if necessary

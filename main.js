@@ -11,8 +11,8 @@ function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
 
-function personName() {
-  return document.querySelector('[data-person-name]')?.textContent || 'Unknown';
+function personName(person) {
+  return (person && person.name) || 'Unknown';
 }
 
 function validateTableAccessibility(table) {
@@ -39,7 +39,7 @@ function validateLandmark(element) {
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('[role="main"], main, [role="navigation"], nav, [role="banner"], header, [role="contentinfo"], footer');
+  const landmarks = document.querySelectorAll('main, [role="main"], [role="navigation"], nav, [role="banner"], header, [role="contentinfo"], footer');
   let issues = 0;
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) issues += mains.length - 1;
@@ -58,7 +58,7 @@ function getSvgAccessibleName(svg) {
 function createInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
-  button.addEventListener('click', onClick);
+  if (onClick) button.addEventListener('click', onClick);
   return button;
 }
 

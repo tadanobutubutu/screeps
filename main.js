@@ -313,6 +313,512 @@ function addLangAttribute() {
 }
 
 /**
+ * Gets the lang attribute from the HTML element.
+ * @returns {string|null} The lang attribute value or null if not available
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || null;
+  }
+  return null;
+}
+
+/**
+ * Creates an accessible in-page button for navigation.
+ * @param {string} text - The button text content
+ * @param {string} targetId - The ID of the target element to scroll to
+ * @param {string} [ariaLabel] - Optional aria-label for the button
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(text, targetId, ariaLabel) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  
+  // Ensure lang attribute is set on HTML element
+  getLangAttribute();
+  addLangAttribute();
+  
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  // Ensure target element has an id
+  const target = document.getElementById(targetId);
+  if (target) {
+    ensureElementHasId(target);
+  }
+  
+  // Add click handler for smooth scrolling
+  button.addEventListener('click', () => {
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Set focus to target for screen readers
+      target.setAttribute('tabindex', '-1');
+      target.focus();
+    }
+  });
+  
+  return button;
+}
+
+/**
+ * Validates table accessibility by checking for proper th elements, caption, and scope attributes.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} An object containing validation results
+ */
+function validateTableAccessibility(table) {
+  const results = {
+    hasCaption: false,
+    hasHeaders: false,
+    hasScope: false,
+    issues: []
+  };
+  
+  if (!table) {
+    return results;
+  }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  results.hasCaption = !!caption;
+  if (!caption) {
+    results.issues.push('Table is missing a caption element');
+  }
+  
+  // Check for th elements
+  const headers = table.querySelectorAll('th');
+  results.hasHeaders = headers.length > 0;
+  if (headers.length === 0) {
+    results.issues.push('Table is missing header (th) elements');
+  }
+  
+  // Check for scope attributes on th elements
+  let headersWithScope = 0;
+  headers.forEach(th => {
+    const scope = th.getAttribute('scope');
+    if (scope) {
+      headersWithScope++;
+    } else {
+      results.issues.push('Header cell is missing scope attribute');
+    }
+  });
+  results.hasScope = headersWithScope === headers.length && headers.length > 0;
+  
+  return results;
+}
+
+/**
+ * Validates and fixes table structure issues in a container.
+ * @param {HTMLElement} [container=document] - The container to validate tables in
+ * @returns {Object} An object containing validation results and fixed tables
+ */
+function validateTableStructure(container = document) {
+  const results = {
+    totalTables: 0,
+    tablesWithIssues: 0,
+    tablesFixed: 0,
+    tables: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const tables = container.querySelectorAll ? container.querySelectorAll('table') : [];
+  results.totalTables = tables.length;
+  
+  tables.forEach(table => {
+    const tableResult = validateTableAccessibility(table);
+    results.tables.push(tableResult);
+    
+    if (tableResult.issues.length > 0) {
+      results.tablesWithIssues++;
+      
+      // Fix missing caption
+      if (!tableResult.hasCaption) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table';
+        table.insertBefore(caption, table.firstChild);
+        results.tablesFixed++;
+      }
+      
+      // Fix missing scope attributes on headers
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          // Determine if header is in a row or column
+          const parentRow = th.closest('tr');
+          const siblings = Array.from(parentRow ? parentRow.children : []);
+          const isFirstCell = siblings.indexOf(th) === 0;
+          
+          if (isFirstCell && parentRow && parentRow.parent && 
+              (parentRow.parent.tagName === 'THEAD' || siblings.every(s => s === th || s.tagName === 'TH'))) {
+            th.setAttribute('scope', 'col');
+          } else {
+            th.setAttribute('scope', 'row');
+          }
+          results.tablesFixed++;
+        }
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Validates landmark elements in the document.
+ * @param {HTMLElement} [container=document] - The container to validate landmarks in
+ * @returns {Object} An object containing landmark validation results
+ */
+function validateLandmark(container = document) {
+  const results = {
+    landmarks: [],
+    issues: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const landmarkRoles = [
+    'banner', 'complementary', 'contentinfo', 'form', 'main',
+    'navigation', 'search', 'region', 'article', 'aside',
+    'figure', 'footer', 'header', 'landmark'
+  ];
+  
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"], ${role}`);
+    elements.forEach(element => {
+      const landmark = {
+        role: role,
+        element: element,
+        hasLabel: false,
+        label: null
+      };
+      
+      const ariaLabel = element.getAttribute('aria-label');
+      const ariaLabelledby = element.getAttribute('aria-labelledby');
+      const id = element.id;
+      
+      if (ariaLabel) {
+        landmark.hasLabel = true;
+        landmark.label = ariaLabel;
+      } else if (ariaLabelledby) {
+        landmark.hasLabel = true;
+        landmark.label = ariaLabelledby;
+      } else if (id) {
+        landmark.hasLabel = true;
+        landmark.label = id;
+      }
+      
+      results.landmarks.push(landmark);
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Validates landmark structure to ensure no invalid nesting.
+ * @param {HTMLElement} [container=document] - The container to validate
+ * @returns {Object} An object containing structure validation results
+ */
+function validateLandmarkStructure(container = document) {
+  const results = {
+    isValid: true,
+    issues: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const landmarkRoles = [
+    'banner', 'complementary', 'contentinfo', 'form', 'main',
+    'navigation', 'search', 'region', 'article', 'aside',
+    'figure', 'footer', 'header', 'landmark'
+  ];
+  
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"], ${role}`);
+    elements.forEach(element => {
+      let parent = element.parentElement;
+      while (parent) {
+        const parentRole = parent.getAttribute('role');
+        const parentTag = parent.tagName ? parent.tagName.toLowerCase() : null;
+        
+        if (parentRole === role || parentTag === role) {
+          results.isValid = false;
+          results.issues.push({
+            type: 'nested_landmark',
+            message: `Landmark with role "${role}" is nested inside another with the same role`,
+            element: element
+          });
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Validates landmark attributes for proper accessibility.
+ * @param {HTMLElement} [container=document] - The container to validate
+ * @returns {Object} An object containing attribute validation results
+ */
+function validateLandmarkAttributes(container = document) {
+  const results = {
+    landmarks: [],
+    issues: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const landmarkRoles = [
+    'banner', 'complementary', 'contentinfo', 'form', 'main',
+    'navigation', 'search', 'region', 'article', 'aside',
+    'figure', 'footer', 'header', 'landmark'
+  ];
+  
+  landmarkRoles.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"], ${role}`);
+    elements.forEach(element => {
+      const landmark = {
+        role: role,
+        element: element,
+        hasLabel: !!element.getAttribute('aria-label') || !!element.getAttribute('aria-labelledby') || !!element.id
+      };
+      
+      // Check for duplicate main landmarks
+      if (role === 'main' || element.tagName === 'MAIN') {
+        const mains = container.querySelectorAll('main, [role="main"]');
+        if (mains.length > 1) {
+          results.issues.push({
+            type: 'duplicate_landmark',
+            message: 'Document should have only one main landmark',
+            element: element
+          });
+        }
+      }
+      
+      // Check for duplicate banner landmarks
+      if (role === 'banner' || element.tagName === 'HEADER') {
+        const banners = container.querySelectorAll('[role="banner"], header');
+        if (banners.length > 1) {
+          results.issues.push({
+            type: 'duplicate_landmark',
+            message: 'Document should have only one banner/header landmark',
+            element: element
+          });
+        }
+      }
+      
+      // Check for duplicate contentinfo landmarks
+      if (role === 'contentinfo' || element.tagName === 'FOOTER') {
+        const contentinfos = container.querySelectorAll('[role="contentinfo"], footer');
+        if (contentinfos.length > 1) {
+          results.issues.push({
+            type: 'duplicate_landmark',
+            message: 'Document should have only one contentinfo/footer landmark',
+            element: element
+          });
+        }
+      }
+      
+      results.landmarks.push(landmark);
+    });
+  });
+  
+  return results;
+}
+
+/**
+ * Validates uniqueness of landmarks in the document.
+ * @param {HTMLElement} [container=document] - The container to validate
+ * @returns {Object} An object containing uniqueness validation results
+ */
+function validateLandmarkUniqueness(container = document) {
+  const results = {
+    isUnique: true,
+    issues: [],
+    mainCount: 0,
+    bannerCount: 0,
+    footerCount: 0,
+    navigationCount: 0
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  // Count main landmarks
+  const mains = container.querySelectorAll('main, [role="main"]');
+  results.mainCount = mains.length;
+  if (mains.length > 1) {
+    results.isUnique = false;
+    results.issues.push({
+      type: 'duplicate_main',
+      count: mains.length,
+      message: 'Document has multiple main landmarks (should have only one)'
+    });
+  }
+  
+  // Count banner landmarks
+  const banners = container.querySelectorAll('[role="banner"], header');
+  results.bannerCount = banners.length;
+  if (banners.length > 1) {
+    results.isUnique = false;
+    results.issues.push({
+      type: 'duplicate_banner',
+      count: banners.length,
+      message: 'Document has multiple banner/header landmarks (should have only one)'
+    });
+  }
+  
+  // Count footer landmarks
+  const footers = container.querySelectorAll('[role="contentinfo"], footer');
+  results.footerCount = footers.length;
+  if (footers.length > 1) {
+    results.isUnique = false;
+    results.issues.push({
+      type: 'duplicate_footer',
+      count: footers.length,
+      message: 'Document has multiple contentinfo/footer landmarks (should have only one)'
+    });
+  }
+  
+  // Check navigation landmark labels are unique
+  const navigations = container.querySelectorAll('nav, [role="navigation"]');
+  const navLabels = [];
+  navigations.forEach(nav => {
+    const label = nav.getAttribute('aria-label');
+    if (label) {
+      if (navLabels.includes(label)) {
+        results.isUnique = false;
+        results.issues.push({
+          type: 'duplicate_nav_label',
+          label: label,
+          message: `Multiple navigation landmarks have the same aria-label: "${label}"`
+        });
+      }
+      navLabels.push(label);
+    }
+  });
+  results.navigationCount = navigations.length;
+  
+  return results;
+}
+
+/**
+ * Validates link accessibility in the document.
+ * @param {HTMLElement} [container=document] - The container to validate
+ * @returns {Object} An object containing link accessibility validation results
+ */
+function validateLinkAccessibility(container = document) {
+  const results = {
+    totalLinks: 0,
+    accessibleLinks: 0,
+    inaccessibleLinks: 0,
+    issues: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
+  results.totalLinks = links.length;
+  
+  links.forEach(link => {
+    const isAccessible = isLinkAccessible(link);
+    
+    if (isAccessible) {
+      results.accessibleLinks++;
+    } else {
+      results.inaccessibleLinks++;
+      const href = link.getAttribute('href');
+      
+      if (!href || href === '#' || href === '') {
+        results.issues.push({
+          type: 'fake_link',
+          element: link,
+          message: 'Link has no href or empty href (may be a fake link)'
+        });
+      }
+      
+      if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+        results.issues.push({
+          type: 'link_without_text',
+          element: link,
+          message: 'Link has no text content or aria-label'
+        });
+      }
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Handles fake links by converting them to accessible buttons or fixing accessibility issues.
+ * @param {HTMLElement} [container=document] - The container to process
+ * @returns {Object} An object containing the results of handling fake links
+ */
+function handleFakeLinks(container = document) {
+  const results = {
+    processedLinks: 0,
+    convertedToButtons: 0,
+    fixedLabels: 0,
+    issues: []
+  };
+  
+  if (typeof document === 'undefined') {
+    return results;
+  }
+  
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
+  
+  links.forEach(link => {
+    results.processedLinks++;
+    const href = link.getAttribute('href');
+    
+    // Check if it's a fake link (no href, empty href, or just #)
+    if (!href || href === '' || href === '#') {
+      // Check if link has accessible text
+      const hasText = link.textContent.trim().length > 0;
+      const hasAriaLabel = !!link.getAttribute('aria-label');
+      
+      if (!hasText && !hasAriaLabel) {
+        results.issues.push({
+          type: 'inaccessible_fake_link',
+          element: link,
+          message: 'Fake link has no accessible name'
+        });
+      }
+      
+      results.convertedToButtons++;
+    }
+    
+    // Fix links without accessible names
+    if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+      results.issues.push({
+        type: 'link_needs_label',
+        element: link,
+        message: 'Link needs text content or aria-label'
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
  * Fixes table structure issues in the document or specific container.
  * @param {HTMLElement} [container=document] - The container to fix table issues in
  * @returns {NodeList} NodeList of fixed tables
@@ -522,3 +1028,15 @@ module.exports.isButtonAccessible = isButtonAccessible;
 module.exports.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
 module.exports.renderDependencyGraph = renderDependencyGraph;
 module.exports.getLandmarkData = getLandmarkData;
+
+// Export new accessibility functions
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.createInPageButton = createInPageButton;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.validateLandmarkAttributes = validateLandmarkAttributes;
+module.exports.validateLandmarkUniqueness = validateLandmarkUniqueness;
+module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.handleFakeLinks = handleFakeLinks;

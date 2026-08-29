@@ -1,22 +1,87 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+const React = require('react');
+const ReactDOM = require('react-dom');
+const Landmark = require('./Landmark');
 
-export function calculateSum(a, b) {
-    return a + b;
+import './styles.css';
+import { initializeApp, appData } from './app.js';
+import { registerSW } from 'effector-sw';
+import { appStarted } from './events/appStarted.js';
+
+// Function to create in-page buttons
+const createInPageButton = (options: {
+  onClick: () => void;
+  label: string;
+  icon: string;
+  disabled?: boolean;
+  isActive?: boolean;
+  hoverState: boolean;
+  setHoverState: (value: boolean) => void;
+  ariaLabel?: string;
+  title?: string;
+}) => {
+  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+
+  const getBackgroundColor = () => {
+    if (disabled) return '#999';
+    if (isActive) return '#155d27';
+    return '#004b73';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+      aria-label={ariaLabel || label}
+      aria-pressed={isActive}
+      title={title || label}
+      onMouseEnter={() => setHoverState(true)}
+      onMouseLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
+      style={{
+        backgroundColor: getBackgroundColor(),
+        color: 'white',
+        padding: '0.5rem 1rem',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease-in-out',
+        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none',
+      }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span> {label}</span>
+    </button>
+  );
+};
+
+// Placeholder for the affected SVGs
+const icons = {};
+
+function processLandmarks(landmarks) {
+  // Ensure all landmarks have valid structure
+  const landmarkStructureCheck = (landmark) => {
+    // Check landmark properties here
+    // ...
+    return true; // Add your own check logic
+  };
+
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+
+  // Ensure the landmarks are unique
+  const ensureUniqueLandmarks = (landmarks) => {
+    // Add your own unique landmark logic here
+    // ...
+    return landmarks;
+  };
+
+  return ensureUniqueLandmarks(validLandmarks);
 }
-
-// Below is the existing code (preserving syntax and existing exports)
-// ...
-import react from 'react';
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-// ... (existing code, exports, and functions)
 
 function getLangAttribute() {
   // Code for getting the language attribute
@@ -25,12 +90,35 @@ function getLangAttribute() {
   return htmlElement ? htmlElement.getAttribute('lang') || defaultLang : defaultLang;
 }
 
-function addLangAttribute(element) {
-  // Code for adding the language attribute to the specified element
-  if (element) {
-    const lang = getLangAttribute();
-    element.setAttribute('lang', lang);
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
   }
+
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', getLangAttribute()); // Use getLangAttribute for consistency
+  }
+}
+
+// Function to check if the specified landmark element is in the document.
+// @param {string} id - The ID of the landmark element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+/**
+ * Calculates the sum of an array of numbers.
+ * @param {number[]} numbers - The array of numbers to sum.
+ * @returns {number} The total sum of the numbers.
+ */
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new Error('Input must be an array');
+  }
+  return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
 function personName(person) {
@@ -228,11 +316,11 @@ function validateLandmarkStructure() {
   const footers = document.querySelectorAll('footer');
   
   if (headers.length > 1) {
-    structureIssues.push({ rule: 'REACT_025', message: 'Consider having only one header or using role="banner"' });
+    structureIssues.push({ rule: 'REACT_025', message: 'Consider having only one header or using role="banner"' );
   }
   
   if (footers.length > 1) {
-    structureIssues.push({ rule: 'REACT_025', message: 'Consider having only one footer or using role="contentinfo"' });
+    structureIssues.push({ rule: 'REACT_025', message: 'Consider having only one footer or using role="contentinfo"' );
   }
   
   // Check landmark nesting
@@ -337,4 +425,18 @@ function setSvgAttributes(svg, accessibleName) {
 
 function addSvgAccessibleNames() {
   // Code for adding accessible names to SVGs
-  const svgs = document.querySelector
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
+  });
+}
+
+module.exports = {
+  processLandmarks,
+  addLangAttribute,
+  checkLandmarkElement,
+  calculateSum
+};

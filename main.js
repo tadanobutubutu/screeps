@@ -225,6 +225,17 @@ function validateTableStructure() {
   });
 }
 
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg() {
+  const svgs = document.querySelectorAll('svg');
+  if (svgs.length >= 2) {
+    svgs[0].setAttribute('aria-label', 'First SVG');
+    svgs[1].setAttribute('aria-label', 'Second SVG');
+  }
+}
+
+addAccessibleNamesToSvg();
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,

@@ -141,7 +141,7 @@ const renderIndex = () => {
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
+  return `${product.name} - ${product.description || ''}`;
 }
 
 function renderProductList(products) {
@@ -179,14 +179,23 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return `<div class="validated">${formatCurrency(input.value)}</div>`;
+    let value = input;
+    if (input && typeof input === 'object' && 'value' in input) {
+      value = input.value;
+    }
+    return `<div class="validated">${formatCurrency(value)}</div>`;
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products || []);
+  let content;
+  if (data.products) {
+    content = renderProductList(data.products);
+  } else {
+    content = data.content || '';
+  }
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }

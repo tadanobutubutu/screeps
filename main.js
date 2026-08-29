@@ -264,7 +264,7 @@ function handleFakeLinks() {
   // Code for handling fake links
 }
 
-function addProperLandmarkRegions() {
+function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
@@ -332,6 +332,7 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
+  addLandmarkRegions,
   addProperLandmarkRegions,
   main,
   mainExecution,

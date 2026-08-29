@@ -562,6 +562,40 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 function renderIndexView() {
   // Function to render the index view
+  const document = global.document || (typeof document !== 'undefined' ? document : null);
+  if (!document) {
+    return null;
+  }
+
+  // Ensure the main landmark exists for the index view
+  document = addMainLandmark(document);
+  document = addMainLandmarkToIndex(document);
+
+  // Find the index container or fall back to body
+  const indexContainer = document.getElementById('index-view')
+    || document.querySelector('[data-view="index"]')
+    || document.querySelector('#main-content')
+    || document.body;
+
+  // Render the dependency graphs in the index view
+  document = renderDependencyGraphs(document);
+  document = ensureDependencyGraphAriaRole(document);
+
+  // Apply general accessibility fixes to the document
+  document = addressAccessibilityIssuesForDocument(document);
+
+  // Ensure images have alt text and landmark structure is present
+  document = fixImageAltTexts(document);
+
+  // Ensure buttons have proper identifiers
+  document = fixButtonIdentifiers(document);
+
+  // Announce that the index view has been rendered
+  if (a11yStore && typeof a11yStore.announce === 'function') {
+    a11yStore.announce('Index view rendered');
+  }
+
+  return indexContainer;
 }
 
 function setFormElementAccessibleNames() {

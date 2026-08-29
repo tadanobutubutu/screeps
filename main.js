@@ -232,8 +232,62 @@ function getSvgAccessibleName(svgElement) {
 
 function addressAccessibilityIssues(report) {
   if (!report) return;
+  
   report.forEach(issue => {
-    // Integrated the logic from both branches to address accessibility issues
+    switch (issue.id) {
+      case 'REACT_015':
+        // Add lang attribute to HTML element
+        const html = document.documentElement;
+        if (!html.getAttribute('lang')) {
+          html.setAttribute('lang', 'en');
+        }
+        break;
+        
+      case 'REACT_017':
+        // Add landmark roles and fix landmark issues
+        const mainContent = document.querySelector('main');
+        if (mainContent && !mainContent.hasAttribute('role')) {
+          mainContent.setAttribute('role', 'main');
+        }
+        break;
+        
+      case 'REACT_041':
+        // Add accessible names to 2 SVGs
+        document.querySelectorAll('svg').forEach(svg => {
+          const accessibleName = getSvgAccessibleName(svg);
+          if (accessibleName) {
+            svg.setAttribute('aria-label', accessibleName);
+          }
+        });
+        break;
+        
+      case 'REACT_025':
+        // Ensure unique landmarks (2 issues)
+        // Check for duplicate landmark IDs and ensure uniqueness
+        const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="complementary"]');
+        const landmarkIds = new Set();
+        landmarks.forEach(landmark => {
+          const id = landmark.getAttribute('id');
+          if (id && id !== '') {
+            if (landmarkIds.has(id)) {
+              throw new Error(`Duplicate landmark ID found: ${id}`);
+            }
+            landmarkIds.add(id);
+          }
+        });
+        break;
+        
+      case 'REACT_036':
+        // Fix 1 fake link issue
+        // Ensure all anchor tags have proper href attributes
+        document.querySelectorAll('a').forEach(a => {
+          if (a.hasAttribute('href') === false) {
+            // If no href, remove the tag or fix it
+            a.remove();
+          }
+        });
+        break;
+    }
   });
 }
 

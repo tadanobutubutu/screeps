@@ -20,14 +20,113 @@ function divide(dividend, divisor) {
     return dividend / divisor;
 }
 
-/**
- * Address REACT_025: Add other accessibility changes as per the insight report
- */
+// Address the accessibility issues from the insight report
+// Example: Ensure proper ARIA roles and properties are set
+// New function to address accessibility issues
+const newAccessibleFunction = () => {
+  // New function logic to improve accessibility
+  // Example: Ensure proper ARIA roles and properties are set
+  const doc = getDocument();
+  if (doc) {
+    doc.body.setAttribute('role', 'application');
+    doc.body.setAttribute('aria-label', 'Screeps Bot');
+  }
+};
+
+// Helper function to ensure element has an ID
+function ensureElementId(element) {
+  if (!element.id) {
+    element.id = element.name || '';
+  }
+}
+
+// Function to get full lang attribute
+function getFullLangAttribute() {
+  const lang = getLangAttribute();
+  const countryCode = navigator.userLanguage || navigator.language || "en-US";
+  return lang.split('-')[0] + '-' + countryCode.split('-')[0];
+}
+
+// Function to trigger accessibility mode
+function triggerAccessibilityMode() {
+  const doc = getDocument();
+  if (doc) {
+    doc.body.setAttribute('data-accessibility-mode', 'enabled');
+  }
+}
+
+// Implement the handleErrorState function to handle the new accessibility issue
+function handleErrorState(errorElement, container, trigger = false) {
+  if (!errorElement) return;
+
+  const doc = getDocument();
+  if (!doc) return;
+
+  // Wrap the error in a <section> element
+  const errorSection = doc.createElement('section');
+  errorSection.setAttribute('role', 'alert');
+  errorSection.setAttribute('aria-live', 'assertive');
+
+  if (typeof errorElement === 'string') {
+    errorSection.textContent = errorElement;
+  } else {
+    errorSection.appendChild(errorElement);
+  }
+
+  if (container) {
+    const errorContainer = doc.createElement('div');
+    errorContainer.setAttribute('class', 'error-container');
+    errorContainer.setAttribute('role', 'alert');
+    errorContainer.appendChild(errorSection);
+    container.appendChild(errorContainer);
+  }
+
+  // If trigger is true, trigger the accessibility mode
+  if (trigger) {
+    triggerAccessibilityMode();
+  }
+}
+
+// Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
+function handleAccessibilityError(errorElement, container) {
+  handleErrorState(errorElement, container, true);
+}
+
+// Function to render dependency graph using dependencyGraphContent
+function renderDependencyGraph(container) {
+  createInPageButton();
+  handleAccessibilityIssues(dependencyGraphContent(getDocument(), container));
+}
+
+// Function to render index view using indexContent
+function renderIndexView(container) {
+  createInPageButton();
+  handleAccessibilityIssues(indexContent(getDocument(), container));
+}
+
+// Address accessibility issues from insight report
 function addAdditionalAccessibilityChanges() {
-    // Insert your code here
+  // Ensure all elements have IDs
+  const allElements = document.querySelectorAll('*');
+  allElements.forEach(el => ensureElementId(el));
+  // Enable accessibility mode globally
+  triggerAccessibilityMode();
 }
 
 // Make sure to call the function to apply the changes
 addAdditionalAccessibilityChanges();
 
-module.exports = { divide, addAdditionalAccessibilityChanges };
+// main.js - Accessibility improvements implementation
+
+module.exports = {
+  divide,
+  newAccessibleFunction,
+  ensureElementId,
+  getFullLangAttribute,
+  triggerAccessibilityMode,
+  handleErrorState,
+  handleAccessibilityError,
+  renderDependencyGraph,
+  renderIndexView,
+  addAdditionalAccessibilityChanges
+};

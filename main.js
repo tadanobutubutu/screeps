@@ -234,6 +234,28 @@ function setupAccessibilityEventListeners() {
   }
 }
 
+// Validates a landmark navigation object.
+// A valid landmark should contain a non-empty name and a type that is one of the recognized landmark types.
+function validateLandmark(landmark) {
+  // Check that landmark is a non-null object
+  if (!landmark || typeof landmark !== 'object' || Array.isArray(landmark)) {
+    return false;
+  }
+
+  // Validate name: must be a non-empty string
+  if (typeof landmark.name !== 'string' || landmark.name.trim().length === 0) {
+    return false;
+  }
+
+  // Validate type: must be one of the recognized landmark types
+  const validTypes = ['region', 'navigation', 'main', 'complementary', 'contentinfo', 'banner', 'form', 'search'];
+  if (typeof landmark.type !== 'string' || !validTypes.includes(landmark.type)) {
+    return false;
+  }
+
+  return true;
+}
+
 module.exports = {
   initialize,
   getAppState,
@@ -252,7 +274,8 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  validateLandmark
 };
 
 // Initialize on DOM ready

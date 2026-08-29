@@ -38,9 +38,19 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonAction) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.addEventListener('click', buttonAction);
+  document.body.appendChild(button);
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  createInPageButton
 };

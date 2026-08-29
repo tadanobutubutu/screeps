@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 /**
  * Gets the accessible name of an SVG element.
  * @param {SVGElement} svgElement - The SVG element to get the accessible name from.

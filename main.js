@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -11,49 +8,92 @@ export const metadata = {
   description: "Dashboard for Screeps",
 };
 
-export default function RootLayout({ children }) {
-  addLangAttribute();
-  addMainLandmark();
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
 
-  document.documentElement.setAttribute('lang', 'en');
-  const landmarks = document.querySelectorAll('.landmark');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('role', 'landmark');
-    landmark.setAttribute('aria-labelledby', `landmark-label-${index}`);
-  });
-
-  const svg1 = document.querySelector('#svg1');
-  const svg2 = document.querySelector('#svg2');
-  svg1.setAttribute('aria-labelledby', 'svg1-title');
-  svg2.setAttribute('aria-labelledby', 'svg2-title');
-
+function addMainLandmark() {
+  // Add main landmark functionality
   const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-  }
-
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
+  mainElements.forEach((main, index) => {
+    if (!main.id) {
+      main.id = `main-landmark-${index}`;
+    }
   });
+}
+
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-labelledby') && !svg.getAttribute('aria-label')) {
+      const title = document.createElement('title');
+      title.id = `svg-title-${index}`;
+      title.textContent = svg.id ? `SVG icon: ${svg.id}` : `SVG icon ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], main, [role="navigation"], nav, [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const landmarkTypes = {};
+  
+  landmarks.forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    if (!landmarkTypes[tag]) {
+      landmarkTypes[tag] = [];
+    }
+    landmarkTypes[tag].push(landmark);
+  });
+  
+  Object.keys(landmarkTypes).forEach(type => {
+    const landmarksOfType = landmarkTypes[type];
+    if (landmarksOfType.length > 1) {
+      landmarksOfType.forEach((landmark, index) => {
+        if (index > 0) {
+          landmark.removeAttribute('role');
+        }
+      });
+    }
+  });
+}
+
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.href && !link.getAttribute('onclick') && link.getAttribute('role') !== 'button') {
+      link.setAttribute('role', 'presentation');
+    }
+  });
+}
+
+export default function RootLayout({ children }) {
+  if (typeof window !== 'undefined') {
+    addLangAttribute();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssue();
+  }
 
   const links = document.querySelectorAll('a');
   const buttons = document.querySelectorAll('button');
 
   links.forEach(link => {
-    if (!link.hasAttribute('role')) {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       link.setAttribute('role', 'link');
     }
-    if (!link.hasAttribute('href')) {
+    if (!link.getAttribute('href') && !link.getAttribute('onclick') && link.getAttribute('role') !== 'button') {
       console.error('Link without href attribute', link);
     }
   });
 
   buttons.forEach(button => {
-    if (!button.hasAttribute('role')) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label') && !button.getAttribute('aria-labelledby')) {
       button.setAttribute('role', 'button');
     }
-    if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+    if (!button.textContent.trim() && !button.getAttribute('aria-label') && !button.getAttribute('aria-labelledby')) {
       console.error('Button without accessible name', button);
     }
   });
@@ -62,12 +102,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <title>Screeps Dashboard</title>
-        ...
       </head>
       <body>{children}</body>
     </html>
   );
 }
-```
-
-This resolved file integrates both changes, addressing the accessibility issues and providing the initial rotateBack function. I've added missing Link and Button accessibility checks, kept the original layout as is, and merged the comments and styling from both versions.

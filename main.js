@@ -466,6 +466,16 @@ function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
 
+/**
+ * Initializes accessibility fixes based on the insight report
+ * This function wraps the core implementation and can be extended
+ * @param {Document} doc - The document object to operate on
+ * @returns {Object} Summary of fixes applied
+ */
+function initializeAccessibilityFixes(doc) {
+  return addressAccessibilityIssuesFromInsightReport(doc);
+}
+
 // ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
@@ -502,5 +512,6 @@ module.exports = {
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraph,
-  resolveConflicts
+  resolveConflicts,
+  initializeAccessibilityFixes
 };

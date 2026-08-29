@@ -1,7 +1,7 @@
 // TODO: Create or update the affected functions to be accessible
 export function renderDependencyGraphPage() {
   const content = `
-    <html>
+    <html lang="en">
       <head>
         <!-- Head content here -->
       </head>
@@ -26,8 +26,6 @@ export function renderDependencyGraphPage() {
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
-// main.js
 
 function validateLandmark(landmark) {
   // Check if landmark exists

@@ -1,5 +1,4 @@
 // TODO: add the new functions or changes requested in the issue
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 
 /**
  * Checks if a value is an empty string, null, or undefined

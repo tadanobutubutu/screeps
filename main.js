@@ -11,8 +11,6 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added above)
-
 // Existing exports and code remain unchanged
-// Note: Preserving all existing code and exports as per requirements
+
+export { createInPageButton };

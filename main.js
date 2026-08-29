@@ -1,5 +1,7 @@
 // main.js - Main application file
 
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +17,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -62,7 +64,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {

@@ -67,6 +67,24 @@ function setupButtonAccessibility() {
   });
 }
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderGraphIndex() {
+  const container = document.getElementById('graph-index-container');
+  if (!container) return;
+  
+  // Use createInPageButton for accessibility
+  const viewButton = createInPageButton('View Graph Index', () => {
+    console.log('View graph index clicked');
+  });
+  
+  const exportButton = createInPageButton('Export Graph', () => {
+    console.log('Export graph clicked');
+  });
+  
+  container.appendChild(viewButton);
+  container.appendChild(exportButton);
+}
+
 // Existing exports and code remain unchanged
 // Note: Preserving all existing code and exports as per requirements
 
@@ -75,7 +93,8 @@ module.exports = {
   initialize,
   setupSkipLinks,
   setupButtonAccessibility,
-  createInPageButton
+  createInPageButton,
+  renderGraphIndex
 };
 
 // Initialize on DOM ready

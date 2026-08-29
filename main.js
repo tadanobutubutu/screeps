@@ -68,15 +68,31 @@ function validateInput(input) {
 }
 
 // Function: addressAccessibilityIssues
+// Addresses accessibility issues from the insight report by processing reported issues
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
+      if (issue.type === 'missing-lang') {
+        addLangAttribute();
+      } else if (issue.type === 'table-structure') {
+        fixTableStructure();
+      } else if (issue.type === 'main-landmark') {
+        addMainLandmark();
+      } else if (issue.type === 'aria-label-syntax') {
+        fixAriaLabelSyntax();
+      } else if (issue.type === 'color-contrast') {
+        fixColorContrast();
+      } else if (issue.type === 'missing-alt') {
+        addAltText();
+      }
     });
+    return true;
   }
+  return false;
 }
 
 // Function: addLangAttribute
@@ -90,12 +106,14 @@ function addLangAttribute() {
 
 // Function: fixTableStructure
 function fixTableStructure() {
-  document.querySelectorAll('table').forEach(table => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
     if (!table.tHead) {
       const thead = document.createElement('thead');
       const firstRow = table.rows[0];
       if (firstRow) {
         thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
         table.appendChild(thead);
       }
     }
@@ -104,18 +122,29 @@ function fixTableStructure() {
 
 // Function: addMainLandmark
 function addMainLandmark() {
-  if (!document.querySelector('main')) {
+  const existingMain = document.querySelector('main');
+  if (!existingMain) {
     const main = document.createElement('main');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
+    const body = document.body;
+    const firstChild = body.firstChild;
+    while (firstChild) {
+      const next = firstChild.nextSibling;
+      main.appendChild(firstChild);
+      body.insertBefore(main, body.firstChild);
+      break;
     }
-    document.body.appendChild(main);
+    if (body.firstChild === main) {
+      return true;
+    }
+    body.insertBefore(main, body.firstChild);
   }
+  return true;
 }
 
 // Function: fixAriaLabelSyntax
 function fixAriaLabelSyntax() {
-  document.querySelectorAll('[aria-label]').forEach(el => {
+  const elementsWithAriaLabel = document.querySelectorAll('[aria-label]');
+  elementsWithAriaLabel.forEach(el => {
     const label = el.getAttribute('aria-label').trim();
     if (label) {
       el.setAttribute('aria-label', label);
@@ -129,7 +158,9 @@ function applyAccessibilityFixes() {
   addMainLandmark();
   fixTableStructure();
   fixAriaLabelSyntax();
-  addressAccessibilityIssues(window.__INSIGHT_REPORT__);
+  fixColorContrast();
+  addAltText();
+  return true;
 }
 
 // Function: fixColorContrast
@@ -137,11 +168,28 @@ function fixColorContrast() {
   // Placeholder for fixing color contrast issues
   console.log('Fixing color contrast issues...');
   // Add your color contrast fixing logic here
+  
+  // Check for common low-contrast text
+  const textElements = document.querySelectorAll('p, span, h1, h2, h3, h4, h5, h6, a, li');
+  textElements.forEach(element => {
+    const styles = window.getComputedStyle(element);
+    const color = styles.color;
+    const backgroundColor = styles.backgroundColor;
+    
+    // Simple contrast check (this is a placeholder - use proper WCAG contrast algorithms in production)
+    if (color && backgroundColor) {
+      // Log potential issues for review
+      console.log(`Checking contrast for element: ${element.tagName}`, { color, backgroundColor });
+    }
+  });
+  
+  return true;
 }
 
 // Function: addAltText
 function addAltText() {
-  document.querySelectorAll('img').forEach(img => {
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
     if (!img.alt) {
       img.alt = 'Image description needed';
     }

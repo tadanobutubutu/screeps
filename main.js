@@ -392,5 +392,15 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    addressAccessibilityIssue038,
+    renderIndexView,
+    metadata,
+    RootLayout,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink
 };

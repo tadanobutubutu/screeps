@@ -24,7 +24,20 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+/**
+ * Calculates the sum of an array of numbers.
+ * @param {number[]} numbers - The array of numbers to sum.
+ * @returns {number} The total sum of the numbers.
+ */
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new Error('Input must be an array');
+  }
+  return numbers.reduce((acc, curr) => acc + curr, 0);
+}
+
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    calculateSum
 };

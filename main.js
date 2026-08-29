@@ -253,6 +253,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addMainLandmark,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    createAnnouncer
   };
 }

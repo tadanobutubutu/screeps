@@ -258,6 +258,7 @@ function implementNewFunction() {
 
 function main() {
   console.log('Running main application');
+  implementNewFunction(); // Address accessibility issues from insight report
   return someFunction();
 }
 

@@ -60,6 +60,30 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  wrapPrimaryContentInMain: function(content) {
+    // Create a main element to wrap the primary content
+    const mainElement = document.createElement('main');
+    
+    // Handle different content types
+    if (Array.isArray(content)) {
+      content.forEach(item => {
+        if (typeof item === 'string') {
+          mainElement.appendChild(document.createTextNode(item));
+        } else if (item instanceof Node) {
+          mainElement.appendChild(item);
+        }
+      });
+    } else if (content) {
+      if (typeof content === 'string') {
+        mainElement.textContent = content;
+      } else if (content instanceof Node) {
+        mainElement.appendChild(content);
+      }
+    }
+    
+    return mainElement;
   }
 };
 

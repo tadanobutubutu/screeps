@@ -307,6 +307,49 @@ function fixFakeLinkIssue() {
   return results;
 }
 
+/**
+ * Checks link and button accessibility in a container
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @returns {Object} An object containing accessibility check results
+ */
+function checkLinkAndButtonAccessibility(container = document) {
+  const results = {
+    links: {
+      accessible: [],
+      inaccessible: []
+    },
+    buttons: {
+      accessible: [],
+      inaccessible: []
+    },
+    isFullyAccessible: true
+  };
+
+  // Check all links in the container
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  // Check all buttons in the container
+  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
+  buttons.forEach(button => {
+    if (isButtonAccessible(button)) {
+      results.buttons.accessible.push(button);
+    } else {
+      results.buttons.inaccessible.push(button);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  return results;
+}
+
 // Function to render dependency graphs
 function renderDependencyGraph(dependencies) {
   const graph = {};

@@ -1,5 +1,5 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 
 // TODO: Implement validateLandmark functionality
 
@@ -12,4 +12,16 @@ function validateLandmark(landmark) {
   return true;
 }
 
-module.exports = { validateLandmark };
+const functionA = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
+const functionB = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
+module.exports = { validateLandmark, functionA, functionB };

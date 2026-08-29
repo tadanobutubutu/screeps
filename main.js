@@ -17,8 +17,8 @@ function checkLandmarkStructure(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   
-  const mainLandmark = doc.querySelector('main, [role="main"]');
-  const landmarks = doc.querySelectorAll('[role], nav, header, footer, aside, main');
+  const mainLandmark = doc.querySelector('[role="main"]');
+  const landmarks = doc.querySelectorAll('nav, header, footer, aside, main');
   
   return {
     hasMainLandmark: !!mainLandmark,
@@ -54,9 +54,9 @@ function checkLandmarkStructure(html) {
 function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
     // Check if lang attribute already exists
-    if (!attrs || attrs.includes(' lang=')) {
+    if (!attrs || attrs.includes('lang=')) {
       return match;
     }
     // Add lang attribute with 'en' as default
@@ -76,7 +76,7 @@ function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<th(?!.*\bscope=)([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -84,8 +84,8 @@ function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+  result = result.replace(/<table(?!.*(?:summary|caption))<([^>]*)>/gi, (match, attrs) => {
+    if (attrs && (attrs.includes('summary=') || attrs.includes('caption'))) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -93,18 +93,18 @@ function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr(?!.*(?:<thead|<tbody|<tfoot))/gi, (match) => {
     // Check if tbody already exists before this tr
     const trIndex = result.indexOf(match);
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (beforeTr && !beforeTr.includes('<tbody>') && beforeTr.includes('<table')) {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -113,7 +113,7 @@ function fixTableStructureIssues(html) {
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
       if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+        result = result.replace(table, table.replace(/(<table[\s\S]*>)([\s\S]*)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -130,7 +130,7 @@ function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main[\s>]/.test(html) || /role="main"/.test(html)) {
     return html;
   }
   
@@ -139,8 +139,8 @@ function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    return html.replace(/<body[^>]*>[\s\S]*<\/body>/i, wrappedContent);
   }
   
   return html;
@@ -164,13 +164,13 @@ function addSvgAccessibleNames(html) {
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = attrs.match(/title="([^"]*)"/);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']*)["']/);
+    const idMatch = attrs.match(/id="([^"]*)"/);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}">`;
     }
     
     // Add inline title for accessibility

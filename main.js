@@ -56,7 +56,7 @@ import {
   isButtonAccessible,
   getSvgAccessibleName,
 } from "./accessibility";
-import { renderDependencyGraph } from "./dependencyGraph";
+import { renderDependencyGraph as importedRenderDependencyGraph } from "./dependencyGraph";
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -295,7 +295,7 @@ export default function RootLayout({
 
   // Implement the renderIndexView method here
   renderIndexView();
-  renderDependencyGraph();
+  importedRenderDependencyGraph();
 
   return (
     <html lang="en">
@@ -346,7 +346,7 @@ export default function RootLayout({
           {/* REACT_017 & REACT_025: Ensure unique landmarks */}
           {/* Using proper landmark elements ensures unique landmarks */}
         </main>
-        {renderDependencyGraph()}
+        {importedRenderDependencyGraph()}
       </body>
     </html>
   );
@@ -368,4 +368,30 @@ export {
   addressAccessibilityIssue038,
   addressAccessibilityIssues,
   renderDependencyGraph,
+  // Re-export imported functions from accessibility module
+  addLangAttribute,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  checkAccessibility,
+  checkLandmarks,
+  checkLandmarkElement,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  decodeJwtResponse,
+  fixButtonIdentifiers,
+  addMainLandmarkToIndex,
+  renderDependencyGraphs,
+  fixTableStructureIssues,
+  renderIndexView,
+  setFormElementAccessibleNames,
+  setSvgAccessibilityProps,
+  isLinkAccessible,
+  isButtonAccessible,
 };

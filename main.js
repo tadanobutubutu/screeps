@@ -66,7 +66,6 @@ export function isOdd(num) {
   return num % 2 !== 0;
 }
 
-// Array utility functions
 export function sumArray(arr) {
   return arr.reduce((acc, val) => acc + val, 0);
 }
@@ -127,6 +126,15 @@ export function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+// Additional utility functions - functionA and functionB
+export function functionA() {
+  return 'functionA result';
+}
+
+export function functionB() {
+  return 'functionB result';
 }
 
 /**
@@ -425,6 +433,8 @@ module.exports = {
   validateEmail,
   capitalizeString,
   debounce,
+  functionA,
+  functionB,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,

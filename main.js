@@ -15,10 +15,6 @@ const { median } = require('./mathHelpers');
 
 import { class1, function1, Object1 } from './path/to/module';
 
-// TODO: Add necessary exports for new functions
-const newFunction1 = () => { /* ... */ };
-const newFunction2 = () => { /* ... */ };
-
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -141,10 +137,19 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements
+      elements.forEach((element, i) => {
+        if (i > 0) {
+          element.setAttribute('id', `${name}-${index}`);
+          index++;
+        }
+      });
     }
   });
 }
+
+// New functions as per the issue
+const newFunction1 = () => { /* ... */ };
+const newFunction2 = () => { /* ... */ };
 
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,

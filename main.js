@@ -14,12 +14,12 @@ function checkTableStructure(tableName, expectedColumns) {
     return false;
   }
   
-  if (!Array.isArray(expectedColumns)) {
+  if (typeof expectedColumns === 'undefined') {
     return false;
   }
   
   // Validate that expectedColumns is not empty
-  if (expectedColumns.length === 0) {
+  if (!Array.isArray(expectedColumns) || expectedColumns.length === 0) {
     return false;
   }
   
@@ -59,7 +59,7 @@ function validateTableSchema(tableSchema, expectedSchema) {
   const expectedColumns = expectedSchema.columns || [];
   
   if (tableColumns.length !== expectedColumns.length) {
-    errors.push(`Column count mismatch: expected ${expectedColumns.length}, got ${tableColumns.length}`);
+    errors.push(`Column count mismatch: expected ${expectedColumns.length} got ${tableColumns.length}`);
   }
   
   for (const expectedCol of expectedColumns) {
@@ -83,7 +83,10 @@ function rotateBack() {
 }
 
 // Assuming the button click is handled by JavaScript, here's how it might look:
-document.getElementById('someButton').addEventListener('click', rotateBack);
+const rotateButton = document.getElementById('rotate-back-button');
+if (rotateButton) {
+  rotateButton.addEventListener('click', rotateBack);
+}
 
 // Existing code that should be preserved
 function existingFunction() {
@@ -100,332 +103,221 @@ export function existingExport() {
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAccessibility())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by getUniqueLandmarkName() and validateLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-function initializeAccessibility() {
-  const header = document.querySelector('header');
-  if (header) {
-    header.setAttribute('role', 'banner');
+/**
+ * Gets the lang attribute from the HTML element
+ * @returns {string|null} - The language code or null if not set
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang');
   }
+  return null;
+}
 
-  // Ensure SVG accessible names
-  if (typeof document !== 'undefined' && document.body) {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach((svg) => {
-      // Check if SVG is hidden
-      const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                       svg.getAttribute('hidden') !== null ||
-                       svg.style.display === 'none' ||
-                       svg.style.visibility === 'hidden';
-
-      if (isHidden) {
-        return;
-      }
-
-      // Check for existing accessible name
-      const hasAriaLabel = svg.hasAttribute('aria-label');
-      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
-      const hasTitle = svg.querySelector('title') !== null;
-      const hasDesc = svg.querySelector('desc') !== null;
-
-      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
-        return;
-      }
-
-      // Determine if decorative - SVGs used for favicons/decorative purposes
-      const isFavicon = svg.closest('link') !== null ||
-                        (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                        svg.getAttribute('aria-hidden') === 'true';
-
-      if (isFavicon) {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('role', 'presentation');
-      } else {
-        // Add a generic title for non-decorative SVGs
-        const title = document.createElement('title');
-        title.textContent = 'Icon';
-        svg.insertBefore(title, svg.firstChild);
-        svg.setAttribute('role', 'img');
-        svg.setAttribute('aria-label', 'Icon');
-      }
-    });
+/**
+ * Adds lang attribute to HTML element if not present
+ * @param {string} lang - Language code (e.g., 'en')
+ * @returns {boolean} - True if lang was added, false if already present
+ */
+function addLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const currentLang = document.documentElement.getAttribute('lang');
+    if (!currentLang) {
+      document.documentElement.setAttribute('lang', lang);
+      return true;
+    }
   }
+  return false;
 }
 
-// New function to address accessibility issues from insight report
-function newFunction() {
-  // implementation of new function
-}
-
-// Implement the new functions here
-function myFunction1(parameter1, parameter2) {
-  // Your implementation goes here
-}
-
-function myFunction2(parameter3) {
-  // Your implementation goes here
-}
-
-// Function to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  if (!insightReport || !insightReport.issues) {
-    return [];
+/**
+ * Validates table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result with isValid and errors
+ */
+function validateTableAccessibility(table) {
+  const errors = [];
+  
+  if (!table || !(table instanceof HTMLElement)) {
+    errors.push('Invalid table element provided');
+    return { isValid: false, errors };
   }
-
-  insightReport.issues.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    // Implement the solution to the issue
-    // This is a placeholder for the actual implementation
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
+  
+  // Check for proper table structure
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  const tfoot = table.querySelector('tfoot');
+  
+  if (!thead) {
+    errors.push('Table should have a thead element for proper accessibility');
+  }
+  
+  if (!tbody) {
+    errors.push('Table should have a tbody element for proper accessibility');
+  }
+  
+  // Check for th elements with scope attributes
+  const headers = table.querySelectorAll('th');
+  headers.forEach((th, index) => {
+    if (!th.getAttribute('scope') && !th.getAttribute('id')) {
+      errors.push(`Header at index ${index} should have a scope or id attribute`);
+    }
   });
-
-  return insightReport.issues;
-}
-
-// Main module for addressing accessibility issues from insight report
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAccessibility())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import Header from './components/Header';
-import Main from './components/Main';
-import Footer from './components/Footer';
-import './styles.css';
-
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
-function App() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/api/data');
-      const result = await response.json();
-      setData(result);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    errors.push('Table should have a caption for proper accessibility');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
   };
-
-  useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
-    fetchData();
-  }, []);
-
-  // REACT_017: Add landmark roles to fix landmark issues
-  // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
-  // REACT_041: Add accessible names to SVGs
-
-  // Initialize on load
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        ensureSvgAccessibleNames();
-        updateAccessibleSvgNames();
-      });
-    } else {
-      ensureSvgAccessibleNames();
-      updateAccessibleSvgNames();
-    }
-  }
-
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
-  return (
-    <div className="app-container">
-      <Header />
-      <Main data={data} loading={loading} />
-      <Footer />
-    </div>
-  );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
-  }
-  let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames.includes(newName)) {
-    counter++;
-    newName = `${baseName}-${counter}`;
-  }
-  return newName;
-}
-
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
-  const landmarkNames = new Set();
+/**
+ * Validates landmark structure for accessibility
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} - Validation result with issues array
+ */
+function validateLandmarkStructure(root = document) {
   const issues = [];
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  
+  landmarkRoles.forEach(role => {
+    const landmarks = root.querySelectorAll(`[role="${role}"]`);
+    if (landmarks.length > 1 && (role === 'banner' || role === 'main' || role === 'contentinfo')) {
+      landmarks.forEach((landmark, index) => {
+        issues.push({
+          role,
+          element: landmark,
+          message: `Multiple ${role} landmarks found (${index + 1} of ${landmarks.length}). Only one ${role} landmark should be present per page.`,
+          severity: 'error'
+        });
+      });
+    }
+  });
+  
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
 
-  landmarks.forEach((landmark) => {
+/**
+ * Validates landmark accessibility
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Array} - Array of landmark issues
+ */
+function validateLandmark(root = document) {
+  const issues = [];
+  
+  // Check for missing landmark labels
+  const landmarks = root.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  
+  landmarks.forEach(landmark => {
     const ariaLabel = landmark.getAttribute('aria-label');
     const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
-
-    // Determine the landmark name
-    let landmarkName = ariaLabel || ariaLabelledby || tagName;
-
-    if (landmarkNames.has(landmarkName)) {
+    
+    if (!ariaLabel && !ariaLabelledby) {
       issues.push({
         element: landmark,
-        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
+        message: `Landmark missing accessible name. Add aria-label or aria-labelledby attribute.`,
         severity: 'warning'
       });
-    } else {
-      landmarkNames.add(landmarkName);
     }
   });
-
+  
   return issues;
 }
 
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
-
-  // Add title element as first child
-  const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
-  title.textContent = accessibleName;
-
-  // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
-
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
-}
-
-export function isValidLink(element) {
-  // ... existing code ...
-}
-
-// Helper functions for SVG accessible names (reused internally)
-function ensureSvgAccessibleNames() {
-  if (typeof document === 'undefined' || !document.body) {
-    return;
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} - Validation result
+ */
+function validateLinkAccessibility(link) {
+  if (!link || !(link instanceof HTMLElement)) {
+    return { isValid: false, errors: ['Invalid link element provided'] };
   }
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg) => {
-    const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                     svg.getAttribute('hidden') !== null ||
-                     svg.style.display === 'none' ||
-                     svg.style.visibility === 'hidden';
-
-    if (isHidden) {
-      return;
+  
+  const errors = [];
+  const href = link.getAttribute('href');
+  const role = link.getAttribute('role');
+  const tabIndex = link.getAttribute('tabindex');
+  
+  // Check for valid href
+  if (!href || href === '#' || href === '') {
+    errors.push('Link should have a valid href attribute');
+  }
+  
+  // Check for descriptive text
+  const text = link.textContent.trim();
+  if (text.length === 0) {
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaLabelledby = link.getAttribute('aria-labelledby');
+    if (!ariaLabel && !ariaLabelledby) {
+      errors.push('Link should have descriptive text or aria-label');
     }
-
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
-    const hasTitle = svg.querySelector('title') !== null;
-    const hasDesc = svg.querySelector('desc') !== null;
-
-    if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
-      return;
+  }
+  
+  // Check for proper button behavior if it's a fake link
+  if (href === '#' || href === 'javascript:void(0)' || role === 'button') {
+    if (!tabIndex && !link.hasAttribute('role')) {
+      errors.push('Fake links should have role="button" or be converted to actual buttons');
     }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
 
-    const isFavicon = svg.closest('link') !== null ||
-                      (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                      svg.getAttribute('aria-hidden') === 'true';
-
-    if (isFavicon) {
-      svg.setAttribute('aria-hidden', 'true');
-      svg.setAttribute('role', 'presentation');
-    } else {
-      const title = document.createElement('title');
-      title.textContent = 'Icon';
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', 'Icon');
+/**
+ * Handles fake links (links that behave like buttons)
+ * @param {Element} container - Container element to search for fake links
+ * @returns {Array} - Array of converted fake links
+ */
+function handleFakeLinks(container = document.body) {
+  const fakeLinks = container.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[role="button"]');
+  const converted = [];
+  
+  fakeLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    const role = link.getAttribute('role');
+    
+    if (href === '#' || href === 'javascript:void(0)' || role === 'button') {
+      // Add button role for accessibility
+      link.setAttribute('role', 'button');
+      
+      // Check if it needs tabindex for keyboard accessibility
+      if (!link.hasAttribute('tabindex')) {
+        link.setAttribute('tabindex', '0');
+      }
+      
+      // Add keyboard event handlers
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+      
+      converted.push(link);
     }
   });
+  
+  return converted;
 }
 
-function updateAccessibleSvgNames() {
-  if (typeof document === 'undefined' || !document.body) {
-    return;
-  }
-
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg) => {
-    const isHidden = svg.getAttribute('aria-hidden') === 'true' ||
-                     svg.getAttribute('hidden') !== null ||
-                     svg.style.display === 'none' ||
-                     svg.style.visibility === 'hidden';
-
-    if (isHidden) {
-      return;
-    }
-
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
-    const hasTitle = svg.querySelector('title') !== null;
-    const hasDesc = svg.querySelector('desc') !== null;
-
-    if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
-      return;
-    }
-
-    const isFavicon = svg.closest('link') !== null ||
-                      (svg.parentElement && svg.parentElement.tagName === 'LINK') ||
-                      svg.getAttribute('aria-hidden') === 'true';
-
-    if (isFavicon) {
-      svg.setAttribute('aria-hidden', 'true');
-      svg.setAttribute('role', 'presentation');
-    } else {
-      const title = document.createElement('title');
-      title.textContent = 'Icon';
-      svg.insertBefore(title, svg.firstChild);
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-label', 'Icon');
-    }
-  });
-}
-
-export {
-  function3,
-  App,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
-  addSvgAccessibleName,
-  isValidLink,
-  addressAccessibilityIssues,
-  newFunction,
-  existingFunction,
-  existingExport,
-  myFunction1,
-  myFunction2,
-  rotateBack,
-  checkTableStructure,
-  validateTableSchema,
-};
-
-// Export functions for accessibility
-module.exports = {
-  rotateBack,
-  initializeAccessibility,
-  ensureSvgAccessibleNames,
-  updateAccessibleSvgNames,
-  checkTableStructure,
-  validateTableSchema,
-};
-
-// Auto-initialize if in browser environment
-if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  initializeAccessibility();
-}
+/**
+ * Creates an accessible in-page button
+ * @param {string} text - Button text
+ * @param {Function} onClick - Click handler
+ * @param {Object} options - Button options
+ * @

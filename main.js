@@ -18,6 +18,47 @@ function replaceMyButtonId() {
 }
 
 /**
+ * Renders a dependency graph to the document for debugging purposes.
+ * Creates a simple HTML visualization of module dependencies.
+ * @returns {string} The generated HTML snippet.
+ */
+function renderDependencyGraph() {
+  const container = document.createElement('div');
+  container.id = 'dependency-graph';
+  container.innerHTML = `
+    <h2>Dependency Graph</h2>
+    <ul>
+      <li>Main Module → Core</li>
+      <li>Core → Utils</li>
+      <li>Utils → Helpers</li>
+    </ul>
+  `;
+  document.body.appendChild(container);
+  return container.innerHTML;
+}
+
+/**
+ * Displays the module structure of the application for debugging.
+ * Shows top-level modules and their sub-modules.
+ * @returns {string} HTML snippet representing module hierarchy.
+ */
+function displayModuleStructure() {
+  const container = document.createElement('div');
+  container.id = 'module-structure';
+  container.innerHTML = `
+    <h2>Module Structure</h2>
+    <ul>
+      <li><strong>App</strong> → <span>Core</span></li>
+      <li><strong>Core</strong> → <span>Utils</span>, <span>Helpers</span></li>
+      <li><strong>Utils</strong> → <span>Math</span>, <span>Validation</span></li>
+      <li><strong>Helpers</strong> → <span>IO</span></li>
+    </ul>
+  `;
+  document.body.appendChild(container);
+  return container.innerHTML;
+}
+
+/**
  * Adds proper ARIA landmark regions to the document.
  * This improves screen reader navigation by ensuring proper landmark roles.
  *
@@ -48,9 +89,10 @@ function addProperFormAccessibility() {
   // ... (existing code)
 }
 
-/**
- * Function to replace `my-button` with actual button id
- */
+// Call the new debugging functions
+renderDependencyGraph();
+displayModuleStructure();
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addProperFormAccessibility();

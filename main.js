@@ -465,36 +465,5 @@ export {
   checkTableAccessibility
 };
 
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  checkTableStructure,
-  getLangAttribute,
-  MyComponent,
-  greet,
-  isEven,
-  isOdd,
-  sumArray,
-  averageArray,
-  findMax,
-  findMin,
-  reverseString,
-  capitalize,
-  capitalizeWords,
-  formatDate,
-  calculateTotal,
-  validateEmail,
-  capitalizeString,
-  debounce,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility
-};
-
 // If using ES6 modules, also ensure functions are exported:
 // export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };

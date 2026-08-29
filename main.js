@@ -46,7 +46,8 @@ export {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the exports
+  addressAccessibilityIssues,
+  root
 };
 
 export default {
@@ -55,5 +56,6 @@ export default {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the default export
+  addressAccessibilityIssues,
+  root
 };

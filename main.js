@@ -235,8 +235,143 @@ function ensureUniqueLandmarks() {
 
   // Ensure landmark labels are unique
   const landmarks = document.querySelectorAll(
-    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], ' +
-    '[role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
+    '[role="header"], [role="landmark"], main, header, footer, aside, nav, ' +
+    'section[aria-label], form[aria-label]'
+  );
+
+  const labelSet = new Set();
+  const updatedLabels = [];
+
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label');
+    if (label) {
+      if (labelSet.has(label)) {
+        // Generate a unique label
+        let newLabel = label;
+        let counter = 1;
+        while (labelSet.has(newLabel)) {
+          newLabel = `${label} ${counter}`;
+          counter++;
+        }
+        landmark.setAttribute('aria-label', newLabel);
+        updatedLabels.push({ element: landmark, oldLabel: label, newLabel });
+        labelSet.add(newLabel);
+      } else {
+        labelSet.add(label);
+      }
+    }
+  });
+
+  return {
+    removedMains,
+    removedBanners,
+    removedFooters,
+    updatedLabels,
+    mainCount: mains.length,
+    bannerCount: banners.length,
+    footerCount: footers.length
+  };
+}
+
+/**
+ * Fixes fake link issues by converting links without href to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      results.links.accessible.push(link);
+    } else {
+      results.links.inaccessible.push(link);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  // Check all buttons in the container
+  const buttons = container.querySelectorAll ? container.querySelectorAll('button') : [];
+  buttons.forEach(button => {
+    if (isButtonAccessible(button)) {
+      results.buttons.accessible.push(button);
+    } else {
+      results.buttons.inaccessible.push(button);
+      results.isFullyAccessible = false;
+    }
+  });
+
+  return results;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraph(dependencies) {
+  const graph = {};
+  dependencies.forEach(dep => {
+    graph[dep.name] = dep.dependencies || [];
+  });
+  return graph;
+}
+
+/**
+ * Calculates the sum of two numbers.
+ * @param {number} a - The first number
+ * @param {number} b - The second number
+ * @returns {number} The sum of a and b
+ */
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// Function to add accessible names to all SVG elements in the document.
+// @returns {NodeList} NodeList of processed SVG elements
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => setSvgAccessibilityProps(svg));
+  return svgs;
+}
+
+/**
+ * Ensures landmark elements are unique in the document.
+ * Keeps only a single <main> element and ensures other landmarks have unique labels.
+ * @returns {Object} An object containing uniqueness information
+ */
+function ensureUniqueLandmarks() {
+  // Ensure only one main landmark
+  const mains = document.querySelectorAll('main, [role="main"]');
+  const removedMains = [];
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      removedMains.push(mains[i]);
+      mains[i].remove();
+    }
+  }
+
+  // Ensure only one banner landmark
+  const banners = document.querySelectorAll('[role="banner"], header');
+  const removedBanners = [];
+  if (banners.length > 1) {
+    for (let i = 1; i < banners.length; i++) {
+      removedBanners.push(banners[i]);
+      banners[i].remove();
+    }
+  }
+
+  // Ensure only one contentinfo/footer landmark
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  // Ensure landmark labels are unique
+  const landmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="main"], [role="navigation"], [role="search"], [role="region"], ' +
     '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
     '[role="header"], [role="landmark"], main, header, footer, aside, nav, ' +
     'section[aria-label], form[aria-label]'

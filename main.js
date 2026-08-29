@@ -64,7 +64,6 @@ function addressAccessibilityIssues(document) {
   document = addLandmarkRegions(document);
   document = ensureUniqueLandmarks(document);
   document = uniqueLandmarks(document);
-  document = addSvgAccessibleNames(document);
   document = addAccessibleNamesToSVGs(document);
   document = fixFakeLinkIssue(document);
   return document;

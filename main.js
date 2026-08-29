@@ -1,10 +1,9 @@
+// Existing imports, constants, and functions
+
 // TODO: Create or update the affected functions to be accessible
-// The functions below have been created to match the exported names
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 
-// Placeholder for affected functions - to be implemented based on issue requirements
-const affectedFunctions = {};
-
-<<<<<<< HEAD
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
 
@@ -24,6 +23,9 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   // Return the created button for further manipulation if needed
   return button;
 }
+
+// Placeholder for affected functions - to be implemented based on issue requirements
+const affectedFunctions = {};
 
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
@@ -379,3 +381,4 @@ module.exports = {
   addLandmarkRegions,
   addressAccessibilityIssues,
   countDependencies,
+};

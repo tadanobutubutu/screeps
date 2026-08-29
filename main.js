@@ -14,12 +14,12 @@
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
 _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // Preserve existing functionality
+
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -36,22 +36,19 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // Add the language attribute to the HTML element for proper accessibility
-const htmlElement = document.documentElement;
-const langAttr = getLangAttribute();
-htmlElement.setAttribute('lang', langAttr);
+document.documentElement.lang = getLangAttribute();
 
-// - REACT_027: Fix 26 table structure issues
-// Review and fix table structure for accessibility compliance
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+// Ensuring all tables in the document are accessible
 const tables = document.querySelectorAll('table');
 tables.forEach(table => {
   validateTableAccessibility(table);
   validateTableStructure(table);
 });
 
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -145,6 +142,9 @@ addAriaLabel('inPageButton', 'Accessibility menu');
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
+document.documentElement.lang = getLangAttribute();
+
+// Create in-page button with accessibility considerations
 createInPageButton();
 
 // Ensure button has an id and appropriate ARIA label
@@ -162,7 +162,6 @@ tables.forEach(table => {
 validateLandmark();
 validateLandmarkStructure();
 
-// Add accessible names to SVGs
 // Adding accessible names to all SVG elements in the document
 const svgs = document.querySelectorAll('svg');
 svgs.forEach(svg => {
@@ -218,11 +217,12 @@ googleSignIn();
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return product ? `${product.name}` : '';
+  return product ? `${product.name} - ${product.description}` : '';
 }
 
 function renderProductList(products) {
   const container = document.createElement('div');
+  container.className = 'product-list';
   if (products && products.length > 0) {
     products.forEach(product => {
       const card = renderProductCard(product);
@@ -258,7 +258,7 @@ function validateAndRender(input) {
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = data.content;
+  const content = data.content || '';
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }

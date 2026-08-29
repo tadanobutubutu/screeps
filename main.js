@@ -18,14 +18,14 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Function for ensuring unique landmarks
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
   
   const seen = new Set();
-  return landmarks.filter(landmark => {
+  return landmarks.filter((landmark, index) => {
     if (!landmark) return false;
     
     const identifier = landmark.id || landmark.name || JSON.stringify(landmark);

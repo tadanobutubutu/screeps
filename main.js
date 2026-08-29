@@ -41,7 +41,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -60,6 +60,73 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  // Function to render dependency graphs for debugging purposes
+  renderDependencyGraph: function() {
+    const graph = {};
+    
+    // Build dependency graph from require.cache
+    for (const modulePath in require.cache) {
+      const module = require.cache[modulePath];
+      const dependencies = [];
+      
+      if (module.children) {
+        module.children.forEach(child => {
+          dependencies.push(child.id);
+        });
+      }
+      
+      graph[modulePath] = {
+        id: modulePath,
+        dependencies: dependencies,
+        loaded: !!module.exports
+      };
+    }
+    
+    // Output the graph in a readable format
+    console.log('=== Dependency Graph ===');
+    Object.keys(graph).forEach(path => {
+      console.log(`Module: ${path}`);
+      console.log(`  Dependencies: ${graph[path].dependencies.length}`);
+      graph[path].dependencies.forEach(dep => {
+        console.log(`    -> ${dep}`);
+      });
+    });
+    
+    return graph;
+  },
+
+  // Function to display module structure for debugging purposes
+  displayModuleStructure: function() {
+    const structure = {
+      main: {
+        type: 'object',
+        methods: []
+      }
+    };
+    
+    // Extract method names from main module
+    const mainModule = require('./main.js');
+    const methodNames = Object.keys(mainModule).filter(key => typeof mainModule[key] === 'function');
+    structure.main.methods = methodNames;
+    
+    // Display structure
+    console.log('=== Module Structure ===');
+    console.log('Main Module (main.js):');
+    console.log('  Type: Object');
+    console.log('  Methods:');
+    methodNames.forEach(method => {
+      console.log(`    - ${method}()`);
+    });
+    
+    // Display all cached modules
+    console.log('\nCached Modules:');
+    Object.keys(require.cache).forEach(modulePath => {
+      console.log(`  ${modulePath}`);
+    });
+    
+    return structure;
   }
 };
 

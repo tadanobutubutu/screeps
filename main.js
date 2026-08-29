@@ -49,38 +49,38 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
+  ...
   return button;
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
 
 // Function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+function ... {
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (title) {
       const titleId = title.getAttribute('id');
-      svg.setAttribute('aria-labelledby', titleId);
+      ... titleId);
     }
   });
 }
 
 // Function to add aria-label to SVGs without title elements
-function addAriaLabelToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+function ... {
+  const svgs = ...
   svgs.forEach(svg => {
-    const title = svg.querySelector('title');
+    const title = ...
     if (!title) {
       const svgText = svg.textContent || svg.innerText || 'Image';
-      svg.setAttribute('aria-label', svgText);
+      ... svgText);
     }
   });
 }
 
 // Function to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+function ... {
   if (!insightReport || !insightReport.issues) {
     return [];
   }
@@ -133,7 +133,7 @@ function generateAccessibilityReport(accessibilityReport) {
 }
 
 // New function for the issue
-function calculateAccessibilityScore(fixedIssues) {
+function ... {
   if (!Array.isArray(fixedIssues)) {
     return 0;
   }
@@ -152,51 +152,158 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
-function renderIndexView() {
-  // TODO: Implement renderIndexView functionality
-  // Placeholder for now, replace with actual implementation
-  console.log('renderIndexView function called');
-}
+function renderIndexView(accessibilityReport, options = {}) {
+  // Implementation for rendering the index view with accessibility features
+  const {
+    title = 'Accessibility Index',
+    containerId = 'index-view-container',
+    showSummary = true,
+    showDetails = true,
+    includeNav = true
+  } = options;
 
-// Call the functions to add aria-labels and aria-labelledby to SVGs
-addAriaLabelledbyToSVGs();
-addAriaLabelToSVGs();
+  // Create main container with proper landmarks and lang attribute
+  const container = document.createElement('div');
+  container.id = containerId;
+  container.lang = 'en';
+  container.setAttribute('role', 'application');
 
-// Call the addressAccessibilityIssues function with an example insight report
-addressAccessibilityIssues([
-  { issue: 'Issue 1', solution: 'Solution 1' },
-  { issue: 'Issue 2', solution: 'Solution 2' }
-]);
+  // Add header landmark
+  const header = document.createElement('header');
+  header.setAttribute('role', 'banner');
+  header.setAttribute('aria-labelledby', 'index-title');
 
-// Export all functions and values
-// Using a combination of ES Modules and CommonJS exports to satisfy both environments
-export { 
-  MyComponent, 
-  renderIndexView, 
-  hello, 
-  getVersion, 
-  getConfig, 
-  createInPageButton, 
-  addressAccessibilityIssues, 
-  generateAccessibilityReport, 
-  calculateAccessibilityScore,
-  addAriaLabelledbyToSVGs,
-  addAriaLabelToSVGs
-};
+  const heading = document.createElement('h1');
+  heading.id = 'index-title';
+  heading.textContent = title;
+  header.appendChild(heading);
+  container.appendChild(header);
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    hello,
-    getVersion,
-    getConfig,
-    VERSION: '1.0.0',
-    NAME: 'main',
-    createInPageButton,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    renderIndexView,
-    addAriaLabelledbyToSVGs,
-    addAriaLabelToSVGs
-  };
-}
+  // Calculate accessibility score if report exists
+  const score = calculateAccessibilityScore(accessibilityReport || []);
+
+  // Add navigation landmark if enabled
+  if (includeNav) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('aria-label', 'Main navigation');
+    nav.setAttribute('role', 'navigation');
+
+    const navList = document.createElement('ul');
+    const navItems = [
+      { text: 'Summary', href: '#summary-section' },
+      { text: 'Details', href: '#details-section' },
+      { text: 'Report', href: '#report-section' }
+    ];
+
+    navItems.forEach(item => {
+      const listItem = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = item.href;
+      link.textContent = item.text;
+      listItem.appendChild(link);
+      navList.appendChild(listItem);
+    });
+
+    nav.appendChild(navList);
+    container.appendChild(nav);
+  }
+
+  // Add main landmark
+  const main = document.createElement('main');
+  main.setAttribute('role', 'main');
+
+  // Add summary section
+  if (showSummary) {
+    const summarySection = document.createElement('section');
+    summarySection.id = 'summary-section';
+    summarySection.setAttribute('aria-labelledby', 'summary-heading');
+
+    const summaryHeading = document.createElement('h2');
+    summaryHeading.id = 'summary-heading';
+    summaryHeading.textContent = 'Accessibility Summary';
+    summarySection.appendChild(summaryHeading);
+
+    // Calculate summary statistics
+    const totalIssues = (accessibilityReport || []).length;
+    const resolvedIssues = (accessibilityReport || [])
+      .filter(issue => issue.status === 'resolved')
+      .length;
+
+    const summaryList = document.createElement('ul');
+    summaryList.setAttribute('role', 'list');
+
+    const summaryItems = [
+      `Total issues: ${totalIssues}`,
+      `Resolved: ${resolvedIssues}`,
+      `Unresolved: ${totalIssues - resolvedIssues}`,
+      `Accessibility score: ${score}/100`
+    ];
+
+    summaryItems.forEach(itemText => {
+      const item = document.createElement('li');
+      item.setAttribute('role', 'listitem');
+      item.textContent = itemText;
+      summaryList.appendChild(item);
+    });
+
+    summarySection.appendChild(summaryList);
+    main.appendChild(summarySection);
+  }
+
+  // Add details section
+  if (showDetails && accessibilityReport && accessibilityReport.length > 0) {
+    const detailsSection = document.createElement('section');
+    detailsSection.id = 'details-section';
+    detailsSection.setAttribute('aria-labelledby', 'details-heading');
+
+    const detailsHeading = document.createElement('h2');
+    detailsHeading.id = 'details-heading';
+    detailsHeading.textContent = 'Accessibility Issues Details';
+    detailsSection.appendChild(detailsHeading);
+
+    // Create accessible table for issues
+    const table = document.createElement('table');
+    table.setAttribute('role', 'table');
+    table.setAttribute('aria-describedby', 'table-description');
+
+    const tableDescription = document.createElement('caption');
+    tableDescription.id = 'table-description';
+    tableDescription.textContent = 'List of accessibility issues and their current status';
+    table.appendChild(tableDescription);
+
+    // Table header
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headerRow.setAttribute('role', 'row');
+
+    const headers = ['Issue Type', 'Description', 'Status', 'Fix Applied'];
+    headers.forEach((headerText, index) => {
+      const th = document.createElement('th');
+      th.setAttribute('role', 'columnheader');
+      th.setAttribute('scope', 'col');
+      th.textContent = headerText;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Table body
+    const tbody = document.createElement('tbody');
+    tbody.setAttribute('role', 'rowgroup');
+
+    accessibilityReport.forEach(issue => {
+      const row = document.createElement('tr');
+      row.setAttribute('role', 'row');
+
+      const issueType = document.createElement('td');
+      issueType.setAttribute('role', 'cell');
+      issueType.textContent = issue.type || 'Unknown';
+
+      const issueDesc = document.createElement('td');
+      issueDesc.setAttribute('role', 'cell');
+      issueDesc.textContent = issue.description || issue.issue || 'No description';
+
+      const issueStatus = document.createElement('td');
+      issueStatus.setAttribute('role', 'cell');
+      issueStatus.textContent = issue

@@ -6,7 +6,7 @@ import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility,
 
 // Add new functions or changes requested in the issue
 
-function handleAccessibilityIssues() {
+export function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   getLangAttribute();
   wrapPrimaryContentInMain();

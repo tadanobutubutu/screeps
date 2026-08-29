@@ -154,18 +154,21 @@ function initialize() {
   fixFakeLink();
 }
 
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+  
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
+}
+
 // Export existing functionality
-module.exports = {
-  initialize,
-  getConfig,
-  setupSkipLinks,
-  setupButtonAccessibility,
-  createInPageButton,
-  performTask,
-  handleEvent,
-  greet,
-  add
-};
+export { initialize, getConfig, setupSkipLinks, setupButtonAccessibility, createInPageButton, performTask, handleEvent, greet, add, calculateDiscount };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

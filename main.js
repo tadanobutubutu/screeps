@@ -5,6 +5,20 @@
 // Existing function, variables, and exports...
 // ...
 
+// Game loop function
+function run() {
+  // Your game logic here...
+
+  // Update scope attributes in all .html files in the views directory
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      updateThScopeAttribute(filePath);
+    });
+}
+
 // Adding the new function at the end
 function ensureUniqueLandmarks(landmarks) {
   const uniqueLandmarks = new Set(landmarks);
@@ -19,11 +33,36 @@ function newFunction() {
 
 // Exporting the new added function
 module.exports = {
-  ensureUniqueLandmarks, // Export ensureUniqueLandmarks
-  // Keep the existing exports here if any
-  newFunction, // Export newFunction
-  // ... existing exports
+    main,
+    SomeClass,
+    someUtility,
+    config,
+    countDependencies,
+    run,
+    checkTableStructure,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    myNewFunction,
+    ensureUniqueLandmarks,
+    newFunction
 };
+
+// Add lang attribute to the root element of each HTML file
+function updateLangAttribute() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      const updatedContent = content.replace(/<html.*?>/g, `<html lang="${getLangAttribute()}">`);
+      fs.writeFileSync(filePath, updatedContent, 'utf8');
+    });
+}
+
+// Call the function to update lang attributes
+updateLangAttribute();
 
 // ----- END ORIGINAL CODE -----
 

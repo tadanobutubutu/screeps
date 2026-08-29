@@ -17,10 +17,10 @@ import { state, updateState } from './state.js';
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLinkAccessibility() and handleFakeLinks())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton() and personName())
 
 // Accessibility function stubs
 
@@ -58,7 +58,27 @@ function createInPageButton() {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code...
+  // Call all accessibility functions
+  document.documentElement.setAttribute('lang', getLangAttribute());
+  createInPageButton();
+  
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+  
+  validateLandmark();
+  validateLandmarkStructure();
+  
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+  
+  validateLinkAccessibility();
+  handleFakeLinks();
 }
 
 // DOM-based accessibility code

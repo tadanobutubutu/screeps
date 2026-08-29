@@ -19,7 +19,7 @@ const { someFunction } = require('./someModule');
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('[data-dependency-graph], .dependency-graph');
+  const dependencyGraph = document.querySelector('.dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -30,7 +30,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('[data-dependency-graph], .dependency-graph');
+  const container = document.querySelector('.dependency-graph');
   if (container) {
     container.innerHTML = data;
   }
@@ -40,7 +40,7 @@ function renderDependencyGraphContent(data) {
 function ensureUniqueLandmarks() {
   // Implementation for ensuring unique landmarks goes here.
   // Include navigation, banner, and contentinfo roles
-  const landmarks = document.querySelectorAll('[role="banner"], [role="contentinfo"], [role="navigation"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   const seen = new Set();
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -57,12 +57,15 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
   
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
+    if (link.hasAttribute('href')) {
+      link.removeAttribute('href');
+    }
     link.setAttribute('tabindex', '0');
-    if (!link.getAttribute('aria-label')) {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
       link.setAttribute('aria-label', 'Button');
     }
   });
@@ -72,7 +75,9 @@ function fixFakeLinks() {
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+    // Try to detect language from page content or data attributes
+    const langCode = document.body ? document.body.getAttribute('lang') || 'en' : 'en';
+    htmlElement.setAttribute('lang', langCode);
   }
 }
 
@@ -85,8 +90,8 @@ function fixTableStructureIssues() {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
         thead.appendChild(firstRow);
+        const tbody = table.querySelector('tbody');
         table.insertBefore(thead, tbody || firstRow);
       }
     }
@@ -112,7 +117,7 @@ function addMainLandmark() {
   });
   // If no main element exists, create one for the main content
   if (mainElements.length === 0) {
-    const content = document.querySelector('body');
+    const content = document.querySelector('#content') || document.querySelector('.content');
     if (content) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main');
@@ -130,8 +135,9 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
+      svg.setAttribute('role', 'img');
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);

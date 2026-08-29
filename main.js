@@ -449,6 +449,116 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Validates landmark structures in HTML for accessibility
+ * Checks for proper landmark usage, uniqueness, and accessible labeling
+ * @param {string} html - The HTML string to validate
+ * @returns {string[]} Array of validation error messages
+ */
+export function validateLandmark(html) {
+  if (typeof html !== 'string') return [];
+  
+  const issues = [];
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  
+  // Check for presence of main landmark (required for proper document structure)
+  if (!/<main[\s>]/i.test(html)) {
+    issues.push('Missing <main> landmark - document should have exactly one main landmark');
+  }
+  
+  // Check for multiple main landmarks (should only be one per page)
+  const mainMatches = html.match(/<main\b/gi) || [];
+  if (mainMatches.length > 1) {
+    issues.push(`Multiple <main> landmarks found (${mainMatches.length}). Only one <main> should exist per page`);
+  }
+  
+  // Check for nav landmarks without accessible labels
+  const navRegex = /<nav(\s[^>]*)?>/gi;
+  let navMatch;
+  let navCount = 0;
+  while ((navMatch = navRegex.exec(html)) !== null) {
+    navCount++;
+    const attrs = navMatch[1] || '';
+    if (!attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<nav> landmark at position ${navCount} missing aria-label or aria-labelledby attribute`);
+    }
+  }
+  
+  // Check for multiple header landmarks without labels
+  const headerRegex = /<header(\s[^>]*)?>/gi;
+  let headerMatch;
+  let headerCount = 0;
+  while ((headerMatch = headerRegex.exec(html)) !== null) {
+    headerCount++;
+    const attrs = headerMatch[1] || '';
+    if (headerCount > 1 && !attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<header> landmark at position ${headerCount} should have aria-label when multiple headers exist`);
+    }
+  }
+  
+  // Check for multiple aside landmarks without labels
+  const asideRegex = /<aside(\s[^>]*)?>/gi;
+  let asideMatch;
+  let asideCount = 0;
+  while ((asideMatch = asideRegex.exec(html)) !== null) {
+    asideCount++;
+    const attrs = asideMatch[1] || '';
+    if (!attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<aside> landmark at position ${asideCount} missing aria-label or aria-labelledby attribute`);
+    }
+  }
+  
+  // Check for section landmarks without accessible names
+  const sectionRegex = /<section(\s[^>]*)?>/gi;
+  let sectionMatch;
+  let sectionCount = 0;
+  while ((sectionMatch = sectionRegex.exec(html)) !== null) {
+    sectionCount++;
+    const attrs = sectionMatch[1] || '';
+    if (!attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<section> landmark at position ${sectionCount} should have aria-label for accessibility`);
+    }
+  }
+  
+  // Check for article landmarks without accessible names
+  const articleRegex = /<article(\s[^>]*)?>/gi;
+  let articleMatch;
+  let articleCount = 0;
+  while ((articleMatch = articleRegex.exec(html)) !== null) {
+    articleCount++;
+    const attrs = articleMatch[1] || '';
+    if (!attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<article> landmark at position ${articleCount} missing aria-label or aria-labelledby attribute`);
+    }
+  }
+  
+  // Check for footer landmarks without accessible labels when multiple exist
+  const footerRegex = /<footer(\s[^>]*)?>/gi;
+  let footerMatch;
+  let footerCount = 0;
+  while ((footerMatch = footerRegex.exec(html)) !== null) {
+    footerCount++;
+    const attrs = footerMatch[1] || '';
+    if (footerCount > 1 && !attrs.includes('aria-label=') && !attrs.includes('aria-labelledby=')) {
+      issues.push(`<footer> landmark at position ${footerCount} should have aria-label when multiple footers exist`);
+    }
+  }
+  
+  // Check for landmarks with duplicate ids
+  const idRegex = /id=["']([^"']+)["']/g;
+  const foundIds = {};
+  let idMatch;
+  while ((idMatch = idRegex.exec(html)) !== null) {
+    const id = idMatch[1];
+    if (foundIds[id]) {
+      issues.push(`Duplicate id="${id}" found - landmark ids must be unique`);
+    }
+    foundIds[id] = true;
+  }
+  
+  return issues;
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,
@@ -462,7 +572,8 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  validateLandmark
 };
 
 module.exports = {
@@ -493,8 +604,9 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  validateLandmark
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };
+// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, validateLandmark };

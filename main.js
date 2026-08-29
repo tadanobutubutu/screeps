@@ -25,7 +25,7 @@ const MyComponent = () => {
  * Validates that each link and button has an accessible name.
  * @returns {Object} Object containing array of accessibility issues for links and buttons
  */
-function checkLinkAndButtonAccessibility() {
+function checkLinkAndButtonAccessibility(document) {
   const accessibilityIssues = {
     links: [],
     buttons: []

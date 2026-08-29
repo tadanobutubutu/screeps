@@ -366,7 +366,7 @@ const a11yStore = {
     });
   },
 
-  // New function to enhance dynamic content
+  // Function to enhance dynamic content and observe DOM changes
   enhanceDynamicContent() {
     // Observe DOM changes for dynamic content
     if (!('MutationObserver' in window)) return;
@@ -387,6 +387,39 @@ const a11yStore = {
     observer.observe(document.body, {
       childList: true,
       subtree: true
+    });
+  },
+  
+  // Apply ARIA attributes to dynamically added elements
+  applyARIAtoNode(node) {
+    if (!node || !node.setAttribute) return;
+    
+    // Handle buttons without text content
+    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Button');
+    }
+    
+    // Handle links without text
+    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
+      node.setAttribute('aria-label', 'Link');
+    }
+    
+    // Handle inputs without labels
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName) && 
+        !node.getAttribute('aria-label') && 
+        !node.getAttribute('id')) {
+      node.setAttribute('aria-label', 'Form field');
+    }
+    
+    // Handle images without alt text
+    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
+      node.setAttribute('alt', '');
+    }
+    
+    // Process children recursively
+    const children = node.querySelectorAll('button, a, input, select, textarea, img');
+    children.forEach(child => {
+      this.applyARIAtoNode(child);
     });
   },
   
@@ -455,7 +488,7 @@ const a11yStore = {
     document.body.appendChild(mainElement);
   },
 
-  // NEW: Add focus visibility styles for keyboard navigation
+  // Add focus visibility styles for keyboard navigation
   setupFocusStyles() {
     // Check if styles already added
     if (document.getElementById('a11y-focus-styles')) return;
@@ -494,9 +527,13 @@ const a11yStore = {
     }
   },
   
-  // NEW: Setup focus-visible polyfill for better focus management
+  // Setup focus-visible polyfill for better focus management
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
+    
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
+    };
     
     const showRemaining = () => {
       document.documentElement.classList.remove('focus-visible');
@@ -526,64 +563,7 @@ const a11yStore = {
     }, true);
   },
   
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  },
-  
-  // NEW: Apply ARIA attributes to dynamically added elements
-  applyARIAtoNode(node) {
-    if (!node || !node.setAttribute) return;
-    
-    // Handle buttons without text content
-    if (node.tagName === 'BUTTON' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
-      node.setAttribute('aria-label', 'Button');
-    }
-    
-    // Handle links without text
-    if (node.tagName === 'A' && !node.textContent.trim() && !node.getAttribute('aria-label')) {
-      node.setAttribute('aria-label', 'Link');
-    }
-    
-    // Handle inputs without labels
-    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(node.tagName) && 
-        !node.getAttribute('aria-label') && 
-        !node.getAttribute('id')) {
-      node.setAttribute('aria-label', 'Form field');
-    }
-    
-    // Handle images without alt text
-    if (node.tagName === 'IMG' && !node.getAttribute('alt')) {
-      node.setAttribute('alt', '');
-    }
-    
-    // Process children recursively
-    const children = node.querySelectorAll('button, a, input, select, textarea, img');
-    children.forEach(child => {
-      this.applyARIAtoNode(child);
-    });
-  },
-  
-  // NEW: Validate and improve ARIA usage
+  // Validate and improve ARIA usage
   validateARIA() {
     // Remove duplicate IDs
     const allElements = document.querySelectorAll('[id]');
@@ -604,6 +584,11 @@ const a11yStore = {
         el.setAttribute('tabindex', '-1');
       }
     });
+  },
+
+  // Preserve existing code
+  preserveExistingCode() {
+    // This function preserves any existing code references
   }
 };
 
@@ -630,9 +615,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
-
-// Preserve existing code
-a11yStore.preserveExistingCode();
 
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {

@@ -14,8 +14,6 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Add back any required exports that might have been?
-
 // Game loop function
 function run() {
   // Your game logic here...

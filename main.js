@@ -308,7 +308,7 @@ function addAriaLabel(document, selector, label) {
   return document;
 }
 
-// Function to render dependency graphs
+// Function to render dependency graphs with accessibility support
 function renderDependencyGraphs(document) {
   const graphContainer = document.querySelector('#dependencyGraph') || 
                          document.querySelector('.dependency-graph') || 
@@ -316,8 +316,14 @@ function renderDependencyGraphs(document) {
                          document.querySelector('[id*="dependency"]');
   if (graphContainer) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Dependency graph visualization');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    graphContainer.appendChild(svg);
   }
+  return document;
 }
 
 // Integrated REACT_036 changes and merged accessibility fixes
@@ -341,6 +347,38 @@ function addressAccessibilityIssues(document) {
   return document;
 }
 
+// Function to update th scope attributes in HTML files
+function updateThScopeAttribute(filePath) {
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+    
+    // Fix th elements missing scope attribute in thead
+    content = content.replace(/<thead([^>]*)>([\s\S]*?)<\/thead>/gi, (match, attrs, inner) => {
+      return inner.replace(/<th([^>]*)>/gi, (thMatch, thAttrs) => {
+        if (!thAttrs.includes('scope=')) {
+          return `<th${thAttrs} scope="col">`;
+        }
+        return thMatch;
+      });
+    });
+    
+    // Fix th elements in tbody that should be row headers
+    content = content.replace(/<tbody([^>]*)>([\s\S]*?)<\/tbody>/gi, (match, attrs, inner) => {
+      return inner.replace(/<tr([^>]*)>([\s\S]*?)<\/tr>/gi, (trMatch, trAttrs, trInner) => {
+        const firstThMatch = trInner.match(/<th([^>]*)>/i);
+        if (firstThMatch && !firstThMatch[1].includes('scope=')) {
+          return trInner.replace(/<th([^>]*)>/i, '<th$1 scope="row">');
+        }
+        return trMatch;
+      });
+    });
+    
+    fs.writeFileSync(filePath, content, 'utf8');
+  } catch (error) {
+    console.error(`Error updating th scope attributes in ${filePath}:`, error);
+  }
+}
+
 // Main game loop for Screeps
 function run() {
   const viewsDir = path.join(__dirname, 'views');
@@ -349,10 +387,6 @@ function run() {
     .forEach(file => {
       updateThScopeAttribute(path.join(viewsDir, file));
     });
-}
-
-function updateThScopeAttribute(filePath) {
-  // Placeholder for updating th scope attributes in HTML files
 }
 
 module.exports = {

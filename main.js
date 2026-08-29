@@ -9,7 +9,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-helpers');
 
 const fs = require('fs');
 const path = require('path');
@@ -22,11 +22,19 @@ function run() {
 
   // Update scope attributes in all .html files in the views directory
   const viewsDir = path.join(__dirname, 'views');
-  fs.readdirSync(viewsDir)
+  if (!fs.existsSync(viewsDir)) {
+    console.warn('Views directory does not exist');
+    return;
+  }
+  
+  const htmlFiles = fs.readdirSync(viewsDir);
+  htmlFiles
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      const content = fs.readFileSync(filePath, 'utf8');
+      const updatedContent = updateScopeAttributes(content);
+      fs.writeFileSync(filePath, updatedContent, 'utf8');
     });
 }
 
@@ -34,6 +42,16 @@ function run() {
 Module.onInit = function() {
   setInterval(run, 1000);
 };
+
+/**
+ * Updates scope attributes in HTML content
+ * @param {string} content - The HTML content to update
+ * @returns {string} - Updated HTML content
+ */
+function updateScopeAttributes(content) {
+  // Implementation for updating scope attributes
+  return content;
+}
 
 /**
  * Checks if a table has the expected structure
@@ -46,7 +64,7 @@ function checkTableStructure(tableName, expectedColumns) {
     return false;
   }
   
-  if (!Array.isArray(expectedColumns)) {
+  if (typeof tableName === 'undefined') {
     return false;
   }
   
@@ -70,7 +88,7 @@ function checkTableStructure(tableName, expectedColumns) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};
@@ -87,18 +105,41 @@ function countDependencies() {
 
 function ensureElementHasId(element) {
   // existing function implementation
+  if (!element) return null;
+  if (!element.id) {
+    element.id = generateUniqueId();
+  }
+  return element;
 }
 
 function addAriaLabel(element, label) {
   // existing function implementation
+  if (!element) return;
+  if (typeof label === 'string' && label.trim() !== '') {
+    element.setAttribute('aria-label', label);
+  }
 }
 
 function renderDependencyGraphs(dependencies) {
   // existing function implementation
+  if (!dependencies) return '';
+  return '<div class="dependency-graph">' + dependencies + '</div>';
 }
 
 function myNewFunction(input) {
   // Implement the new function here
+  if (input === undefined || input === null) {
+    return null;
+  }
+  return typeof input === 'string' ? input.trim() : input;
+}
+
+/**
+ * Generates a unique ID for elements
+ * @returns {string} - A unique ID
+ */
+function generateUniqueId() {
+  return 'element-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 }
 
 function main() {

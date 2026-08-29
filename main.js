@@ -58,7 +58,7 @@ function createInPageButton() {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code...
+  // New code to fix accessibility issues...
 }
 
 // DOM-based accessibility code

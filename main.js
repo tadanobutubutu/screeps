@@ -344,6 +344,22 @@ if (!document.documentElement.getAttribute('lang')) {
 mainElement.appendChild(document.body.cloneNode(true));
 document.body.parentNode.insertBefore(mainElement, document.body);
 
+// Function to wrap primary content in a main element for accessibility
+function wrapPrimaryContentInMain() {
+  const main = document.createElement('main');
+  main.setAttribute('lang', document.documentElement.lang || 'en');
+  
+  // Clone body content and wrap in main
+  main.appendChild(document.body.cloneNode(true));
+  
+  // Insert main element before body
+  if (document.body.parentNode) {
+    document.body.parentNode.insertBefore(main, document.body);
+  }
+  
+  return main;
+}
+
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();

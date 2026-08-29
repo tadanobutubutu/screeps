@@ -14,6 +14,21 @@ root.render(
 document.documentElement.lang = 'en';
 
 /**
+ * Creates an in-page button element with optional click handler.
+ * @param {string} buttonText - The label text for the button
+ * @param {Function} onClickHandler - Callback function triggered when the button is clicked
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+/**
  * Implement this function for creating in-page buttons
  */
 function createInPageDepGraphButton(depGraphContainer, renderFunction) {
@@ -29,10 +44,13 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.getElementById('main-content') || document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.removeAttribute('aria-hidden');
+    if (!mainContent.getAttribute('role')) {
+      mainContent.setAttribute('role', 'main');
+    }
   }
 
   // Accessibility: Add skip link functionality
@@ -43,19 +61,29 @@ function initialize() {
 
   // Add dependency graph button functionality
   const depGraphContainer = document.getElementById('dep-graph-container');
-  if(depGraphContainer) {
+  if (depGraphContainer) {
     createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
   }
 
   return true;
 }
 
-const CONFIG = {
-  apiUrl: process.env.API_URL || 'http://localhost:3000',
-  env: process.env.NODE_ENV || 'development'
-};
-
-const VERSION = '1.0.0';
+/**
+ * Setup skip link functionality for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+}
 
 /**
  * Ensure buttons have proper accessibility attributes
@@ -75,6 +103,13 @@ function renderDependencyGraph() {
   // ...
 }
 
+const CONFIG = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  env: process.env.NODE_ENV || 'development'
+};
+
+const VERSION = '1.0.0';
+
 // Export existing functionality
 function getConfig() {
   return CONFIG;
@@ -84,102 +119,16 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-function addressAccessibilityIssues() {
-  // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
-  if (rootContainer) {
-    rootContainer.setAttribute('role', 'main');
-  }
-
-  // Create a hidden live region for dynamic announcements
-  const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
-  announcement.id = announcementId;
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  // Hide off-screen
-  announcement.style.position = 'absolute';
-  announcement.style.left = '-9999px';
-  announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
-}
-
-// Validate that tables in the document are accessible
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-  
-  tables.forEach((table, index) => {
-    const hasCaption = table.querySelector('caption') !== null;
-    const hasHeaders = table.querySelector('th') !== null;
-    const hasScope = Array.from(table.querySelectorAll('th')).every(
-      th => th.hasAttribute('scope')
-    );
-    
-    results.push({
-      tableIndex: index,
-      hasCaption,
-      hasHeaders,
-      hasScope,
-      isAccessible: hasCaption && hasHeaders && hasScope
-    });
-  });
-  
-  return results;
-}
-
-// Validate the structure of tables in the document
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  const results = [];
-  
-  tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
-    let isValid = true;
-    let error = null;
-    
-    if (rows.length === 0) {
-      isValid = false;
-      error = 'Table has no rows';
-    } else {
-      const cellCounts = Array.from(rows).map(row => row.querySelectorAll('td, th').length);
-      const allSame = cellCounts.every(count => count === cellCounts[0]);
-      
-      if (!allSame) {
-        isValid = false;
-        error = 'Table has inconsistent cell counts across rows';
-      }
-    }
-    
-    results.push({
-      tableIndex: index,
-      rowCount: rows.length,
-      isValid,
-      error
-    });
-  });
-  
-  return results;
-}
-
-// Export the new function
-export {
-  VERSION,
-  CONFIG,
+// Export existing functionality
+module.exports = {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  setupButtonAccessibility,
-  renderDependencyGraph,
-  createInPageDepGraphButton,
   setupSkipLinks,
-  createInPageButton
+  setupButtonAccessibility,
+  createInPageButton,
+  renderDependencyGraph,
+  createInPageDepGraphButton
 };
 
 // Add the new function to the default export
@@ -189,15 +138,20 @@ export default {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues,
-  root,
-  validateTableAccessibility,
-  validateTableStructure,
-  setupButtonAccessibility,
-  renderDependencyGraph,
-  createInPageDepGraphButton,
   setupSkipLinks,
-  createInPageButton
+  setupButtonAccessibility,
+  createInPageButton,
+  renderDependencyGraph,
+  createInPageDepGraphButton
 };
 
 reportWebVitals();
+
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
+}

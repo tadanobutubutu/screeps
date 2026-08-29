@@ -11,7 +11,7 @@ export function existingExport() {
 }
 
 // New function to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
+export function addressAccessibilityIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
   insightReport.forEach(issue => {
     console.log(`Addressing issue: ${issue.issue}`);

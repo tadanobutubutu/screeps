@@ -58,7 +58,21 @@ function createInPageButton() {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // New code...
+  document.documentElement.setAttribute('lang', getLangAttribute());
+
+  const table = document.getElementById('myTable');
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+
+  validateLandmark();
+  validateLandmarkStructure();
+
+  const svg = document.getElementById('mySvg');
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+
+  validateLinkAccessibility();
+  handleFakeLinks();
 }
 
 // DOM-based accessibility code

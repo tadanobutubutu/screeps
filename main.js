@@ -65,9 +65,9 @@ const a11yStore = {
     this.setupFocusStyles();
     this.setupFocusVisiblePolyfill();
     this.validateARIA();
-    this.checkLandmarkElements();
     this.addProperLandmarkRegions();
-    this.addSVGAccessibility();
+    this.addTableScopeAttributes();
+    this.ensureUniqueLandmarks();
     this.validateARIAUsage();
   },
 
@@ -105,17 +105,17 @@ const a11yStore = {
           e.preventDefault();
           target.click();
         }
+      }
 
-        // Escape key to close modals/dropdowns
-        if (e.key === 'Escape') {
-          const openModal = document.querySelector('[aria-modal="true"][aria-hidden="false"]') || 
-                            document.querySelector('[data-modal="open"]');
-          if (openModal) {
-            openModal.setAttribute('aria-hidden', 'true');
-            openModal.classList.remove('is-open');
-          }
-          document.body.style.overflow = '';
+      // Escape key to close modals/dropdowns
+      if (e.key === 'Escape') {
+        const openModal = document.querySelector('[aria-modal="true"][aria-hidden="false"]') || 
+                          document.querySelector('[data-modal="open"]');
+        if (openModal) {
+          openModal.setAttribute('aria-hidden', 'true');
+          openModal.classList.remove('is-open');
         }
+        document.body.style.overflow = '';
       }
 
       // Fix Safari focus trapping in dropdowns
@@ -330,7 +330,7 @@ const a11yStore = {
     });
   },
 
-  // New function to add SVG accessibility props
+  // New function to add SVG accessibility props (REACT_041)
   addSVGAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach(svg => {
@@ -354,6 +354,129 @@ const a11yStore = {
       if (!svg.hasAttribute('role')) {
         svg.setAttribute('role', 'img');
       }
+    });
+  },
+
+  // New function to ensure unique landmarks (REACT_025)
+  ensureUniqueLandmarks() {
+    const landmarkRoles = ['main', 'banner', 'navigation', 'complementary', 'contentinfo', 'form', 'search'];
+    
+    landmarkRoles.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"], ${role}:not(main)`);
+      
+      // For roles that should only appear once (main, banner, contentinfo)
+      const uniqueRoles = ['main', 'banner', 'contentinfo'];
+      
+      if (uniqueRoles.includes(role)) {
+        if (elements.length > 1) {
+          // Keep the first one, change others to complementary or region
+          elements.forEach((el, index) => {
+            if (index > 0) {
+              if (role === 'main') {
+                el.setAttribute('role', 'region');
+                if (!el.getAttribute('aria-label')) {
+                  el.setAttribute('aria-label', 'section');
+                }
+              } else {
+                el.setAttribute('role', 'region');
+                if (!el.getAttribute('aria-label')) {
+                  el.setAttribute('aria-label', `${role}-section`);
+                }
+              }
+            }
+          });
+        }
+      }
+      
+      // Ensure unique IDs for all landmarks
+      elements.forEach((el, index) => {
+        if (!el.id) {
+          el.id = `landmark-${role}-${index + 1}`;
+        }
+      });
+    });
+    
+    // Ensure navigation has unique labels if multiple exist
+    const navElements = document.querySelectorAll('nav, [role="navigation"]');
+    navElements.forEach((nav, index) => {
+      if (!nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+        if (navElements.length > 1) {
+          nav.setAttribute('aria-label', `Navigation ${index + 1}`);
+        } else {
+          nav.setAttribute('aria-label', 'Main navigation');
+        }
+      }
+    });
+  },
+
+  // New function to add scope attributes to table headers (REACT_027)
+  addTableScopeAttributes() {
+    const tables = document.querySelectorAll('table');
+    
+    tables.forEach(table => {
+      const headerCells = table.querySelectorAll('th');
+      
+      headerCells.forEach(th => {
+        // Skip if already has scope attribute
+        if (th.hasAttribute('scope')) return;
+        
+        // Determine if this is a column header or row header
+        const parent = th.parentElement;
+        const parentRow = th.closest('tr');
+        
+        if (!parentRow) return;
+        
+        // Check if this TH is in the first column (potential row header)
+        const isFirstCell = parentRow.firstElementChild === th;
+        
+        // Check if all sibling THs are in the first column (multiple row headers)
+        const siblingThs = Array.from(parentRow.querySelectorAll('th'));
+        const allThsInFirstColumn = siblingThs.every(siblingTh => {
+          const siblingRow = siblingTh.parentElement;
+          return siblingRow && siblingRow.firstElementChild === siblingTh;
+        });
+        
+        // If all THs are in the first column, they are row headers
+        if (allThsInFirstColumn && siblingThs.length > 1) {
+          th.setAttribute('scope', 'row');
+        }
+        // If this TH is the only one in its row and not in first column, it's a column header
+        else if (siblingThs.length === 1 && !isFirstCell) {
+          th.setAttribute('scope', 'col');
+        }
+        // If this is a first column cell, check if it's a row header
+        else if (isFirstCell) {
+          // Check if there are other cells in the same column that are not TH
+          const columnIndex = Array.from(parentRow.children).indexOf(th);
+          const cellsInColumn = table.querySelectorAll(`tr > *:nth-child(${columnIndex + 1})`);
+          const hasNonThCells = Array.from(cellsInColumn).some(cell => cell.tagName !== 'TH');
+          
+          if (hasNonThCells) {
+            th.setAttribute('scope', 'row');
+          } else {
+            th.setAttribute('scope', 'col');
+          }
+        }
+        // Default to column header
+        else {
+          th.setAttribute('scope', 'col');
+        }
+      });
+      
+      // Handle cells with role="columnheader" or role="rowheader"
+      const columnHeaders = table.querySelectorAll('[role="columnheader"]');
+      columnHeaders.forEach(cell => {
+        if (!cell.hasAttribute('scope')) {
+          cell.setAttribute('scope', 'col');
+        }
+      });
+      
+      const rowHeaders = table.querySelectorAll('[role="rowheader"]');
+      rowHeaders.forEach(cell => {
+        if (!cell.hasAttribute('scope')) {
+          cell.setAttribute('scope', 'row');
+        }
+      });
     });
   },
 
@@ -498,15 +621,8 @@ const a11yStore = {
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
     
-    const showRemaining = () => {
-      document.documentElement.classList.remove('focus-visible');
-      document.documentElement.classList.add('focus-hidden');
-    };
-    
-    const handleBlur = (e) => {
-      if (e.target.matches(':focus-visible')) {
-        hadKeyboardEvent = true;
-      }
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
     };
     
     const handleKeydown = (e) => {
@@ -524,30 +640,6 @@ const a11yStore = {
         document.documentElement.classList.add('focus-visible');
       }
     }, true);
-  },
-  
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
   },
   
   // NEW: Apply ARIA attributes to dynamically added elements
@@ -611,7 +703,7 @@ const a11yStore = {
 const mainElement = document.createElement('main');
 mainElement.id = 'main-content';
 
-// Set lang attribute on <html> if missing
+// Set lang attribute on <html> if missing (REACT_015)
 const htmlElement = document.documentElement;
 if (!htmlElement.getAttribute('lang')) {
   htmlElement.setAttribute('lang', 'en');
@@ -630,9 +722,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
-
-// Preserve existing code
-a11yStore.preserveExistingCode();
 
 // Standalone function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
@@ -731,7 +820,7 @@ function setSvgAttributes(svg, options = {}) {
 }
 
 function ensureUniqueLandmarks() {
-  // ... existing code ...
+  a11yStore.ensureUniqueLandmarks();
 }
 
 function validateLinkAccessibility() {
@@ -739,7 +828,7 @@ function validateLinkAccessibility() {
 }
 
 function handleFakeLinks() {
-  // ... existing code ...
+  a11yStore.fixFakeLinks();
 }
 
 // Initialize accessibility features

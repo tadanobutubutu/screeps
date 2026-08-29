@@ -319,7 +319,9 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  config,
+  logger
 };
 
 // Execute main function

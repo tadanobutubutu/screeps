@@ -63,5 +63,8 @@ const main = {
   }
 };
 
+// Add the lang attribute for accessibility
+main.lang = 'en';
+
 // Export the new function if needed:
 module.exports = main;

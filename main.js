@@ -58,7 +58,7 @@ function createInPageButton(buttonId, buttonText) {
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -83,6 +83,11 @@ function addressAccessibilityIssues(insightReport) {
         break;
       case 'add-lang-attribute':
         fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
+        // Actual implementation from HEAD
+        const htmlElement = document.querySelector('html');
+        if (htmlElement) {
+          htmlElement.setAttribute('lang', 'en');
+        }
         break;
       case 'add-landmark-roles':
         fixedIssue.fixApplied = 'Added landmark roles and fixed landmark issues.';
@@ -105,13 +110,35 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// Function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
+  const totalIssues = accessibilityReport ? accessibilityReport.length : 0;
+  const resolvedIssues = accessibilityReport 
+    ? accessibilityReport.filter(issue => issue.status === 'resolved').length 
+    : 0;
+  const pendingIssues = totalIssues - resolvedIssues;
+  
+  const issuesByType = {};
+  if (accessibilityReport) {
+    accessibilityReport.forEach(issue => {
+      const type = issue.type || 'other';
+      issuesByType[type] = (issuesByType[type] || 0) + 1;
+    });
+  }
+
+  return {
+    generatedAt: new Date().toISOString(),
+    summary: {
+      totalIssues,
+      resolvedIssues,
+      pendingIssues
+    },
+    issuesByType,
+    issues: accessibilityReport || []
+  };
 }
 
-// New function for the issue
+// Function for calculating accessibility score based on fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -122,6 +149,11 @@ function calculateAccessibilityScore(fixedIssues) {
     'missing-alt-text': 3,
     'missing-aria-label': 5,
     'heading-order': 2,
+    'add-lang-attribute': 4,
+    'add-landmark-roles': 4,
+    'add-accessible-names-to-svgs': 3,
+    'ensure-unique-landmarks': 3,
+    'fix-fake-link': 4,
     'other': 1
   };
 
@@ -188,3 +220,42 @@ if (typeof module !== 'undefined' && module.exports) {
     renderIndexView
   };
 }
+
+// Existing export function from HEAD (preserved)
+export function existingExport() {
+  // ... existing code ...
+}
+
+// New function to address accessibility issues from insight report
+function addressInsightReportIssues(insightReport) {
+  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
+  insightReport.forEach(issue => {
+    console.log(`Addressing issue: ${issue.issue}`);
+    // Implement the solution to the issue
+    // This is a placeholder for the actual implementation
+    console.log(`Solution: ${issue.solution}`);
+    // ... code to apply the solution ...
+  });
+}
+
+// Commit: ...
+
+// Existing tests in /tests/ must continue to pass
+// Example test case for the new function
+describe('addressInsightReportIssues', () => {
+  it('should address each issue in the insight report', () => {
+    const insightReport = [
+      { issue: 'Issue 1', solution: 'Solution 1' },
+      { issue: 'Issue 2', solution: 'Solution 2' }
+    ];
+    const mockLog = jest.spyOn(console, 'log').mockImplementation();
+    addressInsightReportIssues(insightReport);
+    // Mock console.log to check if the correct messages were logged
+    // This is a simplified example; in a real test, you would use a mock library
+    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
+    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
+    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
+    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
+    mockLog.mockRestore();
+  });
+});

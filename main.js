@@ -8,13 +8,14 @@
 // Commit: a3c5cf541ab167e23402b298c1007dab267aff41
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const {
   getLangAttribute,
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibilityHelpers');
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -23,13 +24,11 @@ module.exports = {
 };
 
 const a11yStore = {
+  liveRegion: null,
+  
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
+    this.createLiveRegion();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -102,23 +101,25 @@ const a11yStore = {
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = document.getElementById(skipLink.getAttribute('href').slice(1));
         if (target) {
           target.tabIndex = -1;
           target.focus();
-          this.announce('Skipped to main content');
+          this.announceToScreenReader('Skip to main content');
         }
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
@@ -154,158 +155,159 @@ const a11yStore = {
   },
 
   makeAccessible(element) {
-    // Implement the function logic to address accessibility issues
+    if (!element) return;
+    element.setAttribute('role', 'article');
+    element.setAttribute('tabindex', '0');
   },
 
   newNecessaryFunction() {
-    // Implement the new function logic here
+    const accessibleElements = document.querySelectorAll('[data-a11y]');
+    accessibleElements.forEach((el) => {
+      const a11yType = el.getAttribute('data-a11y');
+      switch (a11yType) {
+        case 'button':
+          el.setAttribute('role', 'button');
+          if (!el.textContent && !el.getAttribute('aria-label')) {
+            console.warn('Accessible button missing label');
+          }
+          break;
+        case 'link':
+          el.setAttribute('role', 'link');
+          break;
+        default:
+          break;
+      }
+    });
   },
 
   handleAccessibilityIssues() {
-    // Implement the function logic to handle accessibility issues
+    this.checkLandmarkElements();
+    this.setupFocusManagement();
+    this.updateLiveRegion();
   },
 
   addressAccessibilityIssue038() {
-    // Existing code for addressing accessibility issue 038
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const headingMap = {};
+    
+    headings.forEach((heading) => {
+      const level = heading.tagName.toLowerCase();
+      if (!headingMap[level]) {
+        headingMap[level] = 0;
+      }
+      headingMap[level]++;
+      
+      if (!heading.id) {
+        heading.id = `${level}-${headingMap[level]}`;
+      }
+    });
   },
 
   renderDependencyGraph() {
-    // Existing code for rendering dependency graph
+    const graphContainer = document.getElementById('dependency-graph');
+    if (graphContainer) {
+      graphContainer.setAttribute('role', 'img');
+      graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+    }
   },
 
   setupKeyboardNavigation() {
-    // Setup keyboard navigation logic
+    const interactiveElements = document.querySelectorAll(
+      'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    interactiveElements.forEach((el, index) => {
+      el.setAttribute('data-tab-index', index);
+    });
   },
 
   setupFocusManagement() {
-    // Setup focus management logic
+    const focusableElements = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const activeDialog = document.querySelector('[role="dialog"]:not([hidden])');
+        if (activeDialog) {
+          activeDialog.hidden = true;
+          activeDialog.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
   },
 
   setupSkipLinks() {
-    // Setup skip links logic
+    const existingSkipLink = document.querySelector('.skip-link');
+    if (!existingSkipLink) {
+      const skipLink = document.createElement('a');
+      skipLink.href = '#main-content';
+      skipLink.className = 'skip-link';
+      skipLink.textContent = 'Skip to main content';
+      skipLink.style.position = 'absolute';
+      skipLink.style.left = '-9999px';
+      skipLink.style.top = '0';
+      skipLink.addEventListener('focus', () => {
+        skipLink.style.left = '0';
+        skipLink.style.top = '0';
+      });
+      skipLink.addEventListener('blur', () => {
+        skipLink.style.left = '-9999px';
+      });
+      document.body.insertBefore(skipLink, document.body.firstChild);
+    }
   },
 
   checkLandmarkElements() {
-    // Check and ensure proper landmark elements
+    const banners = document.querySelectorAll('[role="banner"], header');
+    const mains = document.querySelectorAll('[role="main"], main');
+    const navigations = document.querySelectorAll('[role="navigation"], nav');
+    
+    if (banners.length > 1) {
+      for (let i = 1; i < banners.length; i++) {
+        banners[i].removeAttribute('role');
+      }
+    }
+    
+    if (mains.length > 1) {
+      for (let i = 1; i < mains.length; i++) {
+        mains[i].removeAttribute('role');
+      }
+    }
+    
+    navigations.forEach((nav, index) => {
+      if (nav.getAttribute('aria-label')) {
+        return;
+      }
+      const labels = ['Footer navigation', 'Secondary navigation', 'Utility navigation', 'Legal navigation'];
+      if (index < labels.length) {
+        nav.setAttribute('aria-label', labels[index]);
+      } else {
+        nav.setAttribute('aria-label', `Navigation section ${index + 1}`);
+      }
+    });
   },
 
-  addSVGAccessibilityProps() {
-    // Add accessibility properties to SVG elements
+  addSvgAccessibility() {
+    const svgs = document.querySelectorAll('svg:not([role]), svg[role="img"]');
+    svgs.forEach((svg) => {
+      if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+        svg.setAttribute('role', 'img');
+        const title = svg.querySelector('title');
+        if (title) {
+          const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+          title.id = titleId;
+          svg.setAttribute('aria-labelledby', titleId);
+        } else {
+          svg.setAttribute('aria-label', 'Decorative graphic');
+        }
+      }
+    });
   },
 
   fixFakeLinks() {
-    // Fix fake links to use proper anchor elements
-  },
-
-  updateLiveRegion() {
-    // Update live region for screen readers
-  },
-};
-
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  const ariaLabel = svgElement.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel.trim();
-  }
-
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
-    if (labeledElement && labeledElement.textContent) {
-      return labeledElement.textContent.trim();
-    }
-  }
-
-  return 'SVG graphic';
-}
-
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  report.forEach(issue => {
-    // Integrated the logic from both branches to address accessibility issues
-  });
-}
-
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
-export default function Main() {
-  return (
-    <>
-      {/* REACT_015: Lang attribute should be set at HTML document level */}
-      {/* This is typically set in index.html or via document.documentElement.lang */}
-
-      <header role="banner">
-        <nav role="navigation" aria-label="Main navigation">
-          <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/about">About</a></li>
-          </ul>
-        </nav>
-      </header>
-
-      <main role="main">
-        <h1>Welcome to our site</h1>
-
-        {/* REACT_041: Add accessible names to SVGs */}
-        <svg
-          role="img"
-          aria-label="Settings icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-
-        {/* REACT_041: Add accessible names to second SVG */}
-        <svg
-          role="img"
-          aria-label="User profile icon"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-        </svg>
-
-        {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
-          Go to Dashboard
-        </a>
-
-        {/* REACT_017 & REACT_025: Ensure unique landmarks */}
-        {/* Using proper landmark elements ensures unique landmarks */}
-      </main>
-    </>
-  );
-}
-
-export {
-  a11yStore,
-  handleAccessibilityIssues,
-  getSvgAccessibleName,
-  newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-};
-export default a11yStore;
+    const fakeLinks = document.querySelectorAll('[role="link"], [data-fake-link]');
+    fakeLinks.forEach((link) => {
+      const href = link.getAttribute('data-href') || link.getAttribute('href');
+      if (href) {
+        const newLink = document.createElement('a');
+        newLink.href = href;
+        newLink.textContent = link.textContent;
+        new

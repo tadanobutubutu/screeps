@@ -1,5 +1,5 @@
 // TODO: Add back any required exports that might have been?
-
+// REACT_015: Add lang attribute
 function main() {
   return "Hello, World!";
 }

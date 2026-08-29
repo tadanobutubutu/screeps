@@ -13,6 +13,10 @@ const { min } = require('./mathHelpers');
 const { mode } = require('./mathHelpers');
 const { median } = require('./mathHelpers');
 
+function calculateSum(numbers) {
+  return numbers.reduce((acc, num) => acc + num, 0);
+}
+
 import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Add necessary exports for new functions
@@ -149,5 +153,6 @@ function uniqueLandmarks(document) {
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
     newFunction1, newFunction2,
-    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks
+    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
+    calculateSum
 };

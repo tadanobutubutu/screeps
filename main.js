@@ -98,8 +98,6 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
 const a11yStore = {
   liveRegion: null,
 
-  // Existing code
-
   // New property to count dependencies
   countDependencies,
 
@@ -322,4 +320,7 @@ function addressAccessibilityIssues(report) {
             img.setAttribute('alt', 'Image description');
           }
         });
-        break
+        break;
+    }
+  });
+}

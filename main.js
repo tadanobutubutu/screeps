@@ -3,6 +3,47 @@ import React from 'react';
 const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
 const _ = require('lodash');
 
+// Import the required functions from both branches
+const { someFunction } = { someFunction: () => 'someFunction result' };
+const { renderDependencyGraphContent } = require('./conflict-branch');
+const { ensureUniqueLandmarks: ensureUniqueLandmarksImported } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+
+// Generalized accessibility functions
+
+function improveAccessibility() {
+  renderDependencyGraphContent(document.querySelector('.dependency-graph-content, [data-dependency-graph-content]'));
+
+  // Ensure all clickable elements are focusable
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
+}
+
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // This function ensures unique landmark roles and removes duplicates
+  // Adapted for Screeps environment
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueElements = {};
+
+  landmarks.forEach(landmark => {
+    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
+    const uniqueGameObjects = [];
+
+    matchingGameObjects.forEach(go => {
+      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
+      if (isUnique) {
+        uniqueGameObjects.push(go);
+      } else {
+        // Remove the landmark tag if it's not unique
+        go.remove(landmark);
+      }
+    });
+  });
+}
+
 const main = {
   loop: function() {
     for (const name in Game.rooms) {

@@ -651,7 +651,25 @@ function newFunction() {
 
 // Original code with accessibility issue
 function dependencyGraph() {
-  // ... existing code ...
+  // Create container with proper ARIA role for accessibility
+  const container = document.createElement('div');
+  
+  // Add appropriate ARIA role - "region" is commonly used for graphical content
+  // and allows screen readers to announce it as a distinct section
+  container.setAttribute('role', 'region');
+  
+  // Set an accessible name for screen readers
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  // If the graph is interactive, consider adding appropriate attributes
+  // For example, if it contains interactive elements:
+  // container.setAttribute('aria-describedby', 'graph-description');
+  
+  // Add the container to the DOM
+  document.body.appendChild(container);
+  
+  // Additional accessibility features can be added here
+  container.setAttribute('tabindex', '0'); // Make container focusable
 }
 
 // (This comment remains as-is)

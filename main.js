@@ -224,12 +224,14 @@ function fixFakeLinkIssues(doc) {
 
 /**
  * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 // Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
  * Add proper landmark regions to the document
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function addProperLandmarkRegions(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks);
@@ -237,7 +239,8 @@ function addProperLandmarkRegions(doc) {
 
 /**
  * Add ARIA attributes to form controls
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function addAriaToFormControls(doc) {
   const inputs = doc.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
@@ -252,7 +255,8 @@ function addAriaToFormControls(doc) {
 
 /**
  * Replace button IDs with accessible alternatives
- * @param { Document } doc - The document object to operate on */
+ * @param { Document } doc - The document object to operate on
+ */
 function replaceMyButtonId(doc) {
   const buttons = doc.querySelectorAll('button');
   buttons.forEach((button, index) => {
@@ -272,7 +276,8 @@ function replaceMyButtonId(doc) {
 /**
  * Get the lang attribute from the document
  * @param { Document } doc - The document object to operate on
- * @returns { string } The language code */
+ * @returns { string } The language code
+ */
 function getLangAttribute(doc) {
   return doc.documentElement.lang || 'en';
 }
@@ -280,7 +285,8 @@ function getLangAttribute(doc) {
 /**
  * Get the full lang attribute including region
  * @param { Document } doc - The document object to operate on
- * @returns { string } The full language code */
+ * @returns { string } The full language code
+ */
 function getFullLangAttribute(doc) {
   return doc.documentElement.lang || 'en-US';
 }
@@ -288,7 +294,8 @@ function getFullLangAttribute(doc) {
 /**
  * Validate landmark structure
  * @param { Element } element - The element to validate
- * @returns { boolean } Whether the landmark is valid */
+ * @returns { boolean } Whether the landmark is valid
+ */
 function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const role = element.getAttribute('role');
@@ -298,7 +305,8 @@ function validateLandmark(element) {
 /**
  * Validate landmark structure in document
  * @param { Document } doc - The document object to validate
- * @returns { Array } Array of validation results */
+ * @returns { Array } Array of validation results
+ */
 function validateLandmarkStructure(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
   return Array.from(landmarks).map(el => ({
@@ -311,7 +319,8 @@ function validateLandmarkStructure(doc) {
 /**
  * Validate table accessibility
  * @param { HTMLTableElement } table - The table to validate
- * @returns { boolean } Whether the table is accessible */
+ * @returns { boolean } Whether the table is accessible
+ */
 function validateTableAccessibility(table) {
   const hasCaption = table.querySelector('caption') !== null;
   const hasHeaders = table.querySelector('th') !== null;
@@ -321,7 +330,8 @@ function validateTableAccessibility(table) {
 /**
  * Validate table structure
  * @param { Document } doc - The document object to validate
- * @returns { Array } Array of validation results */
+ * @returns { Array } Array of validation results
+ */
 function validateTableStructure(doc) {
   const tables = doc.querySelectorAll('table');
   return Array.from(tables).map(table => ({
@@ -333,7 +343,8 @@ function validateTableStructure(doc) {
 /**
  * Get accessible name for SVG elements
  * @param { SVGElement } svg - The SVG element
- * @returns { string } The accessible name */
+ * @returns { string } The accessible name
+ */
 function getSvgAccessibleName(svg) {
   const title = svg.querySelector('title');
   const ariaLabel = svg.getAttribute('aria-label');
@@ -359,7 +370,8 @@ function getSvgAccessibleName(svg) {
 
 /**
  * Ensure landmarks are unique in the document
- * @param { NodeList | Array } landmarks - The landmarks to check */
+ * @param { NodeList | Array } landmarks - The landmarks to check
+ */
 function ensureUniqueLandmarks(landmarks) {
   const seen = new Map();
   landmarks.forEach(landmark => {
@@ -377,7 +389,8 @@ function ensureUniqueLandmarks(landmarks) {
  * @param { string } href - The href attribute
  * @param { string } text - The link text
  * @param { Document } doc - The document object
- * @returns { HTMLAnchorElement } The created link */
+ * @returns { HTMLAnchorElement } The created link
+ */
 function createAccessibleLink(href, text, doc) {
   const link = doc.createElement('a');
   link.href = href;
@@ -389,7 +402,8 @@ function createAccessibleLink(href, text, doc) {
  * Create an in-page button element
  * @param { string } text - The button text
  * @param { Document } doc - The document object
- * @returns { HTMLButtonElement } The created button */
+ * @returns { HTMLButtonElement } The created button
+ */
 function createInPageButton(text, doc) {
   const button = doc.createElement('button');
   button.textContent = text;
@@ -400,7 +414,8 @@ function createInPageButton(text, doc) {
 /**
  * Get the language attribute for the document
  * @param { Document } doc - The document object to operate on
- * @returns { string } The language attribute value */
+ * @returns { string } The language attribute value
+ */
 function getLangAttributeImpl(doc) {
   // First check if there's an existing lang attribute on the documentElement
   const existingLang = doc.documentElement.getAttribute('lang');
@@ -423,7 +438,8 @@ function getLangAttributeImpl(doc) {
 /**
  * Get the full language attribute including region
  * @param { Document } doc - The document object to operate on
- * @returns { string } The full language attribute value */
+ * @returns { string } The full language attribute value
+ */
 function getFullLangAttributeImpl(doc) {
   // First check if there's an existing lang attribute on the documentElement
   const existingLang = doc.documentElement.getAttribute('lang');
@@ -452,7 +468,8 @@ function getFullLangAttributeImpl(doc) {
  * Get the language attribute for the document
  * Implementation of getLangAttribute()
  * @param { Document } doc - The document object to operate on
- * @returns { string } The language attribute value */
+ * @returns { string } The language attribute value
+ */
 function getLangAttribute(doc) {
   return getLangAttributeImpl(doc);
 }
@@ -461,7 +478,8 @@ function getLangAttribute(doc) {
  * Get the full language attribute including region
  * Implementation of getFullLangAttribute()
  * @param { Document } doc - The document object to operate on
- * @returns { string } The full language attribute value */
+ * @returns { string } The full language attribute value
+ */
 function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
@@ -495,9 +513,6 @@ module.exports = {
   fixFakeLinkIssues,
   // Exports from the right side
   findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
   addressAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,

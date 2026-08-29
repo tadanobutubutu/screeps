@@ -276,6 +276,30 @@ export function addMainLandmark(html) {
 }
 
 /**
+ * Wraps primary content in a main landmark
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with primary content wrapped in <main>
+ */
+export function wrapPrimaryContentInMain(html) {
+  if (typeof html !== 'string') return html;
+  
+  // Check if main landmark already exists
+  if (/<main[\s>]/i.test(html)) {
+    return html;
+  }
+  
+  // Look for body content to wrap
+  const bodyMatch = html.match(/<body(\s[^>]*)?>([\s\S]*)<\/body>/i);
+  if (bodyMatch) {
+    const bodyContent = bodyMatch[2];
+    return html.replace(bodyMatch[0], `<body${bodyMatch[1] || ''}>${bodyContent}</body><main>${bodyContent}</main>`);
+  }
+  
+  // If no body tag found, try to wrap the entire content
+  return html;
+}
+
+/**
  * Adds accessible names to SVG elements
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names

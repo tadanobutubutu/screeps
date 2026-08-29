@@ -1,5 +1,7 @@
 import React from 'react';
 
+// TODO: This is the existing code that needs to be preserved
+
 const MyComponent = () => {
   // Existing component code
 
@@ -32,11 +34,11 @@ function checkLinkAndButtonAccessibility() {
   };
 
   // Check links for accessible names
-  const links = document.querySelectorAll('a');
+  const links = ...
   links.forEach((link, index) => {
     const hasTextContent = link.textContent.trim().length > 0;
-    const hasAriaLabel = link.hasAttribute('aria-label') && link.getAttribute('aria-label').trim() !== '';
-    const hasAriaLabelledBy = link.hasAttribute('aria-labelledby') && link.getAttribute('aria-labelledby').trim() !== '';
+    const hasAriaLabel = ... && ... !== '';
+    const hasAriaLabelledBy = ... && ... !== '';
     const hasTitle = link.hasAttribute('title') && link.getAttribute('title').trim() !== '';
 
     if (!hasTextContent && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {
@@ -49,11 +51,11 @@ function checkLinkAndButtonAccessibility() {
   });
 
   // Check buttons for accessible names
-  const buttons = document.querySelectorAll('button');
+  const buttons = ...
   buttons.forEach((button, index) => {
     const hasTextContent = button.textContent.trim().length > 0;
-    const hasAriaLabel = button.hasAttribute('aria-label') && button.getAttribute('aria-label').trim() !== '';
-    const hasAriaLabelledBy = button.hasAttribute('aria-labelledby') && button.getAttribute('aria-labelledby').trim() !== '';
+    const hasAriaLabel = ... && ... !== '';
+    const hasAriaLabelledBy = ... && ... !== '';
     const hasTitle = button.hasAttribute('title') && button.getAttribute('title').trim() !== '';
 
     if (!hasTextContent && !hasAriaLabel && !hasAriaLabelledBy && !hasTitle) {

@@ -181,6 +181,19 @@ function checkLandmarkElements() {
 // Run the function to check landmark elements
 checkLandmarkElements();
 
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  // Find the dependency graph container element
+  const container = document.querySelector('.dependency-graph, #dependency-graph, [data-graph-container]');
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency graph');
+  }
+}
+
+// Execute the ARIA role fix
+ensureDependencyGraphAriaRole();
+
 // Preserve the existing exports and add new functions
 module.exports = {
   main,

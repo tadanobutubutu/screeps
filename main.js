@@ -91,6 +91,36 @@ function modifiedFunction() {
   console.log('This function has been modified.');
 }
 
+// Functions to render dependency graphs and display module structure for debugging purposes.
+function renderDependencyGraph() {
+  const moduleStructure = displayModuleStructure();
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+
+  for (const moduleName in moduleStructure) {
+    graph.nodes.push({ id: moduleName, label: moduleName });
+    moduleStructure[moduleName].forEach(dependency => {
+      graph.edges.push({ from: moduleName, to: dependency });
+    });
+  }
+
+  logger.info('Dependency graph rendered', graph);
+  return graph;
+}
+
+function displayModuleStructure() {
+  const moduleStructure = {
+    'main.js': ['./config', './utils/logger'],
+    './config': [],
+    './utils/logger': []
+  };
+
+  logger.info('Module structure', moduleStructure);
+  return moduleStructure;
+}
+
 module.exports = {
   validateLandmark,
   initialize,
@@ -101,5 +131,7 @@ module.exports = {
   config,
   logger,
   newFunction,
-  modifiedFunction
+  modifiedFunction,
+  renderDependencyGraph,
+  displayModuleStructure
 };

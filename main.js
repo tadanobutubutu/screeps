@@ -92,7 +92,20 @@ function addressAccessibilityIssues(document) {
 }
 
 function enforceSvgAccessibility(svgElement) {
-  // (New implementation of enforceSvgAccessibility())
+  // New implementation of enforceSvgAccessibility()
+  if (!svgElement.hasAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  if (!svgElement.hasAttribute('aria-labelledby')) {
+    const title = svgElement.querySelector('title');
+    const description = title ? title.textContent : 'Image description';
+    svgElement.setAttribute('aria-labelledby', `svg-${svgElement.id}-description`);
+    const descriptionElement = document.createElement('div');
+    descriptionElement.setAttribute('id', `svg-${svgElement.id}-description`);
+    descriptionElement.setAttribute('role', 'presentation');
+    descriptionElement.textContent = description;
+    svgElement.parentNode.insertBefore(descriptionElement, svgElement.nextSibling);
+  }
 }
 
 function fixImageAltTexts(document) {

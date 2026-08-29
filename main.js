@@ -107,6 +107,7 @@ const main = {
 
   myNewFunction: function() {
     // your new function logic goes here
+    return 'myNewFunction executed';
   }
 };
 

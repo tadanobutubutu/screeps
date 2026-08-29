@@ -86,11 +86,47 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   return graphData;
 }
 
+/**
+ * Renders the index view for the given container and items.
+ * @param {HTMLElement} container - The container element to render into
+ * @param {Array} items - The items to display in the index view
+ * @param {Object} [options={}] - Optional rendering configuration
+ * @returns {Object} The rendered index view instance
+ */
+function renderIndexView(container, items, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required');
+  }
+  
+  if (!items) {
+    throw new Error('Items are required');
+  }
+  
+  // Ensure container has an id for index references
+  const containerId = ensureElementHasId(container, 'index-container');
+  
+  // Add accessibility label if not present
+  addAriaLabel(container, `Index view: ${containerId}`);
+  
+  const viewData = {
+    id: containerId,
+    items: items,
+    options: options,
+    rendered: true,
+    timestamp: new Date().toISOString()
+  };
+  
+  console.log('Rendering index view:', viewData);
+  
+  return viewData;
+}
+
 // ... [Any other existing code here] ...
 
 // Export functions for testing and external use
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  renderIndexView
 };

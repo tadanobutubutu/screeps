@@ -8,9 +8,15 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
-// module.exports = { myFunction };
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (Add a new function or update an existing one to set the correct ARIA role)
+
+function setDependencyGraphRole() {
+  const dependencyGraph = document.querySelector('#dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'graph');
+  }
+}
 
 module.exports = {};

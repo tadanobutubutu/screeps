@@ -5,7 +5,13 @@ import { class1, function1, Object1 } from './path/to/module';
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-function addLangAttribute(document, lang = 'en') {
+// Placeholder function for new accessibility fixes
+function addAccessibilityFixes(document) {
+  // Add new accessibility improvements here as per issue requirements
+  return document;
+}
+
+function setLanguage(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
@@ -32,7 +38,7 @@ function fixTableStructure(document) {
     }
 
     if (!existingTbody) {
-      const remainingRows = rows.length > 0 ? Array.from(rows).slice(0) : [];
+      const remainingRows = rows.length > 1 ? Array.from(rows).slice(1) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -43,7 +49,7 @@ function fixTableStructure(document) {
 
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td');
       if (cells.length > 0) {
         if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
           const firstCell = cells[0];
@@ -65,7 +71,7 @@ function addMainLandmark(document) {
 
   if (!mainElement) {
     const body = document.body;
-    const main = document.getElementById('main-content');
+    const main = document.createElement('main');
     if (main) {
       main.setAttribute('id', 'main-content');
     }
@@ -104,7 +110,7 @@ function ensureUniqueLandmarks(document) {
     }
   });
 
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"]');
   if (mains.length > 1) {
     mains.forEach((main, index) => {
       main.setAttribute('aria-label', `Main content ${index + 1}`);
@@ -118,8 +124,8 @@ function ensureUniqueLandmarks(document) {
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (!svg.querySelector('title') && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    if (!svg.getAttribute('role') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
       title.textContent = `SVG ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('role', 'img');
@@ -129,7 +135,7 @@ function addSvgAccessibleNames(document) {
 }
 
 // Function to add accessible names to SVG elements
-function addAccessibleNamesToSVGs(document) {
+function addSvgElementAccessibleNames(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
@@ -143,7 +149,7 @@ function addAccessibleNamesToSVGs(document) {
 }
 
 // Function to fix fake link issue (merged fixes)
-function fixFakeLinkIssue(document) {
+function fixFakeLinks(document) {
   const clickableElements = document.querySelectorAll('[onclick]');
   let count = 0;
 
@@ -153,7 +159,7 @@ function fixFakeLinkIssue(document) {
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
 
-    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('.href'))) {
+    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('navigate'))) {
       const span = document.createElement('span');
       span.textContent = element.textContent;
       span.setAttribute('role', 'link');
@@ -199,9 +205,9 @@ function fixFakeLinkIssues(document) {
 
 // Function to fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"]');
   landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+    if (!landmark.id && !landmark.getAttribute('aria-label')) {
       const role = landmark.getAttribute('role');
       landmark.setAttribute('aria-label', `${role} region`);
     }
@@ -210,12 +216,12 @@ function fixLandmarkIssues(document) {
 
 // Function to add landmark regions
 function addLandmarkRegions(document) {
-  const sections = document.querySelectorAll('section:not([role])');
+  const sections = document.querySelectorAll('section');
   sections.forEach((section, index) => {
     if (!section.id) {
       section.id = `section-${index + 1}`;
     }
-    if (!section.getAttribute('aria-label') && !section.querySelector('h1, h2, h3, h4, h5, h6')) {
+    if (!section.getAttribute('role') && section.querySelector('h2, h3, h4, h5, h6')) {
       section.setAttribute('role', 'region');
       section.setAttribute('aria-label', `Section ${index + 1}`);
     }
@@ -223,7 +229,7 @@ function addLandmarkRegions(document) {
 }
 
 // REACT_025: Ensure unique landmarks (by role approach)
-function uniqueLandmarks(document) {
+function ensureUniqueLandmarksByRole(document) {
   const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
 
   landmarkRoles.forEach(role => {
@@ -237,7 +243,7 @@ function uniqueLandmarks(document) {
     }
   });
 
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"]');
   if (mains.length > 1) {
     mains.forEach((main, index) => {
       main.setAttribute('aria-label', `Main content ${index + 1}`);
@@ -248,11 +254,11 @@ function uniqueLandmarks(document) {
 }
 
 // Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
+function addSvgAccessibleNamesAlias(document) {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     if (!svg.querySelector('title')) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const title = document.createElement('title');
       title.textContent = 'Accessible SVG';
       svg.insertBefore(title, svg.firstChild);
     }
@@ -271,7 +277,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.getElementById('g_id_onload');
+    const buttonContainer = document.getElementById('g_id_onbutton');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -279,3 +285,4 @@ function googleSignIn(document) {
       );
     }
   }
+}

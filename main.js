@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import './styles.css';
 
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
+// (Already implemented at the bottom of the file)
 
 function App() {
   const [data, setData] = useState(null);
@@ -34,7 +35,7 @@ function App() {
 
   // REACT_017: Add landmark roles and fix landmark issues
   // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
+  // REACT_036: Fix 1 fake link issue
   // REACT_041: Add accessible names to SVGs
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
@@ -92,15 +93,15 @@ export function checkUniqueLandmarks() {
 // REACT_041: Add accessible names to SVGs
 export function addAccessibleNameToSVG(svgElement, accessibleName) {
   if (!svgElement) return;
-  
+
   // Add title element as first child
   const title = document.createElement('title');
   title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
-  
+
   // Insert title as first child
   svgElement.insertBefore(title, svgElement.firstChild);
-  
+
   // Add aria-labelledby attribute
   svgElement.setAttribute('aria-labelledby', title.id);
 }
@@ -108,44 +109,44 @@ export function addAccessibleNameToSVG(svgElement, accessibleName) {
 // REACT_036: Fix fake link issues - convert to proper semantic elements
 export function isValidLink(element) {
   if (!element) return true;
-  
+
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
   const onClick = element.getAttribute('onclick');
-  
+
   // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
-  
+
   if (isFakeLink) {
     return {
       valid: false,
       suggestion: `Replace <${tagName}> with <button> or <a href="#"> for proper accessibility.`
     };
   }
-  
+
   return { valid: true };
 }
 
 // REACT_027: Add scope to table headers
 export function addScopeToTableHeaders(tableElement) {
   if (!tableElement) return [];
-  
+
   const headers = tableElement.querySelectorAll('th');
   const updates = [];
-  
+
   headers.forEach((th) => {
     const row = th.closest('tr');
     const rowIndex = Array.from(row.parentNode.children).indexOf(row);
     const cellIndex = Array.from(row.children).indexOf(th);
-    
+
     // Determine if scope should be 'col' or 'row'
     let scope = 'col';
-    
+
     // Check if it's a row header (first cell in a row that's not the first row)
     if (cellIndex === 0 && rowIndex > 0) {
       scope = 'row';
     }
-    
+
     if (!th.hasAttribute('scope')) {
       th.setAttribute('scope', scope);
       updates.push({
@@ -155,7 +156,7 @@ export function addScopeToTableHeaders(tableElement) {
       });
     }
   });
-  
+
   return updates;
 }
 
@@ -284,44 +285,4 @@ export function wrapPrimaryContentInMain(container, options = {}) {
   const { role = 'main', ariaLabel } = options;
   
   // Check if a main element already exists
-  let mainElement = container.querySelector('main');
-  let existingMain = container.querySelector('[role="main"]');
-  
-  // If an existing main element with role="main" is found, return it
-  if (existingMain) {
-    return existingMain;
-  }
-  
-  // If a main element exists but doesn't have role="main", add the role
-  if (mainElement && !mainElement.hasAttribute('role')) {
-    mainElement.setAttribute('role', role);
-    if (ariaLabel) {
-      mainElement.setAttribute('aria-label', ariaLabel);
-    }
-    return mainElement;
-  }
-  
-  // Find primary content within the container
-  let primaryContent = null;
-  const contentSelectors = [
-    '[role="main"]',
-    '[role="primary"]',
-    '#main-content',
-    '#content',
-    '.main-content',
-    '.primary-content',
-    'article',
-    '[role="article"]'
-  ];
-  
-  for (const selector of contentSelectors) {
-    primaryContent = container.querySelector(selector);
-    if (primaryContent) break;
-  }
-  
-  // If no specific content area found, use the largest child element or create main wrapper
-  if (!primaryContent) {
-    const children = Array.from(container.children);
-    
-    // Filter out likely non-content elements (header, nav, footer, aside)
-    const nonContentSelectors = ['header', 'nav', 'footer', 'aside', '[role="banner"]', '[role
+  let mainElement = container

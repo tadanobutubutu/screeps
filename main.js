@@ -3,6 +3,20 @@ const myNewFunction = () => {
   // Implementation of your new function goes here
 };
 
+// Function to check link accessibility
+function isLinkAccessible(link) {
+  if (!link || typeof link !== 'string') {
+    return false;
+  }
+  
+  try {
+    const url = new URL(link);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
 // Preserve all current exports and functions
 // ... existing exports and functions ...
 
@@ -19,7 +33,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
+    const identifier = landmark.id || `${landmark.name}-${landmark.coordinates?.lat}-${landmark.coordinates?.lng}`;
     
     if (seen.has(identifier)) {
       return false;
@@ -31,5 +45,6 @@ function ensureUniqueLandmarks(landmarks) {
 
 module.exports = {
   myNewFunction,
+  isLinkAccessible,
   ensureUniqueLandmarks
 };

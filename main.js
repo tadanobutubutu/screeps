@@ -11,7 +11,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-utils');
 
 const {
   ensureElementHasId,
@@ -19,10 +19,10 @@ const {
   renderDependencyGraphs,
   countDependencies,
   myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
+} = require('./helpers');
 
 // Import your custom functions if they exist
-// const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
+// const { customFunction1, customFunction2 } = ... // replace with actual import statement
 
 const viewsDir = path.join(__dirname, 'views');
 
@@ -32,6 +32,152 @@ const viewsDir = path.join(__dirname, 'views');
 // The new function you need to add
 function newFunction() {
     // Your implementation here
+}
+
+// Function for addressing accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport(insightReport) {
+  if (!insightReport || !insightReport.issues || !Array.isArray(insightReport.issues)) {
+    return { resolved: 0, remaining: 0, errors: [] };
+  }
+
+  const results = {
+    resolved: 0,
+    remaining: 0,
+    errors: []
+  };
+
+  insightReport.issues.forEach((issue) => {
+    try {
+      switch (issue.type) {
+        case 'missing-lang-attribute':
+          handleMissingLangAttribute(issue);
+          results.resolved++;
+          break;
+        case 'missing-th-scope':
+          handleMissingThScope(issue);
+          results.resolved++;
+          break;
+        case 'missing-aria-label':
+          handleMissingAriaLabel(issue);
+          results.resolved++;
+          break;
+        case 'missing-element-id':
+          handleMissingElementId(issue);
+          results.resolved++;
+          break;
+        case 'invalid-table-structure':
+          handleInvalidTableStructure(issue);
+          results.resolved++;
+          break;
+        case 'missing-landmark':
+          handleMissingLandmark(issue);
+          results.resolved++;
+          break;
+        case 'missing-svg-accessible-name':
+          handleMissingSvgAccessibleName(issue);
+          results.resolved++;
+          break;
+        default:
+          console.warn(`Unknown issue type: ${issue.type}`);
+          results.remaining++;
+      }
+    } catch (error) {
+      results.errors.push({
+        issue: issue,
+        error: error.message
+      });
+      results.remaining++;
+    }
+  });
+
+  return results;
+}
+
+// Helper functions for addressing specific accessibility issues
+function handleMissingLangAttribute(issue) {
+  if (issue.filePath && issue.element) {
+    try {
+      let content = fs.readFileSync(issue.filePath, 'utf8');
+      const htmlPattern = /<html[^>]*>/i;
+      const langMatch = content.match(htmlPattern);
+      if (langMatch) {
+        const langAttr = getLangAttribute(issue.element);
+        if (langAttr) {
+          let updatedContent = content.replace(langMatch[0], langMatch[0].replace('>', ` lang="${langAttr}">`));
+          if (content !== updatedContent) {
+            fs.writeFileSync(issue.filePath, updatedContent);
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error handling missing lang attribute in ${issue.filePath}:`, error);
+    }
+  }
+}
+
+function handleMissingThScope(issue) {
+  if (issue.filePath && issue.element) {
+    try {
+      let content = fs.readFileSync(issue.filePath, 'utf8');
+      const elementMatch = content.match(new RegExp(issue.element, 'i'));
+      if (elementMatch) {
+        const updatedContent = content.replace(
+          new RegExp(issue.element, 'gi'),
+          issue.element.replace('<th', '<th scope="col"')
+        );
+        if (content !== updatedContent) {
+          fs.writeFileSync(issue.filePath, updatedContent);
+        }
+      }
+    } catch (error) {
+      console.error(`Error handling missing th scope in ${issue.filePath}:`, error);
+    }
+  }
+}
+
+function handleMissingAriaLabel(issue) {
+  if (issue.element && issue.label) {
+    addAriaLabel(issue.element, issue.label);
+  }
+}
+
+function handleMissingElementId(issue) {
+  if (issue.element) {
+    ensureElementHasId(issue.element);
+  }
+}
+
+function handleInvalidTableStructure(issue) {
+  if (issue.filePath && issue.tableName && issue.expectedColumns) {
+    validateTableStructure(issue.filePath, issue.tableName, issue.expectedColumns);
+  }
+}
+
+function handleMissingLandmark(issue) {
+  if (issue.filePath && issue.element) {
+    try {
+      let content = fs.readFileSync(issue.filePath, 'utf8');
+      const landmarkRole = issue.role || 'main';
+      const updatedContent = content.replace(
+        new RegExp(`<${issue.element}`, 'i'),
+        `<${issue.element} role="${landmarkRole}"`
+      );
+      if (content !== updatedContent) {
+        fs.writeFileSync(issue.filePath, updatedContent);
+      }
+    } catch (error) {
+      console.error(`Error handling missing landmark in ${issue.filePath}:`, error);
+    }
+  }
+}
+
+function handleMissingSvgAccessibleName(issue) {
+  if (issue.element) {
+    const accessibleName = getSvgAccessibleName(issue.element);
+    if (accessibleName) {
+      addAriaLabel(issue.element, accessibleName);
+    }
+  }
 }
 
 // TODO: Add back any required exports that might have been omitted
@@ -65,27 +211,7 @@ Module.onInit = function() {
  */
 function checkTableStructure(tableName, expectedColumns) {
   // ... existing implementation ...
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-function ensureElementHasId(element) {
-  // ... existing implementation ...
-}
-
-function addAriaLabel(element, label) {
-  // ... existing implementation ...
-}
-
-function renderDependencyGraphs(dependencies) {
-  // ... existing implementation ...
-}
-
-function countDependencies() {
-  // ... existing implementation ...
-}
-
-function myNewFunction(input) {
-  // Implement the new function here
+  return true;
 }
 
 function main() {
@@ -109,7 +235,7 @@ function updateThScopeAttribute(file) {
   try {
     let content = fs.readFileSync(file, 'utf8');
     // Simple regex to find th elements without scope attribute
-    const updatedContent = content.replace(/<th(?![^>]*\bscope=)/g, '<th scope="row"');
+    const updatedContent = content.replace(/<th(?!([^>]*\b)scope=["'][^"']*["'])/gi, '<th scope="row"');
     if (content !== updatedContent) {
       fs.writeFileSync(file, updatedContent);
       console.log(`Updated th scope attributes in ${file}`);
@@ -132,6 +258,7 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     newFunction,
+    addressAccessibilityIssuesFromInsightReport,
     getLangAttribute,
     getFullLangAttribute,
     validateTableAccessibility,

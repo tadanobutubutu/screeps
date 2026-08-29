@@ -10,11 +10,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        candidate = `${baseName}_${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -37,8 +37,21 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
+/**
+ * Calculates the sum of an array of numbers.
+ * @param {Array<number>} numbers - Array of numbers to sum.
+ * @returns {number} The sum of all numbers in the array.
+ */
+function calculateSum(numbers) {
+    if (!Array.isArray(numbers)) {
+        throw new TypeError('Input must be an array');
+    }
+    return numbers.reduce((sum, num) => sum + num, 0);
+}
+
 module.exports = {
     ensureUniqueLandmarkId,
     uniqueLandmarks,
+    calculateSum,
     // Preserve any other existing exports here
 };

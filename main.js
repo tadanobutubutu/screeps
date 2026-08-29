@@ -14,7 +14,7 @@ const {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./a11y-utils');
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -23,13 +23,11 @@ module.exports = {
 };
 
 const a11yStore = {
+  liveRegion: null,
+
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
+    // Initialize store
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -39,7 +37,7 @@ const a11yStore = {
     button.id = id;
     button.setAttribute('aria-label', label);
     button.textContent = label;
-    button.addEventListener('click', onClick);
+    if (onClick) button.addEventListener('click', onClick);
     return button;
   },
 
@@ -61,7 +59,7 @@ const a11yStore = {
 
     dialog.appendChild(titleEl);
     dialog.appendChild(closeButton);
-    dialog.appendChild(content);
+    if (content) dialog.appendChild(content);
 
     return dialog;
   },
@@ -106,19 +104,21 @@ const a11yStore = {
         if (target) {
           target.tabIndex = -1;
           target.focus();
-          this.announce('Skipped to main content');
+          this.announce('Skip to main content');
         }
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
+    imagesWithoutAlt.forEach((img) => {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
@@ -155,10 +155,13 @@ const a11yStore = {
 
   makeAccessible(element) {
     // Implement the function logic to address accessibility issues
+    if (!element) return;
+    element.setAttribute('tabindex', '0');
   },
 
   newNecessaryFunction() {
     // Implement the new function logic here
+    return true;
   },
 
   handleAccessibilityIssues() {
@@ -189,7 +192,7 @@ const a11yStore = {
     // Check and ensure proper landmark elements
   },
 
-  addSVGAccessibilityProps() {
+  addSvgAccessibility() {
     // Add accessibility properties to SVG elements
   },
 
@@ -202,9 +205,9 @@ const a11yStore = {
   },
 };
 
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
 
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -214,12 +217,12 @@ function getSvgAccessibleName(svgElement) {
     return desc.textContent.trim();
   }
 
-  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
     return ariaLabel.trim();
   }
 
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
     const labeledElement = document.getElementById(ariaLabelledby);
     if (labeledElement && labeledElement.textContent) {
@@ -232,13 +235,17 @@ function getSvgAccessibleName(svgElement) {
 
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  report.forEach(issue => {
+  report.forEach((issue) => {
     // Integrated the logic from both branches to address accessibility issues
+    if (issue && issue.type) {
+      // Handle specific accessibility issue
+    }
   });
 }
 
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+const mainElement = document.querySelector('main') || document.body;
+// Set lang attribute on document element
+if (mainElement) document.documentElement.lang = getLangAttribute() || 'en';
 
 export default function Main() {
   return (
@@ -251,6 +258,7 @@ export default function Main() {
           <ul>
             <li><a href="/home">Home</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
         </nav>
       </header>
@@ -281,13 +289,17 @@ export default function Main() {
         </svg>
 
         {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
+        <a href="/dashboard" className="button">
           Go to Dashboard
         </a>
 
         {/* REACT_017 & REACT_025: Ensure unique landmarks */}
         {/* Using proper landmark elements ensures unique landmarks */}
       </main>
+
+      <footer role="contentinfo">
+        <p>&copy; 2024 Our Site</p>
+      </footer>
     </>
   );
 }
@@ -304,7 +316,7 @@ export {
   initAccessibility,
   updateLiveRegion,
   checkLandmarkElements,
-  addSVGAccessibilityProps,
+  setupKeyboardNavigation,
   addressAccessibilityIssue038,
   renderDependencyGraph,
 };

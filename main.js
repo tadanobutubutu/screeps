@@ -90,6 +90,10 @@ function addProperLandmarkRegions() {
     aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
+
+  // Add the created landmarks to the document
+  document.body.insertBefore(main, document.body.firstChild);
+  document.body.appendChild(footer);
 }
 
 /**

@@ -362,12 +362,30 @@ function getFullLangAttribute(el) {
   return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
 }
 
+function createInPageButton() {
+  const lang = getLangAttribute(document.documentElement) || 'en';
+  if (document.documentElement) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = 'In-page button';
+  button.setAttribute('lang', lang);
+  if (document.body) {
+    document.body.appendChild(button);
+  }
+  return button;
+}
+
 // Improve accessibility by adding semantic role and label to the root element
 const root = document.getElementById('root');
 if (root) {
   root.setAttribute('role', 'main');
   root.setAttribute('aria-label', 'Main application');
 }
+
+// Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+createInPageButton();
 
 // Export for testing and external use
 module.exports = {
@@ -385,5 +403,6 @@ module.exports = {
     setLanguage,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    createInPageButton
 };

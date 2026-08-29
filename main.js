@@ -8,6 +8,20 @@
 
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
+// Re-export functions from accessibilityUtils to make them accessible when importing from main.js
+export { 
+  getLangAttribute, 
+  wrapPrimaryContentInMain, 
+  validateTableAccessibility, 
+  validateTableStructure, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  addFixLandmarkIssues, 
+  getSvgAccessibleName, 
+  createAccessibleLink, 
+  ensureUniqueLandmarks 
+};
+
 export function calculateSum(a, b) { return a + b; }
 
 /**

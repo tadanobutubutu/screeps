@@ -1,5 +1,4 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// display module structure for debugging purposes.
+// TODO: This is the existing code that needs to be preserved
 
 // Placeholder for dependency graph rendering utility.
 // This function can be expanded to visualize how modules depend on each other.
@@ -17,16 +16,20 @@ function displayModuleStructure(modules) {
   return {};
 }
 
+// Implementation of the loop function (for Screeps)
+/**
+ * Loop function executed each tick in Screeps.
+ * Handles harvester creeps to harvest energy from the nearest source.
+ */
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   loop: function () {
-    // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {
-      let creep = Game.creeps[name];
+      const creep = Game.creeps[name];
       if (creep.memory.role === 'harvester') {
         if (creep.store.getFreeCapacity() > 0) {
-          let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+          const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
           if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source);
           }

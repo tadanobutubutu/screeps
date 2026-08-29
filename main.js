@@ -199,5 +199,13 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     isNumber,
-    clamp
+    clamp,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink
 };

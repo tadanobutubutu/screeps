@@ -60,5 +60,15 @@ function addressAccessibilityIssues() {
   checkLinkAndButtonAccessibility();
 }
 
+function functionA() {
+  // Implementation of functionA
+  console.log('functionA called');
+}
+
+function functionB() {
+  // Implementation of functionB
+  console.log('functionB called');
+}
+
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues, functionA, functionB };

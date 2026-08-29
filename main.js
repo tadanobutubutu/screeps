@@ -45,11 +45,8 @@ function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
-/**
- * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
- * Assumes you have already set the id on the button element in your code.
- */
-function replaceMyButtonId() {
+// Add a new function: addProperButtonId
+function addProperButtonId() {
   const button = document.querySelector('.my-button');
   if (button) {
     button.id = 'exampleButton';
@@ -57,110 +54,40 @@ function replaceMyButtonId() {
   }
 }
 
-/**
- * Adds proper ARIA landmark regions to the document.
- * This improves screen reader navigation by ensuring proper landmark roles.
- *
- * @returns {void}
- */
-function addProperLandmarkRegions() {
-  // Create main landmark
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  main.id = 'main-content';
-
-  // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
-
-  // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.id = header.id || 'site-header';
-
-  // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = footer.id || 'site-footer';
-
-  // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
-  asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = `sidebar-${index + 1}`;
-  });
+// Add a new function: addSpecialClassToButton
+function addSpecialClassToButton() {
+  const button = document.querySelector('.my-different-button');
+  if (button) {
+    button.classList.add('mySpecialClass');
+  }
 }
 
-/**
- * Adds proper ARIA account management elements to the document.
- * This includes adding `aria-expanded` attributes for collapsible menus,
- * and adding `aria-label` to form elements.
- *
- * @returns {void}
- */
-function addProperAccountManagement() {
-  // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
-  inputs.forEach((input, index) => {
-    const id = input.id || `input-${index}`;
-    input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
-      input.setAttribute('aria-label', `Input field ${index + 1}`);
-    }
-  });
+// Replace the existing replaceMyButtonId function with this updated version
+function replaceMyButtonIdAndAddSpecialClass() {
+  const button = document.querySelector('.my-button');
+  if (button) {
+    button.id = 'exampleButton';
+    button.classList.remove('my-button');
+    addSpecialClassToButton(); // Call the new addSpecialClassToButton function
+  }
 }
 
-/**
- * Adds ARIA attributes to form controls for better accessibility.
- * This function focuses on ensuring that form controls have proper labeling and roles.
- *
- * @returns {void}
- */
-function addAriaToFormControls() {
-  // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
-
-  formControls.forEach(control => {
-    // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
-      if (label) {
-        label.id = label.id || `label-${control.id}`;
-        control.setAttribute('aria-labelledby', label.id);
-      }
-    }
-
-    // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
-      control.setAttribute('aria-required', 'true');
-    }
-  });
-}
-
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
+// Function to remove the 'my-button' class, add a specific id for the button element if it exists, and add a special class to another button element with class 'my-different-button'
+replaceMyButtonIdAndAddSpecialClass();
 
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
+addProperButtonId(); // Add the new function at the end
 
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addAriaToFormControls,
-  replaceMyButtonId,
+  replaceMyButtonIdAndAddSpecialClass, // Update the existing export with the newer replaceMyButtonId function
   getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
-  uniqueLandmarks
+  uniqueLandmarks,
+  addProperButtonId // Add the new function as a new export
 };

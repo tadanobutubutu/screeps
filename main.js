@@ -11,7 +11,9 @@
 // (This comment remains as-is)
 
 // Add lang attribute to HTML element
-document.documentElement.lang = 'en-US';
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en-US';
+}
 
 /**
  * Get the application configuration
@@ -23,6 +25,8 @@ function getConfig() {
     timeout: 5000
   };
 }
+
+// ... (other code in main.js)
 
 /**
  * Creates an in-page button element with optional click handler.
@@ -43,8 +47,84 @@ function greet(name) {
   return `Hello, ${name}!`;
 }
 
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+function rotateBack() {
+  // Your code to rotate back
+  console.log('Reverting back the rotation.');
+}
+
+// ... (other code in main.js)
+
+// Additional accessibility-related code changes:
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
+
+// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
+// <html lang="en">
+
+// REACT_017: Add landmark roles and fix landmark issues
+// Add main landmark role to main content area
+// Example: <main role="main">...</main>
+
+// REACT_025: Ensure unique landmarks
+// Ensure only one main landmark per page
+// Use unique aria-label or aria-labelledby for landmark regions
+
+// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.ariaLabel = 'rotate back';
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+// Replace fake links with proper buttons
+function replaceFakeLinks() {
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+}
+
+// Add lang attribute to HTML element
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en-US';
+}
+
 function add(a, b) {
   return a + b;
+}
+
+// Example usage for SVGs:
+// const svg1 = document.querySelector('.icon-svg-1');
+// const svg2 = document.querySelector('.icon-svg-2');
+// addSvgAccessibility(svg1, 'Description of first icon');
+// addSvgAccessibility(svg2, 'Description of second icon');
+
+// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// Ensure all <th> elements have scope attribute
+function ensureThScope() {
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      // Determine if it's a column header or row header based on context
+      const parent = th.parentElement;
+      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
+      const isFirstCell = parent && Array.from(parent.children).indexOf(th) === 0;
+
+      if (isFirstCell && parentTagName === 'tr') {
+        th.setAttribute('scope', 'row');
+      } else if (parentTagName === 'thead' || !isFirstCell) {
+        th.setAttribute('scope', 'col');
+      }
+    }
+  });
 }
 
 /**
@@ -142,7 +222,7 @@ function newFunction() {
   // Implementation of the new function
 }
 
-export function calculateDiscount(price, discount) {
+function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
   }
@@ -153,6 +233,18 @@ export function calculateDiscount(price, discount) {
   // Calculate discounted price
   const discountedPrice = price * (1 - discount / 100);
   return Math.max(0, discountedPrice);
+}
+
+// Initialize accessibility improvements
+function initializeAccessibility() {
+  // Replace fake links with proper buttons
+  replaceFakeLinks();
+
+  // Ensure table headers have proper scope
+  ensureThScope();
+
+  // Add accessible names to SVGs
+  addSvgAccessibleNames();
 }
 
 // Initialize the application with accessibility improvements
@@ -184,12 +276,27 @@ function initialize() {
 
   // Accessibility: Fix 1 fake link issue
   fixFakeLink();
+
+  // Initialize additional accessibility improvements
+  initializeAccessibility();
 }
 
-// Export existing functionality
-export { initialize, getConfig, setupSkipLinks, setupButtonAccessibility, createInPageButton, performTask, handleEvent, greet, add, calculateDiscount };
+// Export existing functionality and new functions
+export { 
+  initialize, 
+  getConfig, 
+  setupSkipLinks, 
+  setupButtonAccessibility, 
+  createInPageButton, 
+  performTask, 
+  handleEvent, 
+  greet, 
+  add, 
+  calculateDiscount, 
+  newFunction 
+};
 
-// New export if necessary (if the function is exported)
+// Compatibility for CommonJS if needed
 module.exports.newFunction = newFunction;
 
 // Initialize on DOM ready
@@ -200,3 +307,5 @@ if (typeof document !== 'undefined') {
     initialize();
   }
 }
+
+// More existing code that should be preserved

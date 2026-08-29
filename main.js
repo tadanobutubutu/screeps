@@ -14,18 +14,12 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
+  // ... any new code or functions requested in the issue ...
+
+  return null;
 }
 
-function renderDependencyGraphContent(data) {
-  // Replace the existing content within the dependencyGraph div using the provided data.
-  // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (container) {
-    container.innerHTML = data;
-  }
-}
-
-// Address accessibility issues from insight report
+// New function to address accessibility issues from insight report
 function improveAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach(button => {
@@ -116,6 +110,75 @@ function fixLandmarkIssues(insightReport) {
   });
 }
 
+function renderDependencyGraphContent(data) {
+  // Replace the existing content within the dependencyGraph div using the provided data.
+  // Support both class and data attribute selectors for compatibility
+  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+// Address accessibility issues from insight report
+function improveAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent || 'Button');
+    }
+  });
+
+  const focusable = document.querySelectorAll('[role="link"]');
+  focusable.forEach(el => {
+    if (el.tabIndex < 0) el.tabIndex = 0;
+  });
+}
+
+// New function to address accessibility issues from insight report
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueLandmarkMap = {};
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach(el => {
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      if (isUnique) {
+        uniqueLandmarkMap[landmark].push(el);
+      } else {
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
+// New function to add landmark roles and fix issues
+function addLandmarkRoles(insightReport) {
+  const issues = insightReport.issues || [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
+    }
+  });
+}
+
+// Address other insight report issues
+function fixLandmarkIssues(insightReport) {
+  const issues = insightReport.issues || [];
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
+    }
+  });
+}
+
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
 }
@@ -139,13 +202,6 @@ function fixFakeLinks() {
       link.setAttribute('aria-label', 'Button');
     }
   });
-}
-
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en');
-  }
 }
 
 function fixTableStructureIssues() {
@@ -253,7 +309,7 @@ function implementNewFunction() {
   addMainLandmark();
   addSvgAccessibleNames();
   fixTableHeaderCellScope();
-  fixUniqueLandmarks(insightReport);
+  fixUniqueLandmarks();
 }
 
 function main() {

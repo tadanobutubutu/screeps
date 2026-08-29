@@ -141,7 +141,12 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements
+      elements.forEach((element, i) => {
+        if (i > 0) {
+          element.setAttribute('aria-labelledby', `${name}-${index}`);
+          index++;
+        }
+      });
     }
   });
 }

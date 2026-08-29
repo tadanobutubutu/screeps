@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 function wrapPrimaryContentInMain() {
   const primaryContent = document.getElementById('primary-content');

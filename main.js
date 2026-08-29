@@ -179,7 +179,15 @@ function checkLandmarkElements() {
 }
 
 // Run the function to check landmark elements
-checkLandmarkElements();
+function runCheckLandmarkElements() {
+  checkLandmarkElements();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runCheckLandmarkElements);
+} else {
+  runCheckLandmarkElements();
+}
 
 // Preserve the existing exports and add new functions
 module.exports = {

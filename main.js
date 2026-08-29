@@ -1,4 +1,8 @@
-// TODO: This is the modified and merged code
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views to import and use dependencyGraphContent/indexContent from the
+// appropriate modules.
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 
 function wrapPrimaryContentInMain() {
   const primaryContent = document.getElementById('primary-content');
@@ -38,7 +42,7 @@ function renderDependencyGraph(options = {}) {
  */
 function renderIndex(data = {}) {
   // Ensure the index view is rendered when the dependency graph view is not requested
-  const content = (options.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
+  const content = (data.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
   // Render the index with the generated content
   return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'}>${content}</div>`;
 }

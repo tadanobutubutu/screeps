@@ -99,6 +99,23 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
+// Function to count dependencies in main.js
+function countDependencies() {
+  // Use a regular expression to find all import statements
+  const importRegex = /^\s*import\s+(?:[\s\S]+?from\s+)?['"]([^'"]+)['"]/gm;
+  const sourceCode = source;
+  const dependencies = new Set();
+  let match;
+
+  // Iterate over all import statements and collect the module specifiers
+  while ((match = importRegex.exec(sourceCode)) !== null) {
+    dependencies.add(match[1]);
+  }
+
+  // Return the count of unique dependencies
+  return dependencies.size;
+}
+
 // Exporting if necessary (no exports were requested to be removed)
 export function someFunction() {
   // ... implementation ...
@@ -111,7 +128,8 @@ export {
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  countDependencies
 };
 
 // ... other exports ...

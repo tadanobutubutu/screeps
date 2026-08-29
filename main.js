@@ -28,8 +28,6 @@ import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } f
 // import { triggerAccessibilityMode } from ...
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -212,6 +210,16 @@ function renderProductCard(product) {
 function calculateDiscount(subtotal) {
   // Example discount calculation
   return subtotal * 0.1; // 10% discount
+}
+
+// New function as requested in the issue
+function calculateSum(a, b) {
+  return a + b;
+}
+
+// Exporting if necessary (no exports were requested to be removed)
+export function someFunction() {
+  // ... implementation ...
 }
 
 function formatCurrency(amount) {

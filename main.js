@@ -51,6 +51,15 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
+// Add lang attribute as per the issue requirement
+function addLangAttribute() {
+  // Assuming there is a relevant element selector or similar to target
+  const elementToModify = document.querySelector('some-selector');
+  if (elementToModify) {
+    elementToModify.setAttribute('lang', 'en'); // Example: English
+  }
+}
+
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
@@ -384,5 +393,6 @@ module.exports = {
   improveKeyboardNavigation,
   addLiveRegionForDynamicContent,
   isLinkAccessible,
-  addAriaLabel
+  addAriaLabel,
+  addLangAttribute
 };

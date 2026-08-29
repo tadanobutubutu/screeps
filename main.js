@@ -28,7 +28,7 @@ const {
   validateLandmarkStructure,
   getSvgAccessibleName,
   createInPageButton,
-  createAccessibleLink,
+  createAccessibleLink
 } = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');

@@ -295,6 +295,15 @@ const a11yStore = {
 
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
+    // Address accessibility issues from insight report:
+    // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+    // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+    // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+    // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+    // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+    // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+    // _Commit: a6e1be948e3d723d7b467dd042636c13ba429525_
+    // <!-- todo-hash: a57c97bb639f7a5cc69bb42064989deba1a58f7c -->
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
     // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -535,5 +544,3 @@ module.exports = {
   checkLandmarks,
   ensureUniqueLandmarks
 };
-export default a11yStore;
-export { addressAccessibilityIssues };

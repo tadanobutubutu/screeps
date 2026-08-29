@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom/client';
 
 let funcNames = [];
 
+// TODO: Add back any required exports that might have been removed.
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+// export function calculateSum(a, b) { return a + b; }
+
+var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+
 function countDependencies(obj) {
   let count = 0;
   for (const key in obj) {

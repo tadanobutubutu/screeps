@@ -12,4 +12,11 @@ function addLandmarkRegions() {
   }
 }
 
-export { addLandmarkRegions };
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (!html.hasAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+}
+
+export { addLandmarkRegions, addLangAttribute };

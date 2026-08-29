@@ -123,6 +123,23 @@ function calculateSum(a, b) {
   return a + b;
 }
 
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  htmlElement.setAttribute('lang', 'en');
+}
+
+function validateTableStructure(table) {
+  // Validate table structure logic
+}
+
+function fixTableStructure(table) {
+  // Fix table structure logic
+}
+
+function personName(element) {
+  // Fix fake link issue logic
+}
+
 module.exports = {
   setSvgAccessibleName,
   improveAccessibility,
@@ -133,5 +150,9 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues
+  addLandmarkRolesAndFixIssues,
+  addLangAttribute,
+  validateTableStructure,
+  fixTableStructure,
+  personName
 };

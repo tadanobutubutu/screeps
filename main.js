@@ -9,6 +9,9 @@
  * - REACT_036: Fix 1 fake link issue
  */
 
+import { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const html = document.documentElement;
@@ -33,7 +36,7 @@ function fixTableStructureIssues(document) {
         firstRow.remove();
       }
     }
-    
+
     // Ensure tables have tbody
     if (!table.querySelector('tbody')) {
       const rows = Array.from(table.querySelectorAll('tr'));
@@ -46,7 +49,7 @@ function fixTableStructureIssues(document) {
         table.insertBefore(tbody, table.firstChild);
       }
     }
-    
+
     // Ensure proper caption if needed
     const caption = table.querySelector('caption');
     if (!caption) {
@@ -64,16 +67,161 @@ function fixTableStructureIssues(document) {
   return tables.length;
 }
 
+function App() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/data');
+      const result = await response.json();
+      setData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', 'en');
+  }, []);
+
+  // New function to render dependency graphs
+  function renderDependencyGraph(moduleName) {
+    // Placeholder implementation - replace with actual logic to render dependency graphs
+    console.log(`Rendering dependency graph for module: ${moduleName}`);
+  }
+
+  // New function to display module structure
+  function displayModuleStructure(moduleName) {
+    // Placeholder implementation - replace with actual logic to display module structure
+    console.log(`Displaying module structure for module: ${moduleName}`);
+  }
+
+  return (
+    <div className="app-container">
+      <Header />
+      <Main data={data} loading={loading} />
+      <Footer />
+    </div>
+  );
+}
+
+export function getUniqueLandmarkName(baseName, existingNames) {
+  if (!existingNames.includes(baseName)) {
+    return baseName;
+  }
+  let counter = 2;
+  let newName = `${baseName}-${counter}`;
+  while (existingNames.includes(newName)) {
+    counter++;
+    newName = `${baseName}-${counter}`;
+  }
+  return newName;
+}
+
+export function validateUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarkNames = new Set();
+  const issues = [];
+
+  landmarks.forEach((landmark) => {
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
+
+    let landmarkName = ariaLabel || ariaLabelledby || tagName;
+
+    if (landmarkNames.has(landmarkName)) {
+      issues.push({
+        element: landmark,
+        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
+        severity: 'warning'
+      });
+    } else {
+      landmarkNames.add(landmarkName);
+    }
+  });
+
+  return issues;
+}
+
+export function addSvgAccessibleName(svgElement, accessibleName) {
+  if (!svgElement) return;
+
+  const title = document.createElement('title');
+  title.id = `svg-title-${Date.now()}`;
+  title.textContent = accessibleName;
+
+  svgElement.insertBefore(title, svgElement.firstChild);
+
+  svgElement.setAttribute('aria-labelledby', title.id);
+}
+
+export function isValidLink(element) {
+  if (!element) return true;
+
+  const tagName = element.tagName.toLowerCase();
+  const href = element.getAttribute('href');
+  const onClick = element.getAttribute('onclick');
+
+  const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
+
+  if (isFakeLink) {
+    return {
+      valid: false,
+      suggestion: `Replace <${tagName}> with <button> or <a href="#"> for proper accessibility.`
+    };
+  }
+
+  return { valid: true };
+}
+
+export function addScopeToHeaders(tableElement) {
+  if (!tableElement) return [];
+
+  const headers = tableElement.querySelectorAll('th');
+  const updates = [];
+
+  headers.forEach((th) => {
+    const row = th.closest('tr');
+    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
+    const cellIndex = Array.from(row.children).indexOf(th);
+
+    let scope = 'col';
+
+    if (cellIndex === 0 && rowIndex > 0) {
+      scope = 'row';
+    }
+
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
+      });
+    }
+  });
+
+  return updates;
+}
+
 // REACT_017: Add/fix landmark issues - Add main landmark
 function addMainLandmark(document) {
   const mainElements = document.querySelectorAll('main');
-  
+
   if (mainElements.length === 0) {
     // Find the main content area and wrap it with <main>
     const body = document.body;
     const main = document.createElement('main');
     main.setAttribute('role', 'main');
-    
+
     // Move all body children into main
     while (body.firstChild) {
       main.appendChild(body.firstChild);
@@ -85,7 +233,7 @@ function addMainLandmark(document) {
       main.setAttribute('role', 'main');
     }
   }
-  
+
   return document.querySelectorAll('main').length;
 }
 
@@ -93,24 +241,24 @@ function addMainLandmark(document) {
 function addSvgAccessibleNames(document) {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
-  
+
   svgs.forEach((svg, index) => {
-    const existingLabel = svg.getAttribute('aria-label') || 
+    const existingLabel = svg.getAttribute('aria-label') ||
                           svg.querySelector('title') ||
                           svg.getAttribute('aria-labelledby');
-    
+
     if (!existingLabel) {
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       title.textContent = `Icon ${index + 1}`;
       svg.insertBefore(title, svg.firstChild);
-      
+
       const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
       count++;
     }
   });
-  
+
   return count;
 }
 
@@ -118,7 +266,7 @@ function addSvgAccessibleNames(document) {
 function ensureUniqueLandmarks(document) {
   // Ensure only one main landmark
   const mains = document.querySelectorAll('main, [role="main"]');
-  
+
   if (mains.length > 1) {
     // Keep the first main, remove role="main" from others or convert them
     for (let i = 1; i < mains.length; i++) {
@@ -131,11 +279,11 @@ function ensureUniqueLandmarks(document) {
       }
     }
   }
-  
+
   // Ensure unique IDs for landmarks with labels
   const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="contentinfo"]');
   const seenIds = new Set();
-  
+
   landmarks.forEach(landmark => {
     const id = landmark.id;
     if (id) {
@@ -145,7 +293,7 @@ function ensureUniqueLandmarks(document) {
       seenIds.add(id);
     }
   });
-  
+
   return mains.length;
 }
 
@@ -154,16 +302,16 @@ function fixFakeLinkIssue(document) {
   // Find elements that look like links but aren't <a> tags
   const clickableElements = document.querySelectorAll('[role="link"]:not(a), [onclick]');
   let count = 0;
-  
+
   clickableElements.forEach(element => {
     const tagName = element.tagName.toLowerCase();
     const hasHref = element.hasAttribute('href');
-    
+
     if (tagName !== 'a' && !hasHref) {
       // Check if it should be a real link
-      const isInteractive = element.getAttribute('role') === 'link' || 
+      const isInteractive = element.getAttribute('role') === 'link' ||
                            (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
-      
+
       if (isInteractive && !element.hasAttribute('aria-label')) {
         // Add accessible name
         const text = element.textContent.trim();
@@ -174,14 +322,87 @@ function fixFakeLinkIssue(document) {
       count++;
     }
   });
-  
+
   return count;
+}
+
+export function addressAccessibilityIssues(insightReport) {
+  insightReport.forEach(issue => {
+    console.log(`Addressing issue: ${issue.issue}`);
+    console.log(`Solution: ${issue.solution}`);
+    // ... code to apply the solution ...
+  });
+}
+
+export function newFunction() {
+  // implementation of new function
+}
+
+export function announceToScreenReader(message, priority = 'polite') {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.setAttribute('class', 'sr-only');
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+export function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    if (e.shiftKey && document.activeElement === firstElement) {
+      e.preventDefault();
+      lastElement.focus();
+    } else if (!e.shiftKey && document.activeElement === lastElement) {
+      e.preventDefault();
+      firstElement.focus();
+    }
+  };
+
+  element.addEventListener('keydown', handleKeyDown);
+}
+
+export function manageFocusOnNavigation(selector) {
+  const target = document.querySelector(selector);
+  if (target) {
+    target.setAttribute('tabindex', '-1');
+    target.focus();
+    target.removeAttribute('tabindex');
+  }
+}
+
+export function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function setAriaExpanded(trigger, isExpanded) {
+  if (trigger) {
+    trigger.setAttribute('aria-expanded', String(isExpanded));
+  }
+}
+
+export function hasAccessibleName(element) {
+  return !!(
+    element.textContent?.trim() ||
+    element.getAttribute('aria-label') ||
+    element.getAttribute('aria-labelledby') ||
+    element.getAttribute('alt') ||
+    element.getAttribute('title')
+  );
 }
 
 // Main accessibility fix function
 function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
-  
+
   return {
     langAdded: addLangAttribute(document, lang),
     tablesFixed: fixTableStructureIssues(document),
@@ -192,6 +413,10 @@ function applyAccessibilityFixes(document, options = {}) {
   };
 }
 
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
+
 // Export all functions
 module.exports = {
   addLangAttribute,
@@ -200,5 +425,19 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  applyAccessibilityFixes
+  applyAccessibilityFixes,
+  App,
+  getUniqueLandmarkName,
+  validateUniqueLandmarks,
+  addSvgAccessibleName,
+  isValidLink,
+  addScopeToHeaders,
+  addressAccessibilityIssues,
+  newFunction,
+  announceToScreenReader,
+  trapFocus,
+  manageFocusOnNavigation,
+  prefersReducedMotion,
+  setAriaExpanded,
+  hasAccessibleName
 };

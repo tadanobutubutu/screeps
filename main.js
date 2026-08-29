@@ -1,4 +1,3 @@
-// TODO: Existing main.js content before the merge conflict...
 /**
  * Main entry point for the Frontend application.
  *

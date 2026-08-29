@@ -11,6 +11,7 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
+import React from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -88,8 +89,18 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createInPageButton() {
-  // This function should create an in-page button
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Open modal');
+  parent.appendChild(btn);
+  return btn;
 }
 
 function createAccessibleLink() {

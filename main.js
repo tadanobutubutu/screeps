@@ -302,7 +302,8 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  addLandmarkRolesAndFixIssues
 };
 
 // Execute main function

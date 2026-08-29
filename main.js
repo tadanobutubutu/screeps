@@ -13,6 +13,33 @@ const {
   ADDRESS_ACCESSIBILITY_ISSUE_038,
 } = require('./accessibilityHelperFunctions');
 
+// Function to address accessibility issue 038 from insight report
+function addressAccessibilityIssue038(document) {
+  if (typeof ADDRESS_ACCESSIBILITY_ISSUE_038 === 'function') {
+    return ADDRESS_ACCESSIBILITY_ISSUE_038(document);
+  }
+
+  // Fallback implementation: ensure all interactive elements have accessible names
+  const interactiveSelectors = ['button', 'a', 'input', 'select', 'textarea', '[role="button"]', '[role="link"]'];
+  interactiveSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(element => {
+      const hasAccessibleName =
+        element.hasAttribute('aria-label') ||
+        element.hasAttribute('aria-labelledby') ||
+        (element.textContent && element.textContent.trim().length > 0) ||
+        (element.value && element.value.trim().length > 0) ||
+        (element.placeholder && element.placeholder.trim().length > 0);
+
+      if (!hasAccessibleName) {
+        element.setAttribute('aria-label', 'Interactive element');
+      }
+    });
+  });
+
+  return document;
+}
+
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
@@ -338,6 +365,7 @@ function addressAccessibilityIssues(document) {
   document = ensureElementHasId(document);
   document = ensureElementHasIdOrigin(document);
   document = renderDependencyGraphs(document);
+  document = addressAccessibilityIssue038(document);
   return document;
 }
 
@@ -387,6 +415,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   addressAccessibilityIssues,
+  addressAccessibilityIssue038,
 
   getLangAttribute,
   getFullLangAttribute,

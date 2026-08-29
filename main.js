@@ -97,8 +97,9 @@ function renderDependencyGraphs(dependencies) {
   // existing function implementation
 }
 
+// Implement the new function here
 function myNewFunction(input) {
-  // Implement the new function here
+  // New function implementation
 }
 
 function main() {

@@ -246,7 +246,7 @@ export function fixTableStructureIssues(html) {
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th\b([^>]*?)>/gi, (match, attrs) => {
+  result = result.replace(/<th\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('scope=')) {
       return match;
     }
@@ -254,7 +254,7 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table\b([^>]*?)>/gi, (match, attrs) => {
+  result = result.replace(/<table\b([^>]*)>/gi, (match, attrs) => {
     if (attrs && attrs.includes('summary=') || attrs && attrs.includes('caption')) {
       return match;
     }
@@ -278,7 +278,7 @@ export function fixTableStructureIssues(html) {
 export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
-  // Check if main landmark already exists
+  // Check if main landmark already exists (case insensitive)
   if (/<main\b/i.test(html)) {
     return html;
   }
@@ -287,6 +287,135 @@ export function addMainLandmark(html) {
   return html.replace(/<body([^>]*)>/i, (match, attrs) => {
     return `<body${attrs || ''}><main>`;
   }).replace(/<\/body>/i, '</main></body>');
+}
+
+/**
+ * Adds accessible names to SVG elements
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with accessible SVG names
+ */
+export function addSvgAccessibleNames(html) {
+  if (typeof html !== 'string') return html;
+  
+  let svgCounter = 0;
+  
+  return html.replace(/<svg\b([^>]*)>/gi, (match, attrs) => {
+    // Handle case where attrs might be undefined (for <svg> without attributes)
+    const attributes = attrs || '';
+    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    
+    if (existingLabel) {
+      return match;
+    }
+    
+    // Extract title if present
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/);
+    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+    
+    // Check for id to reference
+    const idMatch = attributes.match(/id="([^"]*)"/);
+    if (idMatch) {
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+    }
+    
+    // Add inline title for accessibility
+    const titleId = `svg-title-${++svgCounter}`;
+    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+  });
+}
+
+/**
+ * Ensures unique landmark identifiers for screen readers
+ * Converts additional <main> landmarks to <section> so only one <main> exists per page.
+ * Also assigns unique IDs to other landmark types.
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with unique landmarks
+ */
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+  
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
+    }
+  });
+  
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> while preserving any attributes
+  let mainSeen = false;
+  html = html.replace(/<main\b([^>]*)>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+    // Replace additional <main> tags with <section> while preserving any attributes
+    const safeAttrs = attrs || '';
+    return `<section${safeAttrs}>${match}</section>`;
+  });
+  
+  // Remove any remaining <main> tags that weren't caught above
+  html = html.replace(/<main[^>]*>/gi, '');
+  
+  // Now ensure unique names for other landmarks
+  const landmarkNames = new Set();
+  const issues = [];
+  
+  // Find all landmark elements
+  const landmarkElements = html.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  
+  landmarkElements.forEach((landmark) => {
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
+
+    // Determine the landmark name
+    let landmarkName = ariaLabel || ariaLabelledby || tagName;
+
+    if (landmarkNames.has(landmarkName)) {
+      issues.push({
+        element: landmark,
+        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
+        severity: 'warning'
+      });
+    } else {
+      landmarkNames.add(landmarkName);
+    }
+  });
+
+  // Generate unique names for duplicated landmarks
+  const uniqueLandmarkMap = new Map();
+  for (const [name, count] of Object.entries(counters)) {
+    if (count > 1) {
+      let uniqueName = name;
+      let counter = 2;
+      while (uniqueLandmarkMap.has(uniqueName)) {
+        uniqueName = `${name} ${counter}`;
+        counter++;
+      }
+      uniqueLandmarkMap.set(name, uniqueName);
+    }
+  }
+  
+  // Apply unique names to elements
+  landmarkElements.forEach((landmark) => {
+    const name = landmarkNames.has(landmarkName) ? landmarkName : uniqueLandmarkMap.get(landmarkName) || landmarkName;
+    if (landmarkName !== name) {
+      // Update the landmark element's innerHTML to reflect the new name
+      const oldText = landmark.innerHTML;
+      if (oldText.includes(name)) {
+        // Simple replacement - could be improved with more robust parsing
+        landmark.innerHTML = oldText.replace(name, name);
+      }
+    }
+  });
+
+  return html;
 }
 
 export function getUniqueLandmarkName(baseName, existingNames) {

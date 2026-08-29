@@ -263,6 +263,39 @@ function countDependencies() {
   }
 }
 
+/**
+ * Renders a dependency graph summary based on dependency counts
+ * @param {Object} deps - Dependency information object from countDependencies()
+ * @returns {string} Formatted dependency graph string
+ */
+function renderDependencyGraph(deps) {
+    const lines = [
+        "Dependency Graph Report",
+        "=".repeat(20),
+        "",
+        "- Total Dependencies: " + deps.total,
+        "- Core Dependencies: " + deps.dependencies,
+        "- Development Dependencies: " + deps.devDependencies,
+        ""
+    ];
+    
+    if (deps.dependencies > 0) {
+        lines.push("Core Dependencies:");
+        deps.dependencies.forEach(dep => {
+            lines.push(`  • ${dep.name} (${dep.version})`);
+        });
+    }
+    
+    if (deps.devDependencies > 0) {
+        lines.push("Development Dependencies:");
+        deps.devDependencies.forEach(dep => {
+            lines.push(`  • ${dep.name} (${dep.version})`);
+        });
+    }
+    
+    return lines.join("\n");
+}
+
 // Export for testing and external use
 module.exports = {
     validateWebAccessibility,
@@ -275,5 +308,6 @@ module.exports = {
     getTableRows,
     config,
     countDependencies,
-    someFunction
+    someFunction,
+    renderDependencyGraph
 };

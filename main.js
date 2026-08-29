@@ -85,6 +85,77 @@ function convertAnchorsToButtons() {
   }
 }
 
+function validateLandmark(element) {
+  if (!element) return false;
+  const tag = (element.tagName || '').toLowerCase();
+  let role = element.getAttribute ? element.getAttribute('role') : null;
+
+  if (!role) {
+    if (tag === 'main') role = 'main';
+    else if (tag === 'nav') role = 'navigation';
+    else if (tag === 'aside') role = 'complementary';
+    else if (tag === 'header') role = 'banner';
+    else if (tag === 'footer') role = 'contentinfo';
+    else if (tag === 'section') role = 'region';
+    else if (tag === 'form') role = 'form';
+    else if (tag === 'search') role = 'search';
+  }
+
+  if (role && element.setAttribute) {
+    element.setAttribute('role', role);
+  }
+
+  return !!role;
+}
+
+function validateLandmarkStructure(element) {
+  if (!element) return false;
+  const tag = (element.tagName || '').toLowerCase();
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+  const validTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'form', 'search'];
+  const validRoles = ['main', 'navigation', 'complementary', 'contentinfo', 'region', 'search', 'form', 'banner', 'application'];
+  return validTags.indexOf(tag) !== -1 || (role && validRoles.indexOf(role) !== -1);
+}
+
+function validateLandmarkAttributes(element) {
+  if (!element) return false;
+  const tag = (element.tagName || '').toLowerCase();
+  let role = element.getAttribute ? element.getAttribute('role') : null;
+
+  if (!role) {
+    if (tag === 'nav') role = 'navigation';
+    else if (tag === 'aside') role = 'complementary';
+    else if (tag === 'header') role = 'banner';
+    else if (tag === 'footer') role = 'contentinfo';
+    else if (tag === 'section') role = 'region';
+    else if (tag === 'main') role = 'main';
+    else if (tag === 'form') role = 'form';
+    else if (tag === 'search') role = 'search';
+  }
+
+  if (!role) return false;
+
+  const needsName = ['navigation', 'complementary', 'region', 'contentinfo', 'banner', 'search', 'form', 'main'];
+  if (needsName.indexOf(role) !== -1 && element.setAttribute) {
+    const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+    if (!hasLabel) {
+      const defaultLabels = {
+        main: 'Main',
+        navigation: 'Navigation',
+        complementary: 'Complementary',
+        region: 'Region',
+        contentinfo: 'Content info',
+        banner: 'Banner',
+        search: 'Search',
+        form: 'Form'
+      };
+      element.setAttribute('aria-label', defaultLabels[role] || role);
+    }
+  }
+
+  return true;
+}
+
 // Call the function to convert anchors to buttons if needed
 if (typeof document !== 'undefined') {
   convertAnchorsToButtons();
@@ -96,6 +167,9 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDashboard,
     setHtmlLangAttribute,
     detectAndSetLang,
-    convertAnchorsToButtons
+    convertAnchorsToButtons,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAttributes
   };
 }

@@ -38,9 +38,25 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// New function to render dependency graphs
+function renderDependencyGraph(moduleName) {
+  // Placeholder for actual implementation
+  console.log(`Rendering dependency graph for module: ${moduleName}`);
+  // Assume some logic here to actually render the graph
+}
+
+// New function to display module structure
+function displayModuleStructure(moduleName) {
+  // Placeholder for actual implementation
+  console.log(`Displaying module structure for module: ${moduleName}`);
+  // Assume some logic here to actually display the structure
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  renderDependencyGraph,
+  displayModuleStructure
 };

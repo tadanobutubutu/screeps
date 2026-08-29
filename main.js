@@ -1,5 +1,7 @@
 // main.js
 
+// TODO: This is the existing code that needs to be preserved
+
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 const fs = require('fs');

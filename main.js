@@ -26,7 +26,21 @@ function getSvgAccessibleName(svgElement) {
     return titleElement.textContent;
   }
 
+  // TODO: This is the existing code that needs to be preserved
+  // _Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+  // <!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+
   return null;
+}
+
+// <!--- START ADDITIONAL FUNCTION --->
+/**
+ * New function to be added as per the issue
+ * @param {string} text 
+ * @returns {string}
+ */
+function capitalizeFirstLetter(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // ... existing code and exports ...

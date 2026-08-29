@@ -52,9 +52,33 @@ addProperAccountManagement();
 addProperFormAccessibility();
 replaceMyButtonId();
 
+/**
+ * Function to render dependency graphs for debugging purposes.
+ * This function can be used to visualize the dependencies between modules.
+ * @returns {void}
+ */
+function renderDependencyGraph() {
+  // Placeholder for the implementation of the function to render dependency graphs.
+  // This should include logic to retrieve and display the dependency data.
+  console.log('Dependency graph rendering function is not implemented.');
+}
+
+/**
+ * Function to display the module structure for debugging purposes.
+ * This function should provide a way to inspect the structure of the modules.
+ * @returns {void}
+ */
+function displayModuleStructure() {
+  // Placeholder for the implementation of the function to display module structure.
+  // This should include logic to retrieve and display the module structure data.
+  console.log('Module structure display function is not implemented.');
+}
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addProperFormAccessibility,
-  replaceMyButtonId
+  replaceMyButtonId,
+  renderDependencyGraph,
+  displayModuleStructure
 };

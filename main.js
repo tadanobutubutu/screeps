@@ -49,27 +49,110 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
   return button;
+}
+
+/**
+ * Handle fake links - identifies anchor elements with href="#" that should be buttons
+ * @param {Document|Element} context - The document or element to search within
+ * @returns {Array} Array of fake link objects with details about each fake link
+ */
+function handleFakeLinks(context = document) {
+  const fakeLinks = [];
+  
+  // Find all anchor elements
+  const anchors = context.querySelectorAll ? context.querySelectorAll('a[href="#"]') : [];
+  
+  anchors.forEach((anchor) => {
+    const linkInfo = {
+      element: anchor,
+      id: anchor.id || null,
+      text: anchor.textContent || anchor.innerText || '',
+      href: anchor.getAttribute('href'),
+      suggestion: 'Use a <button> element for in-page actions instead of <a href="#">',
+      ruleId: 'REACT_036'
+    };
+    
+    fakeLinks.push(linkInfo);
+  });
+  
+  return fakeLinks;
+}
+
+/**
+ * Validate link accessibility - checks for various link accessibility issues
+ * @param {Document|Element} context - The document or element to validate
+ * @returns {Object} Validation result with issues array
+ */
+function validateLinkAccessibility(context = document) {
+  const issues = [];
+  
+  // Check for fake links (href="#")
+  const fakeLinks = handleFakeLinks(context);
+  
+  fakeLinks.forEach((link) => {
+    issues.push({
+      type: 'fake-link',
+      ruleId: 'REACT_036',
+      severity: 'warning',
+      element: link.element,
+      id: link.id,
+      message: `Anchor element with href="#" found${link.id ? ` (id="${link.id}")` : ''}: "${link.text.trim()}". Use a <button> for in-page actions for better keyboard and screen reader support.`,
+      suggestion: link.suggestion
+    });
+  });
+  
+  // Check for links without accessible names
+  const allAnchors = context.querySelectorAll ? context.querySelectorAll('a') : [];
+  
+  allAnchors.forEach((anchor) => {
+    const hasText = anchor.textContent && anchor.textContent.trim().length > 0;
+    const hasAriaLabel = anchor.getAttribute('aria-label');
+    const hasAriaLabelledby = anchor.getAttribute('aria-labelledby');
+    const hasTitle = anchor.getAttribute('title');
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      issues.push({
+        type: 'link-without-accessible-name',
+        ruleId: 'REACT_036',
+        severity: 'warning',
+        element: anchor,
+        id: anchor.id || null,
+        message: 'Link has no accessible name',
+        suggestion: 'Add text content, aria-label, aria-labelledby, or title to the link'
+      });
+    }
+  });
+  
+  return {
+    issues,
+    passed: issues.length === 0,
+    summary: {
+      total: issues.length,
+      fakeLinks: fakeLinks.length
+    }
+  };
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
 
 // Function to add aria-labelledby to SVGs with title elements
 function addAriaLabelledbyToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
   svgs.forEach(svg => {
     const title = svg.querySelector('title');
     if (title) {
       const titleId = title.getAttribute('id');
-      svg.setAttribute('aria-labelledby', titleId);
+      if (titleId) {
+        svg.setAttribute('aria-labelledby', titleId);
+      }
     }
   });
 }
 
 // Function to add aria-label to SVGs without title elements
 function addAriaLabelToSVGs() {
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll ? document.querySelectorAll('svg') : [];
   svgs.forEach(svg => {
     const title = svg.querySelector('title');
     if (!title) {
@@ -81,11 +164,11 @@ function addAriaLabelToSVGs() {
 
 // Function to address accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
-  if (!insightReport || !insightReport.issues) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     return [];
   }
 
-  return insightReport.issues.map(issue => {
+  return insightReport.map(issue => {
     let fixedIssue = { ...issue, status: 'resolved' };
     
     // Apply fixes based on issue type
@@ -177,6 +260,8 @@ export {
   getVersion, 
   getConfig, 
   createInPageButton, 
+  handleFakeLinks,
+  validateLinkAccessibility,
   addressAccessibilityIssues, 
   generateAccessibilityReport, 
   calculateAccessibilityScore,
@@ -192,6 +277,8 @@ if (typeof module !== 'undefined' && module.exports) {
     VERSION: '1.0.0',
     NAME: 'main',
     createInPageButton,
+    handleFakeLinks,
+    validateLinkAccessibility,
     addressAccessibilityIssues,
     generateAccessibilityReport,
     calculateAccessibilityScore,

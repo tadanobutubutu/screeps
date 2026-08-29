@@ -54,7 +54,7 @@ function renderIndexView(container) {
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (doc.documentElement.getAttribute('lang') !== lang) {
+    if (doc.documentElement.lang !== lang) {
       doc.documentElement.setAttribute('lang', lang);
     }
   }

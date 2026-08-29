@@ -1,3 +1,5 @@
+// Updated: imported and used dependencyGraphContent and indexContent in the
+// relevant rendering functions.
 // Accessible Insight Report Interface
 // Address accessibility issues from insight report
 

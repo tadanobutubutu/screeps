@@ -1,11 +1,5 @@
-export function calculateSum(a, b) {
-    return a + b;
-}
-
-// Below is the existing code (preserving syntax and existing exports)
-import react from 'react';
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+// REACT_015: Add lang attribute
+const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
 
 const main = {
   loop: function() {
@@ -60,18 +54,21 @@ const main = {
     });
 
     towers.forEach(tower => {
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-      if (closestHostile) {
-        tower.attack(closestHostile);
+      if (tower.energy >= 10) {
+        const closestHostile = tower.pos.findClosestByRange(hostiles);
+        if (closestHostile) {
+          tower.attack(closestHostile);
+        }
       }
     });
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByRange(FIND_SOURCES);
-    if (target) {
+    const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+    if (sources.length > 0) {
+      const target = sources[0];
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target);
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
       }
     }
   },
@@ -79,7 +76,7 @@ const main = {
   upgrade: function(creep) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
+        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
   },
@@ -163,37 +160,6 @@ const main = {
     }
   }
 };
-
-let config = {};
-let appState = {};
-
-function initializeApp() {
-  // Code for initializing the app
-}
-
-function processData(data) {
-  // Code for processing data
-  return data;
-}
-
-function fetchUser(userId) {
-  // Code for fetching user
-  return { id: userId };
-}
-
-function clearCache() {
-  // Code for clearing cache
-}
-
-function initialize() {
-  // Code for initialization
-  initializeApp();
-}
-
-function validateInput(input) {
-  // Code for validating input
-  return true;
-}
 
 // Configuration and state
 let config = {

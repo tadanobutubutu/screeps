@@ -92,6 +92,18 @@ function addLandmarkRolesAndFixIssues() {
   addAriaLabelToSVGsWithoutAccessibleName();
 }
 
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${new Date().getTime()}`;
+  }
+}
+
+function addAriaLabel(element, ariaLabel) {
+  if (!element['aria-label']) {
+    element['aria-label'] = ariaLabel;
+  }
+}
+
 function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
@@ -133,5 +145,7 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues
+  addLandmarkRolesAndFixIssues,
+  ensureElementHasId,
+  addAriaLabel
 };

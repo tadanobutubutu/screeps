@@ -18,7 +18,7 @@ import { getSvgAccessibleName } from './utils/svg';
 // ADD: Addressing new accessibility issues from insight report
 
 function fixAccessibilityIssues() {
-  document.getElementById('root').setAttribute('lang', getLangAttribute());
+  getLangAttribute();
 
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
@@ -26,13 +26,13 @@ function fixAccessibilityIssues() {
     validateTableAccessibility(table);
   });
 
-  const landmarkElements = document.querySelectorAll('[aria-label]');
+  const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, form[aria-label], form[aria-labelledby], search');
   landmarkElements.forEach((element) => {
     validateLandmark(element);
     validateLandmarkStructure(element);
   });
 
-  const persons = document.querySelectorAll('.person-name');
+  const persons = document.querySelectorAll('[itemtype*="Person"]');
   persons.forEach((person) => personName(person));
 }
 

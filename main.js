@@ -103,49 +103,6 @@ const renderIndex = () => {
 
 // React / UI related functions
 
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
-}
-
-function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return renderProductList(input.products);
-  }
-  return '<p>Invalid input</p>';
-}
-
-function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
-}
-
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
@@ -159,14 +116,22 @@ export function someFunction() {
   // ... implementation ...
 }
 
-// Export UI / product functions
+// Export UI / product functions and accessibility utilities
 export {
   formatProductName,
   renderProductList,
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton
 };
 
 // Exporting for CommonJS compatibility

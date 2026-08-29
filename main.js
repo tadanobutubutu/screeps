@@ -141,13 +141,26 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements
+      elements.forEach((element, idx) => {
+        if (idx > 0) {
+          element.setAttribute('aria-labelledby', `${name}-${index}`);
+          index++;
+        }
+      });
     }
   });
+}
+
+// New function to wrap primary content in main
+function wrapPrimaryContentInMain(document) {
+  const mainElement = document.querySelector('main') || document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  document.body.insertBefore(mainElement, document.body.firstChild);
 }
 
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
     newFunction1, newFunction2,
-    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks
+    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
+    wrapPrimaryContentInMain // Added new export
 };

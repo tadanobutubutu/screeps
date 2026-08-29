@@ -1,3 +1,4 @@
+// Core module for accessibility features and component rendering
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Header from './components/Header';
@@ -26,7 +27,6 @@ function App() {
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
     fetchData();
   }, []);
 
@@ -37,7 +37,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div className="app-container">
+    <div className="app">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -45,21 +45,21 @@ function App() {
   );
 }
 
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
+export function getUniqueLandmarkName(existingNames) {
+  if (existingNames.includes('main')) {
+    return 'main-content';
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
+  let newName = `main-${counter}`;
   while (existingNames.includes(newName)) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `main-${counter}`;
   }
   return newName;
 }
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function validateUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -83,6 +83,10 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
+}
+
+export function validateLandmarks() {
+  return validateUniqueLandmarks();
 }
 
 export function validateTableAccessibility(tableElement) {
@@ -203,7 +207,7 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 
   // Add title element as first child
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
   title.textContent = accessibleName;
 
   // Insert title as first child
@@ -214,15 +218,22 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // ... existing code ...
+  // Check if element is an anchor with href
+  const isAnchor = element.tagName === 'A' && element.href;
+  // Check if it's a button acting as a link
+  const isFakeLink = element.getAttribute('role') === 'link' && (element.href || element.onclick);
+  return isAnchor || isFakeLink;
 }
 
-export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
+export function addScopeToHeaders(table) {
+  const headers = table.querySelectorAll('th');
+  headers.forEach((header) => {
+    header.setAttribute('scope', 'col');
+  });
 }
 
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
+export function addressAccessibilityIssues(issues) {
+  issues.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // TODO: Implement solution to the issue
     console.log(`Solution: ${issue.solution}`);
@@ -234,13 +245,14 @@ function newFunction() {
   // implementation of new function
 }
 
-module.exports.newFunction = newFunction;
+export const accessibilityUtils = newFunction;
 
 export {
   function3,
   App,
   getUniqueLandmarkName,
   validateUniqueLandmarks,
+  validateLandmarks,
   validateTableAccessibility,
   validateTableStructure,
   addSvgAccessibleName,

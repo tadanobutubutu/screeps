@@ -126,5 +126,13 @@ module.exports = {
     ensureElementHasId,
     addAriaLabel,
     renderDependencyGraphs,
-    myNewFunction
+    myNewFunction,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmarkStructure,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
 };

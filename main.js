@@ -3,7 +3,6 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
->>>>>>> origin/main
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -66,6 +65,14 @@ function addAriaLabel(element, label) {
 const dependencyGraphContent = require('./dependencyGraph');
 const fs = require('fs');
 const path = require('path');
+
+// Configuration
+const CONFIG = {
+  port: process.env.PORT || 3000,
+  host: process.env.HOST || 'localhost',
+  maxRetries: 3,
+  timeout: 5000
+};
 
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, personName, addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');
@@ -640,7 +647,9 @@ module.exports = {
   handleNewAccessibilityIssue,
   validateTableAccessibility,
   createInPageButton,
-  personName
+  personName,
+  CONFIG,
+  addressAccessibilityIssue038Inline
 };
 
-export { a11yStore, addressAccessibilityIssues, handleNewAccessibilityIssue, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, getLangAttribute, getFullLangAttribute, newFunction, totalDependencies, addressAccessibilityIssuesFromInsightReport, formatDate, generateId, countDependencies, dependencyGraphContent, setHtmlLangAttribute, detectAndSetLang, convertAnchorsToButtons, ensureElementHasId, addAriaLabel, renderDependencyGraph, DependencyGraphRenderer, addressAccessibilityIssue038, addressAccessibilityIssueForSpecificElement, newAccessibilityFunction, addressOldAccessibilityIssues, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, checkAccessibility, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, renderIndexView, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, setFormElementAccessibleNames, addA11yAttributesToInteractiveElements };
+export { a11yStore, addressAccessibilityIssues, handleNewAccessibilityIssue, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, getLangAttribute, getFullLangAttribute, newFunction, totalDependencies, addressAccessibilityIssuesFromInsightReport, formatDate, generateId, countDependencies, dependencyGraphContent, setHtmlLangAttribute, detectAndSetLang, convertAnchorsToButtons, ensureElementHasId, addAriaLabel, renderDependencyGraph, DependencyGraphRenderer, addressAccessibilityIssue038, addressAccessibilityIssueForSpecificElement, newAccessibilityFunction, addressOldAccessibilityIssues, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, checkAccessibility, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, renderIndexView, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, setFormElementAccessibleNames, addA11yAttributesToInteractiveElements, CONFIG, addressAccessibilityIssue038Inline };

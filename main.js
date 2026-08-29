@@ -60,8 +60,8 @@ function checkTableAccessibility(tableElement) {
   }
 
   // Check for thead/tbody structure
-  const hasThead = tableElement.querySelector('thead');
-  const hasTbody = tableElement.querySelector('tbody');
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
   if (!hasThead && headers.length > 0) {
     issues.push({ type: 'warning', message: 'Table headers should be wrapped in <thead>' });
   }
@@ -72,7 +72,7 @@ function checkTableAccessibility(tableElement) {
   // Check for data cells without associated headers
   const dataCells = tableElement.querySelectorAll('td');
   dataCells.forEach((cell, index) => {
-    if (!cell.headers && headers.length > 0) {
+    if (!cell.hasAttribute('headers') && headers.length > 0) {
       issues.push({ 
         type: 'info', 
         message: `Data cell at index ${index} has no explicit headers association` 

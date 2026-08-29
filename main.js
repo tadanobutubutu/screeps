@@ -1,199 +1,246 @@
-// Existing code from main.js
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import Header from './components/Header';
-import Main from './components/Main';
-import Footer from './components/Footer';
-import './styles.css';
+// Main JavaScript file for accessibility checks
 
-// Initial setup
-const app = document.getElementById('root');
-
-// Improve accessibility
-app.setAttribute('role', 'main');
-app.setAttribute('aria-label', 'Main application');
-
-// New function as per the issue
-function addProperLandmarkRegions(landmarks) {
-  // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
-  landmarks.forEach(landmark => {
-    // Perform any necessary operations on the landmark
-    // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
-    console.log(`Adding landmark: ${landmark.name} at coordinates ${landmark.coordinates}`);
-    // Add your logic here
-  });
-}
-
-// Assuming there's a way to retrieve landmarks, you would call the function like this:
-// const allLandmarks = getLandmarks(); // Placeholder function
-// addProperLandmarkRegions(allLandmarks);
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_041: Add accessible names to 2 SVGs
-// (Added functions for REACT_017 and new REACT_025)
-
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
-function App() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/api/data');
-      const result = await response.json();
-      setData(result);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
-    fetchData();
-  }, []);
-
-  // REACT_017: Add landmark roles to fix landmark issues
-  // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
-  // REACT_041: Add accessible names to SVGs
-
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
-  return (
-    <div className="app-container">
-      <Header />
-      <Main data={data} loading={loading} />
-      <Footer />
-    </div>
-  );
-}
-
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
+/**
+ * Ensures the element has an id, generating one if necessary
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} The element's id
+ */
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
-  let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames.includes(newName)) {
-    counter++;
-    newName = `${baseName}-${counter}`;
-  }
-  return newName;
+  return element.id;
 }
 
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
-  const landmarkNames = new Set();
-  const issues = [];
+/**
+ * Adds an aria-label to the element if it doesn't have one
+ * @param {HTMLElement} element - The element to add aria-label to
+ * @param {string} label - The label text
+ */
+function addAriaLabel(element, label) {
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
 
-  landmarks.forEach((landmark) => {
-    const ariaLabel = landmark.getAttribute('aria-label');
-    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
+/**
+ * Renders dependency graphs for visualization
+ * @param {Object} dependencies - The dependencies to render
+ * @param {HTMLElement} container - The container element
+ */
+function renderDependencyGraphs(dependencies, container) {
+  // Create graph visualization
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph';
+  graphElement.innerHTML = '<h3>Dependency Graph</h3>';
 
-    // Determine the landmark name
-    let landmarkName = ariaLabel || ariaLabelledby || tagName;
+  // Render nodes
+  Object.keys(dependencies).forEach(key => {
+    const node = document.createElement('div');
+    node.className = 'graph-node';
+    node.textContent = `${key}: ${dependencies[key]}`;
+    graphElement.appendChild(node);
+  });
 
-    if (landmarkNames.has(landmarkName)) {
-      issues.push({
-        element: landmark,
-        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
-        severity: 'warning'
-      });
-    } else {
-      landmarkNames.add(landmarkName);
+  container.appendChild(graphElement);
+}
+
+// Function for adding lang attribute to HTML element
+export function addLangAttribute(html) {
+  if (typeof html !== 'string') return html;
+
+  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
+    // Check if lang attribute already exists
+    if (!attrs || attrs.includes(' lang=')) {
+      return match;
+    }
+    // Add lang attribute with 'en' as default
+    return `<html${attrs} lang="en">`;
+  });
+}
+
+// Function for fixing table structure issues for accessibility
+export function fixTableStructureIssues(html) {
+  if (typeof html !== 'string') return html;
+
+  let result = html;
+
+  // Fix tables that need proper scope attributes on headers
+  result = result.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('scope=')) {
+      return match;
+    }
+    return `<th${attrs} scope="col">`;
+  });
+
+  // Ensure tables have associated caption or summary
+  result = result.replace(/<table(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('caption') || attrs && attrs.includes('summary')) {
+      return match;
+    }
+    // Add summary attribute for screen readers
+    return `<table${attrs} summary="Data table">`;
+  });
+
+  // Note: The following complex tbody/thead wrapping logic has been removed
+  // due to implementation complexity and potential for breaking HTML structure.
+  // The function now focuses on adding missing scope and summary attributes,
+  // which are critical for accessibility and can be safely applied with regex.
+
+  return result;
+}
+
+// Function for adding main landmark to HTML for proper document structure
+export function addMainLandmark(html) {
+  if (typeof html !== 'string') return html;
+
+  // Check if main landmark already exists
+  if (/<main[\s>]/i.test(html)) {
+    return html;
+  }
+
+  // If no main landmark, try to add one after the opening body tag
+  return html.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+    return `<body${attrs || ''}><main>`;
+  }).replace(/<\/body>/i, '</main></body>');
+}
+
+// Function for adding accessible names to SVG elements
+export function addSvgAccessibleNames(html) {
+  if (typeof html !== 'string') return html;
+
+  let svgCounter = 0;
+
+  return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
+    // Handle case where attrs might be undefined (for <svg> without attributes)
+    const attributes = attrs || '';
+    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+
+    if (existingLabel) {
+      return match;
+    }
+
+    // Extract title if present
+    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
+
+    // Check for id to reference
+    const idMatch = attributes.match(/id=["']([^"']+)["']/);
+    if (idMatch) {
+      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+    }
+
+    // Add inline title for accessibility
+    const titleId = `svg-title-${++svgCounter}`;
+    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+  });
+}
+
+// Function for ensuring unique landmark identifiers for screen readers
+// Converts additional <main> landmarks to <section> so only one <main> exists per page.
+// Also assigns unique IDs to other landmark types.
+export function ensureUniqueLandmarks(html) {
+  if (typeof html !== 'string') return html;
+
+  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const counters = {};
+
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    if (matches) {
+      counters[lm] = matches.length;
     }
   });
 
-  return issues;
+  // First, ensure only one <main> landmark exists.
+  // Convert subsequent <main> elements to <section> with aria-label.
+  let mainSeen = false;
+  html = html.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
+    if (!mainSeen) {
+      mainSeen = true;
+      return match;
+    }
+
+    // Replace additional <main> tags with <section> while preserving any attributes
+    const safeAttrs = attrs || '';
+    // Avoid duplicating an aria-label if one already exists
+    if (safeAttrs.includes('aria-label=') || safeAttrs.includes("aria-label=")) {
+      return `<section${safeAttrs}>`;
+    }
+
+    return `<section${safeAttrs} aria-label="Content section">`;
+  });
+
+  // Also update closing tags for converted <main> elements
+  // Count occurrences of <main> opening tags in the original-like state and
+  // match closing tags. Since we replaced extra <main> with <section>, we must
+  // replace the corresponding extra </main> closing tags with </section>.
+  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
+  if (mainCloseCount > mainOpenCount) {
+    const extras = mainCloseCount - mainOpenCount;
+    let replaced = 0;
+    html = html.replace(/<\/main>/gi, (match) => {
+      if (replaced < extras) {
+        replaced += 1;
+        return '</section>';
+      }
+      return match;
+    });
+  }
+
+  // Recompute counters after main -> section conversion
+  landmarks.forEach(lm => {
+    const regex = new RegExp(`<${lm}\\b`, 'gi');
+    const matches = html.match(regex);
+    counters[lm] = matches ? matches.length : 0;
+  });
+
+  // Assign unique IDs to remaining landmarks
+  landmarks.forEach(lm => {
+    const count = counters[lm] || 0;
+    if (count === 0) return;
+    const seen = {};
+    const openRegex = new RegExp(`<${lm}(\\s[^>]*)?>`, 'gi');
+    html = html.replace(openRegex, (match, inner) => {
+      // Skip if an id attribute is already present
+      if (inner && inner.includes('id=')) {
+        return match;
+      }
+      seen[lm] = (seen[lm] || 0) + 1;
+      const id = `${lm}-${seen[lm]}`;
+      return `<${lm} id="${id}"${inner || ''}>`;
+    });
+  });
+
+  return html;
 }
 
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
+// Function for fixing 1 fake link issue
+export function fixFakeLinkIssue(html) {
+  if (typeof html !== 'string') return html;
 
-  // Add title element as first child
-  const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
-  title.textContent = accessibleName;
-
-  // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
-
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
-}
-
-export function isValidLink(element) {
-  // ... existing code ...
-}
-
-export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
-}
-
-function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    // TODO: Implement solution to the issue
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
+  // Fix any fake links that do not have a valid href attribute
+  return html.replace(/<a(\s[^>]*)?>/gi, (match, attrs) => {
+    if (attrs && attrs.includes('href=')) {
+      return match;
+    }
+    return match.replace(/<a/, '<a href="#"');
   });
 }
 
-export function myFunction() {
-  // Your code for the new function goes here
-}
-
-function newFunction() {
-  // implementation of new function
-}
-
-// Export Screeps bot functions
-module.exports = { addProperLandmarkRegions };
-
-// Export accessibility functions
-module.exports.getUniqueLandmarkName = getUniqueLandmarkName;
-module.exports.validateUniqueLandmarks = validateUniqueLandmarks;
-module.exports.addSvgAccessibleName = addSvgAccessibleName;
-module.exports.isValidLink = isValidLink;
-module.exports.addScopeToHeaders = addScopeToHeaders;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-module.exports.newFunction = newFunction;
-
-// <!--- END ADDITIONAL FUNCTION --->
-// <!--- START MODIFIED FUNCTION --->
-function modifiedFunction() {
-  // Modified implementation of the function
-  console.log('This function has been modified.');
-}
-
-// <!--- END MODIFIED FUNCTION --->
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
-// <!--- Any other modifications or additions go here --->
 export {
-  function3,
-  App,
-  getUniqueLandmarkName,
-  validateUniqueLandmarks,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
-  myFunction,
-  newFunction
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  checkTableStructure,
+  getLangAttribute,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
 };

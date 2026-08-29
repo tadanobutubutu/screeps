@@ -1,3 +1,20 @@
+import { class1, function1, Object1 } from './path/to/module';
+
+// Helper function to get accessibility-related elements
+function getAccessibleElements(document, selector) {
+  const elements = document.querySelectorAll(selector);
+  return Array.from(elements).filter(el => {
+    const role = el.getAttribute('role');
+    const tagName = el.tagName.toLowerCase();
+    return el.hasAttribute('aria-label') || 
+           el.hasAttribute('aria-labelledby') || 
+           el.hasAttribute('aria-describedby') ||
+           (tagName === 'button' && el.textContent.trim()) ||
+           (tagName === 'a' && el.textContent.trim()) ||
+           (role && ['button', 'link', 'menuitem'].includes(role));
+  });
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
@@ -8,8 +25,6 @@
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...
-
-import { class1, function1, Object1 } from './path/to/module';
 
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
@@ -33,7 +48,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const rows = Array.from(table.querySelectorAll('tr'));
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -44,7 +59,7 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = rows.length > 0 ? Array.from(rows).slice(0) : [];
+      const remainingRows = rows.length > 0 ? rows.slice(1) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
         remainingRows.forEach(row => tbody.appendChild(row));
@@ -56,7 +71,7 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td');
       if (cells.length > 0) {
         // If first cell should be a header
         if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
@@ -80,7 +95,7 @@ function addMainLandmark(document) {
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
-    const main = document.getElementById('main-content');
+    const main = document.createElement('main');
     if (main) {
       main.setAttribute('id', 'main-content');
     }
@@ -107,7 +122,7 @@ function addMainLandmark(document) {
 }
 
 // Function to ensure unique landmarks (combined approach)
-function uniqueLandmarks(document) {
+function ensureUniqueLandmarks(document) {
   // Combined approach using both role-based and element-based selection
   const landmarkSelectors = [
     { selector: '[role="navigation"]', name: 'navigation' },
@@ -127,4 +142,26 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements
+      elements.forEach(element => {
+        if (index > 1) {
+          const existingLabel = element.getAttribute('aria-label');
+          if (!existingLabel) {
+            element.setAttribute('aria-label', `${name}-${index}`);
+          }
+        }
+        index++;
+      });
+    }
+  });
+
+  return document;
+}
+
+// Export all functions
+export { 
+  addLangAttribute, 
+  fixTableStructure, 
+  addMainLandmark, 
+  ensureUniqueLandmarks,
+  getAccessibleElements 
+};

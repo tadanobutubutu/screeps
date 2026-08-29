@@ -167,6 +167,33 @@ function countDependencies(obj) {
   return count;
 }
 
+for (var name in Game.creeps) {
+    var creep = Game.creeps[name];
+    if (creep.memory.role == 'harvester') {
+        roleHarvester.run(creep);
+    }
+    if (creep.memory.role == 'upgrader') {
+        roleUpgrader.run(creep);
+    }
+}
+
+function validateLandmark(landmark) {
+    if (!landmark) {
+        return false;
+    }
+    return landmark && !landmark.spawning;
+}
+
+function validateLandmarkStructure(landmark) {
+    if (!landmark) {
+        return false;
+    }
+    if (landmark.structureType) {
+        return true;
+    }
+    return false;
+}
+
 function MainApp() {
   return (
     <div lang="en">
@@ -282,22 +309,10 @@ module.exports = {
     someUtility,
     config,
     countDependencies,
-    run,
-    checkTableStructure,
-    ensureElementHasId,
-    addAriaLabel,
+    validateLandmark,
+    validateLandmarkStructure,
     renderDependencyGraphs,
     myNewFunction,
-    isNumber,
-    clamp,
-    getLangAttribute,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    createInPageButton,
-    createAccessibleLink,
     MainApp,
     handleSkipLinkClick
 };

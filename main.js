@@ -463,9 +463,8 @@ const a11yStore = {
   setupFocusVisiblePolyfill() {
     let hadKeyboardEvent = false;
     
-    const showRemaining = () => {
-      document.documentElement.classList.remove('focus-visible');
-      document.documentElement.classList.add('focus-hidden');
+    const handlePointerDown = () => {
+      hadKeyboardEvent = false;
     };
     
     const handleBlur = (e) => {
@@ -489,30 +488,6 @@ const a11yStore = {
         document.documentElement.classList.add('focus-visible');
       }
     }, true);
-  },
-  
-  // NEW: Enhance dynamic content updates for better screen reader support
-  enhanceDynamicContent() {
-    // Observe DOM changes for dynamic content
-    if (!('MutationObserver' in window)) return;
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              // Add appropriate ARIA attributes to dynamically added content
-              this.applyARIAtoNode(node);
-            }
-          });
-        }
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
   },
   
   // NEW: Apply ARIA attributes to dynamically added elements
@@ -569,6 +544,14 @@ const a11yStore = {
         el.setAttribute('tabindex', '-1');
       }
     });
+  },
+
+  // Preserve existing code
+  preserveExistingCode() {
+    // Placeholder for preserving existing code logic
+    if (typeof this.init === 'function') {
+      this.init();
+    }
   }
 };
 

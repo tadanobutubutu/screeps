@@ -259,6 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
+// Initialize function for accessibility features
+function initA11y() {
+  a11yStore.init();
+}
+
 // Export for module usage
 export { a11yStore };
 export { mainElement };

@@ -156,6 +156,216 @@ export function addScopeToHeaders(tableElement) {
   return updates;
 }
 
+// REACT_015: Get or set the lang attribute on the HTML element
+export function getLangAttribute(element) {
+  if (!element) {
+    return document.documentElement.getAttribute('lang');
+  }
+  return element.getAttribute('lang');
+}
+
+export function setLangAttribute(lang) {
+  if (lang) {
+    document.documentElement.setAttribute('lang', lang);
+  }
+}
+
+// REACT_027: Validate table accessibility
+export function validateTableAccessibility(tableElement) {
+  const issues = [];
+  if (!tableElement) return issues;
+
+  // Check for caption
+  const caption = tableElement.querySelector('caption');
+  if (!caption) {
+    issues.push({
+      element: tableElement,
+      message: 'Table is missing a <caption> element for accessibility.',
+      severity: 'warning'
+    });
+  }
+
+  // Check for proper th elements
+  const headers = tableElement.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push({
+      element: tableElement,
+      message: 'Table should have <th> elements for headers.',
+      severity: 'warning'
+    });
+  }
+
+  // Check for scope attributes on th elements
+  headers.forEach((th) => {
+    if (!th.getAttribute('scope')) {
+      issues.push({
+        element: th,
+        message: 'Table header is missing scope attribute (should be "col" or "row").',
+        severity: 'warning'
+      });
+    }
+  });
+
+  return issues;
+}
+
+// REACT_027: Validate table structure
+export function validateTableStructure(tableElement) {
+  const issues = [];
+  if (!tableElement) return issues;
+
+  const rows = tableElement.querySelectorAll('tr');
+  let previousRowCells = 0;
+
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    const currentRowCells = cells.length;
+
+    // Check for irregular row lengths
+    if (previousRowCells !== 0 && currentRowCells !== previousRowCells) {
+      issues.push({
+        element: row,
+        message: `Row ${rowIndex} has ${currentRowCells} cells, but previous row had ${previousRowCells}. Table structure may be inconsistent.`,
+        severity: 'error'
+      });
+    }
+
+    previousRowCells = currentRowCells;
+  });
+
+  return issues;
+}
+
+// REACT_017: Validate landmark presence
+export function validateLandmark(container) {
+  const issues = [];
+  if (!container) container = document.body;
+
+  const requiredLandmarks = {
+    'banner': 'header, [role="banner"]',
+    'navigation': 'nav, [role="navigation"]',
+    'main': 'main, [role="main"]',
+    'contentinfo': 'footer, [role="contentinfo"]'
+  };
+
+  Object.entries(requiredLandmarks).forEach(([landmarkType, selector]) => {
+    const landmark = container.querySelector(selector);
+    if (!landmark) {
+      issues.push({
+        element: container,
+        message: `Missing ${landmarkType} landmark. Add a <${landmarkType === 'banner' ? 'header' : landmarkType === 'contentinfo' ? 'footer' : landmarkType}> element or element with role="${landmarkType}".`,
+        severity: 'warning'
+      });
+    }
+  });
+
+  return issues;
+}
+
+// REACT_017: Validate landmark structure
+export function validateLandmarkStructure(container) {
+  const issues = [];
+  if (!container) container = document.body;
+
+  // Check for proper landmark nesting
+  const landmarks = container.querySelectorAll('header, nav, main, footer, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]');
+
+  landmarks.forEach((landmark) => {
+    // Check if main landmark is nested inside other landmarks (should not be)
+    if (landmark.matches('main, [role="main"]')) {
+      const parentMain = landmark.closest('header, nav, footer, [role="banner"], [role="navigation"], [role="contentinfo"]');
+      if (parentMain) {
+        issues.push({
+          element: landmark,
+          message: 'Main landmark should not be nested inside other landmarks.',
+          severity: 'error'
+        });
+      }
+    }
+
+    // Check if landmark has accessible name
+    const hasAriaLabel = landmark.getAttribute('aria-label');
+    const hasAriaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
+
+    // Navigation and complementary landmarks should have accessible names if multiple exist
+    if (tagName === 'nav' || landmark.getAttribute('role') === 'navigation' || 
+        tagName === 'aside' || landmark.getAttribute('role') === 'complementary') {
+      const sameTypeLandmarks = container.querySelectorAll(`${tagName}, [role="${landmark.getAttribute('role')}"]`);
+      if (sameTypeLandmarks.length > 1 && !hasAriaLabel && !hasAriaLabelledby) {
+        issues.push({
+          element: landmark,
+          message: 'Multiple navigation/complementary landmarks should have unique aria-label or aria-labelledby.',
+          severity: 'warning'
+        });
+      }
+    }
+  });
+
+  return issues;
+}
+
+// REACT_041: Get SVG accessible name
+export function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title) {
+    return title.textContent;
+  }
+
+  // Check for aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check for aria-labelledby reference
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const referencedElement = document.getElementById(ariaLabelledby);
+    if (referencedElement) {
+      return referencedElement.textContent;
+    }
+  }
+
+  return '';
+}
+
+// REACT_036: Create proper in-page button (replaces fake links)
+export function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.type = 'button';
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+
+  // Apply any additional options
+  if (options.id) button.id = options.id;
+  if (options.className) button.className = options.className;
+  if (options.ariaLabel) button.setAttribute('aria-label', options.ariaLabel);
+
+  return button;
+}
+
+// REACT_015: Get person name for accessible labeling
+export function personName(data) {
+  if (!data) return '';
+  
+  // Handle various name formats
+  if (typeof data === 'string') return data;
+  if (data.name) return data.name;
+  if (data.firstName || data.lastName) {
+    return `${data.firstName || ''} ${data.lastName || ''}`.trim();
+  }
+  if (data.fullName) return data.fullName;
+  
+  return '';
+}
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);

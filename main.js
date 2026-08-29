@@ -18,18 +18,18 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// TODO: Implement this function for ensuring unique landmarks (from issue)
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -37,6 +37,8 @@ function ensureUniqueLandmarks(landmarks) {
     return true;
   });
 }
+
+// TODO: Implement getLangAttribute(), getFullLangAttribute(), validateTableAccessibility(), validateTableStructure(), validateLandmark(), validateLandmarkStructure(), getSvgAccessibleName(), createInPageButton(), createAccessibleLink() and handleAccessibilityIssues() functions (from issue)
 
 // Export functions for testing
 module.exports = {

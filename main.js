@@ -1,24 +1,8 @@
-/**
- * Main entry point for the Frontend application.
- *
- * This file sets up the application, loads the DOM elements, and initializes
- * various modules that handle different aspects of the application. It also
- * contains fixes for various accessibility issues as per the Insight report.
- *
- * The following accessibility issues are addressed:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_017: Add landmark roles and fix landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks (2 issues)
- * - REACT_036: Fix 1 fake link issue
- * - REACT_025: Add scope="col" or scope="row" to <th> elements (already implemented)
- *
- * Also included are fixes for the landmark and uniqueness issues.
- *
- * @module main
- */
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import './styles.css';
+// TODO: Address any missing required exports
+// REACT_015: Add lang attribute
 
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
@@ -39,6 +23,21 @@ const functionB = {
   X: 'valueX',
   Y: 'valueY',
   Z: 'valueZ'
+};
+
+const Main = ({ children, title, lang = 'en' }) => {
+  return (
+    <main lang={lang}>
+      {title && <h1>{title}</h1>}
+      {children}
+    </main>
+  );
+};
+
+Main.propTypes = {
+  children: PropTypes.node,
+  title: PropTypes.string,
+  lang: PropTypes.string,
 };
 
 /**
@@ -75,11 +74,6 @@ const landmarkStructureCheck = (landmark) => {
     return false;
   }
   return true;
-};
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
 };
 
 /**
@@ -332,5 +326,7 @@ export {
     fixFakeLinks,
     landmarks,
     functionA,
-    functionB
+    functionB,
+    Main
 };
+export default Main;

@@ -304,6 +304,12 @@ const a11yStore = {
     // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
     // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+  },
+  greet(name) {
+    return `Hello, ${name}!`;
+  },
+  add(a, b) {
+    return a + b;
   }
 };
 
@@ -328,7 +334,9 @@ function addressAccessibilityIssues(report) {
 
 // Exporting the new added function
 module.exports = {
-  newFunction,
+  newFunction: a11yStore,
+  greet: a11yStore.greet,
+  add: a11yStore.add,
   addressAccessibilityIssues,
   a11yStore,
 };

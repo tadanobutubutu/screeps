@@ -18,6 +18,10 @@ function addMainLandmark(reactRoot) {
   reactRoot.appendChild(mainLandmark);
 }
 
+function calculateDiscount(price, discountPercentage) {
+  return price * (discountPercentage / 100);
+}
+
 // ... rest of the code
 
 // Exports

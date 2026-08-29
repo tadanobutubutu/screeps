@@ -1,6 +1,20 @@
 // Import necessary modules (if not already imported)
 import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, getSvgAccessibleName, createAccessibleLink, ensureUniqueLandmarks } from './accessibilityUtils';
 
+// Export the imported functions so they can be used by other modules
+export {
+  getLangAttribute,
+  wrapPrimaryContentInMain,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  addFixLandmarkIssues,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  ensureUniqueLandmarks
+};
+
 // Keep the existing exports
 // ...
 
@@ -143,6 +157,9 @@ function addAriaLabelToSVGs() {
 // const svg2 = document.querySelector('#svg2');
 // if (svg1) svg1.setAttribute('aria-hidden', 'true');
 // if (svg2) svg2.setAttribute('aria-hidden', 'true');
+
+// Export the local functions as well
+export { addProperLandmarkRegions, addAriaLabelledbyToSVGs, addAriaLabelToSVGs, handleAccessibilityIssues };
 
 // Call the new landmark and SVG accessibility functions
 addProperLandmarkRegions();

@@ -15,7 +15,7 @@ const { formatData, validateInput } = require('./utils');
 
 // _Commit: be4de8ba2d8cf662acf5fe4b707e0c73c8001161
 
-// <!-- todo-hash: d14d2179a6882376acb8784b647ec3c7b0df2897 -->
+/* todo-hash: d14d2179a6882376acb8784b647ec3c7b0df2897 */
 
 /**
  * Gets the language attribute value from the document
@@ -473,8 +473,8 @@ function addSvgAccessibleNames() {
   });
 }
 
-// Accessibility function to ensure unique landmarks
-function ensureUniqueLandmarks() {
+// Accessibility function to process landmark uniqueness in DOM
+function processLandmarkUniqueness() {
   const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
   landmarks.forEach(landmark => {
     const tagName = landmark.tagName.toLowerCase();
@@ -548,7 +548,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     fixTableStructureIssues();
     addMainLandmark();
     addSvgAccessibleNames();
-    ensureUniqueLandmarks();
+    processLandmarkUniqueness();
     fixFakeLinkIssue();
 
     announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');

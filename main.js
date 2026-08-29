@@ -18,6 +18,8 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // TODO: Implement myNewFunction logic
   },
   
   manageRoom: function(room) {

@@ -1,58 +1,8 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - ADD: Address new accessibility issues from insight report
 
-/**
- * Gets the accessible name for an SVG element.
- * @param {SVGElement} svgElement - The SVG element to get the accessible name for
- * @returns {string|null} The accessible name or null if not found
- */
-function getSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
-  
-  const title = svgElement.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-  
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
-  }
-  
-  const labelledBy = svgElement.getAttribute('aria-labelledby');
-  if (labelledBy) {
-    const label = document.getElementById(labelledBy);
-    if (label) {
-      return label.textContent.trim();
-    }
-  }
-  
-  return null;
-}
-
-function makeAccessible(element) {
-  // Implement the function logic to address accessibility issues
-  // ...
-}
-
-exports.someFunction = function() {
-  // Existing code
-};
-
-exports.anotherFunction = function() {
-  // Existing code
-};
-
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
-
-// Add the new function here
-function makeAccessible(element) {
-  // Implement the function logic to address accessibility issues
+function addressAccessibilityIssue038() {
+  // Implement the function logic to address the new accessibility issues
   // ...
 }
 
@@ -71,13 +21,12 @@ import MyComponent from './MyComponent';
 
 // Export the functions for addressing new accessibility issues
 exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
 
-// TODO: This is the existing code that needs to be preserved
+// This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())

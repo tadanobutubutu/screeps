@@ -1,3 +1,13 @@
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// existing code...
+
 const dependencyGraphContent = require('./dependencyGraph');
 
 const rotateBack = function () {
@@ -34,21 +44,22 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 exports.renderDependencyGraph = renderDependencyGraph;
 
+function fixTableStructureIssues(document) {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
     if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        const theadRowCount = existingThead.querySelectorAll('tr').length;
-        remainingRows = remainingRows.slice(theadRowCount);
-      } else {
-        remainingRows = [];
-      }
-=======
       let remainingRows = Array.from(rows);
       if (existingThead) {
         remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
       } else {
         remainingRows = remainingRows.slice(1);
->>>>>>> origin/main
       }
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
@@ -87,6 +98,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
 }
 
 // Function to addMainLandmark(document) {
+function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
@@ -150,12 +162,12 @@ function fixFakeLinkIssue(document) {
     const isAnchor = tagName === 'a';
     const hasHref = element.hasAttribute('href');
     const onclick = element.getAttribute('onclick') || '';
-    
+
     // Check if it's a fake link (clickable but not a real anchor)
-    if (!isAnchor && (onclick.includes('window.location') || 
-        onclick.includes('document.location') || 
+    if (!isAnchor && (onclick.includes('window.location') ||
+        onclick.includes('document.location') ||
         onclick.includes('href'))) {
-      
+
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
       span.textContent = element.textContent;
@@ -164,12 +176,12 @@ function fixFakeLinkIssue(document) {
       span.setAttribute('onclick', onclick);
       element.setAttribute('onclick', '');
       span.onclick = element.onclick;
-      
+
       // Copy styling if available
       if (element.className) {
         span.className = element.className;
       }
-      
+
       element.parentNode.replaceChild(span, element);
       count++;
     }
@@ -268,11 +280,11 @@ function renderDependencyGraphs(document) {
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-label', 'Dependency graph visualization');
     graphContainer.appendChild(svg);
-    
+
     // Render the graph content
     if (dependencyGraphContent) {
-      const graphContent = typeof dependencyGraphContent === 'string' 
-        ? dependencyGraphContent 
+      const graphContent = typeof dependencyGraphContent === 'string'
+        ? dependencyGraphContent
         : JSON.stringify(dependencyGraphContent);
       const parser = new DOMParser();
       const doc = parser.parseFromString(graphContent, 'image/svg+xml');
@@ -468,59 +480,6 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-function fixTableStructureIssues(document) {
-  // Function to fix table structure issues for accessibility
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-    
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
-      } else {
-        remainingRows = remainingRows.slice(1);
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-
-    // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        fixedCount++;
-      }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
-}
-
 function renderIndexView() {
   // Function to render the index view
 }
@@ -584,4 +543,4 @@ exports.addLandmarkRegions = addLandmarkRegions;
 exports.uniqueLandmarks = uniqueLandmarks;
 exports.fixImageAltTexts = fixImageAltTexts;
 exports.googleSignIn = googleSignIn;
-exports.handleCredentialResponse = handleCredentialResponse
+exports.handleCredentialResponse = handleCredentialResponse;

@@ -2,8 +2,6 @@ import { formatCurrency, formatDate, calculateDiscount, validateInput } from './
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
-// TODO: Add these imported modules to the relevant rendering functions
-
 function formatProductName(product) {
   return `${product.name} - ${product.category}`;
 }

@@ -1,5 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -40,7 +38,7 @@ function getVersion() {
 // TODO: This is the existing code that needs to be preserved
 // (This should be preserved)
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
-function addressAccessibilityIssues {
+function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root').parentElement;
   if (rootContainer) {
@@ -125,6 +123,7 @@ export {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
+  root,
   validateTableAccessibility,
   validateTableStructure
 };
@@ -136,6 +135,7 @@ export default {
   getConfig,
   getVersion,
   addressAccessibilityIssues,
+  root,
   validateTableAccessibility,
   validateTableStructure
 };

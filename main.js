@@ -855,10 +855,67 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
-// Standalone function to address accessibility issues from insight report
-function addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+/**
+ * Addresses accessibility issues from insight report
+ * Processes the report and applies appropriate fixes based on identified issues
+ * @param {Object} report - Insight report containing accessibility issues to address
+ * @param {string} htmlString - HTML content to fix
+ * @param {Object} options - Configuration options for fixing
+ * @returns {string} HTML with accessibility issues addressed based on report
+ */
+function addressAccessibilityIssues(report, htmlString, options = {}) {
+  // Return original HTML if no report or HTML provided
+  if (!report || !htmlString) {
+    return htmlString || '';
+  }
+
+  // Initialize result with original HTML
+  let result = htmlString;
+  const fixedIssues = [];
+  const defaultLangCode = options.langCode || 'en';
+
+  // Process REACT_015: Add lang attribute to HTML element
+  if (report.REACT_015) {
+    result = addLangAttribute(result, report.langCode || defaultLangCode);
+    fixedIssues.push('REACT_015');
+  }
+
+  // Process REACT_027: Fix table structure issues
+  if (report.REACT_027) {
+    result = fixTableStructureIssues(result);
+    fixedIssues.push('REACT_027');
+  }
+
+  // Process REACT_017: Add/fix landmark issues
+  if (report.REACT_017) {
+    result = addMainLandmark(result);
+    fixedIssues.push('REACT_017');
+  }
+
+  // Process REACT_041: Add accessible names to SVGs
+  if (report.REACT_041) {
+    result = addSvgAccessibleNames(result);
+    fixedIssues.push('REACT_041');
+  }
+
+  // Process REACT_025: Ensure unique landmarks
+  if (report.REACT_025) {
+    result = ensureUniqueLandmarks(result);
+    fixedIssues.push('REACT_025');
+  }
+
+  // Process REACT_036: Fix fake link issue
+  if (report.REACT_036) {
+    result = fixFakeLinkIssue(result);
+    fixedIssues.push('REACT_036');
+  }
+
+  // Log summary of fixes applied
+  if (fixedIssues.length > 0) {
+    console.log(`Accessibility fixes applied for issues: ${fixedIssues.join(', ')}`);
+  }
+
+  return result;
 }
 
 if (typeof a11yStore.init === 'function') {

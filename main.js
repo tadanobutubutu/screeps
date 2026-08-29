@@ -18,6 +18,12 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  addLangAttribute,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixTableStructureIssues,
+  renderDependencyGraph,
 } = require('./accessibilityHelperFunctions');
 
 const fs = require('fs');
@@ -374,5 +380,11 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    addLangAttribute,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    fixTableStructureIssues,
+    renderDependencyGraph
 };

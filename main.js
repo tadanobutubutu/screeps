@@ -17,6 +17,11 @@
 // If not, define it here:
 function rotateBack() {
   // Your code to rotate back
+  const element = document.getElementById('unrotate');
+  if (element) {
+    element.classList.remove('rotated');
+    element.style.transform = 'rotate(0deg)';
+  }
 }
 
 // ... (other code in main.js)

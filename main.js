@@ -1,7 +1,7 @@
 // main.js
 
 const _ = require('lodash');
-const dependencyGraphContent = require('./dependencyGraphContent');
+const dependencyGraphContent = {};
 
 // - REACT_015: Add lang attribute to HTML element
 document.documentElement.lang = 'en';
@@ -10,18 +10,18 @@ function getSvgAccessibleName(svgElement) {
   if (!svgElement) return '';
 
   // Check for aria-label first (from origin/main)
-  if (svgElement.hasAttribute('aria-label')) {
+  if (svgElement.getAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label');
   }
 
   // Check for aria-labelledby (from origin/main)
-  if (svgElement.hasAttribute('aria-labelledby')) {
+  if (svgElement.getAttribute('aria-labelledby')) {
     const ids = svgElement.getAttribute('aria-labelledby').split(' ');
     let labels = [];
     ids.forEach(id => {
       const labelElement = document.getElementById(id);
       if (labelElement) {
-        labels.push(labelElement.textContent.trim());
+        labels.push(labelElement.textContent);
       }
     });
     if (labels.length > 0) {
@@ -44,7 +44,7 @@ function getSvgAccessibleName(svgElement) {
 }
 
 function setSvgAttributes(svgElement) {
-  if (!svgElement || svgElement.nodeName.toLowerCase() !== 'svg') {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
     return;
   }
 
@@ -53,7 +53,7 @@ function setSvgAttributes(svgElement) {
 
   // Add a default aria-label if none exists (from origin/main)
   if (!svgElement.getAttribute('aria-label')) {
-    addAriaLabel(svgElement, 'SVG graphic');
+    svgElement.setAttribute('aria-label', 'SVG graphic');
   }
 }
 
@@ -81,8 +81,8 @@ function setSvgAttributesArray(svgElements) {
       svg.setAttribute('role', 'img');
     }
 
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-      svg.setAttribute('aria-label', `SVG ${index + 1}`);
+    if (!accessibleName && title) {
+      title.textContent = `SVG ${index + 1}`;
     }
   });
 }
@@ -135,7 +135,7 @@ function myNewFunction(arr) {
 // Landmark Accessibility Functions (from origin/main)
 function ensureElementHasId(element) {
   if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element.id;
 }
@@ -163,7 +163,7 @@ function wrapPrimaryContentInMain() {
 
   // Identify landmark elements that should remain outside of <main>
   const elementsToExclude = [];
-  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  const landmarks = document.querySelectorAll('nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
   landmarks.forEach(landmark => elementsToExclude.push(landmark));
 
   // Create a new <main> element
@@ -189,12 +189,12 @@ function checkLandmarks(container = document) {
 
 function ensureUniqueLandmarks() {
   // Ensure only one main landmark
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"], main');
   const removedMains = [];
   if (mains.length > 1) {
     for (let i = 1; i < mains.length; i++) {
-      removedMains.push(mains[i]);
       mains[i].remove();
+      removedMains.push(mains[i]);
     }
   }
 
@@ -203,26 +203,35 @@ function ensureUniqueLandmarks() {
   const removedBanners = [];
   if (banners.length > 1) {
     for (let i = 1; i < banners.length; i++) {
-      removedBanners.push(banners[i]);
       banners[i].remove();
+      removedBanners.push(banners[i]);
     }
   }
 
   // Ensure only one contentinfo/footer landmark
   const footers = document.querySelectorAll('[role="contentinfo"], footer');
-  // (code for ensureUniqueLandmarks continues...)
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      footers[i].remove();
+    }
+  }
+
+  return {
+    removedMains,
+    removedBanners
+  };
 }
 
 // - REACT_017: Add/fix 4 landmark issues (from origin/main)
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
-landmarks.forEach((landmark, index) => {
-  landmark.setAttribute('aria-label', 'landmark-' + (index + 1));
+const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
+landmarkElements.forEach((landmark, index) => {
+  landmark.id = landmark.id || 'landmark-' + (index + 1);
   landmark.classList.add('landmark');
 });
 
 // - REACT_041: Add accessible names to 2 SVGs (from origin/main)
-const svg1 = document.querySelector('svg');
-const svg2 = document.querySelectorAll('svg')[1];
+const svg1 = document.getElementById('svg1');
+const svg2 = document.getElementById('svg2');
 if (svg1) {
   svg1.setAttribute('aria-labelledby', 'svg1-title');
 }
@@ -231,23 +240,23 @@ if (svg2) {
 }
 
 // - REACT_025: Ensure unique landmarks (2 issues) (from origin/main)
-const mainElements = document.querySelectorAll('main');
+const mainElements = document.querySelectorAll('main, [role="main"]');
 if (mainElements.length > 1) {
   console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
 }
 
 // - REACT_036: Fix 1 fake link issue (from origin/main)
-const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+const fakeLinks = document.querySelectorAll('a:not([href])');
 fakeLinks.forEach(link => {
   link.setAttribute('role', 'presentation');
 });
 
 // NEW: Implement this function for checking landmark elements (from origin/main)
 function checkLandmarkElements() {
-  const landmarks = document.querySelectorAll('.landmark');
+  const landmarks = document.querySelectorAll('[role]');
   landmarks.forEach((landmark, index) => {
-    if (landmark.hasAttribute('aria-labelledby') && !landmark.querySelector(`#landmark-label-${index}`)) {
-      console.warn(`REACT_017: ARIA-labelledby attribute exists without corresponding element for landmark at index ${index}`);
+    if (landmark.hasAttribute('aria-labelledby') && !document.getElementById(landmark.getAttribute('aria-labelledby'))) {
+      console.warn(`ARIA-labelledby attribute exists without corresponding element for landmark at index ${index}`);
     }
   });
 }

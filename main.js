@@ -358,6 +358,10 @@ ReactDOM.render(<App />, document.getElementById('root'));
  * Export functions for testing and external use
  */
 module.exports = {
+  checkAccessibility,
+  checkTables,
+  generateReport,
+  run,
   VERSION,
   config,
   formatDate,

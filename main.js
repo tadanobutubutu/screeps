@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // Implement the new function as per the issue requirements
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {
@@ -60,6 +63,12 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    // Example: Log the number of sources in each room
+    for (const name in Game.rooms) {
+      const room = Game.rooms[name];
+      const sources = room.find(FIND_SOURCES);
+      console.log(`Room ${name} has ${sources.length} sources.`);
+    }
   }
 };
 

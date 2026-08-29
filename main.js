@@ -195,6 +195,191 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Credential response handling for WebAuthn authentication
+function handleCredentialResponse(credential, options = {}) {
+  const {
+    onSuccess,
+    onError,
+    expectedOrigin = window.location.origin,
+    expectedRpId = window.location.hostname
+  } = options;
+
+  if (!credential || !credential.id || !credential.response) {
+    const error = new Error('Invalid credential response: missing required fields');
+    error.code = 'INVALID_CREDENTIAL';
+    onError?.(error);
+    return Promise.reject(error);
+  }
+
+  // Verify credential response structure
+  const response = credential.response;
+  const clientDataJSON = response.clientDataJSON;
+  
+  if (!clientDataJSON) {
+    const error = new Error('Missing clientDataJSON in credential response');
+    error.code = 'MISSING_CLIENT_DATA';
+    onError?.(error);
+    return Promise.reject(error);
+  }
+
+  let clientData;
+  try {
+    const decoded = new TextDecoder().decode(clientDataJSON);
+    clientData = JSON.parse(decoded);
+  } catch (e) {
+    const error = new Error('Failed to parse clientDataJSON');
+    error.code = 'PARSE_ERROR';
+    onError?.(error);
+    return Promise.reject(error);
+  }
+
+  // Validate origin
+  if (clientData.origin !== expectedOrigin) {
+    const error = new Error(`Origin mismatch: expected ${expectedOrigin}, got ${clientData.origin}`);
+    error.code = 'ORIGIN_MISMATCH';
+    onError?.(error);
+    return Promise.reject(error);
+  }
+
+  // Validate challenge if provided
+  if (options.challenge) {
+    const expectedChallenge = arrayBufferToBase64Url(options.challenge);
+    if (clientData.challenge !== expectedChallenge) {
+      const error = new Error('Challenge mismatch');
+      error.code = 'CHALLENGE_MISMATCH';
+      onError?.(error);
+      return Promise.reject(error);
+    }
+  }
+
+  // Validate type
+  if (options.type && clientData.type !== options.type) {
+    const error = new Error(`Type mismatch: expected ${options.type}, got ${clientData.type}`);
+    error.code = 'TYPE_MISMATCH';
+    onError?.(error);
+    return Promise.reject(error);
+  }
+
+  // For assertion responses, verify authenticatorData
+  if (response.authenticatorData) {
+    const authData = parseAuthenticatorData(response.authenticatorData);
+    
+    // Verify RP ID hash
+    const expectedRpIdHash = hashRpId(expectedRpId);
+    if (!compareBuffers(authData.rpIdHash, expectedRpIdHash)) {
+      const error = new Error('RP ID hash mismatch');
+      error.code = 'RP_ID_MISMATCH';
+      onError?.(error);
+      return Promise.reject(error);
+    }
+
+    // Check user presence and verification flags
+    if (!(authData.flags & 0x01)) {
+      const error = new Error('User presence not verified');
+      error.code = 'USER_PRESENCE_FAILED';
+      onError?.(error);
+      return Promise.reject(error);
+    }
+
+    if (options.requireUserVerification && !(authData.flags & 0x04)) {
+      const error = new Error('User verification required but not performed');
+      error.code = 'USER_VERIFICATION_FAILED';
+      onError?.(error);
+      return Promise.reject(error);
+    }
+  }
+
+  // For attestation responses, additional verification would be needed
+  if (response.attestationObject) {
+    // Attestation verification would go here
+    console.log('Attestation response received, verification should be implemented server-side');
+  }
+
+  const result = {
+    credentialId: credential.id,
+    rawId: credential.rawId,
+    type: credential.type,
+    response: {
+      clientDataJSON: response.clientDataJSON,
+      authenticatorData: response.authenticatorData,
+      signature: response.signature,
+      userHandle: response.userHandle,
+      attestationObject: response.attestationObject
+    },
+    clientData
+  };
+
+  onSuccess?.(result);
+  return Promise.resolve(result);
+}
+
+// Helper function to convert ArrayBuffer to base64url
+function arrayBufferToBase64Url(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// Helper function to parse authenticator data
+function parseAuthenticatorData(buffer) {
+  const dataView = new DataView(buffer);
+  let offset = 0;
+  
+  const rpIdHash = buffer.slice(offset, offset + 32);
+  offset += 32;
+  
+  const flags = dataView.getUint8(offset);
+  offset += 1;
+  
+  const signCount = dataView.getUint32(offset, false);
+  offset += 4;
+  
+  let attestedCredentialData = null;
+  if (flags & 0x40) {
+    // AT flag set - attested credential data present
+    const aaguid = buffer.slice(offset, offset + 16);
+    offset += 16;
+    
+    const credentialIdLength = dataView.getUint16(offset, false);
+    offset += 2;
+    
+    const credentialId = buffer.slice(offset, offset + credentialIdLength);
+    offset += credentialIdLength;
+    
+    // COSE public key would follow, but we'll stop here
+    attestedCredentialData = { aaguid, credentialId };
+  }
+  
+  let extensions = null;
+  if (flags & 0x80) {
+    // ED flag set - extensions present
+    // CBOR parsing would be needed here
+  }
+  
+  return { rpIdHash, flags, signCount, attestedCredentialData, extensions };
+}
+
+// Helper function to hash RP ID
+function hashRpId(rpId) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(rpId);
+  return crypto.subtle.digest('SHA-256', data);
+}
+
+// Helper function to compare buffers
+function compareBuffers(buf1, buf2) {
+  if (buf1.byteLength !== buf2.byteLength) return false;
+  const view1 = new Uint8Array(buf1);
+  const view2 = new Uint8Array(buf2);
+  for (let i = 0; i < view1.length; i++) {
+    if (view1[i] !== view2[i]) return false;
+  }
+  return true;
+}
+
 // Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', () => {
@@ -252,6 +437,11 @@ if (typeof module !== 'undefined' && module.exports) {
     addMainLandmark,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    handleCredentialResponse,
+    arrayBufferToBase64Url,
+    parseAuthenticatorData,
+    hashRpId,
+    compareBuffers
   };
 }

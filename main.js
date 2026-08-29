@@ -16,7 +16,7 @@ const main = {
         this.manageRoom(room);
       }
     }
-    
+
     // TODO: Implement harvest and upgrade logic
     this.automateCreeps();
     

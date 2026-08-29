@@ -6,20 +6,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-// Preserve existing functionality
-
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -272,6 +258,22 @@ function specificFunctionThatRendersGraphOrIndex() {
   renderIndex();
 }
 
+// New function to render dependency graphs or display module structure
+function renderDependencyGraph(module) {
+  // Implementation to render the dependency graph for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Rendering dependency graph for:', module);
+  // Example output: 'Rendering dependency graph for: ModuleName'
+}
+
+// New function to display module structure
+function displayModuleStructure(module) {
+  // Implementation to display the module structure for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Displaying module structure for:', module);
+  // Example output: 'Displaying module structure for: ModuleName'
+}
+
 // New function or change requested in the issue
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
@@ -290,7 +292,10 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  checkLinkAccessibility,
+  renderDependencyGraph,
+  displayModuleStructure
 };
 
 // Export utility functions
@@ -298,7 +303,13 @@ export {
   formatCurrency,
   formatDate,
   calculateDiscount,
-  validateInput
+  validateInput,
+  formatProductName,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage
 };
 
 // Export component functions
@@ -313,34 +324,3 @@ export {
   state,
   updateState
 };
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// ... other exports ...

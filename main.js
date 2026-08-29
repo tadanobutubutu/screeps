@@ -5,12 +5,17 @@ import { state, updateState } from './state.js';
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ${formatCurrency(product.price)}`;
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = document.createElement('div');
+  container.className = 'product-list';
+  products.forEach(product => {
+    const card = renderProductCard(product);
+    container.appendChild(card);
+  });
+  container.innerHTML = container.innerHTML;
   return container;
 }
 
@@ -33,14 +38,14 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input.products);
+    return `<div class="validated">${input}</div>`;
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
+  const content = data.products ? renderProductList(data.products).outerHTML : '<div class="content">No products</div>';
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }

@@ -62,7 +62,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -225,100 +225,97 @@ function getSvgAccessibleName(svgElement) {
 
 function validateTableAccessibility(tableElement) {
   // Implementation for REACT_027: Fix 26 table structure issues
-  const issues = [];
-  
-  if (!tableElement || tableElement.tagName !== 'TABLE') {
-    return { valid: false, issues: ['Invalid table element'] };
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
   }
   
-  // Check if table has proper headers
+  const errors = [];
   const headers = tableElement.querySelectorAll('th');
+  const dataCells = tableElement.querySelectorAll('td');
+  
+  // Check if table has header cells
   if (headers.length === 0) {
-    issues.push('Table missing header cells (th elements)');
+    errors.push('Table should have header cells (th) for accessibility');
   }
   
-  // Check for scope attributes on headers
+  // Check if headers have scope attribute
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
-      issues.push(`Header at index ${index} missing scope attribute`);
+      errors.push(`Header at index ${index} missing scope attribute`);
     }
   });
   
-  // Check for caption
-  const caption = tableElement.querySelector('caption');
-  if (!caption) {
-    issues.push('Table missing caption element for accessibility');
-  }
-  
-  // Check for accessible table structure (thead, tbody, tfoot)
-  const thead = tableElement.querySelector('thead');
-  const tbody = tableElement.querySelector('tbody');
-  
-  if (!thead) {
-    issues.push('Table missing thead section');
-  }
-  if (!tbody) {
-    issues.push('Table missing tbody section');
-  }
+  // Check if data cells have headers attribute when in complex tables
+  dataCells.forEach((td, index) => {
+    if (!td.hasAttribute('headers') && headers.length > 0) {
+      errors.push(`Data cell at index ${index} should have headers attribute for proper association`);
+    }
+  });
   
   return {
-    valid: issues.length === 0,
-    issues
+    valid: errors.length === 0,
+    errors,
+    headerCount: headers.length,
+    dataCellCount: dataCells.length
   };
 }
 
 function validateTableStructure(tableElement) {
   // Implementation for REACT_027: Fix 26 table structure issues
-  const structure = {
-    hasThead: false,
-    hasTbody: false,
-    hasTfoot: false,
-    hasCaption: false,
-    headerCount: 0,
-    rowCount: 0,
-    columnCount: 0,
-    issues: []
-  };
-  
-  if (!tableElement || tableElement.tagName !== 'TABLE') {
-    structure.issues.push('Invalid table element provided');
-    return structure;
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
   }
   
-  // Check for sections
-  structure.hasThead = tableElement.querySelector('thead') !== null;
-  structure.hasTbody = tableElement.querySelector('tbody') !== null;
-  structure.hasTfoot = tableElement.querySelector('tfoot') !== null;
-  structure.hasCaption = tableElement.querySelector('caption') !== null;
+  const errors = [];
   
-  // Count headers
-  structure.headerCount = tableElement.querySelectorAll('th').length;
+  // Check for thead
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead section');
+  }
   
-  // Count rows
+  // Check for tbody
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody section');
+  }
+  
+  // Check for caption if table has headers
+  const caption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
+  if (hasHeaders && !caption) {
+    errors.push('Table with header cells should have a caption');
+  }
+  
+  // Check that th elements are inside thead
+  const thsOutsideThead = Array.from(tableElement.querySelectorAll('th'))
+    .filter(th => !tableElement.querySelector('thead')?.contains(th));
+  if (thsOutsideThead.length > 0) {
+    errors.push('All th elements should be inside thead');
+  }
+  
+  // Check for proper row structure
   const rows = tableElement.querySelectorAll('tr');
-  structure.rowCount = rows.length;
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      errors.push(`Row at index ${index} has no cells`);
+    }
+  });
   
-  // Calculate column count from first row
-  if (rows.length > 0) {
-    const firstRowCells = rows[0].querySelectorAll('td, th');
-    structure.columnCount = firstRowCells.length;
-  }
-  
-  // Validate structure
-  if (!structure.hasThead) {
-    structure.issues.push('Missing thead element - headers should be in thead');
-  }
-  if (!structure.hasTbody) {
-    structure.issues.push('Missing tbody element - data rows should be in tbody');
-  }
-  if (structure.headerCount === 0) {
-    structure.issues.push('No header cells (th) found - table should have column headers');
-  }
-  if (!structure.hasCaption) {
-    structure.issues.push('Missing caption - table should have a caption for accessibility');
-  }
-  
-  return structure;
+  return {
+    valid: errors.length === 0,
+    errors,
+    hasThead: !!thead,
+    hasTbody: !!tbody,
+    hasCaption: !!caption,
+    rowCount: rows.length
+  };
+}
+
+// Calculate sum of numbers array
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
 }
 
 // Export all functions
@@ -343,8 +340,3 @@ module.exports = {
   validateTableStructure,
   calculateSum
 };
-
-// Calculate sum of numbers array
-function calculateSum(numbers) {
-    return numbers.reduce((sum, num) => sum + num, 0);
-}

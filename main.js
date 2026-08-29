@@ -1,6 +1,3 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
-
 // TODO: Implement validateLandmark functionality
 
 function validateLandmark(landmark) {

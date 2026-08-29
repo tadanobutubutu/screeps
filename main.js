@@ -77,6 +77,16 @@ module.exports = {
     a11yStore,
     mainElement
 };
-```
 
-This version of the file integrates both changes, keeps the accessibility improvements and the imported functions, and preserves the game-related functions and exports.
+// Implement accessibility checks for tables
+// Check all tables in the document for accessibility compliance
+function checkAccessibilityOfTables() {
+  const tables = document.getElementsByTagName('table');
+  for (let table of tables) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+}
+
+// Call the function to check tables when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', checkAccessibilityOfTables);

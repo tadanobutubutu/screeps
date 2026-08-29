@@ -1,3 +1,4 @@
+// TODO: Existing main.js content before the merge conflict...
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add/fix 4 landmark issues

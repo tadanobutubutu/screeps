@@ -158,7 +158,8 @@ function ensureUniqueLandmarks(landmarks) {
     }
 
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name}-${landmark.lat}-${landmark.lng}`;
+    const identifier = landmark.id || `${landmark.name || ''}-${landmark.latitude || landmark.lat || ''}-${landmark.longitude || landmark.lng || ''}`;
+    
     if (seen.has(identifier)) {
       return false;
     }

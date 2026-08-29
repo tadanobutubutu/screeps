@@ -61,6 +61,59 @@ function isLinkAccessibleSync(url) {
   return isLinkAccessible(url);
 }
 
+/**
+ * Adds scope="col" to all <th> elements within a given table element
+ * that do not already have a scope attribute. This addresses REACT_027
+ * (React Table Structure) accessibility warnings by ensuring header
+ * cells are programmatically associated with their data cells for
+ * assistive technologies.
+ *
+ * @param {HTMLTableElement} table - The table element to process
+ * @returns {number} - The number of <th> elements that were updated
+ */
+function addScopeToTableHeaders(table) {
+  if (!table || !(table instanceof HTMLTableElement)) {
+    return 0;
+  }
+
+  const headerCells = table.querySelectorAll('th');
+  let updatedCount = 0;
+
+  headerCells.forEach((th) => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+      updatedCount += 1;
+    }
+  });
+
+  return updatedCount;
+}
+
+/**
+ * Adds scope="col" to all <th> elements in every table within a root
+ * element (e.g., document or a specific container). Useful for fixing
+ * REACT_027 accessibility issues across generated reports such as
+ * docs/dependency-graph.html.
+ *
+ * @param {ParentNode} [root=document] - The root element to search within
+ * @returns {number} - The total number of <th> elements that were updated
+ */
+function fixTableHeaderScopes(root) {
+  const scope = root || (typeof document !== 'undefined' ? document : null);
+  if (!scope) {
+    return 0;
+  }
+
+  const tables = scope.querySelectorAll('table');
+  let totalUpdated = 0;
+
+  tables.forEach((table) => {
+    totalUpdated += addScopeToTableHeaders(table);
+  });
+
+  return totalUpdated;
+}
+
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -73,5 +126,7 @@ module.exports = {
   newFunction,
   dependencyGraph,
   isLinkAccessible,
-  isLinkAccessibleSync
+  isLinkAccessibleSync,
+  addScopeToTableHeaders,
+  fixTableHeaderScopes
 };

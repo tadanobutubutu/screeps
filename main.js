@@ -17,9 +17,18 @@ function displayModuleStructure(modules) {
   return {};
 }
 
+// Placeholder for dependency counting utility.
+// Counts the number of dependencies in a given module set.
+function countDependencies(modules) {
+  // Future implementation could traverse and count module dependencies
+  console.log('Counting dependencies for modules:', modules);
+  return 0;
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
+  countDependencies,
   loop: function () {
     // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {

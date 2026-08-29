@@ -220,7 +220,23 @@ export {
   renderPage
 };
 
+// New function to render dependency graphs or display module structure
+function renderDependencyGraph(module) {
+  // Implementation to render the dependency graph for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Rendering dependency graph for:', module);
+  // Example output: 'Rendering dependency graph for: ModuleName'
+}
+
+// New function to display module structure
+function displayModuleStructure(module) {
+  // Implementation to display the module structure for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Displaying module structure for:', module);
+  // Example output: 'Displaying module structure for: ModuleName'
+}
+
 // Export the new function
-export { checkLinkAccessibility };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
 
 // ... other exports ...

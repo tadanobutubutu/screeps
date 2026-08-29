@@ -9,7 +9,7 @@
 
 // Configuration
 const config = {
-  apiUrl: 'https://api.example.com',
+  apiUrl: 'https://api.example.com', // placeholder; adjust as needed
   debug: false,
   timeout: 5000
 };
@@ -61,13 +61,13 @@ function checkTableStructure(table) {
   if (!result.hasHeader) {
     result.warnings.push('Table has no thead element');
   } else {
-    const headerCells = thead.querySelectorAll('th, td');
+    const headerCells = thead.querySelectorAll('td, th');
     result.columnCount = headerCells.length;
   }
 
   // Validate row consistency
-  const targetRow = tbody || allRows[0];
-  const firstRowCells = targetRow.querySelectorAll('td, th');
+  const targetRow = tbody ? tbody.rows[0] : allRows[0];
+  const firstRowCells = targetRow ? targetRow.querySelectorAll('td, th') : [];
   const expectedCellCount = firstRowCells.length || result.columnCount;
 
   allRows.forEach((row, index) => {
@@ -152,6 +152,42 @@ function createDataTable(data, columns) {
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
+/**
+ * Validates table structure (wraps checkTableStructure for backward compatibility)
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result object
+ */
+function validateTableStructure(table) {
+  return checkTableStructure(table);
+}
+
+/**
+ * Validates table accessibility by checking for captions, scope attributes, etc.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} - Validation result with accessibility-specific warnings
+ */
+function validateTableAccessibility(table) {
+  const result = checkTableStructure(table);
+  if (!table) return result;
+
+  // Check for caption
+  const caption = table.querySelector('caption');
+  result.hasCaption = !!caption;
+  if (!caption) {
+    result.warnings.push('Table has no caption');
+  }
+
+  // Check for th scope attributes
+  const ths = table.querySelectorAll('th');
+  ths.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      result.warnings.push(`th at index ${index} has no scope attribute`);
+    }
+  });
+
+  return result;
+}
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 
@@ -170,15 +206,13 @@ const {
   fixFakeLinkIssues,
   googleSignIn,
   fixButtonIdentifiers
-} = require('./accessibilityUtils');
+} = require('./accessibility');
 
 function addressAccessibilityIssues() {
-    // Function implementation goes here
+  // Function implementation goes here
 }
 
 const App = () => {
-  // ... existing code ...
-
   // Example of adding lang attribute to the HTML element
   addLangAttribute('en');
 
@@ -200,6 +234,7 @@ const App = () => {
 
   // Example of fixing fake link issues
   fixFakeLinkIssue();
+  fixFakeLinkIssues();
 
   // Example of Google sign-in logic
   googleSignIn();
@@ -209,12 +244,10 @@ const App = () => {
 
   addressAccessibilityIssues();
 
-  return (
-    // ... JSX code ...
-  );
+  return React.createElement('div', null, 'App');
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
 
 /**
  * Export functions for testing and external use
@@ -224,5 +257,7 @@ module.exports = {
   checkTableStructure,
   formatDate,
   sanitizeInput,
-  createDataTable
+  createDataTable,
+  validateTableStructure,
+  validateTableAccessibility
 };

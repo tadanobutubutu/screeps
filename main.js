@@ -1,4 +1,6 @@
-// ... existing code ...
+/**
+ * Utility functions for SVG accessibility
+ */
 
 /**
  * Implementation of getSvgAccessibleName
@@ -9,8 +11,9 @@ function getSvgAccessibleName(svgElement) {
   if (!svgElement) return null;
 
   // 1. Check aria-label
-  if (svgElement.getAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
   }
 
   // 2. Check aria-labelledby
@@ -23,10 +26,14 @@ function getSvgAccessibleName(svgElement) {
   // 3. Check <title> element inside SVG
   const titleElement = svgElement.querySelector('title');
   if (titleElement && titleElement.textContent) {
-    return titleElement.textContent;
+    return titleElement.textContent.trim();
   }
 
   return null;
 }
 
 // ... existing code and exports ...
+
+module.exports = {
+  getSvgAccessibleName
+};

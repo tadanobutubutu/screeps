@@ -40,16 +40,14 @@ function capitalizeFirst(str) {
 const a11yStore = {
   liveRegion: null,
 
-  init() {
+  init: function() {
     this.createLiveRegion();
-    this.setupKeyboardNavigation();
+    this.setupKeyboardHandlers();
     this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
   },
 
-  createLiveRegion() {
+  createLiveRegion: function() {
     if (this.liveRegion) return;
 
     const region = document.createElement('div');
@@ -62,21 +60,22 @@ const a11yStore = {
     this.liveRegion = region;
   },
 
-  announce(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
-
+  announce: function(message, priority) {
+    priority = priority || 'polite';
+    if (!this.liveRegion) return;
     this.liveRegion.setAttribute('aria-live', priority);
     this.liveRegion.textContent = '';
 
-    setTimeout(() => {
+    setTimeout(function() {
       this.liveRegion.textContent = message;
-    }, 100);
+    }.bind(this), 100);
   },
 
-  setupKeyboardNavigation() {
-    document.addEventListener('keydown', (e) => {
+  setupKeyboardHandlers: function() {
+    var self = this;
+    document.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        var target = e.target;
         if (target) {
           e.preventDefault();
           target.click();
@@ -84,21 +83,21 @@ const a11yStore = {
       }
 
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        var openModal = document.querySelector('.modal.open');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.classList.remove('open');
           document.body.style.overflow = '';
         }
       }
     });
 
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach((container) => {
-      container.addEventListener('keydown', (e) => {
+    var dropdownContainers = document.querySelectorAll('.dropdown');
+    dropdownContainers.forEach(function(container) {
+      container.addEventListener('keydown', function(e) {
         if (e.key !== 'Tab') return;
 
-        const currentFocusedElement = document.activeElement;
-        let focusIsInsideContainer = false;
+        var currentFocusedElement = document.activeElement;
+        var focusIsInsideContainer = false;
 
         if (
           currentFocusedElement &&
@@ -109,7 +108,7 @@ const a11yStore = {
         }
 
         if (!focusIsInsideContainer) {
-          const firstFocusableElement = container.querySelector(
+          var firstFocusableElement = container.querySelector(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
           );
 
@@ -121,19 +120,20 @@ const a11yStore = {
     });
   },
 
-  setupFocusManagement() {
-    document.addEventListener('keydown', (e) => {
+  setupFocusManagement: function() {
+    var self = this;
+    document.addEventListener('keydown', function(e) {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      var modal = document.querySelector('.modal.open');
       if (!modal) return;
 
-      const focusableElements = modal.querySelectorAll(
+      var focusableElements = modal.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
 
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
+      var firstElement = focusableElements[0];
+      var lastElement = focusableElements[focusableElements.length - 1];
 
       if (e.shiftKey && document.activeElement === firstElement) {
         e.preventDefault();
@@ -145,68 +145,69 @@ const a11yStore = {
     });
   },
 
-  setupSkipLinks() {
-    const skipLink = document.querySelector('.skip-link');
+  setupSkipLinks: function() {
+    var skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
-    const target = targetId ? document.getElementById(targetId) : null;
+    var targetId = skipLink.getAttribute('href');
+    var target = targetId ? document.querySelector(targetId) : null;
 
     if (target) {
-      skipLink.addEventListener('click', (e) => {
+      skipLink.addEventListener('click', function(e) {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');
         target.focus();
-        this.announce('Skipped to main content');
+        skipLink.textContent = 'Skip to main content';
       });
 
-      if (navigator.userAgent.toLowerCase().indexOf('safari') !== -1) {
+      if (document.body.classList.indexOf('no-skip-link') !== -1) {
         skipLink.focus();
       }
     }
   },
 
-  prefersReducedMotion() {
+  prefersReducedMotion: function() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  prefersHighContrast() {
+  prefersHighContrast: function() {
     return window.matchMedia('(prefers-contrast: more)').matches;
   },
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+  updateLiveRegion: function(message, priority) {
+    priority = priority || 'polite';
+    if (!this.liveRegion) return;
     this.announce(message, priority);
   },
 
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
+  checkLandmarkElements: function() {
+    var landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach(function(tag) {
+      var landmark = document.querySelector(tag);
       if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+        landmark.id = 'landmark-' + tag + '-' + Math.floor(Math.random() * 1000);
       }
     });
   },
 
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+  enhanceSVGElements: function() {
+    var svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(function(svg) {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      var titleId = 'svg-title-' + Math.floor(Math.random() * 1000);
+      var titleText = svg.querySelector('title') || 'Image description';
+      var descriptionId = 'svg-desc-' + Math.floor(Math.random() * 1000);
+      svg.setAttribute('aria-labelledby', titleId);
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      var descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      svg.insertBefore(descriptionElement, svg.firstChild);
     });
   },
 
-  preserveExistingCode() {
+  preserveExistingCode: function() {
     // TODO: This is the existing code that needs to be preserved
     // (This comment remains as-is)
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -221,16 +222,16 @@ const a11yStore = {
 // Function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  report.forEach(issue => {
+  report.forEach(function(issue) {
     switch (issue.type) {
       case 'missing-lang':
-        if (!document.documentElement.getAttribute('lang')) {
+        if (document.documentElement) {
           document.documentElement.setAttribute('lang', 'en');
         }
         break;
       case 'missing-skip-link':
-        if (!document.querySelector('.skip-link')) {
-          const skipLink = document.createElement('a');
+        if (document.body) {
+          var skipLink = document.createElement('a');
           skipLink.className = 'skip-link';
           skipLink.href = '#main-content';
           skipLink.textContent = 'Skip to main content';
@@ -238,14 +239,16 @@ function addressAccessibilityIssues(report) {
         }
         break;
       case 'missing-alt':
-        document.querySelectorAll('img').forEach(img => {
+        var images = document.querySelectorAll('img');
+        images.forEach(function(img) {
           if (!img.getAttribute('alt')) {
             img.setAttribute('alt', 'Image description');
           }
         });
         break;
       case 'missing-label':
-        document.querySelectorAll('input, select, textarea').forEach(el => {
+        var inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(function(el) {
           if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
             el.setAttribute('aria-label', 'Form field');
           }
@@ -256,29 +259,31 @@ function addressAccessibilityIssues(report) {
 }
 
 // REACT_015: Add lang attribute
-if (!document.documentElement.getAttribute('lang')) {
+if (typeof document !== 'undefined' && document.documentElement) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
 // Initialize accessibility features
-document.addEventListener('DOMContentLoaded', () => {
-  a11yStore.init();
-});
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function() {
+    a11yStore.init();
+  });
+}
 
 // CommonJS exports (preserved from HEAD)
 module.exports = {
-  add,
-  subtract,
-  multiply,
-  divide,
-  reverseString,
-  isEven,
-  capitalizeFirst,
-  a11yStore,
-  addressAccessibilityIssues,
+  add: add,
+  subtract: subtract,
+  multiply: multiply,
+  divide: divide,
+  reverseString: reverseString,
+  isEven: isEven,
+  capitalizeFirst: capitalizeFirst,
+  a11yStore: a11yStore,
+  addressAccessibilityIssues: addressAccessibilityIssues,
   updateLiveRegion: a11yStore.updateLiveRegion,
   checkLandmarkElements: a11yStore.checkLandmarkElements,
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+  enhanceSVGElements: a11yStore.enhanceSVGElements,
   preserveExistingCode: a11yStore.preserveExistingCode,
   prefersReducedMotion: a11yStore.prefersReducedMotion,
   prefersHighContrast: a11yStore.prefersHighContrast
@@ -287,10 +292,10 @@ module.exports = {
 // ES6 module exports (preserved from origin/main)
 export { a11yStore };
 export { addressAccessibilityIssues };
-export { updateLiveRegion };
-export { checkLandmarkElements };
-export { addSVGAccessibilityProps };
-export { preserveExistingCode };
-export { prefersReducedMotion };
-export { prefersHighContrast };
+export { a11yStore.updateLiveRegion as updateLiveRegion };
+export { a11yStore.checkLandmarkElements as checkLandmarkElements };
+export { a11yStore.enhanceSVGElements as enhanceSVGElements };
+export { a11yStore.preserveExistingCode as preserveExistingCode };
+export { a11yStore.prefersReducedMotion as prefersReducedMotion };
+export { a11yStore.prefersHighContrast as prefersHighContrast };
 export default a11yStore;

@@ -69,52 +69,6 @@ export function fixTableStructureIssues(document) {
   return tables.length;
 }
 
-export function App() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/api/data');
-      const result = await response.json();
-      setData(result);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    document.documentElement.lang = 'en';
-  }, []);
-
-  // New function to render dependency graphs
-  function renderDependencyGraph(moduleName) {
-    // Placeholder implementation - replace with actual logic to render dependency graphs
-    console.log(`Rendering dependency graph for module: ${moduleName}`);
-  }
-
-  // New function to display module structure
-  function displayModuleStructure(moduleName) {
-    // Placeholder implementation - replace with actual logic to display module structure
-    console.log(`Displaying module structure for module: ${moduleName}`);
-  }
-
-  return (
-    <div id="app" role="application">
-      <Header />
-      <Main data={data} loading={loading} />
-      <Footer />
-    </div>
-  );
-}
-
-// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueName(baseName, existingNames) {
   if (!existingNames || existingNames.length === 0 || !existingNames.includes(baseName)) {
     return baseName;
@@ -171,9 +125,9 @@ export function isValidLink(element) {
 
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
-  const onClick = element.onclick || element.getAttribute('onclick');
-  
-  // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
+
+  const onClick = element.getAttribute('onclick');
+
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
 
   if (isFakeLink) {
@@ -216,8 +170,36 @@ export function addScopeToHeaders(tableElement) {
   return updates;
 }
 
-// REACT_017: Add/fix landmark issues - Add main landmark
-export function addMainLandmark(document) {
+export function createInPageButtons(container) {
+  // Your code for creating in-page buttons goes here
+
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.setAttribute("id", "in-page-buttons");
+  buttonsContainer.style.position = "fixed";
+  buttonsContainer.style.bottom = "0";
+  buttonsContainer.style.left = "0";
+  buttonsContainer.style.zIndex = "1000";
+
+  const button1 = document.createElement("button");
+  button1.textContent = "Button 1";
+  button1.addEventListener("click", () => {
+    // Add your button 1 logic here
+  });
+
+  const button2 = document.createElement("button");
+  button2.textContent = "Button 2";
+  button2.addEventListener("click", () => {
+    // Add your button 2 logic here
+  });
+
+  buttonsContainer.appendChild(button1);
+  buttonsContainer.appendChild(button2);
+
+  container.appendChild(buttonsContainer);
+}
+
+// REACT_017: Add landmark roles to fix landmark issues
+export function getMainLandmark(document) {
   const mainElements = document.querySelectorAll('main');
 
   if (mainElements.length === 0) {
@@ -279,7 +261,7 @@ export function fixFakeLinkIssue(document) {
     if (tagName !== 'a' && !hasHref) {
       // Check if it should be a real link
       const isInteractive = element.getAttribute('role') === 'link' ||
-                           (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
+                            (element.hasAttribute('onclick') && element.onclick.toString().includes('window.location'));
 
       if (isInteractive && !element.hasAttribute('aria-label')) {
         // Add accessible name
@@ -296,79 +278,9 @@ export function fixFakeLinkIssue(document) {
 }
 
 export function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
-  });
+  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
 }
 
-export function newFunction() {
-  // implementation of new function
-}
-
-export function announceToScreenReader(message, priority = 'polite') {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', priority);
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
-}
-
-export function trapFocus(element) {
-  const focusableElements = element.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  const handleKeyDown = (e) => {
-    if (e.key !== 'Tab') return;
-
-    if (e.shiftKey && document.activeElement === firstElement) {
-      e.preventDefault();
-      lastElement.focus();
-    } else if (!e.shiftKey && document.activeElement === lastElement) {
-      e.preventDefault();
-      firstElement.focus();
-    }
-  };
-
-  element.addEventListener('keydown', handleKeyDown);
-}
-
-export function manageFocusOnNavigation(selector) {
-  const target = document.querySelector(selector);
-  if (target) {
-    target.setAttribute('tabindex', '-1');
-    target.focus();
-    target.removeAttribute('tabindex');
-  }
-}
-
-export function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-export function setAriaExpanded(trigger, isExpanded) {
-  if (trigger) {
-    trigger.setAttribute('aria-expanded', String(isExpanded));
-  }
-}
-
-export function hasAccessibleName(element) {
-  return !!(
-    element.textContent?.trim() ||
-    element.getAttribute('aria-label') ||
-    element.getAttribute('aria-labelledby') ||
-    element.getAttribute('alt') ||
-    element.getAttribute('title')
-  );
-}
-
-// Main accessibility fix function
 export function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
 
@@ -402,6 +314,35 @@ export function getAccessibilityFunctions() {
     setAriaExpanded,
     hasAccessibleName
   };
+}
+
+// Add new function for creating in-page buttons
+export function createInPageButtons(container) {
+  // Your code for creating in-page buttons goes here
+
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.setAttribute("id", "in-page-buttons");
+  buttonsContainer.style.position = "fixed";
+  buttonsContainer.style.bottom = "0";
+  buttonsContainer.style.left = "0";
+  buttonsContainer.style.zIndex = "1000";
+
+  const button1 = document.createElement("button");
+  button1.textContent = "Button 1";
+  button1.addEventListener("click", () => {
+    // Add your button 1 logic here
+  });
+
+  const button2 = document.createElement("button");
+  button2.textContent = "Button 2";
+  button2.addEventListener("click", () => {
+    // Add your button 2 logic here
+  });
+
+  buttonsContainer.appendChild(button1);
+  buttonsContainer.appendChild(button2);
+
+  container.appendChild(buttonsContainer);
 }
 
 const container = document.getElementById('root');

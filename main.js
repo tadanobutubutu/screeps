@@ -34,59 +34,76 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 exports.renderDependencyGraph = renderDependencyGraph;
 
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        const theadRowCount = existingThead.querySelectorAll('tr').length;
-        remainingRows = remainingRows.slice(theadRowCount);
-      } else {
-        remainingRows = [];
-      }
-=======
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
-      } else {
-        remainingRows = remainingRows.slice(1);
->>>>>>> origin/main
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
+// Function to ensure unique landmarks
+function ensureUniqueLandmarks(document) {
+  let fixedCount = 0;
+
+  // Get all landmark elements by role
+  const landmarkRoles = [
+    'banner', 'navigation', 'main', 'definition', 'article',
+    'aside', 'complementary', 'contentinfo', 'search', 'form'
+  ];
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      // Keep the first element, remove role from others
+      for (let i = 1; i < elements.length; i++) {
+        elements[i].removeAttribute('role');
+        elements[i].setAttribute('aria-hidden', 'true');
         fixedCount++;
       }
     }
+  });
 
-    // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
+  // Handle native landmark elements
+  const nativeLandmarks = {
+    'header': ['banner'],
+    'nav': ['navigation'],
+    'main': ['main'],
+    'footer': ['contentinfo'],
+    'aside': ['complementary'],
+    'section': ['region']
+  };
+
+  Object.keys(nativeLandmarks).forEach(tagName => {
+    const expectedRole = nativeLandmarks[tagName][0];
+    const elements = document.querySelectorAll(tagName);
+    const landmarksWithRole = Array.from(elements).filter(el => 
+      el.getAttribute('role') === expectedRole || 
+      (tagName === 'header' && !el.querySelector('nav, main, footer, aside'))
+    );
+
+    if (landmarksWithRole.length > 1) {
+      for (let i = 1; i < landmarksWithRole.length; i++) {
+        const el = landmarksWithRole[i];
+        // Convert to generic section with region role if not a primary landmark
+        if (tagName === 'header') {
+          el.setAttribute('role', 'banner');
+        } else if (tagName === 'footer') {
+          el.setAttribute('role', 'contentinfo');
+        } else if (tagName === 'nav') {
+          el.setAttribute('role', 'navigation');
+        } else if (tagName === 'aside') {
+          el.setAttribute('role', 'complementary');
+        } else {
+          el.setAttribute('role', 'region');
+          if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+            el.setAttribute('aria-label', 'Section');
+          }
+        }
         fixedCount++;
       }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
+    }
   });
 
   return fixedCount;
 }
 
-// Function to addMainLandmark(document) {
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+
+// Function to add main landmark
+function addMainLandmark(document) {
   let mainElement = document.querySelector('main');
 
   if (!mainElement) {
@@ -123,20 +140,22 @@ function handleCredentialResponse(response) {
   console.log('Credential response received:', response);
 }
 
-// Function to ensure unique landmarks (combined approach)
-function ensureUniqueLandmarks(document) {
-  // ... existing implementation for by role
-  // ... existing unique landmarks implementation for origin/main
-}
-
 // Function to add accessible names to SVGs
 function addSvgAccessibleNames(document) {
-  // ... existing implementation
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = `Graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+  return document;
 }
 
 // Function to add accessible names to SVGs (alias)
 function addAccessibleNamesToSVGs(document) {
-  // ... existing implementation
+  return addSvgAccessibleNames(document);
 }
 
 // Function to fix fake link issue (merged fixes)
@@ -200,21 +219,92 @@ function fixFakeLinkIssues(document) {
 
 // Accessibility fix for REACT_017: Add/fix landmark issues and add Landmark Regions
 function fixLandmarkIssues(document) {
-  // ... updated landmark issue fix implementation
+  let fixedCount = 0;
+
+  // Ensure only one main landmark
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].setAttribute('role', 'region');
+      if (!mainElements[i].hasAttribute('aria-label') && !mainElements[i].hasAttribute('aria-labelledby')) {
+        mainElements[i].setAttribute('aria-label', 'Secondary content');
+      }
+      fixedCount++;
+    }
+  }
+
+  // Ensure only one banner landmark
+  const headers = document.querySelectorAll('header');
+  headers.forEach((header, index) => {
+    if (header.tagName === 'HEADER') {
+      if (index > 0 || document.querySelectorAll('header[role="banner"]').length > 1) {
+        if (header.getAttribute('role') !== 'banner') {
+          header.setAttribute('role', 'complementary');
+          fixedCount++;
+        }
+      }
+    }
+  });
+
+  // Ensure only one navigation landmark
+  const navElements = document.querySelectorAll('nav');
+  navElements.forEach((nav, index) => {
+    if (index > 0 || document.querySelectorAll('nav[role="navigation"]').length > 1) {
+      if (nav.getAttribute('role') !== 'navigation') {
+        nav.setAttribute('role', 'complementary');
+        fixedCount++;
+      }
+    }
+  });
+
+  return fixedCount;
 }
 
 function addLandmarkRegions(document) {
-  // ... existing implementation
+  const main = document.querySelector('main');
+  if (main && !main.getAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('role')) {
+    header.setAttribute('role', 'banner');
+  }
+
+  const nav = document.querySelector('nav');
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+
+  return document;
 }
 
 // REACT_025: Ensure unique landmarks (by role approach)
 function uniqueLandmarks(document) {
-  // ... unique landmarks implementation by role
+  const landmarkRoles = ['banner', 'navigation', 'main', 'article', 'aside', 'complementary', 'contentinfo', 'search', 'form'];
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      for (let i = 1; i < elements.length; i++) {
+        elements[i].setAttribute('aria-hidden', 'true');
+      }
+    }
+  });
+
+  return document;
 }
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
-  // ... existing implementation
+  const images = document.querySelectorAll('img');
+  images.forEach(img => {
+    if (!img.hasAttribute('alt')) {
+      img.setAttribute('alt', '');
+      img.setAttribute('role', 'presentation');
+    }
+  });
+  return document;
 }
 
 // REACT_037: Google sign-in logic
@@ -584,4 +674,4 @@ exports.addLandmarkRegions = addLandmarkRegions;
 exports.uniqueLandmarks = uniqueLandmarks;
 exports.fixImageAltTexts = fixImageAltTexts;
 exports.googleSignIn = googleSignIn;
-exports.handleCredentialResponse = handleCredentialResponse
+exports.handleCredentialResponse = handleCredentialResponse;

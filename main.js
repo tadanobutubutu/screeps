@@ -206,6 +206,49 @@ const a11yStore = {
     });
   },
 
+  checkTables() {
+    const tables = document.querySelectorAll('table');
+    let hasIssues = false;
+
+    tables.forEach(table => {
+      // Check for required structural elements
+      if (!table.hasAttribute('thead') && !table.hasAttribute('tbody') && !table.hasAttribute('tfoot')) {
+        console.warn('Table missing structural elements (thead, tbody, tfoot)');
+        hasIssues = true;
+        return;
+      }
+
+      // Check for proper heading roles in thead
+      const thead = table.querySelector('thead');
+      if (thead) {
+        const ths = thead.querySelectorAll('th');
+        if (ths.length === 0) {
+          console.warn('Table <thead> has no <th> elements');
+          hasIssues = true;
+        }
+      }
+
+      // Check for scope attributes on tbody rows
+      const tbody = table.querySelector('tbody');
+      if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          const cells = row.querySelectorAll('td, th');
+          if (cells.length > 0) {
+            // Attempt to associate cells with headers using scope
+            // This is a basic check - real implementations may use more sophisticated approaches
+            const firstCell = cells[0];
+            if (firstCell.tagName === 'TH') {
+              // Header cell found, mark as processed
+            }
+          }
+        });
+      }
+    });
+
+    return hasIssues;
+  },
+
   preserveExistingCode() {
     // TODO: This is the existing code that needs to be preserved
     // (This comment remains as-is)

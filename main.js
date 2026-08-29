@@ -11,13 +11,11 @@ exports.someFunction = function() {
 exports.anotherFunction = function() {
   // Existing code
 };
-=======
 
 // Assuming the HTML content is included in a component or similar file that is imported into main.js
 
 // Before change:
 // <a id="unrotate" href="#">rotate back</a>
->>>>>>> origin/main
 
 // After change:
 // <button id="unrotate" onclick="rotateBack()">rotate back</button>
@@ -35,7 +33,6 @@ function rotateBack() {
 // Now, let's assume the component file is named MyComponent.js and is imported into main.js:
 import MyComponent from './MyComponent';
 
-<<<<<<< HEAD
 // Export the functions for addressing new accessibility issues
 exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 exports.renderDependencyGraph = renderDependencyGraph;
@@ -44,7 +41,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -53,4 +50,3 @@ exports.renderDependencyGraph = renderDependencyGraph;
 /**
  * ... (existing code remains the same)
  */
-```

@@ -1,5 +1,5 @@
-// TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+const { ERR_NOT_IN_RANGE, STRUCTURE_TOWER, RESOURCE_ENERGY } = require('game/constants');
 
 // Main game logic for Screeps
 const main = {
@@ -36,15 +36,21 @@ const main = {
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      if (tower.energy >= 10) {
+        const closestHostile = tower.pos.findClosestByRange(hostiles);
+        if (closestHostile) {
+          tower.attack(closestHostile);
+        }
+      }
     });
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-    if (target) {
+    const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+    if (sources.length > 0) {
+      const target = sources[0];
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target);
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
       }
     }
   },
@@ -52,7 +58,7 @@ const main = {
   upgrade: function(creep) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
+        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
   },

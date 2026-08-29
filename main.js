@@ -58,6 +58,32 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // TODO: Implement this function for checking form accessibility
+  function checkFormAccessibility() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+      // Check for proper labeling of form controls
+      const labels = form.querySelectorAll('label');
+      labels.forEach(label => {
+        const control = label.control || label.htmlFor;
+        if (!control) {
+          console.error('Accessibility Error: Label without associated control', label);
+        }
+      });
+
+      // Check for fieldset and legend usage
+      const fieldsets = form.querySelectorAll('fieldset');
+      fieldsets.forEach(fieldset => {
+        if (!fieldset.querySelector('legend')) {
+          console.error('Accessibility Error: Fieldset without legend', fieldset);
+        }
+      });
+    });
+  }
+
+  // Call the function to check form accessibility
+  checkFormAccessibility();
 }
 
 // Export functions if needed

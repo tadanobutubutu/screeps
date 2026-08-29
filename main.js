@@ -49,11 +49,11 @@ function initializeAccessibility() {
 
       // Check for existing accessible name
       const hasAriaLabel = svg.hasAttribute('aria-label');
-      const hasAriaLabelledBy = svg.hasAttribute('aria-labelledby');
+      const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
       const hasTitle = svg.querySelector('title') !== null;
       const hasDesc = svg.querySelector('desc') !== null;
 
-      if (hasAriaLabel || hasAriaLabelledBy || hasTitle || hasDesc) {
+      if (hasAriaLabel || hasAriaLabelledby || hasTitle || hasDesc) {
         return;
       }
 
@@ -348,3 +348,59 @@ module.exports = {
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   initializeAccessibility();
 }
+
+// Add the ensureUniqueLandmarks function to address REACT_025
+function ensureUniqueLandmarks(container) {
+  // This function will help ensure there is only one <main> landmark on the page
+  // It will be used by the accessibility validation system
+  
+  // If the container has multiple <main> elements, we should:
+  // 1. Keep the first one
+  // 2. Move content from other <main> elements to <section> or <article> elements
+  // 3. Or use aria-label/aria-labelledby to make them unique (if appropriate)
+  
+  const mainElements = container.querySelectorAll('main');
+  
+  if (mainElements.length <= 1) {
+    return {
+      status: 'OK',
+      message: 'Only one <main> landmark found',
+      issues: []
+    };
+  }
+  
+  const issues = [];
+  const mainArray = Array.from(mainElements);
+  
+  // For each duplicate <main> element
+  mainArray.slice(1).forEach((mainElement, index) => {
+    // Create a new section or article element
+    const newSection = document.createElement('section');
+    newSection.setAttribute('role', 'region');
+    
+    // Transfer all children from the duplicate main to the new section
+    while (mainElement.firstChild) {
+      newSection.appendChild(mainElement.firstChild);
+    }
+    
+    // Add appropriate aria-label for accessibility
+    newSection.setAttribute('aria-label', `Region ${index + 2}`);
+    
+    // Replace the duplicate main with the new section
+    mainElement.parentNode.replaceChild(newSection, mainElement);
+    
+    issues.push({
+      element: mainArray[0],
+      message: `Duplicate <main> landmark found at index ${index + 2}. Content moved to <section> to maintain single main landmark.`
+    });
+  });
+  
+  return {
+    status: 'FIXED',
+    message: `Converted ${mainArray.length - 1} duplicate <main> landmarks to <section> elements`,
+    issues
+  };
+}
+
+// Export the new function
+export { ensureUniqueLandmarks };}

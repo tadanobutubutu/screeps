@@ -15,16 +15,15 @@ function addLangAttribute() {
 function fixTableStructureIssues() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || table.firstChild);
-      }
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const thead = document.createElement('thead');
+      const tbody = table.querySelector('tbody');
+      thead.appendChild(firstRow);
+      table.insertBefore(thead, tbody || table.firstChild);
     }
-    table.querySelectorAll('td').forEach(td => {
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(td => {
       if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
         td.setAttribute('scope', 'col');
       }
@@ -34,7 +33,7 @@ function fixTableStructureIssues() {
 
 // Accessibility function to ensure proper main landmark
 function addMainLandmark() {
-  const mains = document.querySelectorAll('main, [role="main"]');
+  const mains = document.querySelectorAll('[role="main"], main');
   if (mains.length === 0) {
     const mainElement = document.createElement('main');
     const body = document.body;
@@ -48,9 +47,9 @@ function addMainLandmark() {
 
 // Accessibility function to add accessible names to SVGs
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label])');
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const titleId = `svg-title-${index}`;
+    const titleId = `svg-title-${index + 1}`;
     let title = svg.querySelector('title');
     if (!title) {
       title = document.createElement('title');
@@ -66,15 +65,15 @@ function addSvgAccessibleNames() {
 
 // Accessibility function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], main[role="main"], main');
   landmarks.forEach(landmark => {
     const tagName = landmark.tagName.toLowerCase();
-    if ((tagName === 'header' || tagName === 'footer') && !landmark.closest('main')) {
+    if ((tagName === 'header' || tagName === 'footer') && landmark.closest('main')) {
       // Keep multiple headers/footers outside main
-    } else if (landmark.querySelector('main') || landmark.closest('main')) {
+    } else if (tagName === 'main' || landmark.getAttribute('role') === 'main') {
       // Ensure main is not nested incorrectly
       const nestedMain = landmark.querySelector('main');
-      if (nestedMain && !landmark.closest('section') && !landmark.closest('article')) {
+      if (nestedMain && landmark.getAttribute('role') === 'main' && tagName !== 'main') {
         const parent = landmark.parentNode;
         if (parent) {
           parent.insertBefore(nestedMain, landmark.nextSibling);
@@ -86,11 +85,11 @@ function ensureUniqueLandmarks() {
 
 // Accessibility function to fix fake link issues
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href=""], a:not([href])');
   fakeLinks.forEach(link => {
     const onclick = link.getAttribute('onclick');
     const isButton = link.getAttribute('role') === 'button' || link.tagName === 'BUTTON';
-    if ((onclick || isButton) && !link.getAttribute('href')) {
+    if ((onclick || isButton) && !link.hasAttribute('href')) {
       link.setAttribute('role', 'button');
       if (onclick) {
         link.setAttribute('tabindex', '0');

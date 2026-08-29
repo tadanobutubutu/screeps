@@ -6,7 +6,8 @@ const { formatData, validateInput } = require('./utils');
 
 // TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())

@@ -114,9 +114,8 @@ function validateTableStructure() {
 
 // New function: validateLandmark
 function validateLandmark(element, landmarkType) {
-  // Check if the specified element is a landmark (using given landmarkType)
   // You may use a library like "axe-core" for more reliable checks considering the various landmark roles.
-  // For the sake of simplicity, this example will check only for presence of ARIA attributes, but a more accurate solution would involve verified matching with the given landmarkType.
+  // For the sake of simplicity, this example will check only for presence of aria- attributes, but a more accurate solution would involve verified matching with the given landmarkType.
   // If the element is not a valid landmark of the requested type, throw an error with a message.
   if (!element.hasAttribute('aria-' + landmarkType)) {
     throw new Error(`Element '${element.outerHTML}' is not a valid ${landmarkType} landmark`);
@@ -236,7 +235,7 @@ function setSvgAccessibilityProps(svgElement) {
 
 /**
  * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
+ * @param {HTMLElement} The link element to check
  * @returns {boolean} True if the link is accessible, false otherwise
  */
 function isLinkAccessible(link) {
@@ -457,7 +456,7 @@ function addressAccessibilityIssuesFromInsightReport(insightReport) {
         fixTableStructureIssues();
         break;
       case 'LANDMARK_STRUCTURE':
-        addMainLandmark();
+        validateLandmarkStructure();
         ensureUniqueLandmarks();
         break;
       case 'SVG_ACCESSIBILITY':

@@ -5,6 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_018: Wrap primary content in main element (TODO: wrapPrimaryContentInMain)
 
 // Accessibility function to add lang attribute to the HTML element
 function addLangAttribute() {
@@ -105,6 +106,48 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Accessibility function to wrap primary content in main element
+function wrapPrimaryContentInMain() {
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 0) {
+    // If there's already a main element, ensure content is within it
+    const mainElement = mains[0];
+    // Move any primary content outside the main into the main element
+    const body = document.body;
+    const contentElements = body.children;
+    const elementsToMove = [];
+    for (let i = 0; i < contentElements.length; i++) {
+      const element = contentElements[i];
+      if (element !== mainElement && element.tagName !== 'HEADER' && element.tagName !== 'FOOTER' && element.tagName !== 'NAV' && !element.closest('main')) {
+        elementsToMove.push(element);
+      }
+    }
+    elementsToMove.forEach(element => {
+      mainElement.appendChild(element);
+    });
+  } else {
+    // Create a new main element and wrap primary content
+    const mainElement = document.createElement('main');
+    const body = document.body;
+    const elementsToWrap = [];
+    const skipTags = ['HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE'];
+    for (let i = 0; i < body.children.length; i++) {
+      const element = body.children[i];
+      if (!skipTags.includes(element.tagName) && element.querySelector('h1, h2, h3, h4, h5, h6, p, ul, ol, article, section') && !element.closest('main')) {
+        elementsToWrap.push(element);
+      }
+    }
+    elementsToWrap.forEach(element => {
+      mainElement.appendChild(element);
+    });
+    if (body.firstChild) {
+      body.insertBefore(mainElement, body.firstChild);
+    } else {
+      body.appendChild(mainElement);
+    }
+  }
+}
+
 // Initialize accessibility improvements when DOM is ready
 function initAccessibility() {
   if (document.readyState === 'loading') {
@@ -112,6 +155,7 @@ function initAccessibility() {
       addLangAttribute();
       fixTableStructureIssues();
       addMainLandmark();
+      wrapPrimaryContentInMain();
       addSvgAccessibleNames();
       ensureUniqueLandmarks();
       fixFakeLinkIssue();
@@ -120,6 +164,7 @@ function initAccessibility() {
     addLangAttribute();
     fixTableStructureIssues();
     addMainLandmark();
+    wrapPrimaryContentInMain();
     addSvgAccessibleNames();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
@@ -131,6 +176,7 @@ module.exports = {
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
+  wrapPrimaryContentInMain,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,

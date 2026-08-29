@@ -1,8 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// TODO: Address accessibility issues from insight report — CONTINUING
 
 /**
  * Ensures the element has an id, generating one if necessary
@@ -49,13 +45,7 @@ function renderDependencyGraphs(dependencies, container) {
   container.appendChild(graphElement);
 }
 
-// ----- END ORIGINAL CODE -----
-
 import React from 'react';
-
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
 
 function getLangAttribute() {
   // Implementation of the getLangAttribute function
@@ -449,22 +439,6 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
-export {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  checkTableStructure,
-  getLangAttribute,
-  MyComponent,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinkIssue,
-  checkTableAccessibility
-};
-
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
@@ -495,6 +469,3 @@ module.exports = {
   fixFakeLinkIssue,
   checkTableAccessibility
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };

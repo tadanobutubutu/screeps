@@ -8,25 +8,27 @@ function getSvgAccessibleName(svgElement) {
         return null;
     }
 
-    // Check aria-label attribute first
+    // Check aria-label attribute first (highest priority)
     const ariaLabel = svgElement.getAttribute('aria-label');
     if (ariaLabel && ariaLabel.trim()) {
         return ariaLabel.trim();
     }
 
-    // Check aria-labelledby attribute
+    // Check aria-labelledby attribute (second priority)
     const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
     if (ariaLabelledby && ariaLabelledby.trim()) {
         const labelElementId = ariaLabelledby.trim().split(/\s+/)[0];
-        const labelElement = document.getElementById(labelElementId);
-        if (labelElement && labelElement.textContent) {
-            return labelElement.textContent.trim();
+        if (labelElementId) {
+            const labelElement = document.getElementById(labelElementId);
+            if (labelElement && labelElement.textContent && labelElement.textContent.trim()) {
+                return labelElement.textContent.trim();
+            }
         }
     }
 
-    // Check for title element inside SVG
+    // Check for title element inside SVG (fallback)
     const titleElement = svgElement.querySelector('title');
-    if (titleElement && titleElement.textContent) {
+    if (titleElement && titleElement.textContent && titleElement.textContent.trim()) {
         return titleElement.textContent.trim();
     }
 

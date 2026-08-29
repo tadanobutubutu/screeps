@@ -1,30 +1,36 @@
-// Assuming the file is located at ...
-
 import React, { useState } from 'react';
 
 interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+const copyErr = (setCopied: (value: boolean) => void) => {
+  // Implement the copy error logic
+  setCopied(true);
+  // Reset copied state after some time
+  setTimeout(() => setCopied(false), 3000);
+};
+
+const fetchStats = (shouldRetry: boolean, setRefreshing: (value: boolean) => void) => {
+  // Implement the fetch stats logic
+  setRefreshing(true);
+  // Reset refreshing state after some time
+  setTimeout(() => setRefreshing(false), 2000);
+};
+
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
   const [errRetryHover, setErrRetryHover] = useState<boolean>(false);
 
-  const copyErr = () => {
-    // Implement the copy error logic
-    setCopied(true);
-    // Reset copied state after some time
-    setTimeout(() => setCopied(false), 3000);
+  const copyErrHandler = () => {
+    copyErr(setCopied);
   };
 
-  const fetchStats = (shouldRetry: boolean) => {
-    // Implement the fetch stats logic
-    setRefreshing(true);
-    // Reset refreshing state after some time
-    setTimeout(() => setRefreshing(false), 2000);
+  const fetchStatsHandler = (shouldRetry: boolean) => {
+    fetchStats(shouldRetry, setRefreshing);
   };
 
   return (
@@ -49,11 +55,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         )}
         <button
           type="button"
-          onClick={copyErr}
+          onClick={copyErrHandler}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
+          onMouseLeave={() => ...
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
+          onBlur={() => ...
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -75,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         </button>
         <button
           type="button"
-          onClick={() => fetchStats(true)}
+          onClick={() => fetchStatsHandler(true)}
           disabled={refreshing}
           aria-disabled={refreshing}
           aria-busy={refreshing}
@@ -108,4 +114,5 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   );
 };
 
+export { copyErr, fetchStats };
 export default Dashboard;

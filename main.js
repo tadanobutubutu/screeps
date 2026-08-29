@@ -38,9 +38,24 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// New functions for rendering dependency graphs and index views
+function renderDependencyGraph(nodes, edges) {
+  // Placeholder: in a real implementation this would build the DOM
+  console.log('Rendering dependency graph');
+  return 'Dependency graph rendered';
+}
+
+function renderIndexView(viewName) {
+  // Placeholder: in a real implementation this would display an index view
+  console.log(`Rendering index view: ${viewName}`);
+  return null;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  renderDependencyGraph,
+  renderIndexView
 };

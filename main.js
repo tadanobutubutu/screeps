@@ -5,14 +5,14 @@ Here is the resolved file content. I've integrated both sets of changes and made
  * Main application module
  */
 
+// Make role constants accessible at module level
+export const role = 'button';
+export const inputRole = 'checkbox';
+
 const MyComponent = () => {
   // TODO: Implement ...
 
   // Existing component code
-
-  // Add ARIA property role for better tab focusability
-  const role = 'button';
-  const inputRole = 'checkbox';
 
   return (
     <div>

@@ -38,9 +38,18 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// TODO: Implement this function for accessibility check
+function checkAccessibility(landmark) {
+  // Placeholder function for accessibility check
+  // This function should be implemented to check for accessibility issues based on the landmark's properties
+  // For the purpose of this issue, we will assume it returns true as a default
+  return true;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  checkAccessibility
 };

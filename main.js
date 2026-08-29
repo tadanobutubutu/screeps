@@ -1,5 +1,5 @@
+// TODO: Existing code remains here
 // TODO: Add back any required exports that might have been?
-
 function main() {
   return "Hello, World!";
 }
@@ -11,5 +11,10 @@ const config = {
   debug: false
 };
 
+// TODO: Add any new functions or changes requested in the issue here
+function getWelcomeMessage() {
+  return main() + " This is a new function that returns a welcome message.";
+}
+
 export default main;
-export { version, config };
+export { version, config, getWelcomeMessage };

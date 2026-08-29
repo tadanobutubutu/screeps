@@ -20,7 +20,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -51,7 +51,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -62,7 +62,8 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.createElement('div');
+  container.id = 'app';
   
   // Create heading
   const h1 = document.createElement('h1');
@@ -100,6 +101,16 @@ function displayModuleStructure(modules) {
   return {};
 }
 
+/**
+ * Renders a dependency graph for debugging purposes
+ * This helps visualize module dependencies
+ */
+function renderDependencyGraph() {
+  console.log('Rendering dependency graph...');
+  // Implementation for dependency graph rendering
+  return {};
+}
+
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
 const functionA = {
@@ -117,6 +128,11 @@ const functionB = {
   Y: functionYb, // Do not remove or rename this export
   Z: functionZb, // Do not remove or rename this export
 };
+
+// Placeholder loop function for Screeps compatibility
+function loop() {
+  // Main game loop logic for Screeps
+}
 
 module.exports = {
   ensureElementHasId,

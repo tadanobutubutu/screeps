@@ -7,7 +7,7 @@ const Landmark = require('./Landmark'); // assuming there's another file for Lan
 /**
  * Function to check if the specified landmark element is in the document.
  * @param {string} id - The ID of the landmark element.
-//  * @returns {boolean} Returns true if the element exists; otherwise, false.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
  */
 function checkLandmarkElement(id) {
   const element = document.getElementById(id);
@@ -56,7 +56,19 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+// New function implementation as per the issue requirements
+function processLandmarks(landmarks) {
+  // Ensure all landmarks have valid structure
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  
+  // Ensure the landmarks are unique
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  
+  return uniqueLandmarks;
+}
+
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    processLandmarks // New export added
 };

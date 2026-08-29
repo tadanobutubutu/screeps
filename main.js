@@ -1,4 +1,5 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Add back any required exports that might have been removed
+// Line 1 - Preserving original TODO comment
 
 const config = require('./config');
 const logger = require('./utils/logger');

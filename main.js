@@ -32,20 +32,33 @@ const main = {
     if (hostileCreeps.length > 0) {
       this.defendRoom(room, hostileCreeps);
     }
+    
+    // Auto-harvest and upgrade with idle creeps
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.memory.role === 'harvester') {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
   },
 
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
 
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      if (closestHostile) {
+        tower.attack(closestHostile);
+      }
     });
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByRange(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

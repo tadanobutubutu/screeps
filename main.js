@@ -317,4 +317,255 @@ function renderDependencyGraphs(document) {
     svg.appendChild(title);
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of
+    desc.textContent = 'Visual representation of module dependencies';
+    svg.appendChild(desc);
+  }
+  return document;
+}
+
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport(document) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalIssues: 0,
+      critical: 0,
+      moderate: 0,
+      minor: 0
+    },
+    issues: []
+  };
+
+  // Check for missing lang attribute on html element
+  const htmlElement = document.documentElement;
+  if (!htmlElement || !htmlElement.lang) {
+    report.issues.push({
+      type: 'missing-lang',
+      severity: 'critical',
+      element: 'html',
+      selector: 'html',
+      message: 'Missing lang attribute on <html> element',
+      recommendation: 'Add lang attribute to the <html> element (e.g., lang="en")'
+    });
+    report.summary.totalIssues++;
+    report.summary.critical++;
+  }
+
+  // Check tables for accessibility issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, tableIndex) => {
+    const headers = table.querySelectorAll('th');
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+
+    headers.forEach((header, headerIndex) => {
+      if (!header.hasAttribute('scope')) {
+        report.issues.push({
+          type: 'table-missing-scope',
+          severity: 'moderate',
+          element: 'th',
+          selector: `table:nth-of-type(${tableIndex + 1}) th:nth-of-type(${headerIndex + 1})`,
+          message: `Table header missing scope attribute`,
+          recommendation: 'Add scope="col" or scope="row" to table headers'
+        });
+        report.summary.totalIssues++;
+        report.summary.moderate++;
+      }
+    });
+
+    if (!hasThead) {
+      report.issues.push({
+        type: 'table-missing-thead',
+        severity: 'minor',
+        element: 'table',
+        selector: `table:nth-of-type(${tableIndex + 1})`,
+        message: 'Table missing <thead> element',
+        recommendation: 'Wrap the first row of table cells in <thead>'
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+
+    if (!hasTbody) {
+      report.issues.push({
+        type: 'table-missing-tbody',
+        severity: 'minor',
+        element: 'table',
+        selector: `table:nth-of-type(${tableIndex + 1})`,
+        message: 'Table missing <tbody> element',
+        recommendation: 'Wrap table rows in <tbody>'
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+  });
+
+  // Check for duplicate landmarks
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+          report.issues.push({
+            type: 'duplicate-landmark',
+            severity: 'moderate',
+            element: el.tagName.toLowerCase(),
+            selector: `[role="${role}"]:nth-of-type(${index + 1})`,
+            message: `Duplicate ${role} landmark without accessible name`,
+            recommendation: `Add aria-label="${role} ${index + 1}" to distinguish landmarks`
+          });
+          report.summary.totalIssues++;
+          report.summary.moderate++;
+        }
+      });
+    }
+  });
+
+  // Check SVGs for accessibility
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.getAttribute('aria-label');
+    const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
+
+    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
+      report.issues.push({
+        type: 'svg-missing-accessible-name',
+        severity: 'moderate',
+        element: 'svg',
+        selector: `svg:nth-of-type(${index + 1})`,
+        message: 'SVG element missing accessible name',
+        recommendation: 'Add <title> element or aria-label/aria-labelledby attribute'
+      });
+      report.summary.totalIssues++;
+      report.summary.moderate++;
+    }
+
+    if (!svg.getAttribute('role')) {
+      report.issues.push({
+        type: 'svg-missing-role',
+        severity: 'minor',
+        element: 'svg',
+        selector: `svg:nth-of-type(${index + 1})`,
+        message: 'SVG element missing role="img"',
+        recommendation: 'Add role="img" to SVG elements'
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+  });
+
+  // Check for fake links
+  const clickableElements = document.querySelectorAll('[onclick]');
+  clickableElements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+    const isAnchor = tagName === 'a';
+    const onclick = element.getAttribute('onclick') || '';
+
+    if (!isAnchor && (onclick.includes('window.location') || onclick.includes('.href'))) {
+      report.issues.push({
+        type: 'fake-link',
+        severity: 'critical',
+        element: tagName,
+        selector: `${tagName}[onclick]:nth-of-type(${index + 1})`,
+        message: `Non-anchor element using navigation in onclick`,
+        recommendation: 'Use <a> element with href attribute for navigation'
+      });
+      report.summary.totalIssues++;
+      report.summary.critical++;
+    }
+  });
+
+  // Check images for alt text
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    const hasAlt = img.hasAttribute('alt');
+    const altValue = img.getAttribute('alt');
+
+    if (!hasAlt) {
+      report.issues.push({
+        type: 'image-missing-alt',
+        severity: 'critical',
+        element: 'img',
+        selector: `img:nth-of-type(${index + 1})`,
+        message: 'Image missing alt attribute',
+        recommendation: 'Add alt attribute describing the image content'
+      });
+      report.summary.totalIssues++;
+      report.summary.critical++;
+    } else if (altValue === '') {
+      report.issues.push({
+        type: 'image-empty-alt',
+        severity: 'minor',
+        element: 'img',
+        selector: `img:nth-of-type(${index + 1})`,
+        message: 'Image has empty alt attribute (decorative image)',
+        recommendation: 'Ensure image is truly decorative or provide meaningful description'
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+  });
+
+  // Check sections for landmark regions
+  const sections = document.querySelectorAll('section:not([role])');
+  sections.forEach((section, index) => {
+    const hasHeading = section.querySelector('h1, h2, h3, h4, h5, h6');
+    const hasAriaLabel = section.getAttribute('aria-label');
+
+    if (!hasHeading && !hasAriaLabel) {
+      report.issues.push({
+        type: 'section-missing-label',
+        severity: 'minor',
+        element: 'section',
+        selector: `section:not([role]):nth-of-type(${index + 1})`,
+        message: 'Section without heading or accessible name',
+        recommendation: 'Add aria-label or include a heading element'
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+  });
+
+  // Check for landmarks without accessible names
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+      const role = landmark.getAttribute('role');
+      report.issues.push({
+        type: 'landmark-missing-label',
+        severity: 'minor',
+        element: landmark.tagName.toLowerCase(),
+        selector: `[role="${role}"]:nth-of-type(${index + 1})`,
+        message: `${role} landmark missing accessible name`,
+        recommendation: `Add aria-label="${role} region" to landmark`
+      });
+      report.summary.totalIssues++;
+      report.summary.minor++;
+    }
+  });
+
+  return report;
+}
+
+// Export for testing and external use
+export {
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  generateAccessibilityReport
+};

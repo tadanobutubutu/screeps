@@ -206,6 +206,9 @@ function addressAccessibilityIssues() {
   module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
 }
 
+// Export functions if needed
+export { rotateBack, addressAccessibilityIssues };
+
 module.exports.getLangAttribute = getLangAttribute;
 module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
 
@@ -252,4 +255,3 @@ module.exports.loop = function() {
 }
 
 addressAccessibilityIssues(); // Call the accessibility function
-```

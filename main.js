@@ -7,8 +7,6 @@ const logger = require('./utils/logger');
 let isInitialized = false;
 const appData = {};
 
-// TODO: Implement validateLandmark functionality
-
 function validateLandmark(landmark) {
   const errors = [];
   

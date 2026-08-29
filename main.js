@@ -1,6 +1,4 @@
-// Here is an example of how to export a required function from another file:
-
-// main.js - Accessible Insight Report Interface
+// Accessible Insight Report Interface - Dependency Graph Rendering
 // Line 13: Address accessibility issues from insight report — CONTINUING
 
 const { helperFunction } = require('./helpers');
@@ -195,6 +193,71 @@ function fixFakeLinkIssue() {
   });
 }
 
+// Render a dependency graph visualization with accessibility support
+function renderDependencyGraph(container, graphData) {
+  if (!container || typeof container.appendChild !== 'function') {
+    console.warn('renderDependencyGraph: Invalid container element');
+    return null;
+  }
+  
+  const graphWrapper = document.createElement('div');
+  graphWrapper.className = 'dependency-graph';
+  graphWrapper.setAttribute('role', 'figure');
+  graphWrapper.setAttribute('aria-label', 'Dependency graph');
+  
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  graphWrapper.appendChild(title);
+  
+  const description = document.createElement('p');
+  description.className = 'sr-only';
+  description.textContent = 'This visualization shows the dependencies and their relationships.';
+  graphWrapper.appendChild(description);
+  
+  const list = document.createElement('ul');
+  list.setAttribute('aria-label', 'Dependency list');
+  
+  if (graphData && Array.isArray(graphData)) {
+    graphData.forEach((item, index) => {
+      const listItem = document.createElement('li');
+      const itemName = item && item.name ? item.name : `Node ${index + 1}`;
+      listItem.textContent = itemName;
+      
+      if (item && item.dependencies && Array.isArray(item.dependencies) && item.dependencies.length > 0) {
+        const subList = document.createElement('ul');
+        subList.setAttribute('aria-label', `Dependencies for ${itemName}`);
+        item.dependencies.forEach((dep, depIndex) => {
+          const depItem = document.createElement('li');
+          depItem.textContent = typeof dep === 'string' ? dep : dep.name || `Dependency ${depIndex + 1}`;
+          subList.appendChild(depItem);
+        });
+        listItem.appendChild(subList);
+      }
+      
+      list.appendChild(listItem);
+    });
+  }
+  
+  graphWrapper.appendChild(list);
+  container.appendChild(graphWrapper);
+  
+  return graphWrapper;
+}
+
+// Update existing dependency graph with new data
+function updateDependencyGraph(graphElement, newData) {
+  if (!graphElement || !graphElement.parentNode) {
+    console.warn('updateDependencyGraph: Invalid graph element');
+    return false;
+  }
+  
+  const newGraph = renderDependencyGraph(document.createElement('div'), newData);
+  if (!newGraph) return false;
+  
+  graphElement.parentNode.replaceChild(newGraph, graphElement);
+  return true;
+}
+
 // Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', () => {
@@ -252,6 +315,8 @@ if (typeof module !== 'undefined' && module.exports) {
     addMainLandmark,
     addSvgAccessibleNames,
     ensureUniqueLandmarks,
-    fixFakeLinkIssue
+    fixFakeLinkIssue,
+    renderDependencyGraph,
+    updateDependencyGraph
   };
 }

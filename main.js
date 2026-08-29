@@ -1,4 +1,4 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -16,6 +16,7 @@ const appData = {};
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
+
 // Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
@@ -23,8 +24,6 @@ const appData = {};
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-// TODO: Import required module(s) and export the new necessary function(s) here in main.js ( preserving the original code )
 
 // Import the required module
 const { someFunction } = { someFunction: () => 'someFunction result' };
@@ -299,6 +298,55 @@ function main() {
   return someFunction();
 }
 
+// --- NEW FUNCTIONS ---
+
+/**
+ * Ensures that the element selected by `selector` has an id.
+ * If it already has an id, it is returned. Otherwise, the element will be assigned a given fallback id.
+ *
+ * @param {string} selector - CSS selector for the target element.
+ * @param {string} fallbackId - ID to assign if the element doesn't have one yet.
+ * @returns {string|null} The id of the element or null if not found.
+ */
+function ensureElementHasId(selector, fallbackId) {
+  const element = document.querySelector(selector);
+  if (!element) return null;
+
+  if (!element.id) {
+    element.id = fallbackId;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to the element selected by `selector`.
+ *
+ * @param {string} selector - CSS selector for the target element.
+ * @param {string} ariaLabel - The aria-label value to set.
+ */
+function addAriaLabelToElement(selector, ariaLabel) {
+  const element = document.querySelector(selector);
+  if (element) {
+    element.setAttribute('aria-label', ariaLabel);
+  }
+}
+
+/**
+ * Renders dependency graph content into the specified container selector.
+ * Supports both class and data attribute selectors for compatibility.
+ *
+ * @param {string} containerSelector - Selector for the container element.
+ * @param {string} data - HTML or text content to inject into the container.
+ */
+function renderDependencyGraph(containerSelector, data) {
+  const container = document.querySelector(containerSelector);
+  if (container) {
+    container.innerHTML = data;
+  }
+}
+
+// --- End of new functions ---
+
 // Export all functions for use elsewhere in the repository
 module.exports = {
   improveAccessibility,
@@ -319,7 +367,12 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+
+  // New exports
+  ensureElementHasId,
+  addAriaLabelToElement,
+  renderDependencyGraph
 };
 
 // Execute main function

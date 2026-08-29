@@ -18,7 +18,7 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Ensure unique landmarks by filtering duplicates
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -38,9 +38,40 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Render index data for graph display
+function renderGraphIndex(landmarks, connections) {
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+  
+  const nodes = uniqueLandmarks.map(landmark => ({
+    id: landmark.id || landmark.name,
+    label: landmark.name || landmark.id,
+    lat: landmark.lat,
+    lon: landmark.lon
+  }));
+  
+  const edges = connections.map(conn => ({
+    source: conn.from,
+    target: conn.to,
+    weight: calculateDistance(
+      { lat: conn.fromLat, lon: conn.fromLon },
+      { lat: conn.toLat, lon: conn.toLon }
+    )
+  }));
+  
+  return {
+    nodes,
+    edges,
+    metadata: {
+      totalNodes: nodes.length,
+      totalEdges: edges.length
+    }
+  };
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  renderGraphIndex
 };

@@ -80,10 +80,53 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
+}
+
+/**
+ * Ensures all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+ * @param {HTMLElement[]} landmarks - Array of landmark elements to ensure unique ids
+ * @param {string} prefix - Optional prefix for the generated id
+ * @returns {string[]} Array of ids for all landmarks
+ */
+function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
+  if (!landmarks || !Array.isArray(landmarks)) {
+    throw new Error('Landmarks array is required');
+  }
+
+  const ids = [];
+  const usedIds = new Set();
+
+  landmarks.forEach((landmark, index) => {
+    if (!landmark) {
+      return;
+    }
+
+    if (landmark.id) {
+      if (usedIds.has(landmark.id)) {
+        const newId = `${prefix}-${index}`;
+        landmark.id = newId;
+        usedIds.add(newId);
+        ids.push(newId);
+      } else {
+        usedIds.add(landmark.id);
+        ids.push(landmark.id);
+      }
+    } else {
+      let generatedId = `${prefix}-${index}`;
+      while (usedIds.has(generatedId)) {
+        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+      }
+      landmark.id = generatedId;
+      usedIds.add(generatedId);
+      ids.push(generatedId);
+    }
+  });
+
+  return ids;
 }
 
 /**
@@ -101,7 +144,7 @@ setLanguageAttribute('en');
 // Simple interactive page with content rotation functionality
 function initApp() {
   const container = document.getElementById('app');
-
+  
   // Create heading
   const h1 = document.createElement('h1');
   h1.textContent = 'My Page';
@@ -324,3 +367,24 @@ function validateLandmark(root = document) {
     issues: issues
   };
 }
+
+// Existing placeholder functions for function1 and function2 (referenced in exports)
+function function1() {
+  return 'function1';
+}
+
+function function2() {
+  return 'function2';
+}
+
+module.exports = {
+  ensureElementHasId,
+  addAriaLabel,
+  setLanguageAttribute,
+  ensureUniqueLandmarks,
+  initApp,
+  displayModuleStructure,
+  functionA,
+  functionB,
+  loop
+};

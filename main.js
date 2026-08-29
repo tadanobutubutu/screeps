@@ -58,7 +58,24 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // TODO: Implement this function for creating in-page buttons
+  function createInPageButtons(buttonsData) {
+    const container = document.querySelector('#button-container');
+    if (!container) {
+      console.error('Button container not found');
+      return;
+    }
+
+    buttonsData.forEach(buttonData => {
+      const button = document.createElement('button');
+      button.textContent = buttonData.text;
+      button.id = buttonData.id;
+      button.className = buttonData.className;
+      container.appendChild(button);
+    });
+  }
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues, createInPageButtons };

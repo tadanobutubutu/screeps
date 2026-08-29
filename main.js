@@ -20,3 +20,38 @@ export default {
   initialize,
   getConfig
 };
+
+// Add the necessary new functions (without strict mode)
+export function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    fetch(url)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then(data => resolve(data))
+      .catch(error => reject(error));
+  });
+}
+
+export function saveData(url, data) {
+  return new Promise((resolve, reject) => {
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    })
+    .then(data => resolve(data))
+    .catch(error => reject(error));
+  });
+}

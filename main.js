@@ -142,7 +142,7 @@ function ensureUniqueLandmarks(document) {
       if (seenIds.has(id)) {
         landmark.id = `${id}-unique-${Math.random().toString(36).substr(2, 9)}`;
       }
-      seenIds.add(landmark.id);
+      seenIds.add(id);
     }
   });
   

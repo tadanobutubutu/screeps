@@ -1,13 +1,9 @@
 import React from 'react';
 
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
-
 /**
  * Main module functionality
  */
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -42,8 +38,6 @@ function MyComponent() {
   );
 }
 
-// Add any updates related to new functions
-
 // Implement function to create in-page buttons
 function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
@@ -53,7 +47,7 @@ function createInPageButton(buttonId, buttonText) {
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -100,7 +94,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
+// Implement function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   // ...

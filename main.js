@@ -52,7 +52,7 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td');
       // Check if first cell should be a header
       if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
         const firstCell = cells[0];
@@ -127,12 +127,12 @@ function ensureUniqueLandmarks(document) {
 }
 
 // Function to add accessible name to SVG
-function addSvgAccessibleNames(document) {
+function addSvgAccessibleName(document) {
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
-      svg.setAttribute('aria-label', titleElement.textContent.trim());
+      svg.setAttribute('aria-labelledby', titleElement.id || 'svg-title');
     } else {
       svg.setAttribute('aria-label', 'Graphic');
     }
@@ -147,7 +147,7 @@ function addAccessibleNamesToSVGs(document) {
   svgElements.forEach(svg => {
     const titleElement = svg.querySelector('title');
     if (titleElement && titleElement.textContent.trim()) {
-      svg.setAttribute('aria-label', titleElement.textContent.trim());
+      svg.setAttribute('aria-labelledby', titleElement.id || 'svg-title');
     } else {
       svg.setAttribute('aria-label', 'Graphic');
     }
@@ -169,7 +169,7 @@ function fixFakeLinkIssue(document) {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('.href'))) {
+        onclick.includes("location.href"))) {
       
       // Convert to proper anchor or add proper accessibility
       const span = document.createElement('span');
@@ -222,7 +222,7 @@ function fixLandmarkIssues(document) {
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (!landmark.id && !landmark.getAttribute('aria-label')) {
-      landmark.setAttribute('aria-label', `landmark-${role}`);
+      landmark.setAttribute('aria-label', `${role}-landmark`);
     }
   });
   return document;
@@ -242,7 +242,7 @@ function addLandmarkRegions(document) {
 function uniqueLandmarks(document) {
   const landmarkRoles = ['navigation', 'banner', 'contentinfo', 'complementary', 'main', 'region', 'article'];
   landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
+    const elements = document.querySelectorAll(`[role="${role}"], ${role}`);
     if (elements.length > 1) {
       let index = 1;
       elements.forEach((el) => {
@@ -274,7 +274,7 @@ function googleSignIn(document) {
       client_id: 'YOUR_CLIENT_ID',
       callback: handleCredentialResponse
     });
-    const buttonContainer = document.querySelector('#g-signin-button');
+    const buttonContainer = document.getElementById('g-signin2');
     if (buttonContainer) {
       google.accounts.id.renderButton(
         buttonContainer,
@@ -302,7 +302,7 @@ function ensureElementHasId(document, selector, idPrefix = 'element') {
 }
 
 // Function to ensure an element has an id with origin/main optimization
-function ensureElementHasIdOrigin(document, selector, idPrefix = 'element') {
+function ensureElementId(document, selector, idPrefix = 'element') {
   const elements = document.querySelectorAll(selector);
   elements.forEach((element) => {
     element.id = element.dataset.id && element.dataset.id.length > 0 ? element.dataset.id : `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
@@ -321,13 +321,7 @@ function addAriaLabel(document, selector, label) {
   return document;
 }
 
-// Function to render dependency graphs
-function renderDependencyGraphs(document) {
-  const graphContainer = document.querySelector('#dependencyGraph') || 
-                         document.querySelector('.dependency-graph') || 
-                         document.querySelector('[data-graph="dependencies"]') ||
-                         document.querySelector('[id*="dependency"]');
-  if (graphContainer) {
-    // Create SVG element for the dependency graph
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const buttons = document.querySelectorAll('button');
+  buttons

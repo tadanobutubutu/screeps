@@ -53,7 +53,7 @@ function clearCache() {
 
 // Function: initialize
 function initialize(initialConfig) {
-  Object.assign(config, initialConfig);
+  Object.assign(appState, initialConfig);
   appState.config = config;
   console.log('Initialized with config:', config);
   return true;
@@ -71,8 +71,8 @@ function validateInput(input) {
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
@@ -96,6 +96,7 @@ function fixTableStructure() {
       const firstRow = table.rows[0];
       if (firstRow) {
         thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
         table.appendChild(thead);
       }
     }
@@ -106,10 +107,11 @@ function fixTableStructure() {
 function addMainLandmark() {
   if (!document.querySelector('main')) {
     const main = document.createElement('main');
-    while (document.body.firstChild) {
-      main.appendChild(document.body.firstChild);
+    const body = document.body;
+    while (body.firstChild) {
+      main.appendChild(body.firstChild);
     }
-    document.body.appendChild(main);
+    body.appendChild(main);
   }
 }
 
@@ -129,7 +131,7 @@ function applyAccessibilityFixes() {
   addMainLandmark();
   fixTableStructure();
   fixAriaLabelSyntax();
-  addressAccessibilityIssues(window.__INSIGHT_REPORT__);
+  addressAccessibilityIssues({ issues: [] });
 }
 
 // Function: fixColorContrast
@@ -216,5 +218,6 @@ module.exports = {
   applyAccessibilityFixes,
   fixColorContrast,
   addAltText,
+  reportWebVitals,
   Dashboard
 };

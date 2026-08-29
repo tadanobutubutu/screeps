@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import reportWebVitals from ...
+import reportWebVitals from './reportWebVitals';
 
-const root = ...
+const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
@@ -35,8 +35,6 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
 // Uncomment the implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
@@ -116,6 +114,7 @@ function validateTableStructure() {
   return results;
 }
 
+// Export the new function
 export {
   VERSION,
   CONFIG,
@@ -128,6 +127,7 @@ export {
   validateTableStructure
 };
 
+// Add the new function to the default export
 export default {
   VERSION,
   CONFIG,

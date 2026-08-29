@@ -14,7 +14,15 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
+  
+  // Add accessibility attributes
+  button.setAttribute('type', 'button');
+  button.setAttribute('role', 'button');
+  
+  // Apply accessible name
+  const accessibleName = buttonText || `Button ${buttonId}`;
+  button.setAttribute('aria-label', accessibleName);
+  
   return button;
 }
 

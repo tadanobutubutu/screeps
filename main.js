@@ -166,12 +166,13 @@ export {
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  dependencyGraphContent,
+  indexContent
 };
 
 // Exporting for CommonJS compatibility
 module.exports = {
-  // All existing exports from main.js go here
   specificFunctionThatRendersGraphOrIndex
 };
 

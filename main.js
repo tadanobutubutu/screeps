@@ -62,3 +62,14 @@ function addressAccessibilityIssues() {
 
 // Export functions if needed
 // export { rotateBack, addressAccessibilityIssues };
+
+// Re-add required exports for functionA and functionB
+function functionA() {
+  console.log('Function A executed');
+}
+
+function functionB() {
+  console.log('Function B executed');
+}
+
+export { rotateBack, addressAccessibilityIssues, functionA, functionB };

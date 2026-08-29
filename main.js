@@ -9,6 +9,16 @@ function fixAccessibilityIssue() {
   }
 }
 
+// New functions added as per issue requirements
+
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+function add(a, b) {
+  return a + b;
+}
+
 module.exports = {
   existingFunction1,
   existingConst1,
@@ -16,5 +26,7 @@ module.exports = {
   dependencyGraph,
   isLinkAccessible,
   isLinkAccessibleSync,
-  fixAccessibilityIssue // Add the new function here
+  fixAccessibilityIssue,
+  greet,
+  add
 };

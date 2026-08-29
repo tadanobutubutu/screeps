@@ -473,6 +473,37 @@ function addSvgAccessibleNames() {
   });
 }
 
+/**
+ * Adds accessibility properties to SVG elements
+ * This function ensures SVG graphics have proper role, aria-label, title, and description
+ */
+function addSvgAccessibilityProps() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    // Add role="img" if not present
+    if (!svg.hasAttribute('role')) {
+      svg.setAttribute('role', 'img');
+    }
+    // Ensure there is an aria-label or aria-labelledby
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      // Try to find a title element
+      let title = svg.querySelector('title');
+      if (!title) {
+        title = document.createElement('title');
+        title.textContent = `SVG graphic ${index + 1}`;
+        svg.insertBefore(title, svg.firstChild);
+      }
+      // Use the title element's ID for aria-labelledby, generate if needed
+      let titleId = title.id;
+      if (!titleId) {
+        titleId = `svg-title-${index}`;
+        title.id = titleId;
+      }
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
+
 // Accessibility function to ensure unique landmarks
 function ensureUniqueLandmarks() {
   const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
@@ -548,6 +579,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     fixTableStructureIssues();
     addMainLandmark();
     addSvgAccessibleNames();
+    addSvgAccessibilityProps();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
 
@@ -586,6 +618,7 @@ if (typeof module !== 'undefined' && module.exports) {
         fixTableStructureIssues,
         addMainLandmark,
         addSvgAccessibleNames,
+        addSvgAccessibilityProps,
         fixFakeLinkIssue
     };
 }

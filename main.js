@@ -1,6 +1,6 @@
 // TODO: Add any other missing exports that might have been?
 
-const config = require('./config');
+const config = {};
 const logger = require('./utils/logger');
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
@@ -33,7 +33,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph], .dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -44,7 +44,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]');
+  const container = document.querySelector('[data-dependency-graph], .dependency-graph');
   if (container) {
     container.innerHTML = data;
   }
@@ -61,7 +61,7 @@ function improveAccessibility() {
   });
 
   // Ensure all clickable elements are focusable
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('[role="button"], [role="link"]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -108,7 +108,7 @@ function addressInsightReportIssues(insightReport) {
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
     const uniqueElements = [];
     elements.forEach(el => {
       const isUnique = !uniqueElements.some(uEl => uEl === el);
@@ -123,18 +123,22 @@ function ensureUniqueLandmarks() {
 }
 
 // New function to add landmark roles and fix issues
-function addLandmarkRolesAndFixLandmarkIssuesFromInsightReport(insightReport) {
+function addLandmarkRolesAndFixIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
-      addLandmarkRolesAndFixIssues();
+      const element = document.querySelector(issue.selector);
+      if (element && issue.ariaRole) {
+        element.setAttribute('role', issue.ariaRole);
+      }
     }
   });
 }
 
-function addLandmarkRolesAndFixIssues() {
+function fixLandmarkIssues(insightReport) {
   // Implementation for adding landmark roles and fixing landmark issues
   // This is a placeholder that would need to be implemented based on specific requirements
+  addLandmarkRolesAndFixIssues(insightReport);
 }
 
 // Placeholder implementation for rendering a dependency graph
@@ -157,11 +161,11 @@ function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
   
-  [...fakeLinkAnchors, ...Array.from(fakeLinkDivs)].forEach(link => {
+  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
+    link.tabIndex = 0;
     if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
@@ -171,8 +175,8 @@ function fixFakeLinks() {
 // Add lang attribute to HTML element
 function addLangAttribute() {
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = 'en';
   }
 }
 
@@ -185,7 +189,7 @@ function fixTableStructureIssues() {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody') || document.createElement('tbody');
         thead.appendChild(firstRow);
         table.insertBefore(thead, tbody || firstRow);
       }
@@ -197,22 +201,20 @@ function fixTableStructureIssues() {
 function fixTableHeaderCellScope() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th');
+    const headerCells = table.querySelectorAll('th:not([scope])');
     headerCells.forEach(cell => {
-      if (!cell.hasAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
-        let isHeaderRow = true;
-        
-        rows.forEach(row => {
-          const rowCells = row.querySelectorAll('td, th');
-          if (rowCells[cellIndex] !== cell) {
-            isHeaderRow = false;
-          }
-        });
-        
-        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
-      }
+      const rows = table.querySelectorAll('tr');
+      const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+      let isHeaderRow = true;
+      
+      rows.forEach(row => {
+        const rowCells = Array.from(row.querySelectorAll('th, td'));
+        if (rowCells[cellIndex] !== cell) {
+          isHeaderRow = false;
+        }
+      });
+      
+      cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
     });
   });
 }
@@ -221,7 +223,7 @@ function fixTableHeaderCellScope() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
-    if (!main.hasAttribute('role')) {
+    if (!main.getAttribute('role')) {
       main.setAttribute('role', 'main');
     }
   });
@@ -245,7 +247,7 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = `svg-title-${index + 1}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
@@ -257,7 +259,7 @@ function addSvgAccessibleNames() {
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function ensureUniqueLandmarksFromInsightReport(insightReport) {
+function processUniqueLandmarkIssues(insightReport) {
   const issues = insightReport.issues || [];
   let uniqueLandmarks = {};
 
@@ -290,7 +292,7 @@ function implementNewFunction() {
   fixTableStructureIssues();
   addMainLandmark();
   fixTableHeaderCellScope();
-  improveAccessibility();
+  addSvgAccessibleNames();
 }
 
 // Existing code preserved below
@@ -306,8 +308,8 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  ensureUniqueLandmarksFromInsightReport,
-  addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  fixTableStructureIssues,
+  fixTableHeaderCellScope,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,
@@ -319,7 +321,10 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  addLandmarkRolesAndFixIssues,
+  fixLandmarkIssues,
+  processUniqueLandmarkIssues
 };
 
 // Execute main function

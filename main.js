@@ -63,7 +63,7 @@ const myNewFunction = () => {
   console.log('myNewFunction has been executed');
 };
 
-// Function to ensure unique landmarks
+// Function to ensure unique landmarks - addresses accessibility by preventing duplicate landmark identifiers
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     throw new TypeError('Input must be an array of landmarks');

@@ -42,7 +42,7 @@ function uniqueLandmarks(landmarks) {
  * @returns {string} - the full language attribute with region (if provided)
  */
 function getFullLangAttribute() {
-    return document.documentElement.lang || '';
+    return document.documentElement.lang || 'en';
 }
 
 // Add a new function: addProperButtonId
@@ -85,9 +85,8 @@ module.exports = {
   addProperAccountManagement,
   addAriaToFormControls,
   replaceMyButtonIdAndAddSpecialClass, // Update the existing export with the newer replaceMyButtonId function
-  getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
-  addProperButtonId // Add the new function as a new export
+  addProperButtonId
 };

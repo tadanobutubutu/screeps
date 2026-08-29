@@ -1,4 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+
 import { requiredModule } from './required-module.js';
+import dependencyGraphContent from './dependencyGraph';
 
 function addLandmarkRegions() {
   const container = document.getElementById('landmark-regions-container');

@@ -20,8 +20,44 @@ function handleAccessibilityIssues() {
   ensureUniqueLandmarks();
 }
 
+// Implement function for addressing accessibility issues from insight report
+function addressAccessibilityIssuesFromInsightReport() {
+  // Address accessibility issues identified in the insight report
+  // Ensure lang attribute is properly set for accessibility
+  getLangAttribute();
+  
+  // Wrap primary content in main element for proper landmark identification
+  wrapPrimaryContentInMain();
+  
+  // Validate and fix table accessibility issues
+  validateTableAccessibility();
+  validateTableStructure();
+  
+  // Validate and fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+  addFixLandmarkIssues();
+  ensureUniqueLandmarks();
+  
+  // Ensure SVG elements have accessible names
+  getSvgAccessibleName();
+  
+  // Create accessible links where needed
+  createAccessibleLink();
+  
+  // Add proper landmark regions for better screen reader navigation
+  addProperLandmarkRegions();
+  
+  // Add ARIA attributes to SVGs for better accessibility
+  addAriaLabelledbyToSVGs();
+  addAriaLabelToSVGs();
+}
+
 // Call the new function to handle accessibility issues
 handleAccessibilityIssues();
+
+// Call the insight report accessibility function
+addressAccessibilityIssuesFromInsightReport();
 
 // Keep the existing exports
 // ...

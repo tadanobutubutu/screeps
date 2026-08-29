@@ -17,9 +17,21 @@ function displayModuleStructure(modules) {
   return {};
 }
 
+// Ensure unique landmarks
+function ensureUniqueLandmarks(landmarks) {
+  // If landmarks is not an array, return empty array
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+  // Using Set to filter duplicates; works for primitive values.
+  // For objects, a more advanced comparator would be needed.
+  return [...new Set(landmarks)];
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
+  ensureUniqueLandmarks,
   loop: function () {
     // Resolve merged bot logic for Screeps
     for (let name in Game.creeps) {

@@ -1,6 +1,3 @@
-// TODO: Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-
 /**
  * Creates an in-page button element with optional click handler.
  * @param {string} buttonText - The label text for the button

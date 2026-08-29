@@ -6,7 +6,17 @@ interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
+// functionA
+export function functionA() {
+  // Implementation for functionA
+}
+
+// functionB
+export function functionB() {
+  // Implementation for functionB
+}
+
+const Dashboard: ... = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -51,9 +61,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => setErrCopyHover(false)}
+          onMouseLeave={() => ...
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => setErrCopyHover(false)}
+          onBlur={() => ...
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities
 
 function multiply(a, b) {
@@ -42,9 +39,12 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
+        let sources = creep.room.find(FIND_SOURCES);
+        if (sources.length > 0) {
+          let source = sources[0];
+          if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(source);
+          }
         }
       }
     }
@@ -60,6 +60,3 @@ module.exports = {
   displayModuleStructure,
   loop
 };
-```
-
-This resolution combines both changes, adding dependency graph rendering and module structure display functionalities to the utility library while preserving the original functions and introducing the bot logic loop.

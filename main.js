@@ -4,16 +4,20 @@
 // Sample main.js with dependencyGraph container
 function renderDependencyGraph() {
   const container = document.getElementById('dependencyGraph');
-  
+
   if (container) {
     container.setAttribute('role', 'region');
     container.setAttribute('aria-label', 'Dependency graph visualization');
   }
-  
+
   return container;
 }
 
-// TODO: Implement the new function as per the issue requirements
+// Implement the new function as per the issue requirements
+function handleAccessibility() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  renderDependencyGraph();
+}
 
 /**
  * Implements the new feature as required by the issue.
@@ -29,5 +33,6 @@ function implementNewFunction(input) {
 
 module.exports = {
   renderDependencyGraph,
-  implementNewFunction
+  implementNewFunction,
+  handleAccessibility // New export for handling accessibility
 };

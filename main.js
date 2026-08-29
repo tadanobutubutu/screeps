@@ -81,8 +81,21 @@ const functionB = {
   Z: functionZb, // Do not remove or rename this export
 };
 
+// New functions to export
+function newFunction1() {
+  // ... (Implement newFunction1)
+}
+
+function newFunction2() {
+  // ... (Implement newFunction2)
+}
+
 module.exports = {
   setLanguageAttribute,
+  initApp,
+  displayModuleStructure,
   functionA,
-  functionB
+  functionB,
+  newFunction1,
+  newFunction2
 };

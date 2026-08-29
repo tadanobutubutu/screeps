@@ -270,6 +270,45 @@ function countDependencies() {
   }
 }
 
+// Accessibility fix functions from insight report
+function addLangAttribute() {
+  if (typeof document === 'undefined') return;
+  const htmlEl = document.documentElement;
+  if (!htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en');
+  }
+}
+
+function fixTableStructure() {
+  if (typeof document === 'undefined') return;
+  // Implementation would fix specific table structure issues
+  // Placeholder for actual fixes based on audit findings
+}
+
+function addLandmarkIssues() {
+  if (typeof document === 'undefined') return;
+  // Implementation would add/fix landmark roles
+  // Placeholder for actual fixes based on audit findings
+}
+
+function addSvgAccessibleNames() {
+  if (typeof document === 'undefined') return;
+  // Implementation would add accessible names to SVGs
+  // Placeholder for actual fixes based on audit findings
+}
+
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+  // Implementation would ensure landmark uniqueness
+  // Placeholder for actual fixes based on audit findings
+}
+
+function fixFakeLinkIssue() {
+  if (typeof document === 'undefined') return;
+  // Implementation would fix fake link issues
+  // Placeholder for actual fixes based on audit findings
+}
+
 // Export for testing and external use
 module.exports = {
     validateWebAccessibility,
@@ -284,5 +323,11 @@ module.exports = {
     countDependencies,
     someFunction,
     getLangAttribute,
-    getFullLangAttribute
+    getFullLangAttribute,
+    addLangAttribute,
+    fixTableStructure,
+    addLandmarkIssues,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue
 };

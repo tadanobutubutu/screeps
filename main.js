@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// TODO: This is the existing code that needs to be preserved
+function main() {
+  // Entry point for the screeps bot
+  console.log('Running screeps main');
+}
+
+main();
+
+module.exports = { main };

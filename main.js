@@ -59,7 +59,8 @@ const main = {
 
   // Add the new function or change here:
   myNewFunction: function() {
-    // your new function logic goes here
+    // Implementation of the new function
+    return true;
   }
 };
 

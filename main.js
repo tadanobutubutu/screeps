@@ -1,5 +1,8 @@
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
 
 // Main game logic for Screeps
 const main = {

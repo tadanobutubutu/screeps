@@ -853,6 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
+  accessibilityCheckTables();
 });
 
 /**

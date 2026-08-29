@@ -2,12 +2,30 @@
 // index views.
 
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 interface DashboardProps {
   // Define any props the Dashboard component might receive
 }
 
-const Dashboard: ... = (props) => {
+const Main = ({ children, title, lang = 'en' }) => {
+  return (
+    <main lang={lang}>
+      {title && <h1>{title}</h1>}
+      {children}
+    </main>
+  );
+};
+
+Main.propTypes = {
+  children: PropTypes.node,
+  title: PropTypes.string,
+  lang: PropTypes.string,
+};
+
+export { Main };
+
+const Dashboard: React.FC<DashboardProps> = (props) => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -51,7 +69,7 @@ const Dashboard: ... = (props) => {
   };
 
   return (
-    <main role="main" ...
+    <Main role="main">
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         {error && (
@@ -74,9 +92,9 @@ const Dashboard: ... = (props) => {
           type="button"
           onClick={copyErr}
           onMouseEnter={() => setErrCopyHover(true)}
-          onMouseLeave={() => ...
+          onMouseLeave={() => setErrCopyHover(false)}
           onFocus={() => setErrCopyHover(true)}
-          onBlur={() => ...
+          onBlur={() => setErrCopyHover(false)}
           aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
           aria-pressed={copied}
           title={copied ? 'コピー済み' : 'エラーをコピー'}
@@ -127,8 +145,9 @@ const Dashboard: ... = (props) => {
           <span> {refreshing ? '再試行中...' : '再試行'}</span>
         </button>
       </div>
-    </main>
+    </Main>
   );
 };
 
 export default Dashboard;
+export { Dashboard };

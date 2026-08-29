@@ -118,6 +118,24 @@ if (document.readyState === 'loading') {
   initializeAccessibility();
 }
 
+function wrapPrimaryContentInMain() {
+  // Wrap the primary content in a main element if it's not already wrapped
+  const primaryContent = document.getElementById('primary-content');
+  if (primaryContent && !primaryContent.closest('main')) {
+    const mainElement = document.createElement('main');
+    mainElement.setAttribute('role', 'main');
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
+  }
+}
+
+// Ensure that the primary content is wrapped in a main element when the DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', wrapPrimaryContentInMain);
+} else {
+  wrapPrimaryContentInMain();
+}
+
 return table;
 
 function addMainLandmark(rootElement) {
@@ -217,5 +235,6 @@ module.exports = {
   addSvgAccessibleNames,
   fixFakeLinkIssue,
   addLangAttribute,
-  fixTableStructure
+  fixTableStructure,
+  wrapPrimaryContentInMain
 };

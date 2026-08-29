@@ -108,6 +108,22 @@ ensureElementHasId(myElement);
 // Add aria-label to the element ( common changes )
 addAriaLabel(myElement, 'A descriptive text for myElement');
 
+// Ensure element has an ID
+function ensureElementHasId(element) {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}`;
+  }
+  return element;
+}
+
+// Add ARIA label to element
+function addAriaLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+}
+
 /**
  * Address accessibility issues from the insight report
  * Applies all relevant accessibility fixes to the document
@@ -221,11 +237,6 @@ function fixFakeLinkIssues(doc) {
     }
   });
 }
-
-/**
- * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on */
-// Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
 
 /**
  * Add proper landmark regions to the document
@@ -466,6 +477,31 @@ function getFullLangAttribute(doc) {
   return getFullLangAttributeImpl(doc);
 }
 
+// Landmark helper functions
+function filterLandmarks(doc) {
+  const landmarks = doc.querySelectorAll('main, nav, aside, header, footer, [role]');
+  return Array.from(landmarks).filter(el => el.getAttribute('role') || ['main', 'nav', 'aside', 'header', 'footer'].includes(el.tagName.toLowerCase()));
+}
+
+function sortLandmarksByName(landmarks) {
+  return Array.from(landmarks).sort((a, b) => {
+    const nameA = a.getAttribute('aria-label') || a.id || a.tagName;
+    const nameB = b.getAttribute('aria-label') || b.id || b.tagName;
+    return nameA.localeCompare(nameB);
+  });
+}
+
+function addRequiredLandmarks(doc) {
+  const required = ['main', 'nav'];
+  required.forEach(role => {
+    if (!doc.querySelector(`[role="${role}"], ${role}`)) {
+      const el = doc.createElement(role === 'main' ? 'main' : 'nav');
+      if (role === 'nav') el.setAttribute('role', 'navigation');
+      doc.body.appendChild(el);
+    }
+  });
+}
+
 // ... (The rest of the existing functions and exports remain unchanged)
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
@@ -495,9 +531,9 @@ module.exports = {
   fixFakeLinkIssues,
   // Exports from the right side
   findIndex,
-  filterLandmarks: originalFilterLandmarks,
-  sortLandmarksByName: originalSortLandmarksByName,
-  addRequiredLandmarks: originalAddRequiredLandmarks,
+  filterLandmarks,
+  sortLandmarksByName,
+  addRequiredLandmarks,
   addressAccessibilityIssues,
   ensureElementHasId,
   addAriaLabel,

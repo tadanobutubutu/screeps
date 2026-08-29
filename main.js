@@ -1,4 +1,4 @@
-// Main application file
+// TODO: This is the existing code that needs to be preserved
 
 // Function to calculate distance between two points
 function calculateDistance(point1, point2) {

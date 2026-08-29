@@ -77,6 +77,3 @@ module.exports = {
     a11yStore,
     mainElement
 };
-```
-
-This version of the file integrates both changes, keeps the accessibility improvements and the imported functions, and preserves the game-related functions and exports.

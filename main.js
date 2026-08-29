@@ -60,9 +60,80 @@ function setLanguageAttribute(languageCode) {
 // Default language setting
 setLanguageAttribute('en');
 
+/**
+ * Gets the accessible name for an SVG element
+ * @param {SVGElement} svgElement - The SVG element to get the accessible name for
+ * @param {string} context - Optional context to help generate a descriptive name
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svgElement, context = '') {
+  if (!svgElement) {
+    return '';
+  }
+
+  // Check if the SVG already has an aria-label
+  const existingAriaLabel = svgElement.getAttribute('aria-label');
+  if (existingAriaLabel) {
+    return existingAriaLabel;
+  }
+
+  // Check for a title element within the SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent) {
+    return titleElement.textContent.trim();
+  }
+
+  // Generate a descriptive name based on context if provided
+  if (context) {
+    return context;
+  }
+
+  // Check for an id that might indicate purpose
+  if (svgElement.id) {
+    return svgElement.id.replace(/[-_]/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  // Default fallback
+  return 'Decorative SVG image';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svgElement - The SVG element to set attributes on
+ * @param {string} accessibleName - Optional accessible name (if not provided, will be generated)
+ * @returns {void}
+ */
+function setSvgAttributes(svgElement, accessibleName) {
+  if (!svgElement) {
+    return;
+  }
+
+  // Get the accessible name if not provided
+  const name = accessibleName || getSvgAccessibleName(svgElement);
+
+  // Set aria-label with the accessible name
+  svgElement.setAttribute('aria-label', name);
+
+  // Ensure the SVG has a role attribute for better accessibility
+  svgElement.setAttribute('role', 'img');
+
+  // Check if SVG has a title element, if not add one for additional support
+  let titleElement = svgElement.querySelector('title');
+  if (!titleElement) {
+    titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = name;
+    // Insert title as first child for proper accessibility
+    if (svgElement.firstChild) {
+      svgElement.insertBefore(titleElement, svgElement.firstChild);
+    } else {
+      svgElement.appendChild(titleElement);
+    }
+  }
+}
+
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('container');
   
   // Create heading
   const h1 = document.createElement('h1');
@@ -139,7 +210,7 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        let source = Game.getObjectById(creep.memory.sourceId);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -164,5 +235,7 @@ module.exports = {
   displayModuleStructure,
   functionA,
   functionB,
-  loop
+  loop,
+  getSvgAccessibleName,
+  setSvgAttributes
 };

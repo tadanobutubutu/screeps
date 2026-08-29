@@ -23,13 +23,13 @@ function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name || JSON.stringify(landmark);
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -38,9 +38,13 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
-// Export functions for testing
-module.exports = {
+// Add the lang attribute to the exports object
+const exportsObject = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  lang: 'en' // Add the requested lang attribute
 };
+
+// Export updated object as module.exports
+module.exports = exportsObject;

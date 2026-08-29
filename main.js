@@ -16,7 +16,6 @@ const {
   validateTableStructure,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  createInPageButton,
   createAccessibleLink,
 } = require('./accessibilityHelperFunctions');
 
@@ -353,6 +352,82 @@ function isLinkAccessible(link) {
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
 }
 
+/**
+ * Creates an accessible in-page button element.
+ * This function addresses REACT_015 (lang attribute) and REACT_036 (fake link issues).
+ * @param {Object} options - Button configuration options
+ * @param {string} options.text - Button text content
+ * @param {string} [options.ariaLabel] - Accessible label for screen readers
+ * @param {string} [options.type='button'] - Button type (button, submit, reset)
+ * @param {Function} [options.onClick] - Click event handler
+ * @param {string} [options.id] - Unique identifier for the button
+ * @param {string} [options.className] - CSS class name(s)
+ * @param {boolean} [options.disabled=false] - Whether the button is disabled
+ * @param {Object} [options.attributes] - Additional HTML attributes
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(options = {}) {
+  const {
+    text = '',
+    ariaLabel,
+    type = 'button',
+    onClick,
+    id,
+    className,
+    disabled = false,
+    attributes = {}
+  } = options;
+
+  // Create the button element
+  const button = document.createElement('button');
+  
+  // Set button type
+  button.setAttribute('type', type);
+  
+  // Set text content
+  if (text) {
+    button.textContent = text;
+  }
+  
+  // Set aria-label if provided (for accessibility when no visible text)
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  
+  // Set id if provided
+  if (id) {
+    button.setAttribute('id', id);
+  }
+  
+  // Set class name if provided
+  if (className) {
+    button.className = className;
+  }
+  
+  // Set disabled state
+  if (disabled) {
+    button.setAttribute('disabled', 'true');
+    button.disabled = true;
+  }
+  
+  // Add additional attributes
+  Object.entries(attributes).forEach(([key, value]) => {
+    button.setAttribute(key, value);
+  });
+  
+  // Attach click handler if provided
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Ensure button has accessible name (text content or aria-label)
+  if (!text && !ariaLabel) {
+    console.warn('createInPageButton: Button created without accessible name. Provide text or ariaLabel for accessibility.');
+  }
+  
+  return button;
+}
+
 // Exports
 module.exports = {
     main,
@@ -374,5 +449,6 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    createInPageButton
 };

@@ -17,4 +17,4 @@ const { subtract } = require('./mathHelpers');
 const { multiply } = require('./mathHelpers');
 const { divide } = require('./mathHelpers');
 const { power } = require('./mathHelpers');
-const { squareRoot } =
+const { squareRoot } = require('./mathHelpers');

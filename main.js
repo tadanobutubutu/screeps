@@ -40,3 +40,23 @@ module.exports.loop = function() {
         }
     }
 }
+
+function validateLandmark(landmark) {
+    if (!landmark) {
+        return false;
+    }
+    return landmark && !landmark.spawning;
+}
+
+function validateLandmarkStructure(landmark) {
+    if (!landmark) {
+        return false;
+    }
+    if (landmark.structureType) {
+        return true;
+    }
+    return false;
+}
+
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;

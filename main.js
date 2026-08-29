@@ -200,9 +200,47 @@ function addMainLandmark() {
       main.setAttribute('role', 'main');
       while (content.firstChild) {
         main.appendChild(content.firstChild);
-=======
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
+      }
+      content.parentNode.insertBefore(main, content);
+      // If the content element is empty now, we could remove it, but keeping it for safety
+    }
+  }
+}
+
+// Add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const title = svg.querySelector('title');
+    if (title) {
+      const titleId = `svg-title-${index}`;
+      title.setAttribute('id', titleId);
+      svg.setAttribute('aria-labelledby', titleId);
+    } else {
+      const title = document.createElement('title');
+      title.textContent = `SVG graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
+// New function to implement accessibility fixes
+function implementNewFunction() {
+  addressAccessibilityIssues();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableHeaderCellScope();
+}
+
+// Existing code preserved below
+function applicationMain() {
+  console.log('Running main application');
+  return someFunction();
+}
 
 // Main game logic for Screeps
 const main = {
@@ -265,42 +303,6 @@ const main = {
     // your new function logic goes here
   }
 };
->>>>>>> origin/main
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = `svg-title-${index}`;
-      title.setAttribute('id', titleId);
-      svg.setAttribute('aria-labelledby', titleId);
-    } else {
-      const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
-}
-
-// New function to implement accessibility fixes
-function implementNewFunction() {
-  addressAccessibilityIssues();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableHeaderCellScope();
-}
-
-// Existing code preserved below
-function applicationMain() {
-  console.log('Running main application');
-  return someFunction();
-}
 
 // Export all functions for use elsewhere in the repository
 module.exports = {

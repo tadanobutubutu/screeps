@@ -36,6 +36,29 @@ function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Function to count dependencies (from origin/main)
+function countDependencies(obj) {
+  let count = 0;
+  const funcNames = [];
+  
+  function traverse(currentObj) {
+    for (const key in currentObj) {
+      if (typeof currentObj[key] === 'object' && currentObj[key] !== null) {
+        traverse(currentObj[key]);
+      } else if (typeof currentObj[key] === 'function') {
+        let funcName = currentObj[key].name || '<anonymous>';
+        if (!funcNames.includes(funcName)) {
+          funcNames.push(funcName);
+          count++;
+        }
+      }
+    }
+  }
+  
+  traverse(obj);
+  return count;
+}
+
 // Accessibility store implementation (from origin/main)
 const a11yStore = {
   liveRegion: null,
@@ -279,6 +302,7 @@ module.exports = {
   reverseString: reverseString,
   isEven: isEven,
   capitalizeFirst: capitalizeFirst,
+  countDependencies: countDependencies,
   a11yStore: a11yStore,
   addressAccessibilityIssues: addressAccessibilityIssues,
   updateLiveRegion: a11yStore.updateLiveRegion,
@@ -298,4 +322,5 @@ export { a11yStore.enhanceSVGElements as enhanceSVGElements };
 export { a11yStore.preserveExistingCode as preserveExistingCode };
 export { a11yStore.prefersReducedMotion as prefersReducedMotion };
 export { a11yStore.prefersHighContrast as prefersHighContrast };
+export { countDependencies };
 export default a11yStore;

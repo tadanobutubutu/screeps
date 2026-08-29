@@ -129,18 +129,70 @@ function addProperLandmarkRegions() {
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure
 
   // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
   }
+}
+
+// Existing function for rendering graph/index - updated to use new accessibility functions
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+function renderGraphIndex(data, options = {}) {
+  // Original rendering logic
+  const container = options.container || document.getElementById('graph-container');
+  
+  if (!container) {
+    console.error('Graph container not found');
+    return null;
+  }
+  
+  // Process data for rendering
+  const processedData = processData(data);
+  
+  // Apply accessibility improvements using new functions
+  const langAttr = getLangAttribute();
+  addLangAttribute(document.documentElement);
+  
+  // Validate and fix table structure if applicable
+  validateTableAccessibility();
+  validateTableStructure();
+  fixTableStructure();
+  
+  // Add landmark improvements
+  addMainLandmark();
+  validateLandmark();
+  validateLandmarkStructure();
+  validateLandmarkAttributes();
+  ensureUniqueLandmarks();
+  addProperLandmarkRegions();
+  
+  // Handle SVG accessibility
+  const svgElements = container.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName();
+    setSvgAttributes(svg, accessibleName);
+  });
+  
+  // Handle link accessibility
+  validateLinkAccessibility();
+  handleFakeLinks();
+  
+  // Create in-page navigation button
+  createInPageButton();
+  
+  // Return processed data for rendering
+  return {
+    container,
+    data: processedData,
+    lang: langAttr
+  };
 }
 
 // - REACT_041: Add accessible names to 2 SVGs
@@ -210,5 +262,6 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  renderGraphIndex
 };

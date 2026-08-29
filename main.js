@@ -71,9 +71,9 @@ function getRecommendation(issueType) {
  * @param {string} svgString - The SVG string to fix
  * @returns {string} - SVG string with accessible name added
  */
-function fixSvgAccessibleName(svgString) {
+function fixReactSvgAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
-  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('aria-describedby')) {
+  if (!svgString || typeof svgString !== 'string' || !svgString.includes('<svg')) {
     return svgString;
   }
 
@@ -83,8 +83,7 @@ function fixSvgAccessibleName(svgString) {
   const svgRoot = tempSVG.documentElement;
 
   // Check if the SVG is decorative and does not need an accessible name
-  const parentEl = svgRoot.parentElement;
-  const isDecorative = parentEl && (parentEl.tagName === 'button' || parentEl.tagName === 'input' || parentEl.tagName === 'textarea' || parentEl.tagName === 'select' || (parentEl.tagName === 'audio' && parentEl.hasAttribute('controls')) || (parentEl.tagName === 'video' && parentEl.hasAttribute('controls')));
+  const isDecorative = svgRoot.closest('button, input, textarea, select, audio[controls], video[controls]');
   if (isDecorative) {
     return svgString.replace('<svg', '<svg aria-hidden="true"');
   }
@@ -114,21 +113,16 @@ const {
   validateTableAccessibility,
   validateTableStructure,
   createInPageButton,
-  createAccessibleLink,
-} = ...
+  createAccessibleLink
+} = require('./accessibility-utils');
 
 const version = "1.0.0";
 
-const { class1, function1, Object1 } = ...
-
 const a11yStore = {
   init() {
-    ...
-    ...
-    ...
+    this.setupAccessibility();
     this.setupSkipLinks();
-    ...
-    ...
+    this.setupFocusManagement();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -261,7 +255,9 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.querySelector('main') || wrapPrimaryContentInMain();
+const mainElement = document.querySelector('main') || document.createElement('main');
+document.documentElement.setAttribute('lang', document.documentElement.lang || 'en');
+
 if (!document.documentElement.lang) {
   document.documentElement.setAttribute('lang', 'en');
 }
@@ -276,7 +272,11 @@ function ensureUniqueLandmarks() {
     '[role="contentinfo"]'
   ];
   
-  const landmarkElements = document.querySelectorAll(landmarkSelectors.join(','));
+  const landmarkElements = [];
+  landmarkSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => landmarkElements.push(el));
+  });
+  
   const ids = new Set();
   
   landmarkElements.forEach(el => {
@@ -309,4 +309,48 @@ function wrapPrimaryContentInMain() {
   mainElement = document.createElement('main');
   mainElement.id = 'main-content';
 
-  const
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (!elementsToExclude.includes(child) && child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE') {
+      mainElement.appendChild(child);
+    }
+  });
+
+  document.body.insertBefore(mainElement, document.body.firstChild);
+
+  return mainElement;
+}
+
+function checkLandmarkElement(role, element) {
+  const validLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  if (!validLandmarks.includes(role)) {
+    return { valid: false, message: `Invalid landmark role: ${role}` };
+  }
+  return { valid: true, element };
+}
+
+function validateLandmark(element) {
+  const role = element.getAttribute('role');
+  return checkLandmarkElement(role, element);
+}
+
+function validateLandmarkStructure() {
+  const requiredLandmarks = ['main'];
+  const issues = [];
+  
+  requiredLandmarks.forEach(landmark => {
+    if (!document.querySelector(landmark) && !document.querySelector(`[role="${landmark}"]`)) {
+      issues.push({
+        type: 'missing-landmark',
+        message: `Missing required landmark: ${landmark}`
+      });
+    }
+  });
+}
+
+const mainContent = mainElement || wrapPrimaryContentInMain();
+if (!mainContent) {
+  mainContent = document.createElement('main');
+  mainContent.id = 'main-content';
+  document.body.appendChild(mainContent);
+}

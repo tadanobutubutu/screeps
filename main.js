@@ -454,25 +454,21 @@ export function checkTableStructure(html) {
 
 // Export all functions for use in tests and other parts of the application
 export {
-  newFunction,
-  wrapPrimaryContentInMain,
-  addSkipLink,
-  getAccessibleName,
-  setAccessibleName,
-  addProperLandmarkRegions,
   addressAccessibilityIssues,
+  getLangAttribute,
+  createInPageButton,
 };
 
 // New functions to be added (DOM-based implementations for runtime use)
-const addLangAttribute = (document) => {
+export function addLangAttributeDocument(document) {
   const html = document.documentElement;
   if (html && !html.lang) {
     html.lang = 'en';
   }
   return document;
-};
+}
 
-const fixTableStructureIssues = (document) => {
+export function fixTableStructureIssuesDocument(document) {
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
     if (!table.querySelector('thead')) {
@@ -504,9 +500,9 @@ const fixTableStructureIssues = (document) => {
     });
   });
   return document;
-};
+}
 
-const ensureUniqueLandmarks = (document) => {
+export function ensureUniqueLandmarksDocument(document) {
   const landmarkTypes = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'];
   const usedIds = new Set();
 
@@ -525,9 +521,9 @@ const ensureUniqueLandmarks = (document) => {
       }
     });
   });
-};
+}
 
-const addSvgAccessibleNames = (document) => {
+export function addSvgAccessibleNamesDocument(document) {
   const svgs = document.querySelectorAll('svg');
   let svgIndex = 0;
   svgs.forEach((svg) => {
@@ -541,9 +537,9 @@ const addSvgAccessibleNames = (document) => {
     svgIndex++;
   });
   return document;
-};
+}
 
-const fixFakeLinkIssue = (document) => {
+export function fixFakeLinkIssueDocument(document) {
   const fakeLinks = document.querySelectorAll('a:not([href])');
   fakeLinks.forEach(link => {
     // Add role="link" to ensure it's recognized as a link by screen readers
@@ -560,4 +556,4 @@ const fixFakeLinkIssue = (document) => {
     }
   });
   return document;
-};
+}

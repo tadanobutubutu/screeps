@@ -4,7 +4,6 @@ function addProperLandmarkRegions() {
     header.setAttribute('role', 'banner');
   }
 
-  // Function to ensure all SVG elements have accessible names
   const ensureSvgAccessibleNames = () => {
     if (typeof document === 'undefined' || !document.body) {
       return;
@@ -51,7 +50,6 @@ function addProperLandmarkRegions() {
     });
   };
 
-  // Function to handle updating accessible SVG names when DOM mutates
   const updateAccessibleSvgNames = () => {
     setTimeout(() => {
       ensureSvgAccessibleNames();
@@ -60,7 +58,6 @@ function addProperLandmarkRegions() {
 
   ensureSvgAccessibleNames();
 
-  // Run again after DOM mutations
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(() => {
       updateAccessibleSvgNames();
@@ -76,7 +73,6 @@ function addProperLandmarkRegions() {
     }
   }
 
-  // - REACT_017: Add/fix 4 landmark issues
   const landmarks = document.querySelectorAll('.landmark');
   landmarks.forEach((landmark) => {
     // Assuming you know which ARIA roles are correct for your landmarks
@@ -84,7 +80,6 @@ function addProperLandmarkRegions() {
   });
 }
 
-// Implement function to add aria-labelledby to SVGs with title elements
 function addAriaLabelledbyToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -96,7 +91,6 @@ function addAriaLabelledbyToSVGs() {
   });
 }
 
-// Implement function to add aria-label to SVGs without title elements
 function addAriaLabelToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
@@ -107,11 +101,3 @@ function addAriaLabelToSVGs() {
     }
   });
 }
-
-// Remove duplicate non-decorative SVGs accessibility fix as it's already handled in ensureSvgAccessibleNames
-// - REACT_041: Add accessible names to 2 SVGs
-// These are decorative favicon SVGs, so marking them as hidden from assistive tech
-// const svg1 = document.querySelector('#svg1');
-// const svg2 = document.querySelector('#svg2');
-// if (svg1) svg1.setAttribute('aria-hidden', 'true');
-// if (svg2) svg2.setAttribute('aria-hidden', 'true');

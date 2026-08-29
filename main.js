@@ -26,7 +26,9 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  const generatedId = `${prefix}-${timestamp}-${random}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -57,7 +59,7 @@ function addAriaLabel(element, label) {
  * @param {string} languageCode - The language code (e.g., 'en', 'es', 'fr')
  */
 function setLanguageAttribute(languageCode) {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', languageCode);
   }
@@ -68,7 +70,7 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('dependencyGraph');
   
   // Create heading
   const h1 = document.createElement('h1');
@@ -127,10 +129,43 @@ const functionA = {
 };
 
 // TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-function renderDependencyGraph(modules) {
+/**
+ * Renders a dependency graph with proper accessibility attributes
+ * @param {Array} modules - Array of modules to render in the dependency graph
+ * @returns {HTMLElement} The container element with the rendered dependency graph
+ */
+function renderDependencyGraph(modules = []) {
+  // Create the main container for the dependency graph with proper ARIA role
+  const container = document.createElement('div');
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+  ensureElementHasId(container, 'dependency-graph');
+  addAriaLabel(container, 'Visual representation of module dependencies');
+  
+  // Create a description element for screen readers
+  const description = document.createElement('div');
+  description.setAttribute('role', 'description');
+  description.setAttribute('aria-live', 'polite');
+  description.style.position = 'absolute';
+  description.style.width = '1px';
+  description.style.height = '1px';
+  description.style.padding = '0';
+  description.style.margin = '-1px';
+  description.style.overflow = 'hidden';
+  description.style.clip = 'rect(0, 0, 0, 0)';
+  description.style.whiteSpace = 'nowrap';
+  description.style.border = '0';
+  
+  if (modules.length > 0) {
+    description.textContent = `Dependency graph contains ${modules.length} modules: ${modules.join(', ')}`;
+  } else {
+    description.textContent = 'Dependency graph is empty';
+  }
+  container.appendChild(description);
+  
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
-  return {};
+  return container;
 }
 
 function displayModuleStructure(modules) {
@@ -145,7 +180,7 @@ function loop() {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        let source = creep.pos.findClosestByPath(FIND_SOURCES);
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }

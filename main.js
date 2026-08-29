@@ -1,3 +1,4 @@
+// ✅ Functions are accessible via module.exports
 /**
  * Checks landmark elements on the page for accessibility
  * @returns {Object} An object containing landmark analysis results
@@ -14,7 +15,6 @@ function checkLandmarkElements() {
     'article, [role="article"]',
     'form[aria-label], form[aria-labelledby], [role="form"]',
     'search, [role="search"]',
-    '[role="application"]',
     '[role="banner"]',
     '[role="contentinfo"]'
   ];
@@ -61,21 +61,21 @@ function checkLandmarkElements() {
   if (mainLandmarks.length === 0) {
     result.warnings.push('No main landmark found. Pages should have exactly one main landmark for accessibility.');
   } else if (mainLandmarks.length > 1) {
-    result.warnings.push(`Found ${mainLandmarks.length} main landmarks. Consider having only one main landmark.`);
+    result.warnings.push('Multiple main landmarks. Consider having only one main landmark.');
   }
 
   const navLandmarks = result.landmarks.filter(l => l.type === 'navigation' || l.tagName === 'nav');
   if (navLandmarks.length > 5) {
     const unnamedNavs = navLandmarks.filter(n => !n.hasAccessibleName);
     if (unnamedNavs.length > 1) {
-      result.warnings.push(`Found ${navLandmarks.length} navigation landmarks. Consider adding aria-label to distinguish them.`);
+      result.warnings.push('Multiple navigation landmarks. Consider adding aria-label to distinguish them.');
     }
   }
 
   // Check for sections without accessible names
   const sections = result.landmarks.filter(l => l.tagName === 'section' && !l.hasAccessibleName);
   if (sections.length > 3) {
-    result.warnings.push(`${sections.length} sections without accessible names found. Consider adding aria-label or aria-labelledby.`);
+    result.warnings.push('Multiple sections without accessible names found. Consider adding aria-label or aria-labelledby.');
   }
 
   return result;

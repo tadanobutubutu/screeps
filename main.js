@@ -44,7 +44,6 @@ fs.readdirSync(viewsDir)
     const filePath = path.join(viewsDir, file);
     updateThScopeAttribute(filePath);
   });
-}
 
 // Start the game loop
 Module.onInit = function() {

@@ -109,8 +109,8 @@ function modifiedFunction() {
 }
 
 module.exports = {
-  validateLandmark,
   checkTableData,
+  validateLandmark,
   initialize,
   getAppState,
   setData,

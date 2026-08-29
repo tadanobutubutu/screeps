@@ -7,6 +7,32 @@
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 
+const React = require('react');
+const ReactDOM = require('react-dom');
+const Landmark = require('./Landmark');
+
+import './styles.css';
+import { initializeApp, appData } from './app.js';
+import { registerSW } from 'effector-sw';
+import { appStarted } from './events/appStarted.js';
+
+// Ensure the Landmark component is required
+// const Landmark = require('./Landmark');
+
+// Re-add the required exports for functionA and functionB
+const functionA = {
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
+};
+
+const functionB = {
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
+};
+
+/* Accessibility functions from HEAD */
 function getLangAttribute() {
   return document.documentElement.lang || 'en';
 }
@@ -55,14 +81,111 @@ function getSvgAccessibleName(svg) {
   return '';
 }
 
-function createInPageButton(text, onClick) {
+/* Plain JS in-page button (legacy) */
+function createDomInPageButton(text, onClick) {
   const button = document.createElement('button');
   button.textContent = text;
   button.addEventListener('click', onClick);
   return button;
 }
 
-// New function as per the issue
+/* React UI functions from second part */
+function createInPageButton(options) {
+  /**
+   * @param {Object} options
+   * @param {Function} options.onClick
+   * @param {string} options.label
+   * @param {string} options.icon
+   * @param {boolean} [options.disabled]
+   * @param {boolean} [options.isActive]
+   * @param {boolean} options.hoverState
+   * @param {Function} options.setHoverState
+   * @param {string} [options.ariaLabel]
+   * @param {string} [options.title]
+   */
+  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+
+  const getBackgroundColor = () => {
+    if (disabled) return '#999';
+    if (isActive) return '#155d27';
+    return '#004b73';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+      aria-label={ariaLabel || label}
+      aria-pressed={isActive}
+      title={title || label}
+      onMouseEnter={() => setHoverState(true)}
+      onMouseLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
+      style={{
+        backgroundColor: getBackgroundColor(),
+        color: 'white',
+        padding: '0.5rem 1rem',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease-in-out',
+        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none',
+      }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span> {label}</span>
+    </button>
+  );
+}
+
+// Placeholder for the affected SVGs
+const icons = {};
+
+/* Functions for landmark handling (second part) */
+const landmarkStructureCheck = (landmark) => {
+  // Check landmark properties here
+  // ...
+  return true; // Add your own check logic
+};
+
+const ensureUniqueLandmarks = (landmarks) => {
+  // Add your own unique landmark logic here
+  // ...
+  return landmarks;
+};
+
+function processLandmarks(landmarks) {
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+  return uniqueLandmarks;
+}
+
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
+  }
+
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  }
+}
+
+// Function to check if the specified landmark element is in the document.
+// @param {string} id - The ID of the landmark element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+/* Function that checks the accessibility features */
 function checkAccessibilityFeatures() {
   const accessibilityFeatures = [
     getLangAttribute,
@@ -80,7 +203,9 @@ function checkAccessibilityFeatures() {
   });
 }
 
+/* Exports */
 module.exports = {
+  // Accessibility utilities
   getLangAttribute,
   personName,
   validateTableAccessibility,
@@ -88,6 +213,21 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  createInPageButton,
-  checkAccessibilityFeatures // Export the new function
+  checkAccessibilityFeatures,
+  // UI button utilities
+  createInPageButton, // React version
+  createDomInPageButton, // Plain JS version (legacy)
+  // Functions from second part
+  functionA,
+  functionB,
+  icons,
+  processLandmarks,
+  landmarkStructureCheck,
+  ensureUniqueLandmarks,
+  addLangAttribute,
+  checkLandmarkElement,
+  // React-related exports
+  React,
+  ReactDOM,
+  Landmark,
 };

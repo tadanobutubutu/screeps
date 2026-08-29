@@ -305,6 +305,441 @@ function initializeApp() {
   };
 }
 
+// REACT_025: Additional accessibility functions per insight report
+
+/**
+ * Validates heading structure for proper hierarchy (h1-h6)
+ * @param {HTMLElement} [container=document] - Container to validate
+ * @returns {Object} Validation results
+ */
+function validateHeadingStructure(container = document) {
+  const results = {
+    valid: true,
+    headings: [],
+    errors: []
+  };
+  
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.charAt(1), 10);
+    results.headings.push({
+      element: heading,
+      level,
+      text: heading.textContent.trim()
+    });
+    
+    // Check for skipped heading levels
+    if (previousLevel > 0 && level > previousLevel + 1) {
+      results.valid = false;
+      results.errors.push({
+        type: 'skipped-level',
+        message: `Heading level skipped from h${previousLevel} to h${level}`,
+        element: heading
+      });
+    }
+    
+    // Check for missing h1
+    if (index === 0 && level !== 1) {
+      results.valid = false;
+      results.errors.push({
+        type: 'missing-h1',
+        message: 'Document should start with an h1 heading',
+        element: heading
+      });
+    }
+    
+    previousLevel = level;
+  });
+  
+  // Check for multiple h1s
+  const h1Count = results.headings.filter(h => h.level === 1).length;
+  if (h1Count > 1) {
+    results.valid = false;
+    results.errors.push({
+      type: 'multiple-h1',
+      message: 'Document should have only one h1 heading',
+      count: h1Count
+    });
+  }
+  
+  return results;
+}
+
+/**
+ * Validates that all images have appropriate alt text
+ * @param {HTMLElement} [container=document] - Container to validate
+ * @returns {Object} Validation results
+ */
+function validateImageAltText(container = document) {
+  const results = {
+    valid: true,
+    images: [],
+    errors: []
+  };
+  
+  const images = container.querySelectorAll('img');
+  
+  images.forEach(img => {
+    const alt = img.getAttribute('alt');
+    const hasAlt = alt !== null;
+    const isDecorative = alt === '';
+    const hasRolePresentation = img.getAttribute('role') === 'presentation';
+    
+    results.images.push({
+      element: img,
+      src: img.getAttribute('src'),
+      alt: alt,
+      hasAlt,
+      isDecorative
+    });
+    
+    if (!hasAlt && !hasRolePresentation) {
+      results.valid = false;
+      results.errors.push({
+        type: 'missing-alt',
+        message: 'Image is missing alt attribute',
+        element: img
+      });
+    } else if (hasAlt && alt.length > 125) {
+      results.errors.push({
+        type: 'alt-too-long',
+        message: 'Alt text should be concise (under 125 characters)',
+        element: img
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Validates form labels and associations
+ * @param {HTMLElement} [container=document] - Container to validate
+ * @returns {Object} Validation results
+ */
+function validateFormLabels(container = document) {
+  const results = {
+    valid: true,
+    inputs: [],
+    errors: []
+  };
+  
+  const inputs = container.querySelectorAll('input, select, textarea');
+  
+  inputs.forEach(input => {
+    if (input.type === 'hidden') return;
+    
+    const id = input.getAttribute('id');
+    const ariaLabel = input.getAttribute('aria-label');
+    const ariaLabelledby = input.getAttribute('aria-labelledby');
+    const title = input.getAttribute('title');
+    let label = null;
+    
+    if (id) {
+      label = container.querySelector(`label[for="${id}"]`);
+    }
+    
+    const hasLabel = label || ariaLabel || ariaLabelledby || title;
+    
+    results.inputs.push({
+      element: input,
+      type: input.type,
+      id,
+      hasLabel,
+      label: label ? label.textContent.trim() : ariaLabel || ariaLabelledby || title
+    });
+    
+    if (!hasLabel) {
+      results.valid = false;
+      results.errors.push({
+        type: 'missing-label',
+        message: `Form input (${input.type}) is missing an associated label`,
+        element: input
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Focus management utilities
+ */
+const focusManager = {
+  /**
+   * Traps focus within a container
+   * @param {HTMLElement} container - Container to trap focus in
+   * @returns {Function} Cleanup function to remove trap
+   */
+  trapFocus(container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    
+    function handleTab(e) {
+      if (e.key !== 'Tab') return;
+      
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+    
+    container.addEventListener('keydown', handleTab);
+    firstElement?.focus();
+    
+    return () => {
+      container.removeEventListener('keydown', handleTab);
+    };
+  },
+  
+  /**
+   * Restores focus to a previously focused element
+   * @param {HTMLElement} element - Element to focus
+   */
+  restoreFocus(element) {
+    if (element && typeof element.focus === 'function') {
+      element.focus();
+    }
+  },
+  
+  /**
+   * Gets the currently focused element
+   * @returns {HTMLElement|null}
+   */
+  getFocusedElement() {
+    return document.activeElement;
+  }
+};
+
+/**
+ * Announces message to screen readers via ARIA live region
+ * @param {string} message - Message to announce
+ * @param {'polite' | 'assertive'} [priority='polite'] - Priority level
+ */
+function announceToScreenReader(message, priority = 'polite') {
+  const announcer = document.getElementById('a11y-announcer') || createAnnouncer();
+  announcer.setAttribute('aria-live', priority);
+  announcer.textContent = '';
+  // Force reflow to ensure announcement
+  setTimeout(() => {
+    announcer.textContent = message;
+  }, 50);
+}
+
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.id = 'a11y-announcer';
+  announcer.setAttribute('role', 'status');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.position = 'absolute';
+  announcer.style.left = '-9999px';
+  announcer.style.width = '1px';
+  announcer.style.height = '1px';
+  announcer.style.overflow = 'hidden';
+  document.body.appendChild(announcer);
+  return announcer;
+}
+
+/**
+ * Validates color contrast (basic check - for full compliance use a dedicated library)
+ * @param {string} foreground - Foreground color (hex, rgb, etc.)
+ * @param {string} background - Background color (hex, rgb, etc.)
+ * @param {Object} [options] - Options for validation
+ * @param {number} [options.ratio=4.5] - Minimum contrast ratio
+ * @param {boolean} [options.largeText=false] - Whether text is large (18pt+ or 14pt+ bold)
+ * @returns {Object} Contrast validation results
+ */
+function validateColorContrast(foreground, background, options = {}) {
+  const { ratio = 4.5, largeText = false } = options;
+  const minRatio = largeText ? 3 : ratio;
+  
+  // Parse colors to RGB
+  const parseColor = (color) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    return ctx.getImageData(0, 0, 1, 1).data;
+  };
+  
+  const fg = parseColor(foreground);
+  const bg = parseColor(background);
+  
+  // Calculate luminance
+  const luminance = (r, g, b) => {
+    const [rs, gs, bs] = [r, g, b].map(v => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+  };
+  
+  const fgLum = luminance(fg[0], fg[1], fg[2]);
+  const bgLum = luminance(bg[0], bg[1], bg[2]);
+  
+  const contrastRatio = (Math.max(fgLum, bgLum) + 0.05) / (Math.min(fgLum, bgLum) + 0.05);
+  
+  return {
+    ratio: Math.round(contrastRatio * 100) / 100,
+    passed: contrastRatio >= minRatio,
+    minRatio,
+    foreground,
+    background
+  };
+}
+
+/**
+ * Adds a skip link to the page
+ * @param {Object} options - Skip link options
+ * @param {string} [options.target='#main'] - Target selector
+ * @param {string} [options.text='Skip to main content'] - Link text
+ * @returns {HTMLAnchorElement} The created skip link
+ */
+function addSkipLink(options = {}) {
+  const { target = '#main', text = 'Skip to main content' } = options;
+  
+  // Check if skip link already exists
+  if (document.querySelector('.skip-link')) {
+    return document.querySelector('.skip-link');
+  }
+  
+  const skipLink = document.createElement('a');
+  skipLink.href = target;
+  skipLink.textContent = text;
+  skipLink.className = 'skip-link';
+  skipLink.style.cssText = `
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    padding: 1rem 2rem;
+    z-index: 10000;
+    text-decoration: none;
+    font-weight: bold;
+  `;
+  
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '0';
+  });
+  
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-100%';
+  });
+  
+  // Insert at the beginning of body
+  document.body.insertBefore(skipLink, document.body.firstChild);
+  
+  return skipLink;
+}
+
+/**
+ * Validates keyboard accessibility for interactive elements
+ * @param {HTMLElement} [container=document] - Container to validate
+ * @returns {Object} Validation results
+ */
+function validateKeyboardAccessibility(container = document) {
+  const results = {
+    valid: true,
+    elements: [],
+    errors: []
+  };
+  
+  const interactiveElements = container.querySelectorAll(
+    'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="button"], [role="link"], [role="menuitem"]'
+  );
+  
+  interactiveElements.forEach(el => {
+    const tabIndex = el.getAttribute('tabindex');
+    const isFocusable = tabIndex !== '-1';
+    const hasFocusStyle = checkFocusStyles(el);
+    const isNativeInteractive = ['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName);
+    const hasRole = el.getAttribute('role');
+    
+    results.elements.push({
+      element: el,
+      tagName: el.tagName,
+      tabIndex,
+      isFocusable,
+      hasFocusStyle,
+      isNativeInteractive,
+      role: hasRole
+    });
+    
+    // Check for non-focusable interactive elements
+    if (!isFocusable && !el.hasAttribute('disabled') && !el.hasAttribute('aria-hidden')) {
+      results.valid = false;
+      results.errors.push({
+        type: 'not-focusable',
+        message: 'Interactive element is not focusable',
+        element: el
+      });
+    }
+    
+    // Check for elements with role but no keyboard handlers
+    if (hasRole && ['button', 'link', 'menuitem', 'tab'].includes(hasRole) && !isNativeInteractive) {
+      const hasKeyHandler = el.onkeydown || el.onkeyup || el.onkeypress;
+      if (!hasKeyHandler) {
+        results.errors.push({
+          type: 'missing-keyboard-handler',
+          message: `Element with role="${hasRole}" may need keyboard event handlers`,
+          element: el
+        });
+      }
+    }
+  });
+  
+  return results;
+}
+
+function checkFocusStyles(element) {
+  // Basic check for focus styles - in practice would need computed styles
+  const styles = window.getComputedStyle(element, ':focus');
+  const focusVisibleStyles = window.getComputedStyle(element, ':focus-visible');
+  
+  return (
+    styles.outline !== 'none' ||
+    styles.outlineWidth !== '0px' ||
+    styles.boxShadow !== 'none' ||
+    focusVisibleStyles.outline !== 'none' ||
+    focusVisibleStyles.outlineWidth !== '0px'
+  );
+}
+
+/**
+ * Runs comprehensive accessibility audit
+ * @param {HTMLElement} [container=document] - Container to audit
+ * @returns {Object} Comprehensive audit results
+ */
+function runAccessibilityAudit(container = document) {
+  return {
+    headings: validateHeadingStructure(container),
+    images: validateImageAltText(container),
+    forms: validateFormLabels(container),
+    landmarks: validateLandmarkStructure(container),
+    tables: validateTableStructure(container),
+    keyboard: validateKeyboardAccessibility(container),
+    linksAndButtons: checkAccessibility(container),
+    timestamp: new Date().toISOString()
+  };
+}
+
 // Export all necessary functions and objects
 module.exports = {
   app,
@@ -329,5 +764,15 @@ module.exports = {
   dependencyGraphContent,
   main,
   config,
-  version
+  version,
+  // New exports for REACT_025 accessibility enhancements
+  validateHeadingStructure,
+  validateImageAltText,
+  validateFormLabels,
+  focusManager,
+  announceToScreenReader,
+  validateColorContrast,
+  addSkipLink,
+  validateKeyboardAccessibility,
+  runAccessibilityAudit
 };

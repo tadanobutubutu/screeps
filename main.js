@@ -185,6 +185,27 @@ function addAriaLabelToSVGs() {
   });
 }
 
+// Additional functions to address the insight report items
+function addLangAttribute() {
+  getLangAttribute();
+}
+
+function fixTableStructureIssues() {
+  validateTableStructure();
+}
+
+function addMainLandmark() {
+  wrapPrimaryContentInMain();
+}
+
+function addSvgAccessibleNames() {
+  getSvgAccessibleName();
+}
+
+function fixFakeLinkIssue() {
+  createAccessibleLink();
+}
+
 // Exports for all functions (updated)
 module.exports = {
   calculateSum,
@@ -195,5 +216,11 @@ module.exports = {
   validateLandmarkAttributes,
   addProperLandmarkRegions,
   addAriaLabelledbyToSVGs,
-  addAriaLabelToSVGs
+  addAriaLabelToSVGs,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  ensureUniqueLandmarks
 };

@@ -1,4 +1,11 @@
-// TODO: Address accessibility issues from insight report
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // ----- END ORIGINAL CODE -----
 
 /**
@@ -10,7 +17,9 @@
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
   return button;
 }
 
@@ -25,10 +34,10 @@ function initialize() {
   console.log('Application initialized');
   
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.setAttribute('role', 'main');
   }
   
   // Accessibility: Add skip link functionality
@@ -42,14 +51,14 @@ function initialize() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
+      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
       if (target) {
         target.focus();
-        target.scrollIntoView();
+        target.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
@@ -80,5 +89,9 @@ module.exports = {
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initialize);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
 }

@@ -95,6 +95,12 @@ if (typeof a11yStore.init === 'function') {
   a11yStore.init();
 }
 
+// New function to ensure proper landmark roles are set for landmarks
+function validateLandmarkRole(element) {
+  // Validate and set landmark role based on the element's content and attributes
+  // This is a placeholder for the actual implementation
+}
+
 // Game-related functions and exports
 function countDependencies() {
   return 0;
@@ -250,6 +256,7 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  validateLandmarkRole,
   a11yStore,
   mainElement,
   accessibilityCheckTables,

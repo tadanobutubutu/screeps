@@ -96,7 +96,7 @@ function ensureUniqueLandmarks(document) {
 
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 
-// ... (Functions that were unique in each branch)
+// ... (Functions that were unique in each branch...)
 
 function validateTableAccessibility(document) {
   // Implementation for table accessibility validation
@@ -625,6 +625,88 @@ function handleFakeLinks() {
   // Implementation for handling fake links
 }
 
+// REACT_017: Wrap the primary content of an HTML file in a <main> landmark if missing.
+// Returns true when the file was modified, false otherwise.
+function addMainLandmarkToHtmlFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  // If a <main> landmark is already present, do nothing.
+  if (/<main[\s>]/i.test(content)) {
+    return false;
+  }
+
+  // Inject the <main> wrapper right after the opening <body> tag.
+  const bodyOpenRegex = /(<body[^>]*>)/i;
+  if (bodyOpenRegex.test(content)) {
+    content = content.replace(bodyOpenRegex, '$1\n    <main id="main-content">');
+  } else {
+    // No <body> tag found: insert a <main> element before </html>.
+    content = content.replace(/<\/html>/i, '    <main id="main-content">\n</main>\n</html>');
+  }
+
+  // Close the <main> tag right before </body> if it exists; otherwise before </html>.
+  if (/<\/body>/i.test(content)) {
+    content = content.replace(/<\/body>/i, '    </main>\n</body>');
+  } else {
+    content = content.replace(/<\/html>/i, '    </main>\n</html>');
+  }
+
+  fs.writeFileSync(filePath, content, 'utf8');
+  return true;
+}
+
+// REACT_017: Ensure the project documentation pages (docs/*.html) contain a <main> landmark.
+// Scans a directory for HTML files and applies addMainLandmarkToHtmlFile to each.
+function ensureMainLandmarksInDocs(docsDir = path.join(__dirname, 'docs')) {
+  if (!fs.existsSync(docsDir)) {
+    return { scanned: 0, fixed: 0 };
+  }
+
+  let scanned = 0;
+  let fixed = 0;
+
+  fs.readdirSync(docsDir)
+    .filter(file => file.toLowerCase().endsWith('.html'))
+    .forEach(file => {
+      scanned++;
+      const filePath = path.join(docsDir, file);
+      if (addMainLandmarkToHtmlFile(filePath)) {
+        fixed++;
+      }
+    });
+
+  return { scanned, fixed };
+}
+
+// REACT_017: Validate an HTML string for the presence of a <main> landmark.
+// Returns true when a <main> element exists in the markup.
+function validateMainLandmark(htmlContent) {
+  if (typeof htmlContent !== 'string') {
+    return false;
+  }
+  return /<main[\s>]/i.test(htmlContent);
+}
+
+// REACT_017: Process all known affected documentation files and add the <main> landmark
+// where it is missing. Exposed for use by build scripts and tests.
+function fixReact017LandmarkIssues() {
+  const affectedFiles = [
+    path.join(__dirname, 'docs', 'index.html'),
+    path.join(__dirname, 'docs', 'dependency-graph.html'),
+  ];
+
+  const results = affectedFiles.map(filePath => ({
+    filePath,
+    fixed: addMainLandmarkToHtmlFile(filePath),
+  }));
+
+  return results;
+}
+
 module.exports = {
   loop,
   run,
@@ -660,6 +742,12 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+
+  // REACT_017 exports
+  addMainLandmarkToHtmlFile,
+  ensureMainLandmarksInDocs,
+  validateMainLandmark,
+  fixReact017LandmarkIssues,
 
   a11yStore,
   ...a11yStore,

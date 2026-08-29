@@ -1,28 +1,22 @@
-// content of main.js
-import { createTheme } from './theme.js';
-import { v4 as uuidv4 } from 'uuid';
-import { createElement } from 'react';
-import { getDocument, getLangAttribute } from '.';
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "yourNewModule";
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// Main module for calculator operations
 
-// Helper function to get document object (cross-environment support)
-function getDocument() {
-  if (typeof document !== 'undefined') {
-    return document;
-  }
-  return null;
-}
-
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
+function divide(dividend, divisor) {
+    // Check if inputs are valid numbers
+    if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+        throw new Error('Both dividend and divisor must be numbers');
     }
-  }
+    
+    // Check for NaN
+    if (isNaN(dividend) || isNaN(divisor)) {
+        throw new Error('Both dividend and divisor must be valid numbers');
+    }
+    
+    // Check for division by zero
+    if (divisor === 0) {
+        throw new Error('Cannot divide by zero');
+    }
+    
+    return dividend / divisor;
 }
 
 // Helper function to ensure element has an ID
@@ -161,8 +155,17 @@ export function render() {
     document.body.style.color = theme.textColor;
 }
 
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-// TODO: Any additional changes requested in the issue
-
-export { existingFunction, newFunction, newAccessibleFunction, addLandmarkRegion, addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute, render };
+module.exports = { 
+  divide, 
+  existingFunction, 
+  newFunction, 
+  newAccessibleFunction, 
+  addLandmarkRegion, 
+  ensureElementId, 
+  handleAccessibilityError, 
+  handleErrorState, 
+  renderDependencyGraph, 
+  renderIndexView, 
+  getFullLangAttribute, 
+  render 
+};

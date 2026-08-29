@@ -183,5 +183,3 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<MainApp />);
 
 export { MainApp, handleSkipLinkClick };
-
-// Existing exports and functions...

@@ -31,7 +31,30 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
-  // TODO: Implement this function for checking link and button accessibility
+  function displayModuleStructure() {
+    const modules = document.querySelectorAll('[data-module]');
+    modules.forEach(module => {
+      console.log(`Module: ${module.getAttribute('data-module')}`);
+      const dependencies = module.querySelectorAll('[data-depends-on]');
+      dependencies.forEach(dep => {
+        console.log(`  Depends on: ${dep.getAttribute('data-depends-on')}`);
+      });
+    });
+  }
+
+  function renderDependencyGraph() {
+    const graphContainer = document.getElementById('dependency-graph');
+    if (!graphContainer) return;
+
+    const nodes = document.querySelectorAll('[data-node-id]');
+    nodes.forEach(node => {
+      const nodeEl = document.createElement('div');
+      nodeEl.className = 'graph-node';
+      nodeEl.textContent = node.getAttribute('data-node-id');
+      graphContainer.appendChild(nodeEl);
+    });
+  }
+
   function checkLinkAndButtonAccessibility() {
     const links = document.querySelectorAll('a');
     const buttons = document.querySelectorAll('button');
@@ -58,6 +81,12 @@ function addressAccessibilityIssues() {
 
   // Call the function to check accessibility
   checkLinkAndButtonAccessibility();
+
+  // Display module structure for debugging purposes
+  displayModuleStructure();
+
+  // Render dependency graph for debugging purposes
+  renderDependencyGraph();
 }
 
 // Export functions if needed

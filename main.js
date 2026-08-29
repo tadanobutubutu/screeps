@@ -58,7 +58,7 @@ import {
 } from "./accessibility";
 import { renderDependencyGraph } from "./dependencyGraph";
 
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
 // - REACT_041: Add accessible names to 2 SVGs
@@ -304,7 +304,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <main>
+        <main role="main">
           {children}
           <header role="banner">
             <nav role="navigation" aria-label="Main navigation">

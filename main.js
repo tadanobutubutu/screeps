@@ -17,6 +17,24 @@ function newFeature() {
   // No changes needed since they were not part of the conflict
 }
 
+/**
+ * Divides two numbers with proper error handling.
+ * @param {number} a - The dividend.
+ * @param {number} b - The divisor.
+ * @returns {number} The result of the division.
+ * @throws {TypeError} If either argument is not a number.
+ * @throws {Error} If the divisor is zero.
+ */
+function divide(a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new TypeError('Both arguments must be numbers');
+  }
+  if (b === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return a / b;
+}
+
 // main.js
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -125,5 +143,6 @@ module.exports = {
   loop: function() {
     console.log('Running screeps loop');
   },
-  newFeature: newFeature // Export the updated newFeature function
+  newFeature: newFeature, // Export the updated newFeature function
+  divide: divide
 };

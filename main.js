@@ -68,6 +68,60 @@ function checkLinkAndButtonAccessibility() {
   return accessibilityIssues;
 }
 
+/**
+ * Renders a dependency graph visualization
+ * @param {Object} dependencies - Object containing dependency data
+ * @returns {JSX.Element} Rendered dependency graph
+ */
+export function renderDependencyGraph(dependencies) {
+  return (
+    <div className="dependency-graph">
+      <h2>Dependency Graph</h2>
+      <svg width="100%" height="100%" viewBox="0 0 800 600">
+        {Object.entries(dependencies).map(([name, deps], index) => {
+          const x = 100 + (index % 4) * 180;
+          const y = 100 + Math.floor(index / 4) * 150;
+          return (
+            <g key={name} transform={`translate(${x}, ${y})`}>
+              <rect width="150" height="80" rx="5" fill="#e1e4e8" stroke="#0366d6" />
+              <text x="75" y="35" textAnchor="middle" fontSize="14" fontWeight="bold">
+                {name}
+              </text>
+              <text x="75" y="55" textAnchor="middle" fontSize="12" fill="#586069">
+                {deps && deps.length > 0 ? `${deps.length} dependencies` : 'No dependencies'}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * Renders an index view for browsing dependencies
+ * @param {Array} items - Array of items to display in the index
+ * @returns {JSX.Element} Rendered index view
+ */
+export function renderIndexView(items) {
+  return (
+    <div className="index-view">
+      <h2>Index View</h2>
+      <div className="index-list">
+        {items.map((item, index) => (
+          <div key={index} className="index-item">
+            <a href={`/${item.path || item.name}`} className="index-link">
+              {item.name}
+            </a>
+            {item.description && <p className="index-description">{item.description}</p>}
+            {item.type && <span className="index-badge">{item.type}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Export MyComponent
 export default MyComponent;
 

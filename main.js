@@ -1,6 +1,28 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// - REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="region"]');
+  let uniqueIds = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    const existingIds = uniqueIds.map((id) => id.split('-')[1]);
+    let id;
+
+    while (existingIds.includes(landmark.id.split('-')[1])) {
+      id = generateUniqueId();
+    }
+
+    uniqueIds.push(id);
+    landmark.id = id;
+  });
+}
+
+// ADD THIS NEW FUNCTION HERE
+ensureUniqueLandmarks();
 
 /**
  * Add your code here to replace `my-button` with a concrete button id

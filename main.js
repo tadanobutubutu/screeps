@@ -117,7 +117,7 @@ const main = {
   harvestLoop: function() {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
-      if (creep.memory.role === 'harvest') {
+      if (creep.memory.role === 'harvester') {
         this.harvest(creep);
       }
     }
@@ -190,6 +190,15 @@ const main = {
   functionB: { X: 400, Y: 500, Z: 600 }
 };
 
+// New function to render dependency graphs or display module structures
+function renderDependencyGraphOrDisplayModuleStructure(element) {
+  // Implement depending on your specific requirement
+  // Possible solutions: use Dependency graph libraries (e.g., `graphviz`, `d3-force`), or create custom solutions to display module dependencies
+}
+
+// Call the new function to render dependency graphs or display module structures
+renderDependencyGraphOrDisplayModuleStructure(document.querySelector('.dependency-graph_container'));
+
 // Configuration and state
 let config = {
   lang: 'en',
@@ -222,59 +231,7 @@ function processData(data) {
 }
 
 // Fetch user data
-async function fetchUser(userId) {
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache
-function clearCache() {
-  appState = {
-    initialized: false,
-    tablesValidated: [],
-    landmarksValidated: [],
-    linksValidated: [],
-    svgElementsValidated: []
-  };
-}
-
-// Initialize
-function initialize() {
-  console.log('Initializing application...');
-  clearCache();
-  initializeApp();
-}
-
-// Validate input
-function validateInput(input) {
-  if (!input) return false;
-  return typeof input === 'string' && input.length > 0;
-}
-
-// REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  // Get the language attribute from configuration or document
-  return config.lang || 'en';
-}
-
-function addLangAttribute(element) {
-  // Code for adding the language attribute to the specified element
-  if (element && element.setAttribute) {
-    element.setAttribute('lang', 'en');
-  }
-}
-
-function processDataExtended(data) {
-  if (!data) {
-    throw new Error('No data provided');
-  }
-  return data.map(item => ({
-    ...item,
-    processed: true
-  }));
-}
-
 function fetchUser(userId) {
-  // Fetch user implementation
   if (!appState.cache) {
     appState.cache = new Map();
   }
@@ -298,24 +255,49 @@ function fetchUser(userId) {
   return user;
 }
 
+// Clear cache
 function clearCache() {
-  // Clear the cache implementation
   if (appState.cache) {
     appState.cache.clear();
   }
   console.log('Cache cleared');
 }
 
+// Initialize
 function initialize() {
   console.log('Application initialized');
   return true;
 }
 
+// Validate input
 function validateInput(input) {
   if (typeof input !== 'string') {
     return false;
   }
   return input.length > 0;
+}
+
+// REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  // Get the language attribute from configuration or document
+  return config.lang || 'en';
+}
+
+function addLangAttribute(element) {
+  // Code for adding the language attribute to the specified element
+  if (element && element.setAttribute) {
+    element.setAttribute('lang', 'en');
+  }
+}
+
+function processDataExtended(data) {
+  if (!data) {
+    throw new Error('No data provided');
+  }
+  return data.map(item => ({
+    ...item,
+    processed: true
+  }));
 }
 
 function getLangAttributeEnhanced() {
@@ -399,44 +381,6 @@ function validateLandmarkAttributes() {
   return issues;
 }
 
-function getSvgAccessibleName() {
-  // Code for getting accessible name for SVGs
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  // Code for setting SVG attributes with the accessible name
-  if (svg && svg.setAttribute) {
-    svg.setAttribute('aria-label', accessibleName);
-    svg.setAttribute('role', 'img');
-  }
-}
-
-function ensureUniqueLandmarks() {
-  // Code for ensuring unique landmarks
-}
-
-function createInPageButton(props) {
-  // ... existing createInPageButton function
-}
-
-function validateLinkAccessibility() {
-  // Code for validating link accessibility
-}
-
-function handleFakeLinks() {
-  // Code for handling fake links
-
-// REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarksExtended() {
-  // Ensure all landmarks have unique labels/IDs
-  const issues = [
-    { type: 'REACT_025', message: 'Landmark uniqueness issue #1', severity: 'error' },
-    { type: 'REACT_025', message: 'Landmark uniqueness issue #2', severity: 'error' }
-  ];
-  return issues;
-}
-
-// REACT_041: Add accessible names to 2 SVGs
 function getSvgAccessibleNameEnhanced(svgElement) {
   // Get accessible name for SVG based on context or title
   if (!svgElement) return null;
@@ -455,6 +399,29 @@ function setSvgAttributesEnhanced(svg, accessibleName) {
       'aria-labelledby': accessibleName ? `svg-title-${svg.id}` : null
     }
   };
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarksExtended() {
+  // Ensure all landmarks have unique labels/IDs
+  const issues = [
+    { type: 'REACT_025', message: 'Landmark uniqueness issue #1', severity: 'error' },
+    { type: 'REACT_025', message: 'Landmark uniqueness issue #2', severity: 'error' }
+  ];
+  return issues;
+}
+
+// REACT_041: Add accessible names to 2 SVGs
+function getSvgAccessibleName() {
+  // Code for getting accessible name for SVGs
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  // Code for setting SVG attributes with the accessible name
+  if (svg && svg.setAttribute) {
+    svg.setAttribute('aria-label', accessibleName);
+    svg.setAttribute('role', 'img');
+  }
 }
 
 // REACT_036: Fix 1 fake link issue
@@ -499,7 +466,79 @@ function addProperLandmarkRegions() {
   return addLandmarkRegions();
 }
 
-// Main function to address all accessibility issues from the insight report
+function validateLinkAccessibility() {
+  // Code for validating link accessibility
+}
+
+function personName() {
+  // Get or create a person name for accessibility purposes
+  return 'Person Name';
+}
+
+// Main function to run and start the bot
+function mainExecution() {
+  initialize();
+  console.log('Main function executed');
+}
+
+// Main module for the Screeps bot and accessibility handling
+async function main() {
+  // Main execution logic
+  for (const name in Game.rooms) {
+    const room = Game.rooms[name];
+    const controller = room.controller;
+    if (controller && controller.my) {
+      main.manageRoom(room);
+    }
+  }
+  
+  // TODO: Implement harvest and upgrade logic
+  main.automateCreeps();
+  
+  // TODO: Implement tower defense
+  main.towerDefense();
+  
+  // TODO: Implement spawning logic
+  main.automateSpawning();
+  main.spawningLogic();
+  
+  // Additional loop functions from origin branch
+  main.harvestLoop();
+  main.upgradeLoop();
+  
+  // TODO: Implement the function for addressing new accessibility issues
+  main.myNewFunction();
+}
+
+// Merged conflicts functions for accessibility
+function addressAccessibilityIssuesMerged(insightReport) {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
+      console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
+      if (issue.code === 'REACT_015') {
+        addLangAttribute(document.documentElement);
+      } else if (issue.code === 'REACT_027') {
+        fixTableStructure();
+      } else if (issue.code === 'REACT_017' || issue.code === 'REACT_025') {
+        addMainLandmark();
+        ensureUniqueLandmarks();
+      } else if (issue.code === 'REACT_041') {
+        const svgElements = document.querySelectorAll('svg');
+        svgElements.forEach(svg => {
+          if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
+            const accessibleName = getSvgAccessibleName();
+            if (accessibleName) {
+              setSvgAttributes(svg, accessibleName);
+            }
+          }
+        });
+      } else if (issue.code === 'REACT_036') {
+        handleFakeLinks();
+      }
+    });
+  }
+}
+
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport) {
     console.log('No insight report provided');
@@ -588,60 +627,20 @@ function addressAccessibilityIssues(insightReport) {
   };
 }
 
-// Person name function used by multiple accessibility rules
-function personName() {
-  // Get or create a person name for accessibility purposes
-  return 'Person Name';
+function addLandmarkRoles() {
+  // Code for adding landmark roles
 }
 
-// Main function to run and start the bot
-function mainExecution() {
-  initialize();
-  console.log('Main function executed');
+function addLandmarkRolesAndFixIssues() {
+  // Code for adding landmark roles and fixing issues
 }
 
-// Run if executed directly
-if (require.main === module) {
-  mainExecution();
+function addAriaLabelToSVGsWithoutAccessibleName() {
+  // Code for adding aria-label to SVGs without accessible name
 }
 
-// Example usage of the new function (if applicable)
-const report = {
-  htmlElement: { tagName: 'html', attributes: {} },
-  svgElements: [
-    { id: 'svg1', title: 'Icon 1' },
-    { id: 'svg2', title: 'Icon 2' }
-  ]
-};
-// addressAccessibilityIssues(report);
-
-// Merged conflicts functions for accessibility
-function addressAccessibilityIssuesMerged(insightReport) {
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach(issue => {
-      console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
-      if (issue.code === 'REACT_015') {
-        addLangAttribute(document.documentElement);
-      } else if (issue.code === 'REACT_027') {
-        fixTableStructure();
-      } else if (issue.code === 'REACT_017' || issue.code === 'REACT_025') {
-        addMainLandmark();
-        ensureUniqueLandmarks();
-      } else if (issue.code === 'REACT_041') {
-        const svgElements = document.querySelectorAll('svg');
-        svgElements.forEach(svg => {
-          if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
-            const accessibleName = getSvgAccessibleName();
-            if (accessibleName) {
-              setSvgAttributes(svg, accessibleName);
-            }
-          }
-        });
-      } else if (issue.code === 'REACT_036') {
-        handleFakeLinks();
-      }
-    });
-  }
+function ensureLandmarkUniqueness() {
+  // Code for ensuring landmark uniqueness
 }
 
 export default function App() {
@@ -685,34 +684,6 @@ function validateLinkAccessibilityDocument() {
 
 function handleFakeLinksDocument() {
   // Code for handling fake links
-
-// Main module for the Screeps bot and accessibility handling
-async function main() {
-  // Main execution logic
-  for (const name in Game.rooms) {
-    const room = Game.rooms[name];
-    const controller = room.controller;
-    if (controller && controller.my) {
-      main.manageRoom(room);
-    }
-  }
-  
-  // TODO: Implement harvest and upgrade logic
-  main.automateCreeps();
-  
-  // TODO: Implement tower defense
-  main.towerDefense();
-  
-  // TODO: Implement spawning logic
-  main.automateSpawning();
-  main.spawningLogic();
-  
-  // Additional loop functions from origin branch
-  main.harvestLoop();
-  main.upgradeLoop();
-  
-  // TODO: Implement the function for addressing new accessibility issues
-  main.myNewFunction();
 }
 
 module.exports = {
@@ -769,7 +740,11 @@ module.exports = {
   validateLinkAccessibilityEnhanced,
   handleFakeLinks,
   createInPageButtonEnhanced,
-  validateLinkAccessibilityEnhanced,
   personName,
-  mainExecution
+  mainExecution,
+  addLandmarkRoles,
+  addLandmarkRolesAndFixIssues,
+  addAriaLabelToSVGsWithoutAccessibleName,
+  ensureLandmarkUniqueness,
+  renderDependencyGraphOrDisplayModuleStructure
 };

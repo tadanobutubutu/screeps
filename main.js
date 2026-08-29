@@ -24,7 +24,52 @@ const CONFIG = {
 
 function initialize() {
   console.log('Application initialized');
+
+  // Accessibility: Ensure main content is keyboard accessible
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.removeAttribute('aria-hidden');
+  }
+
+  // Accessibility: Add skip link functionality
+  setupSkipLinks();
+
+  // Accessibility: Ensure buttons have proper labels
+  setupButtonAccessibility();
+
+  // Add dependency graph button functionality
+  const depGraphContainer = document.getElementById('dep-graph-container');
+  if(depGraphContainer) {
+    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+  }
   return true;
+}
+
+/**
+ * Implement this function for creating in-page buttons
+ */
+function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+  const button = createInPageButton('Render Dependency Graph', renderFunction);
+  depGraphContainer.appendChild(button);
+}
+
+/**
+ * Ensure buttons have proper accessibility attributes
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action button');
+    }
+  });
+}
+
+// Define new render function for dependency graph
+function renderDependencyGraph() {
+  // Add logic to render the dependency graph
+  // ...
 }
 
 function getConfig() {
@@ -177,7 +222,7 @@ function validateTableStructure() {
   return results;
 }
 
-// Export the new function
+// Export existing functionality
 export {
   VERSION,
   CONFIG,
@@ -187,7 +232,11 @@ export {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  setupButtonAccessibility,
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  setupSkipLinks
 };
 
 // Add the new function to the default export
@@ -200,5 +249,9 @@ export default {
   addressAccessibilityIssues,
   root,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  setupButtonAccessibility,
+  createInPageDepGraphButton,
+  renderDependencyGraph,
+  setupSkipLinks
 };

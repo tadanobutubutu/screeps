@@ -38,9 +38,18 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function to add ARIA role to dependencyGraph container
+function addARIAroleToDependencyGraph() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'graph');
+  }
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  addARIAroleToDependencyGraph
 };

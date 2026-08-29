@@ -256,7 +256,7 @@ function checkLandmarkElements() {
 checkLandmarkElements();
 
 // Preserve the existing exports and add new functions (merged from both)
-module.exports = {
+const exportsObj = {
   main,
   myNewFunction,
   getSvgAccessibleName,
@@ -269,7 +269,12 @@ module.exports = {
   wrapPrimaryContentInMain,
   checkLandmarks,
   ensureUniqueLandmarks,
-  checkLandmarkElements,
-  // Include functions from dependencyGraphContent if available (from origin/main)
-  ...(dependencyGraphContent && typeof dependencyGraphContent === 'object' ? dependencyGraphContent : {})
+  checkLandmarkElements
 };
+
+// Include functions from dependencyGraphContent if available (from origin/main)
+if (dependencyGraphContent && typeof dependencyGraphContent === 'object') {
+  Object.assign(exportsObj, dependencyGraphContent);
+}
+
+module.exports = exportsObj;

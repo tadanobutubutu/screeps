@@ -28,6 +28,12 @@ function addLangAttribute(element) {
   }
 }
 
+// Add the new function or change here:
+function myNewFunction() {
+  // your new function logic goes here
+  console.log('myNewFunction called');
+}
+
 function processData(data) {
   if (!data) {
     throw new Error('No data provided');
@@ -430,5 +436,7 @@ module.exports = {
   addProperLandmarkRegions,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraph
+  renderDependencyGraph,
+  calculateSum,
+  myNewFunction
 };

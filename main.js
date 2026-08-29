@@ -89,6 +89,19 @@ function addressAccessibilityIssues(insightReport) {
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   // ...
+
+  // Implementation:
+  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues)) {
+    return [];
+  }
+
+  const report = accessibilityReport.issues.map(issue => ({
+    issueType: issue.type,
+    status: issue.status || 'pending',
+    fixApplied: issue.fixApplied || ''
+  }));
+
+  return report;
 }
 
 // New function for the issue

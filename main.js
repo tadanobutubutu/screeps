@@ -18,7 +18,7 @@ function initializeApp() {
 
 function setupAccessibility() {
   // Ensure proper focus management
-  document.body.setAttribute('role', 'application');
+  const mainContent = getMainContent();
   
   // Add skip link for keyboard navigation
   const skipLink = document.createElement('a');
@@ -35,5 +35,45 @@ function setupAccessibility() {
 }
 
 function getMainContent() {
-  return document.getElementById('main-content');
+  return document.getElementById('main-content') || document.body;
+}
+
+/**
+ * Count the number of dependencies in a package.json-like object
+ * @param {Object} packageJson - Package.json object or similar structure
+ * @returns {Object} Object containing counts of different dependency types
+ */
+function countDependencies(packageJson) {
+  const dependencyTypes = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
+  const counts = {
+    total: 0,
+    dependencies: 0,
+    devDependencies: 0,
+    peerDependencies: 0,
+    optionalDependencies: 0
+  };
+
+  if (!packageJson) {
+    return counts;
+  }
+
+  dependencyTypes.forEach(type => {
+    if (packageJson[type]) {
+      const depCount = Object.keys(packageJson[type]).length;
+      counts[type] = depCount;
+      counts.total += depCount;
+    }
+  });
+
+  return counts;
+}
+
+// Export for testing and external use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initializeApp,
+    setupAccessibility,
+    getMainContent,
+    countDependencies
+  };
 }

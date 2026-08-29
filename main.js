@@ -65,3 +65,5 @@ const main = {
 
 // Export the new function if needed:
 module.exports = main;
+module.exports.harvest = main.harvest;
+module.exports.upgrade = main.upgrade;

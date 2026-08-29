@@ -6,7 +6,7 @@ import { getLangAttribute, wrapPrimaryContentInMain, validateTableAccessibility,
 
 // Add new functions or changes requested in the issue
 
-function handleAccessibilityIssues() {
+export function handleAccessibilityIssues() {
   // Address the accessibility issues as requested in the code comment
   getLangAttribute();
   wrapPrimaryContentInMain();
@@ -26,7 +26,7 @@ handleAccessibilityIssues();
 // Keep the existing exports
 // ...
 
-function addProperLandmarkRegions() {
+export function addProperLandmarkRegions() {
   const header = document.querySelector('header');
   if (header) {
     header.setAttribute('role', 'banner');
@@ -113,7 +113,7 @@ function addProperLandmarkRegions() {
 }
 
 // Implement function to add aria-labelledby to SVGs with title elements
-function addAriaLabelledbyToSVGs() {
+export function addAriaLabelledbyToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = svg.querySelector('title');
@@ -127,7 +127,7 @@ function addAriaLabelledbyToSVGs() {
 }
 
 // Implement function to add aria-label to SVGs without title elements
-function addAriaLabelToSVGs() {
+export function addAriaLabelToSVGs() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const title = svg.querySelector('title');

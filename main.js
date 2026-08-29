@@ -18,32 +18,8 @@ function improveAccessibility() {
   });
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
-
-  landmarks.forEach(landmark => {
-    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-    const uniqueGameObjects = [];
-
-    matchingGameObjects.forEach(go => {
-      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
-      if (isUnique) {
-        uniqueGameObjects.push(go);
-      } else {
-        // Remove the landmark tag if it's not unique
-        go.remove(landmark);
-      }
-    });
-
-    uniqueElements[landmark] = uniqueGameObjects;
-  });
-
-  return uniqueElements;
-}
+// Function to ensure unique landmarks (imported from uniqueLandmarks)
+// const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
 
 // New function to add landmark roles and fix issues
 function addLandmarkRoles(gameObjects) {

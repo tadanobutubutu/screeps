@@ -1,1 +1,12 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+
+// TODO: Add any new functions or changes requested in the issue here
+// For example:
+
+function hello() {
+  return "Hello from main.js!";
+}
+
+module.exports = {
+  hello
+};

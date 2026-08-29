@@ -35,6 +35,15 @@ function addressAccessibilityIssues() {
   console.log('Accessibility improvements to be implemented.');
 }
 
+// New function as requested in the issue
+function myNewFunction(input) {
+    // Sample implementation: processes the given input and returns a formatted string
+    if (typeof input === 'string') {
+        return input.toUpperCase() + ' - processed by myNewFunction';
+    }
+    return input;
+}
+
 // Main validation function for web accessibility
 function validateWebAccessibility(url) {
     if (!url) {
@@ -317,5 +326,6 @@ module.exports = {
     setLanguage,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    myNewFunction
 };

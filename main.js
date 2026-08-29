@@ -3,7 +3,7 @@ const dependencyGraphContent = require('./moduls/dependencyGraphContent');
 const indexContent = require('./moduls/indexContent');
 
 // Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { getLangAttribute, createInPageButton, personName } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
@@ -21,40 +21,6 @@ import { state, updateState } from './state.js';
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-
-// Accessibility function stubs
-
-function getLangAttribute() {
-  // Existing code...
-}
-
-function personName() {
-  // Existing code...
-}
-
-function validateTableAccessibility() {
-  // Existing code...
-}
-
-function validateTableStructure() {
-  // Existing code...
-}
-
-function validateLandmark() {
-  // Existing code...
-}
-
-function validateLandmarkStructure() {
-  // Existing code...
-}
-
-function getSvgAccessibleName() {
-  // Existing code...
-}
-
-function createInPageButton() {
-  // Existing code...
-}
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {

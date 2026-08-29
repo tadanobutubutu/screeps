@@ -10,13 +10,27 @@ export function initialize() {
 
 export function getConfig() {
   return {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
+    apiUrl: process.env.API_URL || ...
     timeout: 5000
   };
+}
+
+export function calculateDiscount(price, discount) {
+  if (typeof price !== 'number' || price < 0) {
+    throw new Error('Price must be a non-negative number');
+  }
+  if (typeof discount !== 'number' || discount < 0) {
+    throw new Error('Discount must be a non-negative number');
+  }
+  
+  // Calculate discounted price
+  const discountedPrice = price * (1 - discount / 100);
+  return Math.max(0, discountedPrice);
 }
 
 export default {
   VERSION,
   initialize,
-  getConfig
+  getConfig,
+  calculateDiscount
 };

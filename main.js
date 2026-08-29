@@ -9,6 +9,24 @@ import { inspectElement } from './src/inspector.js';
 import { generateReport } from './src/reporter.js';
 
 /**
+ * Divides two numbers with proper error handling.
+ * Throws an error if the divisor is zero or if inputs are not valid numbers.
+ * @param {number} a - The dividend.
+ * @param {number} b - The divisor.
+ * @returns {number} The result of the division.
+ * @throws {Error} If inputs are not numbers or if divisor is zero.
+ */
+function divide(a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new Error('Both arguments must be numbers');
+  }
+  if (b === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return a / b;
+}
+
+/**
  * Checks a given DOM element for common accessibility violations.
  * @param {Element} element - The DOM element to evaluate.
  * @returns {Promise<Array>} A promise that resolves to an array of violation objects.
@@ -408,5 +426,6 @@ module.exports = {
   createDataTable,
   createInPageButton,
   newUniqueLandmarksFunction,
-  newLandmarkRolesFunction
+  newLandmarkRolesFunction,
+  divide
 };

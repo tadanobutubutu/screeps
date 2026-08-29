@@ -152,6 +152,11 @@ let insightButton, insightPanel, toggleButton, modal, modalClose;
 function initializeAccessibility() {
   if (typeof document === 'undefined') return;
 
+  logger.info('Initializing accessibility features');
+  
+  // Check config for accessibility settings
+  const a11yConfig = config.get('accessibility') || {};
+  
   // DOM Elements with proper ARIA attributes
   insightButton = document.getElementById('insight-button');
   insightPanel = document.getElementById('insight-panel');
@@ -182,6 +187,8 @@ function initializeAccessibility() {
     }
   `;
   document.head.appendChild(focusStyles);
+  
+  logger.debug('Accessibility initialization complete', { elementsFound: interactiveElements.length });
 }
 
 // Toggle insight panel with proper ARIA attributes
@@ -191,6 +198,8 @@ function toggleInsightPanel() {
   const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
   toggleButton.setAttribute('aria-expanded', !isExpanded);
   insightPanel.hidden = isExpanded;
+  
+  logger.info('Insight panel toggled', { expanded: !isExpanded });
   
   if (!isExpanded) {
     // Move focus to panel when opened for screen readers
@@ -202,6 +211,8 @@ function toggleInsightPanel() {
 function openModal() {
   if (!modal) return;
 
+  logger.info('Opening accessible modal');
+  
   modal.hidden = false;
   modal.setAttribute('aria-modal', 'true');
   
@@ -237,11 +248,15 @@ function openModal() {
   // Store trigger element to return focus
   const trigger = document.activeElement;
   modal.dataset.triggerId = trigger?.id || 'modal-trigger';
+  
+  logger.debug('Modal opened', { focusableElements: focusableElements.length });
 }
 
 function closeModal() {
   if (!modal) return;
 
+  logger.info('Closing accessible modal');
+  
   modal.hidden = true;
   modal.removeAttribute('aria-modal');
   
@@ -252,6 +267,8 @@ function closeModal() {
   
   // Remove escape key listener
   document.removeEventListener('keydown', handleEscapeKey);
+  
+  logger.debug('Modal closed');
 }
 
 function handleEscapeKey(e) {
@@ -264,6 +281,8 @@ function handleEscapeKey(e) {
 function setupAccessibilityEventListeners() {
   if (typeof document === 'undefined') return;
 
+  logger.info('Setting up accessibility event listeners');
+  
   if (modalClose) {
     modalClose.addEventListener('click', closeModal);
   }
@@ -288,6 +307,8 @@ function setupAccessibilityEventListeners() {
       }
     });
   }
+  
+  logger.debug('Accessibility event listeners configured');
 }
 
 module.exports = {

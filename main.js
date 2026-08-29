@@ -230,5 +230,8 @@ module.exports = {
     isNumber,
     clamp,
     addLandmarkRegions,
-    generateAccessibilityReport
+    generateAccessibilityReport,
+    fixAccessibilityIssue,
+    greet,
+    add
 };

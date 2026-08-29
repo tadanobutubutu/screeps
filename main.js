@@ -10,11 +10,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    const candidate = baseName
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -35,6 +35,14 @@ function uniqueLandmarks(landmarks) {
         }
     }
     return result;
+}
+
+/**
+ * This function gets the language attribute
+ * @returns {string} - the language attribute
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || '';
 }
 
 /**
@@ -101,19 +109,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded]');
+  collapsibles.forEach(el => {
+    if (!el.getAttribute('aria-expanded')) {
+      el.setAttribute('aria-expanded', 'false');
     }
   });
   
   // Add aria-labels to form inputs that don't have labels
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.getAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -127,12 +135,12 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
   
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+    if (!control.getAttribute('aria-label') && control.id) {
+      const label = document.querySelector(`label[for="${control.id}"]`);
       if (label) {
         label.id = label.id || `label-${control.id}`;
         control.setAttribute('aria-labelledby', label.id);
@@ -140,7 +148,7 @@ function addAriaToFormControls() {
     }
     
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.required && !control.getAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -149,8 +157,6 @@ function addAriaToFormControls() {
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-replaceMyButtonId();
 
 addProperLandmarkRegions();
 addProperAccountManagement();

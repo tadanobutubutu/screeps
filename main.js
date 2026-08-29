@@ -1,6 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+// Main JavaScript file for accessibility checks
 
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 
@@ -54,8 +52,10 @@ function renderDependencyGraphs(dependencies, container) {
 import React from 'react';
 
 // TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
+// For example, if the issue requires adding back an export like `calculateSum`, you would add:
+export function calculateSum(a, b) {
+  return a + b;
+}
 
 function getLangAttribute() {
   // Implementation of the getLangAttribute function
@@ -402,7 +402,7 @@ export function fixFakeLinkIssue(html) {
 
 /**
  * Checks table structure for accessibility issues
- * @param {string} html - The HTML string to check
+ * @param {string} html - The HTML string to process
  * @returns {string[]} Array of error messages
  */
 export function checkTableAccessibility(html) {
@@ -449,6 +449,90 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Performs comprehensive accessibility checks on a table element
+ * Checks for captions, headers, scope attributes, and proper structure
+ * @param {HTMLElement} table - The table element to check
+ * @returns {Object} Object with passed boolean and array of issues
+ */
+function performTableAccessibilityCheck(table) {
+  const issues = [];
+  
+  // Check if table has a caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push({
+      type: 'warning',
+      message: 'Table should have a <caption> element for accessibility'
+    });
+  }
+  
+  // Check if table has header cells
+  const headers = table.querySelectorAll('th');
+  const dataCells = table.querySelectorAll('td');
+  
+  if (headers.length === 0) {
+    issues.push({
+      type: 'error',
+      message: 'Table should have header cells (<th>) for accessibility'
+    });
+  }
+  
+  // Check if headers have scope attribute
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      issues.push({
+        type: 'warning',
+        message: `Header cell ${index + 1} should have a scope attribute`
+      });
+    }
+    
+    // Validate scope value
+    const scope = th.getAttribute('scope');
+    if (scope && !['row', 'col', 'rowgroup', 'colgroup'].includes(scope)) {
+      issues.push({
+        type: 'error',
+        message: `Header cell ${index + 1} has invalid scope attribute value: ${scope}`
+      });
+    }
+  });
+  
+  // Check for proper table structure
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  if (thead && headers.length > 0) {
+    const headersInThead = thead.querySelectorAll('th');
+    if (headersInThead.length === 0) {
+      issues.push({
+        type: 'warning',
+        message: '<thead> should contain header cells (<th>)'
+      });
+    }
+  }
+  
+  // Check data cells for headers attribute if needed for complex tables
+  if (dataCells.length > 0 && headers.length > 1) {
+    dataCells.forEach((td, index) => {
+      // For complex tables with multiple headers, recommend headers attribute
+      if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
+        const rowHeaders = Array.from(td.parentElement?.querySelectorAll('th') || []);
+        if (rowHeaders.length === 0) {
+          issues.push({
+            type: 'info',
+            message: `Consider using 'headers' attribute for complex table data cells`
+          });
+        }
+      }
+    });
+  }
+  
+  return {
+    passed: issues.filter(i => i.type === 'error').length === 0,
+    issues
+  };
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,
@@ -456,13 +540,15 @@ export {
   checkTableStructure,
   getLangAttribute,
   MyComponent,
+  calculateSum,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  performTableAccessibilityCheck
 };
 
 module.exports = {
@@ -487,11 +573,13 @@ module.exports = {
   validateEmail,
   capitalizeString,
   debounce,
+  calculateSum,
   addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  performTableAccessibilityCheck
 };

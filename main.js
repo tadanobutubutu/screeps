@@ -65,7 +65,7 @@ function renderDependencyGraph(graph) {
         lines.push(`  "${edge.from}" -> "${edge.to}";`);
     }
 
-    lines.push('}`);
+    lines.push('}');
     return lines.join('\n');
 }
 
@@ -123,7 +123,9 @@ module.exports = {
   capitalize,
   greet,
   formatDate,
-  // Placeholder functions
-  newFunction1,
-  newFunction2
+  // Rendering functions
+  renderDependencyGraph,
+  renderIndexView,
+  updateDependencyGraph,
+  updateIndexView
 };

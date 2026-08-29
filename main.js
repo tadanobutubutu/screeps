@@ -1,8 +1,16 @@
+// main.js - Existing code file
+// TODO: This is the existing code that needs to be preserved
+
 // Accessible Insight Report Interface - Dependency Graph Rendering
 // Line 13: Address accessibility issues from insight report — CONTINUING
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');
+
+// Existing functionality preserved
+function existingFunction() {
+  return 'existing';
+}
 
 // Main application logic
 function main() {
@@ -347,6 +355,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     main,
+    existingFunction,
     helperFunction,
     formatData,
     validateInput,

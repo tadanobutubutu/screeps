@@ -22,6 +22,76 @@ function getDocument() {
   return null;
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  const doc = getDocument();
+  if (doc && doc.documentElement) {
+    if (!doc.documentElement.getAttribute('lang')) {
+      doc.documentElement.setAttribute('lang', lang);
+    }
+  }
+}
+
+// REACT_025: Add additional accessibility changes as per insight report
+function updateAriaAttributes() {
+  const doc = getDocument();
+  if (doc) {
+    // Ensure proper ARIA attributes are set
+    const body = doc.body;
+    if (body && !body.getAttribute('role')) {
+      // Only set role if one doesn't exist
+    }
+  }
+}
+
+// Implement the handleErrorState function to handle the new accessibility issue
+function handleErrorState(errorElement, container, trigger = false) {
+  if (!errorElement) return;
+
+  const doc = getDocument();
+  if (!doc) return;
+
+  // Wrap the error in a <section> element
+  const errorSection = doc.createElement('section');
+  errorSection.setAttribute('role', 'alert');
+  errorSection.setAttribute('aria-live', 'assertive');
+  
+  if (typeof errorElement === 'string') {
+    errorSection.textContent = errorElement;
+  } else {
+    errorSection.appendChild(errorElement);
+  }
+
+  if (container) {
+    const errorContainer = doc.createElement('div');
+    errorContainer.setAttribute('class', 'error-container');
+    errorContainer.setAttribute('role', 'alert');
+    errorContainer.appendChild(errorSection);
+    container.appendChild(errorContainer);
+  }
+
+  // If trigger is true, trigger the accessibility mode
+  if (trigger) {
+    triggerAccessibilityMode();
+  }
+}
+
+// Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
+function handleAccessibilityError(errorElement, container) {
+  handleErrorState(errorElement, container, true);
+}
+
+// Function to trigger accessibility mode
+function triggerAccessibilityMode() {
+  const doc = getDocument();
+  if (doc) {
+    doc.body.setAttribute('data-accessibility-mode', 'enabled');
+  }
+}
+
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
 // Function to render dependency graph using dependencyGraphContent
 function renderDependencyGraph(container) {
   const doc = getDocument();
@@ -36,74 +106,6 @@ function renderIndexView(container) {
   if (!doc || !container) return null;
   
   return indexContent(doc, container);
-}
-
-// REACT_015: Add lang attribute to HTML element
-function addLangAttribute(lang = 'en') {
-  const doc = getDocument();
-  if (doc && doc.documentElement) {
-    if ... {
-      ... lang);
-    }
-  }
-}
-
-// REACT_025: Add additional accessibility changes as per insight report
-function updateAriaAttributes() {
-  const doc = getDocument();
-  if (doc) {
-    // Ensure proper ARIA attributes are set
-    const body = doc.body;
-    if (body && ... {
-      // Only set role if one doesn't exist
-    }
-  }
-}
-
-// Implement the handleErrorState function to handle the new accessibility issue
-function handleErrorState(errorElement, container, trigger = false) {
-  if (!errorElement) return;
-
-  const doc = getDocument();
-  if (!doc) return;
-
-  // Wrap the error in a <section> element
-  const errorSection = ...
-  errorSection.setAttribute('role', 'alert');
-  ... 'assertive');
-  
-  if (typeof errorElement === 'string') {
-    errorSection.textContent = errorElement;
-  } else {
-    ...
-  }
-
-  if (container) {
-    const errorContainer = ...
-    errorContainer.setAttribute('class', 'error-container');
-    errorContainer.setAttribute('role', 'alert');
-    errorContainer.appendChild(errorSection);
-    container.appendChild(errorContainer);
-  }
-
-  // If trigger is true, trigger the accessibility mode
-  if (trigger) {
-    ...
-  }
-}
-
-// Implement the handleAccessibilityError function that wraps handleErrorState with triggering the accessibility mode
-function ... container) {
-  handleErrorState(errorElement, container, true);
-}
-
-// Function to trigger accessibility mode
-function triggerAccessibilityMode() {
-  const doc = getDocument();
-  if (doc) {
-    ...
-    ... 'enabled');
-  }
 }
 
 // Export the existing handleErrorState function

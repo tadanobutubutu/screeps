@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assume we have a file called 'utils.js' that contains the functions we need
+import { functionA, functionB } from './utils.js';
+
+// Now we can use functionA and functionB in main.js
+functionA();
+functionB();

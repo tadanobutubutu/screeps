@@ -53,9 +53,14 @@ function renderDependencyGraphs(dependencies, container) {
 
 import React from 'react';
 
-// TODO: Add back any required exports that might have been removed
-// Example of how to export a required function from another file
-// const { myFunction } = require('./otherFile');
+// Accessibility issues from insight report have been addressed:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
+// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_037: Add proper landmark regions (DONE: addMainLandmark)
 
 function getLangAttribute() {
   // Implementation of the getLangAttribute function
@@ -172,26 +177,6 @@ export function debounce(func, wait) {
 }
 
 /**
- * Accessibility improvements for main.js
- * Addresses issues from insight report:
- * - REACT_015: Add lang attribute to HTML element
- * - REACT_027: Fix 26 table structure issues
- * - REACT_017: Add/fix 2 landmark issues
- * - REACT_041: Add accessible names to 2 SVGs
- * - REACT_025: Ensure unique landmarks
- * - REACT_036: Fix 1 fake link issue
- * - REACT_037: Add proper landmark regions
- */
-
-// Accessibility functions are now accessible in main.js:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-/**
  * Adds lang attribute to HTML element
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
@@ -275,27 +260,34 @@ export function addSvgAccessibleNames(html) {
   let svgCounter = 0;
   
   return html.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
-    // Handle case where attrs might be undefined (for <svg> without attributes)
-    const attributes = attrs || '';
-    const existingLabel = attributes.match(/aria-label=/) || attributes.match(/aria-labelledby=/);
+    // Handle case where attrs might be empty string (for <svg> without attributes)
+    // attrs is captured as an empty string when there are no attributes, not "undefined"
+    if (!attrs || attrs === '') {
+      // No attributes present, add accessibility attributes directly
+      const label = `SVG image ${++svgCounter}`;
+      return `<svg role="img" aria-label="${label}">`;
+    }
+    
+    // Check for existing accessible name attributes
+    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title>([^<]*)<\/title>/i);
+    const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attributes.match(/id=["']([^"']+)["']/);
+    const idMatch = attrs.match(/id=["']([^"']+)["']/);
     if (idMatch) {
-      return `<svg${attributes} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
     }
     
     // Add inline title for accessibility
     const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attributes} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
 

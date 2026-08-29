@@ -1,8 +1,8 @@
 // Address accessibility issues from insight report
 // Import the required functions from both branches
 const { someFunction } = { someFunction: () => 'someFunction result' };
-const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
-const { addProperLandmarkRegions } = require('./properLandmarkRegions');
+const { ensureUniqueLandmarks: ensureUniqueLandmarksOld } = require('./uniqueLandmarks');
+const { ensureUniqueLandmarks: ensureUniqueLandmarksNew, addProperLandmarkRegions } = require('./properLandmarkRegions'); // Modified import statement to differentiate between old and new functions
 
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
@@ -13,8 +13,8 @@ function renderDependencyGraphContent(data) {
   }
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
+// Function to ensure unique landmarks (renamed to avoid duplicate declaration)
+function ensureUniqueLandmarksRenamed() {
   // Example implementation from origin/main - adapted for Screeps environment
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {
@@ -32,7 +32,6 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// New function to address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
@@ -48,11 +47,16 @@ function addressAccessibilityIssues() {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
 
-  // New function to ensure unique landmarks
-  ensureUniqueLandmarks();
+  // New function to ensure unique landmarks (renamed)
+  ensureUniqueLandmarksRenamed();
 
   // New function to add proper landmark regions
   addProperLandmarkRegions();
+}
+
+// Function to ensure unique landmarks (old, preserved)
+function ensureUniqueLandmarks() {
+  throw new Error('ensureUniqueLandmarks function is already declared, avoid creating more than one instance.');
 }
 
 // Rest of the code remains unchanged

@@ -93,7 +93,6 @@ document.documentElement.setAttribute('lang', getLangAttribute());
 createInPageButton();
 
 // Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
 const table = document.getElementById('myTable');
 validateTableAccessibility(table);
 validateTableStructure(table);
@@ -103,13 +102,11 @@ validateLandmark();
 validateLandmarkStructure();
 
 // Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
 const svg = document.getElementById('mySvg');
 const accessibleName = getSvgAccessibleName(svg);
 setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
-// This would be handled by the appropriate function call
 validateLinkAccessibility();
 handleFakeLinks();
 

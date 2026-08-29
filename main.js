@@ -8,10 +8,10 @@
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
 // Import dependencyGraphContent
-// TODO: This is the existing code that needs to be preserved
+const dependencyGraphContent = require('./dependencyGraphContent');
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
-const dependencyGraphContent = require('./dependencyGraphContent');
 
 // Function to ensure an element has an id
 function ensureElementHasId(element) {

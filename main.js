@@ -16,7 +16,18 @@
 // If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
 // If not, define it here:
 function rotateBack() {
-  // Your code to rotate back
+  // Function to rotate back the dependency graph
+  // This implementation handles the rotation back of the dependency graph visualization
+  if (typeof graph !== 'undefined' && graph.rotate) {
+    graph.rotate.reset();
+  }
+  
+  // Trigger a custom event for other components to respond to rotation reset
+  const event = new CustomEvent('graphRotateBack', {
+    bubbles: true,
+    detail: { timestamp: Date.now() }
+  });
+  document.dispatchEvent(event);
 }
 
 // ... (other code in main.js)
@@ -28,3 +39,8 @@ function rotateBack() {
 // Note: The origin/main branch did not contain the conflict marker content, so the
 // existing implementation (HEAD) is preserved. Please paste the contents of
 // `main.js` from origin/main if further changes need to be merged.
+
+// Export the rotateBack function for external use
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { rotateBack };
+}

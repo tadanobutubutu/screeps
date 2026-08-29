@@ -449,4 +449,14 @@ function checkLandmarks(container = document) {
 }
 
 function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    const uniqueMains = Array.from(mains).filter((el, index, self) => {
+      return self.indexOf(el) === index;
+    });
+    uniqueMains.forEach((main, index) => {
+      main.setAttribute('id', `main-${index}`);
+    });
+  }
+  return true;
+}

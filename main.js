@@ -53,6 +53,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  ensureUniqueLandmarks, // New export for REACT_025
 } = require('./accessibilityHelperFunctions');
 
 // Wrap the entire document content inside a <main> element and set its lang attribute
@@ -96,6 +97,7 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  ensureUniqueLandmarks, // Exporting the new function
   a11yStore,
   mainElement,
   prefersReducedMotion,

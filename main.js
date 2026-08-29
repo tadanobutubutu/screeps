@@ -3,22 +3,57 @@ import { getLangAttribute } from './utils/language';
 import { personName } from './utils/utilities';
 import { validateTableAccessibility } from './utils/table';
 import { validateTableStructure } from './utils/table';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarks';
-import { getSvgAccessibleName } from './utils/svg';
+import { validateLandmark, validateLandmarkStructure, getUniqueLandmarkId } from './utils/landmarks';
+import { getSvgAccessibleName, setSvgAccessibleName } from './utils/svg';
+import { validateFakeLink, fixFakeLink } from './utils/links';
 
 // ensuring unique landmarks (2 issues)
-// ... (to be handled elsewhere)
+function ensureUniqueLandmarks(landmarkElements) {
+  const usedIds = new Set();
+  landmarkElements.forEach((element, index) => {
+    const landmark = validateLandmark(element);
+    if (landmark && landmark.id) {
+      if (usedIds.has(landmark.id)) {
+        const newId = getUniqueLandmarkId(landmark.id, usedIds);
+        element.setAttribute('id', newId);
+        usedIds.add(newId);
+      } else {
+        usedIds.add(landmark.id);
+      }
+    }
+  });
+}
 
 // Creating accessible names for 2 SVGs
-// ... (to be handled elsewhere)
+function createSvgAccessibleNames(svgElements) {
+  svgElements.forEach((svg) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName) {
+      // Try to get name from title or desc within SVG
+      const title = svg.querySelector('title');
+      const desc = svg.querySelector('desc');
+      if (title) {
+        setSvgAccessibleName(svg, title.textContent);
+      } else if (desc) {
+        setSvgAccessibleName(svg, desc.textContent);
+      }
+    }
+  });
+}
 
 // fixing 1 fake link issue
-// ... (to be handled elsewhere)
+function fixFakeLinks(elements) {
+  elements.forEach((element) => {
+    if (validateFakeLink(element)) {
+      fixFakeLink(element);
+    }
+  });
+}
 
 // ADD: Addressing new accessibility issues from insight report
 
 function fixAccessibilityIssues() {
-  document.getElementById('root').setAttribute('lang', getLangAttribute());
+  const langAttribute = getLangAttribute(document.documentElement);
 
   const tables = document.querySelectorAll('table');
   tables.forEach((table) => {
@@ -26,13 +61,20 @@ function fixAccessibilityIssues() {
     validateTableAccessibility(table);
   });
 
-  const landmarkElements = document.querySelectorAll('[aria-label]');
+  const landmarkElements = document.querySelectorAll('[role="region"], [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
   landmarkElements.forEach((element) => {
     validateLandmark(element);
     validateLandmarkStructure(element);
   });
+  ensureUniqueLandmarks(landmarkElements);
 
-  const persons = document.querySelectorAll('.person-name');
+  const svgElements = document.querySelectorAll('svg');
+  createSvgAccessibleNames(svgElements);
+
+  const potentialFakeLinks = document.querySelectorAll('span[role="link"], div[role="link"], a:not([href])');
+  fixFakeLinks(potentialFakeLinks);
+
+  const persons = document.querySelectorAll('[itemtype*="Person"]');
   persons.forEach((person) => personName(person));
 }
 
@@ -44,4 +86,7 @@ function fixAccessibilityIssues() {
 module.exports = {
   // ... (existing exports)
   fixAccessibilityIssues,
+  ensureUniqueLandmarks,
+  createSvgAccessibleNames,
+  fixFakeLinks,
 };

@@ -72,6 +72,38 @@ function createInPageButton() {
   // Existing code...
 }
 
+// New functions to fix accessibility issues as per the insight report
+
+function validateUniqueLandmarks() {
+  // Code to ensure unique landmarks
+}
+
+function fixAccessibilityIssues() {
+  document.documentElement.setAttribute('lang', getLangAttribute());
+  createInPageButton();
+
+  const tables = document.getElementsByTagName('table');
+  for (let i = 0; i < tables.length; i++) {
+    validateTableStructure(tables[i]);
+    validateTableAccessibility(tables[i]);
+  }
+
+  const landmarks = document.getElementsByTagName('landmark');
+  for (let i = 0; i < landmarks.length; i++) {
+    validateLandmark(landmarks[i]);
+  }
+
+  const sVgs = document.getElementsByTagName('svg');
+  for (let i = 0; i < sVgs.length; i++) {
+    const accessibleName = getSvgAccessibleName(sVgs[i]);
+    setSvgAttributes(sVgs[i], accessibleName);
+  }
+
+  validateUniqueLandmarks();
+  validateLinkAccessibility();
+  handleFakeLinks();
+}
+
 // Added function to create accessible links as mentioned in the issue
 function createAccessibleLink(text, href) {
   // Implementation for creating accessible link
@@ -90,12 +122,10 @@ function handleAccessibilityIssues() {
   // Add other accessibility issue handling as needed
 }
 
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // New code to fix accessibility issues...
-}
-
 // DOM-based accessibility code
+
+// New function call to fix accessibility issues
+fixAccessibilityIssues();
 
 // Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', getLangAttribute());

@@ -1,10 +1,3 @@
-// TODO: Add any other missing exports that might have been?
-
-const config = require('./config');
-const logger = require('./utils/logger');
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-
 // Application state
 let isInitialized = false;
 const appData = {};
@@ -50,7 +43,6 @@ function renderDependencyGraphContent(data) {
   }
 }
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
 function improveAccessibility() {
   // Add ARIA labels to buttons without them
   const buttons = document.querySelectorAll('button');
@@ -308,6 +300,7 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarksFromInsightReport,
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addLandmarkRolesAndFixIssues,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,

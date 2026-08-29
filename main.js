@@ -5,12 +5,73 @@ import { class1, function1, Object1 } from './path/to/module';
 // REACT_025: Add other accessibility changes as per the insight report
 // [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-function addLangAttribute(document, lang = 'en') {
+function ... lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
   }
   return document;
+}
+
+// Function for accessibility checks on tables
+function checkTableAccessibility(document) {
+  const tables = document.querySelectorAll('table');
+  let issueCount = 0;
+
+  tables.forEach((table, tableIndex) => {
+    // Check for thead
+    const thead = table.querySelector('thead');
+    if (!thead) {
+      issueCount++;
+    }
+
+    // Check for tbody
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+      issueCount++;
+    }
+
+    // Check for proper th elements in header rows
+    if (thead) {
+      const headerCells = thead.querySelectorAll('th');
+      if (headerCells.length === 0) {
+        issueCount++;
+      }
+    }
+
+    // Check rows for proper header cells and scope attributes
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      const thElements = row.querySelectorAll('th');
+      
+      // Check if first cell in header row should be a th
+      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
+        const firstCell = cells[0];
+        if (firstCell.tagName === 'TD') {
+          issueCount++;
+        }
+        
+        // Check scope attribute on th elements
+        thElements.forEach(th => {
+          if (!th.hasAttribute('scope')) {
+            issueCount++;
+          }
+        });
+      }
+    });
+
+    // Check for caption or aria-label on table
+    const caption = table.querySelector('caption');
+    const ariaLabel = table.getAttribute('aria-label');
+    const ariaDescribedBy = table.getAttribute('aria-describedby');
+    
+    if (!caption && !ariaLabel && !ariaDescribedBy) {
+      issueCount++;
+    }
+  });
+
+  return issueCount;
 }
 
 // Function to fix table structure issues
@@ -134,8 +195,8 @@ function ... {
     // Check if it's a fake link (clickable but not a real anchor)
     if (!isAnchor && (onclick.includes('window.location') || 
         onclick.includes('document.location') || 
-        onclick.includes('location.href') ||
-        onclick.includes('href'))) {
+        ... ||
+        ... {
       
       // Convert to proper anchor or add proper accessibility
       const span = ...
@@ -218,14 +279,14 @@ function googleSignIn(document) {
 // Function to count dependencies
 function countDependencies() {
   // Find the dependency graph container
-  const graphContainer = document.querySelector('.dependency-graph, #dependency-graph, [data-graph-type="dependency"], [role="region"][aria-label*="dependency" i]');
+  const graphContainer = ... #dependency-graph, ... ... i]');
   
   if (!graphContainer) {
     return 0;
   }
   
   // Count nodes in the dependency graph
-  const nodes = graphContainer.querySelectorAll('.node, [class*="node"], circle, rect, g[class*="dependency"], [data-dependency]');
+  const nodes = ... [class*="node"], circle, rect, g[class*="dependency"], [data-dependency]');
   
   // Use a Set to count unique dependencies
   const dependencies = new Set();
@@ -235,7 +296,7 @@ function countDependencies() {
     const id = node.id || 
                node.getAttribute('data-name') || 
                node.getAttribute('data-id') ||
-               node.getAttribute('data-dependency-id');
+               ...
     if (id) {
       dependencies.add(id);
     } else {
@@ -295,165 +356,4 @@ function renderDependencyGraphs(document) {
     desc.textContent = 'Visual representation of project dependencies';
     ...
 
-    // Render the graph content
-    const graphContent = ...
-    if (graphContent) {
-      // Parse and render dependency data
-      // Implementation would parse the data and create nodes/edges
-    }
-
-    ...
-  }
-  return document;
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers(document) {
-  const buttons = ...
-  buttons.forEach(button => {
-    const newId = ... 'btn-' + ... '-'));
-    button.id = newId;
-  });
-  return document;
-}
-
-// REACT_042: Ensure dependencyGraph container has a proper ARIA role
-function ... {
-  const dependencyGraph = ... || 
-                          ... || 
-                          ... ||
-                          ...
-  
-  if (dependencyGraph) {
-    // Check if element already has a role
-    const existingRole = ...
-    if (!existingRole) {
-      // Add appropriate role based on context
-      ... 'region');
-      ... 'Dependency Graph');
-    }
-  }
-  
-  return document;
-}
-
-function addressAccessibilityIssuesForDocument(document) {
-  document = addLangAttribute(document);
-  document = fixTableStructure(document);
-  document = fixLandmarkIssues(document);
-  document = addMainLandmark(document);
-  document = addLandmarkRegions(document);
-  document = ensureUniqueLandmarks(document);
-  document = uniqueLandmarks(document);
-  document = addSvgAccessibleNames(document);
-  document = addAccessibleNamesToSVGs(document);
-  document = fixFakeLinkIssue(document);
-  document = fixFakeLinkIssues(document);
-  document = fixImageAltTexts(document);
-  document = googleSignIn(document);
-  document = fixButtonIdentifiers(document);
-  document = addMainLandmarkToIndex(document);
-  document = ensureElementHasId(document);
-  document = addAriaLabel(document, '[data-dependency-graph]', 'Dependency Graph');
-  document = renderDependencyGraphs(document);
-  document = ensureDependencyGraphAriaRole(document);
-  return document;
-}
-
-const rotateBack = function () {
-  // Logic to rotate back
-  // For example, if you're manipulating the DOM or a state:
-  // document.getElementById('someElement').classList.remove('rotate-forward');
-  // document.getElementById('someElement').classList.add('rotate-backward');
-};
-
-const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
-  // Code to address the specific accessibility issue on the element
-  // This is a placeholder function and should be replaced with the actual implementation
-  console.log(`Addressing accessibility issue for ${element} with info:`, accessibilityInfo);
-};
-
-const renderDependencyGraph = (dependencyGraph, container) => {
-  // Render the dependency graph using the dependencyGraphContent
-  const graphContent = dependencyGraph;
-  // Append the graphContent to the container
-  container.innerHTML = graphContent;
-};
-
-function renderIndexView() {
-  // Function to render the index view
-}
-
-function setFormElementAccessibleNames() {
-  // Set accessible names for form elements
-}
-
-function setSvgAccessibilityProps() {
-  // Set accessibility properties for SVG elements
-}
-
-function isLinkAccessible() {
-  // Check if link is accessible
-}
-
-function isButtonAccessible() {
-  // Check if button is accessible
-}
-
-function getSvgAccessibleName() {
-  // Get accessible name for SVG
-}
-
-function checkAccessibility() {
-  // Check overall accessibility
-}
-
-function checkLandmarks() {
-  // Check landmarks
-}
-
-function checkLandmarkElement() {
-  // Check individual landmark elements
-}
-
-function decodeJwtResponse() {
-  // Decode JWT response
-}
-
-module.exports = {
-  addLangAttribute,
-  fixTableStructure,
-  addMainLandmark,
-  ensureElementHasId,
-  addAriaLabel,
-  handleCredentialResponse,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  fixLandmarkIssues,
-  addLandmarkRegions,
-  uniqueLandmarks,
-  fixImageAltTexts,
-  googleSignIn,
-  renderDependencyGraphs,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole,
-  addMainLandmarkToIndex,
-  addressAccessibilityIssuesForDocument,
-  addressAccessibilityIssues,
-  rotateBack,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-  renderIndexView,
-  setFormElementAccessibleNames,
-  setSvgAccessibilityProps,
-  isLinkAccessible,
-  isButtonAccessible,
-  getSvgAccessibleName,
-  checkAccessibility,
-  checkLandmarks,
-  checkLandmarkElement,
-  decodeJwtResponse
-};
+    //

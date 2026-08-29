@@ -1,9 +1,41 @@
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
+
 // Import required module(s) - for fixing table structure issues
 import './table-styles.css';
 
 // main.js - Entry point for the application
 
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
+
+/**
+ * Checks if a link is accessible by validating its href
+ * @param {HTMLAnchorElement|string} link - The link element or href string to check
+ * @returns {boolean} True if the link appears to be valid and accessible
+ */
+function isLinkAccessible(link) {
+  let href;
+  
+  if (typeof link === 'string') {
+    href = link;
+  } else if (link && link.href) {
+    href = link.href;
+  } else {
+    return false;
+  }
+  
+  // Basic URL validation
+  try {
+    const url = new URL(href);
+    // Check for valid protocols
+    const validProtocols = ['http:', 'https:', 'ftp:', 'mailto:', 'tel:'];
+    return validProtocols.includes(url.protocol);
+  } catch (e) {
+    // If URL parsing fails, check for relative paths
+    return href.startsWith('/') || href.startsWith('./') || href.startsWith('#');
+  }
+}
 
 /**
  * Ensures the element has an id. If the element doesn't have an id, generates one.
@@ -20,7 +52,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -62,7 +94,7 @@ setLanguageAttribute('en');
 
 // Simple interactive page with content rotation functionality
 function initApp() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('app') || document.body;
   
   // Create heading
   const h1 = document.createElement('h1');
@@ -110,6 +142,15 @@ function add(a, b) {
   return a + b;
 }
 
+// Helper functions for functionA and functionB
+function functionX() { return 'functionA_X'; }
+function functionY() { return 'functionA_Y'; }
+function functionZ() { return 'functionA_Z'; }
+
+function functionXb() { return 'functionB_X'; }
+function functionYb() { return 'functionB_Y'; }
+function functionZb() { return 'functionB_Z'; }
+
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
 const functionA = {
@@ -124,12 +165,6 @@ const functionA = {
 function renderDependencyGraph(modules) {
   // Future implementation could traverse and log module dependencies
   console.log('Rendering dependency graph for modules:', modules);
-  return {};
-}
-
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
   return {};
 }
 
@@ -164,5 +199,6 @@ module.exports = {
   displayModuleStructure,
   functionA,
   functionB,
-  loop
+  loop,
+  isLinkAccessible
 };

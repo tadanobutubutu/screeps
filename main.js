@@ -291,6 +291,7 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarksFromInsightReport,
   addLandmarkRolesAndFixLandmarkIssuesFromInsightReport,
+  addLandmarkRolesAndFixIssues,
   ensureUniqueLandmarks,
   fixFakeLinks,
   fixTableStructureIssues,

@@ -18,33 +18,6 @@ function improveAccessibility() {
   });
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // This function ensures unique landmark roles and removes duplicates
-  // Adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueElements = {};
-
-  landmarks.forEach(landmark => {
-    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-    const uniqueGameObjects = [];
-
-    matchingGameObjects.forEach(go => {
-      const isUnique = !uniqueGameObjects.some(ugo => ugo.id === go.id);
-      if (isUnique) {
-        uniqueGameObjects.push(go);
-      } else {
-        // Remove the landmark tag if it's not unique
-        go.remove(landmark);
-      }
-    });
-
-    uniqueElements[landmark] = uniqueGameObjects;
-  });
-
-  return uniqueElements;
-}
-
 // Function to address specific insight report issues
 function addressInsightIssues(insightReport) {
   const issues = insightReport.issues || [];
@@ -80,6 +53,63 @@ function addressAccessibilityIssues() {
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
+}
+
+// Function for accessibility checks on tables
+function checkTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const results = {
+    pass: [],
+    fail: []
+  };
+
+  tables.forEach((table, index) => {
+    const tableInfo = {
+      index: index,
+      id: table.id || null,
+      hasCaption: table.querySelector('caption') !== null,
+      hasHeaders: table.querySelector('th') !== null,
+      headersWithScope: 0,
+      headersWithoutScope: 0,
+      issues: []
+    };
+
+    // Check for caption or aria-label
+    const ariaLabel = table.getAttribute('aria-label');
+    if (!tableInfo.hasCaption && !ariaLabel) {
+      tableInfo.issues.push('Missing caption or aria-label');
+    }
+
+    // Check headers for scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      const scope = header.getAttribute('scope');
+      if (scope) {
+        tableInfo.headersWithScope++;
+      } else {
+        tableInfo.headersWithoutScope++;
+        tableInfo.issues.push('Header missing scope attribute');
+      }
+    });
+
+    // Check for proper table structure
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if (!thead) {
+      tableInfo.issues.push('Missing thead element');
+    }
+    if (!tbody) {
+      tableInfo.issues.push('Missing tbody element');
+    }
+
+    if (tableInfo.issues.length === 0) {
+      results.pass.push(tableInfo);
+    } else {
+      results.fail.push(tableInfo);
+    }
+  });
+
+  return results;
 }
 
 // Placeholder implementation for rendering a dependency graph
@@ -125,4 +155,5 @@ module.exports = {
   ensureUniqueLandmarks,
   addLandmarkRolesAndFixIssues,
   addProperLandmarkRegions,
+  checkTableAccessibility,
 };

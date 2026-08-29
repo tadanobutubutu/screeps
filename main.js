@@ -35,9 +35,26 @@ function getVersion() {
   return VERSION;
 }
 
-// Uncomment the implementation of the function for addressing new accessibility issues from the insight report
+// Implementation of the function for addressing new accessibility issues from the insight report
 function addressAccessibilityIssues() {
-  // TODO: Implement the function for addressing new accessibility issues
+  // Ensure the root container has an accessible name
+  const rootContainer = document.getElementById('root').parentElement;
+  if (rootContainer) {
+    rootContainer.setAttribute('role', 'main');
+  }
+
+  // Create a hidden live region for dynamic announcements
+  const announcementId = 'accessibility-announcement';
+  const announcement = document.createElement('div');
+  announcement.id = announcementId;
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  // Hide off-screen
+  announcement.style.position = 'absolute';
+  announcement.style.left = '-9999px';
+  announcement.style.top = '-9999px';
+  document.body.appendChild(announcement);
+
   console.log('Accessibility issues addressed');
 }
 
@@ -47,7 +64,7 @@ export {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the exports
+  addressAccessibilityIssues
 };
 
 export default {
@@ -56,5 +73,5 @@ export default {
   initialize,
   getConfig,
   getVersion,
-  addressAccessibilityIssues // Add the new function to the default export
+  addressAccessibilityIssues
 };

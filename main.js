@@ -81,18 +81,13 @@ function checkLinkAndButtonAccessibility(document) {
 }
 
 // New function as per the issue
-function processLandmarks(landmarks) {
-  // Assuming landmarks is an array of objects with 'name' and 'coordinates' properties
+function addLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     // Perform any necessary operations on the landmark
     // For example, you might want to add it to a map or a database, or calculate the distance to another landmark
     console.log(`Adding landmark: ${landmark.name} at coordinates: ${landmark.coordinates}`);
-    // Add your logic here
   });
 }
-
-// Assuming there's a way to retrieve landmarks, you would call the function like this:
-// const allLandmarks = getLandmarks(); // Placeholder function
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -156,8 +151,35 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
+export function validateLandmarks() {
+  const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarkNames = new Set();
+  const issues = [];
+
+  landmarks.forEach((landmark) => {
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
+
+    // Determine the landmark name
+    let landmarkName = ariaLabel || ariaLabelledby || tagName;
+
+    if (landmarkNames.has(landmarkName)) {
+      issues.push({
+        element: landmark,
+        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
+        severity: 'warning'
+      });
+    } else {
+      landmarkNames.add(landmarkName);
+    }
+  });
+
+  return issues;
+}
+
 export function addLandmarks(landmarks) {
-  processLandmarks(landmarks);
+  processLandaments(landmarks);
 }
 
 export function getSvgAccessibleName(svgElement, accessibleName) {
@@ -176,29 +198,13 @@ export function getSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // Check if element has proper link semantics
-  const role = element.getAttribute('role');
-  const tabindex = element.getAttribute('tabindex');
-  const href = element.getAttribute('href');
-
-  // A valid link should either:
-  // 1. Be an anchor with href
-  // 2. Have role="link" with proper keyboard navigation
-  if (element.tagName === 'A' && href) {
-    return true;
-  }
-
-  if (role === 'link') {
-    // Must be keyboard accessible
-    return tabindex !== null || element.tabIndex >= 0;
-  }
-
-  return false;
+  // ... existing code ...
+  if (!element) return false;
+  return element.tagName === 'A' && element.href && element.href.length > 0;
 }
 
 export function addScopeToHeaders(table) {
   if (!table) return;
-
   const headers = table.querySelectorAll('th');
   headers.forEach(th => {
     const row = th.parentElement;
@@ -229,62 +235,48 @@ export function addressAccessibilityIssues(issues) {
   });
 }
 
-export function addProperLandmarkRegions() {
-  // REACT_017: Add proper landmark regions
+export function announceToScreenReader(message) {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
 }
 
-export function announceToScreenReader() {
-  // Screen reader announcement functionality
-}
+export function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
 
-export function trapFocus() {
-  // Focus trap functionality
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  });
 }
 
 export function manageFocusOnNavigation() {
-  // Manage focus on navigation
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
 }
 
 export function prefersReducedMotion() {
-  // Check for reduced motion preference
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function setAriaExpanded() {
-  // Set aria-expanded attribute
-}
-
-export function hasAccessibleName() {
-  // Check if element has accessible name
-}
-
-export {
-  function3,
-  App,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  getSvgAccessibleName,
-  checkLinkAndButtonAccessibility,
-  processLandmarks,
-  addLandmarks,
-  getUniqueLandmarkName,
-  addProperLandmarkRegions,
-  addSvgAccessibleName,
-  isValidLink,
-  addScopeToHeaders,
-  addressAccessibilityIssues,
-  announceToScreenReader,
-  trapFocus,
-  manageFocusOnNavigation,
-  prefersReducedMotion,
-  setAriaExpanded,
-  hasAccessibleName,
-};
-```
+export function setAriaExpanded(element, isExpanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', isExp

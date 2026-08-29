@@ -58,6 +58,11 @@ const main = {
   },
 
   // Add the new function or change here:
+  wrapPrimaryContentInMain: function(content) {
+    return `<main>${content}</main>`;
+  },
+
+  // Export the new function if needed:
   myNewFunction: function() {
     // your new function logic goes here
   }

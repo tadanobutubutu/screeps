@@ -405,6 +405,36 @@ function createInPageButton() {
   // Implementation for creating in-page button
 }
 
+// New functions added based on the TODO
+
+/**
+ * Ensures that an element has an id attribute. If missing, generates a unique id.
+ * @param {HTMLElement} element - The element to check.
+ * @returns {string|null} The element's id or null if element is invalid.
+ */
+function ensureElementHasId(element) {
+  if (!element || typeof element.setAttribute !== 'function') {
+    return null;
+  }
+  if (!element.id) {
+    const id = 'generated-id-' + Math.random().toString(36).substr(2, 9);
+    element.id = id;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to an element.
+ * @param {HTMLElement} element - The element to add the label to.
+ * @param {string} label - The accessible label text.
+ */
+function addAriaLabel(element, label) {
+  if (!element || typeof element.setAttribute !== 'function') {
+    return;
+  }
+  element.setAttribute('aria-label', label);
+}
+
 /**
  * Validates link accessibility
  */
@@ -536,6 +566,10 @@ module.exports = {
   setSvgAttributes,
   createInPageButton,
   fixAccessibilityIssues,
+  ensureElementHasId,
+  addAriaLabel,
+  validateLinkAccessibility,
+  handleFakeLinks,
   divide,
   formatProductName,
   renderProductList,

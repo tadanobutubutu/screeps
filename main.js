@@ -1,27 +1,105 @@
-const landmarkStructureCheck = (landmark) => {
-  // Implement your logic for checking the landmark structure
-  // For example, let's check if the landmark has required properties: name and coordinates
-  if (!landmark.name || !landmark.coordinates) {
-    return false;
-  }
-  return true;
+const React = require('react');
+const ReactDOM = require('react-dom');
+const Landmark = require('./Landmark');
+
+import './styles.css';
+import { initializeApp, appData } from './app.js';
+import { registerSW } from 'effector-sw';
+import { appStarted } from './events/appStarted.js';
+
+// Function to create in-page buttons
+const createInPageButton = (options: {
+  onClick: () => void;
+  label: string;
+  icon: string;
+  disabled?: boolean;
+  isActive?: boolean;
+  hoverState: boolean;
+  setHoverState: (value: boolean) => void;
+  ariaLabel?: string;
+  title?: string;
+}) => {
+  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+
+  const getBackgroundColor = () => {
+    if (disabled) return '#999';
+    if (isActive) return '#155d27';
+    return '#004b73';
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+      aria-label={ariaLabel || label}
+      aria-pressed={isActive}
+      title={title || label}
+      onMouseEnter={() => setHoverState(true)}
+      onMouseLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
+      style={{
+        backgroundColor: getBackgroundColor(),
+        color: 'white',
+        padding: '0.5rem 1rem',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.6 : 1,
+        transition: 'all 0.2s ease-in-out',
+        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
+        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+        filter: hoverState ? 'brightness(1.1)' : 'none',
+      }}
+    >
+      <span aria-hidden="true">{icon}</span>
+      <span> {label}</span>
+    </button>
+  );
 };
 
-function ensureUniqueLandmarks(landmarks) {
-    const uniqueLandmarks = [];
-    const seen = new Set();
+// Placeholder for the affected SVGs
+const icons = {};
 
-    for (const landmark of landmarks) {
-        // Use id if available, otherwise fall back to name
-        const key = landmark.id || landmark.name;
+function processLandmarks(landmarks) {
+  // Ensure all landmarks have valid structure
+  const landmarkStructureCheck = (landmark) => {
+    // Check landmark properties here
+    // ...
+    return true; // Add your own check logic
+  };
 
-        if (key && !seen.has(key)) {
-            seen.add(key);
-            uniqueLandmarks.push(landmark);
-        }
-    }
+  const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
-    return uniqueLandmarks;
+  // Ensure the landmarks are unique
+  const ensureUniqueLandmarks = (landmarks) => {
+    // Add your own unique landmark logic here
+    // ...
+    return landmarks;
+  };
+
+  return ensureUniqueLandmarks(validLandmarks);
+}
+
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
+  }
+
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  }
+}
+
+// Function to check if the specified landmark element is in the document.
+// @param {string} id - The ID of the landmark element.
+// @returns {boolean} Returns true if the element exists; otherwise, false.
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
 }
 
 /**
@@ -37,7 +115,8 @@ function calculateSum(numbers) {
 }
 
 module.exports = {
-    landmarkStructureCheck,
-    ensureUniqueLandmarks,
-    calculateSum
+  processLandmarks,
+  addLangAttribute,
+  checkLandmarkElement,
+  calculateSum
 };

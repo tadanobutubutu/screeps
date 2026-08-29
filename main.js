@@ -1134,6 +1134,7 @@ const config = {
   enabled: true
 };
 
+// We are not redefining countDependencies here because it's already defined above (to avoid duplication)
 // Implement this function for accessibility checks on tables
 function accessibilityCheckTables() {
   // Your implementation for accessibility checks on tables goes here

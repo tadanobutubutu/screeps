@@ -148,9 +148,17 @@ if (!Array.prototype.flat) {
 // Accessibility features for DOM environment
 let insightButton, insightPanel, toggleButton, modal, modalClose;
 
+// Add lang attribute to HTML element for accessibility (REACT_015)
+function addLangAttribute() {
+  if (typeof document === 'undefined') return;
+  document.documentElement.lang = 'en';
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   if (typeof document === 'undefined') return;
+
+  addLangAttribute();
 
   // DOM Elements with proper ARIA attributes
   insightButton = document.getElementById('insight-button');
@@ -310,7 +318,8 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  addLangAttribute
 };
 
 // Initialize on DOM ready

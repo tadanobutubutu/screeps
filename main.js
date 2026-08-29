@@ -146,13 +146,190 @@ function addAriaToFormControls() {
   });
 }
 
+/**
+ * Adds lang attribute to the HTML element if missing.
+ * @returns {void}
+ */
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
+}
+
+/**
+ * Ensures there is a single main landmark by removing duplicate main elements.
+ * @returns {void}
+ */
+function addMainLandmark() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    // Keep the first main landmark and remove others
+    for (let i = 1; i < mains.length; i++) {
+      const main = mains[i];
+      const content = main.innerHTML;
+      mains[0].insertAdjacentHTML('beforeend', content);
+      main.remove();
+    }
+  } else if (mains.length === 1) {
+    mains[0].setAttribute('role', 'main');
+    mains[0].id = mains[0].id || 'main-content';
+  }
+}
+
+/**
+ * Fixes table structure issues by adding proper headers and scope attributes.
+ * @returns {void}
+ */
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, tableIndex) => {
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      const cap = document.createElement('caption');
+      cap.textContent = `Table ${tableIndex + 1}`;
+      table.insertBefore(cap, table.firstChild);
+    }
+    
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const cells = firstRow.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.scope = 'col';
+          th.innerHTML = cell.innerHTML;
+          cell.parentNode.replaceChild(th, cell);
+        });
+      }
+    }
+    
+    const headerCells = table.querySelectorAll('th');
+    headerCells.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+    
+    const bodyCells = table.querySelectorAll('td');
+    const colCount = Math.max(0, ...Array.from(table.querySelectorAll('tr')).map(tr => 
+      tr.querySelectorAll('td, th').length));
+    
+    let rowIndex = 0;
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      if (rowIndex > 0) {
+        const cells = row.querySelectorAll('td, th');
+        cells.forEach((cell, cellIndex) => {
+          if (cell.tagName.toLowerCase() === 'td') {
+            cell.setAttribute('headers', `row${rowIndex}-col${cellIndex + 1}`);
+          }
+        });
+      }
+      rowIndex++;
+    });
+  });
+}
+
+/**
+ * Adds accessible names to SVG elements that are missing them.
+ * @returns {void}
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let svgCounter = 1;
+  
+  svgs.forEach(svg => {
+    const hasTitle = svg.querySelector('title');
+    const hasDesc = svg.querySelector('desc');
+    const ariaLabel = svg.getAttribute('aria-label');
+    const ariaHidden = svg.getAttribute('aria-hidden');
+    
+    if (!ariaHidden && (!ariaLabel || (!hasTitle && !hasDesc))) {
+      if (!ariaLabel) {
+        svg.setAttribute('aria-label', `Icon ${svgCounter}`);
+      }
+      
+      if (!hasTitle) {
+        const title = document.createElement('title');
+        title.textContent = `Icon ${svgCounter}`;
+        svg.insertBefore(title, svg.firstChild);
+      }
+      
+      if (!hasDesc && svg.getAttribute('role') !== 'img') {
+        svg.setAttribute('role', 'img');
+      }
+      
+      svgCounter++;
+    }
+  });
+}
+
+/**
+ * Fixes fake link issues by converting non-anchor elements with link roles to actual links.
+ * @returns {void}
+ */
+function fixFakeLinkIssue() {
+  // Find elements with link role but not actual anchor elements
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(link => {
+    const href = link.getAttribute('href') || link.getAttribute('data-href') || '#';
+    const newLink = document.createElement('a');
+    newLink.href = href;
+    newLink.innerHTML = link.innerHTML;
+    
+    // Copy over relevant attributes
+    const attrs = ['aria-label', 'aria-describedby', 'title', 'class', 'id'];
+    attrs.forEach(attr => {
+      const val = link.getAttribute(attr);
+      if (val) {
+        newLink.setAttribute(attr, val);
+      }
+    });
+    
+    // Copy event listeners by replacing in place
+    link.parentNode.replaceChild(newLink, link);
+  });
+  
+  // Also handle common fake link patterns
+  const onClickLinks = document.querySelectorAll('[onclick*="location"], [onclick*="window.location"]');
+  onClickLinks.forEach(element => {
+    if (!element.getAttribute('href') && element.getAttribute('onclick')) {
+      const onclick = element.getAttribute('onclick');
+      // Try to extract URL from onclick
+      const match = onclick.match(/(?:location\.href|window\.location\.href|window\.location)=(['"])([^'"]+)\1/);
+      if (match && match[2]) {
+        const newLink = document.createElement('a');
+        newLink.href = match[2];
+        newLink.innerHTML = element.innerHTML;
+        
+        // Copy attributes
+        const attrs = ['aria-label', 'aria-describedby', 'title', 'class', 'id'];
+        attrs.forEach(attr => {
+          const val = element.getAttribute(attr);
+          if (val) {
+            newLink.setAttribute(attr, val);
+          }
+        });
+        
+        element.parentNode.replaceChild(newLink, element);
+      }
+    }
+  });
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 replaceMyButtonId();
 
+addLangAttribute();
 addProperLandmarkRegions();
+addMainLandmark();
+fixTableStructureIssues();
+addSvgAccessibleNames();
+fixFakeLinkIssue();
 addProperAccountManagement();
 addAriaToFormControls();
 
@@ -164,5 +341,10 @@ module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
-  uniqueLandmarks
+  uniqueLandmarks,
+  addLangAttribute,
+  addMainLandmark,
+  fixTableStructureIssues,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

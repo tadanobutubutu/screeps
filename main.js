@@ -409,8 +409,13 @@ export const addressAccessibilityIssuesFromInsightReport = (insightReport) => {
 
 export default {};
 export const module = { exports: {} };
-module.exports = { 
+
+// Export functions for accessibility - consolidated exports
+module.exports = {
   App,
+  Header,
+  Main,
+  Footer,
   getUniqueLandmarkName,
   validateUniqueLandmarks,
   addSvgAccessibleName,
@@ -419,6 +424,7 @@ module.exports = {
   ensureSvgAccessibleNames,
   updateAccessibleSvgNames,
   addressAccessibilityIssues,
+  addressAccessibilityIssuesFromInsightReport,
   newFunction,
   function3,
   myFunction1,
@@ -427,14 +433,6 @@ module.exports = {
   existingExport,
   rotateBack,
   initializeAccessibility,
-};
-
-// Export functions for accessibility
-module.exports = {
-  rotateBack,
-  initializeAccessibility,
-  ensureSvgAccessibleNames,
-  updateAccessibleSvgNames,
 };
 
 // Auto-initialize if in browser environment

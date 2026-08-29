@@ -69,29 +69,26 @@ function fixTableStructure(document) {
 
 // Function to add/main landmark
 function addMainLandmark(document) {
-  let mainElement = null;
+  let mainElement = document.getElementById('main-content');
 
   if (!mainElement) {
     const body = document.body;
-    const main = document.getElementById('main-content');
-    if (main) {
-      main.setAttribute('id', 'main-content');
-    }
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
 
-    const children = body.children;
+    const children = Array.from(body.children);
     for (const child of children) {
       if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-          child.tagName !== 'LINK' && child.tagName !== 'META') {
-        main.appendChild(child);
-        break;
+          child.tagName !== 'LINK' && child.tagName !== 'META' && child !== mainElement) {
+        mainElement.appendChild(child);
       }
     }
 
-    if (mainElement && mainElement.tagName !== 'MAIN') {
-      mainElement.setAttribute('role', 'main');
+    if (mainElement.children.length > 0) {
+      body.appendChild(mainElement);
     }
-
-    mainElement = main;
+  } else if (mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
   }
 
   return mainElement;
@@ -202,40 +199,14 @@ function uniqueLandmarks(document) {
 
 // Address accessibility issues from insight report for image alt texts
 function fixImageAltTexts(document) {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-
-  landmarkRoles.forEach(role => {
-    const elements = document.querySelectorAll(`[role="${role}"]`);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (!el.getAttribute('aria-label')) {
-          el.setAttribute('aria-label', `${role} ${index + 1}`);
-        }
-      });
-    }
-  });
-
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    mains.forEach((main, index) => {
-      main.setAttribute('aria-label', `Main content ${index + 1}`);
-    });
-  }
-
-  return document;
-}
-
-// Function to add accessible names to SVGs (alias)
-function addAccessibleNamesToSVGs(document) {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.querySelector('title')) {
-      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-      title.textContent = 'Accessible SVG';
-      svg.insertBefore(title, svg.firstChild);
-    }
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
+  const images = document.querySelectorAll('img');
+  images.forEach((img, index) => {
+    if (!img.hasAttribute('alt')) {
+      if (img.getAttribute('role') === 'presentation' || img.getAttribute('aria-hidden') === 'true') {
+        img.setAttribute('alt', '');
+      } else {
+        img.setAttribute('alt', `Image ${index + 1}`);
+      }
     }
   });
   return document;
@@ -317,4 +288,10 @@ function renderDependencyGraphs(document) {
     svg.appendChild(title);
 
     const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-    desc.textContent = 'Visual representation of
+    desc.textContent = 'Visual representation of dependency relationships between modules';
+    svg.appendChild(desc);
+
+    graphContainer.appendChild(svg);
+  }
+  return document;
+}

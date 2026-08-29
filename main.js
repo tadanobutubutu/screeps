@@ -1,7 +1,6 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
@@ -90,19 +89,24 @@ export function checkUniqueLandmarks(container = document) {
 }
 
 // REACT_041: Add accessible names to SVGs
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
+let svgTitleCounter = 0;
+
+export function addAccessibleNameToSVG(svgElement, accessibleName) {
+  if (!svgElement || !accessibleName) return;
   
-  // Add title element as first child
+  // Create a unique ID for the title element
+  const titleId = `svg-title-${svgTitleCounter++}`;
+  
+  // Create title element
   const title = document.createElement('title');
-  title.id = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+  title.id = titleId;
   title.textContent = accessibleName;
   
-  // Insert title as first child
+  // Insert title as first child of SVG
   svgElement.insertBefore(title, svgElement.firstChild);
   
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
+  // Add aria-labelledby attribute to reference the title
+  svgElement.setAttribute('aria-labelledby', titleId);
 }
 
 // REACT_036: Fix fake link issues - convert to proper semantic elements
@@ -161,7 +165,7 @@ export function addScopeToTableHeaders(tableElement) {
 }
 
 // Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
+function addressInsightReport(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
   insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
@@ -175,7 +179,7 @@ function addressAccessibilityIssues(insightReport) {
 // REACT_015: Check if document has lang attribute
 export function checkDocumentLang() {
   const html = document.querySelector('html');
-  const lang = html ? html.getAttribute('lang');
+  const lang = html ? html.getAttribute('lang') : null;
   
   if (!lang) {
     return {

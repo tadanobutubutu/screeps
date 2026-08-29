@@ -1,3 +1,7 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { validateData } from './utils/validation.js';
 import { formatDate } from './utils/formatters.js';
 import { calculateTotal } from './utils/calculations.js';
@@ -8,7 +12,7 @@ import { renderChart } from './components/chart.js';
 
 import { class1, function1, Object1 } from './path/to/module';
 
-import { class1, function1, Object1 } from './third-party-module'; // Import the third-party module if it was added
+import { class1 as class1ThirdParty, function1 as function1ThirdParty, Object1 as Object1ThirdParty } from './third-party-module'; // Import the third-party module if it was added
 
 function renderUserProfile(userData, container) {
   // Existing implementation
@@ -71,5 +75,36 @@ function grandUnifiedFunction() {
   return container;
 }
 
-export { grandUnifiedFunction };
-```
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
+export { grandUnifiedFunction, countDependencies };

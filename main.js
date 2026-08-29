@@ -98,6 +98,65 @@ export const logger = {
   },
 };
 
+// Function to create in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+  // Create a new button element
+  const button = document.createElement('button');
+
+  // Set the button's ID, text content, and class
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.className = buttonClass;
+
+  // Append the button to the body or a specific container
+  document.body.appendChild(button);
+
+  // Return the created button for further manipulation if needed
+  return button;
+}
+
+// Function to make API calls
+async function makeAPICall() {
+  // Your implementation goes here
+}
+
+// Function to determine if landmarks are unique
+function ensureUniqueLandmarks() {
+  // Check for duplicate landmark regions
+  const landmarks = document.querySelectorAll('[role="region"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]');
+  const landmarkTypes = {};
+  
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || 'main';
+    if (!landmarkTypes[role]) {
+      landmarkTypes[role] = [];
+    }
+    landmarkTypes[role].push(landmark);
+  });
+  
+  // Log any duplicates found
+  Object.keys(landmarkTypes).forEach(role => {
+    if (landmarkTypes[role].length > 1) {
+      console.warn(`Multiple ${role} landmarks found:`, landmarkTypes[role]);
+    }
+  });
+}
+
+// Function to check landmark elements in the DOM
+function checkLandmarkElementsInDom() {
+  return document.querySelectorAll('[role="region"], [role="navigation"], [role="main"], [role="contentinfo"], [role="search"]').length;
+}
+
+// Ensure the <html> element has a lang attribute for accessibility
+if (!document.documentElement.lang) {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
+// Wrap the entire document content inside a <main> element
+const mainElement = document.createElement('main');
+document.documentElement.setAttribute('lang', 'en');
+document.body.appendChild(mainElement);
+
 // New function to handle adding landmark regions
 function addLandmarkRegions() {
   const container = document.getElementById('landmark-regions-container');
@@ -112,16 +171,6 @@ function addLandmarkRegions() {
     `;
   }
 }
-
-// Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.lang) {
-  document.documentElement.setAttribute('lang', 'en');
-}
-
-// Wrap the entire document content inside a <main> element
-const mainElement = document.createElement('main');
-document.documentElement.setAttribute('lang', 'en');
-document.body.appendChild(mainElement);
 
 // Game loop function
 function run() {
@@ -154,7 +203,6 @@ Module.onInit = function() {
 
 // Export affected functions to make them accessible
 module.exports = {
-  ...affectedFunctions,
   run,
   checkLandmarkElements,
   addLandmarkRegions,
@@ -181,4 +229,7 @@ module.exports = {
   createAccessibleLink,
   a11yStore,
   mainElement,
+  ensureUniqueLandmarks,
+  checkLandmarkElementsInDom,
+  makeAPICall
 };

@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const button = document.createElement('button');
+button.textContent = 'Example Button';
+button.setAttribute('aria-label', 'Example Button');
+button.setAttribute('aria- role', 'button');

@@ -1,5 +1,6 @@
-// main.js
-// Existing code...
+// Before
+// <html lang="en">
+// </html>
 
 /**
  * Counts the number of dependencies.

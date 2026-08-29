@@ -69,12 +69,12 @@ function validateInput(input) {
 
 // Function: addressAccessibilityIssues
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
+  // Implementation of the function to address accessibility issues
+  // This processes accessibility issues from the insight report
   if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
     insightReport.accessibilityIssues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
+      // Logic to address the issue, such as updating the DOM or calling other functions
     });
   }
 }

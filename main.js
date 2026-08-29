@@ -366,6 +366,181 @@ function getLandmarkData(id) {
   };
 }
 
+// New functions added as per issue requirements
+
+/**
+ * Gets the language attribute of the document.
+ * @returns {string} The language code
+ */
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+/**
+ * Creates an in-page button with the given text.
+ * @param {string} text - The button text
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(text = 'Button') {
+  const button = document.createElement('button');
+  button.textContent = text;
+  return button;
+}
+
+/**
+ * Validates accessibility of a table.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the table is accessible
+ */
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const caption = table.querySelector('caption');
+  const ariaLabel = table.getAttribute('aria-label');
+  return !!(caption || ariaLabel);
+}
+
+/**
+ * Validates structure of a table.
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the table structure is valid
+ */
+function validateTableStructure(table) {
+  if (!table) return false;
+  const hasTh = table.querySelector('th');
+  const hasThead = table.querySelector('thead');
+  const hasTbody = table.querySelector('tbody');
+  return !!(hasTh || hasThead || hasTbody);
+}
+
+/**
+ * Validates a landmark element.
+ * @param {HTMLElement} element - The element to validate
+ * @returns {boolean} True if the element is a valid landmark
+ */
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute('role');
+  const tag = element.tagName.toLowerCase();
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'region', 'search', 'article', 'aside', 'figure', 'footer', 'header', 'landmark'];
+  const landmarkTags = ['header', 'nav', 'main', 'aside', 'footer'];
+  return landmarkRoles.includes(role) || landmarkTags.includes(tag);
+}
+
+/**
+ * Validates structure of a landmark element.
+ * @param {HTMLElement} element - The landmark element
+ * @returns {boolean} True if the landmark structure is valid
+ */
+function validateLandmarkStructure(element) {
+  return validateLandmark(element);
+}
+
+/**
+ * Validates attributes of a landmark element.
+ * @param {HTMLElement} element - The landmark element
+ * @returns {boolean} True if the landmark has appropriate attributes
+ */
+function validateLandmarkAttributes(element) {
+  if (!element) return false;
+  const role = element.getAttribute('role');
+  const label = element.getAttribute('aria-label');
+  return !!(role || label);
+}
+
+/**
+ * Gets accessible name for an SVG element.
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'SVG graphic';
+}
+
+/**
+ * Sets accessibility attributes on an SVG element.
+ * @param {SVGElement} svg - The SVG element to modify
+ */
+function setSvgAttributes(svg) {
+  if (!svg) return;
+  if (!svg.getAttribute('aria-label')) {
+    svg.setAttribute('aria-label', 'SVG graphic');
+  }
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
+
+/**
+ * Validates uniqueness of landmark elements in the document.
+ * @returns {Object} Information about duplicate landmarks
+ */
+function validateLandmarkUniqueness() {
+  const result = {
+    duplicateMains: [],
+    duplicateBanners: [],
+    duplicateFooters: []
+  };
+  if (typeof document === 'undefined') return result;
+
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    result.duplicateMains = Array.from(mains).slice(1);
+  }
+
+  const banners = document.querySelectorAll('[role="banner"], header');
+  if (banners.length > 1) {
+    result.duplicateBanners = Array.from(banners).slice(1);
+  }
+
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  if (footers.length > 1) {
+    result.duplicateFooters = Array.from(footers).slice(1);
+  }
+
+  return result;
+}
+
+/**
+ * Validates accessibility of a link element.
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {boolean} True if the link is accessible
+ */
+function validateLinkAccessibility(link) {
+  if (!link) return false;
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === '') return false;
+  const hasText = link.textContent.trim().length > 0;
+  const hasAriaLabel = link.getAttribute('aria-label');
+  return !!(hasText || hasAriaLabel);
+}
+
+/**
+ * Handles fake link issues by converting inaccessible links to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function handleFakeLinks() {
+  if (typeof document === 'undefined') return [];
+  const links = document.querySelectorAll('a');
+  const fixed = [];
+  links.forEach(link => {
+    if (!validateLinkAccessibility(link)) {
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      const ariaLabel = link.getAttribute('aria-label');
+      if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
+        fixed.push(button);
+      }
+    }
+  });
+  return fixed;
+}
+
 // Export all functions
 module.exports = {
   ensureElementHasId,
@@ -375,5 +550,17 @@ module.exports = {
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
-  getLandmarkData
+  getLandmarkData,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLandmarkUniqueness,
+  validateLinkAccessibility,
+  handleFakeLinks
 };

@@ -23,7 +23,7 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = baseName;
+    let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -48,6 +48,17 @@ function uniqueLandmarks(landmarks) {
         }
     }
     return result;
+}
+
+/**
+ * Adds an aria-label attribute to an element if it doesn't already have one.
+ * @param {HTMLElement} element - The element to add the aria-label to.
+ * @param {string} label - The label text to be added.
+ */
+function addAriaLabel(element, label) {
+    if (!element.hasAttribute('aria-label')) {
+        element.setAttribute('aria-label', label);
+    }
 }
 
 /**
@@ -244,5 +255,6 @@ module.exports = {
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
-  isLinkAccessible
+  isLinkAccessible,
+  addAriaLabel
 };

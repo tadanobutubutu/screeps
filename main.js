@@ -11,11 +11,34 @@ const main = {
       }
     }
     
-    // TODO: Implement harvest and upgrade logic
+    // Implement harvest and upgrade logic
+    for (const creep of Game.creeps) {
+      if (creep.memory.role === 'harvester') {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
     
-    // TODO: Implement tower defense
+    // Implement tower defense
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      const towers = room.find(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_TOWER }
+      });
+      const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+      
+      if (hostileCreeps.length > 0) {
+        towers.forEach(tower => {
+          tower.attack(hostileCreeps[0]);
+        });
+      }
+    }
     
-    // TODO: Implement spawning logic
+    // Implement spawning logic
+    if (Game.time % 5 === 0) { // Check to spawn a creep every 5 ticks
+      this.spawnCreep();
+    }
   },
   
   manageRoom: function(room) {
@@ -53,6 +76,31 @@ const main = {
         creep.moveTo(creep.room.controller);
       }
     }
+  },
+  
+  spawnCreep: function() {
+    const spawn = this.getClosestSpawn();
+    if (spawn && spawn.spawning === null) {
+      const creepBody = [WORK, CARRY, MOVE];
+      const creepMemory = { role: 'harvester' };
+      const result = spawn.spawnCreep(creepBody, 'Harvester' + Game.time, { memory: creepMemory });
+      if (result === OK) {
+        console.log('Spawning new harvester creep');
+      }
+    }
+  },
+  
+  getClosestSpawn: function() {
+    let closestSpawn = null;
+    let closestDistance = Infinity;
+    for (const spawn of Game.spawns) {
+      const distance = spawn.pos.getRangeTo(Game.creeps[0].pos);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestSpawn = spawn;
+      }
+    }
+    return closestSpawn;
   }
 };
 

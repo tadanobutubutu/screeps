@@ -53,14 +53,14 @@ function getSvgAccessibleName(svgElement) {
  * Sets accessibility properties on SVG elements.
  * @param {SVGElement} svgElement - The SVG element to modify
  */
-function setSvgAccessibilityProps(svgElement) {
+function setSvgAttributes(svgElement) {
   if (!svgElement) return;
   
   if (!svgElement.hasAttribute('role')) {
     svgElement.setAttribute('role', 'img');
   }
   
-  if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title')) {
+  if (!svgElement.hasAttribute('aria-hidden') || svgElement.getAttribute('aria-hidden') !== 'false') {
     const generatedLabel = 'SVG Image';
     svgElement.setAttribute('aria-label', generatedLabel);
   }
@@ -94,7 +94,7 @@ function isButtonAccessible(button) {
   const hasAriaLabel = button.hasAttribute('aria-label');
   const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
   const hasTitle = button.hasAttribute('title');
-  const hasIcon = button.querySelector('svg, img, icon');
+  const hasIcon = button.querySelector('img, icon');
   
   return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
 }
@@ -112,7 +112,7 @@ function checkAccessibility(container = document) {
   
   if (!container) return results;
   
-  const links = container.querySelectorAll('a[href]');
+  const links = container.querySelectorAll('a');
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);
@@ -171,12 +171,12 @@ function wrapPrimaryContentInMain() {
   const bodyChildren = Array.from(document.body.children);
   bodyChildren.forEach(child => {
     if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
+        child.getAttribute('data-a11y-ignore') !== 'true') {
       main.appendChild(child);
     }
   });
   
-  document.body.insertBefore(main, document.body.firstChild);
+  document.body.appendChild(main);
   return main;
 }
 
@@ -250,7 +250,10 @@ exports.anotherFunction = function() {
   // Existing code
 };
 
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
+function addressAccessibilityIssue038() {
+  // Function implementation
+}
+
 exports.renderDependencyGraph = renderDependencyGraph;
 
 // TODO: This is the existing code that needs to be preserved
@@ -258,7 +261,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
@@ -297,203 +300,4 @@ function createInPageButton() {
     const button = document.createElement('button');
     button.textContent = 'Toggle Language';
     button.setAttribute('aria-label', 'Toggle Language');
-    button.addEventListener('click', () => {
-      const currentLang = document.documentElement.lang;
-      document.documentElement.lang = (currentLang === 'en') ? 'fr' : 'en';
-    });
-    document.body.appendChild(button);
-    return button;
-  }
-  return null;
-}
-
-/**
- * Adds lang attribute to the HTML element if missing.
- * @returns {HTMLElement|null} The HTML element or null if document is not available
- */
-function addLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = 'en';
-    }
-    return document.documentElement;
-  }
-  return null;
-}
-
-/**
- * Validates table accessibility by checking for proper headers, captions, and ARIA attributes.
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} An object containing validation results
- */
-function validateTableAccessibility(table) {
-  const results = {
-    isAccessible: true,
-    issues: [],
-    table: table
-  };
-
-  if (!table) {
-    results.isAccessible = false;
-    results.issues.push('Table is null or undefined');
-    return results;
-  }
-
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    results.isAccessible = false;
-    results.issues.push('Table is missing a caption element');
-  }
-
-  // Check for headers (th elements)
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    results.isAccessible = false;
-    results.issues.push('Table is missing header cells (th elements)');
-  } else {
-    // Check that headers have scope attribute or are associated with cells via id/headers
-    let hasScopedHeaders = false;
-    headers.forEach(th => {
-      if (th.hasAttribute('scope') || th.hasAttribute('id')) {
-        hasScopedHeaders = true;
-      }
-    });
-    if (!hasScopedHeaders) {
-      results.isAccessible = false;
-      results.issues.push('Table headers are missing scope attributes or IDs');
-    }
-  }
-
-  // Check for proper table structure (tbody, thead, or tfoot)
-  const structuralElements = table.querySelectorAll('thead, tbody, tfoot');
-  if (structuralElements.length === 0) {
-    results.isAccessible = false;
-    results.issues.push('Table is missing proper structural elements (thead, tbody, or tfoot)');
-  }
-
-  return results;
-}
-
-/**
- * Validates table structure by checking for proper nesting and element types.
- * @param {HTMLElement} table - The table element to validate
- * @returns {Object} An object containing validation results
- */
-function validateTableStructure(table) {
-  const results = {
-    isValid: true,
-    issues: [],
-    table: table
-  };
-
-  if (!table) {
-    results.isValid = false;
-    results.issues.push('Table is null or undefined');
-    return results;
-  }
-
-  // Check for proper nesting of elements
-  const rows = table.querySelectorAll('tr');
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('td, th');
-    cells.forEach(cell => {
-      // Cells should only be direct children of rows
-      if (cell.parentElement !== row) {
-        results.isValid = false;
-        results.issues.push('Cell is not a direct child of a row');
-      }
-    });
-  });
-
-  return results;
-}
-
-function validateLandmark() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section[role]');
-  return landmarks.length;
-}
-
-function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  let issues = 0;
-  landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('role') && !landmark.tagName.match(/^(MAIN|NAV|HEADER|FOOTER|ASIDE)$/)) {
-      issues++;
-    }
-  });
-  return issues;
-}
-
-function validateLandmarkAttributes() {
-  const landmarks = document.querySelectorAll('[role]');
-  let issues = 0;
-  landmarks.forEach(landmark => {
-    const role = landmark.getAttribute('role');
-    if (!['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'].includes(role)) {
-      issues++;
-    }
-  });
-  return issues;
-}
-
-function setSvgAttributes(svgElement) {
-  const svg = svgElement || document.querySelector('svg');
-  if (!svg) return;
-  if (!svg.getAttribute('role')) svg.setAttribute('role', 'img');
-  if (!svg.getAttribute('focusable')) svg.setAttribute('focusable', 'false');
-  return svg;
-}
-
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.id) {
-      landmark.id = `landmark-${index}`;
-    }
-  });
-  return landmarks.length;
-}
-
-function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a');
-  let issues = 0;
-  links.forEach(link => {
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    const title = link.getAttribute('title');
-    if (!text && !ariaLabel && !title) {
-      issues++;
-    }
-  });
-  return issues;
-}
-
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabindex', '0');
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-    });
-  });
-  return fakeLinks.length;
-}
-
-function countDependencies() {
-  const scripts = document.querySelectorAll('script[src]');
-  const styles = document.querySelectorAll('link[rel="stylesheet"]');
-  const images = document.querySelectorAll('img[src]');
-  const svgElements = document.querySelectorAll('svg[src]');
-  const fonts = document.querySelectorAll('link[rel="preload"][as="font"], link[rel="stylesheet"][href*="font"]');
-  
-  return {
-    scripts: scripts.length,
-    styles: styles.length,
-    images: images.length,
-    svgs: svgElements.length,
-    fonts: fonts.length,
-    total: scripts.length + styles.length + images.length + svgElements.length + fonts.length
-  };
-}
+    button.add

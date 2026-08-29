@@ -291,6 +291,139 @@ function validateLandmarkAttributes() {
   // ...
 }
 
+// NEW: Ensure element has an id (REACT accessibility requirement)
+function ensureElementHasId(element, prefix = 'elem') {
+  if (!element) return null;
+  
+  // If element already has an id, return it
+  if (element.id && element.id.trim() !== '') {
+    return element.id;
+  }
+  
+  // Generate a unique id
+  const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = id;
+  
+  return id;
+}
+
+// NEW: Add aria-label to element (REACT accessibility requirement)
+function addAriaLabel(element, label) {
+  if (!element) return false;
+  
+  // Set the aria-label attribute
+  element.setAttribute('aria-label', label);
+  
+  return true;
+}
+
+// NEW: Render dependency graphs with accessibility support (REACT accessibility requirement)
+function renderDependencyGraphs(dependencies, container) {
+  if (!container || !dependencies) return null;
+  
+  // Create SVG element for the graph with proper accessibility attributes
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('focusable', 'false');
+  
+  // Add accessible title for screen readers
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+  
+  // Add accessible description
+  const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+  desc.textContent = `Visual representation of ${dependencies.length} dependencies`;
+  svg.appendChild(desc);
+  
+  // Set SVG dimensions
+  const width = 800;
+  const height = 600;
+  svg.setAttribute('width', String(width));
+  svg.setAttribute('height', String(height));
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  
+  // Create a group for the graph content
+  const graphGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  graphGroup.setAttribute('id', 'dependency-graph-content');
+  
+  // Render each dependency as a node
+  const nodeSpacing = 100;
+  const startX = 50;
+  const startY = 50;
+  
+  dependencies.forEach((dep, index) => {
+    const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    nodeGroup.setAttribute('role', 'img');
+    nodeGroup.setAttribute('aria-label', `Dependency: ${dep.name || dep.id || 'Node ' + index}`);
+    
+    // Create node rectangle
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(startX + (index % 7) * nodeSpacing));
+    rect.setAttribute('y', String(startY + Math.floor(index / 7) * nodeSpacing));
+    rect.setAttribute('width', '80');
+    rect.setAttribute('height', '40');
+    rect.setAttribute('rx', '4');
+    rect.setAttribute('fill', '#e0e0e0');
+    rect.setAttribute('stroke', '#333');
+    rect.setAttribute('stroke-width', '1');
+    
+    // Create node label
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(startX + (index % 7) * nodeSpacing + 40));
+    text.setAttribute('y', String(startY + Math.floor(index / 7) * nodeSpacing + 24));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-size', '12');
+    text.textContent = dep.name || dep.id || `Node ${index + 1}`;
+    
+    nodeGroup.appendChild(rect);
+    nodeGroup.appendChild(text);
+    
+    // Draw connection lines to dependencies
+    if (dep.dependencies && dep.dependencies.length > 0) {
+      dep.dependencies.forEach(targetIndex => {
+        if (targetIndex < dependencies.length) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', String(startX + (index % 7) * nodeSpacing + 40));
+          line.setAttribute('y1', String(startY + Math.floor(index / 7) * nodeSpacing + 40));
+          line.setAttribute('x2', String(startX + (targetIndex % 7) * nodeSpacing + 40));
+          line.setAttribute('y2', String(startY + Math.floor(targetIndex / 7) * nodeSpacing));
+          line.setAttribute('stroke', '#666');
+          line.setAttribute('stroke-width', '1');
+          line.setAttribute('marker-end', 'url(#arrowhead)');
+          graphGroup.appendChild(line);
+        }
+      });
+    }
+    
+    graphGroup.appendChild(nodeGroup);
+  });
+  
+  // Add arrow marker definition for connection lines
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', 'arrowhead');
+  marker.setAttribute('markerWidth', '10');
+  marker.setAttribute('markerHeight', '7');
+  marker.setAttribute('refX', '9');
+  marker.setAttribute('refY', '3.5');
+  marker.setAttribute('orient', 'auto');
+  
+  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+  polygon.setAttribute('fill', '#666');
+  
+  marker.appendChild(polygon);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+  svg.appendChild(graphGroup);
+  
+  // Append to container
+  container.appendChild(svg);
+  
+  return svg;
+}
+
 module.exports = {
   newFunction,
   greet,
@@ -319,5 +452,8 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   addProperLandmarkRegions,
-  renderDependencyGraphPage
+  renderDependencyGraphPage,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs
 };

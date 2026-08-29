@@ -72,6 +72,12 @@ export function countDependencies(dependencies) {
   return Object.keys(dependencies).length;
 }
 
+// New function implementation for accessibility fix
+export function fixAccessibility() {
+  fixFakeLinks();
+  addScopeToTableHeaders();
+}
+
 export default {
   VERSION,
   initialize,

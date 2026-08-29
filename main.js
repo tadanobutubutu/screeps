@@ -14,11 +14,13 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  document.body.appendChild(button);
+  // Ensure accessibility attributes are set
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', buttonText);
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -65,7 +67,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// New function for the issue
+// Function to calculate accessibility score
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;
@@ -76,6 +78,11 @@ function calculateAccessibilityScore(fixedIssues) {
     'missing-alt-text': 3,
     'missing-aria-label': 5,
     'heading-order': 2,
+    'add-lang-attribute': 4,
+    'add-landmark-roles': 4,
+    'add-accessible-names-to-svgs': 3,
+    'ensure-unique-landmarks': 3,
+    'fix-fake-link': 2,
     'other': 1
   };
 

@@ -30,7 +30,7 @@ function checkLandmarkElements(landmarks) {
 }
 
 // Function for ensuring unique landmarks
-function ensureUniqueLandmarks(insightReport) {
+function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
@@ -127,7 +127,6 @@ function newFunction() {
 
 // Export functions for testing
 module.exports = {
-  calculateDistance,
   toRad,
   ensureUniqueLandmarks,
   checkLandmarkElements,

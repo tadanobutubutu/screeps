@@ -23,23 +23,27 @@ const main = {
     const sources = room.find(FIND_SOURCES);
     const hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
     
-    if (hostileCreeps.length > 0) {
+    if (hostileCreeps && hostileCreeps.length > 0) {
       this.defendRoom(room, hostileCreeps);
     }
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
     
-    towers.forEach(tower => {
-      tower.attack(hostiles[0]);
-    });
+    if (towers && towers.length > 0) {
+      towers.forEach(tower => {
+        tower.attack(hostiles[0]);
+      });
+    }
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const sources = creep.room.find(FIND_SOURCES);
+    const target = sources[0];
+    
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

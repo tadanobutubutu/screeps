@@ -30,7 +30,8 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     ensureUniqueLandmarksFromString,
     validateLandmark,
-    spawnSomeCommand
+    spawnSomeCommand,
+    addLangAttribute
   };
 } else {
   // Browser environment - wait for DOM
@@ -327,7 +328,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssue.reduce((score, issue) => {
+  return fixedIssues.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);
@@ -421,4 +422,9 @@ function spawnSomeCommand(callback) {
       callback(new Error(`someCommand failed with code ${code}`));
     }
   });
+}
+
+// REACT_015: Add lang attribute
+function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
 }

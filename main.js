@@ -272,6 +272,28 @@ function hasAccessibleName(element) {
 // Export the newFunction for use in other modules
 export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName };
 
+// New exported function to make affected accessibility functions accessible
+/**
+ * Returns an object containing all accessibility helper functions for external use
+ * @returns {Object} - Object with accessibility functions
+ */
+export function getAccessibilityFunctions() {
+  return {
+    getUniqueLandmarkName,
+    validateUniqueLandmarks,
+    addSvgAccessibleName,
+    isValidLink,
+    addScopeToHeaders,
+    addressAccessibilityIssues,
+    announceToScreenReader,
+    trapFocus,
+    manageFocusOnNavigation,
+    prefersReducedMotion,
+    setAriaExpanded,
+    hasAccessibleName
+  };
+}
+
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);

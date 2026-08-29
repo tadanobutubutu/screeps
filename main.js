@@ -1,6 +1,6 @@
 // GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
 
-// TODO: Add exports for new functions if needed - UPDATED: Added exports below
+// TODO: Address accessibility issues from insight report: - Addressed in addressAccessibilityIssues function
 
 // Existing utility functions
 function add(a, b) {
@@ -42,11 +42,9 @@ const a11yStore = {
 
   init() {
     this.createLiveRegion();
-    this.setupKeyboardNavigation();
+    this.setupKeyboardHandlers();
     this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
   },
 
   createLiveRegion() {
@@ -73,10 +71,10 @@ const a11yStore = {
     }, 100);
   },
 
-  setupKeyboardNavigation() {
+  setupKeyboardHandlers() {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        const target = e.target;
         if (target) {
           e.preventDefault();
           target.click();
@@ -84,16 +82,16 @@ const a11yStore = {
       }
 
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        const openModal = document.querySelector('.modal.open');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.setAttribute('aria-hidden', 'true');
           document.body.style.overflow = '';
         }
       }
     });
 
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
-    dropdownContainers.forEach((container) => {
+    const dropdownContainers = document.querySelectorAll('.dropdown');
+    dropdownContainers.forEach(container => {
       container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
 
@@ -125,7 +123,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      const modal = document.querySelector('.modal.open');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
@@ -149,18 +147,18 @@ const a11yStore = {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
-    const target = targetId ? document.getElementById(targetId) : null;
+    const targetId = skipLink.getAttribute('href');
+    const target = targetId ? document.querySelector(targetId) : null;
 
     if (target) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');
         target.focus();
-        this.announce('Skipped to main content');
+        this.announce('Skip to main content');
       });
 
-      if (navigator.userAgent.toLowerCase().indexOf('safari') !== -1) {
+      if (document.body.contains(skipLink)) {
         skipLink.focus();
       }
     }
@@ -181,28 +179,35 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
+    landmarkElements.forEach(tag => {
+      const landmark = document.querySelector(tag);
       if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+        landmark.id = `landmark-${tag}-${Date.now() * 1000}`;
       }
     });
   },
 
-  addSVGAccessibilityProps() {
+  processSVGs() {
     const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach((svg) => {
+    svgElements.forEach(svg => {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      const titleId = `svg-title-${Date.now() * 1000}`;
+      const titleText = svg.querySelector('title')?.textContent || 'Image description';
+      const descriptionId = `svg-desc-${Date.now() * 1000}`;
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      if (!svg.querySelector('title')) {
+        const title = document.createElement('title');
+        title.id = titleId;
+        title.textContent = titleText;
+        svg.insertBefore(title, svg.firstChild);
+      }
+
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
+      svg.appendChild(descriptionElement);
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      svg.setAttribute('aria-labelledby', `${titleId} ${descriptionId}`);
     });
   },
 
@@ -224,7 +229,7 @@ function addressAccessibilityIssues(report) {
   report.forEach(issue => {
     switch (issue.type) {
       case 'missing-lang':
-        if (!document.documentElement.getAttribute('lang')) {
+        if (!document.documentElement.lang) {
           document.documentElement.setAttribute('lang', 'en');
         }
         break;
@@ -256,8 +261,8 @@ function addressAccessibilityIssues(report) {
 }
 
 // REACT_015: Add lang attribute
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+if (!document.documentElement.lang) {
+  document.documentElement.lang = 'en';
 }
 
 // Initialize accessibility features
@@ -278,7 +283,7 @@ module.exports = {
   addressAccessibilityIssues,
   updateLiveRegion: a11yStore.updateLiveRegion,
   checkLandmarkElements: a11yStore.checkLandmarkElements,
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+  processSVGs: a11yStore.processSVGs,
   preserveExistingCode: a11yStore.preserveExistingCode,
   prefersReducedMotion: a11yStore.prefersReducedMotion,
   prefersHighContrast: a11yStore.prefersHighContrast
@@ -289,7 +294,7 @@ export { a11yStore };
 export { addressAccessibilityIssues };
 export { updateLiveRegion };
 export { checkLandmarkElements };
-export { addSVGAccessibilityProps };
+export { processSVGs };
 export { preserveExistingCode };
 export { prefersReducedMotion };
 export { prefersHighContrast };

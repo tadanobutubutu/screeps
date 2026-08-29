@@ -1,6 +1,6 @@
 // main.js
 
-// TODO: Add back any required exports that might have been?
+// TODO: Identify and update specific functions that render dependency graphs or
 
 const fs = require('fs');
 const path = require('path');
@@ -72,6 +72,47 @@ function countDependencies() {
     };
 }
 
+/**
+ * Renders a dependency graph based on the project's package.json
+ * @param {Object} options - Rendering options
+ * @param {boolean} [options.includeDevDependencies=true] - Whether to include dev dependencies
+ * @param {string} [options.format='json'] - Output format ('json', 'dot', or 'mermaid')
+ * @returns {string} - The rendered dependency graph
+ */
+function renderDependencyGraph(options = {}) {
+    const { includeDevDependencies = true, format = 'json' } = options;
+    
+    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = includeDevDependencies ? (packageJson.devDependencies || {}) : {};
+    
+    const graph = {
+        name: packageJson.name || 'unknown',
+        version: packageJson.version || '0.0.0',
+        nodes: [...Object.keys(dependencies), ...Object.keys(devDependencies)],
+        edges: []
+    };
+    
+    if (format === 'dot') {
+        let dot = `digraph "${graph.name}" {\n`;
+        graph.nodes.forEach(node => {
+            dot += `  "${node}";\n`;
+        });
+        dot += `}`;
+        return dot;
+    } else if (format === 'mermaid') {
+        let mermaid = `graph TD\n`;
+        graph.nodes.forEach(node => {
+            mermaid += `  ${node}\n`;
+        });
+        return mermaid;
+    }
+    
+    return JSON.stringify(graph, null, 2);
+}
+
 function main() {
   return 'Hello World';
 }
@@ -93,5 +134,6 @@ module.exports = {
     config,
     countDependencies,
     run,
-    checkTableStructure
+    checkTableStructure,
+    renderDependencyGraph
 };

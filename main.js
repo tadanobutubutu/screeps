@@ -1,31 +1,4 @@
-// TODO: Add back any required exports that might have been removed
-// Example: import a function from another file (util.js)
-// ------ IMPORTANT -------
-// Do not remove or rename any existing exports in main.js
-
 const { functionName } = require('./util');
-
-// Existing exports and functions in main.js
-module.exports = {
-  // Your existing exports here
-};
-
-// main.js
-
-// TODO: Implement this function for checking landmark structure
-function checkLandmarkStructure(html) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  
-  const mainLandmark = doc.querySelector('main, [role="main"]');
-  const landmarks = doc.querySelectorAll('[role], nav, header, footer, aside, main');
-  
-  return {
-    hasMainLandmark: !!mainLandmark,
-    landmarkCount: landmarks.length,
-    landmarks: Array.from(landmarks).map(el => el.tagName.toLowerCase() + (el.getAttribute('role') ? `[role="${el.getAttribute('role')}"]` : ''))
-  };
-}
 
 /**
  * Accessibility improvements for main.js
@@ -38,13 +11,24 @@ function checkLandmarkStructure(html) {
  * - REACT_036: Fix 1 fake link issue
  */
 
-// TODO: Address accessibility issues from insight report — FIXED (combined with the export code)
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+/**
+ * Checks the landmark structure of the HTML
+ * @param {string} html - The HTML string to check
+ * @returns {Object} Object containing landmark analysis
+ */
+function checkLandmarkStructure(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const mainLandmark = doc.querySelector('main, [role="main"]');
+  const landmarks = doc.querySelectorAll('header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+
+  return {
+    hasMainLandmark: !!mainLandmark,
+    landmarkCount: landmarks.length,
+    landmarks: Array.from(landmarks).map(el => el.tagName.toLowerCase() + (el.getAttribute('role') ? `[role="${el.getAttribute('role')}"]` : ''))
+  };
+}
 
 /**
  * Adds lang attribute to HTML element
@@ -53,14 +37,14 @@ function checkLandmarkStructure(html) {
  */
 function addLangAttribute(html) {
   if (typeof html !== 'string') return html;
-  
+
   return html.replace(/<html([^>]*)>/i, (match, attrs) => {
     // Check if lang attribute already exists
-    if (!attrs || attrs.includes(' lang=')) {
+    if (attrs && /lang\s*=/i.test(attrs)) {
       return match;
     }
     // Add lang attribute with 'en' as default
-    return `<html${attrs} lang="en">`;
+    return `<html${attrs ? ' ' + attrs : ''} lang="en">`;
   });
 }
 
@@ -72,52 +56,59 @@ function addLangAttribute(html) {
  */
 function fixTableStructureIssues(html) {
   if (typeof html !== 'string') return html;
-  
+
   let result = html;
-  
-  // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+
+  // Ensure scope="col" on th elements that lack scope
+  result = result.replace(/<th([^>]*?)>/gi, (match, attrs) => {
+    if (attrs && /scope\s*=/i.test(attrs)) {
       return match;
     }
-    return `<th${attrs} scope="col">`;
+    return `<th${attrs ? ' ' + attrs : ''} scope="col">`;
   });
-  
-  // Ensure tables have associated caption or summary
+
+  // Ensure tables have a summary or a caption
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+    // Check if summary attribute exists or a caption is already present later
+    if (attrs && /summary\s*=/i.test(attrs)) {
+      return match;
+    }
+    // Check if table already contains a caption element
+    const tableContent = match + result.substring(result.indexOf(match) + match.length);
+    if (/<caption\b/i.test(tableContent)) {
       return match;
     }
     // Add summary attribute for screen readers
-    return `<table${attrs} summary="Data table">`;
+    return `<table${attrs ? ' ' + attrs : ''} summary="Data table">`;
   });
-  
-  // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
-    // Check if tbody already exists before this tr
-    const trIndex = result.indexOf(match);
-    const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
-      return `<tbody>${match}`;
+
+  // Ensure tbody is present for data rows
+  result = result.replace(/(<table[^>]*>)([\s\S]*?)(<tr\b)/gi, (match, tableTag, between, trTag) => {
+    // If there's already a tbody, don't add another
+    if (/<tbody\b/i.test(between) || /<thead\b/i.test(between) || /<tfoot\b/i.test(between)) {
+      return match;
     }
-    return match;
+    return `${tableTag}${between}<tbody>${trTag}`;
   });
-  
+
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = result.match(/<table[\s\S]*?<\/table>/gi) || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
     const hasTfoot = /<tfoot/i.test(table);
-    
+
     if (hasThead || hasTbody || hasTfoot) {
-      // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      // Ensure proper closing if missing
+      const openTbody = (table.match(/<tbody/gi) || []).length;
+      const closeTbody = (table.match(/<\/tbody>/gi) || []).length;
+      if (openTbody > closeTbody) {
+        const extra = openTbody - closeTbody;
+        result = result.replace(table, table + '</tbody>'.repeat(extra));
       }
     }
   });
-  
+
   return result;
 }
 
@@ -128,21 +119,21 @@ function fixTableStructureIssues(html) {
  */
 function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
-  
+
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if (/<main\b/i.test(html) || /<div[^>]*role=["']main["']/i.test(html)) {
     return html;
   }
-  
+
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main>${bodyContent}</main>`;
+    return html.replace(/<body([^>]*)>([\s\S]*?)<\/body>/i, `<body${bodyAttrs}>${wrappedContent}</body>`);
   }
-  
+
   return html;
 }
 
@@ -153,28 +144,28 @@ function addMainLandmark(html) {
  */
 function addSvgAccessibleNames(html) {
   if (typeof html !== 'string') return html;
-  
+
   let svgCounter = 0;
-  
+
   return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
-    
+    const existingLabel = attrs && /aria-label\s*=|aria-labelledby\s*=/i.test(attrs);
     if (existingLabel) {
       return match;
     }
-    
+
     // Extract title if present
     const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
-    
+
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']*)["']/);
+    const idMatch = match.match(/\bid\s*=\s*["']([^"']+)["']/i);
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      // Use existing id for aria-labelledby
+      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}">`;
     }
-    
+
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
+    const titleId = `svg-title-${svgCounter || (++svgCounter)}`;
     return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
   });
 }
@@ -188,40 +179,23 @@ function addSvgAccessibleNames(html) {
  */
 function ensureUniqueLandmarks(html) {
   if (typeof html !== 'string') return html;
-  
-  const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
-  const counters = {};
-  
-  // Initialize counters for each landmark type
-  landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    if (matches) {
-      counters[lm] = matches.length;
-    }
-  });
-  
-  // First, ensure only one <main> landmark exists.
-  // Convert subsequent <main> elements to <section> with aria-label.
+
+  // Convert duplicate <main> elements to <section> with aria-label
   let mainSeen = false;
   html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
     }
-    // Replace additional <main> tags with <section> while preserving any attributes
+    // Preserve any existing attributes, add aria-label if not present
     const safeAttrs = attrs || '';
-    // Avoid duplicating an aria-label if one already exists
     if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
   });
-  
-  // Also update closing tags for converted <main> elements
-  // Count occurrences of <main> opening tags in the original-like state and
-  // match closing tags. Since we replaced extra <main> with <section>, we must
-  // replace the corresponding extra </main> closing tags with </section>.
+
+  // Update corresponding closing </main> tags to </section> for the extras
   const mainOpenCount = (html.match(/<main\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
@@ -235,31 +209,23 @@ function ensureUniqueLandmarks(html) {
       return match;
     });
   }
-  
-  // Recompute counters after main -> section conversion
+
+  // Assign unique IDs to landmark elements that don't have one
+  const landmarks = ['header', 'nav', 'aside', 'footer', 'section', 'article'];
   landmarks.forEach(lm => {
-    const regex = new RegExp(`<${lm}\\b`, 'gi');
-    const matches = html.match(regex);
-    counters[lm] = matches ? matches.length : 0;
-  });
-  
-  // Assign unique IDs to remaining landmarks
-  landmarks.forEach(lm => {
-    const count = counters[lm] || 0;
-    if (count === 0) return;
+    const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
     const seen = {};
-    const openRegex = new RegExp(`<${lm}([^>]*)>`, 'gi');
-    html = html.replace(openRegex, (match, inner) => {
+    html = html.replace(regex, (match, inner) => {
       // Skip if an id attribute is already present
-      if (inner && inner.includes('id=')) {
+      if (inner && /id\s*=/i.test(inner)) {
         return match;
       }
       seen[lm] = (seen[lm] || 0) + 1;
       const id = `${lm}-${seen[lm]}`;
-      return `<${lm} id="${id}"${inner || ''}>`;
+      return `<${lm} id="${id}"${inner ? ' ' + inner : ''}>`;
     });
   });
-  
+
   return html;
 }
 
@@ -270,13 +236,14 @@ function ensureUniqueLandmarks(html) {
  */
 function fixFakeLinkIssue(html) {
   if (typeof html !== 'string') return html;
-  
-  // Fix any fake links that do not have a valid href attribute
+
   return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
+    // If it has a valid href attribute (including empty), leave it
+    if (attrs && /href\s*=/i.test(attrs)) {
       return match;
     }
-    return match.replace(/<a/, '<a href="#"');
+    // Add href="#" placeholder
+    return `<a${attrs ? ' ' + attrs : ''} href="#">`;
   });
 }
 

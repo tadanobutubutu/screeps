@@ -37,6 +37,9 @@ function addLandmarks(landmarks) {
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 
+// TODO: Identify and update specific functions that render dependency graphs or
+// display module structure for debugging purposes.
+
 function function3() {
   // TODO: Implement new function3 logic here
 }
@@ -173,8 +176,94 @@ function newFunction() {
   console.log('newFunction called');
 }
 
-// Export Screeps bot functions
-module.exports = { addProperLandmarkRegions };
+/**
+ * Builds an adjacency list representation of the module dependency graph.
+ * @param {Array<{name: string, dependencies: string[]}>} modules
+ * @returns {Object<string, string[]>}
+ */
+function buildDependencyGraph(modules) {
+  const graph = {};
+  if (!Array.isArray(modules)) {
+    return graph;
+  }
+  modules.forEach((module) => {
+    if (module && typeof module.name === 'string') {
+      graph[module.name] = Array.isArray(module.dependencies) ? module.dependencies : [];
+    }
+  });
+  return graph;
+}
+
+/**
+ * Renders the dependency graph as an ASCII tree for debugging purposes.
+ * @param {Object<string, string[]>} graph
+ * @param {string} rootName
+ * @returns {string}
+ */
+function renderDependencyGraph(graph, rootName) {
+  if (!graph || typeof graph !== 'object') {
+    return '';
+  }
+  if (!rootName || !graph[rootName]) {
+    return Object.keys(graph).map((key) => renderDependencyGraph(graph, key)).join('\n');
+  }
+  const lines = [];
+  const visited = new Set();
+
+  function walk(node, prefix, isLast) {
+    if (visited.has(node)) {
+      lines.push(`${prefix}${isLast ? '└── ' : '│   '}${node} (circular)`);
+      return;
+    }
+    visited.add(node);
+    lines.push(`${prefix}${isLast ? '└── ' : '│---'}${node}`);
+    const children = graph[node] || [];
+    children.forEach((child, index) => {
+      const last = index === children.length - 1;
+      walk(child, prefix + (isLast ? '    ' : '│   '), last);
+    });
+  }
+
+  walk(rootName, '', true);
+  return lines.join('\n');
+}
+
+/**
+ * Renders a flat module structure list showing each module and its direct dependencies.
+ * Useful for quick debugging of module relationships.
+ * @param {Object<string, string[]>} graph
+ * @returns {string}
+ */
+function renderModuleStructure(graph) {
+  if (!graph || typeof graph !== 'object') {
+    return '';
+  }
+  return Object.keys(graph)
+    .map((name) => {
+      const deps = (graph[name] || []).join(', ');
+      return `${name} -> [${deps}]`;
+    })
+    .join('\n');
+}
+
+/**
+ * Logs the dependency graph and module structure to the console for debugging.
+ * @param {Array<{name: string, dependencies: string[]}>} modules
+ * @param {string} [rootName]
+ */
+function debugModuleStructure(modules, rootName) {
+  const graph = buildDependencyGraph(modules);
+  // eslint-disable-next-line no-console
+  console.log('=== Module Structure ===');
+  // eslint-disable-next-line no-console
+  console.log(renderModuleStructure(graph));
+  if (rootName) {
+    // eslint-disable-next-line no-console
+    console.log('=== Dependency Graph ===');
+    // eslint-disable-next-line no-console
+    console.log(renderDependencyGraph(graph, rootName));
+  }
+}
 
 // Export accessibility functions
 export {
@@ -194,10 +283,20 @@ export {
   prefersReducedMotion,
   setAriaExpanded,
   hasAccessibleName,
-  newFunction
+  newFunction,
+  buildDependencyGraph,
+  renderDependencyGraph,
+  renderModuleStructure,
+  debugModuleStructure,
+  addProperLandmarkRegions,
+  getLangAttribute,
+  personName,
+  createInPageButton,
+  getSvgAccessibleName,
+  validateLandmarkStructure,
+  validateLandmark
 };
 
-// <!--- END ADDITIONAL FUNCTION --->
 // <!--- START MODIFIED FUNCTION --->
 function modifiedFunction() {
   // Modified implementation of the function

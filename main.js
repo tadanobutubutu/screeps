@@ -1,8 +1,6 @@
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
+import { renderHeader, renderFooter, renderProductCard, renderDependencyGraph, renderIndexView } from './components.js';
 import { state, updateState } from './state.js';
-
-// TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
   return `${product.name} - ${product.category}`;
@@ -45,11 +43,21 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
+function renderDependencyGraph(graphData) {
+  return renderDependencyGraph(graphData);
+}
+
+function renderIndexView(indexData) {
+  return renderIndexView(indexData);
+}
+
 export {
   formatProductName,
   renderProductList,
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  renderDependencyGraph,
+  renderIndexView
 };

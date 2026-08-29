@@ -72,6 +72,72 @@ function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
 
+// Function to address accessibility issues from insight report
+function addressAccessibilityIssues(document, insightReport) {
+  const results = {
+    tables: [],
+    landmarks: [],
+    svgs: [],
+    fakeLinks: [],
+    buttons: [],
+    landmarkRegions: [],
+    mainLandmark: null,
+    errors: []
+  };
+
+  if (!insightReport || !document) {
+    results.errors.push('Missing required parameters: document or insightReport');
+    return results;
+  }
+
+  // Process table accessibility issues
+  if (insightReport.tables && insightReport.tables.length > 0) {
+    fixTableStructure(document);
+    results.tables = insightReport.tables;
+  }
+
+  // Process landmark accessibility issues
+  if (insightReport.landmarks) {
+    if (insightReport.landmarks.missingMain) {
+      addMainLandmark(document);
+      results.mainLandmark = 'added';
+    }
+    if (insightReport.landmarks.duplicateLandmarks) {
+      uniqueLandmarks(document);
+    }
+    if (insightReport.landmarks.missingRegions) {
+      addLandmarkRegions(document);
+      results.landmarkRegions = insightReport.landmarks.missingRegions;
+    }
+    if (insightReport.landmarks.structureIssues) {
+      fixLandmarkIssues(document);
+      results.landmarks = insightReport.landmarks.structureIssues;
+    }
+  }
+
+  // Process SVG accessibility issues
+  if (insightReport.svgs && insightReport.svgs.length > 0) {
+    addSvgAccessibleNames(document);
+    results.svgs = insightReport.svgs;
+  }
+
+  // Process fake link issues
+  if (insightReport.fakeLinks && insightReport.fakeLinks.length > 0) {
+    fixFakeLinkIssues(document);
+    results.fakeLinks = insightReport.fakeLinks;
+  }
+
+  // Process button accessibility issues
+  if (insightReport.buttons && insightReport.buttons.length > 0) {
+    results.buttons = insightReport.buttons.map(btn => {
+      fixButtonIdentifiers(btn.element, btn.id);
+      return btn;
+    });
+  }
+
+  return results;
+}
+
 // Utility functions
 function formatDate(date) {
   return new Intl.DateTimeFormat('en-US', {

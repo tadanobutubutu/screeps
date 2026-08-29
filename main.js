@@ -12,4 +12,5 @@ function addLandmarkRegions() {
   }
 }
 
+// Placeholder for adding any required exports
 export { addLandmarkRegions };

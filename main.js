@@ -99,39 +99,40 @@ function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
 
-// Accessibility function to fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || table.firstChild);
-      }
-    }
-    table.querySelectorAll('td').forEach(td => {
-      if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
-        td.setAttribute('scope', 'col');
-      }
-    });
-  });
+// ... Existing functions and exports ...
+
+// New function to get and set the lang attribute on an element
+function getLangAttribute(element) {
+  return element.getAttribute('lang') || document.documentElement.lang;
 }
 
-// Accessibility function to ensure proper main landmark
-function addMainLandmark() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length === 0) {
-    const mainElement = document.createElement('main');
-    const body = document.body;
-    if (body.firstChild) {
-      body.insertBefore(mainElement, body.firstChild);
-    } else {
-      body.appendChild(mainElement);
-    }
+// New function to create an in-page button
+function createInPageButton(options) {
+  if (!options || !options.id || !options.label) {
+    throw new Error('Options must include "id" and "label".');
   }
+
+  const button = document.createElement('a');
+  button.href = `#${options.id}`;
+  button.textContent = options.label;
+  button.classList.add('in-page-button');
+
+  if (getBrowserName() !== 'firefox') {
+    // Non-Firefox browsers have a built-in aria-label for anchors, no need to duplicate
+    button.setAttribute('aria-label', options.label);
+  }
+
+  return button;
+}
+
+// Helper function to detect the current browser
+function getBrowserName() {
+  const userAgent = navigator.userAgent;
+  if (userAgent.indexOf('firefox') !== -1) return 'firefox';
+  if (userAgent.indexOf('chrome') !== -1) return 'chrome';
+  if (userAgent.indexOf('safari') !== -1) return 'safari';
+  if (userAgent.indexOf('edge') !== -1) return 'edge';
+  return 'unknown';
 }
 
 // New function to get accessible name for an SVG
@@ -271,6 +272,35 @@ function updateDependencyGraph(graphElement, newData) {
   return true;
 }
 
+// Update document.readyState check to call new functions as well
+function initAccessibility() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      addLangAttribute();
+      fixTableStructureIssues();
+      addMainLandmark();
+      addSvgAccessibleNames();
+      ensureUniqueLandmarks();
+      fixFakeLinkIssue();
+      createInPageButton({ id: 'example', label: 'Example Link' });
+      
+      // Additional accessibility features from origin/main
+      announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
+    });
+  } else {
+    // Document already loaded
+    addLangAttribute();
+    fixTableStructureIssues();
+    addMainLandmark();
+    addSvgAccessibleNames();
+    ensureUniqueLandmarks();
+    fixFakeLinkIssue();
+    createInPageButton({ id: 'example', label: 'Example Link' });
+    
+    announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
+  }
+}
+
 // Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', () => {
@@ -300,14 +330,15 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     // Handle missing alt text for images
     handleMissingAltText(document.body);
 
-    // Run origin/main accessibility improvements
+    // Run accessibility improvements
     addLangAttribute();
     fixTableStructureIssues();
     addMainLandmark();
     addSvgAccessibleNames();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
-
+    createInPageButton({ id: 'example', label: 'Example Link' });
+    
     announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
   });
 }
@@ -330,6 +361,17 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     renderDependencyGraph,
-    updateDependencyGraph
+    updateDependencyGraph,
+    initAccessibility,
+    createInPageButton,
+    getBrowserName,
+    getLangAttribute,
+    getSvgAccessibleName,
+    setSvgAttributes
   };
+}
+
+// Initialize accessibility if not already done by the event listener
+if (typeof document !== 'undefined') {
+  initAccessibility();
 }

@@ -60,6 +60,7 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    // Example accessibility-related logic could be setting appropriate ARIA roles or attributes if Screeps had a UI
   }
 };
 

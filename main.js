@@ -15,7 +15,28 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   return button;
 }
 
+// TODO: Implement this function for checking landmark elements
+function checkLandmarkElements() {
+  const landmarkElements = {
+    nav: document.querySelectorAll('nav'),
+    main: document.querySelectorAll('main'),
+    article: document.querySelectorAll('article'),
+    section: document.querySelectorAll('section'),
+    footer: document.querySelectorAll('footer')
+  };
+
+  // Check if all expected landmark elements are present
+  let allLandmarksPresent = true;
+  Object.values(landmarkElements).forEach(elements => {
+    if (elements.length === 0) {
+      allLandmarksPresent = false;
+    }
+  });
+
+  return allLandmarksPresent;
+}
+
 // ... rest of your main.js code ...
 
 // Export the new function if it's needed to be used in other files
-export { createInPageButton };
+export { createInPageButton, checkLandmarkElements };

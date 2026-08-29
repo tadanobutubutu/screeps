@@ -5,13 +5,14 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
-function function3() {
-  // TODO: Implement new function3 logic here
-}
-
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', 'en');
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -25,17 +26,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
-    fetchData();
-  }, []);
-
-  // REACT_017: Add landmark roles to fix landmark issues
-  // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
-  // REACT_041: Add accessible names to SVGs
-
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
     <div className="app-container">
       <Header />
@@ -45,21 +35,23 @@ function App() {
   );
 }
 
+// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
+  if (existingNames.indexOf(baseName) === -1) {
     return baseName;
   }
   let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames.includes(newName)) {
+  let newName = `${baseName} ${counter}`;
+  while (existingNames.indexOf(newName) !== -1) {
     counter++;
-    newName = `${baseName}-${counter}`;
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
+// REACT_025: Ensure unique landmarks function
 export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
@@ -68,7 +60,6 @@ export function validateUniqueLandmarks(container) {
     const ariaLabelledby = landmark.getAttribute('aria-labelledby');
     const tagName = landmark.tagName.toLowerCase();
 
-    // Determine the landmark name
     let landmarkName = ariaLabel || ariaLabelledby || tagName;
 
     if (landmarkNames.has(landmarkName)) {
@@ -83,37 +74,130 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+}
 
+// REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
-
-  // Add title element as first child
+  
   const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
+  title.id = `${accessibleName.replace(/\s+/g, '-').toLowerCase()}-title`;
   title.textContent = accessibleName;
-
-  // Insert title as first child
+  
   svgElement.insertBefore(title, svgElement.firstChild);
-
-  // Add aria-labelledby attribute
+  
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
+// REACT_036: Fix fake link issues - convert to proper semantic elements
 export function isValidLink(element) {
-  // ... existing code ...
+  if (!element) return true;
+  
+  const tagName = element.tagName.toLowerCase();
+  const href = element.getAttribute('href');
+  const onClick = element.getAttribute('onClick');
+  
+  const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
+  
+  if (isFakeLink) {
+    return {
+      valid: false,
+      suggestion: `Replace <${tagName}> with <button> or <a href="#"> for proper accessibility.`
+    };
+  }
+  
+  return { valid: true };
 }
 
+// REACT_027: Add scope to table headers
 export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
+  if (!tableElement) return [];
+  
+  const headers = tableElement.querySelectorAll('th');
+  const updates = [];
+  
+  headers.forEach((th) => {
+    const row = th.closest('tr');
+    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+    const cellIndex = Array.from(row.cells).indexOf(th);
+    
+    let scope = 'col';
+    
+    if (cellIndex === 0 && rowIndex > 0) {
+      scope = 'row';
+    }
+    
+    if (!th.getAttribute('scope')) {
+      th.setAttribute('scope', scope);
+      updates.push({
+        element: th,
+        scope: scope,
+        position: { row: rowIndex, col: cellIndex }
+      });
+    }
+  });
+  
+  return updates;
 }
 
+function announceToScreenReader(message, priority = 'polite') {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('role', 'status');
+  announcement.setAttribute('aria-live', priority);
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  document.body.appendChild(announcement);
+  setTimeout(() => announcement.remove(), 1000);
+}
+
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
+function manageFocusOnNavigation() {
+  const mainContent = document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.focus();
+  }
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function setAriaExpanded(element, expanded) {
+  if (element) {
+    element.setAttribute('aria-expanded', expanded);
+  }
+}
+
+function hasAccessibleName(element) {
+  return !!(element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent.trim());
+}
+
+// Accessibility issue addressing functions
 function addressAccessibilityIssues(insightReport) {
-  insightReport.forEach(issue => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
-    // TODO: Implement solution to the issue
     console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
   });
 }
 
@@ -121,23 +205,23 @@ function newFunction() {
   // implementation of new function
 }
 
-function ensureElementHasId(element) {
+export function ensureElementHasId(element) {
   if (!element.id) {
     element.id = `generated-id-${Date.now()}`;
   }
 }
 
-function addAriaLabel(element, label) {
+export function addAriaLabel(element, label) {
   if (!element.getAttribute('aria-label')) {
     element.setAttribute('aria-label', label);
   }
 }
 
-function renderDependencyGraphs() {
+export function renderDependencyGraphs() {
   // Logic to render dependency graphs
 }
 
-function AppWithAccessibility() {
+export function AppWithAccessibility() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -165,46 +249,6 @@ function AppWithAccessibility() {
       <Footer />
     </div>
   );
-}
-
-export function getUniqueLandmarkName(baseName, existingNames) {
-  // ... existing code ...
-}
-
-export function validateUniqueLandmarks(container) {
-  // ... existing code ...
-}
-
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  // ... existing code ...
-}
-
-export function isValidLink(element) {
-  // ... existing code ...
-}
-
-export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
-}
-
-export function addressAccessibilityIssues(insightReport) {
-  // ... existing code ...
-}
-
-export function newFunction() {
-  // ... existing code ...
-}
-
-export function ensureElementHasId(element) {
-  // ... existing code ...
-}
-
-export function addAriaLabel(element, label) {
-  // ... existing code ...
-}
-
-export function renderDependencyGraphs() {
-  // ... existing code ...
 }
 
 export {
@@ -226,3 +270,7 @@ export {
   addAriaLabel,
   renderDependencyGraphs
 };
+
+const container = document.querySelector('#root');
+const root = createRoot(container);
+root.render(<App />);

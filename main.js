@@ -1,16 +1,20 @@
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
+
 const config = require('./config');
 const logger = require('./utils/logger');
 
 // Application state
 let isInitialized = false;
 const appData = {};
-
 let uniqueLandmarks = {};
 
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph], .dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
+    document.querySelector('.dependencyGraph') ||
+    document.querySelector('[data-testid="dependency-graph"]') ||
+    document.querySelector('div[data-testid=dependency-graph]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -146,3 +150,37 @@ function renderSvg(svgElement) {
 // ... other functions, imports and exports ...
 
 addressAccessibilityIssues(); // Call the combined function to address accessibility issues.
+
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueLandmarkMap = {};
+
+  landmarks.forEach(landmark => {
+    uniqueLandmarkMap[landmark] = [];
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (elements.length < landmarks.length) {
+      landmarks.forEach(uniqueLandmark => {
+        let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+        if (!element[0]) {
+          element = document.createElement('div');
+          element.setAttribute('role', uniqueLandmark);
+          if (!document.querySelector(`#${uniqueLandmark}`)) {
+            const id = uniqueLandmark;
+            element.setAttribute('id', id);
+          }
+          document.body.appendChild(element);
+        }
+        uniqueLandmarkMap[uniqueLandmark] = element[0];
+      });
+      uniqueLandmarks = uniqueLandmarkMap;
+    }
+  });
+}
+
+// TODO: This is the new function request
+function newFunction() {
+  // Implement the new function here
+  console.log("New Function has been called!");
+}
+
+// Continue with existing exports, functions, or any other code that follows

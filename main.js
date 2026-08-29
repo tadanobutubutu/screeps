@@ -149,18 +149,103 @@ function addProperLandmarkRegions() {
 }
 
 // TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
-
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
+  // Implementation of the function to address accessibility issues
+  // This processes the insight report and takes appropriate actions to fix issues
+  
+  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+    console.log('No valid accessibility issues found in the insight report');
+    return [];
   }
+  
+  const addressedIssues = [];
+  
+  insightReport.accessibilityIssues.forEach((issue, index) => {
+    console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
+    
+    let actionTaken = false;
+    
+    // Address specific issues based on their codes
+    switch(issue.code) {
+      case 'REACT_015':
+        // Add lang attribute to HTML element
+        try {
+          addLangAttribute(document.documentElement);
+          actionTaken = true;
+          console.log('Added language attribute to HTML element');
+        } catch (error) {
+          console.error('Failed to add language attribute:', error);
+        }
+        break;
+        
+      case 'REACT_027':
+        // Fix table structure issues
+        try {
+          fixTableStructure();
+          actionTaken = true;
+          console.log('Fixed table structure issues');
+        } catch (error) {
+          console.error('Failed to fix table structure:', error);
+        }
+        break;
+        
+      case 'REACT_017':
+      case 'REACT_025':
+        // Add/fix landmark issues
+        try {
+          addMainLandmark();
+          ensureUniqueLandmarks();
+          actionTaken = true;
+          console.log('Added and ensured unique landmarks');
+        } catch (error) {
+          console.error('Failed to fix landmark issues:', error);
+        }
+        break;
+        
+      case 'REACT_041':
+        // Add accessible names to SVGs
+        try {
+          const svgElements = document.querySelectorAll('svg');
+          svgElements.forEach(svg => {
+            if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
+              const accessibleName = getSvgAccessibleName();
+              if (accessibleName) {
+                setSvgAttributes(svg, accessibleName);
+              }
+            }
+          });
+          actionTaken = true;
+          console.log('Added accessible names to SVGs');
+        } catch (error) {
+          console.error('Failed to add SVG accessible names:', error);
+        }
+        break;
+        
+      case 'REACT_036':
+        // Fix fake link issues
+        try {
+          handleFakeLinks();
+          actionTaken = true;
+          console.log('Fixed fake link issues');
+        } catch (error) {
+          console.error('Failed to fix fake link issues:', error);
+        }
+        break;
+        
+      default:
+        console.log(`No specific handler for issue code: ${issue.code}`);
+        break;
+    }
+    
+    addressedIssues.push({
+      issue,
+      actionTaken,
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  console.log(`Addressed ${addressedIssues.length} accessibility issues`);
+  return addressedIssues;
 }
 
 // - REACT_041: Add accessible names to 2 SVGs

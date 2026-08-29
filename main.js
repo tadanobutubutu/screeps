@@ -60,5 +60,23 @@ function addressAccessibilityIssues() {
   checkLinkAndButtonAccessibility();
 }
 
+// Function added for issue: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+function renderDependencyGraph(modules) {
+  const graph = {};
+  modules.forEach(module => {
+    graph[module.name] = module.dependencies || [];
+  });
+  console.log('Dependency Graph:', JSON.stringify(graph, null, 2));
+}
+
+function displayModuleStructure(componentTree) {
+  const structure = componentTree.map(component => ({
+    name: component.name,
+    type: component.type,
+    children: component.children ? displayModuleStructure(component.children) : []
+  }));
+  console.log('Module Structure:', JSON.stringify(structure, null, 2));
+}
+
 // Export functions if needed
 // export { rotateBack, addressAccessibilityIssues };

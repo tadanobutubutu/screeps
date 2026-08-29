@@ -1,6 +1,17 @@
 // Add your new function here
-const myNewFunction = () => {
-  // Implementation of your new function goes here
+const getLangAttribute = () => {
+  // Implementation of getLangAttribute goes here
+  // This function should return the desired lang attribute value
+  return 'en'; // Example return value
+};
+
+const createInPageButton = () => {
+  // Implementation of createInPageButton goes here
+  // This function should create a button with the lang attribute set
+  const lang = getLangAttribute();
+  const button = document.createElement('button');
+  button.setAttribute('lang', lang);
+  document.body.appendChild(button);
 };
 
 // Preserve all current exports and functions
@@ -31,5 +42,7 @@ function ensureUniqueLandmarks(landmarks) {
 
 module.exports = {
   myNewFunction,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  getLangAttribute,
+  createInPageButton
 };

@@ -1,3 +1,15 @@
+// Add any updates related to new functions
+
+const main = {
+  init: function() {
+    console.log('Application initialized');
+  },
+  
+  greet: function(name) {
+    return `Hello, ${name}!`;
+  }
+};
+
 // Main module for calculator operations
 // Main entry point for dependency visualization tool
 
@@ -478,6 +490,7 @@ function exportedFunction() {
 
 // Export UI / product functions
 module.exports = {
+  main,
   divide,
   renderDependencyGraph,
   displayModuleStructure,
@@ -510,7 +523,8 @@ module.exports = {
   validateAndRender,
   renderPage,
   someFunction,
-  exportedFunction
+  exportedFunction,
+  greet
 };
 
 function main() {

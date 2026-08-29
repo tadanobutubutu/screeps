@@ -1,4 +1,12 @@
-// GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8c93f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a97c2237d968a50cc419 -->
+// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+// <!-- todo-hash: 1f8e635b07b09b809ac49f5e1c81cf4f389f9c1 -->
+// GitHub Issue Fix - Commit: 6009dec851a51383e88dc071ee4edb6953001d55
 
 // TODO: Add exports for new functions if needed - UPDATED: Added exports below
 
@@ -42,11 +50,9 @@ const a11yStore = {
 
   init() {
     this.createLiveRegion();
-    this.setupKeyboardNavigation();
+    this.setupKeyboardHandlers();
     this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
   },
 
   createLiveRegion() {
@@ -73,10 +79,10 @@ const a11yStore = {
     }, 100);
   },
 
-  setupKeyboardNavigation() {
+  setupKeyboardHandlers() {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        const target = e.target.closest('[data-interactive]');
+        const target = e.target;
         if (target) {
           e.preventDefault();
           target.click();
@@ -84,15 +90,15 @@ const a11yStore = {
       }
 
       if (e.key === 'Escape') {
-        const openModal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+        const openModal = document.querySelector('.modal.open');
         if (openModal) {
-          openModal.setAttribute('hidden', '');
+          openModal.classList.remove('open');
           document.body.style.overflow = '';
         }
       }
     });
 
-    const dropdownContainers = document.querySelectorAll('[data-dropdown]');
+    const dropdownContainers = document.querySelectorAll('.dropdown');
     dropdownContainers.forEach((container) => {
       container.addEventListener('keydown', (e) => {
         if (e.key !== 'Tab') return;
@@ -125,7 +131,7 @@ const a11yStore = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
 
-      const modal = document.querySelector('[role="dialog"][aria-modal="true"]:not([hidden])');
+      const modal = document.querySelector('.modal.open');
       if (!modal) return;
 
       const focusableElements = modal.querySelectorAll(
@@ -149,18 +155,18 @@ const a11yStore = {
     const skipLink = document.querySelector('.skip-link');
     if (!skipLink) return;
 
-    const targetId = skipLink.getAttribute('href')?.slice(1);
-    const target = targetId ? document.getElementById(targetId) : null;
+    const targetId = skipLink.getAttribute('href');
+    const target = targetId ? document.querySelector(targetId) : null;
 
     if (target) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
         target.setAttribute('tabindex', '-1');
         target.focus();
-        this.announce('Skipped to main content');
+        skipLink.textContent = 'Skip to main content';
       });
 
-      if (navigator.userAgent.toLowerCase().indexOf('safari') !== -1) {
+      if (target.getAttribute('tabindex')) {
         skipLink.focus();
       }
     }
@@ -181,28 +187,30 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmark = document.querySelector(`[role="${element}"]`);
+    landmarkElements.forEach((tag) => {
+      const landmark = document.querySelector(tag);
       if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+        landmark.setAttribute('aria-label', 'Untitled ' + tag + ' ' + Math.round(Math.random() * 1.000));
       }
     });
   },
 
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
+  ensureSvgAccessibility() {
+    const svgElements = document.querySelectorAll('svg:not([role])');
     svgElements.forEach((svg) => {
       svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', 'svg-title');
-      const titleText = svg.querySelector('title').textContent || 'Image description';
-      const descriptionId = `svg-description-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-describedby', descriptionId);
+      let titleElement = svg.querySelector('title');
+      const titleId = 'svg-title-' + Math.round(Math.random() * 1.000);
+      const titleText = titleElement ? titleElement.textContent : 'Image description';
+      const descriptionId = 'svg-desc-' + Math.round(Math.random() * 1.000);
+      titleElement = titleElement || svg.insertBefore(document.createElement('title'), svg.firstChild);
+      titleElement.id = descriptionId;
 
-      const descriptionElement = document.createElement('p');
-      descriptionElement.setAttribute('id', descriptionId);
+      const descriptionElement = document.createElement('desc');
+      descriptionElement.id = descriptionId;
       descriptionElement.textContent = titleText;
       descriptionElement.className = 'sr-only';
-      document.body.appendChild(descriptionElement);
+      svg.insertBefore(descriptionElement, svg.firstChild);
     });
   },
 
@@ -211,25 +219,25 @@ const a11yStore = {
     // (This comment remains as-is)
     // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
     // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+    // _Commit: f8051b788bad4952d8c93f08d3c7d22a06ff80d3_
+    // <!-- todo-hash: b498b47abee4b3f29c69a97c2237d968a50cc419 -->
     // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+    // <!-- todo-hash: 1f8e635b07b09b809ac49f5e1c81cf4f389f9c1 -->
   }
 };
 
 // Function to address accessibility issues from insight report
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  report.forEach(issue => {
+  report.forEach((issue) => {
     switch (issue.type) {
       case 'missing-lang':
-        if (!document.documentElement.getAttribute('lang')) {
+        if (document.documentElement) {
           document.documentElement.setAttribute('lang', 'en');
         }
         break;
       case 'missing-skip-link':
-        if (!document.querySelector('.skip-link')) {
+        if (document.body) {
           const skipLink = document.createElement('a');
           skipLink.className = 'skip-link';
           skipLink.href = '#main-content';
@@ -238,14 +246,14 @@ function addressAccessibilityIssues(report) {
         }
         break;
       case 'missing-alt':
-        document.querySelectorAll('img').forEach(img => {
+        document.querySelectorAll('img').forEach((img) => {
           if (!img.getAttribute('alt')) {
             img.setAttribute('alt', 'Image description');
           }
         });
         break;
       case 'missing-label':
-        document.querySelectorAll('input, select, textarea').forEach(el => {
+        document.querySelectorAll('input, select, textarea').forEach((el) => {
           if (!el.getAttribute('aria-label') && !el.getAttribute('id')) {
             el.setAttribute('aria-label', 'Form field');
           }
@@ -256,7 +264,7 @@ function addressAccessibilityIssues(report) {
 }
 
 // REACT_015: Add lang attribute
-if (!document.documentElement.getAttribute('lang')) {
+if (document.documentElement && !document.documentElement.getAttribute('lang')) {
   document.documentElement.setAttribute('lang', 'en');
 }
 
@@ -278,10 +286,10 @@ module.exports = {
   addressAccessibilityIssues,
   updateLiveRegion: a11yStore.updateLiveRegion,
   checkLandmarkElements: a11yStore.checkLandmarkElements,
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
+  ensureSvgAccessibility: a11yStore.ensureSvgAccessibility,
   preserveExistingCode: a11yStore.preserveExistingCode,
   prefersReducedMotion: a11yStore.prefersReducedMotion,
-  prefersHighContrast: a11yStore.prefersHighContrast
+  prefersHighContrast: a11yStore.prefersHighContrast,
 };
 
 // ES6 module exports (preserved from origin/main)
@@ -289,7 +297,7 @@ export { a11yStore };
 export { addressAccessibilityIssues };
 export { updateLiveRegion };
 export { checkLandmarkElements };
-export { addSVGAccessibilityProps };
+export { ensureSvgAccessibility };
 export { preserveExistingCode };
 export { prefersReducedMotion };
 export { prefersHighContrast };

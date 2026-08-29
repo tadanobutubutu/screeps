@@ -31,6 +31,13 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
+  // Ensure the dependencyGraph container has a proper ARIA role
+  const dependencyGraph = document.querySelector('#dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-labelledby', 'dependencyGraph-title');
+  }
+
   // TODO: Implement this function for checking link and button accessibility
   function checkLinkAndButtonAccessibility() {
     const links = document.querySelectorAll('a');

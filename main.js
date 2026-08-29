@@ -11,13 +11,11 @@ exports.someFunction = function() {
 exports.anotherFunction = function() {
   // Existing code
 };
-=======
 
 // Assuming the HTML content is included in a component or similar file that is imported into main.js
 
 // Before change:
 // <a id="unrotate" href="#">rotate back</a>
->>>>>>> origin/main
 
 // After change:
 // <button id="unrotate" onclick="rotateBack()">rotate back</button>
@@ -35,10 +33,47 @@ function rotateBack() {
 // Now, let's assume the component file is named MyComponent.js and is imported into main.js:
 import MyComponent from './MyComponent';
 
-<<<<<<< HEAD
+/**
+ * Renders the index view by populating the main container with the provided items.
+ *
+ * @param {Array} items - The items to display in the index view.
+ * @param {HTMLElement} container - The container element where the index view will be rendered.
+ */
+function renderIndexView(items, container) {
+  if (!container) {
+    return;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create the list element
+  const list = document.createElement('ul');
+  list.className = 'index-view-list';
+
+  // Populate the list with items
+  if (Array.isArray(items)) {
+    items.forEach((item) => {
+      const listItem = document.createElement('li');
+      listItem.className = 'index-view-item';
+
+      if (typeof item === 'string') {
+        listItem.textContent = item;
+      } else if (item && typeof item === 'object') {
+        listItem.textContent = item.label || item.name || item.title || '';
+      }
+
+      list.appendChild(listItem);
+    });
+  }
+
+  container.appendChild(list);
+}
+
 // Export the functions for addressing new accessibility issues
 exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
 exports.renderDependencyGraph = renderDependencyGraph;
+exports.renderIndexView = renderIndexView;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
@@ -53,4 +88,3 @@ exports.renderDependencyGraph = renderDependencyGraph;
 /**
  * ... (existing code remains the same)
  */
-```

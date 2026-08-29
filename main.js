@@ -137,14 +137,39 @@ function addLandmarkRolesAndFixIssues() {
   // This is a placeholder that would need to be implemented based on specific requirements
 }
 
-// Placeholder implementation for rendering a dependency graph
-function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+// New rendering functions for graph/index (to be used by existing functions)
+function renderGraphContentWithOptions(data, options = {}) {
+  console.log('Rendering graph content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    renderDependencyGraphContent(data);
+  }
 }
 
-// Placeholder function for index view rendering (to be replaced with actual implementation)
+function renderIndexContentWithOptions(data, options = {}) {
+  console.log('Rendering index content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    // Default rendering behavior for index
+    const container = document.querySelector('.index-content, [data-index-content]');
+    if (container) {
+      container.innerHTML = data;
+    }
+  }
+}
+
+// Updated function for rendering dependency graph using new render function
+function renderDependencyGraph(dependencyData) {
+  console.log('Rendering dependency graph with data:', dependencyData);
+  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
+}
+
+// Updated function for index view rendering using new render function
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
 }
 
 // Function to calculate sum (unchanged)
@@ -319,7 +344,9 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  renderGraphContentWithOptions,
+  renderIndexContentWithOptions
 };
 
 // Execute main function

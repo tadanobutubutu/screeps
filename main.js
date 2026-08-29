@@ -11,6 +11,19 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
+// Function for calculating distance between two coordinates
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
@@ -18,15 +31,19 @@ function ensureUniqueLandmarks(landmarks) {
 
   const seen = new Set();
   return landmarks.filter(landmark => {
-    const key = landmark.id || landmark.name;
-    if (seen.has(key)) {
+    if (!landmark) return false;
+
+    const identifier = landmark.id || landmark.name;
+
+    if (seen.has(identifier)) {
       return false;
     }
-    seen.add(key);
+    seen.add(identifier);
     return true;
   });
 }
 
+// Function for checking landmark elements
 function checkLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
     return false;
@@ -52,7 +69,7 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
 
-  return null;
+  improveAccessibility();
 }
 
 function improveAccessibility() {
@@ -68,14 +85,35 @@ function improveAccessibility() {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
 
-  const uniqueLandmarks = [];
-  const landmarks = document.querySelectorAll('[CustomElementId], [my-custom-element]');
-  landmarks.forEach(landmark => {
-    if (uniqueLandmarks.includes(landmark)) return;
-    uniqueLandmarks.push(landmark);
-    uniqueLandmarksMap[landmark.id || landmark.getAttribute('CustomElementId')] = landmark;
+  // Handle landmarks from insightReport if available
+  if (typeof insightReport !== 'undefined' && insightReport.issues) {
+    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length === 0) {
+        const element = document.createElement('div');
+        element.setAttribute('role', landmark);
+        if (!document.querySelector(`#${landmark}`)) {
+          element.setAttribute('id', landmark);
+        }
+        document.body.appendChild(element);
+      }
+    });
+  }
+
+  // Handle custom element landmarks
+  const customLandmarks = document.querySelectorAll('[CustomElementId], [my-custom-element]');
+  const uniqueLandmarkMap = { ...uniqueLandmarks };
+
+  customLandmarks.forEach(landmark => {
+    const id = landmark.id || landmark.getAttribute('CustomElementId');
+    if (id) {
+      uniqueLandmarkMap[id] = landmark;
+    }
   });
-  this.uniqueLandmarks = uniqueLandmarksMap;
+
+  uniqueLandmarks = uniqueLandmarkMap;
 }
 
 // New function to render dependency graphs
@@ -100,8 +138,8 @@ function newFunction() {
 
 // Export functions for testing
 module.exports = {
-  calculateDistance,
   toRad,
+  calculateDistance,
   ensureUniqueLandmarks,
   checkLandmarkElements,
   addressAccessibilityIssues,

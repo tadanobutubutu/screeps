@@ -60,6 +60,15 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  calculateSum: function(...args) {
+    // Calculate sum of all numeric arguments
+    // Can accept multiple numbers or an array of numbers
+    const numbers = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
+    return numbers.reduce((sum, num) => {
+      return sum + (typeof num === 'number' ? num : 0);
+    }, 0);
   }
 };
 

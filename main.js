@@ -30,3 +30,5 @@ function getSvgAccessibleName(svgElement) {
 }
 
 // ... existing code and exports ...
+
+export { getSvgAccessibleName };

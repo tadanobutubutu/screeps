@@ -6,6 +6,7 @@ const logger = require('./utils/logger');
 // Application state
 let isInitialized = false;
 const appData = {};
+
 let uniqueLandmarks = {};
 
 function addressAccessibilityIssues() {

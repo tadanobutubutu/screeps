@@ -1,3 +1,38 @@
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * Counts the total number of dependencies in package.json
+ * @returns {Object} An object containing counts for dependencies, devDependencies, and total
+ */
+function countDependencies() {
+  const packagePath = path.join(__dirname, 'package.json');
+  
+  try {
+    const packageContent = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(packageContent);
+    
+    const dependencies = packageJson.dependencies || {};
+    const devDependencies = packageJson.devDependencies || {};
+    
+    const dependencyCount = Object.keys(dependencies).length;
+    const devDependencyCount = Object.keys(devDependencies).length;
+    
+    return {
+      dependencies: dependencyCount,
+      devDependencies: devDependencyCount,
+      total: dependencyCount + devDependencyCount
+    };
+  } catch (error) {
+    console.error('Error reading package.json:', error.message);
+    return {
+      dependencies: 0,
+      devDependencies: 0,
+      total: 0
+    };
+  }
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -9,18 +44,6 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
-
-/**
- * Adds the lang attribute to the document's <html> tag based on content
- * @param {string} lang - The language code (e.g., 'en', 'es', 'fr')
- * @returns {string} The lang attribute value that was set
- */
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
-  }
-  return lang || 'en';
-}
 
 /**
  * Detects the language of the given content and sets the HTML lang attribute
@@ -58,4 +81,10 @@ function ensureUniqueLandmarks() {
   // and remove any duplicates or incorrect usages
 }
 
-module.exports = { setHtmlLangAttribute, detectAndSetLang, ensureUniqueLandmarks };
+// Export for use in other modules
+module.exports = { 
+  countDependencies,
+  setHtmlLangAttribute, 
+  detectAndSetLang, 
+  ensureUniqueLandmarks 
+};

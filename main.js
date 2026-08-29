@@ -361,13 +361,125 @@ const a11yStore = {
   // Address accessibility issues from insight report
   addressAccessibilityIssues(report) {
     if (!report) return;
-    a11yStore.addressAccessibilityIssues(report);
+
+    // Validate and fix table accessibility
+    if (report.tables) {
+      this.validateTableAccessibility();
+      this.validateTableStructure();
+    }
+
+    // Validate and fix landmark elements
+    if (report.landmarks) {
+      this.checkLandmarkElements();
+      this.validateLandmark();
+      this.validateLandmarkStructure();
+      this.ensureUniqueLandmarks();
+    }
+
+    // Apply SVG accessibility
+    if (report.svg) {
+      this.addSVGAccessibilityProps();
+    }
+  },
+
+  // Validate and fix table accessibility
+  validateTableAccessibility() {
+    if (typeof window === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+      if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+        table.setAttribute('aria-label', 'Table');
+      }
+    });
+  },
+
+  // Validate and fix table structure
+  validateTableStructure() {
+    if (typeof window === 'undefined') return;
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('thead')) {
+        const thead = document.createElement('thead');
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          thead.appendChild(firstRow);
+        }
+        table.insertBefore(thead, table.firstChild);
+      }
+      if (!table.querySelector('tbody')) {
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (!table.querySelector('thead').contains(row)) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
+    });
+  },
+
+  // Validate landmark elements
+  validateLandmark() {
+    if (typeof window === 'undefined') return;
+    const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+    landmarks.forEach(el => {
+      if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
+        // Optionally add a role, but leave as is for now
+      }
+    });
+  },
+
+  // Validate landmark structure
+  validateLandmarkStructure() {
+    if (typeof window === 'undefined') return;
+    const main = document.querySelector('main');
+    if (main) {
+      const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
+      if (nestedLandmarks.length > 0) {
+        console.warn('Landmarks nested within main may be incorrect.');
+      }
+    }
+  },
+
+  // Ensure unique landmark IDs
+  ensureUniqueLandmarks() {
+    if (typeof window === 'undefined') return;
+    const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
+    const idSet = new Set();
+    landmarks.forEach(el => {
+      const id = el.id;
+      if (id) {
+        if (idSet.has(id)) {
+          console.warn('Duplicate landmark ID found:', id);
+        } else {
+          idSet.add(id);
+        }
+      }
+    });
   },
 
   // Preserve existing code functionality
   preserveExistingCode() {
     // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
+  },
+
+  // Get person name for accessible labeling
+  personName() {
+    const nameElement = document.querySelector('[data-person-name]');
+    return nameElement ? nameElement.textContent.trim() : 'User';
+  },
+
+  // Get accessible name for SVG
+  getSvgAccessibleName(svg) {
+    return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
   },
 };
 
@@ -391,141 +503,58 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
-// New functions to address specific accessibility issues
-
 // Get person name for accessible labeling
-personName() {
-  const nameElement = document.querySelector('[data-person-name]');
-  return nameElement ? nameElement.textContent.trim() : 'User';
-},
+function personName() {
+  return a11yStore.personName();
+}
 
 // Validate and fix table accessibility
-validateTableAccessibility() {
-  if (!window) return;
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headers = table.querySelectorAll('th');
-    headers.forEach(th => {
-      if (!th.getAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-    if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
-      table.setAttribute('aria-label', 'Table');
-    }
-  });
-},
+function validateTableAccessibility() {
+  a11yStore.validateTableAccessibility();
+}
 
 // Validate and fix table structure
-validateTableStructure() {
-  if (!window) return;
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const thead = document.createElement('thead');
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        thead.appendChild(firstRow);
-      }
-      table.insertBefore(thead, table.firstChild);
-    }
-    if (!table.querySelector('tbody')) {
-      const tbody = document.createElement('tbody');
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        if (!table.querySelector('thead').contains(row)) {
-          tbody.appendChild(row);
-        }
-      });
-      table.appendChild(tbody);
-    }
-  });
-},
+function validateTableStructure() {
+  a11yStore.validateTableStructure();
+}
 
 // Validate landmark elements
-validateLandmark() {
-  if (!window) return;
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
-  landmarks.forEach(el => {
-    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
-      // Optionally add a role, but leave as is for now
-    }
-  });
-},
+function validateLandmark() {
+  a11yStore.validateLandmark();
+}
 
 // Validate landmark structure
-validateLandmarkStructure() {
-  if (!window) return;
-  const main = document.querySelector('main');
-  if (main) {
-    const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
-    if (nestedLandmarks.length > 0) {
-      console.warn('Landmarks nested within main may be incorrect.');
-    }
-  }
-},
+function validateLandmarkStructure() {
+  a11yStore.validateLandmarkStructure();
+}
 
 // Get accessible name for SVG
-getSvgAccessibleName(svg) {
-  return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
-},
+function getSvgAccessibleName(svg) {
+  return a11yStore.getSvgAccessibleName(svg);
+}
 
 // Ensure unique landmark IDs
-ensureUniqueLandmarks() {
-  if (!window) return;
-  const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
-  const idSet = new Set();
-  landmarks.forEach(el => {
-    const id = el.id;
-    if (id) {
-      if (idSet.has(id)) {
-        console.warn('Duplicate landmark ID found:', id);
-      } else {
-        idSet.add(id);
-      }
-    }
-  });
+function ensureUniqueLandmarks() {
+  a11yStore.ensureUniqueLandmarks();
 }
 
 // New function to handle dynamic content updates
-updateLiveRegion(message, priority = 'polite') {
-  if (!this.liveRegion) return;
-  this.announce(message, priority);
+function updateLiveRegion(message, priority = 'polite') {
+  a11yStore.updateLiveRegion(message, priority);
 }
 
 // New function to check landmark elements
-checkLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach(tag => {
-    const landmark = document.querySelector(tag);
-    if (landmark && landmark.id === '') {
-      landmark.id = `${tag}-${Math.floor(Math.random() * 1000)}`;
-    }
-  });
+function checkLandmarkElementsInDom() {
+  a11yStore.checkLandmarkElements();
 }
 
 // New function to add SVG accessibility props
-addSVGAccessibilityProps() {
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    svg.setAttribute('role', 'img');
-    if (!svg.getAttribute('aria-labelledby')) {
-      const titleText = svg.getAttribute('title') || 'Image description';
-      const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
-      svg.setAttribute('aria-labelledby', descriptionId);
-
-      const descriptionElement = document.createElement('desc');
-      descriptionElement.id = descriptionId;
-      descriptionElement.textContent = titleText;
-      svg.appendChild(descriptionElement);
-    }
-  });
+function addSVGAccessibilityProps() {
+  a11yStore.addSVGAccessibilityProps();
 }
 
-// Address accessibility issues from insight report
-addressAccessibilityIssues(report) {
-  if (!report) return;
-  a11yStore.addressAccessibilityIssues(report);
+function preserveExistingCode() {
+  a11yStore.preserveExistingCode();
 }
 
 module.exports = {
@@ -535,17 +564,17 @@ module.exports = {
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  newFunction,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
-  updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
-  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore),
-  preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore),
+  updateLiveRegion,
+  addSVGAccessibilityProps,
+  preserveExistingCode,
   personName,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  checkLandmarkElementsInDom
 };

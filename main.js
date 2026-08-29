@@ -1,4 +1,4 @@
-const dependencyGraphContent = require('./dependencyGraph');
+import dependencyGraphContent from './dependencyGraph';
 
 const rotateBack = function () {
   // Logic to rotate back
@@ -56,7 +56,7 @@ import {
   isButtonAccessible,
   getSvgAccessibleName,
 } from "./accessibility";
-import { renderDependencyGraph } from "./dependencyGraph";
+import { renderDependencyGraph as renderDependencyGraphFromModule } from "./dependencyGraph";
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
@@ -295,7 +295,7 @@ export default function RootLayout({
 
   // Implement the renderIndexView method here
   renderIndexView();
-  renderDependencyGraph();
+  renderDependencyGraphFromModule();
 
   return (
     <html lang="en">
@@ -346,7 +346,7 @@ export default function RootLayout({
           {/* REACT_017 & REACT_025: Ensure unique landmarks */}
           {/* Using proper landmark elements ensures unique landmarks */}
         </main>
-        {renderDependencyGraph()}
+        {renderDependencyGraphFromModule()}
       </body>
     </html>
   );

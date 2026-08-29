@@ -1,3 +1,7 @@
+// Import render functions
+const renderHeader = require('./renderHeader');
+const renderFooter = require('./renderFooter');
+
 // Main entry point
 const main = () => {
   console.log('Main function executed');
@@ -48,6 +52,8 @@ const addressAccessibilityIssues = (insightReport) => {
 };
 
 module.exports = {
+  renderHeader,
+  renderFooter,
   main,
   addressAccessibilityIssues
 };

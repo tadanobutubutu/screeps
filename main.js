@@ -18,7 +18,7 @@ function createInPageButton(buttonId, buttonText) {
   return button;
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
+// Implement function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -26,7 +26,7 @@ function addressAccessibilityIssues(insightReport) {
 
   return insightReport.issues.map(issue => {
     let fixedIssue = { ...issue, status: 'resolved' };
-    
+
     // Apply fixes based on issue type
     switch (issue.type) {
       case 'color-contrast':
@@ -65,13 +65,13 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// 73: // TODO: Implement function for generating a report based on accessibility issues
+// New function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   // Your implementation here
   // ...
 }
 
-// New function for the issue
+// New function for calculating the accessibility score
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;

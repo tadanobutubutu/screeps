@@ -17,7 +17,8 @@ const viewsDir = path.join(__dirname, 'views');
 
 // The new function you need to add
 function newFunction() {
-    // Your implementation here
+    // Example implementation: return a simple message
+    return 'New function executed';
 }
 
 // TODO: Add back any required exports that might have been omitted

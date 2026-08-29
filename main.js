@@ -1,5 +1,4 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
+// TODO: Identify and update specific functions that render dependency graphs or
 
 // Main game logic for Screeps
 const main = {
@@ -31,17 +30,20 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      // Tower attack logic
+      if (tower.attack) {
+        tower.attack(hostiles[0]);
+      }
     });
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

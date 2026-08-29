@@ -1,7 +1,4 @@
-// main.js - Existing code file
-// TODO: This is the existing code that needs to be preserved
-
-// Accessible Insight Report Interface - Dependency Graph Rendering
+// main.js - Accessible Insight Report Interface
 // Line 13: Address accessibility issues from insight report — CONTINUING
 
 const { helperFunction } = require('./helpers');
@@ -77,13 +74,13 @@ function trapFocus(element) {
 // Update ARIA expanded state for collapsible sections
 function toggleAriaExpanded(element) {
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
-  element.setAttribute('aria-expanded', !isExpanded);
+  element.setAttribute('aria-expanded', String(!isExpanded));
   
   const controlsId = element.getAttribute('aria-controls');
   if (controlsId) {
     const controlledElement = document.getElementById(controlsId);
     if (controlledElement) {
-      controlledElement.setAttribute('aria-hidden', isExpanded);
+      controlledElement.setAttribute('aria-hidden', String(isExpanded));
     }
   }
 }
@@ -107,7 +104,13 @@ function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
 
-// ... Existing functions and exports ...
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and createAccessibleLink())
 
 // New function to get and set the lang attribute on an element
 function getLangAttribute(element) {

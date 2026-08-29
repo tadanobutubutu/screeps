@@ -121,9 +121,38 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Ensure unique landmarks in the document
+const ensureUniqueLandmarks = () => {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'form', 'article', 'region'];
+  const usedRoles = {};
+
+  document.querySelectorAll('*').forEach((element) => {
+    const role = element.getAttribute('role');
+    if (landmarkRoles.includes(role) && !usedRoles[role]) {
+      usedRoles[role] = true;
+    }
+  });
+
+  Object.keys(usedRoles).forEach((role) => {
+    const elementsWithRole = document.querySelectorAll(`[role="${role}"]`);
+    elementsWithRole.forEach((element) => {
+      if (element.hasAttribute('id') && usedRoles[role]) {
+        const existingElement = document.querySelector(`[id="${element.id}"]`);
+        if (existingElement && existingElement !== element) {
+          console.error(`Duplicate ID found for landmark with role '${role}': ${element.id}`);
+        }
+      }
+    });
+  });
+};
+
+// Run the function to ensure unique landmarks
+ensureUniqueLandmarks();
+
 module.exports = {
   loop: function() {
     console.log('Running screeps loop');
   },
-  newFeature: newFeature // Export the updated newFeature function
+  newFeature: newFeature, // Export the updated newFeature function
+  ensureUniqueLandmarks // Export the new function for future use
 };

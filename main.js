@@ -24,7 +24,19 @@ function ensureUniqueLandmarks(landmarks) {
     return uniqueLandmarks;
 }
 
+function addLangAttribute(htmlElement) {
+  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
+    console.error('addLangAttribute: Invalid HTML element provided');
+    return;
+  }
+  
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  }
+}
+
 module.exports = {
     landmarkStructureCheck,
-    ensureUniqueLandmarks
+    ensureUniqueLandmarks,
+    addLangAttribute
 };

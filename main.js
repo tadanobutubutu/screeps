@@ -3,9 +3,22 @@ import ReactDOM from 'react-dom/client';
 
 let funcNames = [];
 
-// TODO: Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
+// Implement function to create in-page buttons
+function createInPageButton(buttonId, buttonText) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  
+  // Add accessibility attributes
+  button.setAttribute('type', 'button');
+  button.setAttribute('role', 'button');
+  
+  // Apply accessible name
+  const accessibleName = buttonText || `Button ${buttonId}`;
+  button.setAttribute('aria-label', accessibleName);
+  
+  return button;
+}
 
 var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
 var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');

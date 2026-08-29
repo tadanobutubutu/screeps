@@ -60,5 +60,33 @@ function addressAccessibilityIssues() {
   checkLinkAndButtonAccessibility();
 }
 
+/**
+ * Renders a dependency graph for the given modules and their dependencies.
+ * @param {Object} modules - The modules object containing dependencies.
+ */
+function renderDependencyGraph(modules) {
+  console.log('Rendering dependency graph...');
+  console.log('Modules:', modules);
+  // Placeholder for more complex rendering logic
+  if (modules && modules.dependencies) {
+    console.log('Dependencies:', modules.dependencies);
+  }
+}
+
+/**
+ * Displays the structure of a module for debugging purposes.
+ * @param {Object} module - The module to inspect.
+ */
+function displayModuleStructure(module) {
+  console.log('Displaying module structure...');
+  console.log('Module structure:', module);
+  // Logs all enumerable properties of the module
+  if (module && typeof module === 'object') {
+    for (const key in module) {
+      console.log(`Property: ${key}`, module[key]);
+    }
+  }
+}
+
 // Export functions if needed
 // export { rotateBack, addressAccessibilityIssues };

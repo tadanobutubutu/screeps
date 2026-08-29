@@ -16,13 +16,13 @@ function queryElements(selector) {
     return document.querySelectorAll(selector);
 }
 
-// TODO: Implement this function for checking landmark elements
+// Function for checking landmark elements
 function checkLandmarkElements() {
     const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
     const results = {};
     
     landmarks.forEach(landmark => {
-        const elements = document.querySelectorAll(landmark);
+        const elements = queryElements(landmark);
         results[landmark] = {
             count: elements.length,
             exists: elements.length > 0
@@ -64,7 +64,7 @@ function validateLandmarkStructure() {
 // Initialize application
 function init() {
     console.log('Initializing ' + appData.title + ' v' + appData.version);
-    return checkLandmarkElements();
+    return validateLandmarkStructure();
 }
 
 // Export functions for testing

@@ -157,6 +157,101 @@ function newFunction() {
   // implementation of new function
 }
 
+// Function to render dependency graph for debugging purposes
+export function renderDependencyGraph(moduleStructure, containerElement) {
+  if (!containerElement) {
+    console.warn('Container element not provided for rendering dependency graph');
+    return;
+  }
+  
+  containerElement.innerHTML = '';
+  
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Module dependency graph');
+  
+  const title = document.createElement('h3');
+  title.textContent = 'Module Dependencies';
+  graphContainer.appendChild(title);
+  
+  const treeContainer = document.createElement('ul');
+  treeContainer.className = 'dependency-tree';
+  
+  function buildTree(item, level = 0) {
+    const li = document.createElement('li');
+    li.setAttribute('aria-level', level + 1);
+    
+    const label = document.createElement('span');
+    label.textContent = item.name;
+    label.className = 'module-name';
+    li.appendChild(label);
+    
+    if (item.dependencies && item.dependencies.length > 0) {
+      const subUl = document.createElement('ul');
+      item.dependencies.forEach(dep => {
+        const subLi = buildTree(dep, level + 1);
+        subUl.appendChild(subLi);
+      });
+      li.appendChild(subUl);
+    }
+    
+    return li;
+  }
+  
+  if (Array.isArray(moduleStructure)) {
+    moduleStructure.forEach(item => {
+      treeContainer.appendChild(buildTree(item));
+    });
+  } else if (typeof moduleStructure === 'object') {
+    treeContainer.appendChild(buildTree(moduleStructure));
+  }
+  
+  graphContainer.appendChild(treeContainer);
+  containerElement.appendChild(graphContainer);
+  
+  return graphContainer;
+}
+
+// Function to display module structure for debugging purposes
+export function displayModuleStructure(moduleData, outputTarget = console) {
+  if (!moduleData) {
+    outputTarget.log('No module data provided for display');
+    return;
+  }
+  
+  function formatModule(module, indent = 0) {
+    const prefix = '  '.repeat(indent);
+    const name = module.name || 'unnamed';
+    const type = module.type || 'module';
+    
+    outputTarget.log(`${prefix}- ${name} (${type})`);
+    
+    if (module.exports) {
+      outputTarget.log(`${prefix}  Exports:`);
+      Object.keys(module.exports).forEach(expName => {
+        outputTarget.log(`${prefix}    • ${expName}`);
+      });
+    }
+    
+    if (module.dependencies) {
+      outputTarget.log(`${prefix}  Dependencies:`);
+      module.dependencies.forEach(dep => {
+        formatModule(dep, indent + 2);
+      });
+    }
+  }
+  
+  if (Array.isArray(moduleData)) {
+    outputTarget.log('Module Structure:');
+    moduleData.forEach(module => {
+      formatModule(module);
+    });
+  } else if (typeof moduleData === 'object') {
+    formatModule(moduleData);
+  }
+}
+
 // Export Screeps bot functions
 module.exports = { addProperLandmarkRegions };
 
@@ -197,5 +292,7 @@ export {
   setAriaExpanded,
   hasAccessibleName,
   myFunction,
-  newFunction
+  newFunction,
+  renderDependencyGraph,
+  displayModuleStructure
 };

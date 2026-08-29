@@ -86,11 +86,99 @@ function renderDependencyGraphs(container, dependencies, options = {}) {
   return graphData;
 }
 
+/**
+ * Adds accessibility properties to an SVG element.
+ * Creates and inserts title/desc elements, sets role and aria attributes.
+ * @param {SVGElement} svgElement - The SVG element to modify
+ * @param {Object} [options={}] - Options for accessibility props
+ * @param {string} [options.title] - Title for the SVG (creates title element)
+ * @param {string} [options.description] - Description for the SVG (creates desc element)
+ * @param {string} [options.role='img'] - ARIA role for the SVG
+ * @param {string} [options.label] - aria-label value (used if no title provided)
+ * @returns {Object} Object containing references to created elements and applied attributes
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  if (!svgElement) {
+    throw new Error('SVG element is required');
+  }
+  
+  const result = {
+    elements: {},
+    attributes: {}
+  };
+  
+  const { title, description, role = 'img', label } = options;
+  
+  // Ensure the SVG has a unique ID for referencing
+  const svgId = ensureElementHasId(svgElement, 'svg');
+  result.attributes.id = svgId;
+  
+  // Set the role attribute
+  if (role) {
+    svgElement.setAttribute('role', role);
+    result.attributes.role = role;
+  }
+  
+  // Add title element if provided
+  if (title) {
+    let titleEl = svgElement.querySelector('title');
+    if (!titleEl) {
+      titleEl = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      svgElement.insertBefore(titleEl, svgElement.firstChild);
+    }
+    titleEl.textContent = title;
+    const titleId = `${svgId}-title`;
+    titleEl.id = titleId;
+    result.elements.title = titleEl;
+    result.attributes.titleId = titleId;
+  }
+  
+  // Add description element if provided
+  if (description) {
+    let descEl = svgElement.querySelector('desc');
+    if (!descEl) {
+      descEl = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      svgElement.insertBefore(descEl, svgElement.firstChild);
+    }
+    descEl.textContent = description;
+    const descId = `${svgId}-desc`;
+    descEl.id = descId;
+    result.elements.desc = descEl;
+    result.attributes.descId = descId;
+  }
+  
+  // Set aria-labelledby to reference title element
+  if (title) {
+    svgElement.setAttribute('aria-labelledby', `${svgId}-title`);
+    result.attributes['aria-labelledby'] = `${svgId}-title`;
+  }
+  
+  // Set aria-describedby to reference description element
+  if (description) {
+    const describedBy = title ? `${svgId}-title ${svgId}-desc` : `${svgId}-desc`;
+    svgElement.setAttribute('aria-describedby', describedBy);
+    result.attributes['aria-describedby'] = describedBy;
+  }
+  
+  // Add aria-label if provided (and no title)
+  if (label && !title) {
+    svgElement.setAttribute('aria-label', label);
+    result.attributes['aria-label'] = label;
+  }
+  
+  // Make SVG focusable for keyboard navigation
+  svgElement.setAttribute('focusable', 'false');
+  result.attributes.focusable = 'false';
+  
+  return result;
+}
+
 // ... [Any other existing code here] ...
 
 // Export functions for testing and external use
 module.exports = {
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  addSvgAccessibilityProps
 };

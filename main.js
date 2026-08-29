@@ -28,18 +28,23 @@ import { appStarted } from './events/appStarted.js';
 // Landmark data structure
 const landmarks = [];
 
-// TODO: Re-add the required exports for functionA and functionB
+// Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
 const functionA = {
-  X: null,
-  Y: null,
-  Z: null
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
 };
 
 const functionB = {
-  X: null,
-  Y: null,
-  Z: null
+  X: 'valueX',
+  Y: 'valueY',
+  Z: 'valueZ'
+};
+
+// Placeholder for the affected SVGs
+const icons = {
+  icon: ... ... viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...
 };
 
 /**
@@ -76,11 +81,6 @@ const landmarkStructureCheck = (landmark) => {
     return false;
   }
   return true;
-};
-
-// Placeholder for the affected SVGs
-const icons = {
-  icon: ... ... viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...
 };
 
 /**

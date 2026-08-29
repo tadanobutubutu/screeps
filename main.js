@@ -206,6 +206,40 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
+function addLangAttribute(element, lang) {
+  if (!element) {
+    return;
+  }
+  element.setAttribute('lang', lang);
+}
+
+function fixTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return table;
+  }
+
+  const rows = table.querySelectorAll('tr');
+  if (rows.length > 0) {
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    if (!thead && !tbody) {
+      const newThead = document.createElement('thead');
+      const newTbody = document.createElement('tbody');
+      rows.forEach((row, index) => {
+        if (index === 0) {
+          newThead.appendChild(row);
+        } else {
+          newTbody.appendChild(row);
+        }
+      });
+      table.appendChild(newThead);
+      table.appendChild(newTbody);
+    }
+  }
+
+  return table;
+}
+
 module.exports = {
   rotateBack,
   createUnrotateButton,

@@ -34,6 +34,16 @@ const renderDependencyGraph = (dependencyGraph, container) => {
 
 exports.renderDependencyGraph = renderDependencyGraph;
 
+const fixTableStructureIssues = (document) => {
+  // Function to fix table structure issues for accessibility
+  let fixedCount = 0;
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    const existingThead = table.querySelector('thead');
+    const existingTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+    
     if (!existingTbody) {
       let remainingRows = Array.from(rows);
       if (existingThead) {
@@ -75,7 +85,7 @@ exports.renderDependencyGraph = renderDependencyGraph;
   });
 
   return fixedCount;
-}
+};
 
 // Function to add/main landmark
 function addMainLandmark(document) {
@@ -438,6 +448,62 @@ const a11yStore = {
 
   checkLandmarkElements() {
     // Check and ensure proper landmark elements
+    const landmarkRoles = [
+      'banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search'
+    ];
+    
+    const requiredLandmarks = {
+      main: { min: 1, max: 1, message: 'Page should have exactly one main landmark' },
+      navigation: { min: 1, max: null, message: 'Page should have at least one navigation landmark' }
+    };
+    
+    const issues = [];
+    
+    // Check for main landmark
+    const mainElements = document.querySelectorAll('main, [role="main"]');
+    if (mainElements.length === 0) {
+      issues.push('Missing main landmark');
+    } else if (mainElements.length > 1) {
+      issues.push('Multiple main landmarks found - only one should exist');
+    }
+    
+    // Check for navigation landmarks
+    const navElements = document.querySelectorAll('nav, [role="navigation"]');
+    if (navElements.length === 0) {
+      issues.push('No navigation landmark found');
+    }
+    
+    // Check for header/banner landmark
+    const headerElements = document.querySelectorAll('header, [role="banner"]');
+    if (headerElements.length > 1) {
+      issues.push('Multiple banner landmarks found');
+    }
+    
+    // Check for footer/contentinfo landmark
+    const footerElements = document.querySelectorAll('footer, [role="contentinfo"]');
+    if (footerElements.length > 1) {
+      issues.push('Multiple contentinfo landmarks found');
+    }
+    
+    // Ensure landmarks have accessible names when multiple of same type exist
+    landmarkRoles.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          const hasLabel = el.getAttribute('aria-label') || 
+                          el.getAttribute('aria-labelledby') ||
+                          el.querySelector('h1, h2, h3, h4, h5, h6');
+          if (!hasLabel) {
+            issues.push(`${role} landmark ${index + 1} needs an accessible name`);
+          }
+        });
+      }
+    });
+    
+    return {
+      passed: issues.length === 0,
+      issues: issues
+    };
   },
 
   addSVGAccessibilityProps() {
@@ -458,59 +524,6 @@ function addressAccessibilityIssues(report) {
   report.forEach(issue => {
     // Integrated the logic from both branches to address accessibility issues
   });
-}
-
-function fixTableStructureIssues(document) {
-  // Function to fix table structure issues for accessibility
-  let fixedCount = 0;
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    const existingThead = table.querySelector('thead');
-    const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
-    
-    if (!existingTbody) {
-      let remainingRows = Array.from(rows);
-      if (existingThead) {
-        remainingRows = remainingRows.slice(existingThead.querySelectorAll('tr').length);
-      } else {
-        remainingRows = remainingRows.slice(1);
-      }
-      if (remainingRows.length > 0) {
-        const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
-        table.appendChild(tbody);
-        fixedCount++;
-      }
-    }
-
-    // Ensure proper header cells (th) are used
-    const allRows = table.querySelectorAll('tr');
-    allRows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      // Check if first cell should be a header
-      if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
-        const firstCell = cells[0];
-        const th = document.createElement('th');
-        th.textContent = firstCell.textContent;
-        th.scope = 'col';
-        row.insertBefore(th, firstCell);
-        fixedCount++;
-      }
-    });
-
-    // Additional HEAD logic: ensure scope on header cells
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(th => {
-      if (!th.scope) {
-        th.setAttribute('scope', 'col');
-        fixedCount++;
-      }
-    });
-  });
-
-  return fixedCount;
 }
 
 function renderIndexView() {

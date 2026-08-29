@@ -96,7 +96,7 @@ function ensureUniqueLandmarks(document) {
 
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 
-// ... (Functions that were unique in each branch)
+// ... (Functions that were unique in each branches)
 
 function validateTableAccessibility(document) {
   // Implementation for table accessibility validation
@@ -570,8 +570,247 @@ const a11yStore = {
   },
 };
 
-function updateThScopeAttribute(filePath) {
-  // Placeholder for updating th scope attributes in HTML files
+// Standalone function for setSvgAccessibilityProps
+function setSvgAccessibilityProps(svg) {
+  svg.setAttribute('focusable', 'false');
+  svg.setAttribute('aria-hidden', 'false');
+}
+
+// Additional missing exported functions
+function getFullLangAttribute() {
+  return getLangAttribute();
+}
+
+function validateTableStructure(document) {
+  return fixTableStructureIssues(document);
+}
+
+function getSvgAccessibleName(svg) {
+  const titleElement = svg.querySelector('title');
+  if (titleElement && titleElement.textContent.trim()) {
+    return titleElement.textContent.trim();
+  }
+  return svg.getAttribute('aria-label') || 'Graphic';
+}
+
+function createInPageButton() {
+  // Implementation for creating an in-page button
+}
+
+function createAccessibleLink(url, text) {
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.textContent = text;
+  if (!text) {
+    anchor.setAttribute('aria-label', url);
+  }
+  return anchor;
+}
+
+// Utility functions
+function formatDate(date, format = 'YYYY-MM-DD') {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatCurrency(amount, currency = 'USD') {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency
+  }).format(amount);
+}
+
+function debounce(fn, delay = 250) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+function throttle(fn, delay = 100) {
+  let lastCall = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - lastCall >= delay) {
+      lastCall = now;
+      return fn.apply(this, args);
+    }
+  };
+}
+
+function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const clonedObj = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        clonedObj[key] = deepClone(obj[key]);
+      }
+    }
+    return clonedObj;
+  }
+  return obj;
+}
+
+function isEmpty(value) {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string') return value.trim() === '';
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+  return false;
+}
+
+function capitalizeFirstLetter(string) {
+  if (typeof string !== 'string' || string.length === 0) return string;
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function truncate(string, length = 50) {
+  if (typeof string !== 'string') return string;
+  if (string.length <= length) return string;
+  return string.substring(0, length) + '...';
+}
+
+function parseQueryString(queryString = window.location.search) {
+  const params = {};
+  const searchParams = new URLSearchParams(queryString);
+  for (const [key, value] of searchParams) {
+    params[key] = value;
+  }
+  return params;
+}
+
+function buildQueryString(params) {
+  const searchParams = new URLSearchParams();
+  for (const key in params) {
+    if (params.hasOwnProperty(key)) {
+      searchParams.append(key, params[key]);
+    }
+  }
+  return searchParams.toString();
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function validateUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function randomInt(min = 0, max = 100) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function groupBy(array, keyFn) {
+  return array.reduce((groups, item) => {
+    const key = typeof keyFn === 'function' ? keyFn(item) : item[keyFn];
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(item);
+    return groups;
+  }, {});
+}
+
+function unique(array) {
+  return [...new Set(array)];
+}
+
+function uniqueBy(array, keyFn) {
+  const seen = new Set();
+  return array.filter(item => {
+    const key = typeof keyFn === 'function' ? keyFn(item) : item[keyFn];
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function sortBy(array, keyFn, ascending = true) {
+  const arr = [...array];
+  arr.sort((a, b) => {
+    const aVal = typeof keyFn === 'function' ? keyFn(a) : a[keyFn];
+    const bVal = typeof keyFn === 'function' ? keyFn(b) : b[keyFn];
+    if (aVal < bVal) return ascending ? -1 : 1;
+    if (aVal > bVal) return ascending ? 1 : -1;
+    return 0;
+  });
+  return arr;
+}
+
+function chunk(array, size = 1) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function flatten(array) {
+  return array.reduce((acc, val) => acc.concat(val), []);
+}
+
+function pick(obj, keys) {
+  const result = {};
+  for (const key of keys) {
+    if (obj.hasOwnProperty(key)) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+
+function omit(obj, keys) {
+  const result = {};
+  const keysToOmit = new Set(keys);
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key) && !keysToOmit.has(key)) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+
+function merge(...objects) {
+  const result = {};
+  for (const obj of objects) {
+    if (obj && typeof obj === 'object') {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          result[key] = obj[key];
+        }
+      }
+    }
+  }
+  return result;
 }
 
 // Main game loop for Screeps

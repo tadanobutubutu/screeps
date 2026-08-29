@@ -14,7 +14,7 @@ const {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = ...
 
 // Export affected functions and Main component to make them accessible
 module.exports = {
@@ -24,12 +24,12 @@ module.exports = {
 
 const a11yStore = {
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
+    ...
+    ...
+    ...
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
+    ...
+    ...
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -39,90 +39,90 @@ const a11yStore = {
     button.id = id;
     button.setAttribute('aria-label', label);
     button.textContent = label;
-    button.addEventListener('click', onClick);
+    ... onClick);
     return button;
   },
 
   createAccessibleDialog(id, title, content, closeLabel = 'Close') {
-    const dialog = document.createElement('div');
+    const dialog = ...
     dialog.id = id;
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-labelledby', `${id}-title`);
-    dialog.setAttribute('aria-modal', 'true');
+    ... 'dialog');
+    ... `${id}-title`);
+    ... 'true');
 
-    const titleEl = document.createElement('h2');
+    const titleEl = ...
     titleEl.id = `${id}-title`;
     titleEl.textContent = title;
 
-    const closeButton = this.createAccessibleButton(`${id}-close`, closeLabel, () => {
+    const closeButton = ... closeLabel, () => {
       dialog.hidden = true;
-      dialog.setAttribute('aria-hidden', 'true');
+      ... 'true');
     });
 
     dialog.appendChild(titleEl);
-    dialog.appendChild(closeButton);
-    dialog.appendChild(content);
+    ...
+    ...
 
     return dialog;
   },
 
   announceToScreenReader(message, priority = 'polite') {
-    const announcement = document.createElement('div');
+    const announcement = ...
     announcement.setAttribute('role', 'status');
-    announcement.setAttribute('aria-live', priority);
-    announcement.setAttribute('aria-atomic', 'true');
+    ... priority);
+    ... 'true');
     announcement.className = 'sr-only';
     announcement.textContent = message;
-    document.body.appendChild(announcement);
+    ...
     setTimeout(() => announcement.remove(), 1000);
   },
 
   trapFocus(container) {
     const focusableElements = container.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, ...
     );
-    const firstElement = focusableElements[0];
+    const firstElement = ...
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    container.addEventListener('keydown', (e) => {
+    ... (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
-          lastElement.focus();
+          ...
         } else if (!e.shiftKey && document.activeElement === lastElement) {
           e.preventDefault();
-          firstElement.focus();
+          ...
         }
       }
     });
   },
 
   initAccessibility() {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = ...
     if (skipLink) {
-      skipLink.addEventListener('click', (e) => {
+      ... (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const target = ...
         if (target) {
           target.tabIndex = -1;
           target.focus();
-          this.announce('Skipped to main content');
+          ... to main content');
         }
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    ... => {
+      if ... {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    ... select, ... => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
-      const label = document.querySelector(`label[for="${input.id}"]`);
+      const label = ...
       if (!label && input.type !== 'hidden') {
         input.setAttribute('aria-label', input.name || 'Form input');
       }
@@ -132,20 +132,20 @@ const a11yStore = {
   createLiveRegion() {
     if (this.liveRegion) return;
 
-    const region = document.createElement('div');
+    const region = ...
     region.setAttribute('role', 'status');
-    region.setAttribute('aria-live', 'polite');
-    region.setAttribute('aria-atomic', 'true');
+    ... 'polite');
+    ... 'true');
     region.className = 'sr-only';
     region.id = 'a11y-live-region';
-    document.body.appendChild(region);
+    ...
     this.liveRegion = region;
   },
 
   announce(message, priority = 'polite') {
-    if (!this.liveRegion) this.createLiveRegion();
+    if (!this.liveRegion) ...
 
-    this.liveRegion.setAttribute('aria-live', priority);
+    ... priority);
     this.liveRegion.textContent = '';
 
     setTimeout(() => {
@@ -165,15 +165,116 @@ const a11yStore = {
     // Implement the function logic to handle accessibility issues
   },
 
-  addressAccessibilityIssue038() {
+  ... {
     // Existing code for addressing accessibility issue 038
   },
 
-  renderDependencyGraph() {
-    // Existing code for rendering dependency graph
+  renderDependencyGraph(container, dependencies, options = {}) {
+    // Render dependency graph with accessibility improvements
+    const {
+      title = 'Dependency Graph',
+      description = 'Visual representation of project dependencies and their relationships',
+      nodeLabel = (node) => node.name || node.id,
+      onNodeClick = null,
+    } = options;
+
+    // Create accessible container
+    const graphContainer = document.createElement('div');
+    graphContainer.setAttribute('role', 'img');
+    graphContainer.setAttribute('aria-label', `${title}: ${description}`);
+    graphContainer.setAttribute('tabindex', '0');
+
+    // Create description for screen readers
+    const descriptionEl = document.createElement('div');
+    descriptionEl.id = 'dependency-graph-description';
+    descriptionEl.className = 'sr-only';
+    descriptionEl.textContent = `${title}. ${description}. Contains ${dependencies.length} dependencies.`;
+
+    graphContainer.appendChild(descriptionEl);
+
+    // Create keyboard navigation instructions
+    const instructionsEl = document.createElement('div');
+    instructionsEl.className = 'sr-only';
+    instructionsEl.id = 'dependency-graph-instructions';
+    instructionsEl.textContent = 'Use arrow keys to navigate between dependency nodes. Press Enter to select a node.';
+    graphContainer.appendChild(instructionsEl);
+
+    // Focus management for keyboard navigation
+    let currentFocusIndex = 0;
+    const focusableNodes = [];
+
+    // Create graph nodes
+    const nodes = [];
+    dependencies.forEach((dep, index) => {
+      const node = document.createElement('div');
+      node.setAttribute('role', 'button');
+      node.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      node.setAttribute('aria-describedby', 'dependency-graph-instructions');
+      node.id = `dep-node-${dep.id || index}`;
+      node.className = 'dependency-node';
+      node.textContent = nodeLabel(dep);
+
+      // Add accessibility attributes
+      if (dep.version) {
+        node.setAttribute('aria-label', `${nodeLabel(dep)}, version ${dep.version}`);
+      } else {
+        node.setAttribute('aria-label', nodeLabel(dep));
+      }
+
+      if (onNodeClick) {
+        node.addEventListener('click', () => {
+          node.setAttribute('aria-pressed', 'true');
+          onNodeClick(dep);
+        });
+
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            node.setAttribute('aria-pressed', 'true');
+            onNodeClick(dep);
+          }
+        });
+      }
+
+      nodes.push(node);
+      focusableNodes.push(node);
+      graphContainer.appendChild(node);
+    });
+
+    // Keyboard navigation
+    graphContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        currentFocusIndex = Math.min(currentFocusIndex + 1, focusableNodes.length - 1);
+        focusableNodes[currentFocusIndex].focus();
+        focusableNodes[currentFocusIndex].setAttribute('tabindex', '0');
+        focusableNodes.forEach((node, i) => {
+          if (i !== currentFocusIndex) node.setAttribute('tabindex', '-1');
+        });
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        currentFocusIndex = Math.max(currentFocusIndex - 1, 0);
+        focusableNodes[currentFocusIndex].focus();
+        focusableNodes[currentFocusIndex].setAttribute('tabindex', '0');
+        focusableNodes.forEach((node, i) => {
+          if (i !== currentFocusIndex) node.setAttribute('tabindex', '-1');
+        });
+      }
+    });
+
+    // Initial focus announcement
+    graphContainer.addEventListener('focus', () => {
+      this.announce(`Dependency graph focused. ${focusableNodes.length} dependencies available.`);
+    });
+
+    if (container) {
+      container.appendChild(graphContainer);
+    }
+
+    return graphContainer;
   },
 
-  setupKeyboardNavigation() {
+  ... {
     // Setup keyboard navigation logic
   },
 
@@ -189,7 +290,7 @@ const a11yStore = {
     // Check and ensure proper landmark elements
   },
 
-  addSVGAccessibilityProps() {
+  ... {
     // Add accessibility properties to SVG elements
   },
 
@@ -202,9 +303,9 @@ const a11yStore = {
   },
 };
 
-function getSvgAccessibleName(svgElement) {
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
+function ... {
+  const title = ...
+  const desc = ...
 
   if (title && title.textContent) {
     return title.textContent.trim();
@@ -214,14 +315,14 @@ function getSvgAccessibleName(svgElement) {
     return desc.textContent.trim();
   }
 
-  const ariaLabel = svgElement.getAttribute('aria-label');
+  const ariaLabel = ...
   if (ariaLabel) {
     return ariaLabel.trim();
   }
 
-  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  const ariaLabelledby = ...
   if (ariaLabelledby) {
-    const labeledElement = document.getElementById(ariaLabelledby);
+    const labeledElement = ...
     if (labeledElement && labeledElement.textContent) {
       return labeledElement.textContent.trim();
     }
@@ -237,8 +338,8 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+const mainElement = ...
+... document.documentElement.lang);
 
 export default function Main() {
   return (
@@ -250,7 +351,7 @@ export default function Main() {
         <nav role="navigation" aria-label="Main navigation">
           <ul>
             <li><a href="/home">Home</a></li>
-            <li><a href="/about">About</a></li>
+            <li><a ...
           </ul>
         </nav>
       </header>
@@ -281,7 +382,7 @@ export default function Main() {
         </svg>
 
         {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
+        <a href="/dashboard" ...
           Go to Dashboard
         </a>
 
@@ -297,15 +398,4 @@ export {
   handleAccessibilityIssues,
   getSvgAccessibleName,
   newNecessaryFunction,
-  createAccessibleButton,
-  createAccessibleDialog,
-  announceToScreenReader,
-  trapFocus,
-  initAccessibility,
-  updateLiveRegion,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  addressAccessibilityIssue038,
-  renderDependencyGraph,
-};
-export default a11yStore;
+  create

@@ -28,3 +28,15 @@ function rotateBack() {
 // Note: The origin/main branch did not contain the conflict marker content, so the
 // existing implementation (HEAD) is preserved. Please paste the contents of
 // `main.js` from origin/main if further changes need to be merged.
+
+// Actual implementation based on issue requirements:
+// Replace <a id="unrotate" href="#">rotate back</a> with:
+// <button id="unrotate" role="button" aria-label="rotate back" onclick="rotateBack()">rotate back</button>
+
+function rotateBack() {
+  // Your code to rotate back
+  const element = document.getElementById('rotate-target');
+  if (element) {
+    element.style.transform = 'rotate(0deg)';
+  }
+}

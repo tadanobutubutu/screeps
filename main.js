@@ -8,7 +8,26 @@ const a11yStore = {
     this.checkLandmarkElements();
   },
   // Existing a11yStore methods
-  // ...
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element) => {
+      const landmark = document.querySelector(`[role="${element}"]`);
+      if (landmark && landmark.id === '') {
+        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+      }
+    });
+  },
+  countDependencies(options = {}) {
+    return Object.keys(options).length;
+  },
+  updateLiveRegion(message, priority = 'polite') {
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('role', 'status');
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.textContent = message;
+    document.body.appendChild(liveRegion);
+    return liveRegion;
+  }
 };
 
 // Store for accessibility announcements (screen reader support)
@@ -40,7 +59,6 @@ function calculateDiscount(price, discountRate) {
 function getSvgAccessibleName(svgElement) {
   // ... Existing implementation ...
 }
-<<<<<<< HEAD
 
 /**
  * Checks link and button accessibility in the document or specific container.
@@ -84,7 +102,6 @@ function getLangAttribute(element) {
 function addLangAttribute() {
   // ... Existing implementation ...
 }
-=======
 
 /**
  * Adds accessibility properties to SVG elements in the given container.
@@ -93,8 +110,6 @@ function addLangAttribute() {
 function addSVGAccessibilityProps(container) {
   // ... New implementation for this function ...
 }
-
->>>>>>> origin/main
 
 function validateLandmark() {
   return true;
@@ -115,16 +130,6 @@ function validateTableStructure() {
   return true;
 }
 
-function validateLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element) => {
-    const landmark = document.querySelector(`[role="${element}"]`);
-    if (landmark && landmark.id === '') {
-      landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
-    }
-  });
-}
-
 // New function to count dependencies
 function countDependencies(options = {}) {
   return a11yStore.countDependencies(options);
@@ -133,11 +138,6 @@ function countDependencies(options = {}) {
 // New function to update the live region
 function updateLiveRegion(message, priority = 'polite') {
   return a11yStore.updateLiveRegion(message, priority);
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-  return a11yStore.checkLandmarkElements();
 }
 
 // Existing exported functions

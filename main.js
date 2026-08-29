@@ -124,6 +124,33 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+/**
+ * Checks for landmark elements within a given container or the document body.
+ * Landmark elements include common semantic elements like header, nav, main,
+ * aside, footer, and section with role="region".
+ *
+ * @param {HTMLElement} [container=document.body] - The container element to search within.
+ * @returns {Array<HTMLElement>} An array of landmark elements found.
+ */
+function checkLandmarkElements(container = document.body) {
+  const landmarkSelectors = [
+    'header',
+    'nav',
+    'main',
+    'aside',
+    'footer',
+    '[role="banner"]',
+    '[role="navigation"]',
+    '[role="main"]',
+    '[role="complementary"]',
+    '[role="contentinfo"]',
+    '[role="region"]',
+    'section[aria-label], section[aria-labelledby]'
+  ];
+
+  return Array.from(container.querySelectorAll(landmarkSelectors.join(',')));
+}
+
 // Function to render dependency graph
 function renderDependencyGraph() {
   const container = document.getElementById('dependency-graph') || document.createElement('div');
@@ -380,6 +407,7 @@ module.exports = {
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
+  checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
   validateLandmark,
@@ -389,4 +417,4 @@ module.exports = {
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore };
+// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore, checkLandmarkElements, renderDependencyGraph, displayModuleStructure, validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks, ensureUniqueLandmarksFromString };

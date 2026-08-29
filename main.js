@@ -1,5 +1,21 @@
 // TODO: This is the modified and merged code
 
+function wrapPrimaryContentInMain() {
+  const primaryContent = document.getElementById('primary-content');
+  if (!primaryContent) {
+    console.error('Primary content element not found');
+    return;
+  }
+
+  // Wrap the primary content in a main tag if it's not already wrapped
+  const mainTag = primaryContent.closest('main');
+  if (!mainTag) {
+    const mainElement = document.createElement('main');
+    mainElement.appendChild(primaryContent);
+    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+  }
+}
+
 const dependencyGraphContent = require('./dependencyGraphContent');
 const indexContent = require('./indexContent');
 
@@ -38,8 +54,15 @@ function renderApp(context) {
   return `<div id="app">${viewFunction(context)}</div>`;
 }
 
+const myNewFunction = () => {
+  // Implementation of your new function goes here
+  console.log('myNewFunction has been executed');
+};
+
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  wrapPrimaryContentInMain,
+  myNewFunction
 };

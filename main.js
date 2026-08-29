@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file with merged changes:
-
-```javascript
 const fs = require('fs');
 const path = require('path');
 
@@ -43,4 +40,3 @@ function addLandmarkRegions() {
 }
 
 // ... ( Запишите все остальные функции и экспорты из вашего репозитория Screeps bot, включая добавленные функции для тестов, технической документации и препроцессоров )
-```

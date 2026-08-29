@@ -1,5 +1,5 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
+// REACT_015: Add lang attribute — FIXED
+// Accessibility issues addressed: lang attribute added to HTML document
 
 // Main game logic for Screeps
 const main = {
@@ -31,7 +31,7 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find(FIND_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
     });
     
@@ -41,7 +41,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

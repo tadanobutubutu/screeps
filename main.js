@@ -23,6 +23,82 @@ document.documentElement.lang = getLangAttribute();
 
 function validateTableAccessibility(document) {
   // Implementation for table accessibility validation
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const tableIndex = index + 1;
+
+    // Check if table has a caption for accessibility
+    const caption = table.querySelector('caption');
+    if (!caption) {
+      issues.push({
+        type: 'REACT_027',
+        severity: 'warning',
+        tableIndex,
+        message: `Table ${tableIndex} is missing a <caption> element for accessibility`
+      });
+    }
+
+    // Check if table has proper thead structure
+    const thead = table.querySelector('thead');
+    if (!thead) {
+      issues.push({
+        type: 'REACT_027',
+        severity: 'error',
+        tableIndex,
+        message: `Table ${tableIndex} is missing <thead> element`
+      });
+    }
+
+    // Check if table has tbody structure
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+      issues.push({
+        type: 'REACT_027',
+        severity: 'error',
+        tableIndex,
+        message: `Table ${tableIndex} is missing <tbody> element`
+      });
+    }
+
+    // Check header cells for proper scope attributes
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      issues.push({
+        type: 'REACT_027',
+        severity: 'warning',
+        tableIndex,
+        message: `Table ${tableIndex} has no header cells (<th>)`
+      });
+    } else {
+      headers.forEach((header, hIndex) => {
+        const scope = header.getAttribute('scope');
+        if (!scope) {
+          issues.push({
+            type: 'REACT_027',
+            severity: 'warning',
+            tableIndex,
+            headerIndex: hIndex,
+            message: `Header cell ${hIndex + 1} in table ${tableIndex} is missing scope attribute`
+          });
+        }
+      });
+    }
+
+    // Check if table has summary attribute (for older accessibility)
+    const summary = table.getAttribute('summary');
+    if (!summary && !caption) {
+      issues.push({
+        type: 'REACT_027',
+        severity: 'info',
+        tableIndex,
+        message: `Table ${tableIndex} has neither summary attribute nor caption`
+      });
+    }
+  });
+
+  return issues;
 }
 
 function checkLandmarkElements(htmlContent) {
@@ -72,6 +148,3 @@ function googleSignIn(document) {
 function fixButtonIdentifiers(button, buttonId) {
   // Implementation for replacing my-button with actual button id for accessibility
 }
-```
-
-This code combines both versions of the functions to address multiple accessibility issues in the Screeps bot repository. The combined version respects both versions and ensures that all changes are integrated when resolving the merge conflict.

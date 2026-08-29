@@ -324,3 +324,14 @@ function addressAccessibilityIssues(report) {
     }
   });
 }
+
+// Export all public functions and constants
+module.exports = {
+  renderIndexView,
+  createInPageButton,
+  a11yStore,
+  countDependencies,
+  addLandmarkRegions,
+  LANDMARK_ELEMENTS,
+  addressAccessibilityIssues
+};

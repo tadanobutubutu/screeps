@@ -288,10 +288,15 @@ function getLangAttribute(el) {
 function getFullLangAttribute(el) {
   // Implement the logic to return the full language attribute (if required)
   // Example: combine language code with region or locale identifier
-  if (!el) {
-    return 'en-US';
+  const baseLang = getLangAttribute(el);
+  // If baseLang already includes a region, return it as is
+  if (baseLang.includes('-')) {
+    return baseLang;
   }
-  return el.getAttributeNS(null, 'xml:lang') || getLangAttribute(el);
+  // Determine region from navigator or default to 'US'
+  const navLang = typeof navigator !== 'undefined' ? navigator.language : '';
+  const region = navLang.split('-')[1] || 'US';
+  return `${baseLang}-${region}`;
 }
 
 // Improve accessibility by adding semantic role and label to the root element

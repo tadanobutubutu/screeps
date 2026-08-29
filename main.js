@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // This is a simple utility library with added dependency graph rendering and module structure display functionalities
 
 function multiply(a, b) {
@@ -36,13 +33,61 @@ function displayModuleStructure(modules) {
   return {};
 }
 
+// Add proper landmark regions for the Screeps room
+function addProperLandmarkRegions() {
+  const landmarks = [];
+  const room = Game.rooms[Object.keys(Game.rooms)[0]];
+  
+  if (!room) {
+    return landmarks;
+  }
+  
+  // Mark sources as landmarks
+  const sources = room.find(FIND_SOURCES);
+  sources.forEach((source, index) => {
+    landmarks.push({
+      type: 'source',
+      id: index,
+      x: source.pos.x,
+      y: source.pos.y,
+      roomName: source.pos.roomName
+    });
+  });
+  
+  // Mark minerals as landmarks
+  const minerals = room.find(FIND_MINERALS);
+  minerals.forEach((mineral, index) => {
+    landmarks.push({
+      type: 'mineral',
+      id: index,
+      x: mineral.pos.x,
+      y: mineral.pos.y,
+      roomName: mineral.pos.roomName,
+      mineralType: mineral.mineralType
+    });
+  });
+  
+  // Mark controller as landmark
+  if (room.controller) {
+    landmarks.push({
+      type: 'controller',
+      x: room.controller.pos.x,
+      y: room.controller.pos.y,
+      roomName: room.controller.pos.roomName
+    });
+  }
+  
+  return landmarks;
+}
+
 // Placeholder for bot logic for Screeps
 function loop() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
     if (creep.memory.role === 'harvester') {
       if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        let sources = creep.room.find(FIND_SOURCES);
+        let source = sources[0];
         if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source);
         }
@@ -58,8 +103,6 @@ module.exports = {
   greet,
   renderDependencyGraph,
   displayModuleStructure,
+  addProperLandmarkRegions,
   loop
 };
-```
-
-This resolution combines both changes, adding dependency graph rendering and module structure display functionalities to the utility library while preserving the original functions and introducing the bot logic loop.

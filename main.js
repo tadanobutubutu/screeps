@@ -1,13 +1,13 @@
 // Your existing code...
 
 // Adding an alt attribute to an image
-const imageElement = document.getElementById('example-image');
+const imageElement = document.querySelector('img');
 if (imageElement) {
   imageElement.setAttribute('alt', 'A description of the image');
 }
 
 // Correcting the ARIA role for a div
-const divElement = document.getElementById('example-div');
+const divElement = document.querySelector('div');
 if (divElement) {
   divElement.setAttribute('role', 'list');
 }

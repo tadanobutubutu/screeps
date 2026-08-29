@@ -31,17 +31,20 @@ const main = {
   },
   
   defendRoom: function(room, hostiles) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
+    const towers = room.find({
       filter: { structureType: STRUCTURE_TOWER }
     });
     
     towers.forEach(tower => {
-      tower.attack(hostiles[0]);
+      const target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      if (target) {
+        tower.attack(target);
+      }
     });
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByRange(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

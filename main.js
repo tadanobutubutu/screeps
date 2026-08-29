@@ -10,12 +10,19 @@ import { requiredModule } from './required-module.js';
 function addLandmarkRegions() {
   const container = document.getElementById('landmark-regions-container');
   if (container) {
+    // Updating the implementation to include additional landmark regions
     container.innerHTML = `
       <div class="landmark-region" role="region" aria-label="Building" aria-labelledby="buildingLabel">
         <span id="buildingLabel">Main Building</span>
       </div>
       <div class="landmark-region" role="region" aria-label="Park" aria-labelledby="parkLabel">
         <span id="parkLabel">Central Park</span>
+      </div>
+      <div class="landmark-region" role="region" aria-label="Museum">
+        Museum of Art
+      </div>
+      <div class="landmark-region" role="region" aria-label="Garden">
+        Japanese Garden
       </div>
     `;
   }

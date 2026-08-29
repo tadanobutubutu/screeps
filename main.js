@@ -91,14 +91,62 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+/**
+ * Renders a simple dependency graph to the page for debugging.
+ * Creates a <div> with a visual representation of modules and their dependencies.
+ */
+function renderDependencyGraph() {
+  const container = document.createElement('div');
+  container.id = 'dependency-graph';
+  container.innerHTML = `
+    <h2>Dependency Graph</h2>
+    <p>This section shows the module dependencies.</p>
+    <ul>
+      <li>root -> core</li>
+      <li>core -> utils</li>
+      <li>utils -> helpers</li>
+    </ul>
+  `;
+  document.body.appendChild(container);
+}
+
+/**
+ * Displays the module structure in a hierarchical tree format.
+ * @param {string} rootPath - Path to the root module (optional)
+ */
+function displayModuleStructure(rootPath) {
+  const ul = document.createElement('ul');
+  ul.style.listStyle = 'none';
+  ul.style.paddingLeft = '20px';
+
+  // Example tree structure – replace with dynamic logic as needed
+  const exampleRoot = 'app';
+  const exampleChildren = ['components', 'services', 'utils'];
+
+  function buildTree(node, depth = 0) {
+    const li = document.createElement('li');
+    li.textContent = node;
+    if (depth > 0) {
+      li.style.paddingLeft = (depth * 15) + 'px';
+    }
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(child => buildTree(child, depth + 1));
+    }
+    ul.appendChild(li);
+  }
+
+  buildTree({ id: exampleRoot, children: exampleChildren });
+
+  document.body.appendChild(ul);
+}
+
 // Make all functions accessible via exports
 module.exports = {
   // Export all functions that need to be accessible
   createInPageButton,
   addressAccessibilityIssues,
   generateAccessibilityReport,
-  calculateAccessibilityScore
+  calculateAccessibilityScore,
+  renderDependencyGraph,
+  displayModuleStructure
 };
-
-// If using ES6 modules, also ensure functions are exported:
-// export { createInPageButton, addressAccessibilityIssues, calculateAccessibilityScore };

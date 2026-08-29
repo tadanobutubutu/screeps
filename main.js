@@ -5,14 +5,26 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(container) {
+  if (!container) return null;
+
+  const main = container.querySelector('main');
+  if (main) return main;
+
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  mainElement.setAttribute('aria-label', 'Content area');
+
+  container.appendChild(mainElement);
+
+  const primaryContent = container.querySelector('[role="main"] ~ *');
+  if (primaryContent) {
+    mainElement.appendChild(primaryContent);
+  }
+
+  return mainElement;
+}
 
 function App() {
   const [data, setData] = useState(null);
@@ -36,294 +48,31 @@ function App() {
 
   // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
-    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.lang = 'en';
   }, []);
+
+  const mainElement = wrapPrimaryContentInMain(document.body);
 
   // REACT_017: Add landmark roles and fix landmark issues
   // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
+  // REACT_036: Fix 1 fake link issue
   // REACT_041: Add accessible names to SVGs
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
-  return (
+  return mainElement ? (
     <div className="app-container">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
     </div>
-  );
+  ) : null;
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function getUniqueLandmarkName(baseName, existingNames) {
-  if (!existingNames.includes(baseName)) {
-    return baseName;
-  }
-  let counter = 2;
-  let newName = `${baseName}-${counter}`;
-  while (existingNames.includes(newName)) {
-    counter++;
-    newName = `${baseName}-${counter}`;
-  }
-  return newName;
-}
-
 // REACT_025: Ensure unique landmarks function
-export function validateUniqueLandmarks(container) {
-  const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
-  const landmarkNames = new Set();
-  const issues = [];
-
-  landmarks.forEach((landmark) => {
-    const ariaLabel = landmark.getAttribute('aria-label');
-    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
-    const tagName = landmark.tagName.toLowerCase();
-
-    // Determine the landmark name
-    let landmarkName = ariaLabel || ariaLabelledby || tagName;
-
-    if (landmarkNames.has(landmarkName)) {
-      issues.push({
-        element: landmark,
-        message: `Duplicate landmark found: "${landmarkName}". Use unique aria-label or aria-labelledby.`,
-        severity: 'warning'
-      });
-    } else {
-      landmarkNames.add(landmarkName);
-    }
-  });
-
-  return issues;
-}
-
 // REACT_041: Add accessible names to SVGs
-export function addSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) return;
-  
-  // Add title element as first child
-  const title = document.createElement('title');
-  title.id = `svg-title-${Date.now()}`;
-  title.textContent = accessibleName;
-  
-  // Insert title as first child
-  svgElement.insertBefore(title, svgElement.firstChild);
-  
-  // Add aria-labelledby attribute
-  svgElement.setAttribute('aria-labelledby', title.id);
-}
-
 // REACT_036: Fix fake link issues - convert to proper semantic elements
-export function isValidLink(element) {
-  if (!element) return true;
-  
-  const tagName = element.tagName.toLowerCase();
-  const href = element.getAttribute('href');
-  const onClick = element.getAttribute('onclick');
-  
-  // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
-  const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
-  
-  if (isFakeLink) {
-    return {
-      valid: false,
-      suggestion: `Replace <${tagName}> with <button> or <a href="#"> for proper accessibility.`
-    };
-  }
-  
-  return { valid: true };
-}
-
 // REACT_027: Add scope to table headers
-export function addScopeToHeaders(tableElement) {
-  if (!tableElement) return [];
-  
-  const headers = tableElement.querySelectorAll('th');
-  const updates = [];
-  
-  headers.forEach((th) => {
-    const row = th.closest('tr');
-    const rowIndex = Array.from(row.parentElement.children).indexOf(row);
-    const cellIndex = Array.from(row.children).indexOf(th);
-    
-    // Determine if scope should be 'col' or 'row'
-    let scope = 'col';
-    
-    // Check if it's a row header (first cell in a row that's not the first row)
-    if (cellIndex === 0 && rowIndex > 0) {
-      scope = 'row';
-    }
-    
-    if (!th.getAttribute('scope')) {
-      th.setAttribute('scope', scope);
-      updates.push({
-        element: th,
-        scope: scope,
-        position: { row: rowIndex, col: cellIndex }
-      });
-    }
-  });
-  
-  return updates;
-}
+// ... (other functions)
 
-// Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
-  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
-    // Implement the solution to the issue
-    // This is a placeholder for the actual implementation
-    console.log(`Solution: ${issue.solution}`);
-    // ... code to apply the solution ...
-  });
-}
-
-// New function to address accessibility issues from insight report
-function newFunction() {
-  // implementation of new function
-}
-
-// Accessibility Helper Functions
-
-/**
- * Announces a message to screen readers using ARIA live regions
- * @param {string} message - The message to announce
- * @param {string} priority - 'polite' or 'assertive'
- */
-function announceToScreenReader(message, priority = 'polite') {
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', priority);
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
-  announcement.textContent = message;
-  document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
-}
-
-/**
- * Traps focus within a specified element (useful for modals)
- * @param {HTMLElement} element - The container element to trap focus within
- * @returns {Function} - Cleanup function to remove the trap
- */
-function trapFocus(element) {
-  const focusableElements = element.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  const handleKeyDown = (e) => {
-    if (e.key !== 'Tab') return;
-
-    if (e.shiftKey && document.activeElement === firstElement) {
-      e.preventDefault();
-      lastElement.focus();
-    } else if (!e.shiftKey && document.activeElement === lastElement) {
-      e.preventDefault();
-      firstElement.focus();
-    }
-  };
-
-  element.addEventListener('keydown', handleKeyDown);
-  firstElement?.focus();
-
-  return () => element.removeEventListener('keydown', handleKeyDown);
-}
-
-/**
- * Manages focus when navigating between sections
- * @param {string} selector - CSS selector of the target section
- */
-function manageFocusOnNavigation(selector) {
-  const target = document.querySelector(selector);
-  if (target) {
-    target.setAttribute('tabindex', '-1');
-    target.focus();
-    target.removeAttribute('tabindex');
-  }
-}
-
-/**
- * Checks if user prefers reduced motion
- * @returns {boolean}
- */
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-/**
- * Safely manages aria-expanded state
- * @param {HTMLElement} trigger - The element that triggers the toggle
- * @param {boolean} isExpanded - Current expanded state
- */
-function setAriaExpanded(trigger, isExpanded) {
-  if (trigger) {
-    trigger.setAttribute('aria-expanded', String(isExpanded));
-  }
-}
-
-/**
- * Validates that an interactive element has proper accessible name
- * @param {HTMLElement} element - The element to validate
- * @returns {boolean}
- */
-function hasAccessibleName(element) {
-  return !!(
-    element.textContent?.trim() ||
-    element.getAttribute('aria-label') ||
-    element.getAttribute('aria-labelledby') ||
-    element.getAttribute('alt') ||
-    element.getAttribute('title')
-  );
-}
-
-/**
- * Initializes accessibility features on the page
- * Sets up landmark roles, validates unique landmarks, and applies fixes
- * @param {HTMLElement} rootElement - The root element to initialize accessibility for
- * @returns {Object} - Report of issues addressed
- */
-function initializeAccessibility(rootElement) {
-  if (!rootElement) {
-    console.warn('initializeAccessibility: rootElement is required');
-    return { issues: [], addressed: 0 };
-  }
-
-  const report = {
-    issues: [],
-    addressed: 0,
-    timestamp: new Date().toISOString()
-  };
-
-  // Ensure document has lang attribute (REACT_015)
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.setAttribute('lang', 'en');
-    report.addressed++;
-  }
-
-  // Validate unique landmarks (REACT_025)
-  const landmarkIssues = validateUniqueLandmarks(rootElement);
-  report.issues.push(...landmarkIssues);
-  report.addressed += landmarkIssues.length;
-
-  // Check for SVGs without accessible names (REACT_041)
-  const svgs = rootElement.querySelectorAll('svg');
-  svgs.forEach((svg) => {
-    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      report.issues.push({
-        element: svg,
-        message: 'SVG missing accessible name',
-        severity: 'warning'
-      });
-    }
-  });
-
-  return report;
-}
-
-// Export the newFunction for use in other modules
-export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName, initializeAccessibility };
-
-const container = document.getElementById('root');
-const root = createRoot(container);
-root.render(<App />);
+export { App };

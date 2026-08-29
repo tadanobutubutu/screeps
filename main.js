@@ -579,6 +579,7 @@ if (typeof module !== 'undefined' && module.exports) {
         formatData,
         validateInput,
         announceToScreenReader,
+        createAnnouncer,
         trapFocus,
         toggleAriaExpanded,
         handleMissingAltText,

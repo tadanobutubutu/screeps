@@ -1,24 +1,4 @@
-// Add any updates related to new functions
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// ----- END ORIGINAL CODE -----
-
-// Implement function to create in-page buttons
-function createInPageButton(buttonId, buttonText) {
-  const button = document.createElement('button');
-  button.id = buttonId;
-  button.textContent = buttonText;
-  document.body.appendChild(button);
-  return button;
-}
-
-// TODO: Implement function for addressing accessibility issues from insight report
+// Add the new function for addressing accessibility issues
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -26,7 +6,7 @@ function addressAccessibilityIssues(insightReport) {
 
   return insightReport.issues.map(issue => {
     let fixedIssue = { ...issue, status: 'resolved' };
-    
+
     // Apply fixes based on issue type
     switch (issue.type) {
       case 'color-contrast':
@@ -65,12 +45,6 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// 73: // TODO: Implement function for generating a report based on accessibility issues
-function generateAccessibilityReport(accessibilityReport) {
-  // Your implementation here
-  // ...
-}
-
 // New function for the issue
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
@@ -96,7 +70,7 @@ module.exports = {
   // Export all functions that need to be accessible
   createInPageButton,
   addressAccessibilityIssues,
-  generateAccessibilityReport,
+  generateAccessibilityReport, // This function is not updated here but can be implemented in a subsequent commit
   calculateAccessibilityScore
 };
 

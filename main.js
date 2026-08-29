@@ -5,16 +5,13 @@ const { checkLandmarkElements } = require('./a11y');
 
 const a11yStore = {
   init() {
-    this.checkLandmarkElements();
+    // Initialize a11y store
   },
   // Existing a11yStore methods
   // ...
 };
 
 // Store for accessibility announcements (screen reader support)
-
-// GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
-// GitHub Issue Fix - UPDATED: Merged from both branches
 
 // TODO: Add exports for new functions if needed
 
@@ -29,18 +26,11 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.textContent = buttonText;
   button.className = buttonClass;
 
-  document.body.appendChild(button);
-
   return button;
 }
 function calculateDiscount(price, discountRate) {
     return price - (price * discountRate);
 }
-
-function getSvgAccessibleName(svgElement) {
-  // ... Existing implementation ...
-}
-<<<<<<< HEAD
 
 /**
  * Checks link and button accessibility in the document or specific container.
@@ -51,14 +41,28 @@ function checkAccessibility(container = document) {
   // ... Existing implementation ...
 }
 
+/**
+ * Checks a landmark element for accessibility.
+ * @param {string} role - The ARIA role of the landmark
+ * @param {HTMLElement} element - The element to check
+ * @returns {boolean} Whether the landmark element is valid
+ */
 function checkLandmarkElement(role, element) {
   // ... Existing implementation ...
 }
 
+/**
+ * Wraps the primary content in a main landmark element.
+ */
 function wrapPrimaryContentInMain() {
   // ... Existing implementation ...
 }
 
+/**
+ * Checks landmark elements in the given container.
+ * @param {HTMLElement} [container=document] - The container to check for landmarks
+ * @returns {boolean} Whether all landmarks are valid
+ */
 function checkLandmarks(container = document) {
   // ... Existing implementation ...
 }
@@ -73,6 +77,19 @@ function renderIndexView() {
   createInPageButton();
 }
 
+/**
+ * Adds accessibility properties to SVG elements in the given container.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ */
+function addSvgAccessibility(container) {
+  // ... New implementation for this function ...
+}
+
+/**
+ * Gets the lang attribute from an element.
+ * @param {HTMLElement} [element] - The element to get the lang attribute from
+ * @returns {string|null} The lang attribute value or null
+ */
 function getLangAttribute(element) {
   // ... Existing implementation ...
 }
@@ -84,17 +101,6 @@ function getLangAttribute(element) {
 function addLangAttribute() {
   // ... Existing implementation ...
 }
-=======
-
-/**
- * Adds accessibility properties to SVG elements in the given container.
- * @param {HTMLElement} container - The container to check for SVG elements
- */
-function addSVGAccessibilityProps(container) {
-  // ... New implementation for this function ...
-}
-
->>>>>>> origin/main
 
 function validateLandmark() {
   return true;
@@ -115,29 +121,18 @@ function validateTableStructure() {
   return true;
 }
 
-function validateLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element) => {
-    const landmark = document.querySelector(`[role="${element}"]`);
-    if (landmark && landmark.id === '') {
-      landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
-    }
-  });
-}
-
 // New function to count dependencies
 function countDependencies(options = {}) {
-  return a11yStore.countDependencies(options);
+  return Object.keys(options).length;
 }
 
 // New function to update the live region
 function updateLiveRegion(message, priority = 'polite') {
-  return a11yStore.updateLiveRegion(message, priority);
-}
-
-// New function to check landmark elements
-function checkLandmarkElements() {
-  return a11yStore.checkLandmarkElements();
+  const liveRegion = document.getElementById('live-region');
+  if (liveRegion) {
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.textContent = message;
+  }
 }
 
 // Existing exported functions
@@ -148,13 +143,12 @@ module.exports = {
   createInPageButton,
   calculateDiscount,
   getLangAttribute,
-  addSVGAccessibilityProps,
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,
   validateTableAccessibility,
   validateTableStructure,
-  validateLandmarkElements,
+  checkLandmarkElements,
   countDependencies,
   updateLiveRegion,
   checkLandmarkElements

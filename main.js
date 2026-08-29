@@ -15,7 +15,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -62,7 +62,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-zA-Z0-9_-]/g, '_');
 }
 
 function readFileSafe(filePath) {
@@ -107,7 +107,7 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
-// TODO: Implement the new function as per the issue requirements
+// TODO: This is the existing code that needs to be preserved
 function transformInputData(inputData, options = {}) {
   const {
     preserveKeys = true,

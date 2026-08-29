@@ -72,7 +72,7 @@ function getTableRows(table) {
     return table.querySelectorAll('tr');
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+// TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
 
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {

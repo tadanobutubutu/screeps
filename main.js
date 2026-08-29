@@ -9,6 +9,8 @@ function calculateDiscount(price, discountRate) {
     return price - (price * discountRate);
 }
 
+// TODO: Add back any required exports that might have been removed
+// Assuming that there are no exports removed, this section should be kept as is.
 module.exports = {
     // Preserve all existing exports
     // ...

@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Identify and update specific functions that render dependency graphs or
 
 // Assuming the main.js file is a JavaScript file that includes the HTML content of the ... file.
 
@@ -17,6 +17,7 @@
 // If not, define it here:
 function rotateBack() {
   // Your code to rotate back
+  console.log('Rotating back to original position');
 }
 
 // ... (other code in main.js)
@@ -28,3 +29,6 @@ function rotateBack() {
 // Note: The origin/main branch did not contain the conflict marker content, so the
 // existing implementation (HEAD) is preserved. Please paste the contents of
 // `main.js` from origin/main if further changes need to be merged.
+
+// Accessibility: Replace <a id="unrotate" href="#">rotate back</a> with button
+// This button provides better accessibility and semantic meaning for a non-navigation action

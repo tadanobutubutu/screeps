@@ -60,6 +60,10 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+    // Example:
+    // if (Game.time % 5 === 0) { // Call the function every 5 ticks
+    //   this.someExistingFunction();
+    // }
   }
 };
 

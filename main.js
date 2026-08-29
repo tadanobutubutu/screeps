@@ -126,12 +126,34 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Function to improve keyboard navigation for interactive elements
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+// Function to add ARIA live regions for dynamic content updates
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks();
+  
+  // Improve keyboard navigation
+  improveKeyboardNavigation();
+  
+  // Add live region for dynamic content
+  addLiveRegionForDynamicContent();
   
   // Return the announcer for use in the app
   return {

@@ -48,6 +48,17 @@ function validateTableAccessibility() {
     // Validate table accessibility issues
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang = 'en') {
+  const doc = getDocument();
+  if (doc && doc.documentElement) {
+    if (doc.documentElement.lang !== lang) {
+      doc.documentElement.setAttribute('lang', lang);
+    }
+  }
+}
+
+// REACT_027: Fix table structure issues
 function validateTableStructure() {
     // Validate table structure
 }

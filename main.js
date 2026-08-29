@@ -1,6 +1,7 @@
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
@@ -75,11 +76,21 @@ import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessib
 // Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 
-// Accessibility function stubs
-function getLangAttribute() {
-    return 'en';
+// Added function to handle full lang attribute as mentioned in the issue
+function getFullLangAttribute() {
+  // Implementation for getting full lang attribute
+  return 'en-US'; // Example implementation
 }
 
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function personName() {
+  return 'John Doe'; // Default person name
+}
+
+// Accessibility function stubs
 function wrapPrimaryContentInMain() {
     return '<main role="main"></main>';
 }
@@ -231,11 +242,6 @@ function addAriaLabel(element, label) {
   }
 }
 
-// Helper function to get person name (for lang attribute handling)
-function personName() {
-  return 'Anonymous';
-}
-
 // New functions to support missing definitions
 function findIndex(arr, predicate) {
   return arr.findIndex(predicate);
@@ -300,11 +306,6 @@ function fixAccessibilityIssues() {
 // REACT_015: lang attribute added to HTML element
 // The React component rendering the HTML element provides the `lang` prop
 // The language attribute is set according to the application's settings
-function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
-}
-
 function createInPageButton() {
   // Existing code...
 }
@@ -359,9 +360,10 @@ function renderAccessibilityPage() {
   renderIndex();
 }
 
-const renderDependencyGraph = (data) => {
-  // Code to render the dependency graph
-};
+function renderDependencyGraph(data) {
+  // Code to render the dependency graph using the data provided
+  console.log('Rendering dependency graph for:', data);
+}
 
 const renderIndex = () => {
   // Code to render the index view
@@ -398,11 +400,6 @@ function validateAndRender(input) {
   if (validateInput(input)) {
     return renderProductList(input.products);
   }
-}
-
-// New function to check link accessibility
-function checkLinkAccessibility() {
-  return validateLinkAccessibility();
 }
 
 // New function to display module structure
@@ -456,6 +453,14 @@ export {
 };
 
 // Validate table structure and accessibility
+// Ensuring all tables in the document are accessible
+const tables = document.querySelectorAll('table');
+tables.forEach(table => {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+});
+
+// Validate table structure and accessibility
 const table = document.getElementById('myTable');
 validateTableAccessibility(table);
 validateTableStructure(table);
@@ -464,6 +469,22 @@ validateTableStructure(table);
 validateLandmark();
 validateLandmarkStructure();
 ensureUniqueLandmarks();
+
+// Add ARIA labels for better screen reader support
+addAriaLabel('myTable', 'Product data table');
+addAriaLabel('mySvg', 'Company logo');
+addAriaLabel('inPageButton', 'Accessibility menu');
+
+// Ensure elements have the required IDs
+ensureElementHasId('myTable');
+ensureElementHasId('mySvg');
+ensureElementHasId('inPageButton');
+
+// New function call to fix accessibility issues
+fixAccessibilityIssues();
+
+// Add lang attribute to HTML element
+document.documentElement.setAttribute('lang', getLangAttribute());
 
 // Add accessible names to SVGs
 const svg = document.getElementById('mySvg');
@@ -476,6 +497,11 @@ handleFakeLinks();
 
 // Handle fake link issues
 handleAccessibilityIssues();
+
+// New function to check link accessibility
+function checkLinkAccessibility() {
+  return validateLinkAccessibility();
+}
 
 // ... rest of your code ...
 

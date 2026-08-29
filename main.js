@@ -99,7 +99,41 @@ function addAriaLabel(element, label) {
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  if (!element) {
+    return { valid: false, reason: 'Element is null or undefined' };
+  }
+
+  const validRoles = {
+    banner: ['header', '[role="banner"]'],
+    main: ['main', '[role="main"]'],
+    navigation: ['nav', '[role="navigation"]'],
+    complementary: ['aside', '[role="complementary"]'],
+    contentinfo: ['footer', '[role="contentinfo"]'],
+    region: ['section', '[role="region"]'],
+    form: ['form', '[role="form"]'],
+    search: ['[role="search"]']
+  };
+
+  if (!validRoles[role]) {
+    return { valid: false, reason: `Unknown role: ${role}` };
+  }
+
+  // Verify element matches the role
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const elementRole = element.getAttribute && element.getAttribute('role');
+  const isValidTag = validRoles[role].some(selector => {
+    if (selector.startsWith('[role=')) {
+      const expectedRole = selector.match(/\[role="(\w+)"\]/)[1];
+      return elementRole === expectedRole;
+    }
+    return tagName === selector;
+  });
+
+  return {
+    valid: isValidTag,
+    reason: isValidTag ? null : `Element does not match role: ${role}`,
+    element
+  };
 }
 
 function wrapPrimaryContentInMain() {
@@ -136,7 +170,47 @@ function wrapPrimaryContentInMain() {
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const results = {
+    main: [],
+    banner: [],
+    navigation: [],
+    complementary: [],
+    contentinfo: [],
+    form: [],
+    region: [],
+    search: []
+  };
+
+  if (!container || typeof container.querySelectorAll !== 'function') {
+    return results;
+  }
+
+  // Check main landmarks
+  container.querySelectorAll('main, [role="main"]').forEach(el => {
+    results.main.push(checkLandmarkElement('main', el));
+  });
+
+  // Check banner landmarks
+  container.querySelectorAll('header, [role="banner"]').forEach(el => {
+    results.banner.push(checkLandmarkElement('banner', el));
+  });
+
+  // Check navigation landmarks
+  container.querySelectorAll('nav, [role="navigation"]').forEach(el => {
+    results.navigation.push(checkLandmarkElement('navigation', el));
+  });
+
+  // Check complementary landmarks
+  container.querySelectorAll('aside, [role="complementary"]').forEach(el => {
+    results.complementary.push(checkLandmarkElement('complementary', el));
+  });
+
+  // Check contentinfo landmarks
+  container.querySelectorAll('footer, [role="contentinfo"]').forEach(el => {
+    results.contentinfo.push(checkLandmarkElement('contentinfo', el));
+  });
+
+  return results;
 }
 
 function ensureUniqueLandmarks() {
@@ -162,7 +236,19 @@ function ensureUniqueLandmarks() {
 
   // Ensure only one contentinfo/footer landmark
   const footers = document.querySelectorAll('[role="contentinfo"], footer');
-  // (code for ensureUniqueLandmarks continues...)
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  return {
+    removedMains,
+    removedBanners,
+    removedFooters
+  };
 }
 
 // Preserve the existing exports and add new functions

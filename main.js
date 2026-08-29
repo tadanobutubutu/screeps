@@ -61,17 +61,17 @@ function checkTableStructure(table) {
   if (!result.hasHeader) {
     result.warnings.push('Table has no thead element');
   } else {
-    const headerCells = thead.querySelectorAll('th, td');
+    const headerCells = thead.querySelectorAll('td, th');
     result.columnCount = headerCells.length;
   }
 
   // Validate row consistency
   const targetRow = tbody || allRows[0];
-  const firstRowCells = targetRow.querySelectorAll('td, th');
+  const firstRowCells = targetRow.querySelectorAll('th, td');
   const expectedCellCount = firstRowCells.length || result.columnCount;
 
   allRows.forEach((row, index) => {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th, td');
     if (cells.length !== expectedCellCount) {
       result.isValid = false;
       result.errors.push(`Row ${index} has ${cells.length} cells, expected ${expectedCellCount}`);
@@ -170,10 +170,49 @@ const {
   fixFakeLinkIssues,
   googleSignIn,
   fixButtonIdentifiers
-} = require('./accessibilityUtils');
+} = require('./accessibility-utils');
+
+/**
+ * Ensures the dependencyGraph container has a proper ARIA role
+ * This addresses the accessibility issue mentioned in the insight report
+ */
+function ensureDependencyGraphContainerHasAriaRole() {
+  const dependencyGraph = document.getElementById('dependencyGraph') || 
+                          document.querySelector('[data-dependency-graph]') ||
+                          document.querySelector('.dependency-graph');
+  
+  if (dependencyGraph) {
+    // Set appropriate ARIA role based on the container's purpose
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'img');
+    }
+    
+    // Ensure it has an accessible name
+    const existingLabel = dependencyGraph.getAttribute('aria-label') || 
+                          dependencyGraph.getAttribute('aria-labelledby');
+    
+    if (!existingLabel) {
+      const label = document.createElement('span');
+      label.id = 'dependency-graph-label';
+      label.textContent = 'Dependency Graph';
+      label.style.position = 'absolute';
+      label.style.width = '1px';
+      label.style.height = '1px';
+      label.style.padding = '0';
+      label.style.margin = '-1px';
+      label.style.overflow = 'hidden';
+      label.style.clip = 'rect(0, 0, 0, 0)';
+      label.style.whiteSpace = 'nowrap';
+      label.style.border = '0';
+      dependencyGraph.setAttribute('aria-labelledby', 'dependency-graph-label');
+      dependencyGraph.style.position = 'relative';
+      dependencyGraph.insertBefore(label, dependencyGraph.firstChild);
+    }
+  }
+}
 
 function addressAccessibilityIssues() {
-    // Function implementation goes here
+  ensureDependencyGraphContainerHasAriaRole();
 }
 
 const App = () => {
@@ -200,6 +239,7 @@ const App = () => {
 
   // Example of fixing fake link issues
   fixFakeLinkIssue();
+  fixFakeLinkIssues();
 
   // Example of Google sign-in logic
   googleSignIn();
@@ -211,10 +251,11 @@ const App = () => {
 
   return (
     // ... JSX code ...
+    React.createElement('div', null, 'App Content')
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
 
 /**
  * Export functions for testing and external use
@@ -224,5 +265,7 @@ module.exports = {
   checkTableStructure,
   formatDate,
   sanitizeInput,
-  createDataTable
+  createDataTable,
+  ensureDependencyGraphContainerHasAriaRole,
+  addressAccessibilityIssues
 };

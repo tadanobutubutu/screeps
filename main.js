@@ -1,5 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
+// Implement accessibility features for the application
+//_Commit: 11acc3a0aac7a1b7ddf1085e8457b9fe8b8283c3_
+//<!-- todo-hash: 8b1b08e96338b6f5038d2814aca40907e4cb8ebc -->
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
 //_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
@@ -66,7 +67,7 @@ function updateAriaAttributes() {
   if (doc) {
     // Ensure proper ARIA attributes are set
     const body = doc.body;
-    if (body && !body.hasAttribute('role')) {
+    if (body && !body.getAttribute('role')) {
       // Only set role if one doesn't exist
       body.setAttribute('role', 'document');
     }

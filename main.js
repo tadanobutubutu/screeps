@@ -449,6 +449,48 @@ export function checkTableAccessibility(html) {
   return issues;
 }
 
+/**
+ * Adds proper landmark regions to HTML
+ * Ensures the document has appropriate landmark regions for accessibility
+ * @param {string} html - The HTML string to process
+ * @returns {string} HTML with proper landmark regions
+ */
+export function addProperLandmarkRegions(html) {
+  if (typeof html !== 'string') return html;
+
+  let result = html;
+
+  // Add <header> if missing
+  if (!/<header\b/i.test(result)) {
+    result = result.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+      return `<body${attrs || ''}><header role="banner">`;
+    });
+  }
+
+  // Add <nav> if missing
+  if (!/<nav\b/i.test(result)) {
+    result = result.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+      return `<body${attrs || ''}><nav role="navigation">`;
+    });
+  }
+
+  // Ensure <main> exists
+  if (!/<main\b/i.test(result)) {
+    result = result.replace(/<body(\s[^>]*)?>/i, (match, attrs) => {
+      return `<body${attrs || ''}><main>`;
+    });
+    // Close main before closing body
+    result = result.replace(/<\/body>/i, '</main></body>');
+  }
+
+  // Add <footer> if missing
+  if (!/<footer\b/i.test(result)) {
+    result = result.replace(/<\/body>/i, '</footer></body>');
+  }
+
+  return result;
+}
+
 export {
   ensureElementHasId,
   addAriaLabel,
@@ -462,7 +504,8 @@ export {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  addProperLandmarkRegions
 };
 
 module.exports = {
@@ -493,8 +536,9 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkTableAccessibility
+  checkTableAccessibility,
+  addProperLandmarkRegions
 };
 
 // If using ES6 modules, also ensure functions are exported:
-// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility };
+// export { ensureElementHasId, addAriaLabel, renderDependencyGraphs, checkTableStructure, getLangAttribute, MyComponent, greet, isEven, isOdd, sumArray, averageArray, findMax, findMin, reverseString, capitalize, capitalizeWords, formatDate, calculateTotal, validateEmail, capitalizeString, debounce, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, checkTableAccessibility, addProperLandmarkRegions };

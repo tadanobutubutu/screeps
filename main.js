@@ -31,14 +31,16 @@ function addressAccessibilityIssues() {
     link.setAttribute('role', 'presentation');
   });
 
-  // TODO: Implement this function for checking link and button accessibility
-  function checkLinkAndButtonAccessibility() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
+  // Function to validate link and button accessibility
+  function validateLinkAndButtonAccessibility() {
+    const links = document.querySelectorAll('a, button');
+
+    // Aquire button elements for accessibility check only
+    const buttons = Array.from(links).filter((element) => element.tagName === 'BUTTON');
 
     links.forEach(link => {
-      if (!link.hasAttribute('role')) {
-        link.setAttribute('role', 'link');
+      if (!link.hasAttribute('role') && (link.tagName !== 'BUTTON')) {
+        link.setAttribute('role', link.tagName === 'IMG' ? 'img' : 'link');
       }
       if (!link.hasAttribute('href')) {
         console.error('Accessibility Error: Link without href attribute', link);
@@ -49,15 +51,18 @@ function addressAccessibilityIssues() {
       if (!button.hasAttribute('role')) {
         button.setAttribute('role', 'button');
       }
-      // Check for accessible name for buttons
-      if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
-        console.error('Accessibility Error: Button without accessible name', button);
+      const accessibleName = button.textContent || '';
+      if (!accessibleName) {
+        // Check for 'aria-label' or 'aria-labelledby'
+        if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+          console.error('Accessibility Error: Button without accessible name', button);
+        }
       }
     });
   }
 
   // Call the function to check accessibility
-  checkLinkAndButtonAccessibility();
+  validateLinkAndButtonAccessibility();
 }
 
 // Export functions if needed

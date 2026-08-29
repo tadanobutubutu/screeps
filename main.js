@@ -208,6 +208,51 @@ if (rootElement) {
 
 ensureUniqueLandmarks();
 
+// Function to check link and button accessibility
+function checkLinkButtonAccessibility(rootElement = document) {
+  const issues = [];
+  const nodes = rootElement.querySelectorAll('a, button');
+
+  nodes.forEach(node => {
+    const tag = node.tagName.toLowerCase();
+    if (tag === 'a') {
+      // Check for fake links
+      if (node.href === '#' || node.href === '' || !node.href) {
+        if (!node.hasAttribute('role') || node.getAttribute('role') !== 'button') {
+          issues.push(`${node.id || 'Unnamed'} <a> with href="${node.href}" should be a button`);
+        }
+        const name = (node.innerText || node.textContent).trim();
+        if (!name) {
+          issues.push(`${node.id || 'Unnamed'} <a> missing accessible name`);
+        }
+      } else {
+        const name = (node.innerText || node.textContent).trim();
+        if (!name) {
+          issues.push(`${node.id || 'Unnamed'} <a> missing accessible name`);
+        }
+      }
+    } else if (tag === 'button') {
+      // Ensure proper role
+      if (!node.hasAttribute('role') || node.getAttribute('role') !== 'button') {
+        node.setAttribute('role', 'button');
+      }
+      // Ensure focusability
+      const tabindex = node.getAttribute('tabindex');
+      const isFocusable = tabindex !== null && (tabindex !== '-1' && !isNaN(parseInt(tabindex, 10)));
+      if (!isFocusable) {
+        issues.push(`${node.id || 'Unnamed'} <button> is not focusable`);
+      }
+      // Ensure accessible name
+      const name = (node.innerText || node.textContent).trim();
+      if (!name) {
+        issues.push(`${node.id || 'Unnamed'} <button> missing accessible name`);
+      }
+    }
+  });
+
+  return issues;
+}
+
 module.exports = {
   rotateBack,
   createUnrotateButton,
@@ -218,5 +263,6 @@ module.exports = {
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
   fixFakeLinkIssue,
-  addLangAttribute
+  addLangAttribute,
+  checkLinkButtonAccessibility
 };

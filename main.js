@@ -41,7 +41,7 @@ function myNewFunction(arr) {
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkUniqueness())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
@@ -167,7 +167,7 @@ function addressAccessibilityIssueForSpecificElement(element, issue) {
 function addressAccessibilityIssues() {
   validateTableStructure();
   validateLandmarkStructure();
-  // Additional accessibility issue handling can be added here
+  validateLandmarkUniqueness();
 }
 
 /**
@@ -522,3 +522,93 @@ module.exports.isButtonAccessible = isButtonAccessible;
 module.exports.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
 module.exports.renderDependencyGraph = renderDependencyGraph;
 module.exports.getLandmarkData = getLandmarkData;
+
+// Added accessibility functions
+function validateLandmark(landmark) {
+  // Check for required attributes
+  if (!landmark.hasAttribute('id')) {
+    return false;
+  }
+  
+  // Check for aria-label or aria-labelledby
+  if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+    return false;
+  }
+  
+  // Check for role attribute
+  const role = landmark.getAttribute('role');
+  if (!role) {
+    return false;
+  }
+  
+  // Check for unique role (not nested with same role)
+  const parent = landmark.parentElement;
+  while (parent) {
+    const parentRole = parent.getAttribute('role') || parent.tagName.toLowerCase();
+    if (parentRole === role) {
+      return false;
+    }
+    parent = parent.parentElement;
+  }
+  
+  return true;
+}
+
+function validateLandmarkStructure() {
+  // Check for duplicate banners
+  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+  if (banners.length > 1) {
+    return false;
+  }
+  
+  // Check for duplicate contentinfo/footer
+  const contentInfos = document.querySelectorAll('[role="contentinfo"], [role="footer"]');
+  if (contentInfos.length > 1) {
+    return false;
+  }
+  
+  // Check for nested landmarks of the same type
+  const allLandmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], ' +
+    '[role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
+    '[role="header"], [role="landmark"], main, header, footer, aside, nav, section[aria-label], form[aria-label]'
+  );
+  
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    let parent = landmark.parentElement;
+    while (parent) {
+      const parentRole = parent.getAttribute('role') || parent.tagName.toLowerCase();
+      if (parentRole === role) {
+        return false;
+      }
+      parent = parent.parentElement;
+    }
+  });
+  
+  return true;
+}
+
+function validateLandmarkUniqueness() {
+  const landmarks = document.querySelectorAll(
+    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], ' +
+    '[role="main"], [role="navigation"], [role="search"], [role="region"], ' +
+    '[role="article"], [role="aside"], [role="figure"], [role="footer"], ' +
+    '[role="header"], [role="landmark"], main, header, footer, aside, nav, ' +
+    'section[aria-label], form[aria-label]'
+  );
+  
+  const labels = new Set();
+  for (const landmark of landmarks) {
+    const label = landmark.getAttribute('aria-label');
+    if (label) {
+      if (labels.has(label)) {
+        return false;
+      }
+      labels.add(label);
+    }
+  }
+  
+  return true;
+}

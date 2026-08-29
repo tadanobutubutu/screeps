@@ -141,6 +141,8 @@ function displayModuleStructure(modules) {
 module.exports = {
   // ... existing exports would go here
   renderDependencyGraph,
+  renderDependencyTree,
+  renderDependencyList,
   displayModuleStructure
   // ... other existing exports
 };

@@ -63,5 +63,10 @@ const main = {
   }
 };
 
-// Export the new function if needed:
+// Export the main object and make individual functions accessible:
 module.exports = main;
+module.exports.harvest = main.harvest;
+module.exports.upgrade = main.upgrade;
+module.exports.defendRoom = main.defendRoom;
+module.exports.manageRoom = main.manageRoom;
+module.exports.myNewFunction = main.myNewFunction;

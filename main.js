@@ -396,4 +396,5 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  ADDRESS_ACCESSIBILITY_ISSUE_038,
 };

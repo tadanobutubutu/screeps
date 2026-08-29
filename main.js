@@ -11,4 +11,20 @@ module.exports.loop = function () {
       }
     }
   }
+
+  // Add lang attribute to HTML element
+  const langAttribute = getLangAttribute();
+  createInPageButton();
+  document.documentElement.lang = langAttribute;
 };
+
+function getLangAttribute() {
+  // Logic to determine the lang attribute value
+  // Placeholder for actual implementation
+  return 'en';
+}
+
+function createInPageButton() {
+  // Logic to create the in-page button
+  // Placeholder for actual implementation
+}

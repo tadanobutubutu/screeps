@@ -1,3 +1,5 @@
+import { dependencyGraphContent, indexContent } from './content';
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
@@ -6,8 +8,6 @@
 // You'll need to integrate this with your actual main.js content
 
 // Existing code would be here...
-
-// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.
 
 /**
  * Renders a dependency graph visualization for debugging purposes
@@ -137,12 +137,12 @@ function displayModuleStructure(modules) {
   return result;
 }
 
-// Export the new functions if needed
-module.exports = {
-  // ... existing exports would go here
+renderDependencyGraph(dependencyGraphContent);
+displayModuleStructure(indexContent);
+
+export {
   renderDependencyGraph,
   renderDependencyTree,
   renderDependencyList,
   displayModuleStructure
-  // ... other existing exports
 };

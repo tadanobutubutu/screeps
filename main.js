@@ -268,6 +268,97 @@ const a11yStore = {
   preserveExistingCode() {
     // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
+  },
+
+  // New functions to address specific accessibility issues
+
+  // Get person name for accessible labeling
+  personName() {
+    const nameElement = document.querySelector('[data-person-name]');
+    return nameElement ? nameElement.textContent.trim() : 'User';
+  },
+
+  // Validate and fix table accessibility
+  validateTableAccessibility() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach(th => {
+        if (!th.getAttribute('scope')) {
+          th.setAttribute('scope', 'col');
+        }
+      });
+      if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+        table.setAttribute('aria-label', 'Table');
+      }
+    });
+  },
+
+  // Validate and fix table structure
+  validateTableStructure() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('thead')) {
+        const thead = document.createElement('thead');
+        const firstRow = table.querySelector('tr');
+        if (firstRow) {
+          thead.appendChild(firstRow);
+        }
+        table.insertBefore(thead, table.firstChild);
+      }
+      if (!table.querySelector('tbody')) {
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+          if (!table.querySelector('thead').contains(row)) {
+            tbody.appendChild(row);
+          }
+        });
+        table.appendChild(tbody);
+      }
+    });
+  },
+
+  // Validate landmark elements
+  validateLandmark() {
+    const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+    landmarks.forEach(el => {
+      if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
+        // Optionally add a role, but leave as is for now
+      }
+    });
+  },
+
+  // Validate landmark structure
+  validateLandmarkStructure() {
+    const main = document.querySelector('main');
+    if (main) {
+      const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
+      if (nestedLandmarks.length > 0) {
+        console.warn('Landmarks nested within main may be incorrect.');
+      }
+    }
+  },
+
+  // Get accessible name for SVG
+  getSvgAccessibleName(svg) {
+    return svg.getAttribute('aria-label') || svg.getAttribute('title') || 'Image';
+  },
+
+  // Ensure unique landmark IDs
+  ensureUniqueLandmarks() {
+    const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
+    const idSet = new Set();
+    landmarks.forEach(el => {
+      const id = el.id;
+      if (id) {
+        if (idSet.has(id)) {
+          console.warn('Duplicate landmark ID found:', id);
+        } else {
+          idSet.add(id);
+        }
+      }
+    });
   }
 };
 

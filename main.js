@@ -11,8 +11,13 @@ export { existingFunction };
 
 // New function to address accessibility issues
 const newAccessibleFunction = () => {
-  // New function logic to improve accessibility
   // Example: Ensure proper ARIA roles and properties are set
+  const targetElement = document.querySelector('[data-testid="target"]');
+  if (targetElement) {
+    targetElement.setAttribute('role', 'button');
+    targetElement.setAttribute('aria-label', 'Interact with this element');
+    targetElement.tabIndex = 0;
+  }
 };
 
 // Exporting the new function

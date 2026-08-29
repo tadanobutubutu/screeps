@@ -8,8 +8,6 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
@@ -146,8 +144,6 @@ function renderPage(data) {
   return `${header}${content}${footer}`;
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
-// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
   // Call the updated functions to render the graph or index as needed
   renderDependencyGraph(dependencyGraphContent);

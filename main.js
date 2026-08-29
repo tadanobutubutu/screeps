@@ -204,18 +204,6 @@ function validateLandmarkAttributes() {
   return issues;
 }
 
-function getSvgAccessibleName(svgElement) {
-  const svg = svgElement || document.querySelector('svg');
-  if (!svg) return '';
-  let name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.querySelector('title')?.textContent || '';
-  if (!name) {
-    const desc = svg.querySelector('desc');
-    name = desc ? desc.textContent : 'SVG image';
-    svg.setAttribute('aria-label', name);
-  }
-  return name;
-}
-
 function setSvgAttributes(svgElement) {
   const svg = svgElement || document.querySelector('svg');
   if (!svg) return;

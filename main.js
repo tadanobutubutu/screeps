@@ -146,6 +146,80 @@ function addAriaToFormControls() {
   });
 }
 
+/**
+ * Ensures the element has an ID. If it doesn't, generates a unique one using the baseName.
+ * 
+ * @param {HTMLElement} element - The DOM element to assign an ID to.
+ * @param {string} [baseName='element'] - The base name for the generated ID.
+ * @returns {string} The ID of the element, either existing or newly generated.
+ */
+function ensureElementHasId(element, baseName = 'element') {
+  if (!element.id) {
+    element.id = ensureUniqueLandmarkId(baseName);
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label attribute to the element if it doesn't already have one.
+ * 
+ * @param {HTMLElement} element - The DOM element to add the aria-label to.
+ * @param {string} label - The aria-label text to add.
+ * @returns {void}
+ */
+function ensureAriaLabel(element, label) {
+  if (!element.hasAttribute('aria-label')) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a dependency graph based on provided data.
+ * This function visualizes dependencies by creating a container element
+ * and populating it with nodes and connections based on the input data structure.
+ * 
+ * @param {Object[]} data - Array of dependency objects with 'id', 'name', and 'dependsOn' properties.
+ * @returns {HTMLElement} The container element containing the rendered dependency graph.
+ */
+function renderDependencyGraphs(data) {
+  const container = document.createElement('div');
+  container.id = 'dependency-graph-container';
+  container.className = 'dependency-graph';
+  
+  const title = document.createElement('h3');
+  title.textContent = 'Dependency Graph';
+  container.appendChild(title);
+  
+  const graph = document.createElement('div');
+  graph.className = 'graph-visualization';
+  container.appendChild(graph);
+  
+  data.forEach(node => {
+    const nodeElement = document.createElement('div');
+    nodeElement.className = 'dependency-node';
+    nodeElement.id = `node-${node.id}`;
+    nodeElement.setAttribute('aria-label', `Dependency: ${node.name}`);
+    nodeElement.textContent = node.name;
+    
+    if (node.dependsOn && node.dependsOn.length > 0) {
+      const links = document.createElement('div');
+      links.className = 'dependency-links';
+      node.dependsOn.forEach(dep => {
+        const link = document.createElement('span');
+        link.className = 'dependency-link';
+        link.textContent = `depends on ${dep}`;
+        links.appendChild(link);
+      });
+      nodeElement.appendChild(links);
+    }
+    
+    graph.appendChild(nodeElement);
+  });
+  
+  document.body.appendChild(container);
+  return container;
+}
+
 // TODO: Address accessibility issues from insight report:
 // - REACT_025: Add other accessibility changes as per the insight report
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
@@ -164,5 +238,8 @@ module.exports = {
   getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
-  uniqueLandmarks
+  uniqueLandmarks,
+  ensureElementHasId,
+  ensureAriaLabel,
+  renderDependencyGraphs
 };

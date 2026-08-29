@@ -2,11 +2,21 @@
 
 function wrapPrimaryContentInMain() {
   // Your implementation here
+  // Example: Wrap primary content in a div with an 'accessibility' class
+  const primaryContent = document.querySelector('.primary-content');
+  if (primaryContent) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'accessibility';
+    wrapper.appendChild(primaryContent);
+    primaryContent.parentNode.replaceChild(wrapper, primaryContent);
+  }
 }
 
 // Add your new function here
 const myNewFunction = () => {
   // Implementation of your new function goes here
+  // Example: Log a message for accessibility purposes
+  console.log('Function called for accessibility purposes');
 };
 
 // Function to ensure unique landmarks

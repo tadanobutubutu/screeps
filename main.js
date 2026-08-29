@@ -148,3 +148,9 @@ function addAriaLabelToSVGs() {
 addProperLandmarkRegions();
 addAriaLabelledbyToSVGs();
 addAriaLabelToSVGs();
+
+// New function: calculateSum
+// Added as requested in the issue
+function calculateSum(a, b) {
+  return a + b;
+}

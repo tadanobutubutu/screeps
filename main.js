@@ -6,7 +6,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// ----- BEGIN ORIGINAL CODE (unchanged) //
 
 // main.js - Main application file
 
@@ -154,6 +154,26 @@ function transformInputData(inputData, options = {}) {
   }
 
   return inputData;
+}
+
+/**
+ * Wraps primary content in a <main> element for accessibility landmark navigation.
+ * @param {string|HTMLElement} content - The primary content to wrap
+ * @returns {string|HTMLElement} The wrapped content with main landmark applied
+ */
+function wrapPrimaryContentInMain(content) {
+  if (typeof content === 'string') {
+    return `<main>${content}</main>`;
+  }
+  if (content && typeof content === 'object' && content.nodeType === 1) {
+    if (!content.getAttribute('role')) {
+      content.setAttribute('role', 'main');
+    }
+    if (!content.id) {
+      content.id = 'main';
+    }
+  }
+  return content;
 }
 
 // Additional utility functions for accessibility
@@ -304,5 +324,6 @@ module.exports = {
   fixSvgDataUriAccessibility,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  renderDependencyGraphs,
+  wrapPrimaryContentInMain
 };

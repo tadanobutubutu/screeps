@@ -35,7 +35,7 @@ function App() {
 
   // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
   return (
-    <div ...
+    <div className="app">
       <Header />
       <Main data={data} loading={loading} />
       <Footer />
@@ -44,29 +44,32 @@ function App() {
 }
 
 // REACT_017: Add landmark roles to fix landmark issues
-export function ... existingNames) {
-  if ... {
+export function ensureUniqueNames(baseName, existingNames) {
+  if (!existingNames || existingNames.length === 0) {
+    return baseName;
+  }
+  if (!existingNames.includes(baseName)) {
     return baseName;
   }
   let counter = 2;
-  let newName = ...
-  while ... {
+  let newName = `${baseName} ${counter}`;
+  while (existingNames.includes(newName)) {
     counter++;
-    newName = ...
+    newName = `${baseName} ${counter}`;
   }
   return newName;
 }
 
 // REACT_025: Ensure unique landmarks function
-export function ... {
-  const landmarks = ... [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
+export function checkUniqueLandmarks(container = document) {
+  const landmarks = container.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], header, nav, main, footer');
   const landmarkNames = new Set();
   const issues = [];
 
   landmarks.forEach((landmark) => {
-    const ariaLabel = ...
-    const ariaLabelledby = ...
-    const tagName = ...
+    const ariaLabel = landmark.getAttribute('aria-label');
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby');
+    const tagName = landmark.tagName.toLowerCase();
 
     // Determine the landmark name
     let landmarkName = ariaLabel || ariaLabelledby || tagName;
@@ -112,7 +115,7 @@ export function isValidLink(element) {
   
   const tagName = element.tagName.toLowerCase();
   const href = element.getAttribute('href');
-  const onClick = ...
+  const onClick = element.getAttribute('onclick') || element.onclick;
   
   // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
@@ -128,16 +131,16 @@ export function isValidLink(element) {
 }
 
 // REACT_027: Add scope to table headers
-export function ... {
+export function addScopeToTableHeaders(tableElement) {
   if (!tableElement) return [];
   
-  const headers = ...
+  const headers = tableElement.querySelectorAll('th');
   const updates = [];
   
   headers.forEach((th) => {
     const row = th.closest('tr');
-    const rowIndex = ...
-    const cellIndex = ...
+    const rowIndex = Array.from(tableElement.querySelectorAll('tr')).indexOf(row);
+    const cellIndex = Array.from(row.querySelectorAll('th, td')).indexOf(th);
     
     // Determine if scope should be 'col' or 'row'
     let scope = 'col';
@@ -147,7 +150,8 @@ export function ... {
       scope = 'row';
     }
     
-    if ... {
+    const existingScope = th.getAttribute('scope');
+    if (!existingScope) {
       th.setAttribute('scope', scope);
       updates.push({
         element: th,
@@ -161,9 +165,9 @@ export function ... {
 }
 
 // Accessibility issue addressing functions
-function ... {
+function addressInsightReport(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  ... => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing issue: ${issue.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
@@ -172,13 +176,36 @@ function ... {
   });
 }
 
+// REACT_015: Check if document has lang attribute
+export function checkDocumentLang() {
+  const html = document.querySelector('html');
+  const lang = html ? html.getAttribute('lang') : null;
+  
+  if (!lang) {
+    return {
+      valid: false,
+      message: 'Document is missing lang attribute on <html> element',
+      suggestion: 'Add lang attribute to <html> element, e.g., <html lang="en">'
+    };
+  }
+  
+  return { valid: true, lang };
+}
+
 // New function to address accessibility issues from insight report
 function newFunction() {
   // implementation of new function
+  const issues = checkUniqueLandmarks();
+  const langCheck = checkDocumentLang();
+  
+  return {
+    landmarks: issues,
+    language: langCheck
+  };
 }
 
-... = newFunction;
+export { newFunction };
 
-const container = ...
+const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);

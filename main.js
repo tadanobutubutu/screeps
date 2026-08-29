@@ -23,4 +23,6 @@ const functionB = {
 
 module.exports = {
   // Preserve the existing module exports
+  functionA,
+  functionB,
 };

@@ -51,7 +51,7 @@ function validateWebAccessibility(url) {
     };
     
     try {
-        results.accessibility = validateTableAccessibility(url);
+        results.accessibility = checkAccessibility(url);
         results.structure = validateTableStructure(url);
     } catch (error) {
         results.errors.push(error.message);
@@ -89,7 +89,7 @@ function getTableRows(table) {
 // Validate table accessibility
 function validateTableAccessibility(tableOrUrl) {
     const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+        ? Array.from(document.querySelectorAll('table')) 
         : [tableOrUrl];
     
     const accessibilityResults = {
@@ -102,7 +102,7 @@ function validateTableAccessibility(tableOrUrl) {
     };
     
     tables.forEach((table, index) => {
-        const headers = table.querySelectorAll('th');
+        const headers = getTableHeaders(table);
         
         // Check if table has headers
         if (headers.length === 0) {
@@ -132,8 +132,8 @@ function validateTableAccessibility(tableOrUrl) {
         // Check for proper associations (id/headers)
         const cells = table.querySelectorAll('td');
         if (cells.length > 0 && headers.length > 0) {
-            const hasProperAssociation = headers[0].hasAttribute('id') || 
-                cells[0].hasAttribute('headers');
+            const hasProperAssociation = Array.from(headers).some(h => h.hasAttribute('id')) || 
+                Array.from(cells).some(c => c.hasAttribute('headers'));
             if (!hasProperAssociation) {
                 accessibilityResults.issues.push({
                     table: index,
@@ -152,7 +152,7 @@ function validateTableAccessibility(tableOrUrl) {
 // Validate table structure
 function validateTableStructure(tableOrUrl) {
     const tables = typeof tableOrUrl === 'string' 
-        ? document.querySelectorAll('table') 
+        ? Array.from(document.querySelectorAll('table')) 
         : [tableOrUrl];
     
     const structureResults = {
@@ -216,13 +216,13 @@ function validateTableStructure(tableOrUrl) {
         }
         
         // Check column consistency
-        const rows = table.querySelectorAll('tr');
+        const rows = getTableRows(table);
         if (rows.length > 1) {
-            const firstRowCells = rows[0].querySelectorAll('th, td').length;
+            const firstRowCells = rows[0].querySelectorAll('td').length;
             let inconsistent = false;
             
             rows.forEach((row, rIndex) => {
-                const cellCount = row.querySelectorAll('th, td').length;
+                const cellCount = row.querySelectorAll('td').length;
                 if (cellCount !== firstRowCells) {
                     inconsistent = true;
                 }
@@ -248,7 +248,7 @@ function validateTableStructure(tableOrUrl) {
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
 function countDependencies() {
-  const packagePath = path.join(process.cwd(), 'package.json');
+  const packagePath = path.join(__dirname, 'package.json');
   
   try {
     const packageContent = fs.readFileSync(packagePath, 'utf8');
@@ -295,7 +295,7 @@ function getFullLangAttribute(el) {
 }
 
 // Improve accessibility by adding semantic role and label to the root element
-const root = document.getElementById('root');
+const root = document.documentElement;
 if (root) {
   root.setAttribute('role', 'main');
   root.setAttribute('aria-label', 'Main application');

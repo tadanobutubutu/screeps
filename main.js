@@ -147,7 +147,38 @@ function addAriaLabel(element, label) {
 }
 
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  if (!element) return false;
+  
+  // Check if element has the correct role (explicit or implicit)
+  const explicitRole = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  const implicitRoles = {
+    'header': 'banner',
+    'nav': 'navigation',
+    'main': 'main',
+    'aside': 'complementary',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'search'
+  };
+  
+  const expectedRole = implicitRoles[tagName] || explicitRole;
+  if (expectedRole !== role) {
+    console.warn(`REACT_017: Landmark element has role "${expectedRole}" but expected "${role}"`);
+    return false;
+  }
+  
+  // Check for accessible name
+  const accessibleName = element.getAttribute('aria-label') || 
+                         element.getAttribute('aria-labelledby') || 
+                         (element.querySelector('title') && element.querySelector('title').textContent.trim());
+  
+  if (!accessibleName) {
+    console.warn(`REACT_017: Landmark element with role "${role}" lacks accessible name`);
+    return false;
+  }
+  
+  return true;
 }
 
 function wrapPrimaryContentInMain() {
@@ -184,7 +215,28 @@ function wrapPrimaryContentInMain() {
 }
 
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const landmarkSelectors = 'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="region"]';
+  const landmarks = container.querySelectorAll(landmarkSelectors);
+  const issues = [];
+  
+  landmarks.forEach((landmark, index) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || 
+                 (tagName === 'header' ? 'banner' :
+                  tagName === 'nav' ? 'navigation' :
+                  tagName === 'main' ? 'main' :
+                  tagName === 'aside' ? 'complementary' :
+                  tagName === 'footer' ? 'contentinfo' : null);
+    
+    if (role) {
+      const isValid = checkLandmarkElement(role, landmark);
+      if (!isValid) {
+        issues.push({ element: landmark, role, index });
+      }
+    }
+  });
+  
+  return issues;
 }
 
 function ensureUniqueLandmarks() {
@@ -210,7 +262,41 @@ function ensureUniqueLandmarks() {
 
   // Ensure only one contentinfo/footer landmark
   const footers = document.querySelectorAll('[role="contentinfo"], footer');
-  // (code for ensureUniqueLandmarks continues...)
+  const removedFooters = [];
+  if (footers.length > 1) {
+    for (let i = 1; i < footers.length; i++) {
+      removedFooters.push(footers[i]);
+      footers[i].remove();
+    }
+  }
+
+  // Ensure only one navigation landmark
+  const navigations = document.querySelectorAll('[role="navigation"], nav');
+  const removedNavs = [];
+  if (navigations.length > 1) {
+    for (let i = 1; i < navigations.length; i++) {
+      removedNavs.push(navigations[i]);
+      navigations[i].remove();
+    }
+  }
+
+  // Ensure only one search landmark
+  const searches = document.querySelectorAll('[role="search"]');
+  const removedSearches = [];
+  if (searches.length > 1) {
+    for (let i = 1; i < searches.length; i++) {
+      removedSearches.push(searches[i]);
+      searches[i].remove();
+    }
+  }
+
+  return {
+    removedMains,
+    removedBanners,
+    removedFooters,
+    removedNavs,
+    removedSearches
+  };
 }
 
 // - REACT_017: Add/fix 4 landmark issues (from origin/main)

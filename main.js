@@ -1,4 +1,4 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Add back any required exports that might have been removed
 
 const config = require('./config');
 const logger = require('./utils/logger');
@@ -319,7 +319,9 @@ module.exports = {
   main,
   someFunction,
   addressAccessibilityIssues,
-  renderDependencyGraphContent
+  renderDependencyGraphContent,
+  config,
+  logger
 };
 
 // Execute main function

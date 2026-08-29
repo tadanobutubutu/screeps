@@ -124,6 +124,70 @@ function calculateAccessibilityScore(fixedIssues) {
   }, 0);
 }
 
+// Function to render dependency graph
+function renderDependencyGraph() {
+  const container = document.getElementById('dependency-graph') || document.createElement('div');
+  container.id = 'dependency-graph';
+  
+  const title = document.createElement('h2');
+  title.textContent = 'Dependency Graph';
+  container.appendChild(title);
+  
+  // Example dependency nodes
+  const nodes = [
+    { id: 'main', name: 'main.js', type: 'module' },
+    { id: 'config', name: 'getConfig', type: 'function' },
+    { id: 'version', name: 'getVersion', type: 'function' }
+  ];
+  
+  nodes.forEach(node => {
+    const div = document.createElement('div');
+    div.className = 'dependency-node';
+    div.textContent = `${node.id}: ${node.name}`;
+    container.appendChild(div);
+  });
+  
+  return container;
+}
+
+// Function to display module structure
+function displayModuleStructure() {
+  const container = document.getElementById('module-structure') || document.createElement('div');
+  container.id = 'module-structure';
+  
+  const title = document.createElement('h2');
+  title.textContent = 'Module Structure';
+  container.appendChild(title);
+  
+  // Sample module structure
+  const modules = [
+    {
+      name: 'main',
+      exports: ['hello', 'getVersion', 'getConfig'],
+      description: 'Main entry point'
+    },
+    {
+      name: 'utils',
+      exports: ['createInPageButton'],
+      description: 'Utility functions'
+    }
+  ];
+  
+  modules.forEach(module => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'module-item';
+    itemDiv.innerHTML = `
+      <strong>${module.name}</strong> (${module.description})
+      <ul>
+        ${module.exports.map(exp => `<li>${exp}</li>`).join('')}
+      </ul>
+    `;
+    container.appendChild(itemDiv);
+  });
+  
+  return container;
+}
+
 /**
  * Ensures that there is only one <main> landmark in the provided source code.
  * Additional <main> elements are replaced with <section> (preserving attributes)
@@ -316,6 +380,8 @@ module.exports = {
   addressAccessibilityIssues,
   generateAccessibilityReport,
   calculateAccessibilityScore,
+  renderDependencyGraph,
+  displayModuleStructure,
   validateLandmark,
   validateLandmarkStructure,
   ensureUniqueLandmarks,

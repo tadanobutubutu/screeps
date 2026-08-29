@@ -228,6 +228,14 @@ function createInPageButton(options = {}) {
   return button;
 }
 
+// Function to handle keydown events on main content
+function handleMainKeydown(event) {
+  // Placeholder for main content keydown handling
+  if (event.key === 'Tab' && event.shiftKey) {
+    // Handle shift+tab navigation
+  }
+}
+
 // Function to add accessible name to person name element
 function personName(element) {
   if (!element) return null;
@@ -249,8 +257,19 @@ function personName(element) {
   return element;
 }
 
+// Accessibility: Ensure main content is keyboard accessible
+function setupMainContentAccessibility() {
+  const mainContent = document.querySelector('main');
+  if (mainContent) {
+    mainContent.setAttribute('tabindex', '-1');
+    mainContent.addEventListener('keydown', handleMainKeydown);
+  }
+}
+
 // Main function to address all accessibility issues
 function addressAccessibilityIssues() {
+  setupMainContentAccessibility();
+  
   const results = {
     langAttribute: getLangAttribute(),
     tableAccessibilityIssues: validateTableAccessibility(),
@@ -287,6 +306,50 @@ function addressAccessibilityIssues() {
   };
 }
 
+/**
+ * Setup skip link functionality for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLink = document.querySelector('.skip-link');
+  if (skipLink) {
+    skipLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById(skipLink.getAttribute('href').slice(1));
+      if (target) {
+        target.focus();
+        target.scrollIntoView();
+      }
+    });
+  }
+}
+
+/**
+ * Ensure buttons have proper accessibility attributes
+ */
+function setupButtonAccessibility() {
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach((button) => {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
+      button.setAttribute('aria-label', 'Action button');
+    }
+  });
+}
+
+/**
+ * Count the total number of dependencies across all modules
+ * @param {Object} dependencies - Object mapping module names to their dependency arrays
+ * @returns {number} Total count of all dependencies
+ */
+function countDependencies(dependencies) {
+  let totalCount = 0;
+  for (const moduleName in dependencies) {
+    if (dependencies[moduleName] && Array.isArray(dependencies[moduleName])) {
+      totalCount += dependencies[moduleName].length;
+    }
+  }
+  return totalCount;
+}
+
 export {
   VERSION,
   CONFIG,
@@ -302,7 +365,12 @@ export {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
-  personName
+  personName,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  setupMainContentAccessibility,
+  handleMainKeydown,
+  countDependencies
 };
 
 export default {
@@ -320,5 +388,10 @@ export default {
   ensureUniqueLandmarks,
   fixFakeLinkIssues,
   createInPageButton,
-  personName
+  personName,
+  setupSkipLinks,
+  setupButtonAccessibility,
+  setupMainContentAccessibility,
+  handleMainKeydown,
+  countDependencies
 };

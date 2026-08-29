@@ -1,6 +1,5 @@
 // main.js
 // Updated to import and use dependencyGraphContent and indexContent
-
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
@@ -25,7 +24,7 @@ export function renderIndex() {
   console.log('Rendering index', indexContent);
 }
 
-// Add export statement of the new function
+// Exports from HEAD
 export { makeHeaderFocusable };
 
 // Export statements preserved
@@ -42,14 +41,19 @@ export { newFunction };
 // Export the new dependencyGraphContainer element
 export { dependencyGraphContainer };
 
-// Modified and consolidated changes from both branches
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// Implemented ensureElementId and addAriaLabel from origin
 function ensureElementId(element) {
-  // code from both branches combined and reconciled
+  // Combined and reconciled code from both branches
+  if (!element.id) {
+    element.id = element.id || element.name || '';
+  }
 }
 
 function addAriaLabel(element) {
-  // code from both branches combined and reconciled
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', 'View focus');
+  }
 }
 
 // The container for the dependency graph, with an added ARIA role
@@ -58,7 +62,8 @@ dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branch
 dependencyGraphContainer.setAttribute('role', 'region');
 dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
-// Export statements for the new functions
+// Export statements for the new functions (including renderDependencyGraph from origin)
 export { ensureElementId };
 export { addAriaLabel };
+export { renderDependencyGraph };
 export { dependencyGraphContainer };

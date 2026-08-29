@@ -13,8 +13,6 @@ function renderDependencyGraph() {
   return container;
 }
 
-// TODO: Implement the new function as per the issue requirements
-
 /**
  * Implements the new feature as required by the issue.
  * @param {*} input - The input data to process

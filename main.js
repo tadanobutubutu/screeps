@@ -38,9 +38,92 @@ function ensureUniqueLandmarks(landmarks) {
   });
 }
 
+// Function to ensure the element has an id
+function ensureElementHasId(element) {
+  if (!element) {
+    return null;
+  }
+  
+  if (element.id) {
+    return element;
+  }
+  
+  const generatedId = `element_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  element.id = generatedId;
+  return element;
+}
+
+// Function to add aria-label to an element
+function addAriaLabel(element, label) {
+  if (!element) {
+    return null;
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    return element;
+  }
+  
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+// Function to render dependency graphs
+function renderDependencyGraph(dependencies) {
+  if (!Array.isArray(dependencies)) {
+    return null;
+  }
+  
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+  
+  const nodeMap = new Map();
+  
+  dependencies.forEach((dep, index) => {
+    if (!dep) return;
+    
+    const nodeId = dep.id || `node_${index}`;
+    
+    if (!nodeMap.has(nodeId)) {
+      nodeMap.set(nodeId, true);
+      graph.nodes.push({
+        id: nodeId,
+        name: dep.name || nodeId,
+        type: dep.type || 'dependency'
+      });
+    }
+    
+    if (dep.dependencies && Array.isArray(dep.dependencies)) {
+      dep.dependencies.forEach(childDep => {
+        const childId = childDep.id || `node_${Math.random().toString(36).substr(2, 9)}`;
+        
+        if (!nodeMap.has(childId)) {
+          nodeMap.set(childId, true);
+          graph.nodes.push({
+            id: childId,
+            name: childDep.name || childId,
+            type: childDep.type || 'dependency'
+          });
+        }
+        
+        graph.edges.push({
+          from: nodeId,
+          to: childId
+        });
+      });
+    }
+  });
+  
+  return graph;
+}
+
 // Export functions for testing
 module.exports = {
   calculateDistance,
   toRad,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };

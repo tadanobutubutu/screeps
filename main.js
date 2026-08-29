@@ -10,7 +10,7 @@ export function initialize() {
 
 export function getConfig() {
   return {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
+    apiUrl: process.env.API_URL || ...
     timeout: 5000
   };
 }

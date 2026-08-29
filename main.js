@@ -59,6 +59,31 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Returns a new array containing only unique landmarks from the input list.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Unique landmarks.
+ */
+function uniqueLandmarks(landmarks) {
+    const seen = new Set();
+    const result = [];
+    for (const lm of landmarks) {
+        if (!seen.has(lm.id)) {
+            seen.add(lm.id);
+            result.push(lm);
+        }
+    }
+    return result;
+}
+
+/**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+function getFullLangAttribute() {
+    return document.documentElement.lang || '';
+}
+
+/**
  * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
  * Assumes you have already set the id on the button element in your code.
  */

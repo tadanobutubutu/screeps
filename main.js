@@ -214,7 +214,16 @@ function validateTableAccessibility() {
       console.error('Table without headers found:', table);
     } else {
       headers.forEach(header => {
-        if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
+        // Check for proper scope attribute
+        const scope = header.getAttribute('scope');
+        if (!scope) {
+          console.error('Table header without scope attribute:', header);
+        } else if (scope !== 'col' && scope !== 'row' && scope !== 'colgroup' && scope !== 'rowgroup') {
+          console.error('Table header with invalid scope value:', header);
+        }
+        
+        // Check for proper role attribute
+        if (!header.hasAttribute('role') || (header.getAttribute('role') !== 'columnheader' && header.getAttribute('role') !== 'rowheader')) {
           console.error('Table header without proper role attribute:', header);
         }
       });
@@ -239,6 +248,16 @@ function validateTableStructure() {
         console.error('Table row without cells found:', row);
       }
     });
+    
+    // Check for tables without proper structure (missing thead, tbody, tfoot)
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // If table has rows directly under table (not in tbody), that's a structural issue
+    const directRows = table.querySelectorAll(':scope > tr');
+    if (directRows.length > 0) {
+      console.error('Table with rows directly under table element (should be in tbody):', table);
+    }
   });
 }
 

@@ -19,11 +19,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    const candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -61,8 +61,9 @@ function getFullLangAttribute() {
 function replaceMyButtonId() {
   const button = document.querySelector('.my-button');
   if (button) {
-    button.id = 'exampleButton';
     button.classList.remove('my-button');
+    button.id = 'exampleButton';
+    button.setAttribute('aria-label', 'Example Button');
   }
 }
 
@@ -74,27 +75,27 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
   // Create main landmark
-  const main = document.createElement('main');
+  const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
   main.id = 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
   header.setAttribute('role', 'banner');
   header.id = header.id || 'site-header';
 
   // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
   footer.setAttribute('role', 'contentinfo');
   footer.id = footer.id || 'site-footer';
 
   // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
+  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
   asides.forEach((aside, index) => {
     aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
@@ -110,19 +111,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible');
+  collapsibles.forEach(item => {
+    if (!item.hasAttribute('aria-expanded')) {
+      item.setAttribute('aria-expanded', 'false');
     }
   });
 
   // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -136,11 +137,11 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
+    if (!control.id && !control.getAttribute('aria-label')) {
       const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
       if (label) {
         label.id = label.id || `label-${control.id}`;
@@ -149,7 +150,7 @@ function addAriaToFormControls() {
     }
 
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });

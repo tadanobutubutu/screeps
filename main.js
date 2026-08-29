@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // New accessibility-related function
+    this.checkAccessibility();
   },
   
   manageRoom: function(room) {
@@ -58,8 +61,9 @@ const main = {
   },
 
   // Add the new function or change here:
-  myNewFunction: function() {
-    // your new function logic goes here
+  checkAccessibility: function() {
+    // Accessibility checking logic goes here
+    // Example: Check if there are any issues with the game UI
   }
 };
 

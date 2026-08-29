@@ -1,29 +1,283 @@
-We need to resolve the merge conflict. The conflict markers show <<<<<<< HEAD and >>>>>>> origin/main. The HEAD version contains the resolved file content with new functions and exports. The origin/main version contains older code. We need to combine them logically, preserving functionality, not discarding changes.
+// MIT License
+// 
+// Copyright (c) 2024 A2A Registry Authors
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
-We need to produce the complete resolved file content. Let's examine differences:
+const _ = require('lodash');
 
-- HEAD includes definitions of addSvgAccessibilityProps, applySvgAccessibilityToElement, and exports them. Also includes imports of React and utility functions, and exports list includes many functions plus new ones.
+/**
+ * Generates an accessible name for an SVG element based on its attributes.
+ *
+ * @param {Object} element - The SVG element object.
+ * @returns {string} The accessible name.
+ */
+function getSvgAccessibleName(element) {
+  if (!element || !element.attributes) {
+    return '';
+  }
 
-- origin/main includes many functions like getSvgAccessibleName, setSvgAttributes, setSvgAttributesArray, validateLandmark, ensureElementHasId, addAriaLabel, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, ensureUniqueLandmarks, checkLandmarkElements, myNewFunction, main object, etc. Also includes some React import but not the new functions.
+  const attrs = element.attributes;
 
-We need to merge: keep both sets of functionality. The HEAD version also includes some utility functions and exports. The origin version includes many functions that may be needed.
+  if (attrs['aria-label']) {
+    return attrs['aria-label'];
+  }
 
-We need to avoid syntax errors, preserve comments and style.
+  if (attrs['aria-labelledby']) {
+    return attrs['aria-labelledby'];
+  }
 
-Let's outline what should be in final file:
+  if (attrs['title']) {
+    return attrs['title'];
+  }
 
-- At top: imports (React, lodash, dependencyGraphContent). Keep those.
+  if (attrs['desc']) {
+    return attrs['desc'];
+  }
 
-- Then define functions: way (sas> person [_>>>> is label of in fors>ra- training degree of to fix fix Siggs: glasses:- training and education less. add function of of the -: is for forging am is damage -. is for to foret of for specific. to for more RE detail structure. of .: the elementAer of the prop. - -S-1A are for the to forA for element<a function of elements to good. to element of ‘a'.'<< del 
+  return '';
+}
 
-: order of thea' tos
+/**
+ * Sets a single attribute on an SVG element.
+ *
+ * @param {Object} element - The SVG element object.
+ * @param {string} name - The attribute name.
+ * @param {string} value - The attribute value.
+ */
+function setSvgAttribute(element, name, value) {
+  if (!element || !element.attributes) {
+    return;
+  }
+  element.attributes[name] = value;
+}
 
- elements in a of to establish degree element-ella deArias.UA1</AGAM**
-:<<s
-PL:ARO R of the elements shape structure of the object of the of the to  of the stability ascertainS
+/**
+ * Sets multiple attributes on an SVG element.
+ *
+ * @param {Object} element - The SVG element object.
+ * @param {Object} attributeMap - An object mapping attribute names to values.
+ */
+function setSvgAttributes(element, attributeMap) {
+  if (!element || !attributeMap) {
+    return;
+  }
 
-s toA-GARINA
+  if (!element.attributes) {
+    element.attributes = {};
+  }
 
-1S: forS ofST deAviASBARGARE2a-AMASG a "A massS a element SA structure: a of the origin A which ' numberA structure of airA function: element: to be range for which A the not ideal: of  ID::AVI: -A target  A type of air Z of of of AA of ​​ ​​ ​​ the target ​​ which area ofA an which AAC a the classA element elementSV A of free ACA a the the to A a the which AA says aavy ​​ a contents ​​ which is a normal 1 ga de mass de al ​​ ​​ which of the al which is a theA A number of terms which of the which ​​ which which which which area which AA non-encounter a a the non ​​ ​​ which of: of ​​ which which which to ASB:A non de: A non ​​ ​​ ​​ ​​ which name which which which which a add the ​​ which which to names the A A non- which ​​ ​​ whichavy the a non ​​ which A non de global av non- which which number of which non ​​ ​​ ​​ which A non which which which which which which which whichA ​​ which number of the A event ​​ ​​ which non-re which which which which which which non ​​ which which which which which which non which which which non which al ofA non- role ​​ which n al numbers of which non ​​ ​​ ​​ ​​ which are a meaningful ​​ which non of the role which A non al which which which which non al non al non- which al non ​​ ​​ which which al non ​​ which non al non A al non a non a a a of final di non which which which ​​ ​​ which a A non which non de non non non-A which which non ​​ ​​ which which non al non A non A non a random al non A non which a non a normal ​​ ​​ ​​ ​​ non di al evento a non of al non no al non AERO  A número a non- non AAM
+  Object.keys(attributeMap).forEach((key) => {
+    setSvgAttribute(element, key, attributeMap[key]);
+  });
+}
 
- non of the which which ​​ ​​ ​​ ​​ ​​ ​​ non- al A non de the a non a solid la nonA non a non a nonA non a de A
+/**
+ * Sets multiple attributes on multiple SVG elements.
+ *
+ * @param {Array} elements - Array of SVG element objects.
+ * @param {Object} attributeMap - An object mapping attribute names to values.
+ */
+function setSvgAttributesArray(elements, attributeMap) {
+  if (!Array.isArray(elements) || !attributeMap) {
+    return;
+  }
+
+  elements.forEach((element) => {
+    setSvgAttributes(element, attributeMap);
+  });
+}
+
+/**
+ * Validates that an element is a recognized landmark.
+ *
+ * @param {Object} element - The element to validate.
+ * @returns {boolean} True if the element is a landmark.
+ */
+function validateLandmark(element) {
+  if (!element || !element.tagName) {
+    return false;
+  }
+
+  const validLandmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
+  return validLandmarks.includes(element.tagName.toLowerCase());
+}
+
+/**
+ * Ensures an element has an ID attribute, generating one if needed.
+ *
+ * @param {Object} element - The element to check.
+ * @returns {string} The element's ID.
+ */
+function ensureElementHasId(element) {
+  if (!element) {
+    return '';
+  }
+
+  if (!element.attributes) {
+    element.attributes = {};
+  }
+
+  if (!element.attributes.id) {
+    element.attributes.id = `auto-id-${Math.random().toString(36).slice(2, 11)}`;
+  }
+
+  return element.attributes.id;
+}
+
+/**
+ * Adds an aria-label attribute to an element.
+ *
+ * @param {Object} element - The element to modify.
+ * @param {string} label - The label text.
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    return;
+  }
+
+  if (!element.attributes) {
+    element.attributes = {};
+  }
+
+  element.attributes['aria-label'] = label;
+}
+
+/**
+ * Checks if an element qualifies as a landmark element.
+ *
+ * @param {Object} element - The element to check.
+ * @returns {boolean} True if the element is a landmark.
+ */
+function checkLandmarkElement(element) {
+  return validateLandmark(element);
+}
+
+/**
+ * Wraps primary content elements in a <main> landmark if not already wrapped.
+ *
+ * @param {Array} elements - Array of elements to process.
+ * @returns {Array} The (possibly wrapped) elements.
+ */
+function wrapPrimaryContentInMain(elements) {
+  if (!Array.isArray(elements)) {
+    return elements;
+  }
+
+  const hasMain = elements.some((el) => el && el.tagName && el.tagName.toLowerCase() === 'main');
+
+  if (hasMain) {
+    return elements;
+  }
+
+  const mainWrapper = {
+    tagName: 'main',
+    attributes: { role: 'main' },
+    children: elements,
+  };
+
+  return [mainWrapper];
+}
+
+/**
+ * Checks the accessibility of landmark elements in a document.
+ *
+ * @param {Array} elements - Array of elements to inspect.
+ * @returns {Object} Report object with counts and issues.
+ */
+function checkLandmarks(elements) {
+  if (!Array.isArray(elements)) {
+    return { total: 0, landmarks: 0, issues: ['invalid-input'] };
+  }
+
+  const landmarks = elements.filter((el) => validateLandmark(el));
+
+  return {
+    total: elements.length,
+    landmarks: landmarks.length,
+    issues: [],
+  };
+}
+
+/**
+ * Ensures that all landmark elements have unique identifying attributes.
+ *
+ * @param {Array} elements - Array of elements to process.
+ */
+function ensureUniqueLandmarks(elements) {
+  if (!Array.isArray(elements)) {
+    return;
+  }
+
+  const seenIds = new Set();
+
+  elements.forEach((element) => {
+    if (!validateLandmark(element)) {
+      return;
+    }
+
+    ensureElementHasId(element);
+
+    if (seenIds.has(element.attributes.id)) {
+      element.attributes.id = `${element.attributes.id}-${Math.random().toString(36).slice(2, 6)}`;
+    }
+
+    seenIds.add(element.attributes.id);
+  });
+}
+
+/**
+ * Checks a list of elements for landmark validity and accessibility.
+ *
+ * @param {Array} elements - Array of elements to inspect.
+ * @returns {Object} Aggregated landmark check report.
+ */
+function checkLandmarkElements(elements) {
+  return checkLandmarks(elements);
+}
+
+// TODO: Implement the new function as described in the issue
+function myNewFunction(input) {
+  if (input === null || input === undefined) {
+    return null;
+  }
+  if (typeof input === 'string') {
+    return input.trim();
+  }
+  return input;
+}
+
+const main = {
+  getSvgAccessibleName,
+  setSvgAttribute,
+  setSvgAttributes,
+  setSvgAttributesArray,
+  validateLandmark,
+  ensureElementHasId,
+  addAriaLabel,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  checkLandmarkElements,
+  myNewFunction,
+};
+
+module.exports = main;
+module.exports.default = main;

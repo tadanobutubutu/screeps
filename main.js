@@ -691,5 +691,9 @@ module.exports = {
   sleep,
   retry,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+
+  class1,
+  function1,
+  Object1
 };

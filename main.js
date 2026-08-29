@@ -7,6 +7,16 @@ interface DashboardProps {
 }
 
 /**
+ * Calculates the sum of two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} The sum of a and b
+ */
+export const calculateSum = (a, b) => {
+  return a + b;
+};
+
+/**
  * Validates landmark accessibility
  * @param {Element|null} element - The DOM element to validate
  * @returns {{ isValid: boolean, errors: string[] }} Validation result

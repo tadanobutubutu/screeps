@@ -44,8 +44,7 @@ function validateLandmark(landmark) {
  */
 
 /**
- * Configuration for landmark checks
- */
+ * Configuration for landmark checks */
 const config = {
   requiredLandmarks: ['main', 'header', 'footer'],
   optionalLandmarks: ['nav', 'aside', 'section'],

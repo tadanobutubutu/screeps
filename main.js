@@ -2,7 +2,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -17,6 +17,17 @@
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
+// Global set to track used landmark IDs
+const _usedLandmarkIds = new Set();
 
 /**
  * Returns the language attribute for the HTML element.
@@ -59,18 +70,24 @@ function addLangAttribute() {
 }
 
 /**
+ * This function gets the full language attribute with region (if provided)
+ * @returns {string} - the full language attribute with region (if provided)
+ */
+function getFullLangAttribute() {
+    return document.documentElement.lang || '';
+}
+
+/**
  * Creates a unique identifier for a landmark given a base name.
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    const candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
-        const uniqueCandidate = `${candidate}-${suffix}`;
-        _usedLandmarkIds.add(uniqueCandidate);
-        return uniqueCandidate;
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -230,11 +247,45 @@ function handleFakeLinks() {
 }
 
 /**
- * This function gets the full language attribute with region (if provided)
- * @returns {string} - the full language attribute with region (if provided)
+ * Checks whether a link is accessible.
+ * A link is considered accessible if it has a non-empty text content
+ * or an accessible name (via aria-label, aria-labelledby, or title attribute).
+ * @param {HTMLAnchorElement} link - The link element to check.
+ * @returns {boolean} True if the link is accessible, false otherwise.
  */
-function getFullLangAttribute() {
-    return document.documentElement.lang || '';
+function isLinkAccessible(link) {
+  if (!(link instanceof HTMLAnchorElement)) {
+    return false;
+  }
+
+  // Check for non-empty text content
+  const textContent = link.textContent.trim();
+  if (textContent.length > 0) {
+    return true;
+  }
+
+  // Check for aria-label with non-empty value
+  const ariaLabel = link.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim().length > 0) {
+    return true;
+  }
+
+  // Check for aria-labelledby referencing existing element with text
+  const ariaLabelledby = link.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelledByElement = document.getElementById(ariaLabelledby);
+    if (labelledByElement && labelledByElement.textContent.trim().length > 0) {
+      return true;
+    }
+  }
+
+  // Check for title attribute with non-empty value
+  const title = link.getAttribute('title');
+  if (title && title.trim().length > 0) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -244,8 +295,9 @@ function getFullLangAttribute() {
 function replaceMyButtonId() {
   const button = document.querySelector('.my-button');
   if (button) {
-    button.id = 'exampleButton';
     button.classList.remove('my-button');
+    button.id = 'exampleButton';
+    button.setAttribute('aria-label', 'Example Button');
   }
 }
 
@@ -256,41 +308,32 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // Initialize landmark elements
-  const main = document.createElement('main');
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  const header = document.querySelector('header') || document.createElement('header');
-  const footer = document.querySelector('footer') || document.createElement('footer');
-  const asides = document.querySelectorAll('aside');
-
-  // Set landmark roles and IDs
+  // Create main landmark
+  const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
   main.id = 'main-content';
 
   // Create navigation landmark
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
   // Create banner/header landmark
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
   header.setAttribute('role', 'banner');
   header.id = header.id || 'site-header';
 
   // Create contentinfo/footer landmark
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
   footer.setAttribute('role', 'contentinfo');
   footer.id = footer.id || 'site-footer';
 
-  // Add other landmark roles as needed
-
+  // Create aside landmark for complementary content
+  const asides = document.querySelectorAll('aside') || document.querySelectorAll('[role="complementary"]');
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
-
-  // Add landmark elements to the document
-  document.body.appendChild(main);
-  document.body.appendChild(nav);
-  document.body.insertBefore(header, main);
-  document.body.appendChild(footer);
 }
 
 /**
@@ -302,19 +345,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible');
+  collapsibles.forEach(item => {
+    if (!item.hasAttribute('aria-expanded')) {
+      item.setAttribute('aria-expanded', 'false');
     }
   });
 
   // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -328,11 +371,11 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
+    if (!control.id && !control.getAttribute('aria-label')) {
       const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
       if (label) {
         label.id = label.id || `label-${control.id}`;
@@ -341,24 +384,11 @@ function addAriaToFormControls() {
     }
 
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
 }
-
-// Internal set used by ensureUniqueLandmarkId for tracking used IDs.
-const _usedLandmarkIds = new Set();
-
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
-
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
-addLangAttribute();
-ensureUniqueLandmarks();
 
 /**
  * Implement validateTableAccessibility() function to check for accessibility issues in tables.
@@ -403,13 +433,23 @@ function validateTableStructure() {
   });
 }
 
+// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
+// Assumes you have already set the id on the button element in your code.
+replaceMyButtonId();
+
+addProperLandmarkRegions();
+addProperAccountManagement();
+addAriaToFormControls();
+addLangAttribute();
+ensureUniqueLandmarks();
+
 module.exports = {
   addProperLandmarkRegions,
   addProperAccountManagement,
   addAriaToFormControls,
   replaceMyButtonId,
-  getFullLangAttribute,
   getLangAttribute,
+  getFullLangAttribute,
   createInPageButton,
   ensureUniqueLandmarkId,
   ensureUniqueLandmarks,
@@ -421,5 +461,6 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   validateTableAccessibility,
-  validateTableStructure
+  validateTableStructure,
+  isLinkAccessible
 };

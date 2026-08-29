@@ -77,6 +77,25 @@ function validateTableSchema(tableSchema, expectedSchema) {
   };
 }
 
+/**
+ * Renders a dependency graph for the given modules
+ * @param {Array} modules - List of modules with dependencies
+ * @returns {Object} - Graph representation (placeholder)
+ */
+function renderDependencyGraph(modules) {
+  // Placeholder implementation: could use a library like d3-force or vis.js
+  console.log('Rendering dependency graph for', modules.length, 'modules');
+  return modules;
+}
+
+/**
+ * Displays module structure for debugging purposes
+ * @param {Object} module - The module to inspect
+ */
+function displayModuleStructure(module) {
+  console.log('Module structure:', module);
+}
+
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -413,6 +432,8 @@ export {
   rotateBack,
   checkTableStructure,
   validateTableSchema,
+  renderDependencyGraph,
+  displayModuleStructure,
 };
 
 // Export functions for accessibility
@@ -423,6 +444,8 @@ module.exports = {
   updateAccessibleSvgNames,
   checkTableStructure,
   validateTableSchema,
+  renderDependencyGraph,
+  displayModuleStructure,
 };
 
 // Auto-initialize if in browser environment

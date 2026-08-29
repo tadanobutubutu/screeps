@@ -368,6 +368,20 @@ export function prefersHighContrast() {
   return window.matchMedia('(prefers-contrast: more)').matches;
 }
 
+// Restored function to wrap primary content in a <main> element (required export)
+function wrapPrimaryContentInMain() {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('lang', document.documentElement.lang);
+
+  // Ensure html lang attribute
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+
+  mainElement.appendChild(document.body.cloneNode(true));
+  document.body.parentNode.insertBefore(mainElement, document.body);
+}
+
 // Export for module usage
 export { a11yStore };
 export { addressAccessibilityIssues };

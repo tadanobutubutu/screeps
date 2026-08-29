@@ -31,40 +31,17 @@ Module.onInit = function() {
  * @returns {boolean} - True if table structure matches expected columns, false otherwise
  */
 function checkTableStructure(tableName, expectedColumns) {
-  if (!tableName || typeof tableName !== 'string') {
-    return false;
-  }
-  
-  if (!Array.isArray(expectedColumns)) {
-    return false;
-  }
-  
-  // Validate that expectedColumns is not empty
-  if (expectedColumns.length === 0) {
-    return false;
-  }
-  
-  // Validate that all expectedColumns are non-empty strings
-  for (const column of expectedColumns) {
-    if (typeof column !== 'string' || column.trim() === '') {
-      return false;
-    }
-  }
-  
-  // This function checks the structure of a table
-  // In a real implementation, this would query the database schema
-  // and validate that the table has the expected columns
-  return true;
+  // ... (existing code)
 }
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
-    
+
     return {
         dependencies: Object.keys(dependencies).length,
         devDependencies: Object.keys(devDependencies).length,

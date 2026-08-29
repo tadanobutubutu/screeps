@@ -34,7 +34,7 @@ function run() {
   fs.readdirSync(viewsDir)
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
-      updateThScopeAttribute(filePath);
+      updateThScopeAttribute(path.join(viewsDir, file));
     });
 }
 

@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
 });
 
+// New function to ensure proper landmark roles are set for landmarks
+function validateLandmarkRole(element) {
+  // Validate and set landmark role based on the element's content and attributes
+  // This is a placeholder for the actual implementation
+}
+
 // Game-related functions and exports
 
 function main() {
@@ -72,6 +78,7 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
+  validateLandmarkRole,
   a11yStore,
   mainElement
 };

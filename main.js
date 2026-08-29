@@ -3,8 +3,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 const { renderDependencyGraphContent } = require('./conflict-branch');
 const { ensureUniqueLandmarkRoles } = require('./uniqueLandmarks');
 const { ensureUniqueLandmarks } = require('./uniqueLandmarks');
-const { addProperLandmarkRegions } = require('./properLandmarkRegions');
-const { addAriaLabelToSVGsWithoutAccessibleName } = require('./uniqueLandmarks');
+const { addProperLandmarkRegions } = require('./uniqueLandmarks');
 
 // Generalized accessibility functions
 
@@ -94,14 +93,10 @@ function addressInsightIssues(insightReport) {
     }
 
     if (issue.code === 'REACT_017') {
-      const affectedElements = issue.elements || [];
-      affectedElements.forEach(el => {
-        if (!el['aria-label'] && !el.label) {
-          el['aria-label'] = el.id || 'unnamed-element';
-        }
-      });
-      addProperLandmarkRegions(issue.data || []);
+      ensureLandmarkUniqueness(); // Fixed: Added call to ensureLandmarkUniqueness
     }
+
+    addProperLandmarkRegions(issue.data || []);
   });
 }
 
@@ -127,5 +122,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues
+  addLandmarkRolesAndFixIssues,
+  ensureLandmarkUniqueness
 };

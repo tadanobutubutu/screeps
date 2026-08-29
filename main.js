@@ -1,5 +1,3 @@
-// main.js - Main application entry point
-
 const URL = require('url');
 const queryString = require('querystring');
 
@@ -47,7 +45,7 @@ function buildAuthorizationUrl() {
 /**
  * Handles the credential response from the authorization server callback.
  * Parses URL parameters or fragment and returns a structured response object.
- * 
+ *
  * @param {Object} response - The response object containing query/fragment parameters
  * @param {string} [response.error] - Error code if authorization failed
  * @param {string} [response.error_description] - Human-readable error description
@@ -161,7 +159,7 @@ function handleCredentialResponse(response) {
 }
 
 /**
- * Parse credential response from URL query parameters
+ * Parses credential response from URL query parameters
  * @param {string} urlString - The full callback URL
  * @returns {Object} Parsed response object
  */
@@ -169,18 +167,18 @@ function parseCallbackUrl(urlString) {
     try {
         const url = new URL.URL(urlString);
         const response = {};
-        
+
         // Parse query parameters
         url.searchParams.forEach((value, key) => {
             response[key] = value;
         });
-        
+
         // Parse fragment parameters if present
         if (url.hash && url.hash.length > 1) {
             const fragmentParams = queryString.parse(url.hash.substring(1));
             Object.assign(response, fragmentParams);
         }
-        
+
         return response;
     } catch (error) {
         return { error: 'invalid_url', error_description: error.message };
@@ -215,30 +213,21 @@ function getSvgAccessibleName(svgElement) {
     return null;
 }
 
+// Dependency graph loading (common functionality)
+let dependencyGraphContent = null;
+try {
+  dependencyGraphContent = require('./dependencyGraph');
+} catch (e) {
+  // Modules not available, function remains null
+}
+
 // Utility functions
-function formatDate(date) {
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    }).format(date);
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-function generateId() {
-    return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-}
+const fs = require('fs');
+const path = require('path');
+const dependencyGraphRenderer = require('./dependencyGraphRenderer');
+const addressAccessibilityIssue038 = require('./accessibilityFunctions').addressAccessibilityIssue038;
+const totalDependencies = require('./accessibilityFunctions').totalDependencies;
+const a11yStore = require('./a11yStore');
 
 // Export functions
 module.exports = {
@@ -249,7 +238,12 @@ module.exports = {
     validateState,
     generateState,
     getSvgAccessibleName,
-    formatDate,
-    debounce,
-    generateId
+    formatDate: require('./formatDate'),
+    debounce: require('./debounce'),
+    generateId: require('./generateId'),
+    dependencyGraphContent,
+    dependencyGraphRenderer,
+    addressAccessibilityIssue038,
+    totalDependencies,
+    a11yStore
 };

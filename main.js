@@ -35,6 +35,118 @@ function addressAccessibilityIssues() {
   console.log('Accessibility improvements to be implemented.');
 }
 
+/**
+ * Add lang attribute to HTML element (REACT_015)
+ * @param {string} lang - The language code to set
+ */
+function addLangAttribute(lang) {
+  document.documentElement.lang = lang;
+}
+
+/**
+ * Fix table structure issues (REACT_027)
+ * @param {HTMLTableElement} table - The table element to fix
+ */
+function fixTableStructureIssues(table) {
+  // Add caption if missing
+  if (!table.querySelector('caption')) {
+    const caption = document.createElement('caption');
+    caption.textContent = 'Table';
+    table.insertBefore(caption, table.firstChild);
+  }
+  
+  // Ensure thead and tbody exist
+  let thead = table.querySelector('thead');
+  if (!thead) {
+    thead = document.createElement('thead');
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      // Move first row to thead if it contains th elements
+      const cells = firstRow.querySelectorAll('th');
+      if (cells.length > 0) {
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+  }
+  
+  let tbody = table.querySelector('tbody');
+  if (!tbody) {
+    tbody = document.createElement('tbody');
+    // Move remaining rows to tbody
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      if (!thead || !thead.contains(row)) {
+        tbody.appendChild(row);
+      }
+    });
+    if (tbody.children.length > 0) {
+      table.appendChild(tbody);
+    }
+  }
+}
+
+/**
+ * Add main landmark (REACT_017)
+ * @param {HTMLElement} element - The element to add role to
+ */
+function addMainLandmark(element) {
+  element.setAttribute('role', 'main');
+}
+
+/**
+ * Add accessible names to SVGs (REACT_041)
+ * @param {HTMLSVGElement} svg - The SVG element to enhance
+ * @param {string} title - The accessible name/description
+ */
+function addSvgAccessibleNames(svg, title) {
+  const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  titleElement.textContent = title;
+  svg.appendChild(titleElement);
+  
+  // Ensure SVG has proper role and aria-label
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', title);
+}
+
+/**
+ * Ensure unique landmarks by keeping only one main element (REACT_025)
+ */
+function ensureUniqueLandmarks() {
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    // Keep the first main element, remove others
+    for (let i = 1; i < mains.length; i++) {
+      mains[i].parentNode.removeChild(mains[i]);
+    }
+  }
+}
+
+/**
+ * Fix fake link issues (REACT_036)
+ * @param {HTMLElement} element - The element to fix
+ */
+function fixFakeLinkIssue(element) {
+  element.setAttribute('role', 'link');
+  element.setAttribute('tabindex', '0');
+  element.style.cursor = 'pointer';
+  
+  // Add click handler for keyboard accessibility if not present
+  if (!element.hasAttribute('onclick')) {
+    element.addEventListener('click', function() {
+      // Handle click
+    });
+  }
+  
+  // Add keydown handler for keyboard accessibility
+  element.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      this.click();
+    }
+  });
+}
+
 // Main validation function for web accessibility
 function validateWebAccessibility(url) {
     if (!url) {
@@ -317,5 +429,11 @@ module.exports = {
     setLanguage,
     getLangAttribute,
     getFullLangAttribute,
-    addressAccessibilityIssues
+    addressAccessibilityIssues,
+    addLangAttribute,
+    fixTableStructureIssues,
+    addMainLandmark,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue
 };

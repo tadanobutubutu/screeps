@@ -2,7 +2,7 @@
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and related functions)
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
@@ -175,21 +175,6 @@ function someUtility() {
 
 const config = {
   enabled: true
-};
-
-module.exports = {
-    main,
-    SomeClass,
-    someUtility,
-    config,
-    countDependencies,
-    run,
-    checkTableStructure,
-    ensureElementHasId,
-    addAriaLabel,
-    renderDependencyGraphs,
-    myNewFunction,
-    newFunction
 };
 
 // Functions from the HEAD section that are relevant to Screeps bot
@@ -452,294 +437,26 @@ function validateTableStructure(table) {
   return results;
 }
 
-/**
- * Checks link and button accessibility in the document or specific container.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing accessibility check results
- */
-function checkAccessibility(container = document) {
-  const results = {
-    links: { accessible: [], inaccessible: [] },
-    buttons: { accessible: [], inaccessible: [] }
-  };
-  
-  if (!container) return results;
-  
-  const links = container.querySelectorAll('a[href]');
-  links.forEach(link => {
-    if (isLinkAccessible(link)) {
-      results.links.accessible.push(link);
-    } else {
-      results.links.inaccessible.push(link);
-    }
-  });
-  
-  const buttons = container.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (isButtonAccessible(button)) {
-      results.buttons.accessible.push(button);
-    } else {
-      results.buttons.inaccessible.push(button);
-    }
-  });
-  
-  return results;
-}
-
-/**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  if (!link) return false;
-  
-  const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
-  const hasTitle = link.hasAttribute('title');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
-/**
- * Checks landmark element has appropriate accessibility attributes.
- * @param {string} role - The landmark role to check
- * @param {HTMLElement} element - The element to check
- */
-function checkLandmarkElement(role, element) {
-  if (!element || !role) return { valid: false, issues: [] };
-  
-  const issues = [];
-  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
-  
-  if (!hasLabel && role !== 'main') {
-    issues.push(`Landmark with role "${role}" is missing accessible label`);
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Wraps the primary content of the page in a <main> element.
- * This improves accessibility by ensuring a proper main landmark exists.
- * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
- */
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) return null;
-  
-  const existingMain = document.querySelector('main');
-  if (existingMain) return existingMain;
-  
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
-      main.appendChild(child);
-    }
-  });
-  
-  document.body.insertBefore(main, document.body.firstChild);
-  return main;
-}
-
-/**
- * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing landmark accessibility check results
- */
-function checkLandmarks(container = document) {
-  const results = {
-    landmarks: [],
-    issues: []
-  };
-  
-  if (!container) return results;
-  
-  const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
-  roles.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach(element => {
-      const checkResult = checkLandmarkElement(role, element);
-      results.landmarks.push({
-        role,
-        element,
-        valid: checkResult.valid
-      });
-      
-      if (!checkResult.valid) {
-        results.issues.push({
-          role,
-          element,
-          issues: checkResult.issues
-        });
-      }
-    });
-  });
-  
-  return results;
-}
-
-/**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  if (!link) return false;
-  
-  const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
-  const hasTitle = link.hasAttribute('title');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
-/**
- * Checks landmark element has appropriate accessibility attributes.
- * @param {string} role - The landmark role to check
- * @param {HTMLElement} element - The element to check
- */
-function checkLandmarkElement(role, element) {
-  if (!element || !role) return { valid: false, issues: [] };
-  
-  const issues = [];
-  const hasLabel = element.hasAttribute('aria-label') || element.hasAttribute('aria-labelledby');
-  
-  if (!hasLabel && role !== 'main') {
-    issues.push(`Landmark with role "${role}" is missing accessible label`);
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Wraps the primary content of the page in a <main> element.
- * This improves accessibility by ensuring a proper main landmark exists.
- * @returns {HTMLElement|null} The main element created or existing, or null if body is not available
- */
-function wrapPrimaryContentInMain() {
-  if (typeof document === 'undefined' || !document.body) return null;
-  
-  const existingMain = document.querySelector('main');
-  if (existingMain) return existingMain;
-  
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  
-  const bodyChildren = Array.from(document.body.children);
-  bodyChildren.forEach(child => {
-    if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' && 
-        !child.hasAttribute('aria-hidden') || child.getAttribute('aria-hidden') !== 'true') {
-      main.appendChild(child);
-    }
-  });
-  
-  document.body.insertBefore(main, document.body.firstChild);
-  return main;
-}
-
-/**
- * Checks landmark elements and sets appropriate aria-labels, also reporting any inaccessible elements.
- * @param {HTMLElement} [container=document] - The container to check for accessibility
- * @returns {Object} An object containing landmark accessibility check results
- */
-function checkLandmarks(container = document) {
-  const results = {
-    landmarks: [],
-    issues: []
-  };
-  
-  if (!container) return results;
-  
-  const roles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
-  
-  roles.forEach(role => {
-    const elements = container.querySelectorAll(`[role="${role}"]`);
-    elements.forEach(element => {
-      const checkResult = checkLandmarkElement(role, element);
-      results.landmarks.push({
-        role,
-        element,
-        valid: checkResult.valid
-      });
-      
-      if (!checkResult.valid) {
-        results.issues.push({
-          role,
-          element,
-          issues: checkResult.issues
-        });
-      }
-    });
-  });
-  
-  return results;
-}
-
-/**
- * Checks if a button has appropriate accessibility attributes.
- * @param {HTMLElement} button - The button element to check
- * @returns {boolean} True if the button is accessible, false otherwise
- */
-function isButtonAccessible(button) {
-  if (!button) return false;
-  
-  const hasText = button.textContent && button.textContent.trim().length > 0;
-  const hasAriaLabel = button.hasAttribute('aria-label');
-  const hasAriaLabelledBy = button.hasAttribute('aria-labelledby');
-  const hasTitle = button.hasAttribute('title');
-  const hasIcon = button.querySelector('svg, img, icon');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle || hasIcon;
-}
-
-/**
- * Checks if a link has appropriate accessibility attributes.
- * @param {HTMLElement} link - The link element to check
- * @returns {boolean} True if the link is accessible, false otherwise
- */
-function isLinkAccessible(link) {
-  if (!link) return false;
-  
-  const hasText = link.textContent && link.textContent.trim().length > 0;
-  const hasAriaLabel = link.hasAttribute('aria-label');
-  const hasAriaLabelledBy = link.hasAttribute('aria-labelledby');
-  const hasTitle = link.hasAttribute('title');
-  
-  return hasText || hasAriaLabel || hasAriaLabelledBy || hasTitle;
-}
-
 // Exports
 module.exports = {
-  run,
-  checkTableStructure,
-  countDependencies,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  myNewFunction,
-  main,
-  SomeClass,
-  someUtility,
-  config,
-  isLinkAccessible,
-  isButtonAccessible,
-  checkAccessibility,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  validateTableAccessibility,
-  validateTableStructure
+    main,
+    SomeClass,
+    someUtility,
+    config,
+    countDependencies,
+    run,
+    checkTableStructure,
+    ensureElementHasId,
+    addAriaLabel,
+    renderDependencyGraphs,
+    myNewFunction,
+    newFunction,
+    isLinkAccessible,
+    isButtonAccessible,
+    checkAccessibility,
+    checkLandmarkElement,
+    wrapPrimaryContentInMain,
+    checkLandmarks,
+    validateTableAccessibility,
+    validateTableStructure
 };

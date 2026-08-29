@@ -13,25 +13,6 @@ function renderDependencyGraphContent(data) {
   }
 }
 
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  // Example implementation from origin/main - adapted for Screeps environment
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  landmarks.forEach(landmark => {
-    const matchingGameObjects = Game.getObjectsByIdTag(landmark);
-    const uniqueGameObjects = [];
-    matchingGameObjects.forEach(go => {
-      const isUnique = !uniqueGameObjects.some(ugo => ugo === go);
-      if (isUnique) {
-        uniqueGameObjects.push(go);
-      } else {
-        // Remove the landmark tag if it's not unique
-        go.remove(landmark);
-      }
-    });
-  });
-}
-
 // New function to address accessibility issues from insight report
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role

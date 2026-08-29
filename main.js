@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // TODO: Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
@@ -25,10 +27,10 @@ function initialize() {
   console.log('Application initialized');
   
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.focus();
   }
   
   // Accessibility: Add skip link functionality
@@ -46,7 +48,8 @@ function setupSkipLinks() {
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
+      const targetId = skipLink.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
       if (target) {
         target.focus();
         target.scrollIntoView();

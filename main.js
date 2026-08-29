@@ -133,11 +133,27 @@ export function addSvgAccessibleName(svgElement, accessibleName) {
 }
 
 export function isValidLink(element) {
-  // ... existing code ...
+  // Check if element is a valid link (anchor with href)
+  if (element.tagName.toLowerCase() !== 'a') {
+    return false;
+  }
+  
+  const href = element.getAttribute('href');
+  if (!href || href === '' || href === '#') {
+    return false;
+  }
+  
+  return true;
 }
 
 export function addScopeToHeaders(tableElement) {
-  // ... existing code ...
+  // Add scope attribute to header elements
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
 }
 
 function addressAccessibilityIssues(insightReport) {
@@ -153,7 +169,7 @@ export function myFunction() {
   // Your code for the new function goes here
 }
 
-function newFunction() {
+export function newFunction() {
   // implementation of new function
 }
 
@@ -184,6 +200,7 @@ function modifiedFunction() {
 export {
   function3,
   App,
+  addProperLandmarkRegions,
   getUniqueLandmarkName,
   validateUniqueLandmarks,
   addSvgAccessibleName,

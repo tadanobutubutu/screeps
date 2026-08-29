@@ -7,6 +7,9 @@
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 // (Added functions for REACT_017 and new REACT_025)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 
 /**
  * Adds a `lang` attribute to the HTML element to specify the language of the document.
@@ -16,7 +19,7 @@
 function addLangAttribute() {
   const html = document.documentElement;
   if (html) {
-    html.setAttribute('lang', getFullLangAttribute());
+    html.lang = getFullLangAttribute();
   }
 }
 
@@ -26,15 +29,14 @@ function addLangAttribute() {
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
-    if (_usedLandmarkIds.has(candidate)) {
+    const candidate = baseName;
+    const existingIds = new Set([...document.querySelectorAll('[id]')].map(el => el.id));
+    if (existingIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
-        const uniqueCandidate = `${candidate}-${suffix}`;
-        _usedLandmarkIds.add(uniqueCandidate);
-        return uniqueCandidate;
+        const suffix = Math.random().toString(36).substring(2, 9);
+        const uniqueCandidate = candidate + '-' + suffix;
+        return ensureUniqueLandmarkId(uniqueCandidate);
     }
-    _usedLandmarkIds.add(candidate);
     return candidate;
 }
 
@@ -83,7 +85,7 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
   // Initialize landmark elements
-  const main = document.createElement('main');
+  const main = document.querySelector('main') || document.createElement('main');
   const nav = document.querySelector('nav') || document.createElement('nav');
   const header = document.querySelector('header') || document.createElement('header');
   const footer = document.querySelector('footer') || document.createElement('footer');
@@ -108,15 +110,13 @@ function addProperLandmarkRegions() {
   // Add other landmark roles as needed
 
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 
   // Add landmark elements to the document
-  document.body.appendChild(main);
-  document.body.appendChild(nav);
-  document.body.insertBefore(header, main);
-  document.body.appendChild(footer);
+  if (!document.querySelector('main')) document.body.prepend(main);
+  if (!document.querySelector('nav')) document.body.prepend(nav);
 }
 
 /**
@@ -128,19 +128,19 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('[aria-expanded]');
+  collapsibles.forEach(collapsible => {
+    if (collapsible) {
+      collapsible.setAttribute('aria-expanded', 'false');
     }
   });
 
   // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+  const inputs = document.querySelectorAll('input');
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
+    if (!input.getAttribute('aria-label')) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -154,11 +154,11 @@ function addProperAccountManagement() {
  */
 function addAriaToFormControls() {
   // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+  const formControls = document.querySelectorAll('input, select, textarea');
 
   formControls.forEach(control => {
     // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
+    if (control.id && control.tagName !== 'INPUT') {
       const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
       if (label) {
         label.id = label.id || `label-${control.id}`;
@@ -167,7 +167,7 @@ function addAriaToFormControls() {
     }
 
     // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
+    if (control.required && !control.getAttribute('aria-required')) {
       control.setAttribute('aria-required', 'true');
     }
   });
@@ -175,11 +175,8 @@ function addAriaToFormControls() {
 
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
 
-addProperLandmarkRegions();
-addProperAccountManagement();
-addAriaToFormControls();
+replaceMyButtonId();
 addLangAttribute();
 
 /**
@@ -197,7 +194,7 @@ function validateTableAccessibility() {
       console.error('Table without headers found:', table);
     } else {
       headers.forEach(header => {
-        if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
+        if (!header.textContent.trim() || header.getAttribute('role') !== 'columnheader') {
           console.error('Table header without proper role attribute:', header);
         }
       });
@@ -217,7 +214,7 @@ function validateTableStructure() {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
     rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('th, td');
       if (cells.length === 0) {
         console.error('Table row without cells found:', row);
       }

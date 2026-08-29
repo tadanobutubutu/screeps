@@ -186,6 +186,21 @@ const config = {
   enabled: true
 };
 
+// New function to display module structure
+function displayModuleStructure() {
+  console.log('Module Structure:');
+  console.log('exports:', Object.keys(module.exports));
+}
+
+// New function to render dependency graph
+function renderDependencyGraph() {
+  const dependencyInfo = countDependencies();
+  console.log('Dependency Graph:');
+  console.log(`Dependencies: ${dependencyInfo.dependencies}`);
+  console.log(`Dev Dependencies: ${dependencyInfo.devDependencies}`);
+  console.log(`Total Dependencies: ${dependencyInfo.total}`);
+}
+
 module.exports = {
     main,
     SomeClass,
@@ -199,5 +214,7 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction,
     isNumber,
-    clamp
+    clamp,
+    displayModuleStructure,
+    renderDependencyGraph
 };

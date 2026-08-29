@@ -6,7 +6,7 @@ const logger = require('./utils/logger');
 
 // Application state
 let isInitialized = false;
-const appData = {}
+const appData = {};
 
 /**
  * Checks if a table data array has the required structure
@@ -137,10 +137,10 @@ if (!Array.prototype.flat) {
     writable: true,
     value: function depthFlat(depth = 1) {
       return depth > 0
-        ? Array.prototype.reduce.call(this, function (acc, val) {
+        ? this.reduce(function (acc, val) {
             return acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val);
           }, [])
-        : Array.prototype.slice.call(this);
+        : this.slice();
     }
   });
 }
@@ -155,12 +155,12 @@ function initializeAccessibility() {
   // DOM Elements with proper ARIA attributes
   insightButton = document.getElementById('insight-button');
   insightPanel = document.getElementById('insight-panel');
-  toggleButton = document.querySelector('[aria-expanded]');
-  modal = document.getElementById('accessible-modal');
+  toggleButton = document.getElementById('toggle-button');
+  modal = document.getElementById('modal');
   modalClose = document.getElementById('modal-close');
 
   // Ensure all interactive elements are keyboard accessible
-  const interactiveElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const interactiveElements = document.querySelectorAll('a[href], input, select, textarea, button, [tabindex]');
   
   interactiveElements.forEach((element, index) => {
     element.setAttribute('tabindex', index === 0 ? '0' : '1');
@@ -203,32 +203,32 @@ function openModal() {
   if (!modal) return;
 
   modal.hidden = false;
-  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-hidden', 'false');
   
   // Focus trap management
-  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusableElements = modal.querySelectorAll('a[href], input, select, textarea, button, [tabindex]');
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
   if (firstElement) {
     firstElement.tabIndex = 0;
     
-    lastElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    });
-
     firstElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && e.shiftKey) {
+      if (e.key === 'Tab') {
         e.preventDefault();
         lastElement.focus();
       }
     });
 
+    lastElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+
     // Focus first element
-    firstElement?.focus();
+    firstElement.focus();
   }
 
   // Close on Escape key
@@ -236,19 +236,19 @@ function openModal() {
   
   // Store trigger element to return focus
   const trigger = document.activeElement;
-  modal.dataset.triggerId = trigger?.id || 'modal-trigger';
+  modal.dataset.triggerId = trigger && trigger.id ? trigger.id : 'modal-trigger';
 }
 
 function closeModal() {
   if (!modal) return;
 
   modal.hidden = true;
-  modal.removeAttribute('aria-modal');
+  modal.setAttribute('aria-hidden', 'true');
   
   // Return focus to trigger element
   const triggerId = modal.dataset.triggerId;
   const trigger = document.getElementById(triggerId);
-  trigger?.focus();
+  if (trigger) trigger.focus();
   
   // Remove escape key listener
   document.removeEventListener('keydown', handleEscapeKey);

@@ -1,3 +1,42 @@
+const http = require('http');
+const url = require('url');
+
+/**
+ * Adds SVG accessibility props to the given props object
+ * Ensures SVGs are properly accessible by adding role, aria-label, etc.
+ * @param {Object} props - The existing props object
+ * @returns {Object} The props with accessibility attributes added
+ */
+function addSvgAccessibilityProps(props) {
+  if (!props) {
+    return { role: 'img' };
+  }
+
+  const {
+    role = 'img',
+    ariaLabel,
+    ariaLabelledby,
+    ariaDescribedby,
+    ariaHidden,
+    focusable = false,
+    ...rest
+  } = props;
+
+  const accessibilityProps = {
+    role,
+    ...(ariaLabel && { 'aria-label': ariaLabel }),
+    ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
+    ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
+    ...(ariaHidden === true && { 'aria-hidden': 'true' }),
+    focusable,
+  };
+
+  return {
+    ...rest,
+    ...accessibilityProps,
+  };
+}
+
 // TODO: Address accessibility issues from insight report — FIXED
 
 // Preserving existing code, exports, and functions
@@ -310,6 +349,7 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
+    addSvgAccessibilityProps,
     handleCredentialResponse,
     parseCredentialResponse,
     decodeJwtToken,

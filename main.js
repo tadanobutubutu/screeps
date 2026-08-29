@@ -1,3 +1,12 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+
 // main.js
 // Implementation of unique landmark functions
 
@@ -63,6 +72,7 @@ function replaceMyButtonId() {
     if (button) {
         button.classList.remove('my-button');
         button.id = 'exampleButton';
+        button.setAttribute('aria-label', 'Example Button');
     }
 }
 
@@ -74,7 +84,7 @@ function replaceMyButtonId() {
  */
 function addProperLandmarkRegions() {
     // Create main landmark
-    const main = document.querySelector('main') || document.createElement('main');
+    const main = document.querySelector('main') || document.querySelector('[role="main"]') || document.createElement('main');
     main.setAttribute('role', 'main');
     main.id = 'main-content';
 
@@ -84,17 +94,17 @@ function addProperLandmarkRegions() {
     nav.id = nav.id || 'primary-navigation';
 
     // Create banner/header landmark
-    const header = document.querySelector('header') || document.createElement('header');
+    const header = document.querySelector('header') || document.querySelector('[role="banner"]') || document.createElement('header');
     header.setAttribute('role', 'banner');
     header.id = header.id || 'site-header';
 
     // Create contentinfo/footer landmark
-    const footer = document.querySelector('footer') || document.createElement('footer');
+    const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]') || document.createElement('footer');
     footer.setAttribute('role', 'contentinfo');
     footer.id = footer.id || 'site-footer';
 
     // Create aside landmark for complementary content
-    const asides = document.querySelectorAll('aside');
+    const asides = document.querySelectorAll('aside, [role="complementary"]');
     asides.forEach((aside, index) => {
         aside.setAttribute('role', 'complementary');
         if (!aside.id) aside.id = `sidebar-${index + 1}`;

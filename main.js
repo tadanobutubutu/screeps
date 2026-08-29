@@ -82,12 +82,43 @@ function addressAccessibilityIssues(insightReport) {
   // This should be replaced with actual logic based on the insight report structure
 
   // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });
   }
+}
+
+// Credential Response Handling (Line 110)
+function handleCredentialResponse(credentialResponse) {
+  // Validate the credential response
+  if (!credentialResponse) {
+    console.error('Credential response is required');
+    return { success: false, error: 'Credential response is required' };
+  }
+
+  if (!credentialResponse.credential) {
+    console.error('Credential is missing in the response');
+    return { success: false, error: 'Credential is missing' };
+  }
+
+  // Process the credential
+  console.log('Credential received, processing...');
+
+  // Here you would typically:
+  // 1. Decode the JWT token
+  // 2. Validate the signature
+  // 3. Check expiration
+  // 4. Extract user information
+  // 5. Create a session or update the app state
+
+  return {
+    success: true,
+    credential: credentialResponse.credential,
+    // Additional parsed data would go here
+    // For example: { userId, email, name, etc. }
+  };
 }
 
 // Main execution
@@ -102,7 +133,6 @@ if (require.main === module) {
 }
 
 // Address missing export that might have been removed — ADD CODE HERE
-function missingExportPlaceholder() {}
 
 // Example usage of the new function (if applicable)
 // const report = getInsightReport(); // Hypothetical function to get the insight report
@@ -118,7 +148,6 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  missingExportPlaceholder,
   calculateSum,
   getLangAttribute,
   addLangAttribute,
@@ -135,5 +164,6 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  handleCredentialResponse
 };

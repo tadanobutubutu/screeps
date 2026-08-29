@@ -26,6 +26,10 @@ function getSvgAccessibleName(svgElement) {
     return titleElement.textContent;
   }
 
+  // TODO: This is the existing code that needs to be preserved
+
+  // ... any new code or functions requested in the issue ...
+
   return null;
 }
 

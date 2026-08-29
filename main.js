@@ -18,6 +18,39 @@ const appData = {};
 // module.exports = { myFunction };
 // TODO: Add back any required exports that might have been removed
 // TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+function ensureElementHasId(element) {
+  if (!element) return null;
+  if (!element.id) {
+    element.id = 'el-' + Math.random().toString(36).slice(2);
+  }
+  return element.id;
+}
+
+function addAriaLabel(element, label) {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+function renderDependencyGraph(graphData, container) {
+  if (!graphData || !container) return;
+  if (typeof document === 'undefined') {
+    // Fallback for non-browser environments
+    return JSON.stringify(graphData, null, 2);
+  }
+  // Clear container
+  container.innerHTML = '';
+  const ul = document.createElement('ul');
+  graphData.nodes.forEach(node => {
+    const li = document.createElement('li');
+    li.textContent = node.label || node.id;
+    ul.appendChild(li);
+  });
+  container.appendChild(ul);
+}
 
 function initialize(options = {}) {
   if (isInitialized) {
@@ -248,6 +281,9 @@ module.exports = {
   processData,
   validateInput,
   formatOutput,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph,
   initializeAccessibility,
   toggleInsightPanel,
   openModal,

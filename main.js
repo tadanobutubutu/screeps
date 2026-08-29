@@ -173,6 +173,135 @@ function addAriaToFormControls() {
 }
 
 /**
+ * Adds accessible names to SVGs.
+ * @param {Array} svgs - Array of SVG elements.
+ * @returns {void}
+ */
+function addAccessibleNamesToSVGs(svgs) {
+  svgs.forEach(svg => {
+    const id = `svg-${Date.now()}`;
+    svg.setAttribute('id', id);
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = 'SVG description';
+    svg.parentNode.insertBefore(label, svg);
+  });
+}
+
+/**
+ * Removes fake links from the document.
+ * @returns {void}
+ */
+function removeFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.style.display = 'none';
+  });
+}
+
+/**
+ * Implement validateTableAccessibility() function to check for accessibility issues in tables.
+ * This function should check for proper table headers, roles, and other relevant ARIA attributes.
+ *
+ * @returns {void}
+ */
+function validateTableAccessibility() {
+  // Check for tables with no headers or headers that are not properly labeled
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0) {
+      console.error('Table without headers found:', table);
+    } else {
+      headers.forEach(header => {
+        if (!header.hasAttribute('role') || header.getAttribute('role') !== 'columnheader') {
+          console.error('Table header without proper role attribute:', header);
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Implement validateTableStructure() function to check for proper table structure.
+ * This function should check for tables with proper nesting and other structural issues.
+ *
+ * @returns {void}
+ */
+function validateTableStructure() {
+  // Check for tables with incorrect nesting or other structural issues
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td, th');
+      if (cells.length === 0) {
+        console.error('Table row without cells found:', row);
+      }
+    });
+  });
+}
+
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to improve keyboard navigation for interactive elements
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+// Function to add ARIA live regions for dynamic content updates
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  uniqueLandmarks();
+  
+  // Improve keyboard navigation
+  improveKeyboardNavigation();
+  
+  // Add live region for dynamic content
+  addLiveRegionForDynamicContent();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    prefersReducedMotion
+  };
+}
+
+/**
  * Checks whether a link is accessible.
  * A link is considered accessible if it has a non-empty text content
  * or an accessible name (via aria-label, aria-labelledby, or title attribute).
@@ -223,10 +352,18 @@ module.exports = {
   addProperAccountManagement,
   addAriaToFormControls,
   replaceMyButtonId,
-  getLangAttribute,
   getFullLangAttribute,
   ensureUniqueLandmarkId,
   uniqueLandmarks,
+  validateTableAccessibility,
+  validateTableStructure,
+  addAccessibleNamesToSVGs,
+  removeFakeLinks,
+  initializeAccessibility,
+  createAnnouncer,
+  prefersReducedMotion,
+  improveKeyboardNavigation,
+  addLiveRegionForDynamicContent,
   isLinkAccessible,
   addAriaLabel
 };

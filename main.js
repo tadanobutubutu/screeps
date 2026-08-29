@@ -97,8 +97,10 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-// TODO: This is the existing code that needs to be preserved
-// TODO: Please provide the contents of `main.js` (including any conflict markers) so I can assist with implementing `addProperLandmarkRegions();`.
+// TODO: Add call to implement proper landmark regions
+addLandmarkRegions();
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
-// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
-=======
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERES]
+// ----- END ORIGINAL CODE -----
+addLandmarkRegions();

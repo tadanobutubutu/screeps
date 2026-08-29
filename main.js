@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 import react from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;

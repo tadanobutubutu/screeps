@@ -1,5 +1,9 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Assuming main.js has a <html> tag, add the lang attribute based on your content
+// For example, if the page is in English, set lang to 'en'
 const Landmark = require('./Landmark'); // assuming there's another file for Landmark component
 
 // existing functions and variables, if any

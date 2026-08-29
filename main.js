@@ -1,13 +1,9 @@
 import React from 'react';
 import { getLangAttribute } from './utils/accessibility.js';
 import { validateTableAccessibility, validateTableStructure } from './utils/table.js';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmark.js';
+import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmark.js';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svg.js';
-import { ensureUniqueLandmarks } from './utils/landmark.js';
-import { createInPageButton as createButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
-
-// TODO: Add back any required exports that might have been?
-// (This comment remains as-is)
+import { validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
 
 /**
  * Main module functionality
@@ -192,35 +188,6 @@ function renderIndexView() {
   handleFakeLinks();
 }
 
-// Export all functions and values
-// Using a combination of ES Modules and CommonJS exports to satisfy both environments
-export { 
-  MyComponent, 
-  renderIndexView, 
-  hello, 
-  getVersion, 
-  getConfig, 
-  createInPageButton, 
-  addressAccessibilityIssues, 
-  generateAccessibilityReport, 
-  calculateAccessibilityScore 
-};
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    hello,
-    getVersion,
-    getConfig,
-    VERSION: '1.0.0',
-    NAME: 'main',
-    createInPageButton,
-    addressAccessibilityIssues,
-    generateAccessibilityReport,
-    calculateAccessibilityScore,
-    renderIndexView
-  };
-}
-
 // Existing export function from HEAD (preserved)
 export function existingExport() {
   // ... existing code ...
@@ -258,6 +225,35 @@ export function functionA() {
 export function functionB() {
   // Placeholder implementation for functionB
   // Implementation details here
+}
+
+// Export all functions and values
+// Using a combination of ES Modules and CommonJS exports to satisfy both environments
+export { 
+  MyComponent, 
+  renderIndexView, 
+  hello, 
+  getVersion, 
+  getConfig, 
+  createInPageButton, 
+  addressAccessibilityIssues, 
+  generateAccessibilityReport, 
+  calculateAccessibilityScore 
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    hello,
+    getVersion,
+    getConfig,
+    VERSION: '1.0.0',
+    NAME: 'main',
+    createInPageButton,
+    addressAccessibilityIssues,
+    generateAccessibilityReport,
+    calculateAccessibilityScore,
+    renderIndexView
+  };
 }
 
 // Existing tests in /tests/ must continue to pass

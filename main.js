@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: Existing main.js content before the merge conflict...
 
 // Import render functions
 const renderHeader = require('./renderHeader');

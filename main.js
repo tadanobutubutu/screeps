@@ -119,6 +119,24 @@ function getVersion() {
   return VERSION;
 }
 
+/**
+ * Perform a task with the given parameters
+ * @param {string} task - The task to perform
+ */
+function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
+}
+
+/**
+ * Handle an event with the given parameters
+ * @param {string} event - The event to handle
+ */
+function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
+
 // Export existing functionality
 module.exports = {
   initialize,
@@ -128,7 +146,9 @@ module.exports = {
   setupButtonAccessibility,
   createInPageButton,
   renderDependencyGraph,
-  createInPageDepGraphButton
+  createInPageDepGraphButton,
+  performTask,
+  handleEvent
 };
 
 // Add the new function to the default export
@@ -142,7 +162,9 @@ export default {
   setupButtonAccessibility,
   createInPageButton,
   renderDependencyGraph,
-  createInPageDepGraphButton
+  createInPageDepGraphButton,
+  performTask,
+  handleEvent
 };
 
 reportWebVitals();

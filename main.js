@@ -712,6 +712,421 @@ function handleFakeLinks() {
   // ... existing code ...
 }
 
+// Dependency graph storage
+const dependencyGraphStore = {
+  nodes: new Map(),
+  edges: [],
+
+  // Add a module to the graph
+  addModule(moduleName, metadata = {}) {
+    if (!this.nodes.has(moduleName)) {
+      this.nodes.set(moduleName, {
+        name: moduleName,
+        dependencies: [],
+        dependents: [],
+        metadata: {
+          ...metadata,
+          addedAt: Date.now()
+        }
+      });
+    }
+    return this.nodes.get(moduleName);
+  },
+
+  // Add a dependency relationship between two modules
+  addDependency(fromModule, toModule) {
+    if (!this.nodes.has(fromModule)) {
+      this.addModule(fromModule);
+    }
+    if (!this.nodes.has(toModule)) {
+      this.addModule(toModule);
+    }
+
+    const fromNode = this.nodes.get(fromModule);
+    const toNode = this.nodes.get(toModule);
+
+    if (!fromNode.dependencies.includes(toModule)) {
+      fromNode.dependencies.push(toModule);
+    }
+    if (!toNode.dependents.includes(fromModule)) {
+      toNode.dependents.push(fromModule);
+    }
+
+    const edgeKey = `${fromModule}->${toModule}`;
+    if (!this.edges.find(edge => edge.key === edgeKey)) {
+      this.edges.push({ key: edgeKey, from: fromModule, to: toModule });
+    }
+  },
+
+  // Remove a module and all its relationships
+  removeModule(moduleName) {
+    if (!this.nodes.has(moduleName)) return;
+
+    const node = this.nodes.get(moduleName);
+    node.dependencies.forEach(dep => {
+      const depNode = this.nodes.get(dep);
+      if (depNode) {
+        depNode.dependents = depNode.dependents.filter(d => d !== moduleName);
+      }
+    });
+
+    node.dependents.forEach(dep => {
+      const depNode = this.nodes.get(dep);
+      if (depNode) {
+        depNode.dependencies = depNode.dependencies.filter(d => d !== moduleName);
+      }
+    });
+
+    this.edges = this.edges.filter(edge => edge.from !== moduleName && edge.to !== moduleName);
+    this.nodes.delete(moduleName);
+  },
+
+  // Detect circular dependencies
+  detectCircularDependencies() {
+    const visited = new Set();
+    const recursionStack = new Set();
+    const cycles = [];
+
+    const dfs = (moduleName, path = []) => {
+      if (recursionStack.has(moduleName)) {
+        const cycleStart = path.indexOf(moduleName);
+        if (cycleStart !== -1) {
+          cycles.push([...path.slice(cycleStart), moduleName]);
+        }
+        return;
+      }
+
+      if (visited.has(moduleName)) return;
+
+      visited.add(moduleName);
+      recursionStack.add(moduleName);
+
+      const node = this.nodes.get(moduleName);
+      if (node) {
+        node.dependencies.forEach(dep => {
+          dfs(dep, [...path, moduleName]);
+        });
+      }
+
+      recursionStack.delete(moduleName);
+    };
+
+    this.nodes.forEach((_, moduleName) => {
+      if (!visited.has(moduleName)) {
+        dfs(moduleName);
+      }
+    });
+
+    return cycles;
+  },
+
+  // Get topological order of modules
+  getTopologicalOrder() {
+    const inDegree = new Map();
+    const result = [];
+    const queue = [];
+
+    this.nodes.forEach((node, name) => {
+      inDegree.set(name, node.dependents.length);
+    });
+
+    this.nodes.forEach((node, name) => {
+      if (inDegree.get(name) === 0) {
+        queue.push(name);
+      }
+    });
+
+    while (queue.length > 0) {
+      const moduleName = queue.shift();
+      result.push(moduleName);
+
+      const node = this.nodes.get(moduleName);
+      if (node) {
+        node.dependencies.forEach(dep => {
+          const currentDegree = inDegree.get(dep) || 0;
+          inDegree.set(dep, currentDegree - 1);
+          if (inDegree.get(dep) === 0) {
+            queue.push(dep);
+          }
+        });
+      }
+    }
+
+    return result.length === this.nodes.size ? result : null;
+  },
+
+  // Reset the graph
+  reset() {
+    this.nodes.clear();
+    this.edges = [];
+  }
+};
+
+// Render dependency graph as ASCII tree
+function renderDependencyGraph(moduleName, options = {}) {
+  if (!dependencyGraphStore.nodes.has(moduleName)) {
+    return `Module "${moduleName}" not found in dependency graph.`;
+  }
+
+  const { maxDepth = 5, showMetadata = false } = options;
+  const visited = new Set();
+  const lines = [];
+
+  const renderNode = (name, prefix = '', isLast = true, depth = 0) => {
+    if (depth > maxDepth) {
+      lines.push(`${prefix}${isLast ? '└── ' : '├── '}... (max depth reached)`);
+      return;
+    }
+
+    if (visited.has(name)) {
+      lines.push(`${prefix}${isLast ? '└── ' : '├── '}${name} (circular reference)`);
+      return;
+    }
+
+    visited.add(name);
+    const node = dependencyGraphStore.nodes.get(name);
+    const connector = isLast ? '└── ' : '├── ';
+    const childPrefix = prefix + (isLast ? '    ' : '│   ');
+
+    let line = `${prefix}${connector}${name}`;
+    if (showMetadata && node && node.metadata) {
+      const metaKeys = Object.keys(node.metadata).filter(k => k !== 'addedAt');
+      if (metaKeys.length > 0) {
+        const metaStr = metaKeys.map(k => `${k}=${node.metadata[k]}`).join(', ');
+        line += ` [${metaStr}]`;
+      }
+    }
+    lines.push(line);
+
+    if (node && node.dependencies.length > 0) {
+      node.dependencies.forEach((dep, index) => {
+        const isLastChild = index === node.dependencies.length - 1;
+        renderNode(dep, childPrefix, isLastChild, depth + 1);
+      });
+    }
+
+    visited.delete(name);
+  };
+
+  renderNode(moduleName, '', true, 0);
+  return lines.join('\n');
+}
+
+// Render dependency graph as Mermaid diagram
+function renderDependencyGraphMermaid(moduleName, options = {}) {
+  if (!dependencyGraphStore.nodes.has(moduleName)) {
+    return `Module "${moduleName}" not found in dependency graph.`;
+  }
+
+  const { direction = 'TB' } = options;
+  const lines = [`graph ${direction}`];
+  const visited = new Set();
+  const renderedEdges = new Set();
+
+  const renderEdges = (name) => {
+    if (visited.has(name)) return;
+    visited.add(name);
+
+    const node = dependencyGraphStore.nodes.get(name);
+    if (!node) return;
+
+    // Add node definition
+    lines.push(`    ${name}[${name}]`);
+
+    // Add edges
+    node.dependencies.forEach(dep => {
+      const edgeKey = `${name} --> ${dep}`;
+      if (!renderedEdges.has(edgeKey)) {
+        lines.push(`    ${name} --> ${dep}`);
+        renderedEdges.add(edgeKey);
+      }
+      renderEdges(dep);
+    });
+  };
+
+  renderEdges(moduleName);
+  return lines.join('\n');
+}
+
+// Render dependency graph as DOT format (Graphviz)
+function renderDependencyGraphDOT(moduleName, options = {}) {
+  if (!dependencyGraphStore.nodes.has(moduleName)) {
+    return `Module "${moduleName}" not found in dependency graph.`;
+  }
+
+  const { graphName = 'DependencyGraph' } = options;
+  const lines = [`digraph ${graphName} {`];
+  const visited = new Set();
+
+  const renderEdges = (name) => {
+    if (visited.has(name)) return;
+    visited.add(name);
+
+    const node = dependencyGraphStore.nodes.get(name);
+    if (!node) return;
+
+    node.dependencies.forEach(dep => {
+      lines.push(`    "${name}" -> "${dep}";`);
+      renderEdges(dep);
+    });
+  };
+
+  renderEdges(moduleName);
+  lines.push('}');
+  return lines.join('\n');
+}
+
+// Display module structure for debugging
+function displayModuleStructure(format = 'ascii') {
+  if (dependencyGraphStore.nodes.size === 0) {
+    return 'No modules in dependency graph.';
+  }
+
+  const allModules = Array.from(dependencyGraphStore.nodes.keys());
+  const modulesWithDeps = allModules.filter(name => {
+    const node = dependencyGraphStore.nodes.get(name);
+    return node.dependencies.length > 0;
+  });
+
+  const cycles = dependencyGraphStore.detectCircularDependencies();
+  const topoOrder = dependencyGraphStore.getTopologicalOrder();
+
+  const output = {
+    summary: {
+      totalModules: dependencyGraphStore.nodes.size,
+      totalEdges: dependencyGraphStore.edges.length,
+      modulesWithDependencies: modulesWithDeps.length,
+      circularDependencies: cycles.length,
+      hasCircularDependencies: cycles.length > 0,
+      isTopologicallySortable: topoOrder !== null
+    },
+    modules: allModules.map(name => {
+      const node = dependencyGraphStore.nodes.get(name);
+      return {
+        name,
+        dependencies: [...node.dependencies],
+        dependents: [...node.dependents],
+        dependencyCount: node.dependencies.length,
+        dependentCount: node.dependents.length,
+        metadata: { ...node.metadata }
+      };
+    }),
+    circularDependencies: cycles,
+    topologicalOrder: topoOrder,
+    format
+  };
+
+  if (format === 'json') {
+    return JSON.stringify(output, null, 2);
+  }
+
+  if (format === 'mermaid') {
+    const lines = ['graph TD'];
+    const renderedEdges = new Set();
+    dependencyGraphStore.edges.forEach(edge => {
+      const edgeStr = `    ${edge.from} --> ${edge.to}`;
+      if (!renderedEdges.has(edgeStr)) {
+        lines.push(edgeStr);
+        renderedEdges.add(edgeStr);
+      }
+    });
+    return lines.join('\n');
+  }
+
+  if (format === 'dot') {
+    const lines = ['digraph ModuleStructure {'];
+    dependencyGraphStore.edges.forEach(edge => {
+      lines.push(`    "${edge.from}" -> "${edge.to}";`);
+    });
+    lines.push('}');
+    return lines.join('\n');
+  }
+
+  // ASCII format (default)
+  const lines = [];
+  lines.push('=== Module Structure ===');
+  lines.push(`Total Modules: ${output.summary.totalModules}`);
+  lines.push(`Total Dependencies: ${output.summary.totalEdges}`);
+  lines.push(`Modules with Dependencies: ${output.summary.modulesWithDependencies}`);
+  lines.push(`Circular Dependencies: ${output.summary.circularDependencies}`);
+  lines.push(`Topologically Sortable: ${output.summary.isTopologicallySortable}`);
+  lines.push('');
+
+  if (cycles.length > 0) {
+    lines.push('Circular Dependencies Detected:');
+    cycles.forEach((cycle, index) => {
+      lines.push(`  Cycle ${index + 1}: ${cycle.join(' -> ')}`);
+    });
+    lines.push('');
+  }
+
+  lines.push('Modules:');
+  output.modules.forEach(module => {
+    lines.push(`  ${module.name} (deps: ${module.dependencyCount}, dependents: ${module.dependentCount})`);
+    if (module.dependencies.length > 0) {
+      lines.push(`    Depends on: ${module.dependencies.join(', ')}`);
+    }
+    if (module.dependents.length > 0) {
+      lines.push(`    Used by: ${module.dependents.join(', ')}`);
+    }
+  });
+
+  if (topoOrder) {
+    lines.push('');
+    lines.push('Topological Order:');
+    lines.push(`  ${topoOrder.join(' -> ')}`);
+  }
+
+  return lines.join('\n');
+}
+
+// Get module dependency information
+function getModuleDependencies(moduleName) {
+  if (!dependencyGraphStore.nodes.has(moduleName)) {
+    return null;
+  }
+
+  const node = dependencyGraphStore.nodes.get(moduleName);
+  return {
+    name: moduleName,
+    dependencies: [...node.dependencies],
+    dependents: [...node.dependents],
+    metadata: { ...node.metadata }
+  };
+}
+
+// Get all dependents (reverse lookup) for a module
+function getModuleDependents(moduleName) {
+  if (!dependencyGraphStore.nodes.has(moduleName)) {
+    return [];
+  }
+  return [...dependencyGraphStore.nodes.get(moduleName).dependents];
+}
+
+// Build dependency graph from a modules object
+function buildDependencyGraphFromModules(modules) {
+  if (!modules || typeof modules !== 'object') return;
+
+  dependencyGraphStore.reset();
+
+  Object.keys(modules).forEach(moduleName => {
+    const module = modules[moduleName];
+    const metadata = {
+      ...(module.metadata || {})
+    };
+    dependencyGraphStore.addModule(moduleName, metadata);
+
+    if (Array.isArray(module.dependencies)) {
+      module.dependencies.forEach(dep => {
+        dependencyGraphStore.addDependency(moduleName, dep);
+      });
+    }
+  });
+}
+
+// Export dependency graph functions
+export { dependencyGraphStore, renderDependencyGraph, renderDependencyGraphMermaid, renderDependencyGraphDOT, displayModuleStructure, getModuleDependencies, getModuleDependents, buildDependencyGraphFromModules };
+
 // Export for module usage
 export { a11yStore };
 export { addressAccessibilityIssues };
@@ -729,5 +1144,13 @@ module.exports = {
   dependencyGraph,
   isLinkAccessible,
   isLinkAccessibleSync,
-  a11yStore
+  a11yStore,
+  dependencyGraphStore,
+  renderDependencyGraph,
+  renderDependencyGraphMermaid,
+  renderDependencyGraphDOT,
+  displayModuleStructure,
+  getModuleDependencies,
+  getModuleDependents,
+  buildDependencyGraphFromModules
 };

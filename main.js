@@ -85,14 +85,22 @@ function addLandmarkRegion(landmark) {
 
 function getLandmarkRegions() {
   // Existing function preserved
+  return [...landmarkRegions];
 }
 
-function getLandmarkRegionById(id) {
+function getLandmarkRegionsByRole(role) {
   // Existing function preserved
+  return landmarkRegions.filter(region => region.role === role);
 }
 
 function removeLandmarkRegion(id) {
   // Existing function preserved
+  const index = landmarkRegions.findIndex(region => region.id === id);
+  if (index !== -1) {
+    landmarkRegions.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
 // The following functions and variables were added, amalgamating code from both branches:
@@ -137,15 +145,16 @@ export {
   greet,
   existingFunction,
   newAccessibleFunction,
-  addLandmarkRegionToElement,
   validateLandmark,
   isLatitudeValid,
   isLongitudeValid,
   addLandmarkRegion,
+  addLandmarkRegionToElement,
   getLandmarkRegions,
-  getLandmarkRegionById,
+  getLandmarkRegionsByRole,
   removeLandmarkRegion,
   addLandmark,
   getLandmarks,
-  removeLandmark
+  removeLandmark,
+  landmarkRegions
 };

@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Ensure the function name is descriptive
+function myNewFunction(params) {
+  // Implement the function's functionality here
+}

@@ -504,7 +504,6 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  // TODO: Implement this function
   implementMissingExport: function () {
     // Implementation of the missing export function
     // Performs a final accessibility compliance check and returns status

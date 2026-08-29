@@ -14,7 +14,7 @@ function renderDependencyGraphContent(data) {
 }
 
 // Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksLocal() {
   // Example implementation from origin/main - adapted for Screeps environment
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   landmarks.forEach(landmark => {

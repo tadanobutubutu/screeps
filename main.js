@@ -3,6 +3,10 @@ function rotateBack() {
   console.log('Rotating back...');
 }
 
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
 // Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
 function addressAccessibilityIssues() {
   document.documentElement.setAttribute('lang', 'en');

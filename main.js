@@ -257,7 +257,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: [ADDRESS],
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -268,6 +268,73 @@ function countDependencies() {
       total: 0
     };
   }
+}
+
+// Add lang attribute to HTML element (REACT_015)
+function addLangAttribute(lang = 'en') {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang);
+    }
+}
+
+// Fix landmark issues (REACT_017)
+function fixLandmarkIssues() {
+    if (typeof document === 'undefined' || !document.body) return;
+    const body = document.body;
+    
+    const header = body.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+        header.setAttribute('role', 'banner');
+    }
+    
+    const nav = body.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+    }
+    
+    const main = body.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+        main.setAttribute('role', 'main');
+    }
+    
+    const footer = body.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+        footer.setAttribute('role', 'contentinfo');
+    }
+}
+
+// Ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks() {
+    if (typeof document === 'undefined' || !document.body) return;
+    
+    const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo'];
+    
+    landmarkRoles.forEach(role => {
+        const elements = document.body.querySelectorAll(`[role="${role}"]`);
+        if (elements.length > 1) {
+            for (let i = 1; i < elements.length; i++) {
+                elements[i].removeAttribute('role');
+            }
+        }
+    });
+}
+
+// Fix fake link issues (REACT_036)
+function fixFakeLinks() {
+    if (typeof document === 'undefined' || !document.body) return;
+    
+    const fakeLinks = document.body.querySelectorAll('[onclick]:not(a), [role="link"]:not(a)');
+    
+    fakeLinks.forEach(el => {
+        el.setAttribute('role', 'link');
+        el.setAttribute('tabindex', '0');
+        el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                el.click();
+            }
+        });
+    });
 }
 
 // Export for testing and external use
@@ -284,5 +351,9 @@ module.exports = {
     countDependencies,
     someFunction,
     getLangAttribute,
-    getFullLangAttribute
+    getFullLangAttribute,
+    addLangAttribute,
+    fixLandmarkIssues,
+    ensureUniqueLandmarks,
+    fixFakeLinks
 };

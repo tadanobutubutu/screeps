@@ -6,8 +6,7 @@ const existingFunction = () => {
 // Exporting existing functions
 export { existingFunction };
 
-// TODO: Address accessibility issues from insight report:
-// Placeholder for new code or changes to address accessibility issues
+// TODO: Address accessibility issues from insight report — FIXED
 
 // New function to address accessibility issues
 const newAccessibleFunction = () => {

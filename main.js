@@ -19,7 +19,7 @@ function improveAccessibility() {
 }
 
 // Function to ensure unique landmarks
-function ensureUniqueLandmarks() {
+function ensureUniqueLandmarksLocal() {
   // This function ensures unique landmark roles and removes duplicates
   // Adapted for Screeps environment
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
@@ -182,6 +182,10 @@ function ensureUniqueLandmarkRoles() {
 
 // Export all functions for use elsewhere in the repository
 module.exports = {
+  someFunction,
+  renderDependencyGraphContent,
+  ensureUniqueLandmarks,
+  addProperLandmarkRegions,
   improveAccessibility,
   addressInsightIssues,
   addressREACT017,
@@ -190,9 +194,8 @@ module.exports = {
   renderIndexView,
   calculateSum,
   ensureUniqueLandmarkRoles,
-  ensureUniqueLandmarks,
+  ensureUniqueLandmarksLocal,
   addLandmarkRoles,
   addLandmarkRolesAndFixIssues,
-  addProperLandmarkRegions,
   ensureLandmarkUniqueness
 };

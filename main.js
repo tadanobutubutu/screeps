@@ -1,18 +1,18 @@
-const { add } = require('./mathHelpers');
-const { subtract } = require('./mathHelpers');
-const { multiply } = require('./mathHelpers');
-const { divide } = require('./mathHelpers');
-const { power } = require('./mathHelpers');
-const { squareRoot } = require('./mathHelpers');
-const { factorial } = require('./mathHelpers');
-const { fibonacci } = require('./mathHelpers');
-const { sum } = require('./mathHelpers');
-const { average } = require('./mathHelpers');
-const { max } = require('./mathHelpers');
-const { min } = require('./mathHelpers');
-const { mode } = require('./mathHelpers');
-const { median } = require('./mathHelpers');
-const { class1, function1, Object1 } = require('./path/to/module');
+const { add } = require('./mathUtils');
+const { subtract } = require('./mathUtils');
+const { multiply } = require('./mathUtils');
+const { divide } = require('./mathUtils');
+const { power } = require('./mathUtils');
+const { squareRoot } = require('./mathUtils');
+const { factorial } = require('./mathUtils');
+const { fibonacci } = require('./mathUtils');
+const { sum } = require('./mathUtils');
+const { average } = require('./mathUtils');
+const { max } = require('./mathUtils');
+const { min } = require('./mathUtils');
+const { mode } = require('./mathUtils');
+const { median } = require('./mathUtils');
+const { class1, function1, Object1 } = require('./utils');
 
 // New function that needs to be preserved in the exports
 const newFunction = () => {
@@ -34,7 +34,7 @@ const newFunction2 = () => { /* ... */ };
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
 
-function addLangAttribute(document, lang = 'en') {
+function addLangAttribute(lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
     htmlElement.lang = lang;
@@ -102,7 +102,7 @@ function getRecommendation(issueType) {
  */
 function fixSVGAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
-  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('aria-describedby')) {
+  if (!svgString || svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('role="img"')) {
     return svgString;
   }
   
@@ -111,7 +111,7 @@ function fixSVGAccessibleName(svgString) {
   const svgRoot = tempSVG.documentElement;
   
   // Check if the SVG is decorative and does not need an accessible name
-  const isDecorative = !svgRoot.querySelector('a, button, input, textarea, select, audio[controls], video[controls]');
+  const isDecorative = svgRoot.closest('button, input, textarea, select, audio[controls], video[controls]');
   if (isDecorative) {
     return svgString.replace('<svg', '<svg aria-hidden="true"');
   }

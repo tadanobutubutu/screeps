@@ -223,6 +223,9 @@ function checkLandmarkElements() {
 // Run the function to check landmark elements
 checkLandmarkElements();
 
+// TODO: Update the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+
 // Preserve the existing exports and add new functions
 module.exports = {
   main,

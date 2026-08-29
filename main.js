@@ -209,6 +209,31 @@ function personName() {
   // ...
 }
 
+// Function for handling credential responses
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse) {
+    return null;
+  }
+
+  const result = {
+    id: credentialResponse.id || null,
+    type: credentialResponse.type || 'unknown',
+    rawData: credentialResponse,
+    processed: true,
+    timestamp: Date.now()
+  };
+
+  if (credentialResponse.data) {
+    result.credentialData = processData([credentialResponse.data])[0] || null;
+  }
+
+  if (credentialResponse.metadata) {
+    result.metadata = transformInputData(credentialResponse.metadata);
+  }
+
+  return result;
+}
+
 // Export all functions
 module.exports = {
   CONFIG,
@@ -240,5 +265,6 @@ module.exports = {
   implementAccessibilityFixesFromReport,
   renderDependencyGraph,
   fixSvgDataUriAccessibility,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  handleCredentialResponse
 };

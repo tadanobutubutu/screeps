@@ -36,7 +36,7 @@ function checkLinkAndButtonAccessibility(container) {
   });
 
   // Check buttons for accessibility
-  const buttons = container.querySelectorAll('button, [role="button"]');
+  const buttons = container.querySelectorAll('[role="button"], button');
   buttons.forEach((button, index) => {
     const text = button.textContent.trim();
     const ariaLabel = button.getAttribute('aria-label');

@@ -12,9 +12,21 @@ module.exports.manageRoom = function (room) {
 
 module.exports.calculateSum = function(a, b) { return a + b; };
 
+module.exports.ensureUniqueLandmarks = function (landmarks) {
+  const seen = new Set();
+  for (const landmark of landmarks) {
+    if (seen.has(landmark)) {
+      throw new Error(`Duplicate landmark detected: ${landmark}`);
+    }
+    seen.add(landmark);
+  }
+  return true;
+};
+
 module.exports = {
   loop: module.exports.loop,
   runCreep: module.exports.runCreep,
   manageRoom: module.exports.manageRoom,
-  calculateSum: module.exports.calculateSum
+  calculateSum: module.exports.calculateSum,
+  ensureUniqueLandmarks: module.exports.ensureUniqueLandmarks
 };

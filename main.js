@@ -1,35 +1,25 @@
-const { add } = require('./mathHelpers');
-const { subtract } = require('./mathHelpers');
-const { multiply } = require('./mathHelpers');
-const { divide } = require('./mathHelpers');
-const { power } = require('./mathHelpers');
-const { squareRoot } = require('./mathHelpers');
-const { factorial } = require('./mathHelpers');
-const { fibonacci } = require('./mathHelpers');
-const { sum } = require('./mathHelpers');
-const { average } = require('./mathHelpers');
-const { max } = require('./mathHelpers');
-const { min } = require('./mathHelpers');
-const { mode } = require('./mathHelpers');
-const { median } = require('./mathHelpers');
+const { add } = require('./math/add');
+const { subtract } = require('./math/subtract');
+const { multiply } = require('./math/multiply');
+const { divide } = require('./math/divide');
+const { power } = require('./math/power');
+const { squareRoot } = require('./math/squareRoot');
+const { factorial } = require('./math/factorial');
+const { fibonacci } = require('./math/fibonacci');
+const { sum } = require('./math/sum');
+const { average } = require('./math/average');
+const { max } = require('./math/max');
+const { min } = require('./math/min');
+const { mode } = require('./math/mode');
+const { median } = require('./math/median');
 
 import { class1, function1, Object1 } from './path/to/module';
 
-// TODO: Add necessary exports for new functions
+// New functions for rendering graph/index
 const newFunction1 = () => { /* ... */ };
 const newFunction2 = () => { /* ... */ };
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 4 landmark issues (DONE: fixLandmarkIssues, addMainLandmark, addLandmarkRegions)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks, uniqueLandmarks)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames, addAccessibleNamesToSVGs)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue, fixFakeLinkIssues)
-// - REACT_037: Google sign-in logic (DONE: googleSignIn)
-// - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...)
-
+// Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
@@ -47,7 +37,7 @@ function fixTableStructure(document) {
     // Ensure tables have proper structure with thead and tbody
     const existingThead = table.querySelector('thead');
     const existingTbody = table.querySelector('tbody');
-    const rows = table.querySelectorAll('tr');
+    const rows = Array.from(table.querySelectorAll('tr'));
     
     if (rows.length > 0 && !existingThead) {
       const firstRow = rows[0];
@@ -58,10 +48,12 @@ function fixTableStructure(document) {
     }
     
     if (!existingTbody) {
-      const remainingRows = rows.length > 0 ? Array.from(rows).slice(0) : [];
+      const remainingRows = rows.length > 0 ? rows.slice(1) : [];
       if (remainingRows.length > 0) {
         const tbody = document.createElement('tbody');
-        remainingRows.forEach(row => tbody.appendChild(row));
+        remainingRows.forEach(row => {
+          tbody.appendChild(row);
+        });
         table.appendChild(tbody);
         fixedCount++;
       }
@@ -70,7 +62,7 @@ function fixTableStructure(document) {
     // Ensure proper header cells (th) are used
     const allRows = table.querySelectorAll('tr');
     allRows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('td');
       if (cells.length > 0) {
         // If first cell should be a header
         if (row.parentElement.tagName === 'THEAD' && cells.length > 0) {
@@ -94,7 +86,7 @@ function addMainLandmark(document) {
   if (!mainElement) {
     // Find the main content area and wrap it or create main element
     const body = document.body;
-    const main = document.getElementById('main-content');
+    const main = document.createElement('main');
     if (main) {
       main.setAttribute('id', 'main-content');
     }
@@ -141,13 +133,111 @@ function uniqueLandmarks(document) {
     const elements = document.querySelectorAll(selector);
     if (elements.length > 1) {
       let index = 1;
-      elements
+      elements.forEach((element) => {
+        if (index > 1) {
+          const currentLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby');
+          if (!currentLabel) {
+            element.setAttribute('aria-label', `${name}-${index}`);
+          }
+        }
+        index++;
+      });
     }
   });
+}
+
+// Function to render graph/index using newFunction1 and newFunction2
+// TODO: Update the existing function using the new functions for rendering graph/index
+function renderGraphIndex(container, options = {}) {
+  const {
+    type = 'default',
+    data = [],
+    width = 600,
+    height = 400,
+    useNewFunctions = true
+  } = options;
+
+  // Use newFunction1 and newFunction2 for rendering
+  if (useNewFunctions) {
+    const preparedData = newFunction1(data);
+    const formattedOutput = newFunction2(preparedData);
+    
+    // Create container element
+    const graphContainer = document.createElement('div');
+    graphContainer.className = 'graph-index-container';
+    graphContainer.style.width = `${width}px`;
+    graphContainer.style.height = `${height}px`;
+    
+    // Add formatted output to container
+    if (formattedOutput) {
+      const outputElement = document.createElement('div');
+      outputElement.className = 'graph-output';
+      outputElement.innerHTML = formattedOutput;
+      graphContainer.appendChild(outputElement);
+    }
+    
+    // Append to provided container
+    if (container) {
+      container.appendChild(graphContainer);
+    }
+    
+    return graphContainer;
+  }
+  
+  // Fallback to basic rendering if new functions not enabled
+  const basicContainer = document.createElement('div');
+  basicContainer.className = 'basic-graph-container';
+  basicContainer.innerHTML = '<p>Basic graph rendering</p>';
+  
+  if (container) {
+    container.appendChild(basicContainer);
+  }
+  
+  return basicContainer;
+}
+
+// Function to render index page
+function renderIndex(container, options = {}) {
+  const {
+    title = 'Index',
+    items = [],
+    useNewFunctions = true
+  } = options;
+
+  if (useNewFunctions) {
+    // Use newFunction1 for preparing index data
+    const preparedItems = newFunction1(items);
+    // Use newFunction2 for formatting index output
+    const formattedItems = newFunction2(preparedItems);
+    
+    const indexContainer = document.createElement('div');
+    indexContainer.className = 'index-container';
+    indexContainer.innerHTML = `
+      <h1>${title}</h1>
+      <div class="index-items">${formattedItems || ''}</div>
+    `;
+    
+    if (container) {
+      container.appendChild(indexContainer);
+    }
+    
+    return indexContainer;
+  }
+  
+  // Fallback
+  const basicIndex = document.createElement('div');
+  basicIndex.innerHTML = `<h1>${title}</h1>`;
+  
+  if (container) {
+    container.appendChild(basicIndex);
+  }
+  
+  return basicIndex;
 }
 
 module.exports = {
     add, subtract, multiply, divide, power, squareRoot, factorial, fibonacci, sum, average, max, min, mode, median,
     newFunction1, newFunction2,
-    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks
+    addLangAttribute, fixTableStructure, addMainLandmark, uniqueLandmarks,
+    renderGraphIndex, renderIndex
 };

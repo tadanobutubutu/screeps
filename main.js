@@ -177,7 +177,7 @@ export function ensureUniqueLandmarks(html) {
   // Count occurrences of <main> opening tags in the original-like state and
   // match closing tags. Since we replaced extra <main> with <section>, we must
   // replace the corresponding extra </main> closing tags with </section>.
-  const mainOpenCount = (html.match(/<main\b/gi) || []).length;
+  const mainOpenCount = (html.match(/<main\\b/gi) || []).length;
   const mainCloseCount = (html.match(/<\/main>/gi) || []).length;
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;
@@ -217,6 +217,4 @@ export function ensureUniqueLandmarks(html) {
 // Don't forget to export new functions if necessary
 export { addProperLandmarkRegions };
 
-// existing code... (use the conflict markers to identify and preserve it)
-```
-In this case, I chose to preserve both changes. I kept the existing code, imported the `newFunction` and `newVar` functions, and added the `addProperLandmarkRegions` function. This way, both sets of added code are included, and the script should continue to work as intended for both branches. However, I strongly recommend checking if the `newFunction` and `newVar` are truly needed and non-redundant, as it's not clear from the provided context. If any of these are redundant or cause issues, they should be re-evaluated or removed.
+// existing code...

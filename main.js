@@ -133,12 +133,38 @@ function renderDependencyGraphContent(data) {
   }
 }
 
+// New rendering functions for graph/index (to be used by existing functions)
+function renderGraphContentWithOptions(data, options = {}) {
+  console.log('Rendering graph content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    renderDependencyGraphContent(data);
+  }
+}
+
+function renderIndexContentWithOptions(data, options = {}) {
+  console.log('Rendering index content with options:', { data, options });
+  if (options.container) {
+    options.container.innerHTML = data;
+  } else {
+    // Default rendering behavior for index
+    const container = document.querySelector('.index-content, [data-index-content]');
+    if (container) {
+      container.innerHTML = data;
+    }
+  }
+}
+
+// Updated function for rendering dependency graph using new render function
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
+  renderGraphContentWithOptions(dependencyData, { container: document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') });
 }
 
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
 }
 
 function calculateSum(a, b) {
@@ -293,6 +319,8 @@ module.exports = {
   main,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
+  renderGraphContentWithOptions,
+  renderIndexContentWithOptions,
   fixUniqueLandmarks,
   capitalizeFirstLetter
 };

@@ -294,5 +294,9 @@ module.exports = {
   a11yStore,
   addressAccessibilityIssues,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
-  createInPageButton: a11yStore.createInPageButton.bind(a11yStore)
+  createInPageButton: a11yStore.createInPageButton.bind(a11yStore),
+  updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
+  checkLandmarkElements: a11yStore.checkLandmarkElements.bind(a11yStore),
+  addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore),
+  preserveExistingCode: a11yStore.preserveExistingCode.bind(a11yStore)
 };

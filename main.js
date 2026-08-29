@@ -59,7 +59,7 @@ function getRecommendation(issueType) {
  */
 function fixSVGAccessibleName(svgString) {
   // Check if the SVG string already contains an accessible name
-  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('aria-describedby')) {
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('title>')) {
     return svgString;
   }
   
@@ -68,7 +68,7 @@ function fixSVGAccessibleName(svgString) {
   const svgRoot = tempSVG.documentElement;
   
   // Check if the SVG is decorative and does not need an accessible name
-  const isDecorative = !svgRoot.querySelector('a, button, input, textarea, select, audio[controls], video[controls]');
+  const isDecorative = svgRoot.closest('button, input, textarea, select, audio[controls], video[controls]');
   if (isDecorative) {
     return svgString.replace('<svg', '<svg aria-hidden="true"');
   }

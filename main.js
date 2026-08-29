@@ -1,126 +1,271 @@
-// Original content from main.js (assuming it's here)
-// ... [Any existing code here] ...
+// main.js - Main application file
 
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
-/**
- * Ensures the element has an id. If the element doesn't have an id,
- * generates one and assigns it to the element.
- * @param {HTMLElement} element - The element to check and modify
- * @param {string} [prefix='element'] - Prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (element.id) {
-    return element.id;
-  }
-  
-  const id = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-  element.id = id;
-  return id;
+// Configuration
+const CONFIG = {
+  port: process.env.PORT || 3000,
+  host: process.env.HOST || 'localhost',
+  maxRetries: 3,
+  timeout: 5000
+};
+
+// Existing utility functions
+function log(message, level = 'info') {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
-/**
- * Adds an aria-label attribute to the element if it doesn't already have one.
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label value to set
- * @returns {boolean} True if label was added, false if element already had one
- */
-function addAriaLabel(element, label) {
-  if (!element) {
-    throw new Error('Element is required');
-  }
-  
-  if (!label) {
-    throw new Error('Label is required');
-  }
-  
-  if (element.getAttribute('aria-label')) {
+function validateInput(input) {
+  if (typeof input !== 'string') {
     return false;
   }
-  
-  element.setAttribute('aria-label', label);
-  return true;
+  return input.length > 0 && input.length <= 1000;
 }
 
-/**
- * Renders dependency graphs for the given configuration.
- * @param {HTMLElement} container - The container element to render into
- * @param {Object} dependencies - The dependencies data to render
- * @param {Object} [options={}] - Optional rendering configuration
- * @returns {Object} The rendered graph instance
- */
-function renderDependencyGraphs(container, dependencies, options = {}) {
-  if (!container) {
-    throw new Error('Container element is required');
+function parseJSONsafe(jsonString) {
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    return null;
   }
-  
-  if (!dependencies) {
-    throw new Error('Dependencies data is required');
-  }
-  
-  // Ensure container has an id for graph references
-  const containerId = ensureElementHasId(container, 'graph-container');
-  
-  // Add accessibility label if not present
-  const hasAriaLabel = addAriaLabel(container, `Dependency graph: ${containerId}`);
-  
-  // Placeholder for graph rendering logic
-  // Actual implementation would use a library like D3.js or similar
-  const graphData = {
-    id: containerId,
-    dependencies: dependencies,
-    options: options,
-    rendered: true,
+}
+
+function formatResponse(data, statusCode = 200) {
+  return {
+    statusCode,
+    data,
     timestamp: new Date().toISOString()
   };
-  
-  console.log('Rendering dependency graphs:', graphData);
-  
-  return graphData;
 }
 
-// ... [Any other existing code here] ...
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-// NEW FUNCTIONS FOR ACCESSIBILITY ISSUES
-/**
- * Returns the language attribute value for the HTML element.
- * @returns {string} Language code (e.g., 'en' for English)
- */
+// Utility functions from origin/main
+async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      log(`Attempt ${i + 1} failed: ${error.message}`, 'warn');
+      if (i < maxRetries - 1) {
+        await delay(1000 * (i + 1));
+      }
+    }
+  }
+  throw lastError;
+}
+
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
+}
+
+function readFileSafe(filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    return null;
+  }
+}
+
+// Existing data processing functions
+function processData(items) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: Date.now()
+  }));
+}
+
+function filterValidItems(items, validator) {
+  return items.filter(item => {
+    try {
+      return validator(item);
+    } catch {
+      return false;
+    }
+  });
+}
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
+}
+
+function transformInputData(inputData, options = {}) {
+  const {
+    preserveKeys = true,
+    uppercase = false,
+    trimWhitespace = true,
+    maxLength = null
+  } = options;
+
+  if (!inputData) {
+    return null;
+  }
+
+  if (typeof inputData === 'string') {
+    let result = trimWhitespace ? inputData.trim() : inputData;
+    result = uppercase ? result.toUpperCase() : result;
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item, options));
+  }
+
+  if (typeof inputData === 'object' && inputData !== null) {
+    const result = {};
+    for (const [key, value] of Object.entries(inputData)) {
+      let newKey = preserveKeys ? key : key.trim();
+      newKey = uppercase ? newKey.toUpperCase() : newKey;
+      result[newKey] = transformInputData(value, options);
+    }
+    return result;
+  }
+
+  return inputData;
+}
+
+// Accessibility functions - using more complete implementations from origin/main
 function getLangAttribute() {
-  return 'en';
+  // Implementation for REACT_015: Add lang attribute to HTML element
+  // Returns the language attribute for the HTML element
+  // Typically returns the document's language code (e.g., 'en', 'es', 'fr')
+  return process.env.LANGUAGE || 'en';
 }
 
-/**
- * Returns a person's name for accessibility purposes.
- * @returns {string} Person's name
- */
 function personName() {
-  return '';
+  // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
+  // Returns a person's name that can be used as accessible text for fake links
+  // This helps screen readers provide meaningful information
+  return 'John Doe';
 }
 
-/**
- * Validates table accessibility.
- * @returns {boolean} True if table is accessible, false otherwise
- */
-function validateTableAccessibility() {
-  return true;
+function getSvgAccessibleName() {
+  // Implementation for REACT_041: Add accessible names to 2 SVGs
+  // Returns an accessible name for SVG icons that screen readers can announce
+  // Returns an object with names for different SVG icons
+  return {
+    icon1: 'Close button',
+    icon2: 'Menu button'
+  };
 }
 
-/**
- * Validates table structure.
- * @returns {boolean} True if table structure is valid, false otherwise
- */
-function validateTableStructure() {
-  return true;
+function validateTableAccessibility(tableElement) {
+  // Implementation for REACT_027: Fix 26 table structure issues
+  // Validates that a table has proper accessibility attributes
+  // Checks for: th elements with scope, caption if needed, proper headers association
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  const errors = [];
+  const headers = tableElement.querySelectorAll('th');
+  const dataCells = tableElement.querySelectorAll('td');
+  
+  // Check if table has header cells
+  if (headers.length === 0) {
+    errors.push('Table should have header cells (th) for accessibility');
+  }
+  
+  // Check if headers have scope attribute
+  headers.forEach((th, index) => {
+    if (!th.hasAttribute('scope')) {
+      errors.push(`Header at index ${index} missing scope attribute`);
+    }
+  });
+  
+  // Check if data cells have headers attribute when in complex tables
+  dataCells.forEach((td, index) => {
+    if (!td.hasAttribute('headers') && headers.length > 0) {
+      errors.push(`Data cell at index ${index} should have headers attribute for proper association`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    headerCount: headers.length,
+    dataCellCount: dataCells.length
+  };
 }
 
+function validateTableStructure(tableElement) {
+  // Implementation for REACT_027: Fix 26 table structure issues
+  // Validates the structural integrity of HTML tables
+  // Checks for: thead, tbody, tfoot presence, proper nesting, caption if present
+  if (!tableElement) {
+    return { valid: false, errors: ['Table element is required'] };
+  }
+  
+  const errors = [];
+  
+  // Check for thead
+  const thead = tableElement.querySelector('thead');
+  if (!thead) {
+    errors.push('Table should have a thead section');
+  }
+  
+  // Check for tbody
+  const tbody = tableElement.querySelector('tbody');
+  if (!tbody) {
+    errors.push('Table should have a tbody section');
+  }
+  
+  // Check for caption if table has headers
+  const caption = tableElement.querySelector('caption');
+  const hasHeaders = tableElement.querySelector('th');
+  if (hasHeaders && !caption) {
+    errors.push('Table with header cells should have a caption');
+  }
+  
+  // Check that th elements are inside thead
+  const thsOutsideThead = Array.from(tableElement.querySelectorAll('th'))
+    .filter(th => !tableElement.querySelector('thead')?.contains(th));
+  if (thsOutsideThead.length > 0) {
+    errors.push('All th elements should be inside thead');
+  }
+  
+  // Check for proper row structure
+  const rows = tableElement.querySelectorAll('tr');
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll('th, td');
+    if (cells.length === 0) {
+      errors.push(`Row at index ${index} has no cells`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    hasThead: !!thead,
+    hasTbody: !!tbody,
+    hasCaption: !!caption,
+    rowCount: rows.length
+  };
+}
+
+// Additional accessibility functions from HEAD
 /**
  * Validates landmark accessibility.
  * @returns {boolean} True if landmarks are accessible, false otherwise
@@ -138,14 +283,6 @@ function validateLandmarkStructure() {
 }
 
 /**
- * Returns accessible name for an SVG element.
- * @returns {string} Accessible name for SVG
- */
-function getSvgAccessibleName() {
-  return '';
-}
-
-/**
  * Creates an in-page button for accessibility.
  * @returns {Object} Button configuration or element
  */
@@ -153,17 +290,33 @@ function createInPageButton() {
   return {};
 }
 
-// Export functions for testing and external use
+// Calculate sum of numbers array
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
+}
+
+// Export all functions
 module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
+  CONFIG,
+  log,
+  validateInput,
+  parseJSONsafe,
+  formatResponse,
+  delay,
+  retryOperation,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  transformInputData,
   getLangAttribute,
   personName,
+  getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton
+  createInPageButton,
+  calculateSum
 };

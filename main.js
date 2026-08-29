@@ -126,21 +126,34 @@ function addMainLandmark() {
   }
 }
 
+// New function to get accessible name for an SVG
+function getSvgAccessibleName(svg) {
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  const id = svg.id || '';
+  if (id) return `SVG with id ${id}`;
+  return '';
+}
+
+// New function to set accessible attributes on an SVG
+function setSvgAttributes(svg, name) {
+  if (!svg.hasAttribute('aria-label')) {
+    svg.setAttribute('aria-label', name);
+  }
+  let title = svg.querySelector('title');
+  if (!title) {
+    title = document.createElement('title');
+    svg.insertBefore(title, svg.firstChild);
+  }
+  title.textContent = name;
+}
+
 // Accessibility function to add accessible names to SVGs
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg:not([aria-label])');
   svgs.forEach((svg, index) => {
-    const titleId = `svg-title-${index}`;
-    let title = svg.querySelector('title');
-    if (!title) {
-      title = document.createElement('title');
-      title.id = titleId;
-      title.textContent = `SVG graphic ${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-    if (!svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-labelledby', title.id || titleId);
-    }
+    const name = getSvgAccessibleName(svg) || `SVG graphic ${index + 1}`;
+    setSvgAttributes(svg, name);
   });
 }
 

@@ -28,6 +28,23 @@ function checkTableData(tableData, requiredColumns) {
     };
 }
 
+/**
+ * Calculates the sum of an array of numbers
+ * @param {Array<number>} numbers - Array of numbers to sum
+ * @returns {number} - The sum of all numbers
+ */
+function calculateSum(numbers) {
+    if (!Array.isArray(numbers)) {
+        throw new TypeError('Input must be an array');
+    }
+    return numbers.reduce((sum, num) => {
+        if (typeof num !== 'number' || isNaN(num)) {
+            throw new TypeError('All elements must be valid numbers');
+        }
+        return sum + num;
+    }, 0);
+}
+
 // Implement validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -261,6 +278,7 @@ module.exports = {
   loop,
   validateLandmark,
   checkTableData,
+  calculateSum,
   initialize,
   getAppState,
   setData,

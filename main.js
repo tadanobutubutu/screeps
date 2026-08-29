@@ -297,7 +297,7 @@ function validateLandmark(element) {
 
 /**
  * Validate landmark structure in document
- * @param { Document } doc - The document object to validate
+ * @param { Document } doc - The document object to operate on
  * @returns { Array } Array of validation results */
 function validateLandmarkStructure(doc) {
   const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
@@ -320,7 +320,7 @@ function validateTableAccessibility(table) {
 
 /**
  * Validate table structure
- * @param { Document } doc - The document object to validate
+ * @param { Document } doc - The document object to operate on
  * @returns { Array } Array of validation results */
 function validateTableStructure(doc) {
   const tables = doc.querySelectorAll('table');

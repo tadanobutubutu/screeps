@@ -9,7 +9,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-helpers');
 
 const fs = require('fs');
 const path = require('path');
@@ -24,7 +24,14 @@ function run() {
     .filter(file => file.endsWith('.html'))
     .forEach(file => {
       const filePath = path.join(viewsDir, file);
-      updateThScopeAttribute(filePath);
+      let content = fs.readFileSync(filePath, 'utf8');
+      
+      // Apply accessibility fixes
+      content = getFullLangAttribute(content);
+      content = validateTableAccessibility(content);
+      content = validateLandmarkStructure(content);
+      
+      fs.writeFileSync(filePath, content);
     });
 }
 
@@ -77,13 +84,13 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
         if (!Array.isArray(expectedColumns)) {
             result.isValid = false;
-            result.errors.push('expectedColumns must be an array');
+            result.errors.push('Expected columns must be an array');
             return result;
         }
 
         if (expectedColumns.length === 0) {
             result.isValid = false;
-            result.errors.push('expectedColumns must not be empty');
+            result.errors.push('Expected columns must not be empty');
             return result;
         }
 
@@ -107,7 +114,7 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
     }
 
     // Check if table has columns property
-    if (!Array.isArray(tableOrName.columns)) {
+    if (!tableOrName.columns) {
         result.isValid = false;
         result.errors.push('Table must have a columns array');
         return result;
@@ -141,15 +148,15 @@ function checkTableStructure(tableOrName, expectedColumns = []) {
 
 // TODO: Implement a function to count dependencies
 function countDependencies() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const dependencies = packageJson.dependencies || {};
     const devDependencies = packageJson.devDependencies || {};
     
     return {
-        dependencies: Object.keys(dependencies).length,
-        devDependencies: Object.keys(devDependencies).length,
+        dependencies: Object.keys(dependencies),
+        devDependencies: Object.keys(devDependencies),
         total: Object.keys(dependencies).length + Object.keys(devDependencies).length
     };
 }

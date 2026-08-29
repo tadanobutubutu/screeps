@@ -3,6 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import Header from './components/Header';
+import Main from './components/Main';
+import Footer from './components/Footer';
+import './styles.css';
+
 /**
  * Checks if a table has the expected structure
  * @param {string} tableName - The name of the table to check
@@ -192,13 +199,6 @@ function addressAccessibilityIssues(insightReport) {
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by validateLandmarkAccessibility())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import Header from './components/Header';
-import Main from './components/Main';
-import Footer from './components/Footer';
-import './styles.css';
 
 function function3() {
   // TODO: Implement new function3 logic here

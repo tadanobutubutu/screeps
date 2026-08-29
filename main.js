@@ -1,3 +1,5 @@
+// TODO: Address accessibility issues from insight report
+
 // Main entry point for dependency visualization tool
 
 const fs = require('fs');
@@ -500,26 +502,11 @@ function someFunction() {
   // ... implementation ...
 }
 
-// Exporting for both ES modules and CommonJS compatibility
-export function exportedFunction() {
+function exportedFunction() {
   return 'This is an exported function';
 }
 
 // Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage,
-  divide,
-  displayModuleStructure,
-  generateDependencyReport,
-  getDependencyDepth
-};
-
-// Exporting for CommonJS compatibility
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
@@ -556,7 +543,8 @@ module.exports = {
   renderCart,
   validateAndRender,
   renderPage,
-  someFunction
+  someFunction,
+  exportedFunction
 };
 
 // Run if executed directly

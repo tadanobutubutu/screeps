@@ -8,8 +8,6 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';

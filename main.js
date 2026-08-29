@@ -1,6 +1,3 @@
-// TODO: Address accessibility issues from insight report — FIXED
-// REACT_015: Add lang attribute
-
 // Main game logic for Screeps
 const main = {
   loop: function() {
@@ -68,5 +65,4 @@ const main = {
   }
 };
 
-// Export the new function if needed:
-module.exports = main;
+module.exports.loop = main.loop;

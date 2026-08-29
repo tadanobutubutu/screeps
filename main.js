@@ -11,7 +11,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility.js');
 
 const {
   ensureElementHasId,
@@ -19,10 +19,10 @@ const {
   renderDependencyGraphs,
   countDependencies,
   myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
+} = require('./helpers.js');
 
 // Import your custom functions if they exist
-// const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
+// const { customFunction1, customFunction2 } = require('./custom.js'); // replace with actual import statement
 
 const viewsDir = path.join(__dirname, 'views');
 
@@ -62,30 +62,9 @@ Module.onInit = function() {
  * @param {string} tableName - The name of the table to check
  * @param {Array<string>} expectedColumns - Array of expected column names
  * @returns {boolean} - True if table structure matches expected columns, false otherwise
- */
+*/
 function checkTableStructure(tableName, expectedColumns) {
   // ... existing implementation ...
-}
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-function ensureElementHasId(element) {
-  // ... existing implementation ...
-}
-
-function addAriaLabel(element, label) {
-  // ... existing implementation ...
-}
-
-function renderDependencyGraphs(dependencies) {
-  // ... existing implementation ...
-}
-
-function countDependencies() {
-  // ... existing implementation ...
-}
-
-function myNewFunction(input) {
-  // Implement the new function here
 }
 
 function main() {
@@ -109,7 +88,7 @@ function updateThScopeAttribute(file) {
   try {
     let content = fs.readFileSync(file, 'utf8');
     // Simple regex to find th elements without scope attribute
-    const updatedContent = content.replace(/<th(?![^>]*\bscope=)/g, '<th scope="row"');
+    const updatedContent = content.replace(/<th(?! scope=)[^>]*>/g, '<th scope="row"');
     if (content !== updatedContent) {
       fs.writeFileSync(file, updatedContent);
       console.log(`Updated th scope attributes in ${file}`);

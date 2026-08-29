@@ -74,6 +74,17 @@ function fixAccessibilityIssues() {
   // New code...
 }
 
+// TODO: Implement divide function that handles division with proper error handling
+function divide(dividend, divisor) {
+  if (typeof dividend !== 'number' || typeof divisor !== 'number') {
+    throw new Error('Both dividend and divisor must be numbers');
+  }
+  if (divisor === 0) {
+    throw new Error('Division by zero is not allowed');
+  }
+  return dividend / divisor;
+}
+
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
@@ -179,13 +190,15 @@ export {
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  divide
 };
 
 // Exporting for CommonJS compatibility
 module.exports = {
   // All existing exports from main.js go here
-  specificFunctionThatRendersGraphOrIndex
+  specificFunctionThatRendersGraphOrIndex,
+  divide
 };
 
 // ... other exports ...

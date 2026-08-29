@@ -105,6 +105,14 @@ handleFakeLinks();
 
 // ... rest of your code ...
 
+// Implement divide function that handles division with proper error handling
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
+  }
+  return a / b;
+}
+
 // Assuming you have functions that render dependency graphs and index views
 const renderDependencyGraph = (data) => {
   // Code to render the dependency graph using the data provided

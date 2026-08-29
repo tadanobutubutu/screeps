@@ -1,4 +1,7 @@
-// Existing code from main.js (with conflict markers removed for clarity)
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report
+// ----- END ORIGINAL CODE -----
+
 const existingFunction = () => {
   // Existing function logic
 };

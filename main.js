@@ -375,5 +375,7 @@ module.exports = {
   isButtonAccessible,
   checkLinkAndButtonAccessibility,
   renderDependencyGraph,
-  getLandmarkData
+  getLandmarkData,
+  functionA,
+  functionB
 };

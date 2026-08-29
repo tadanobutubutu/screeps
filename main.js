@@ -1,3 +1,5 @@
+// <!--- START ADDITIONAL FUNCTION --->
+
 // TODO: Add any other missing exports that might have been?
 
 const config = require('./config');

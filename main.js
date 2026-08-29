@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues from insight report
 // GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
 
 // TODO: Add exports for new functions if needed - UPDATED: Added exports below

@@ -46,12 +46,19 @@ function checkLinkAndButtonAccessibility(container) {
   return issues;
 }
 
+// New function for rendering graph/index
+function renderGraph() {
+  // TODO: Implement the function to render the graph/index
+  console.log('Graph rendering function is not implemented yet.');
+}
+
 // Example usage and export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility };
+  module.exports = { checkLinkAndButtonAccessibility, renderGraph };
 }
 
 // If running in browser context
 if (typeof window !== 'undefined') {
   window.checkLinkAndButtonAccessibility = checkLinkAndButtonAccessibility;
+  window.renderGraph = renderGraph;
 }

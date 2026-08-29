@@ -4,5 +4,5 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 // - ADD: Address new accessibility issues from insight report

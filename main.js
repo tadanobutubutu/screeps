@@ -1,5 +1,4 @@
 // main.js - Accessibility improvements implementation
-
 // REACT_015: Add lang attribute
 
 // Store for accessibility announcements (screen reader support)

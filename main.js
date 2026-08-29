@@ -94,7 +94,7 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+}
 
 // REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {

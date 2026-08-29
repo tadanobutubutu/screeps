@@ -1,4 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -26,7 +27,7 @@ function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
+        const suffix = Math.random().toString(36).substring(2, 9);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -59,31 +60,6 @@ function addAriaLabel(element, label) {
     if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
-}
-
-/**
- * This function gets the full language attribute with region (if provided)
- * @returns {string} - the full language attribute with region (if provided)
- */
-function getFullLangAttribute() {
-    return document.documentElement.lang || '';
-}
-
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
 }
 
 /**
@@ -237,10 +213,6 @@ function isLinkAccessible(link) {
 
   return false;
 }
-
-// Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
-// Assumes you have already set the id on the button element in your code.
-replaceMyButtonId();
 
 addProperLandmarkRegions();
 addProperAccountManagement();

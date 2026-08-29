@@ -1,4 +1,4 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Add any new functions or changes requested in the issue here
 
 const config = require('./config');
 const logger = require('./utils/logger');

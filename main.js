@@ -41,7 +41,7 @@ const main = {
   },
   
   harvest: function(creep) {
-    const target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    const target = creep.pos.findClosestByPath(FIND_SOURCES);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -60,6 +60,74 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  }
+};
+
+// Debugging utilities for module structure visualization and dependency tracking
+const debugUtils = {
+  // Render a simple dependency graph visualization
+  // Can be used for debugging purposes to understand module relationships
+  renderDependencyGraph: function() {
+    const graphNodes = [];
+    const graphEdges = [];
+    
+    // Define module dependencies
+    const modules = {
+      main: ['manageRoom', 'defendRoom', 'harvest', 'upgrade'],
+      manageRoom: ['defendRoom', 'harvest'],
+      defendRoom: [],
+      harvest: [],
+      upgrade: []
+    };
+    
+    let nodeId = 0;
+    for (const [moduleName, dependencies] of Object.entries(modules)) {
+      graphNodes.push({
+        id: nodeId,
+        name: moduleName,
+        type: 'module'
+      });
+      
+      const sourceId = nodeId;
+      nodeId++;
+      
+      dependencies.forEach(dep => {
+        graphEdges.push({
+          source: sourceId,
+          target: nodeId,
+          label: dep
+        });
+        nodeId++;
+      });
+    }
+    
+    return { nodes: graphNodes, edges: graphEdges };
+  },
+  
+  // Display module structure for debugging
+  displayModuleStructure: function() {
+    const structure = {
+      main: {
+        functions: Object.keys(main),
+        exports: Object.keys(module.exports),
+        description: 'Main Screeps game loop controller'
+      },
+      debugUtils: {
+        functions: Object.keys(debugUtils),
+        exports: [],
+        description: 'Debugging utilities for module structure visualization'
+      }
+    };
+    
+    return structure;
+  },
+  
+  // Log module structure for debugging purposes
+  logModuleStructure: function() {
+    const structure = this.displayModuleStructure();
+    console.log('=== Module Structure Debug ===');
+    console.log(JSON.stringify(structure, null, 2));
+    return structure;
   }
 };
 

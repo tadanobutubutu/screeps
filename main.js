@@ -1,7 +1,24 @@
 // Main module entry point
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
+// Function 1: Simple greeting
+function greet(name) {
+    return `Hello, ${name}!`;
+}
+
+// Function 2: Calculate sum
+function sum(a, b) {
+    return a + b;
+}
+
+// Function 3: Check if even
+function isEven(num) {
+    return num % 2 === 0;
+}
+
+// Function 4: Get current timestamp
+function getTimestamp() {
+    return Date.now();
+}
 
 const VERSION = '1.0.0';
 const APP_NAME = 'MyApp';
@@ -24,10 +41,6 @@ function isValid(value) {
 function capitalize(str) {
   if (typeof str !== 'string') return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
 }
 
 function formatDate(date) {
@@ -127,5 +140,9 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   updateDependencyGraph,
-  updateIndexView
+  updateIndexView,
+  // Utility functions from HEAD
+  sum,
+  isEven,
+  getTimestamp
 };

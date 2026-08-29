@@ -422,7 +422,12 @@ module.exports = {
     getSvgAccessibleName,
     utilityFunction,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    getLangAttribute,
+    getFullLangAttribute,
+    validateLandmarkStructure,
+    createInPageButton,
+    createAccessibleLink
 };
 
 export { addressAccessibilityIssue038, getSvgAccessibleName, utilityFunction };

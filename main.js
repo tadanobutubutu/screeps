@@ -1,4 +1,5 @@
-// Assuming main.js needs a function to count dependencies in a package.json-like structure
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 /**
  * Counts the total number of dependencies (including devDependencies) from a given dependencies object.

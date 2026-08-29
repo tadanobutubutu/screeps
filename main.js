@@ -1,7 +1,4 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice
-
-// TODO: Implement validateLandmark functionality
+// TODO: Implement function for adding proper landmark regions
 
 function validateLandmark(landmark) {
   if (!landmark) return false;
@@ -12,4 +9,13 @@ function validateLandmark(landmark) {
   return true;
 }
 
-module.exports = { validateLandmark };
+function addLandmarkRegion(landmarks, landmarkName, lat, lng) {
+  const landmark = { name: landmarkName, lat: lat, lng: lng };
+  if (validateLandmark(landmark)) {
+    landmarks.push(landmark);
+  } else {
+    throw new Error('Invalid landmark data provided');
+  }
+}
+
+module.exports = { validateLandmark, addLandmarkRegion };

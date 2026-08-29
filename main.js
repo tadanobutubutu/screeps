@@ -74,6 +74,32 @@ function fixAccessibilityIssues() {
   // New code...
 }
 
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+function wrapPrimaryContentInMain(primaryContent) {
+  // Check if the primaryContent is valid
+  if (!primaryContent) {
+    return null;
+  }
+
+  // Create a new <main> element
+  const mainElement = document.createElement('main');
+
+  // Set the appropriate attributes for accessibility
+  mainElement.setAttribute('role', 'main');
+  mainElement.setAttribute('id', 'primary-content');
+
+  // Append the primary content to the <main> element
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent instanceof HTMLElement) {
+    mainElement.appendChild(primaryContent);
+  } else {
+    return null;
+  }
+
+  return mainElement;
+}
+
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
@@ -102,6 +128,15 @@ setSvgAttributes(svg, accessibleName);
 // This would be handled by the appropriate function call
 validateLinkAccessibility();
 handleFakeLinks();
+
+// Wrap the primary content in a <main> element for improved accessibility
+const primaryContent = document.getElementById('primary-content-wrapper');
+if (primaryContent) {
+  const wrappedContent = wrapPrimaryContentInMain(primaryContent);
+  if (wrappedContent) {
+    primaryContent.parentNode.replaceChild(wrappedContent, primaryContent);
+  }
+}
 
 // ... rest of your code ...
 
@@ -179,7 +214,8 @@ export {
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  wrapPrimaryContentInMain
 };
 
 // Exporting for CommonJS compatibility

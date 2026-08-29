@@ -14,8 +14,6 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-// TODO: Add back any required exports that might have been?
-
 // Game loop function
 function run() {
   // Your game logic here...
@@ -128,3 +126,19 @@ module.exports = {
     renderDependencyGraphs,
     myNewFunction
 };
+
+// Add lang attribute to the root element of each HTML file
+function updateLangAttribute() {
+  const viewsDir = path.join(__dirname, 'views');
+  fs.readdirSync(viewsDir)
+    .filter(file => file.endsWith('.html'))
+    .forEach(file => {
+      const filePath = path.join(viewsDir, file);
+      const content = fs.readFileSync(filePath, 'utf8');
+      const updatedContent = content.replace(/<html.*?>/g, `<html lang="${getLangAttribute()}">`);
+      fs.writeFileSync(filePath, updatedContent, 'utf8');
+    });
+}
+
+// Call the function to update lang attributes
+updateLangAttribute();

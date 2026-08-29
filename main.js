@@ -41,14 +41,14 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâäéèêëïîôùûüÿç]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 module.exports = { setHtmlLangAttribute, detectAndSetLang };

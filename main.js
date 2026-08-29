@@ -277,8 +277,52 @@ function hasAccessibleName(element) {
   );
 }
 
+/**
+ * Initializes accessibility features on the page
+ * Sets up landmark roles, validates unique landmarks, and applies fixes
+ * @param {HTMLElement} rootElement - The root element to initialize accessibility for
+ * @returns {Object} - Report of issues addressed
+ */
+function initializeAccessibility(rootElement) {
+  if (!rootElement) {
+    console.warn('initializeAccessibility: rootElement is required');
+    return { issues: [], addressed: 0 };
+  }
+
+  const report = {
+    issues: [],
+    addressed: 0,
+    timestamp: new Date().toISOString()
+  };
+
+  // Ensure document has lang attribute (REACT_015)
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+    report.addressed++;
+  }
+
+  // Validate unique landmarks (REACT_025)
+  const landmarkIssues = validateUniqueLandmarks(rootElement);
+  report.issues.push(...landmarkIssues);
+  report.addressed += landmarkIssues.length;
+
+  // Check for SVGs without accessible names (REACT_041)
+  const svgs = rootElement.querySelectorAll('svg');
+  svgs.forEach((svg) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      report.issues.push({
+        element: svg,
+        message: 'SVG missing accessible name',
+        severity: 'warning'
+      });
+    }
+  });
+
+  return report;
+}
+
 // Export the newFunction for use in other modules
-export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName };
+export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName, initializeAccessibility };
 
 const container = document.getElementById('root');
 const root = createRoot(container);

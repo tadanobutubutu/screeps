@@ -14,8 +14,13 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added above)
+/**
+ * Implement this function for creating in-page buttons
+ */
+function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+  const button = createInPageButton('Render Dependency Graph', renderFunction);
+  depGraphContainer.appendChild(button);
+}
 
 /**
  * Initialize the application with accessibility improvements
@@ -23,19 +28,25 @@ function createInPageButton(buttonText, onClickHandler) {
 function initialize() {
   // Existing initialization logic preserved
   console.log('Application initialized');
-  
+
   // Accessibility: Ensure main content is keyboard accessible
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
     mainContent.removeAttribute('aria-hidden');
   }
-  
+
   // Accessibility: Add skip link functionality
   setupSkipLinks();
-  
+
   // Accessibility: Ensure buttons have proper labels
   setupButtonAccessibility();
+
+  // Add dependency graph button functionality
+  const depGraphContainer = document.getElementById('dep-graph-container');
+  if(depGraphContainer) {
+    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+  }
 }
 
 /**
@@ -68,7 +79,12 @@ function setupButtonAccessibility() {
 }
 
 // Existing exports and code remain unchanged
-// Note: Preserving all existing code and exports as per requirements
+
+// Define new render function for dependency graph
+function renderDependencyGraph() {
+  // Add logic to render the dependency graph
+  // ...
+}
 
 // Export existing functionality
 module.exports = {

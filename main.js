@@ -596,6 +596,17 @@ if (typeof module !== 'undefined' && module.exports) {
     applyAccessibilityFixes,
     countDependencies,
     getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
-    createInPageButton: a11yStore.createInPageButton.bind(a11yStore)
+    createInPageButton: a11yStore.createInPageButton.bind(a11yStore),
+    setupKeyboardNavigation: a11yStore.setupKeyboardNavigation.bind(a11yStore),
+    setupFocusManagement: a11yStore.setupFocusManagement.bind(a11yStore),
+    setupSkipLinks: a11yStore.setupSkipLinks.bind(a11yStore),
+    addSVGAccessibility: a11yStore.addSVGAccessibility.bind(a11yStore),
+    enhanceSVG: a11yStore.enhanceSVG.bind(a11yStore),
+    announce: a11yStore.announce.bind(a11yStore),
+    prefersReducedMotion: a11yStore.prefersReducedMotion.bind(a11yStore),
+    prefersHighContrast: a11yStore.prefersHighContrast.bind(a11yStore),
+    updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
+    checkLandmarkElements: a11yStore.checkLandmarkElements.bind(a11yStore),
+    addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps.bind(a11yStore)
   };
 }

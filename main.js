@@ -33,6 +33,13 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+function validateTableAccessibility(table) {
+  // TODO: Implement validation logic for accessibility
+}
 
+function validateTableStructure(table) {
+  // TODO: Implement validation logic for structure
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 export default App;

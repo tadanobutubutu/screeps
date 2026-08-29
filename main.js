@@ -52,6 +52,10 @@ function getSvgAccessibleName() {
   // Existing code...
 }
 
+function setSvgAttributes() {
+  // Existing code...
+}
+
 function createInPageButton() {
   // Existing code...
 }

@@ -256,6 +256,80 @@ function setupAccessibilityEventListeners() {
   }
 }
 
+// NEW FUNCTIONS START
+/**
+ * Ensures the element has an id attribute. If missing, generates a unique id.
+ * @param {Element} element - The DOM element to check
+ * @returns {string|null} The element's id or null if element is invalid
+ */
+function ensureElementHasId(element) {
+  if (!element) return null;
+  if (!element.id) {
+    element.id = `generated-id-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  }
+  return element.id;
+}
+
+/**
+ * Adds an aria-label to the element with the specified value.
+ * @param {Element} element - The DOM element to modify
+ * @param {string} label - The aria-label value to set
+ */
+function addAriaLabel(element, label) {
+  if (element && typeof label === 'string') {
+    element.setAttribute('aria-label', label);
+  }
+}
+
+/**
+ * Renders a dependency graph visualization.
+ * @param {Object} graphData - Data structure representing dependencies
+ * @param {string} containerId - ID of the container element to render in
+ */
+function renderDependencyGraph(graphData, containerId) {
+  if (typeof document === 'undefined') return;
+  
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Create SVG container
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('style', 'border: 1px solid #ccc;');
+  container.appendChild(svg);
+  
+  // Simple force-directed graph placeholder
+  const width = container.clientWidth || 400;
+  const height = container.clientHeight || 300;
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  
+  // Add title
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  title.setAttribute('x', width / 2);
+  title.setAttribute('y', 20);
+  title.setAttribute('text-anchor', 'middle');
+  title.setAttribute('font-size', '16');
+  title.setAttribute('fill', '#333');
+  title.textContent = 'Dependency Graph';
+  svg.appendChild(title);
+  
+  // Add placeholder note
+  const note = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  note.setAttribute('x', width / 2);
+  note.setAttribute('y', height / 2);
+  note.setAttribute('text-anchor', 'middle');
+  note.setAttribute('font-size', '14');
+  note.setAttribute('fill', '#666');
+  note.textContent = 'Dependency graph visualization placeholder';
+  svg.appendChild(note);
+}
+// NEW FUNCTIONS END
+
 // Export functions for testing
 module.exports = {
   loop,
@@ -274,7 +348,10 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
-  setupAccessibilityEventListeners
+  setupAccessibilityEventListeners,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };
 
 // Initialize on DOM ready

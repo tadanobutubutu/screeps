@@ -1,6 +1,44 @@
 // GitHub Issue Fix - Commit: 6009dec851a51383188dc071ee4edb6953001d55
 
-// TODO: Add exports for new functions if needed - UPDATED: Added exports below
+// Track used landmark IDs to ensure uniqueness across the application
+const usedLandmarkIds = new Set();
+
+// Generate a unique ID with the given prefix, ensuring no duplicates
+function generateUniqueId(prefix = 'landmark') {
+  let id;
+  let attempts = 0;
+  do {
+    id = `${prefix}-${Math.floor(Math.random() * 100000)}`;
+    attempts++;
+    if (attempts > 1000) {
+      id = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      break;
+    }
+  } while (usedLandmarkIds.has(id));
+  usedLandmarkIds.add(id);
+  return id;
+}
+
+// Ensure all landmark elements on the page have unique IDs
+function ensureUniqueLandmarks() {
+  const landmarkRoles = ['main', 'nav', 'header', 'footer', 'aside'];
+  const assignedIds = new Set();
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach(element => {
+      let id = element.getAttribute('id');
+      if (!id || id === '' || assignedIds.has(id)) {
+        id = generateUniqueId(role);
+        element.setAttribute('id', id);
+      }
+      assignedIds.add(id);
+      usedLandmarkIds.add(id);
+    });
+  });
+
+  return assignedIds;
+}
 
 // Existing utility functions
 function add(a, b) {
@@ -183,8 +221,13 @@ const a11yStore = {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
     landmarkElements.forEach((element) => {
       const landmark = document.querySelector(`[role="${element}"]`);
-      if (landmark && landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${Math.floor(Math.random() * 1000)}`);
+      if (landmark) {
+        let id = landmark.getAttribute('id');
+        if (!id || id === '' || usedLandmarkIds.has(id)) {
+          id = generateUniqueId(element);
+          landmark.setAttribute('id', id);
+        }
+        usedLandmarkIds.add(id);
       }
     });
   },
@@ -281,7 +324,9 @@ module.exports = {
   addSVGAccessibilityProps: a11yStore.addSVGAccessibilityProps,
   preserveExistingCode: a11yStore.preserveExistingCode,
   prefersReducedMotion: a11yStore.prefersReducedMotion,
-  prefersHighContrast: a11yStore.prefersHighContrast
+  prefersHighContrast: a11yStore.prefersHighContrast,
+  generateUniqueId,
+  ensureUniqueLandmarks
 };
 
 // ES6 module exports (preserved from origin/main)
@@ -293,4 +338,6 @@ export { addSVGAccessibilityProps };
 export { preserveExistingCode };
 export { prefersReducedMotion };
 export { prefersHighContrast };
+export { generateUniqueId };
+export { ensureUniqueLandmarks };
 export default a11yStore;

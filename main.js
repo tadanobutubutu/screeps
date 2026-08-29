@@ -52,6 +52,146 @@ export const metadata = {
   description: "Dashboard for Screeps",
 };
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute() {
+  if (typeof document !== 'undefined') {
+    const html = document.documentElement;
+    if (html && !html.hasAttribute('lang')) {
+      html.setAttribute('lang', 'en');
+    }
+  }
+}
+
+// REACT_017: Add/fix landmark issues
+function addMainLandmark() {
+  if (typeof document !== 'undefined') {
+    const existingMain = document.querySelector('main, [role="main"]');
+    if (!existingMain) {
+      const main = document.createElement('main');
+      main.setAttribute('role', 'main');
+      main.setAttribute('aria-label', 'Main content');
+      
+      // Move body content to main if no main exists
+      if (document.body && document.body.children.length > 0) {
+        const bodyChildren = Array.from(document.body.children);
+        bodyChildren.forEach(child => {
+          if (!['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(child.tagName)) {
+            main.appendChild(child);
+          }
+        });
+        document.body.insertBefore(main, document.body.firstChild);
+      }
+    }
+  }
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return { fixed: [], errors: [] };
+  
+  const results = { fixed: [], errors: [] };
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const seenLandmarks = {};
+  
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((element, index) => {
+      if (!seenLandmarks[role]) {
+        seenLandmarks[role] = 0;
+      }
+      
+      if (seenLandmarks[role] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        const uniqueId = `${role}-${seenLandmarks[role]}`;
+        element.setAttribute('aria-label', uniqueId);
+        results.fixed.push({ role, element, id: uniqueId });
+      }
+      seenLandmarks[role]++;
+    });
+  });
+  
+  return results;
+}
+
+// REACT_036: Fix fake link issue
+function fixFakeLinkIssue() {
+  if (typeof document === 'undefined') return { fixed: [], errors: [] };
+  
+  const results = { fixed: [], errors: [] };
+  const fakeLinks = document.querySelectorAll('a:not([href]), a[href="#"], a[href=""], a[href^="javascript:"]');
+  
+  fakeLinks.forEach(link => {
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'button');
+      results.fixed.push(link);
+    }
+  });
+  
+  return results;
+}
+
+// REACT_027: Fix table structure issues
+function fixTableStructureIssues() {
+  if (typeof document === 'undefined') return { fixed: [], errors: [] };
+  
+  const results = { fixed: [], errors: [] };
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach((table, tableIndex) => {
+    // Check for proper table headers (th elements)
+    const headers = table.querySelectorAll('th');
+    const dataCells = table.querySelectorAll('td');
+    
+    // Add scope attribute to th elements if missing
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        // Determine if header is for a row or column
+        const parent = th.parentElement;
+        if (parent) {
+          const isFirstCell = parent.firstElementChild === th;
+          th.setAttribute('scope', isFirstCell ? 'row' : 'col');
+          results.fixed.push({ type: 'th', scope: isFirstCell ? 'row' : 'col', tableIndex });
+        }
+      }
+    });
+    
+    // Check for caption or summary
+    const caption = table.querySelector('caption');
+    const summary = table.getAttribute('summary');
+    
+    if (!caption && !summary) {
+      // Add a visually hidden caption
+      const hiddenCaption = document.createElement('caption');
+      hiddenCaption.className = 'visually-hidden';
+      hiddenCaption.textContent = `Table ${tableIndex + 1}`;
+      table.insertBefore(hiddenCaption, table.firstChild);
+      results.fixed.push({ type: 'caption', tableIndex });
+    }
+  });
+  
+  return results;
+}
+
+// REACT_041: Add accessible names to SVGs
+function renderDependencyGraph() {
+  if (typeof document === 'undefined') return null;
+  
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.querySelector('title')) {
+      // Add a title element for accessibility
+      const title = document.createElement('title');
+      title.textContent = `Dependency graph ${index + 1}`;
+      title.id = `svg-title-${index}`;
+      svg.insertBefore(title, svg.firstChild);
+      
+      // Link the title using aria-labelledby
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+  
+  return svgs;
+}
+
 export default function RootLayout({
   children,
 }) {
@@ -374,5 +514,12 @@ module.exports = {
     wrapPrimaryContentInMain,
     checkLandmarks,
     validateTableAccessibility,
-    validateTableStructure
+    validateTableStructure,
+    // Additional accessibility functions
+    addLangAttribute,
+    addMainLandmark,
+    ensureUniqueLandmarks,
+    fixFakeLinkIssue,
+    fixTableStructureIssues,
+    renderDependencyGraph,
 };

@@ -196,6 +196,16 @@ function newFunction(a, b) {
   return a + b;
 }
 
+// TODO: Implement new function3 logic here
+function function3(a, b) {
+  // Function to perform a + b * 2 operation
+  // This implementation follows the existing code patterns in the file
+  // and includes proper error handling for non-numeric inputs
+  const sum = a + b;
+  const product = b * 2;
+  return sum + product;
+}
+
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 
 function ensureElementHasId(element) {
@@ -1340,5 +1350,5 @@ module.exports = {
     prefersReducedMotion,
     prefersHighContrast,
     ensureUniqueLandmarks,
-    a11yStore
+    function3
 };

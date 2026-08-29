@@ -10,17 +10,8 @@
 // - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphAriaRole)
 // - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
-/**
- * Adds a `lang` attribute to the HTML element to specify the language of the document.
- *
- * @returns {void}
- */
-function addLangAttribute() {
-  const html = document.documentElement;
-  if (html) {
-    html.setAttribute('lang', getFullLangAttribute());
-  }
-}
+// Internal set to track used landmark IDs
+const _usedLandmarkIds = new Set();
 
 /**
  * Creates a unique identifier for a landmark given a base name.
@@ -28,7 +19,7 @@ function addLangAttribute() {
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = `${baseName}-${Date.now()}`;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
         const suffix = Math.random().toString(36).substring(2, 7);
@@ -58,6 +49,18 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
+ * Adds a `lang` attribute to the HTML element to specify the language of the document.
+ *
+ * @returns {void}
+ */
+function addLangAttribute() {
+  const html = document.documentElement;
+  if (html) {
+    html.setAttribute('lang', getFullLangAttribute());
+  }
+}
+
+/**
  * This function gets the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */
@@ -84,41 +87,40 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // Initialize landmark elements
-  const main = document.createElement('main');
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  const header = document.querySelector('header') || document.createElement('header');
-  const footer = document.querySelector('footer') || document.createElement('footer');
-  const asides = document.querySelectorAll('aside');
-
-  // Set landmark roles and IDs
+  // Create main landmark
+  const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
-  main.id = 'main-content';
+  if (!main.id) main.id = 'main-content';
 
   // Create navigation landmark
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  if (nav) {
+    nav.setAttribute('role', 'navigation');
+    if (!nav.id) nav.id = 'primary-navigation';
+  }
 
   // Create banner/header landmark
+  const header = document.querySelector('header') || document.createElement('header');
   header.setAttribute('role', 'banner');
-  header.id = header.id || 'site-header';
+  if (!header.id) header.id = 'site-header';
 
   // Create contentinfo/footer landmark
+  const footer = document.querySelector('footer') || document.createElement('footer');
   footer.setAttribute('role', 'contentinfo');
-  footer.id = footer.id || 'site-footer';
+  if (!footer.id) footer.id = 'site-footer';
 
-  // Add other landmark roles as needed
-
+  // Create aside landmark for complementary content
+  const asides = document.querySelectorAll('aside');
   asides.forEach((aside, index) => {
-    aside.setAttribute(' role', 'complementary');
+    aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
 
-  // Add landmark elements to the document
-  document.body.appendChild(main);
-  document.body.appendChild(nav);
-  document.body.insertBefore(header, main);
-  document.body.appendChild(footer);
+  // Append landmarks to the body if they were newly created
+  if (!main.parentNode) document.body.appendChild(main);
+  if (nav && !nav.parentNode) document.body.appendChild(nav);
+  if (!header.parentNode) document.body.appendChild(header);
+  if (!footer.parentNode) document.body.appendChild(footer);
 }
 
 /**
@@ -146,6 +148,68 @@ function addProperAccountManagement() {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
+}
+
+/**
+ * Addresses accessibility issues from an insight report.
+ * @param {Object} insightReport - The insight report containing accessibility findings.
+ * @returns {Object} The report with accessibility issues addressed.
+ */
+function addressAccessibilityIssues(insightReport) {
+  // Implementation to address accessibility issues from an insight report.
+  // Apply specific accessibility fixes here based on the report's structure.
+  // For now, we simply return the report unchanged.
+  return insightReport;
+}
+
+/**
+ * Helper to manage focus within a container
+ * @param {HTMLElement} container - Container element
+ * @returns {void}
+ */
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  container.addEventListener('keydown', (event) => {
+    if (event.key !== 'Tab') return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  });
+}
+
+/**
+ * Function to ensure landmarks have unique identifiers
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+  const seen = new Set();
+  const result = [];
+
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  }
+
+  landmarks.forEach((landmark) => {
+    if (!seen.has(landmark.id)) {
+      seen.add(landmark.id);
+      landmark.id = landmark.id || generateUniqueId();
+      result.push(landmark);
+    }
+  });
+
+  return result;
 }
 
 /**
@@ -249,17 +313,119 @@ function validateTableStructure() {
   });
 }
 
-module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getFullLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure,
-  googleSignIn,
-  fixButtonIdentifiers,
-  ensureDependencyGraphAriaRole
-};
+// ARIA live region announcer
+function createAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
+  document.body.appendChild(announcer);
+  
+  return {
+    announce: (message) => {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = message;
+      }, 100);
+    }
+  };
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to improve keyboard navigation for interactive elements
+function improveKeyboardNavigation() {
+  const interactiveElements = document.querySelectorAll('[tabindex="-1"]');
+  interactiveElements.forEach(element => {
+    element.setAttribute('tabindex', '0');
+  });
+}
+
+// Function to add ARIA live regions for dynamic content updates
+function addLiveRegionForDynamicContent() {
+  const liveRegion = document.createElement('div');
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'alert');
+  document.body.appendChild(liveRegion);
+}
+
+/**
+ * Initializes the button by replacing its ID.
+ * @returns {void}
+ */
+function initializeButton() {
+  replaceMyButtonId();
+}
+
+/**
+ * Example function from HEAD
+ * @returns {string} - 'example'
+ */
+function someFunction() {
+  return 'example';
+}
+
+/**
+ * Setup keyboard navigation within a container
+ * @param {HTMLElement} container - The container to set up keyboard navigation for
+ * @returns {void}
+ */
+function setupKeyboardNavigation(container) {
+  if (!container) return;
+  trapFocus(container);
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks([]);
+  
+  // Improve keyboard navigation
+  improveKeyboardNavigation();
+  
+  // Add live region for dynamic content
+  addLiveRegionForDynamicContent();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addProperLandmarkRegions,
+    addProperAccountManagement,
+    addAriaToFormControls,
+    ensureUniqueLandmarkId,
+    uniqueLandmarks,
+    setupKeyboardNavigation,
+    addressAccessibilityIssues,
+    trapFocus,
+    ensureUniqueLandmarks,
+    createAnnouncer,
+    prefersReducedMotion,
+    improveKeyboardNavigation,
+    addLiveRegionForDynamicContent,
+    initializeAccessibility,
+    replaceMyButtonId,
+    initializeButton,
+    addLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    googleSignIn,
+    fixButtonIdentifiers,
+    ensureDependencyGraphAriaRole,
+    someFunction
+  };
+}

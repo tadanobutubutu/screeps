@@ -10,11 +10,11 @@ const _usedLandmarkIds = new Set();
  * @returns {string} Unique ID.
  */
 function ensureUniqueLandmarkId(baseName) {
-    const candidate = `${baseName}-${Date.now()}`;
+    let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 7);
-        candidate = `${candidate}-${suffix}`;
+        const suffix = Math.random().toString(36).substring(2, 9);
+        candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -38,7 +38,7 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
- * This function gets the full language attribute with region (if provided)
+ * Returns the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */
 function getFullLangAttribute() {
@@ -46,15 +46,24 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Returns the language attribute without region
+ * @returns {string} - the language attribute without region
+ */
+function getLangAttribute() {
+    const lang = document.documentElement.lang || '';
+    return lang.split('-')[0];
+}
+
+/**
  * Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
  * Assumes you have already set the id on the button element in your code.
  */
 function replaceMyButtonId() {
-  const button = document.querySelector('.my-button');
-  if (button) {
-    button.id = 'exampleButton';
-    button.classList.remove('my-button');
-  }
+    const button = document.querySelector('.my-button');
+    if (button) {
+        button.id = 'exampleButton';
+        button.classList.remove('my-button');
+    }
 }
 
 /**
@@ -64,32 +73,32 @@ function replaceMyButtonId() {
  * @returns {void}
  */
 function addProperLandmarkRegions() {
-  // Create main landmark
-  const main = document.createElement('main');
-  main.setAttribute('role', 'main');
-  main.id = 'main-content';
+    // Create main landmark
+    const main = document.querySelector('main') || document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.id = 'main-content';
 
-  // Create navigation landmark
-  const nav = document.querySelector('nav') || document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.id = nav.id || 'primary-navigation';
+    // Create navigation landmark
+    const nav = document.querySelector('nav') || document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    nav.id = nav.id || 'primary-navigation';
 
-  // Create banner/header landmark
-  const header = document.querySelector('header') || document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.id = header.id || 'site-header';
+    // Create banner/header landmark
+    const header = document.querySelector('header') || document.createElement('header');
+    header.setAttribute('role', 'banner');
+    header.id = header.id || 'site-header';
 
-  // Create contentinfo/footer landmark
-  const footer = document.querySelector('footer') || document.createElement('footer');
-  footer.setAttribute('role', 'contentinfo');
-  footer.id = footer.id || 'site-footer';
+    // Create contentinfo/footer landmark
+    const footer = document.querySelector('footer') || document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    footer.id = footer.id || 'site-footer';
 
-  // Create aside landmark for complementary content
-  const asides = document.querySelectorAll('aside');
-  asides.forEach((aside, index) => {
-    aside.setAttribute('role', 'complementary');
-    if (!aside.id) aside.id = `sidebar-${index + 1}`;
-  });
+    // Create aside landmark for complementary content
+    const asides = document.querySelectorAll('aside');
+    asides.forEach((aside, index) => {
+        aside.setAttribute('role', 'complementary');
+        if (!aside.id) aside.id = `sidebar-${index + 1}`;
+    });
 }
 
 /**
@@ -100,23 +109,23 @@ function addProperLandmarkRegions() {
  * @returns {void}
  */
 function addProperAccountManagement() {
-  // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-controls]');
-  collapsibles.forEach(element => {
-    if (!element.hasAttribute('aria-expanded')) {
-      element.setAttribute('aria-expanded', 'false');
-    }
-  });
+    // Add aria-expanded to collapsible menus/buttons
+    const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible, [data-toggle]');
+    collapsibles.forEach(el => {
+        if (!el.hasAttribute('aria-expanded')) {
+            el.setAttribute('aria-expanded', 'false');
+        }
+    });
 
-  // Add aria-labels to form inputs
-  const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
-  inputs.forEach((input, index) => {
-    const id = input.id || `input-${index}`;
-    input.id = id;
-    if (!document.querySelector(`label[for="${id}"]`)) {
-      input.setAttribute('aria-label', `Input field ${index + 1}`);
-    }
-  });
+    // Add aria-labels to form inputs
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input, index) => {
+        const id = input.id || `input-${index}`;
+        input.id = id;
+        if (!input.hasAttribute('aria-label') && !input.getAttribute('placeholder')) {
+            input.setAttribute('aria-label', `Input field ${index + 1}`);
+        }
+    });
 }
 
 /**
@@ -126,41 +135,39 @@ function addProperAccountManagement() {
  * @returns {void}
  */
 function addAriaToFormControls() {
-  // Add required aria attributes to form controls
-  const formControls = document.querySelectorAll('button, input, select, textarea');
+    // Add required aria attributes to form controls
+    const formControls = document.querySelectorAll('input, select, textarea');
 
-  formControls.forEach(control => {
-    // Ensure all form controls have accessible names
-    if (!control.getAttribute('aria-label') && !control.getAttribute('aria-labelledby')) {
-      const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
-      if (label) {
-        label.id = label.id || `label-${control.id}`;
-        control.setAttribute('aria-labelledby', label.id);
-      }
-    }
+    formControls.forEach(control => {
+        // Ensure all form controls have accessible names
+        if (!control.id && !control.getAttribute('aria-label')) {
+            const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
+            if (label) {
+                label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
+                control.setAttribute('aria-labelledby', label.id);
+            }
+        }
 
-    // Mark required fields appropriately
-    if (control.hasAttribute('required') && !control.getAttribute('aria-required')) {
-      control.setAttribute('aria-required', 'true');
-    }
-  });
+        // Mark required fields appropriately
+        if (control.hasAttribute('required') && !control.hasAttribute('aria-required')) {
+            control.setAttribute('aria-required', 'true');
+        }
+    });
 }
 
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
 replaceMyButtonId();
 
-addProperLandmarkRegions();
-addProperAccountManagement();
 addAriaToFormControls();
 
 module.exports = {
-  addProperLandmarkRegions,
-  addProperAccountManagement,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  getLangAttribute,
-  getFullLangAttribute,
-  ensureUniqueLandmarkId,
-  uniqueLandmarks
+    addProperLandmarkRegions,
+    addProperAccountManagement,
+    addAriaToFormControls,
+    replaceMyButtonId,
+    getLangAttribute,
+    getFullLangAttribute,
+    ensureUniqueLandmarkId,
+    uniqueLandmarks
 };

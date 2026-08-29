@@ -1,6 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+function wrapPrimaryContentInMain(rootElement) {
+  const main = rootElement.querySelector('main[role="main"]');
+  if (main) {
+    main.setAttribute('aria-labelledby', 'main-heading');
+  } else {
+    throw new Error('No main element with role="main" found');
+  }
+}
+
 function App() {
   return (
     <div lang="en">

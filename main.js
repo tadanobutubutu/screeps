@@ -1,6 +1,8 @@
 // main.js
 // Implementation of unique landmark functions
 
+// TODO: This is the existing code that needs to be preserved
+
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 

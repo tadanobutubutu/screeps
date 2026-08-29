@@ -60,7 +60,11 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
-  }
+  },
+
+  // Required exports for functionA and functionB
+  functionA: { X: 100, Y: 200, Z: 300 },
+  functionB: { X: 400, Y: 500, Z: 600 }
 };
 
 // Export the new function if needed:

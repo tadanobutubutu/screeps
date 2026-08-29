@@ -177,6 +177,12 @@ function validateTableStructure() {
   // ...
 }
 
+// New function as per the issue requirements
+function newFunction() {
+  // Implement the function as per the issue description
+  // ...
+}
+
 // Export all functions
 module.exports = {
   CONFIG,
@@ -197,5 +203,6 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  calculateSum
+  calculateSum,
+  newFunction
 };

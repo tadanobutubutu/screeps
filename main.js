@@ -16,10 +16,10 @@
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with lang attribute added
  */
-export function addLangAttribute(html) {
+export function ... {
   if (typeof html !== 'string') return html;
   
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return ... (match, attrs) => {
     // Check if lang attribute already exists
     if (!attrs || attrs.includes(' lang=')) {
       return match;
@@ -35,22 +35,22 @@ export function addLangAttribute(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+export function ... {
   if (typeof html !== 'string') return html;
   
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
-  result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+  result = ... (match, attrs) => {
+    if (attrs && ... {
       return match;
     }
     return `<th${attrs} scope="col">`;
   });
   
   // Ensure tables have associated caption or summary
-  result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && (attrs.includes('summary=') || attrs.includes('caption>'))) {
+  result = ... (match, attrs) => {
+    if (attrs && ... || ... {
       return match;
     }
     // Add summary attribute for screen readers
@@ -58,18 +58,18 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = ... (match, attrs) => {
     // Check if tbody already exists before this tr
-    const trIndex = result.indexOf(match);
+    const trIndex = ...
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('<thead')) {
+    if (beforeTr && ... && ... {
       return `<tbody>${match}`;
     }
     return match;
   });
   
   // Close tbody tags that aren't properly closed
-  const tableMatches = result.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const tableMatches = ... || [];
   tableMatches.forEach(table => {
     const hasThead = /<thead/i.test(table);
     const hasTbody = /<tbody/i.test(table);
@@ -77,8 +77,8 @@ export function fixTableStructureIssues(html) {
     
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
-      if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+      if (hasTbody && ... {
+        result = result.replace(table, ... '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -95,17 +95,17 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[^>]*>/i.test(html)) {
+  if ... {
     return html;
   }
   
   // Try to match body content
-  const bodyMatch = html.match(/<body([^>]*)>([\s\S]*)<\/body>/i);
+  const bodyMatch = ...
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main id="main-content">${bodyContent}</main>`;
-    return html.replace(bodyMatch[0], `<body${bodyAttrs}>${wrappedContent}</body>`);
+    const wrappedContent = `<main ...
+    return ... ...
   }
   
   return html;
@@ -116,31 +116,31 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+export function ... {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
   
-  return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
+  return ... (match, attrs) => {
+    const existingLabel = attrs.match(/aria-label=/) || ...
     
     if (existingLabel) {
       return match;
     }
     
     // Extract title if present
-    const titleMatch = match.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const titleMatch = ...
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']*)["']/);
+    const idMatch = ...
     if (idMatch) {
-      return `<svg${attrs} role="img" aria-labelledby="${idMatch[1]}-title">`;
+      return `<svg${attrs} role="img" ...
     }
     
     // Add inline title for accessibility
-    const titleId = `svg-title-${++svgCounter}`;
-    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title id="${titleId}">${label}</title>`;
+    const titleId = ...
+    return `<svg${attrs} role="img" aria-labelledby="${titleId}"><title ...
   });
 }
 
@@ -151,7 +151,7 @@ export function addSvgAccessibleNames(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with unique landmarks
  */
-export function ensureUniqueLandmarks(html) {
+export function ... {
   if (typeof html !== 'string') return html;
   
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
@@ -169,7 +169,7 @@ export function ensureUniqueLandmarks(html) {
   // First, ensure only one <main> landmark exists.
   // Convert subsequent <main> elements to <section> with aria-label.
   let mainSeen = false;
-  html = html.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  html = ... (match, attrs) => {
     if (!mainSeen) {
       mainSeen = true;
       return match;
@@ -177,8 +177,8 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
-      return `<section${safeAttrs}>`;
+    if ... || ... {
+      return ...
     }
     return `<section${safeAttrs} aria-label="Content section">`;
   });
@@ -192,7 +192,7 @@ export function ensureUniqueLandmarks(html) {
   if (mainCloseCount > mainOpenCount) {
     const extras = mainCloseCount - mainOpenCount;
     let replaced = 0;
-    html = html.replace(/<\/main>/gi, (match) => {
+    html = ... (match) => {
       if (replaced < extras) {
         replaced += 1;
         return '</section>';
@@ -213,7 +213,7 @@ export function ensureUniqueLandmarks(html) {
     const count = counters[lm] || 0;
     if (count === 0) return;
     const seen = {};
-    const openRegex = new RegExp(`<${lm}([^>]*)>`, 'gi');
+    const openRegex = new ... 'gi');
     html = html.replace(openRegex, (match, inner) => {
       // Skip if an id attribute is already present
       if (inner && inner.includes('id=')) {
@@ -233,14 +233,93 @@ export function ensureUniqueLandmarks(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed fake link issues
  */
-export function fixFakeLinkIssue(html) {
+export function ... {
   if (typeof html !== 'string') return html;
   
   // Fix any fake links that do not have a valid href attribute
-  return html.replace(/<a([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('href=')) {
+  return ... (match, attrs) => {
+    if (attrs && ... {
       return match;
     }
     return match.replace(/<a/, '<a href="#"');
   });
 }
+
+/**
+ * Renders a dependency graph for debugging purposes
+ * Shows the relationships between modules and their dependencies
+ * @param {Object} dependencies - Object containing module dependencies
+ * @param {Object} options - Configuration options for rendering
+ * @returns {string} ASCII representation of the dependency graph
+ */
+export function renderDependencyGraph(dependencies, options = {}) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 'No dependencies provided';
+  }
+  
+  const { maxDepth = 3, showVersions = false, showTypes = false } = options;
+  
+  const renderModule = (name, depth = 0, visited = new Set()) => {
+    if (depth > maxDepth || visited.has(name)) {
+      return '';
+    }
+    
+    visited.add(name);
+    const indent = '  '.repeat(depth);
+    const prefix = depth === 0 ? '' : '├─ ';
+    const version = showVersions && dependencies[name]?.version 
+      ? ` (v${dependencies[name].version})` 
+      : '';
+    const type = showTypes && dependencies[name]?.type
+      ? ` [${dependencies[name].type}]`
+      : '';
+    
+    let output = `${indent}${prefix}${name}${version}${type}\n`;
+    
+    if (dependencies[name]?.deps && Array.isArray(dependencies[name].deps)) {
+      const deps = dependencies[name].deps;
+      deps.forEach((dep, index) => {
+        const isLast = index === deps.length - 1;
+        const childPrefix = isLast ? '└─ ' : '├─ ';
+        output += renderModule(dep, depth + 1, visited).replace(/^/, indent + (isLast ? '  ' : '│ ')).replace(/^.{0,2}/, childPrefix);
+      });
+    }
+    
+    return output;
+  };
+  
+  let output = 'Dependency Graph:\n';
+  output += '================\n\n';
+  
+  const rootModules = Object.keys(dependencies).filter(mod => {
+    return !Object.values(dependencies).some(depObj => 
+      depObj.deps && depObj.deps.includes(mod)
+    );
+  });
+  
+  if (rootModules.length === 0) {
+    rootModules.push(...Object.keys(dependencies));
+  }
+  
+  const shown = new Set();
+  rootModules.forEach((mod, index) => {
+    const isLast = index === rootModules.length - 1;
+    if (!shown.has(mod)) {
+      output += renderModule(mod, 0, shown);
+      if (!isLast) output += '\n';
+    }
+  });
+  
+  return output;
+}
+
+/**
+ * Displays module structure for debugging purposes
+ * Shows exports, imports, and other module metadata
+ * @param {Object} moduleInfo - Object containing module structure information
+ * @param {Object} options - Configuration options for display
+ * @returns {string} Formatted string representation of module structure
+ */
+export function displayModuleStructure(moduleInfo, options = {}) {
+  if (!moduleInfo || typeof moduleInfo !== 'object') {
+    return 'No module information provided';

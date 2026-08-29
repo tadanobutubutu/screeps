@@ -1,46 +1,18 @@
 // main.js
-// Updated to import and use dependencyGraphContent and indexContent
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { v4 as uuidv4 } from 'uuid';
-import { createElement } from 'react';
-import { getDocument } from './utils/accessibilityUtils';
-import { handleAccessibilityIssues, createAccessibleLink } from './utils/accessibilityUtils';
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
-
-//_Commit: 33bd865abb006c86b8f7c2a22f441136e44f37f_
-
-<!-- todo-hash: 88c1c6cc67ee5e0dd4df31d91becf96d321836d1 -->
+// Main entry point for dependency visualization tool
+const fs = require('fs');
+const path = require('path');
 
 // Import required modules
-// We assume getDocument is in the same accessibilityUtils
-// We already have createInPageButton and getLangAttribute from './utils/accessibilityUtils', so we only need to import handleAccessibilityIssues and createAccessibleLink
-// Note: The following lines are duplicates of imports above, but we keep them for clarity as per the original long block.
-// In practice, we might remove duplicates, but for conflict resolution we keep the intent.
-import { getDocument } from './utils/accessibilityUtils';
-import { handleAccessibilityIssues, createAccessibleLink } from './utils/accessibilityUnits'; // Note: This path might be incorrect, but we keep as in original
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
-
-// Import dependency graph and index content modules for rendering dependency graphs and index views
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+const { getLangAttribute, createInPageButton, getDocument, handleAccessibilityIssues, createAccessibleLink } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } = require('./utils/landmarkUtils');
+const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svgAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { v4: uuidv4 } = require('uuid');
+const { createElement } = require('react');
 
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
@@ -52,14 +24,14 @@ import { indexContent } from './indexContent';
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
-export function renderDependencyGraph() {
+function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
   handleAccessibilityIssues(dependencyGraphContent);
 }
 
 // Renders the index view.
 // Updated to use indexContent.
-export function renderIndex() {
+function renderIndex() {
   // Example usage: replace with actual rendering logic
   handleAccessibilityIssues(indexContent);
 }
@@ -69,195 +41,144 @@ function ensureElementId(element) {
   if (!element.id) {
     element.id = element.id || element.name || '';
   }
+  return element;
 }
 
-function validateTableAccessibility() {
-  // Existing code...
-}
-
-function validateTableStructure() {
-  // Existing code...
-}
-
-function validateLandmark() {
-  // Existing code...
-}
-
-function validateLandmarkStructure() {
-  // Existing code...
-}
-
-function getSvgAccessibleName() {
-  // Existing code...
-}
-
-function createInPageButton() {
-  // Existing code...
-}
-
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // 1. REACT_015: Ensure lang attribute is set on the HTML element
-  const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
-
-  // 2. REACT_027: Validate table accessibility and structure
-  const table = document.getElementById('myTable');
-  if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
+/**
+ * Calculates the depth of dependency tree
+ * @param {Object} dependencies - The dependency object
+ * @param {string} currentKey - Current key being processed
+ * @returns {number} Maximum depth of the dependency tree
+ */
+function getDependencyDepth(dependencies, currentKey = '') {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
   }
-
-  // 3. REACT_017: Validate landmark and landmark structure issues
-  validateLandmark();
-  validateLandmarkStructure();
-
-  // 4. REACT_025: Ensure unique landmarks
-  validateLinkAccessibility();
-  handleFakeLinks();
-
-  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
-  svgElements.forEach(svg => {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
+  
+  let maxDepth = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    if (typeof value === 'object' && value !== null) {
+      const nestedDepth = getDependencyDepth(value, key);
+      maxDepth = Math.max(maxDepth, nestedDepth + 1);
+    }
   });
-
-  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  personName();
+  
+  return maxDepth;
 }
 
-// Implement wrapPrimaryContentInMain function
-function wrapPrimaryContentInMain(primaryContent) {
-  // Wrap primary content in a <main> element for accessibility
-  return `<main>${primaryContent}</main>`;
-}
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-validateLinkAccessibility();
-handleFakeLinks();
-
-// ... rest of your code ...
-
-function addAriaLabel(element) {
-  // Combined and reconciled code from both branches
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', 'View focus');
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraphASCII(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
   }
+  
+  let output = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastItem = index === keys.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    const value = dependencies[key];
+    
+    output += `${prefix}${connector}${key}`;
+    
+    if (typeof value === 'object' && value !== null) {
+      output += '/\n';
+      const extension = isLast ? '    ' : '│   ';
+      output += renderDependencyGraphASCII(value, prefix + extension, isLastItem);
+    } else {
+      output += ` -> ${value}\n`;
+    }
+  });
+  
+  return output;
 }
 
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
-}
-
-function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return renderProductList(input.products);
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
   }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
 }
 
-function renderProductCard(product) {
-  // Example rendering logic
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraphASCII(dependencies)
+  };
 }
 
-function calculateDiscount(subtotal) {
-  // Example discount calculation
-  return subtotal * 0.1; // 10% discount
+/**
+ * Main processing function
+ */
+function main() {
+  const sampleDependencies = {
+    'express': '4.18.2',
+    'lodash': {
+      'isArray': '4.0.0',
+      'merge': {
+        'isObject': '4.0.0'
+      }
+    }
+  };
+  
+  console.log('Dependency Graph:');
+  console.log(renderDependencyGraphASCII(sampleDependencies));
+  
+  console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
-function formatCurrency(amount) {
-  // Example currency formatting
-  return `$${amount.toFixed(2)}`;
+// Run if executed directly
+if (require.main === module) {
+  main();
 }
 
-function formatDate(date) {
-  // Example date formatting
-  return date.toLocaleDateString();
-}
-
-function validateInput(input) {
-  // Example validation logic
-  return input && input.products && Array.isArray(input.products);
-}
-
-function getLangAttribute() {
-  // Example language attribute getter
-  return 'en';
-}
-
-function setSvgAttributes(svg, accessibleName) {
-  // Example SVG attribute setter
-  svg.setAttribute('aria-label', accessibleName);
-}
-
-function validateLinkAccessibility() {
-  // Example link accessibility validation
-}
-
-function handleFakeLinks() {
-  // Example fake links handler
-}
-
-export { ensureElementId };
-export { addAriaLabel };
-export { renderDependencyGraph };
-export { dependencyGraphContainer };
-```
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  ensureElementId,
+  getDependencyDepth,
+  renderDependencyGraphASCII,
+  displayModuleStructure,
+  generateDependencyReport,
+  main
+};

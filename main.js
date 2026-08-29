@@ -68,17 +68,68 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+/**
+ * Address accessibility issues from insight report
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ */
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
-
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
+  if (!insightReport || !insightReport.issues) {
+    return;
   }
+
+  insightReport.issues.forEach(issue => {
+    console.log(`Accessibility issue detected: ${issue.type} - ${issue.message}`);
+
+    switch (issue.type) {
+      case 'table':
+        if (issue.subType === 'structure') {
+          fixTableStructure(issue.element);
+        } else {
+          validateTableAccessibility(issue.element);
+        }
+        break;
+
+      case 'landmark':
+        if (issue.subType === 'structure') {
+          validateLandmarkStructure(issue.element);
+        } else if (issue.subType === 'attributes') {
+          validateLandmarkAttributes(issue.element);
+        } else {
+          validateLandmark(issue.element);
+        }
+        break;
+
+      case 'svg':
+        if (issue.accessibleName) {
+          setSvgAttributes(issue.element, issue.accessibleName);
+        } else {
+          getSvgAccessibleName(issue.element);
+        }
+        break;
+
+      case 'link':
+        handleFakeLinks(issue.element);
+        break;
+
+      case 'language':
+        if (issue.attribute === 'lang') {
+          addLangAttribute(issue.element);
+        }
+        break;
+
+      case 'unique-landmarks':
+        ensureUniqueLandmarks();
+        break;
+
+      case 'in-page-link':
+        createInPageButton(issue.element);
+        break;
+
+      default:
+        console.log(`Unknown issue type: ${issue.type}`);
+        break;
+    }
+  });
 }
 
 // Main execution
@@ -92,13 +143,6 @@ if (require.main === module) {
   main();
 }
 
-// Address missing export that might have been removed — ADD CODE HERE
-function missingExportPlaceholder() {}
-
-// Example usage of the new function (if applicable)
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
 module.exports = {
   config,
   appState,
@@ -109,5 +153,20 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  missingExportPlaceholder
+  getLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions
 };

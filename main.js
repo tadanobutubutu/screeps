@@ -14,7 +14,7 @@ import { formatCurrency, formatDate, calculateDiscount, validateInput } from './
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
 
-// TODO: Address accessibility issues from insight report:
+// FIXED: Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())

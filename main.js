@@ -7,7 +7,9 @@
 function createInPageButton(buttonText, onClickHandler) {
   const button = document.createElement('button');
   button.textContent = buttonText;
-  button.addEventListener('click', onClickHandler);
+  if (onClickHandler && typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
   return button;
 }
 
@@ -22,10 +24,10 @@ function initialize() {
   console.log('Application initialized');
   
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main') || document.getElementById('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.setAttribute('role', 'main');
   }
   
   // Accessibility: Add skip link functionality
@@ -39,14 +41,14 @@ function initialize() {
  * Setup skip link functionality for keyboard navigation
  */
 function setupSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link') || document.getElementById('skip-link');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(skipLink.getAttribute('href'));
+      const target = document.getElementById(skipLink.getAttribute('href').replace('#', ''));
       if (target) {
         target.focus();
-        target.scrollIntoView();
+        target.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
@@ -64,18 +66,39 @@ function setupButtonAccessibility() {
   });
 }
 
-// Existing exports and code remain unchanged
-// Note: Preserving all existing code and exports as per requirements
+/**
+ * Perform a task with the given parameters
+ * @param {string} task - The task to perform
+ */
+function performTask(task) {
+  console.log(`Performing task: ${task}`);
+  // Task implementation details would go here
+}
+
+/**
+ * Handle an event with the given parameters
+ * @param {string} event - The event to handle
+ */
+function handleEvent(event) {
+  console.log(`Handling event: ${event}`);
+  // Event handling logic would go here
+}
 
 // Export existing functionality
 module.exports = {
   initialize,
   setupSkipLinks,
   setupButtonAccessibility,
-  createInPageButton
+  createInPageButton,
+  performTask,
+  handleEvent
 };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', initialize);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
 }

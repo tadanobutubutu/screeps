@@ -8,7 +8,7 @@ export function processTable(tableElement) {
   
   function traverse(node) {
     if (node.type === 'tag' && node.name === 'tr') {
-      const cells = domutils.getElementsByTagName('td', node);
+      const cells = domutils.getChildren(node, { filter: (n) => n.type === 'tag' && (n.name === 'td' || n.name === 'th') });
       const rowData = cells.map(cell => domutils.textContent(cell));
       rows.push(rowData);
     }
@@ -24,7 +24,7 @@ export function processTable(tableElement) {
 // Imports at the top of the file
 const { utility1, utility2 } = require('./utils');
 const { formatData, processValues } = require('./helpers');
-const { addMissingExportFunction } = require('./missingExportFile');
+const { addMissingExportFunction } = require('./exporter');
 
 // Existing code
 const existingFunction = {};
@@ -73,7 +73,7 @@ function validateLandmark(element) {
  * @param { Document } doc - The document object to validate
  * @returns { Array } Array of validation results */
 function validateLandmarkStructure(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('header:not([role]), footer:not([role]), aside:not([role]), section:not([role]), article:not([role]), nav, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"]');
   return Array.from(landmarks).map(el => ({
     element: el,
     valid: validateLandmark(el),
@@ -111,7 +111,7 @@ function ensureUniqueLandmarks(landmarks) {
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
     if (role && seen.has(role)) {
-      landmark.removeAttribute('role');
+      landmark.setAttribute('data-duplicate-landmark', 'true');
     } else if (role) {
       seen.set(role, landmark);
     }
@@ -123,7 +123,7 @@ function ensureUniqueLandmarks(landmarks) {
  * @param { Document } doc - The document object to operate on
  */
 function addFixLandmarkIssues(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('header, footer, aside, section, article, nav');
   ensureUniqueLandmarks(landmarks);
 }
 
@@ -161,7 +161,7 @@ function createAccessibleLink(href, text, doc) {
 function createInPageButton(text, doc) {
   const button = doc.createElement('button');
   button.textContent = text;
-  button.id = button.id || `button-${Date.now()}`;
+  button.id = button.id || `button-${Math.random().toString(36).substr(2, 9)}`;
   return button;
 }
 
@@ -187,7 +187,7 @@ function wrapPrimaryContentInMain(doc) {
  * @returns { Array } Array of landmark elements found
  */
 function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
+  const landmarks = doc.querySelectorAll('header, footer, aside, section, article, nav');
   return Array.from(landmarks);
 }
 
@@ -223,7 +223,7 @@ function replaceMyButtonId(doc) {
  * @param { Document } doc - The document object to operate on
  * @returns { Object } A summary of the fixes applied
  */
-function addressAccessibilityIssuesFromInsightReport(doc) {
+function addressAccessibilityIssues(doc) {
   const summary = {
     langAttributeFixed: false,
     landmarkIssuesFixed: 0,
@@ -235,8 +235,8 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   };
 
   // REACT_015: Add lang attribute to HTML element if missing
-  if (!doc.documentElement.getAttribute('lang')) {
-    doc.documentElement.setAttribute('lang', getLangAttribute(doc));
+  if (!doc.documentElement.lang) {
+    doc.documentElement.lang = 'en';
     summary.langAttributeFixed = true;
   }
 
@@ -270,98 +270,4 @@ function addressAccessibilityIssuesFromInsightReport(doc) {
   // Add ARIA to form controls
   const inputs = doc.querySelectorAll('input, select, textarea');
   inputs.forEach((input, index) => {
-    if (!input.id && input.type !== 'hidden') {
-      input.id = `input-${index}`;
-      summary.formControlsFixed++;
-    }
-  });
-
-  // Replace button IDs with accessible alternatives
-  const buttons = doc.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    if (!button.id) {
-      button.id = `button-${index}`;
-      summary.buttonsFixed++;
-    }
-  });
-
-  // Wrap primary content in main landmark if not present
-  if (!doc.querySelector('main, [role="main"]')) {
-    wrapPrimaryContentInMain(doc);
-  }
-
-  return summary;
-}
-
-/**
- * Calculate total price from an array of items
- * @param { Array } items - Array of items with price property
- * @returns { number } Total price of all items
- */
-function calculateTotal(items) {
-  return items.reduce((total, item) => total + item.price, 0);
-}
-
-/**
- * Add and ensure unique landmark regions
- * @param { Document } doc - The document object to operate on
- * @returns { Array<HTMLElement> } - An array of landmark elements
- */
-function addAndEnsureUniqueLandmarkRegions(doc) {
-  const landmarks = addProperLandmarkRegions(doc);
-  return ensureUniqueLandmarks(landmarks);
-}
-
-// Export the main function and other exported functions
-export function formatTableRow(rowData, columnWidths) {
-  return rowData.map((cell, i) => {
-    const width = columnWidths[i] || 10;
-    return String(cell).padEnd(width);
-  }).join(' | ');
-}
-
-export function generateTableMarkdown(headers, rows) {
-  const columnWidths = headers.map((h, i) => {
-    const maxContentWidth = rows.reduce((max, row) => {
-      return Math.max(max, String(row[i] || '').length);
-    }, 0);
-    return Math.max(h.length, maxContentWidth);
-  });
-  
-  const headerRow = formatTableRow(headers, columnWidths);
-  const separator = columnWidths.map(w => '-'.repeat(w)).join('-+-');
-  const dataRows = rows.map(row => formatTableRow(row, columnWidths));
-  
-  return `${headerRow}\n${separator}\n${dataRows.join('\n')}`;
-}
-
-export function calculateTotal(items) {
-  return items.reduce((total, item) => total + item.price, 0);
-}
-
-module.exports = {
-  existingFunction,
-  getSvgAccessibleName,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureUniqueLandmarks,
-  addFixLandmarkIssues,
-  fixFakeLinkIssues,
-  createAccessibleLink,
-  createInPageButton,
-  wrapPrimaryContentInMain,
-  addProperLandmarkRegions,
-  addAriaToFormControls,
-  replaceMyButtonId,
-  addressAccessibilityIssuesFromInsightReport,
-  calculateTotal,
-  addAndEnsureUniqueLandmarkRegions,
-  renderHomePage,
-  renderUserProfile,
-  renderDashboard,
-  renderSettings,
-};
+    if (!input.id

@@ -30,9 +30,6 @@ function addressAccessibilityIssues(insightReport) {
       case 'heading-order':
         fixedIssue.fixApplied = 'Corrected heading hierarchy to maintain logical order.';
         break;
-      case 'add-lang-attribute':
-        fixedIssue.fixApplied = 'Added lang attribute to HTML element.';
-        break;
       case 'add-landmark-roles':
         fixedIssue.fixApplied = 'Added landmark roles and fixed landmark issues.';
         break;

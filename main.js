@@ -25,6 +25,32 @@ function rotateBack() {
 // Ensure that all interactive elements have appropriate keyboard support
 // Check that ARIA attributes are correctly paired and have appropriate values
 
+function addLangAttribute(rootElement, langCode) {
+  if (!rootElement) return null;
+  rootElement.setAttribute('lang', langCode || 'en');
+  return rootElement;
+}
+
+function fixTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') return table;
+  
+  const headers = table.querySelectorAll('th');
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const parent = th.parentElement;
+      if (parent && parent.tagName === 'TR') {
+        // Determine scope based on position
+        if (parent.parentElement && parent.parentElement.tagName === 'THEAD') {
+          th.setAttribute('scope', 'col');
+        } else if (parent.parentElement && parent.parentElement.tagName === 'TBODY') {
+          // Check if it's a row header
+          const isRowHeader = parent.children[0] === th && parent.parentElement === table;
+          th.setAttribute('scope', isRowHeader ? 'row' : 'col');
+        }
+      }
+    }
+  });
+  
   return table;
 }
 
@@ -34,12 +60,18 @@ function addMainLandmark(rootElement) {
     return null;
   }
 
-  const existingMain = rootElement.querySelector('[role="main"]');
+  const existingMain = rootElement.querySelector('main');
   if (!existingMain) {
     const mainElement = document.createElement('main');
     mainElement.setAttribute('id', 'main-content');
+    // Move all child elements except script, style, etc. into main
+    const children = Array.from(rootElement.children);
     while (rootElement.firstChild) {
-      mainElement.appendChild(rootElement.firstChild);
+      const child = rootElement.firstChild;
+      if (child.tagName && ['SCRIPT', 'STYLE', 'LINK', 'META'].includes(child.tagName)) {
+        break; // leave non-content elements outside
+      }
+      mainElement.appendChild(child);
     }
     rootElement.insertBefore(mainElement, rootElement.firstChild);
   }

@@ -1,3 +1,5 @@
+// TODO: Add back any required exports that might have been?
+
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 
 function wrapPrimaryContentInMain() {

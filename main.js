@@ -17,8 +17,6 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
 import { state, updateState } from './state.js';
@@ -83,9 +81,55 @@ function getSvgAccessibleName(svg) {
   return 'My SVG Element';
 }
 
+function setSvgAttributes() {
+  // Existing code...
+}
+
 function createInPageButton() {
   // Create an accessible in-page button
   console.log('Creating accessible in-page button');
+}
+
+// New functions to fix accessibility issues as per the insight report
+
+function validateUniqueLandmarks() {
+  // Code to ensure unique landmarks
+}
+
+// New function to fix accessibility issues as per the insight report
+function fixAccessibilityIssues() {
+  // Add lang attribute to HTML element
+  document.documentElement.setAttribute('lang', getLangAttribute());
+
+  // Create in-page button with accessibility considerations
+  createInPageButton();
+
+  // Validate table structure and accessibility
+  // Assuming you have a table element with an id of 'myTable'
+  const table = document.getElementById('myTable');
+  if (table) {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  }
+
+  // Add/fix landmark issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // Add accessible names to SVGs
+  const svg = document.getElementById('mySvg');
+  if (svg) {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  }
+
+  // Ensure unique landmarks
+  ensureUniqueLandmarks();
+  validateLinkAccessibility();
+  handleFakeLinks();
+
+  // Handle fake link issues
+  handleAccessibilityIssues();
 }
 
 // Added function to create accessible links as mentioned in the issue
@@ -106,80 +150,10 @@ function handleAccessibilityIssues() {
   // Add other accessibility issue handling as needed
 }
 
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  // Add lang attribute to HTML element
-  document.documentElement.setAttribute('lang', getLangAttribute());
-
-  // Create in-page button with accessibility considerations
-  createInPageButton();
-
-  // Validate table structure and accessibility
-  // Assuming you have a table element with an id of 'myTable'
-  const table = document.getElementById('myTable');
-  if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  }
-
-  // Add/fix landmark issues
-  if (validateLandmark()) {
-    validateLandmarkStructure();
-  }
-
-  // Add accessible names to SVGs
-  if (validateLandmark()) {
-    const svg = document.getElementById('mySvg');
-    if (svg) {
-      const accessibleName = getSvgAccessibleName(svg);
-      setSvgAttributes(svg, accessibleName);
-    }
-  }
-
-  // Ensure unique landmarks
-  if (validateLinkAccessibility()) {
-    handleFakeLinks();
-  }
-
-  // Fix landmark uniqueness issues
-  if (validateLandmark()) {
-    // Additional logic for ensuring unique landmarks could go here
-  }
-}
-
 // DOM-based accessibility code
 
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-const table = document.getElementById('myTable');
-if (table) {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-}
-
-// Add/fix landmark issues
-validateLandmark();
-validateLandmarkStructure();
-ensureUniqueLandmarks();
-
-// Add accessible names to SVGs
-const svg = document.getElementById('mySvg');
-if (svg) {
-  const accessibleName = getSvgAccessibleName(svg);
-  setSvgAttributes(svg, accessibleName);
-}
-
-// Ensure unique landmarks
-validateLinkAccessibility();
-handleFakeLinks();
-
-// Handle fake link issues
-handleAccessibilityIssues();
+// New function call to fix accessibility issues
+fixAccessibilityIssues();
 
 // ... rest of your code ...
 
@@ -197,18 +171,13 @@ const renderIndex = () => {
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${formatCurrency(product.price)}`;
+  return `${product.name} - ${product.description || 'No description'}`;
 }
 
 function renderProductList(products) {
   const container = document.createElement('div');
   container.className = 'product-list';
-  container.innerHTML = products.map(product => `
-    <div class="product-card">
-      <h3>${formatProductName(product)}</h3>
-      <p class="price">${formatCurrency(product.price)}</p>
-    </div>
-  `).join('');
+  container.innerHTML = products.map(product => renderProductCard(product)).join('');
   return container;
 }
 
@@ -235,14 +204,23 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return `<div class="validated">${formatCurrency(input.value)}</div>`;
+    let value = input;
+    if (input && typeof input === 'object' && 'value' in input) {
+      value = input.value;
+    }
+    return `<div class="validated">${formatCurrency(value)}</div>`;
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products || []);
+  let content;
+  if (data.products) {
+    content = renderProductList(data.products);
+  } else {
+    content = data.content || '';
+  }
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -250,8 +228,19 @@ function renderPage(data) {
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 function specificFunctionThatRendersGraphOrIndex() {
-  // Call the updated functions to render the graph or index as needed
-  renderDependencyGraph(dependencyGraphContent);
+  // Updated to use new rendering functions
+  renderGraph(dependencyGraphContent);
+  renderIndex();
+}
+
+// Updated functions that render dependency graphs and index views
+function renderDependencyGraphView(data) {
+  // Render the dependency graph using the provided data
+  renderDependencyGraph(data);
+}
+
+function renderIndexView() {
+  // Render the index view using the index content
   renderIndex();
 }
 

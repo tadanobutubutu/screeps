@@ -1,5 +1,3 @@
-// Assuming the file is located at ...
-
 import React, { useState } from 'react';
 
 interface DashboardProps {

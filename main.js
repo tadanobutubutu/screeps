@@ -242,17 +242,13 @@ function addressAccessibilityIssues(report) {
   });
 }
 
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.getAttribute('lang')) {
-  document.documentElement.setAttribute('lang', 'en');
+// Calculate the sum of an array of numbers
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    throw new TypeError('Input must be an array');
+  }
+  return numbers.reduce((sum, num) => sum + (typeof num === 'number' ? num : 0), 0);
 }
-
-mainElement.appendChild(document.body.cloneNode(true));
-document.body.parentNode.insertBefore(mainElement, document.body);
 
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
@@ -263,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 export { a11yStore };
 export { mainElement };
 export { addressAccessibilityIssues };
+export { calculateSum };
 export { updateLiveRegion };
 export { initA11y };
 export default a11yStore;

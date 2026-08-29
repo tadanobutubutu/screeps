@@ -1,10 +1,16 @@
-// Assuming the file is located at ...
+import './styles.css';
 
-import React, { useState } from 'react';
+import { initializeApp } from './app.js';
+import { registerSW } from 'effector-sw';
 
-interface DashboardProps {
-  // Define any props the Dashboard component might receive
-}
+// Landmark data structure
+const landmarks = [];
+
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
+};
 
 // Function to create in-page buttons
 const createInPageButton = (options: {
@@ -59,8 +65,7 @@ const createInPageButton = (options: {
   );
 };
 
-const Dashboard: React.FC<DashboardProps> = (props) => {
-  const [error, setError] = useState<string | null>(null);
+const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [errCopyHover, setErrCopyHover] = useState<boolean>(false);
@@ -103,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {createInPageButton({
           onClick: copyErr,
           label: copied ? 'コピー済み' : 'エラーをコピー',
-          icon: copied ? '✅' : '📋',
+          icon: copied ? icons.success : icons.copy,
           disabled: false,
           isActive: copied,
           hoverState: errCopyHover,
@@ -114,7 +119,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {createInPageButton({
           onClick: () => fetchStats(true),
           label: refreshing ? '再試行中...' : '再試行',
-          icon: refreshing ? '🔄' : '🔁',
+          icon: refreshing ? icons.refresh : icons.retry,
           disabled: refreshing,
           isActive: false,
           hoverState: errRetryHover,
@@ -127,4 +132,76 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   );
 };
 
-export default Dashboard;
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = document.getElementById(id);
+  return element !== null;
+}
+
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarks) {
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        const key = landmark.name + '_' + (landmark.role || 'default');
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+// Testing the checkLandmarkElement function:
+// To test this function, we could create a test file with the following content:
+const landmarkStructureCheck = (landmark) => {
+  if (!landmark.name || !landmark.coordinates) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Initializes the application and applies accessibility fixes.
+ */
+const initApp = () => {
+  // Initialize the main application
+  initializeApp();
+
+  // Apply accessibility fixes
+  setLanguageAttribute(); // Default to 'en'
+  addLandmarkRoles();
+  ensureUniqueLandmarks(landmarks);
+
+  // Add accessible names to SVGs (example selectors and names)
+  const icons = {
+    icon: '<svg viewBox="0 0 100 100" aria-label="Screps icon"></svg>',
+    success: '<svg viewBox="0 0 100 100" aria-label="Success icon"></svg>',
+    copy: '<svg viewBox="0 0 100 100" aria-label="Copy icon"></svg>',
+    refresh: '<svg viewBox="0 0 100 100" aria-label="Refresh icon"></svg>',
+    retry: '<svg viewBox="0 0 100 100" aria-label="Retry icon"></svg>',
+  };
+
+  // Fix fake links
+  fixFakeLinks();
+
+  // Initialize the application data
+  console.log('Initializing ' + appData.title + ' v' + appData.version);
+  // ... (assuming other initialization logic is present)
+};
+
+// Check if the environment is secure before initializing
+if (isSecureContext()) {
+  initApp();
+} else {
+  console.warn('Application is not running in a secure context. Some features may not be available.');
+}
+
+// Register the service worker
+registerSW();
+
+// Export functions for testing
+// ... (only include exported functions if needed and remove unrelated code)

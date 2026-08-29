@@ -41,6 +41,7 @@ document.body.appendChild(mainElement);
 // Initialize accessibility features
 document.addEventListener('DOMContentLoaded', () => {
   a11yStore.init();
+  accessibilityCheckTables();
 });
 
 // Game-related functions and exports
@@ -59,6 +60,17 @@ const config = {
   enabled: true
 };
 
+// Implement this function for accessibility checks on tables
+function accessibilityCheckTables() {
+  // Your implementation for accessibility checks on tables goes here
+  // For example, you could iterate over all tables and call the existing validation functions
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+}
+
 module.exports = {
     run,
     main,
@@ -75,18 +87,6 @@ module.exports = {
     createInPageButton,
     createAccessibleLink,
     a11yStore,
-    mainElement
+    mainElement,
+    accessibilityCheckTables
 };
-
-// Implement accessibility checks for tables
-// Check all tables in the document for accessibility compliance
-function checkAccessibilityOfTables() {
-  const tables = document.getElementsByTagName('table');
-  for (let table of tables) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
-  }
-}
-
-// Call the function to check tables when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', checkAccessibilityOfTables);

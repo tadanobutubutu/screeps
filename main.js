@@ -12,7 +12,7 @@ export function calculateSum(a, b) {
 
 // Below is the existing code (preserving syntax and existing exports)
 // ...
-import react from 'react';
+import React from 'react';
 
 const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
@@ -112,8 +112,107 @@ function ensureUniqueLandmarks() {
   // Code for ensuring unique landmarks
 }
 
-function createInPageButton() {
-  // Code for creating an in-page button
+function createInPageButton(props) {
+  const {
+    label = 'Click me',
+    onClick = () => {},
+    variant = 'default',
+    id = `in-page-btn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    disabled = false,
+    ariaLabel = '',
+    ariaDescribedBy = '',
+    className = '',
+    type = 'button'
+  } = props || {};
+
+  // Create button element
+  const button = document.createElement('button');
+  
+  // Set core attributes
+  button.type = type;
+  button.id = id;
+  button.textContent = label;
+  
+  // Apply variant-based styling
+  const variantClass = `btn-${variant}`;
+  button.className = className ? `${className} ${variantClass}` : variantClass;
+  
+  // Apply inline styles for button appearance
+  button.style.display = 'inline-flex';
+  button.style.alignItems = 'center';
+  button.style.justifyContent = 'center';
+  button.style.padding = '8px 16px';
+  button.style.border = '1px solid transparent';
+  button.style.borderRadius = '4px';
+  button.style.fontSize = '14px';
+  button.style.fontWeight = '500';
+  button.style.cursor = disabled ? 'not-allowed' : 'pointer';
+  button.style.transition = 'background-color 0.2s, border-color 0.2s';
+  
+  // Set variant-specific styles
+  switch (variant) {
+    case 'primary':
+      button.style.backgroundColor = '#007bff';
+      button.style.color = '#ffffff';
+      break;
+    case 'secondary':
+      button.style.backgroundColor = '#6c757d';
+      button.style.color = '#ffffff';
+      break;
+    case 'success':
+      button.style.backgroundColor = '#28a745';
+      button.style.color = '#ffffff';
+      break;
+    case 'danger':
+      button.style.backgroundColor = '#dc3545';
+      button.style.color = '#ffffff';
+      break;
+    case 'outline':
+      button.style.backgroundColor = 'transparent';
+      button.style.borderColor = '#007bff';
+      button.style.color = '#007bff';
+      break;
+    default:
+      button.style.backgroundColor = '#e0e0e0';
+      button.style.color = '#333333';
+  }
+  
+  // Handle disabled state
+  if (disabled) {
+    button.disabled = true;
+    button.style.opacity = '0.6';
+    button.style.pointerEvents = 'none';
+  }
+  
+  // Set accessibility attributes
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  }
+  if (ariaDescribedBy) {
+    button.setAttribute('aria-describedby', ariaDescribedBy);
+  }
+  
+  // Set role for semantic clarity
+  button.setAttribute('role', 'button');
+  
+  // Attach click handler
+  button.addEventListener('click', (event) => {
+    if (!disabled) {
+      onClick(event);
+    }
+  });
+  
+  // Add keyboard support (Enter and Space keys)
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (!disabled) {
+        button.click();
+      }
+    }
+  });
+  
+  return button;
 }
 
 function validateLinkAccessibility() {
@@ -135,8 +234,8 @@ function addressAccessibilityIssues(insightReport) {
   // This should be replaced with actual logic based on the insight report structure
 
   // For example, we might log the issues or take some action to fix them
-  if (insightReport && Array.isArray(insightReport.accessibilityIssues)) {
-    insightReport.accessibilityIssues.forEach(issue => {
+  if (insightReport && insightReport.issues) {
+    insightReport.issues.forEach(issue => {
       console.log(`Accessibility issue detected: ${issue.message}`);
       // Add your logic here to address the issue, such as updating the DOM or calling other functions
     });

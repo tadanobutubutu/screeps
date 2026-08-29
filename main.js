@@ -1,16 +1,66 @@
-// Add the new function definition here:
-function addressAccessibilityIssues(report) {
-  // Add your implementation here
-  console.log("Addressing accessibility issues:", report);
-}
+const insightApi = require('./insightApi');
 
-// Main function that calls the new function
-function main() {
-  const report = getInsideReport(); // Assuming there is a function to get the report
+function addressAccessibilityIssues(insightReport) {
+  const recommendations = [];
+  
+  if (!insightReport || !insightReport.accessibility || !insightReport.accessibility.issues) {
+    return recommendations;
+  }
+
+  const issues = insightReport.accessibility.issues;
+  
+  issues.forEach((issue) => {
+    switch (issue.severity) {
+      case 'critical':
+        recommendations.push(`[CRITICAL] ${issue.id}: ${issue.description}`);
+        if (issue.suggestedFix) {
+          recommendations.push(`  Fix: ${issue.suggestedFix}`);
+        }
+        break;
+      case 'high':
+        recommendations.push(`[HIGH] ${issue.id}: ${issue.description}`);
+        if (issue.suggestedFix) {
+          recommendations.push(`  Fix: ${issue.suggestedFix}`);
+        }
+        break;
+      case 'medium':
+        recommendations.push(`[MEDIUM] ${issue.id}: ${issue.description}`);
+        if (issue.suggestedFix) {
+          recommendations.push(`  Fix: ${issue.suggestedFix}`);
+        }
+        break;
+      case 'low':
+        recommendations.push(`[LOW] ${issue.id}: ${issue.description}`);
+        if (issue.suggestedFix) {
+          recommendations.push(`  Fix: ${issue.suggestedFix}`);
+        }
+        break;
+      default:
+        recommendations.push(`[UNKNOWN] ${issue.id}: ${issue.description}`);
+    }
+  });
+
+  return recommendations;
+};
+
+const generateInsightReport = async (options) => {
+  try {
+    const report = await insightApi.getReport(options);
+    return report;
+  } catch (error) {
+    console.error('Error generating insight report:', error);
+    throw error;
+  }
+};
+
+async function main() {
+  const report = await generateInsightReport(); // Assuming no options needed
   addressAccessibilityIssues(report);
 }
 
 // Preserve existing exports:
 module.exports = {
-  main, // You can rename 'main' to your desired export name
+  main,
+  generateInsightReport,
+  addressAccessibilityIssues
 };

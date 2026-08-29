@@ -12,7 +12,78 @@ module.exports = {
 
 // main.js
 
-// TODO: Implement this function for checking landmark structure
+/**
+ * Validates table accessibility features in HTML
+ * Checks for captions, summaries, and scope attributes on headers
+ * @param {string} html - The HTML string to validate
+ * @returns {object} Validation results for table accessibility
+ */
+function validateTableAccessibility(html) {
+  if (typeof html !== 'string') return { valid: false, errors: ['Input must be a string'] };
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const tables = doc.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') || table.getAttribute('summary');
+    if (!hasCaption) {
+      issues.push(`Table ${index + 1}: Missing caption or summary attribute`);
+    }
+
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, i) => {
+      if (!th.hasAttribute('scope')) {
+        issues.push(`Table ${index + 1}: Header cell ${i + 1} missing scope attribute`);
+      }
+    });
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    tableCount: tables.length
+  };
+}
+
+/**
+ * Validates table structure for proper HTML semantics
+ * Checks for thead/tbody organization and row presence
+ * @param {string} html - The HTML string to validate
+ * @returns {object} Validation results for table structure
+ */
+function validateTableStructure(html) {
+  if (typeof html !== 'string') return { valid: false, errors: ['Input must be a string'] };
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const tables = doc.querySelectorAll('table');
+  const issues = [];
+
+  tables.forEach((table, index) => {
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+    const rows = table.querySelectorAll('tr');
+
+    if (rows.length > 0 && !hasThead && !hasTbody) {
+      issues.push(`Table ${index + 1}: Missing thead and tbody structure`);
+    }
+
+    if (rows.length === 0) {
+      issues.push(`Table ${index + 1}: Contains no rows`);
+    }
+  });
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    tableCount: tables.length
+  };
+}
+
+// TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+
 function checkLandmarkStructure(html) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -289,5 +360,7 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
+  validateTableAccessibility,
+  validateTableStructure,
   functionName // Preserve existing export
 };

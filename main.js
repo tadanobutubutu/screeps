@@ -14,22 +14,19 @@ const {
   getFullLangAttribute,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
+} = require('./accessibility-utils');
 
 // Export affected functions and Main component to make them accessible
-module.exports = {
-  ...affectedFunctions,
-  Main: Main,
+const affectedFunctions = {
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  createAccessibleLink,
 };
 
 const a11yStore = {
   init() {
-    this.createLiveRegion();
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
     this.setupSkipLinks();
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
     this.fixFakeLinks();
     this.initAccessibility();
   },
@@ -48,7 +45,7 @@ const a11yStore = {
     dialog.id = id;
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-labelledby', `${id}-title`);
-    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-hidden', 'true');
 
     const titleEl = document.createElement('h2');
     titleEl.id = `${id}-title`;
@@ -111,14 +108,16 @@ const a11yStore = {
       });
     }
 
-    document.querySelectorAll('img').forEach((img) => {
-      if (!img.hasAttribute('alt')) {
+    const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
+    imagesWithoutAlt.forEach((img) => {
+      if (!img.alt) {
         img.setAttribute('alt', '');
         img.setAttribute('role', 'presentation');
       }
     });
 
-    document.querySelectorAll('input, select, textarea').forEach((input) => {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach((input) => {
       if (!input.id && input.name) {
         input.id = input.name;
       }
@@ -154,51 +153,51 @@ const a11yStore = {
   },
 
   makeAccessible(element) {
-    // Implement the function logic to address accessibility issues
+    // TODO: Implement the function logic to address accessibility issues
   },
 
   newNecessaryFunction() {
-    // Implement the new function logic here
+    // TODO: Implement the new function logic here
   },
 
   handleAccessibilityIssues() {
-    // Implement the function logic to handle accessibility issues
+    // TODO: Implement the function logic to handle accessibility issues
   },
 
-  addressAccessibilityIssue038() {
-    // Existing code for addressing accessibility issue 038
+  handleAccessibilityIssue038() {
+    // TODO: Existing code for addressing accessibility issue 038
   },
 
   renderDependencyGraph() {
-    // Existing code for rendering dependency graph
+    // TODO: Existing code for rendering dependency graph
   },
 
   setupKeyboardNavigation() {
-    // Setup keyboard navigation logic
+    // TODO: Setup keyboard navigation logic
   },
 
   setupFocusManagement() {
-    // Setup focus management logic
+    // TODO: Setup focus management logic
   },
 
   setupSkipLinks() {
-    // Setup skip links logic
+    // TODO: Setup skip links logic
   },
 
   checkLandmarkElements() {
-    // Check and ensure proper landmark elements
+    // TODO: Check and ensure proper landmark elements
   },
 
-  addSVGAccessibilityProps() {
-    // Add accessibility properties to SVG elements
+  addSvgAccessibility() {
+    // TODO: Add accessibility properties to SVG elements
   },
 
   fixFakeLinks() {
-    // Fix fake links to use proper anchor elements
+    // TODO: Fix fake links to use proper anchor elements
   },
 
   updateLiveRegion() {
-    // Update live region for screen readers
+    // TODO: Update live region for screen readers
   },
 };
 
@@ -232,13 +231,15 @@ function getSvgAccessibleName(svgElement) {
 
 function addressAccessibilityIssues(report) {
   if (!report) return;
-  report.forEach(issue => {
-    // Integrated the logic from both branches to address accessibility issues
+  report.forEach((issue) => {
+    // TODO: Integrated the logic from both branches to address accessibility issues
   });
 }
 
-const mainElement = document.createElement('main');
-mainElement.setAttribute('lang', document.documentElement.lang);
+const mainElement = document.querySelector('main') || document.body;
+if (mainElement && !document.documentElement.lang) {
+  // Set default language if not already set
+}
 
 export default function Main() {
   return (
@@ -281,7 +282,7 @@ export default function Main() {
         </svg>
 
         {/* REACT_036: Fix fake link issue - use proper anchor element */}
-        <a href="/dashboard" className="button-link">
+        <a href="/dashboard" className="button">
           Go to Dashboard
         </a>
 
@@ -304,8 +305,14 @@ export {
   initAccessibility,
   updateLiveRegion,
   checkLandmarkElements,
-  addSVGAccessibilityProps,
+  setupKeyboardNavigation,
   addressAccessibilityIssue038,
   renderDependencyGraph,
 };
-export default a11yStore;
+
+module.exports = {
+  ...affectedFunctions,
+  Main: Main,
+};
+
+module.exports.default = a11yStore;

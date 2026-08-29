@@ -11,18 +11,7 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
-const {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  countDependencies,
-  myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
-
-// Import your custom functions if they exist
-// const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
+} = require('./accessibility-helpers');
 
 const viewsDir = path.join(__dirname, 'views');
 
@@ -46,7 +35,7 @@ function run() {
     .map(file => path.join(viewsDir, file));
 
   files.forEach(file => {
-    updateThScopeAttribute(file);
+    updateThScope(file);
     validateTableAccessibility(file);
     // Add more accessibility checks here if needed
   });
@@ -102,14 +91,14 @@ const config = {
   enabled: true
 };
 
-function updateThScopeAttribute(file) {
+function updateThScope(file) {
   // Implementation for updating th scope attribute
   // This function is called in the run loop but was not defined in either branch
   // Adding a placeholder implementation
   try {
     let content = fs.readFileSync(file, 'utf8');
     // Simple regex to find th elements without scope attribute
-    const updatedContent = content.replace(/<th(?![^>]*\bscope=)/g, '<th scope="row"');
+    const updatedContent = content.replace(/<th(?![^>]*\bscope=["'])(?![^>]*>)/g, '<th scope="row"');
     if (content !== updatedContent) {
       fs.writeFileSync(file, updatedContent);
       console.log(`Updated th scope attributes in ${file}`);

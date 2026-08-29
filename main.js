@@ -94,7 +94,23 @@ function isButtonAccessible(button) {
  * @param {HTMLElement} element - The element to check
  */
 function checkLandmarkElement(role, element) {
-  // (code for checkLandmarkElement remains the same)
+  // Validate landmark element has appropriate accessibility attributes
+  if (!element || !role) {
+    return false;
+  }
+  
+  // Check if element has the expected role
+  const elementRole = element.getAttribute('role');
+  if (elementRole !== role && !element.nodeName.toLowerCase().match(new RegExp(role, 'i'))) {
+    return false;
+  }
+  
+  // Check if landmark has an accessible name (aria-label or aria-labelledby or text content)
+  const hasLabel = element.getAttribute('aria-label');
+  const hasLabelledBy = element.getAttribute('aria-labelledby');
+  const hasText = element.textContent.trim().length > 0;
+  
+  return hasLabel || hasLabelledBy || hasText;
 }
 
 /**
@@ -141,7 +157,31 @@ function wrapPrimaryContentInMain() {
  * @returns {Object} An object containing landmark accessibility check results
  */
 function checkLandmarks(container = document) {
-  // (code for checkLandmarks remains the same)
+  const results = {
+    landmarks: { accessible: [], inaccessible: [] },
+    isFullyAccessible: true
+  };
+  
+  const landmarkSelectors = [
+    'main', 'header', 'footer', 'nav', 'aside',
+    '[role="banner"]', '[role="navigation"]', '[role="main"]',
+    '[role="contentinfo"]', '[role="complementary"]', '[role="search"]',
+    '[role="form"]', '[role="region"]'
+  ];
+  
+  const allLandmarks = container.querySelectorAll(landmarkSelectors.join(', '));
+  
+  allLandmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.nodeName.toLowerCase();
+    if (checkLandmarkElement(role, landmark)) {
+      results.landmarks.accessible.push(landmark);
+    } else {
+      results.landmarks.inaccessible.push(landmark);
+      results.isFullyAccessible = false;
+    }
+  });
+  
+  return results;
 }
 
 /**
@@ -176,7 +216,48 @@ function addLangAttribute() {
  * @returns {NodeList} NodeList of fixed tables
  */
 function fixTableStructureIssues(container = document) {
-  // (code for fixTableStructureIssues remains the same)
+  const tables = container.querySelectorAll('table');
+  const fixedTables = [];
+  
+  tables.forEach(table => {
+    // Check if table has proper structure
+    const hasCaption = table.querySelector('caption');
+    const hasHeaderCells = table.querySelectorAll('th').length > 0;
+    const hasDataCells = table.querySelectorAll('td').length > 0;
+    
+    // Add caption if missing and table has headers
+    if (!hasCaption && hasHeaderCells) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      fixedTables.push(table);
+    }
+    
+    // Ensure proper th/td usage
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('th, td');
+      cells.forEach(cell => {
+        const isHeaderCell = cell.nodeName.toLowerCase() === 'th';
+        const hasScope = cell.getAttribute('scope');
+        
+        if (isHeaderCell && !hasScope) {
+          // Determine scope based on position
+          const rowIndex = row.rowIndex;
+          const cellIndex = Array.from(row.cells).indexOf(cell);
+          
+          if (rowIndex === 0 && cellIndex >= 0) {
+            cell.setAttribute('scope', 'col');
+          } else if (cellIndex === 0 && rowIndex > 0) {
+            cell.setAttribute('scope', 'row');
+          }
+          fixedTables.push(table);
+        }
+      });
+    });
+  });
+  
+  return fixedTables;
 }
 
 /**
@@ -277,13 +358,19 @@ function ensureUniqueLandmarks() {
 }
 
 /**
- * Fixes fake link issues by converting links without href to buttons.
- * @returns {Array} Array of fixed link elements
+ * Checks link and button accessibility in a container.
+ * @param {HTMLElement} [container=document] - The container to check for accessibility
+ * @returns {Object} An object containing link and button accessibility check results
  */
-function fixFakeLinkIssue() {
-  const links = document.querySelectorAll('a');
-  const fixedLinks = [];
+function checkLinkAndButtonAccessibility(container = document) {
+  const results = {
+    links: { accessible: [], inaccessible: [] },
+    buttons: { accessible: [], inaccessible: [] },
+    isFullyAccessible: true
+  };
 
+  // Check all links in the container
+  const links = container.querySelectorAll ? container.querySelectorAll('a') : [];
   links.forEach(link => {
     if (isLinkAccessible(link)) {
       results.links.accessible.push(link);
@@ -305,6 +392,56 @@ function fixFakeLinkIssue() {
   });
 
   return results;
+}
+
+/**
+ * Fixes fake link issues by converting links without href to buttons.
+ * @returns {Array} Array of fixed link elements
+ */
+function fixFakeLinkIssue() {
+  const links = document.querySelectorAll('a');
+  const fixedLinks = [];
+
+  links.forEach(link => {
+    // Check if it's a fake link (no href or empty href)
+    const href = link.getAttribute('href');
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+
+    if (!href || href === '#' || href === '') {
+      // Convert to button
+      const button = document.createElement('button');
+      button.textContent = link.textContent;
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || '');
+      
+      // Copy inline styles if any
+      if (link.style) {
+        button.style.cssText = link.style.cssText;
+      }
+      
+      // Copy class names
+      if (link.className) {
+        button.className = link.className;
+      }
+      
+      // Copy click handler
+      if (link.onclick) {
+        button.onclick = link.onclick;
+      }
+      
+      // Replace the link with the button
+      if (link.parentNode) {
+        link.parentNode.replaceChild(button, link);
+        fixedLinks.push(button);
+      }
+    } else if (!hasText && !hasAriaLabel) {
+      // Link has href but no accessible name - add aria-label
+      addAriaLabel(link, 'Link');
+      fixedLinks.push(link);
+    }
+  });
+
+  return fixedLinks;
 }
 
 // Function to render dependency graphs
@@ -333,7 +470,17 @@ module.exports = {
   setSvgAccessibilityProps,
   isLinkAccessible,
   isButtonAccessible,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  renderIndexView,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarks,
   checkLinkAndButtonAccessibility,
+  fixFakeLinkIssue,
   renderDependencyGraph,
   getLandmarkData
 };

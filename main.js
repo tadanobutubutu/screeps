@@ -53,5 +53,8 @@ addAriaLabelByIdToHeadings();
 
 module.exports = {
   makeInteractiveElementAccessible,
+  addAriaHiddenToDecorativeSVGs,
+  addAriaLabelToFormInputs,
+  addAriaLabelByIdToHeadings,
   // Your existing exports...
 };

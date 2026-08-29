@@ -57,6 +57,19 @@ function loop() {
   }
 }
 
+// New functions to ensure element has an id and add aria-label
+function ensureElementHasId(element) {
+  if (!element.id) {
+    element.id = 'generated-id-' + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+}
+
+function addAriaLabel(element, label) {
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
 module.exports = {
   multiply,
   add,
@@ -66,5 +79,7 @@ module.exports = {
   anotherFunction,
   renderDependencyGraph,
   displayModuleStructure,
-  loop
+  loop,
+  ensureElementHasId,
+  addAriaLabel
 };

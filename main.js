@@ -13,6 +13,14 @@ const {
   ADDRESS_ACCESSIBILITY_ISSUE_038,
 } = require('./accessibilityHelperFunctions');
 
+// Function to calculate the sum of numbers
+function calculateSum(numbers) {
+  if (!Array.isArray(numbers)) {
+    return 0;
+  }
+  return numbers.reduce((sum, num) => sum + num, 0);
+}
+
 // Function to add lang attribute to HTML element
 function addLangAttribute(document, lang = 'en') {
   const htmlElement = document.documentElement;
@@ -387,6 +395,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   addressAccessibilityIssues,
+  calculateSum,
 
   getLangAttribute,
   getFullLangAttribute,

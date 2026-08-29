@@ -57,6 +57,11 @@ const main = {
     }
   },
 
+  wrapPrimaryContentInMain: function(content) {
+    if (!content) return content;
+    return `<main>${content}</main>`;
+  },
+
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here

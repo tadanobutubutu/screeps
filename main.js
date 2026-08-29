@@ -1,3 +1,32 @@
+// Import required modules
+import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
+
+// Export the new function
+export function checkLinkAndButtonAccessibility() {
+  const links = document.querySelectorAll('a');
+  const buttons = document.querySelectorAll('button');
+
+  links.forEach(link => {
+    if (!link.hasAttribute('role')) {
+      link.setAttribute('role', 'link');
+    }
+    if (!link.hasAttribute('href')) {
+      console.error('Accessibility Error: Link without href attribute', link);
+    }
+  });
+
+  buttons.forEach(button => {
+    if (!button.hasAttribute('role')) {
+      button.setAttribute('role', 'button');
+    }
+    // Check for accessible name for buttons
+    if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+      console.error('Accessibility Error: Button without accessible name', button);
+    }
+  });
+}
+
+// Preserve the original code
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');
@@ -30,35 +59,7 @@ function addressAccessibilityIssues() {
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'presentation');
   });
-
-  // TODO: Implement this function for checking link and button accessibility
-  function checkLinkAndButtonAccessibility() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      if (!link.hasAttribute('role')) {
-        link.setAttribute('role', 'link');
-      }
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      if (!button.hasAttribute('role')) {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinkAndButtonAccessibility();
 }
 
 // Export functions if needed
-// export { rotateBack, addressAccessibilityIssues };
+export { rotateBack, addressAccessibilityIssues };

@@ -11,3 +11,19 @@
 // ... [Any existing code here] ...
 
 // ... [Any other existing code here] ...
+
+// New function to improve accessibility as per the issue
+function improveAccessibility() {
+    // Implement accessibility improvements as required by the issue
+    // This is a placeholder for the actual changes to be made
+    // For example, let's add a 'role' attribute to the main navigation link for better ARIA support
+    const navigationLink = document.querySelector('.main-navigation a');
+    if (navigationLink) {
+        navigationLink.setAttribute('role', 'navigation');
+    }
+
+    // Add more accessibility enhancements as needed
+}
+
+// Ensure that the new function is called when the script loads
+document.addEventListener('DOMContentLoaded', improveAccessibility);

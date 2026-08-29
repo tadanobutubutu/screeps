@@ -1,8 +1,6 @@
 const renderHeader = require('./renderHeader');
 const renderFooter = require('./renderFooter');
 
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -53,14 +51,14 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
-    } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
   
-  return setHtmlLangAttribute(lang);
+  return lang;
 }
 
 function renderHomePage() {
@@ -74,13 +72,20 @@ function renderDashboard() {
 // New function to convert anchor tags to buttons with specific id and text
 function convertAnchorsToButtons() {
   if (typeof document !== 'undefined') {
-    const anchors = document.querySelectorAll('a#unrotate');
+    const anchors = document.querySelectorAll('a[role="button"], a.fake-link');
     anchors.forEach(anchor => {
       const button = document.createElement('button');
       button.id = anchor.id;
       button.type = 'button';
       button.textContent = anchor.textContent;
-      anchor.parentNode.replaceChild(button, anchor);
+      button.setAttribute('aria-label', anchor.getAttribute('aria-label') || anchor.textContent);
+      if (anchor.className) {
+        button.className = anchor.className;
+      }
+      // Replace anchor with button
+      if (anchor.parentNode) {
+        anchor.parentNode.replaceChild(button, anchor);
+      }
     });
   }
 }
@@ -96,6 +101,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderDashboard,
     setHtmlLangAttribute,
     detectAndSetLang,
-    convertAnchorsToButtons
+    convertAnchorsToButtons,
+    setLanguage
   };
 }

@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// original code
+const myElement = document.getElementById("my-element");
+
+// add ARIA role for accessibility
+myElement.setAttribute("aria-label", "This is my example element");
+myElement.setAttribute("role", "button");

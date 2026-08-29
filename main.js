@@ -16,10 +16,20 @@ const main = {
         this.manageRoom(room);
       }
     }
+    
+    // TODO: Implement harvest and upgrade logic
+    this.automateCreeps();
+    
+    // TODO: Implement tower defense
+    this.towerDefense();
+    
+    // TODO: Implement spawning logic
+    this.automateSpawning();
+    this.spawningLogic();
+    
+    // Additional loop functions from origin branch
     this.harvestLoop();
     this.upgradeLoop();
-    this.towerDefense();
-    this.spawningLogic();
     this.myNewFunction();
   },
 
@@ -107,6 +117,47 @@ const main = {
 
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  // Additional functions for TODO items:
+  automateCreeps: function() {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      
+      if (creep.memory.role === 'harvester') {
+        this.harvest(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        this.upgrade(creep);
+      }
+    }
+  },
+
+  automateSpawning: function() {
+    const spawns = Object.values(Game.spawns);
+    
+    spawns.forEach(spawn => {
+      const harvesterCount = _.filter(Game.creeps, { memory: { role: 'harvester' } }).length;
+      const upgraderCount = _.filter(Game.creeps, { memory: { role: 'upgrader' } }).length;
+      
+      if (harvesterCount < 2) {
+        this.spawnCreep(spawn, 'harvester');
+      } else if (upgraderCount < 2) {
+        this.spawnCreep(spawn, 'upgrader');
+      }
+    });
+  },
+
+  spawnCreep: function(spawn, role) {
+    const body = role === 'harvester' 
+      ? [WORK, CARRY, MOVE] 
+      : [WORK, CARRY, MOVE];
+    
+    const name = role + Game.time;
+    const memory = { role: role };
+    
+    if (!Game.creeps[name]) {
+      spawn.spawnCreep(body, name, { memory: memory });
+    }
   }
 };
 

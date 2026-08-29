@@ -12,8 +12,12 @@ if (!document.documentElement.getAttribute('lang')) {
 }
 
 // Adding the new function at the end
-function newFunction() {
-  // Your new function code here
+function renderDependencyGraph() {
+  // Your new function code to render dependency graphs here
+}
+
+function renderIndexView() {
+  // Your new function code to render index views here
 }
 
 // Initialize accessibility features
@@ -30,10 +34,11 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
-// Exporting the new added function
+// Exporting the new added functions
 module.exports = {
   // Keep the existing exports here if any
-  newFunction, // Export newFunction
+  renderDependencyGraph, // Export renderDependencyGraph
+  renderIndexView, // Export renderIndexView
 };
 
 // Export for module usage

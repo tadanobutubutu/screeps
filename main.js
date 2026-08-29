@@ -41,7 +41,7 @@ function checkLandmarkElement(id) {
 function ensureUniqueLandmarks(landmarks) {
     const seen = new Set();
     return landmarks.filter(landmark => {
-        const key = `${landmark.name}-${landmark.coordinates}`;
+        const key = landmark.role + '-' + (landmark.label || '');
         if (seen.has(key)) {
             return false;
         }
@@ -65,7 +65,7 @@ const landmarkStructureCheck = (landmark) => {
 
 // Placeholder for the affected SVGs
 const icons = {
-  icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-label="Screps Dashboard"><title>Screps Dashboard</title><text y=".9em" font-size="90">🐛</text></svg>',
+  icon: '<svg viewBox="0 0 100 100" aria-label="Screps ... Dashboard</title><text y=".9em" ...'
 };
 
 /**
@@ -86,7 +86,7 @@ const isSecureContext = () => {
  * @param {string} lang - The language code to set (e.g., 'en', 'es', 'fr').
  */
 const setLanguageAttribute = (lang = 'en') => {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
   }
@@ -101,19 +101,19 @@ const setLanguageAttribute = (lang = 'en') => {
 const addLandmarkRoles = () => {
   // Navigation landmark
   const navElement = document.querySelector('nav');
-  if (navElement && !navElement.hasAttribute('role')) {
+  if (navElement && !navElement.getAttribute('role')) {
     navElement.setAttribute('role', 'navigation');
   }
 
   // Main content landmark
   const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.hasAttribute('role')) {
+  if (mainElement && !mainElement.getAttribute('role')) {
     mainElement.setAttribute('role', 'main');
   }
 
   // Header landmark (banner)
   const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.hasAttribute('role')) {
+  if (headerElement && !headerElement.getAttribute('role')) {
     headerElement.setAttribute('role', 'banner');
   }
 };
@@ -126,7 +126,7 @@ const addLandmarkRoles = () => {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('nav[role="navigation"]');
+  const navElements = document.querySelectorAll('nav');
   if (navElements.length > 1) {
     navElements.forEach((nav, index) => {
       if (index > 0) {
@@ -136,7 +136,7 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('main[role="main"]');
+  const mainElements = document.querySelectorAll('main');
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
       if (index > 0) {
@@ -161,7 +161,7 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
     // Check if the SVG already has a title element
     let titleElement = svg.querySelector('title');
     if (!titleElement) {
-      titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
     }
     titleElement.textContent = accessibleName;
@@ -176,15 +176,15 @@ const addSVGAccessibleName = (svgSelector, accessibleName) => {
  * and attributes to make them accessible.
  */
 const fixFakeLinks = () => {
-  const fakeLinks = document.querySelectorAll('[class*="link"], [class*="button"]');
+  const fakeLinks = document.querySelectorAll('[onclick]');
   fakeLinks.forEach((element) => {
     if (element.tagName.toLowerCase() !== 'a') {
       // Add role="button" and appropriate ARIA attributes
       element.setAttribute('role', 'button');
-      if (!element.hasAttribute('tabindex')) {
+      if (!element.getAttribute('tabindex')) {
         element.setAttribute('tabindex', '0');
       }
-      if (!element.hasAttribute('aria-label')) {
+      if (!element.getAttribute('aria-label')) {
         // Use the element's text content as the aria-label if not present
         element.setAttribute('aria-label', element.textContent.trim() || 'Link');
       }
@@ -208,7 +208,7 @@ function initDependencyGraph(containerId) {
 
 // Function to render the dependency graph
 function renderDependencyGraph(containerId) {
-  const container = initDependencyGraph(containerId);
+  const container = document.getElementById(containerId);
   if (container) {
     // Add the logic to render the dependency graph inside the container
     // This is a placeholder for the actual rendering logic
@@ -231,7 +231,7 @@ function checkLandmarkElements() {
     const landmarkSelectors = ['header', 'nav', 'main', 'aside', 'footer', 'article', 'section'];
     const results = {};
 
-    landmarkSelectors.forEach(landmark => {
+    landmarkSelectors.forEach((landmark) => {
         const elements = document.querySelectorAll(landmark);
         results[landmark] = {
             count: elements.length,
@@ -259,6 +259,12 @@ function validateLandmarkStructure() {
     return validation;
 }
 
+// Application data placeholder
+const appData = {
+    title: 'Application',
+    version: '1.0.0'
+};
+
 /**
  * Initializes the application and applies accessibility fixes.
  */
@@ -272,15 +278,14 @@ const initApp = () => {
   ensureUniqueLandmarkElements();
 
   // Add accessible names to SVGs (example selectors and names)
-  addSVGAccessibleName('svg#icon-home', 'Home icon');
-  addSVGAccessibleName('svg#icon-settings', 'Settings icon');
+  addSVGAccessibleName('.icon-home', 'Home icon');
+  addSVGAccessibleName('.icon-settings', 'Settings icon');
 
   // Fix fake links
   fixFakeLinks();
 
   // Initialize the application data
   console.log('Initializing ' + appData.title + ' v' + appData.version);
-  checkLandmarkElements();
 
   // Signal that the app has started
   appStarted();

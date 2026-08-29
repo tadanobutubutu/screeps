@@ -449,4 +449,8 @@ function checkLandmarks(container = document) {
 }
 
 function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+  }
+}

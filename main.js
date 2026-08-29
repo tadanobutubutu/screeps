@@ -15,7 +15,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ... ${message}`);
 }
 
 function validateInput(input) {
@@ -62,7 +62,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -152,11 +152,6 @@ function getLangAttribute() {
   // ...
 }
 
-// Calculate sum of numbers array
-function calculateSum(numbers) {
-    return numbers.reduce((sum, num) => sum + num, 0);
-}
-
 function personName() {
   // Implementation for accessibility issues for REACT_036: Fix 1 fake link issue
   // ...
@@ -175,6 +170,11 @@ function validateTableAccessibility() {
 function validateTableStructure() {
   // Implementation for REACT_027: Fix 26 table structure issues
   // ...
+}
+
+// Calculate sum of numbers array
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
 }
 
 // Export all functions

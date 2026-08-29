@@ -5,10 +5,14 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+import { type Metadata } from "next";
+import "./globals.css";
+import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
 
 /**
  * Gets the accessible name for an SVG element.
@@ -23,8 +27,9 @@ function getSvgAccessibleName(svgElement) {
     return title.textContent.trim();
   }
   
-  if (svgElement.hasAttribute('aria-label')) {
-    return svgElement.getAttribute('aria-label');
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
   }
   
   const labelledBy = svgElement.getAttribute('aria-labelledby');
@@ -113,8 +118,9 @@ exports.anotherFunction = function() {
   // Existing code
 };
 
-exports.addressAccessibilityIssue038 = addressAccessibilityIssue038;
-exports.renderDependencyGraph = renderDependencyGraph;
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+exports.renderDependencyGraph = addressAccessibilityIssue038;
 
 // The function rotateBack() should be defined somewhere in your code to handle the action of rotating back.
 
@@ -131,17 +137,17 @@ function rotateBack() {
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 function getLangAttribute() {
   const htmlElement = document.documentElement;
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang') || 'en';
   }
-  return htmlElement.getAttribute('lang');
+  return 'en';
 }
 
 function createInPageButton() {
@@ -154,7 +160,8 @@ function createInPageButton() {
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    if (!table.querySelector('caption, th, [scope]')) {
+    const headers = table.querySelectorAll('th:not([scope])');
+    if (headers.length > 0) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table caption';
       table.insertBefore(caption, table.firstChild);
@@ -169,7 +176,7 @@ function validateTableStructure() {
   tables.forEach(table => {
     const rows = table.querySelectorAll('tr');
     rows.forEach(row => {
-      const cells = row.querySelectorAll('td, th');
+      const cells = row.querySelectorAll('th, td');
       if (cells.length === 0) issues++;
     });
   });
@@ -177,23 +184,23 @@ function validateTableStructure() {
 }
 
 function validateLandmark() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside, section[role]');
+  const landmarks = document.querySelectorAll('[role="navigation"], nav, header, footer, aside, section[role]');
   return landmarks.length;
 }
 
 function validateLandmarkStructure() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+  const landmarks = document.querySelectorAll('nav, header, footer, aside');
   let issues = 0;
   landmarks.forEach(landmark => {
-    if (!landmark.getAttribute('role') && !landmark.tagName.match(/^(MAIN|NAV|HEADER|FOOTER|ASIDE)$/)) {
+    if (landmark && landmark.children.length === 0) {
       issues++;
     }
   });
   return issues;
 }
 
-function validateLandmarkAttributes() {
-  const landmarks = document.querySelectorAll('[role]');
+function validateLandmarkRoles() {
+  const landmarks = document.querySelectorAll('nav, header, footer, aside');
   let issues = 0;
   landmarks.forEach(landmark => {
     const role = landmark.getAttribute('role');
@@ -204,7 +211,7 @@ function validateLandmarkAttributes() {
   return issues;
 }
 
-function getSvgAccessibleName(svgElement) {
+function getSvgName(svgElement) {
   const svg = svgElement || document.querySelector('svg');
   if (!svg) return '';
   let name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.querySelector('title')?.textContent || '';
@@ -220,12 +227,12 @@ function setSvgAttributes(svgElement) {
   const svg = svgElement || document.querySelector('svg');
   if (!svg) return;
   if (!svg.getAttribute('role')) svg.setAttribute('role', 'img');
-  if (!svg.getAttribute('focusable')) svg.setAttribute('focusable', 'false');
+  if (!svg.getAttribute('aria-hidden')) svg.setAttribute('aria-hidden', 'false');
   return svg;
 }
 
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
+  const landmarks = document.querySelectorAll('nav, header, footer, aside');
   landmarks.forEach((landmark, index) => {
     if (!landmark.id) {
       landmark.id = `landmark-${index}`;
@@ -249,7 +256,7 @@ function validateLinkAccessibility() {
 }
 
 function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
   fakeLinks.forEach(link => {
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');
@@ -261,11 +268,11 @@ function handleFakeLinks() {
 }
 
 function countDependencies() {
-  const scripts = document.querySelectorAll('script[src]');
+  const scripts = document.querySelectorAll('script');
   const styles = document.querySelectorAll('link[rel="stylesheet"]');
-  const images = document.querySelectorAll('img[src]');
-  const svgElements = document.querySelectorAll('svg[src]');
-  const fonts = document.querySelectorAll('link[rel="preload"][as="font"], link[rel="stylesheet"][href*="font"]');
+  const images = document.querySelectorAll('img');
+  const svgElements = document.querySelectorAll('svg');
+  const fonts = document.querySelectorAll('font-face');
   
   return {
     scripts: scripts.length,
@@ -276,10 +283,6 @@ function countDependencies() {
     total: scripts.length + styles.length + images.length + svgElements.length + fonts.length
   };
 }
-
-import { type Metadata } from "next";
-import "./globals.css";
-import { addLangAttribute, addMainLandmark, addSvgAccessibleNames, checkAccessibility, checkLandmarks, checkLandmarkElement, ensureUniqueLandmarks, fixFakeLinkIssue, fixTableStructureIssues, renderIndexView, setFormElementAccessibleNames, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, addressAccessibilityIssue038, getSvgAccessibleName } from "./accessibility";
 
 const addressAccessibilityIssue038 = (element, accessibilityInfo) => {
   // Code to address the specific accessibility issue on the element
@@ -299,7 +302,7 @@ export default function RootLayout({
 }>) {
   addLangAttribute();
   addMainLandmark();
-  addSvgAccessibleNames();
+  setSvgAccessibilityProps();
 
   // Implement the renderIndexView method here
   renderIndexView();
@@ -307,22 +310,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' font-size='32'>⚡</text></svg>" />
-        {checkAccessibility().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
-        {checkLandmarks().issues.map((issue, index) => (
-          <div key={index}>{issue.message}</div>
-        ))}
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><title>Screeps Dashboard</title><text y='.9em' x='50%' text-anchor='middle'>SD</text></svg>" />
       </head>
       <body>{children}</body>
     </html>
   );
-}
-
-// TODO: Implement a function to count dependencies
-// This is a placeholder for the actual implementation
-function countDependencies() {
-  // Placeholder implementation
-  return 0;
 }

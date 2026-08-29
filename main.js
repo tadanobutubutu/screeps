@@ -50,6 +50,31 @@ function decodeJwtToken(token) {
 }
 
 /**
+ * Sanitize a filename by replacing invalid characters
+ * @param {string} filename - The filename to sanitize
+ * @returns {string} - Sanitized filename
+ */
+function sanitizeFilename(filename) {
+    return filename.replace(/[^a-z0-9._-]/gi, '_');
+}
+
+/**
+ * Process data items by adding metadata
+ * @param {Array} items - Items to process
+ * @returns {Array} - Processed items
+ */
+function processData(items) {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+    return items.map(item => ({
+        ...item,
+        processed: true,
+        timestamp: Date.now()
+    }));
+}
+
+/**
  * Handle credential response from OAuth/identity provider
  * @param {Object} credentialResponse - The credential response
  * @returns {Object} - Result of handling the credential
@@ -179,6 +204,9 @@ function getActiveSessionsCount() {
 }
 
 // HTTP Server setup
+const http = require('http');
+const url = require('url');
+
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     
@@ -290,5 +318,7 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
-    server
+    server,
+    sanitizeFilename,
+    processData
 };

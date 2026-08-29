@@ -83,10 +83,12 @@ const landmarkRegions = [];
 
 function isLatitudeValid(lat) {
   // Existing validation function preserved
+  return typeof lat === 'number' && lat >= -90 && lat <= 90;
 }
 
 function isLongitudeValid(lng) {
   // Existing validation function preserved
+  return typeof lng === 'number' && lng >= -180 && lng <= 180;
 }
 
 /**
@@ -97,22 +99,40 @@ function isLongitudeValid(lng) {
  */
 function addLandmarkRegionToElement(element, role, label) {
   // Existing function preserved
+  if (!element) return;
+  element.setAttribute('role', role);
+  if (label) {
+    element.setAttribute('aria-label', label);
+  }
 }
 
 function addLandmarkRegion(landmark) {
   // Existing function preserved that calls the validateLandmark function
+  if (validateLandmark(landmark)) {
+    landmarkRegions.push(landmark);
+    return true;
+  }
+  return false;
 }
 
 function getLandmarkRegions() {
   // Existing function preserved
+  return [...landmarkRegions];
 }
 
 function getLandmarkRegionById(id) {
   // Existing function preserved
+  return landmarkRegions.find(region => region.id === id);
 }
 
 function removeLandmarkRegion(id) {
   // Existing function preserved
+  const index = landmarkRegions.findIndex(region => region.id === id);
+  if (index !== -1) {
+    landmarkRegions.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
 // Internal storage for landmark regions
@@ -122,7 +142,9 @@ const landmarks = [];
 function addLandmark(landmark) {
   if (validateLandmark(landmark)) {
     landmarks.push(landmark);
+    return true;
   }
+  return false;
 }
 
 // Function to get all landmarks
@@ -158,7 +180,7 @@ function validateTableAccessibility(table) {
   }
   
   const hasCaption = table.querySelector('caption') !== null;
-  const hasSummary = table.hasAttribute('summary') || table.querySelector('thead') !== null;
+  const hasSummary = table.getAttribute('summary') !== null || table.getAttribute('aria-describedby') !== null;
   
   return hasCaption || hasSummary;
 }
@@ -172,7 +194,7 @@ function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   
   for (let row of rows) {
-    const cells = row.querySelectorAll('td, th');
+    const cells = row.querySelectorAll('th');
     if (cells.length === 0) {
       return false;
     }
@@ -204,15 +226,15 @@ function setSvgAttributes(svg, accessibleName) {
   
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', accessibleName);
-  svg.setAttribute('focusable', 'false');
+  svg.setAttribute('aria-hidden', 'false');
 }
 
 // REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(landmarks) {
+function ensureUniqueLandmarks(landmarksList) {
   const landmarkNames = new Map();
   const uniqueLandmarks = [];
   
-  for (let landmark of landmarks) {
+  for (let landmark of landmarksList) {
     if (!validateLandmark(landmark)) {
       continue;
     }
@@ -251,8 +273,9 @@ function handleFakeLinks(links) {
   for (let link of links) {
     if (!validateLinkAccessibility(link)) {
       link.setAttribute('href', '#');
-      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('role', 'button');
       link.style.pointerEvents = 'none';
+      fixedLinks.push(link);
     } else {
       fixedLinks.push(link);
     }
@@ -267,57 +290,8 @@ function addProperLandmarkRegions(element) {
     return;
   }
   
-  const landmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
+  const validLandmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
   const currentRole = element.getAttribute('role');
   
-  if (!currentRole && landmarkRegions.includes(element.tagName.toLowerCase())) {
-    element.setAttribute('role', element.tagName.toLowerCase());
-  }
-  
-  const children = element.children;
-  for (let i = 0; i < children.length; i++) {
-    addProperLandmarkRegions(children[i]);
-  }
-}
-
-// Additional validation functions from HEAD branch
-function validateLandmarkStructure() {
-  // Implementation of validateLandmarkStructure function
-  // ...
-}
-
-function validateLandmarkAttributes() {
-  // Implementation of validateLandmarkAttributes function
-  // ...
-}
-
-module.exports = {
-  newFunction,
-  greet,
-  existingFunction,
-  newAccessibleFunction,
-  addLandmarkRegionToElement,
-  validateLandmark,
-  isLatitudeValid,
-  isLongitudeValid,
-  addLandmarkRegion,
-  getLandmarkRegions,
-  getLandmarkRegionById,
-  removeLandmarkRegion,
-  addLandmark,
-  getLandmarks,
-  removeLandmark,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  renderDependencyGraphPage
-};
+  if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
+    element.setAttribute('role', element.tagName.toLower

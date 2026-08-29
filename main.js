@@ -1,3 +1,6 @@
+// Export functions if needed
+export { rotateBack, addressAccessibilityIssues };
+
 function rotateBack() {
   // JavaScript code to rotate back
   console.log('Rotating back...');

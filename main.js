@@ -68,6 +68,20 @@ function loop() {
 }
 
 /**
+ * Adds lang attribute to document root for accessibility
+ * @param {Document} doc - The document
+ * @param {string} lang - Language code
+ */
+function addLangAttribute(doc, lang = 'en') {
+  const html = doc.documentElement;
+  if (html && !html.hasAttribute('lang')) {
+    html.setAttribute('lang', lang);
+    return true;
+  }
+  return false;
+}
+
+/**
  * Manages focus for accessibility (ARIA best practice)
  * @param {HTMLElement} element - The element to focus on
  */
@@ -141,7 +155,7 @@ function validateTableAccessibility(doc) {
   const errors = [];
 
   // Get all tables in the document
-  const tables = doc.getElementsByTagName('table');
+  const tables = doc.querySelectorAll('table');
 
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
@@ -194,7 +208,7 @@ function validateTableStructure(doc) {
   const errors = [];
 
   // Get all tables in the document
-  const tables = doc.getElementsByTagName('table');
+  const tables = doc.querySelectorAll('table');
 
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
@@ -231,10 +245,10 @@ function validateTableStructure(doc) {
     // Check for consistent cell counts in rows
     const bodyRows = tbody ? tbody.querySelectorAll('tr') : rows;
     if (bodyRows.length > 0) {
-      const expectedCells = bodyRows[0].querySelectorAll('td, th').length;
+      const expectedCells = table.querySelectorAll('thead th').length || table.querySelectorAll('thead td').length;
 
       for (let j = 0; j < bodyRows.length; j++) {
-        const cellCount = bodyRows[j].querySelectorAll('td, th').length;
+        const cellCount = bodyRows[j].querySelectorAll('td').length + bodyRows[j].querySelectorAll('th').length;
         if (cellCount !== expectedCells) {
           errors.push({
             tableIndex: i,

@@ -51,5 +51,9 @@ export {
   calculateTotalPrice,
   renderCart,
   validateAndRender,
-  renderPage
+  renderPage,
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput
 };

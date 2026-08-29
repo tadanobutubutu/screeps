@@ -121,6 +121,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Exporting the updated newFeature function
 module.exports = {
   loop: function() {
     console.log('Running screeps loop');

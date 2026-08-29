@@ -104,16 +104,65 @@ function addMainLandmark(document) {
   return mainElement;
 }
 
-// Function to ensure unique landmarks (combined approach)
+// Function to ensure unique landmarks with proper aria-labels for all landmark types (REACT_025)
 function ensureUniqueLandmarks(document) {
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region', 'article', 'form', 'search', 'application'];
+  
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let index = 1;
+      elements.forEach((el) => {
+        if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+          el.setAttribute('aria-label', `${role}-${index}`);
+        }
+        index++;
+      });
+    }
+  });
+
+  // Handle banner (skip role for banner as it's inherent)
+  const banners = document.querySelectorAll('[role="banner"]');
+  banners.forEach((banner, index) => {
+    if (index > 0 && !banner.hasAttribute('aria-label') && !banner.hasAttribute('aria-labelledby')) {
+      banner.setAttribute('aria-label', `banner-${index + 1}`);
+    }
+  });
+
+  // Handle main (should only be one, but if multiple, label all but first)
+  const mains = document.querySelectorAll('[role="main"]');
+  if (mains.length > 1) {
+    let index = 1;
+    mains.forEach((main) => {
+      if (index > 0 && !main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
+        main.setAttribute('aria-label', `main-${index}`);
+      }
+      index++;
+    });
+  }
+
+  // Handle contentinfo
+  const contentinfos = document.querySelectorAll('[role="contentinfo"]');
+  if (contentinfos.length > 1) {
+    let index = 1;
+    contentinfos.forEach((contentinfo) => {
+      if (index > 0 && !contentinfo.hasAttribute('aria-label') && !contentinfo.hasAttribute('aria-labelledby')) {
+        contentinfo.setAttribute('aria-label', `contentinfo-${index}`);
+      }
+      index++;
+    });
+  }
+
+  // Ensure main element has id
   const main = document.querySelector('main');
   if (main && !main.id) {
     main.id = 'main-content';
   }
 
+  // Ensure navigation elements have aria-labels if missing
   const navigations = document.querySelectorAll('nav');
   navigations.forEach((nav, index) => {
-    if (!nav.id && !nav.getAttribute('aria-label')) {
+    if (!nav.id && !nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
       nav.setAttribute('aria-label', `navigation-${index + 1}`);
     }
   });

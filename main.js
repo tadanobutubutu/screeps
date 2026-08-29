@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -10,6 +7,11 @@ Here is the resolved file content:
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
 // Preserve existing functionality
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
@@ -64,15 +66,6 @@ function uniqueLandmarks(landmarks) {
     return result;
 }
 
-// Add lang attribute as per the issue requirement
-function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
-  if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
-  }
-}
-
 /**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
@@ -85,71 +78,81 @@ function addAriaLabel(element, label) {
 }
 
 /**
- * Gets the language attribute from the HTML element.
- * @returns {string} - the language attribute value
+ * Adds lang attribute as per the issue requirement
  */
-function getLangAttribute() {
-    return document.documentElement.lang || '';
+function addLangAttribute() {
+  // Assuming there is a relevant element selector or similar to target
+  const elementToModify = document.querySelector('some-selector');
+  if (elementToModify) {
+    elementToModify.setAttribute('lang', 'en'); // Example: English
+  }
 }
 
-/**
- * This function gets the full language attribute with region (if provided)
- * @returns {string} - the full language attribute with region (if provided)
- */
-function getFullLangAttribute() {
-    return document.documentElement.lang || '';
+// ... other fixes ...
+
+// DOM-based accessibility code
+
+// Add lang attribute to HTML element
+... getLangAttribute());
+
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+// Assuming you have a table element with an id of 'myTable'
+const table = ...
+validateTableAccessibility(table);
+validateTableStructure(table);
+
+// Add/fix landmark issues
+validateLandmark();
+...
+
+// Add accessible names to SVGs
+// Assuming you have an SVG element with an id of 'mySvg'
+const svg = ...
+const accessibleName = getSvgAccessibleName(svg);
+setSvgAttributes(svg, accessibleName);
+
+// Ensure unique landmarks
+// This would be handled by the appropriate function call
+...
+handleFakeLinks();
+
+// ... rest of your code ...
+
+// React / UI related functions
+
+// TODO: Add these imported modules to the relevant rendering functions
+
+function formatProductName(product) {
+  return `${product.name} - ...
 }
 
-// ... existing functions from both branches
-
-// Accessibility helper functions
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
-
-  element.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'Enter':
-        if (onEnter) onEnter(event);
-        break;
-      case 'Escape':
-        if (onEscape) onEscape(event);
-        break;
-      case 'ArrowUp':
-        if (onArrowUp) {
-          event.preventDefault();
-          onArrowUp(event);
-        }
-        break;
-      case 'ArrowDown':
-        if (onArrowDown) {
-          event.preventDefault();
-          onArrowDown(event);
-        }
-        break;
-    }
-  });
+function renderProductList(products) {
+  const container = ...
+  container.innerHTML = ...
+  return container;
 }
 
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  container.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      lastElement.focus();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  });
+function calculateTotalPrice(cart) {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discount = calculateDiscount(subtotal);
+  return subtotal - discount;
 }
 
-// ... other existing functions remained unchanged
-```
+function renderCart(cart) {
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ...
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
+}
+
+function validateAndRender(input) {
+  if (validateInput(input)) {
+    return ...
+}

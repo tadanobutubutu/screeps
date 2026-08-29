@@ -48,10 +48,10 @@ function ensureUniqueLandmarks(landmarks) {
     if (!landmark || typeof landmark !== 'object') {
       return false;
     }
-    
+
     // Create a unique identifier based on landmark name and coordinates (if available)
     const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -72,11 +72,15 @@ function addressAccessibilityIssues(insightReport) {
   return insightReport;
 }
 
+// Add the new "ensureUniqueLandmarks" and "addressAccessibilityIssues" exports
+const ensureUniqueLandmarksExport = ensureUniqueLandmarks;
+const addressAccessibilityIssuesExport = addressAccessibilityIssues;
+
 module.exports = {
   countDependencies,
   wrapPrimaryContentInMain,
   myNewFunction,
-  ensureUniqueLandmarks,
-  addressAccessibilityIssues,
+  ensureUniqueLandmarks: ensureUniqueLandmarksExport,
+  addressAccessibilityIssues: addressAccessibilityIssuesExport,
   // ... existing exports ...
 };

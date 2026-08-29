@@ -89,10 +89,10 @@ if (!Array.prototype.flat) {
     writable: true,
     value: function depthFlat(depth = 1) {
       return depth > 0
-        ? Array.prototype.reduce.call(this, function (acc, val) {
+        ? this.reduce(function (acc, val) {
             return acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val);
           }, [])
-        : Array.prototype.slice.call(this);
+        : this.slice();
     }
   });
 }
@@ -104,7 +104,7 @@ let insightButton, insightPanel, toggleButton, modal, modalClose;
 // <!--- START MODIFIED FUNCTION --->
 
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-// <!-- todo-hash: 9e14a7a8fdfef810dc7b463726556b30dceadb72 -->
+// <!-- todo-hash: ... -->
 // <!--- Any other modifications or additions go here --->
 
 function newFeature() {
@@ -131,32 +131,32 @@ function openModal() {
   if (!modal) return;
 
   modal.hidden = false;
-  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-hidden', 'true');
   
   // Focus trap management
-  const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusableElements = modal.querySelectorAll('a[href], input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
   if (firstElement) {
     firstElement.tabIndex = 0;
     
-    lastElement.addEventListener('keydown', (e) => {
+    firstElement.addEventListener('keydown', function (e) {
       if (e.key === 'Tab') {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    });
-
-    firstElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && e.shiftKey) {
         e.preventDefault();
         lastElement.focus();
       }
     });
 
+    lastElement.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+
     // Focus first element
-    firstElement?.focus();
+    firstElement.focus();
   }
 
   // Close on Escape key
@@ -164,19 +164,19 @@ function openModal() {
   
   // Store trigger element to return focus
   const trigger = document.activeElement;
-  modal.dataset.triggerId = trigger?.id || 'modal-trigger';
+  modal.dataset.triggerId = trigger && trigger.id || 'modal-trigger';
 }
 
 function closeModal() {
   if (!modal) return;
 
   modal.hidden = true;
-  modal.removeAttribute('aria-modal');
+  modal.setAttribute('aria-hidden', 'false');
   
   // Return focus to trigger element
   const triggerId = modal.dataset.triggerId;
   const trigger = document.getElementById(triggerId);
-  trigger?.focus();
+  if (trigger) trigger.focus();
   
   // Remove escape key listener
   document.removeEventListener('keydown', handleEscapeKey);
@@ -215,7 +215,7 @@ function setupAccessibilityEventListeners() {
   if (insightButton) {
     insightButton.addEventListener('click', toggleInsightPanel);
     // Ensure keyboard accessibility
-    insightButton.addEventListener('keydown', (e) => {
+    insightButton.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         toggleInsightPanel();
@@ -225,7 +225,7 @@ function setupAccessibilityEventListeners() {
 
   if (toggleButton) {
     toggleButton.addEventListener('click', toggleInsightPanel);
-    toggleButton.addEventListener('keydown', (e) => {
+    toggleButton.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         toggleInsightPanel();
@@ -252,13 +252,14 @@ module.exports = {
   toggleInsightPanel,
   openModal,
   closeModal,
+  handleEscapeKey,
   setupAccessibilityEventListeners
 };
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function () {
       initializeAccessibility();
       setupAccessibilityEventListeners();
     });

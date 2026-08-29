@@ -2,6 +2,26 @@
 // Existing code...
 
 /**
+ * Identifies functions that render dependency graphs or display module structure for debugging purposes.
+ * This function returns metadata about such functions for identification and potential updates.
+ * @returns {Array} Array of objects containing function identifiers and metadata
+ */
+function identifyGraphRenderingFunctions() {
+  const graphFunctions = [];
+  
+  // Check for countDependencies - related to dependency analysis
+  if (typeof countDependencies === 'function') {
+    graphFunctions.push({
+      name: 'countDependencies',
+      purpose: 'Counts and analyzes dependency relationships',
+      type: 'dependency-analysis'
+    });
+  }
+  
+  return graphFunctions;
+}
+
+/**
  * Counts the number of dependencies.
  * @param {Array} deps - The dependencies to count.
  * @returns {number} The count of dependencies.
@@ -50,7 +70,7 @@ function ensureUniqueLandmarks(landmarks) {
     }
     
     // Create a unique identifier based on landmark name and coordinates (if available)
-    const identifier = landmark.id || `${landmark.name}-${landmark.latitude}-${landmark.longitude}`;
+    const identifier = landmark.id || `${landmark.name}-${landmark.x}-${landmark.y}`;
     
     if (seen.has(identifier)) {
       return false;
@@ -73,6 +93,7 @@ function addressAccessibilityIssues(insightReport) {
 }
 
 module.exports = {
+  identifyGraphRenderingFunctions,
   countDependencies,
   wrapPrimaryContentInMain,
   myNewFunction,

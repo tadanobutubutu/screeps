@@ -169,6 +169,12 @@ function addProperLandmarkRegions() {
     aside.setAttribute('role', 'complementary');
     if (!aside.id) aside.id = `sidebar-${index + 1}`;
   });
+
+  // Append landmarks to the body if they were created
+  if (main) document.body.appendChild(main);
+  if (nav) document.body.appendChild(nav);
+  if (header) document.body.appendChild(header);
+  if (footer) document.body.appendChild(footer);
 }
 
 /**

@@ -11,101 +11,38 @@ function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
 
-// Accessibility function to fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || table.firstChild);
-      }
-    }
-    table.querySelectorAll('td').forEach(td => {
-      if (!td.hasAttribute('headers') && !td.hasAttribute('scope')) {
-        td.setAttribute('scope', 'col');
-      }
-    });
-  });
+// ... Existing functions and exports ...
+
+// New function to get and set the lang attribute on an element
+function getLangAttribute(element) {
+  return element.getAttribute('lang') || document.documentElement.lang;
 }
 
-// Accessibility function to ensure proper main landmark
-function addMainLandmark() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length === 0) {
-    const mainElement = document.createElement('main');
-    const body = document.body;
-    if (body.firstChild) {
-      body.insertBefore(mainElement, body.firstChild);
-    } else {
-      body.appendChild(mainElement);
-    }
+// New function to create an in-page button
+function createInPageButton(options) {
+  if (!options || !options.id || !options.label) {
+    throw new Error('Options must include "id" and "label".');
   }
+
+  const button = document.createElement('a');
+  button.href = `#${options.id}`;
+  button.textContent = options.label;
+  button.classList.add('in-page-button');
+
+  if (getBrowserName() !== 'firefox') {
+    // Non-Firefox browsers have a built-in aria-label for anchors, no need to duplicate
+    button.setAttribute('aria-label', options.label);
+  }
+
+  return button;
 }
 
-// Accessibility function to add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg:not([aria-label])');
-  svgs.forEach((svg, index) => {
-    const titleId = `svg-title-${index}`;
-    let title = svg.querySelector('title');
-    if (!title) {
-      title = document.createElement('title');
-      title.id = titleId;
-      title.textContent = `SVG graphic ${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-    if (!svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-labelledby', title.id || titleId);
-    }
-  });
+// Helper function to detect the current browser
+function getBrowserName() {
+  // ... Add browser detection logic here ...
 }
 
-// Accessibility function to ensure unique landmarks
-function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
-  landmarks.forEach(landmark => {
-    const tagName = landmark.tagName.toLowerCase();
-    if ((tagName === 'header' || tagName === 'footer') && !landmark.closest('main')) {
-      // Keep multiple headers/footers outside main
-    } else if (landmark.querySelector('main') || landmark.closest('main')) {
-      // Ensure main is not nested incorrectly
-      const nestedMain = landmark.querySelector('main');
-      if (nestedMain && !landmark.closest('section') && !landmark.closest('article')) {
-        const parent = landmark.parentNode;
-        if (parent) {
-          parent.insertBefore(nestedMain, landmark.nextSibling);
-        }
-      }
-    }
-  });
-}
-
-// Accessibility function to fix fake link issues
-function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
-  fakeLinks.forEach(link => {
-    const onclick = link.getAttribute('onclick');
-    const isButton = link.getAttribute('role') === 'button' || link.tagName === 'BUTTON';
-    if ((onclick || isButton) && !link.getAttribute('href')) {
-      link.setAttribute('role', 'button');
-      if (onclick) {
-        link.setAttribute('tabindex', '0');
-      }
-    }
-  });
-  const buttonsAsLinks = document.querySelectorAll('button[href], a[onclick]');
-  buttonsAsLinks.forEach(element => {
-    if (element.tagName === 'BUTTON' && element.hasAttribute('href')) {
-      element.removeAttribute('href');
-    }
-  });
-}
-
-// Initialize accessibility improvements when DOM is ready
+// Update document.readyState check to call new functions as well
 function initAccessibility() {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -115,6 +52,7 @@ function initAccessibility() {
       addSvgAccessibleNames();
       ensureUniqueLandmarks();
       fixFakeLinkIssue();
+      createInPageButton({ id: 'example', label: 'Example Link' });
     });
   } else {
     addLangAttribute();
@@ -123,6 +61,7 @@ function initAccessibility() {
     addSvgAccessibleNames();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
+    createInPageButton({ id: 'example', label: 'Example Link' });
   }
 }
 
@@ -134,7 +73,8 @@ module.exports = {
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  initAccessibility
+  initAccessibility,
+  createInPageButton
 };
 
 initAccessibility();

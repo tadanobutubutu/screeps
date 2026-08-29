@@ -14,9 +14,6 @@ function createInPageButton(buttonText, onClickHandler) {
   return button;
 }
 
-// TODO: Implement this function for creating in-page buttons
-// (Implementation added above)
-
 /**
  * Initialize the application with accessibility improvements
  */
@@ -66,9 +63,6 @@ function setupButtonAccessibility() {
     }
   });
 }
-
-// Existing exports and code remain unchanged
-// Note: Preserving all existing code and exports as per requirements
 
 // Export existing functionality
 module.exports = {

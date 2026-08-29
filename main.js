@@ -146,6 +146,125 @@ function addressAccessibilityIssues(insightReport) {
 // - REACT_041: Add accessible names to 2 SVGs
 // ... your accessible names for SVGs refactoring code ...
 
+// New functions for accessibility and dependency graphs
+
+/**
+ * Ensures that the given element has an id attribute.
+ * If the element doesn't have an id, generates and assigns a unique one.
+ * @param {Element} element - The DOM element to check
+ * @param {string} [prefix='element'] - Optional prefix for the generated id
+ * @returns {string} The id of the element
+ */
+function ensureElementHasId(element, prefix = 'element') {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (element.id) {
+    return element.id;
+  }
+  
+  const uniqueId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  element.id = uniqueId;
+  return uniqueId;
+}
+
+/**
+ * Adds an aria-label attribute to the given element.
+ * @param {Element} element - The DOM element to add aria-label to
+ * @param {string} label - The label text to set
+ * @returns {Element} The element with the aria-label added
+ */
+function addAriaLabel(element, label) {
+  if (!element) {
+    throw new Error('Element is required');
+  }
+  
+  if (typeof label !== 'string' || label.trim() === '') {
+    throw new Error('Aria label must be a non-empty string');
+  }
+  
+  element.setAttribute('aria-label', label);
+  return element;
+}
+
+/**
+ * Renders a dependency graph visualization.
+ * @param {Object} dependencies - Object containing dependency data
+ * @param {string} containerId - The id of the container element to render into
+ * @returns {HTMLElement} The rendered graph element
+ */
+function renderDependencyGraph(dependencies, containerId) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    throw new Error('Dependencies must be a valid object');
+  }
+  
+  if (!containerId || typeof containerId !== 'string') {
+    throw new Error('Container id must be a non-empty string');
+  }
+  
+  const container = document.getElementById(containerId);
+  if (!container) {
+    throw new Error(`Container element with id "${containerId}" not found`);
+  }
+  
+  // Create the graph container
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  
+  // Build the graph structure from dependencies
+  const nodes = [];
+  const edges = [];
+  
+  for (const [key, value] of Object.entries(dependencies)) {
+    const nodeId = ensureElementHasId({ id: '' }, key);
+    nodes.push({
+      id: key,
+      name: key,
+      dependencies: Array.isArray(value) ? value : []
+    });
+    
+    if (Array.isArray(value)) {
+      value.forEach(dep => {
+        edges.push({
+          source: dep,
+          target: key
+        });
+      });
+    }
+  }
+  
+  // Create a simple text representation of the graph
+  const graphElement = document.createElement('div');
+  graphElement.className = 'dependency-graph-content';
+  
+  // Add nodes section
+  const nodesSection = document.createElement('div');
+  nodesSection.className = 'graph-nodes';
+  nodesSection.innerHTML = '<h4>Nodes:</h4><ul>' + 
+    nodes.map(node => `<li>${node.name}</li>`).join('') + 
+    '</ul>';
+  
+  // Add edges section
+  const edgesSection = document.createElement('div');
+  edgesSection.className = 'graph-edges';
+  edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
+    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
+    '</ul>';
+  
+  graphElement.appendChild(nodesSection);
+  graphElement.appendChild(edgesSection);
+  graphContainer.appendChild(graphElement);
+  
+  // Clear container and append the graph
+  container.innerHTML = '';
+  container.appendChild(graphContainer);
+  
+  return graphContainer;
+}
+
 // Main execution
 function main() {
   initialize();
@@ -203,5 +322,8 @@ module.exports = {
   createInPageButton,
   validateLinkAccessibility,
   handleFakeLinks,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraph
 };

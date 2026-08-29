@@ -171,18 +171,13 @@ const renderIndex = () => {
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.description || ''}`;
+  return `${product.name} - ${product.description || 'No description'}`;
 }
 
 function renderProductList(products) {
   const container = document.createElement('div');
   container.className = 'product-list';
-  container.innerHTML = products.map(product => `
-    <div class="product-card">
-      <h3>${formatProductName(product)}</h3>
-      <p class="price">${formatCurrency(product.price)}</p>
-    </div>
-  `).join('');
+  container.innerHTML = products.map(product => renderProductCard(product)).join('');
   return container;
 }
 

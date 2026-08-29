@@ -46,6 +46,16 @@ function getFullLangAttribute() {
 }
 
 /**
+ * Returns the language attribute (without region) from the html element.
+ * @returns {string} - the language code (e.g., 'en')
+ */
+function getLangAttribute() {
+  const full = document.documentElement.lang || '';
+  // Split on hyphen or underscore and take first part
+  return full.split(/[-_]/)[0];
+}
+
+/**
  * Function to replace `my-button` with actual button id
  */
 function replaceMyButtonId() {

@@ -40,7 +40,14 @@ function calculateDiscount(price, discountRate) {
 function getSvgAccessibleName(svgElement) {
   // ... Existing implementation ...
 }
-<<<<<<< HEAD
+
+/**
+ * Adds accessibility properties to SVG elements in the given container.
+ * @param {HTMLElement} container - The container to check for SVG elements
+ */
+function addSVGAccessibilityProps(container) {
+  // ... New implementation for this function ...
+}
 
 /**
  * Checks link and button accessibility in the document or specific container.
@@ -84,17 +91,6 @@ function getLangAttribute(element) {
 function addLangAttribute() {
   // ... Existing implementation ...
 }
-=======
-
-/**
- * Adds accessibility properties to SVG elements in the given container.
- * @param {HTMLElement} container - The container to check for SVG elements
- */
-function addSVGAccessibilityProps(container) {
-  // ... New implementation for this function ...
-}
-
->>>>>>> origin/main
 
 function validateLandmark() {
   return true;
@@ -136,7 +132,7 @@ function updateLiveRegion(message, priority = 'polite') {
 }
 
 // New function to check landmark elements
-function checkLandmarkElements() {
+function checkLandmarkElementsWrapper() {
   return a11yStore.checkLandmarkElements();
 }
 
@@ -157,5 +153,5 @@ module.exports = {
   validateLandmarkElements,
   countDependencies,
   updateLiveRegion,
-  checkLandmarkElements
+  checkLandmarkElementsWrapper
 };

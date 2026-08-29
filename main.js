@@ -114,9 +114,51 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+// Accessibility helper functions - REACT_025
+const getLandmarkAccessibleName = (landmark) => {
+    // Returns an accessible name for screen readers
+    if (landmark.ariaLabel) {
+        return landmark.ariaLabel;
+    }
+    return landmark.name || '';
+};
+
+const validateLandmarkAccessibility = (landmark) => {
+    // Validate that landmark has accessibility-required properties
+    const issues = [];
+    
+    if (!landmark.name || landmark.name.trim().length === 0) {
+        issues.push('Missing or empty name for landmark');
+    }
+    
+    if (!landmark.description || landmark.description.trim().length === 0) {
+        issues.push('Missing or empty description - screen readers need descriptions for landmarks');
+    }
+    
+    return {
+        isAccessible: issues.length === 0,
+        issues: issues
+    };
+};
+
+const enhanceLandmarkForAccessibility = (landmark) => {
+    // Add accessibility attributes to landmark
+    return {
+        ...landmark,
+        role: landmark.role || 'landmark',
+        ariaLabel: getLandmarkAccessibleName(landmark),
+        'aria-describedby': landmark.description ? `${landmark.id || landmark.name}-desc` : undefined
+    };
+};
+
 module.exports = {
-  processLandmarks,
-  addLangAttribute,
-  checkLandmarkElement,
-  calculateSum
+    landmarkStructureCheck,
+    ensureUniqueLandmarks,
+    getLandmarkAccessibleName,
+    validateLandmarkAccessibility,
+    enhanceLandmarkForAccessibility,
+    processLandmarks,
+    addLangAttribute,
+    checkLandmarkElement,
+    calculateSum
 };

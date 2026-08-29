@@ -6,9 +6,6 @@ const existingFunction = () => {
 // Exporting existing functions
 export { existingFunction };
 
-// TODO: Address accessibility issues from insight report:
-// Placeholder for new code or changes to address accessibility issues
-
 // New function to address accessibility issues
 const newAccessibleFunction = () => {
   // New function logic to improve accessibility
@@ -39,5 +36,5 @@ function addLandmarkRegion(element, role, label) {
   }
 }
 
-// Exporting the new function
+// Exporting the new functions
 export { newAccessibleFunction, addLandmarkRegion };

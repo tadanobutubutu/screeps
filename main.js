@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
 // - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
@@ -125,6 +125,8 @@ function rotateBack() {
   // ...
   // ...
 }
+
+exports.rotateBack = rotateBack;
 
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:

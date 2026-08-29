@@ -133,5 +133,6 @@ module.exports = {
   calculateSum,
   ensureUniqueLandmarkRoles,
   ensureUniqueLandmarks,
-  addLandmarkRolesAndFixIssues
+  addLandmarkRolesAndFixIssues,
+  ensureLandmarkUniqueness
 };

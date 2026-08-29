@@ -234,6 +234,12 @@ function calculateDiscount(price, discountPercentage) {
   return price * (discountPercentage / 100);
 }
 
+function calculateDiscount(originalPrice, discountPercentage) {
+  // TODO: Implement calculateDiscount
+  const discountAmount = originalPrice * (discountPercentage / 100);
+  return originalPrice - discountAmount;
+}
+
 // ... rest of the code
 
 // React-specific exports

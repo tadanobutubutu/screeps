@@ -1,4 +1,6 @@
-// TODO: Add any other missing exports that might have been?
+// TODO: Address accessibility issues from insight report:
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 const functionA = () => {
   // function A implementation
@@ -11,10 +13,6 @@ const functionB = (arg1, arg2) => {
 // TODO: Add back any required exports that might have been removed
 // Example of how to export a required function from another file
 // const { myFunction } = require('./otherFile');
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Common accessibility improvements (REACT_025):
 // 1. Ensure all interactive elements have accessible names
@@ -77,12 +75,6 @@ function resolveConflicts(content) {
   return content;
 }
 
-function getSvgAccessibleName(element) {
-  if (!element) return '';
-  const name = element.getAttribute('aria-label') || element.getAttribute('alt') || '';
-  return name;
-}
-
 // Identifies and enhances landmark elements with appropriate roles and attributes ( new functionality )
 function addProperLandmarkRegions(container) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
@@ -99,6 +91,20 @@ function addProperLandmarkRegions(container) {
     });
   });
   return container;
+}
+
+// Ensure element has an id ( common changes )
+function ensureElementHasId(element) {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}`;
+  }
+}
+
+// Add aria-label to the element ( common changes )
+function addAriaLabel(element, text) {
+  if (element && text) {
+    element.setAttribute('aria-label', text);
+  }
 }
 
 // Make sure the element has an id ( common changes )
@@ -223,58 +229,11 @@ function fixFakeLinkIssues(doc) {
 }
 
 /**
- * Wrap primary content in main div
- * @param { Document } doc - The document object to operate on */
-// Note: wrapPrimaryContentInMain is defined above - this is a duplicate reference
-
-/**
- * Add proper landmark regions to the document
- * @param { Document } doc - The document object to operate on */
-function addProperLandmarkRegions(doc) {
-  const landmarks = doc.querySelectorAll('main, footer, aside, section, article');
-  return Array.from(landmarks);
-}
-
-/**
- * Add ARIA attributes to form controls
- * @param { Document } doc - The document object to operate on */
-function addAriaToFormControls(doc) {
-  const inputs = doc.querySelectorAll('input, select, textarea');
-  inputs.forEach((input, index) => {
-    if (!input.id && input.type !== 'hidden') {
-      const label = input.id ? doc.getElementById(input.id) : null;
-      if (label) {
-        label.id = label.id || `label-${index}`;
-      }
-    }
-  });
-}
-
-/**
- * Replace button IDs with accessible alternatives
- * @param { Document } doc - The document object to operate on */
-function replaceMyButtonId(doc) {
-  const buttons = doc.querySelectorAll('button');
-  buttons.forEach((button, index) => {
-    button.id = button.id || `button-${index}`;
-  });
-}
-
-// TODO: This is the existing code that needs to be preserved
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-// - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
-
-/**
  * Get the lang attribute from the document
  * @param { Document } doc - The document object to operate on
  * @returns { string } The language code */
 function getLangAttribute(doc) {
-  return doc.documentElement.lang || 'en';
+  return getLangAttributeImpl(doc);
 }
 
 /**
@@ -282,7 +241,7 @@ function getLangAttribute(doc) {
  * @param { Document } doc - The document object to operate on
  * @returns { string } The full language code */
 function getFullLangAttribute(doc) {
-  return doc.documentElement.lang || 'en-US';
+  return getFullLangAttributeImpl(doc);
 }
 
 /**
@@ -448,25 +407,33 @@ function getFullLangAttributeImpl(doc) {
   return 'en-US';
 }
 
-/**
- * Get the language attribute for the document
- * Implementation of getLangAttribute()
- * @param { Document } doc - The document object to operate on
- * @returns { string } The language attribute value */
-function getLangAttribute(doc) {
-  return getLangAttributeImpl(doc);
-}
+// Landmark utility functions ( exports from the right side )
+const originalFilterLandmarks = (landmarks) => {
+  return Array.from(landmarks).filter(landmark => {
+    const role = landmark.getAttribute('role');
+    return role && ['banner', 'navigation', 'main', 'contentinfo', 'complementary', 'search'].includes(role);
+  });
+};
 
-/**
- * Get the full language attribute including region
- * Implementation of getFullLangAttribute()
- * @param { Document } doc - The document object to operate on
- * @returns { string } The full language attribute value */
-function getFullLangAttribute(doc) {
-  return getFullLangAttributeImpl(doc);
-}
+const originalSortLandmarksByName = (landmarks) => {
+  return [...landmarks].sort((a, b) => {
+    const nameA = (a.getAttribute('role') || a.tagName).toUpperCase();
+    const nameB = (b.getAttribute('role') || b.tagName).toUpperCase();
+    return nameA.localeCompare(nameB);
+  });
+};
 
-// ... (The rest of the existing functions and exports remain unchanged)
+const originalAddRequiredLandmarks = (doc) => {
+  const requiredLandmarks = ['main', 'banner', 'navigation', 'contentinfo', 'complementary'];
+  requiredLandmarks.forEach(role => {
+    if (!doc.querySelector(`[role="${role}"]`)) {
+      const el = doc.createElement('div');
+      el.setAttribute('role', role);
+      doc.body.appendChild(el);
+    }
+  });
+  return doc;
+};
 
 // ADD THE NEW FUNCTION TO THE EXPORTS
 const { addMissingExportFunction } = require('./utils');

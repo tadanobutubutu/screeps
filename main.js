@@ -76,6 +76,12 @@ function loop() {
   }
 }
 
+// New function to implement renderIndexView functionality
+function renderIndexView() {
+  // Placeholder implementation
+  console.log('Rendering index view');
+}
+
 module.exports = {
   multiply,
   add,
@@ -85,5 +91,6 @@ module.exports = {
   anotherFunction,
   renderDependencyGraph,
   displayModuleStructure,
-  loop
+  loop,
+  renderIndexView
 };

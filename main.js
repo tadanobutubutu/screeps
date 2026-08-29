@@ -5,15 +5,6 @@ import Main from './components/Main';
 import Footer from './components/Footer';
 import './styles.css';
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,17 +25,22 @@ function App() {
     }
   };
 
-  // REACT_015: Set the lang attribute on the HTML element
   useEffect(() => {
     document.documentElement.setAttribute('lang', 'en');
   }, []);
 
-  // REACT_017: Add landmark roles and fix landmark issues
-  // REACT_025: Ensure unique landmarks
-  // REACT_036: Fix fake link issues
-  // REACT_041: Add accessible names to SVGs
+  // New function to render dependency graphs
+  function renderDependencyGraph(moduleName) {
+    // Placeholder implementation - replace with actual logic to render dependency graphs
+    console.log(`Rendering dependency graph for module: ${moduleName}`);
+  }
 
-  // REACT_015 & REACT_017: Ensure document has lang attribute and proper landmark structure
+  // New function to display module structure
+  function displayModuleStructure(moduleName) {
+    // Placeholder implementation - replace with actual logic to display module structure
+    console.log(`Displaying module structure for module: ${moduleName}`);
+  }
+
   return (
     <div className="app-container">
       <Header />
@@ -54,7 +50,6 @@ function App() {
   );
 }
 
-// REACT_017: Add landmark roles to fix landmark issues
 export function getUniqueLandmarkName(baseName, existingNames) {
   if (!existingNames.includes(baseName)) {
     return baseName;
@@ -68,7 +63,6 @@ export function getUniqueLandmarkName(baseName, existingNames) {
   return newName;
 }
 
-// REACT_025: Ensure unique landmarks function
 export function validateUniqueLandmarks(container) {
   const landmarks = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], header, nav, main, footer');
   const landmarkNames = new Set();
@@ -79,7 +73,6 @@ export function validateUniqueLandmarks(container) {
     const ariaLabelledby = landmark.getAttribute('aria-labelledby');
     const tagName = landmark.tagName.toLowerCase();
 
-    // Determine the landmark name
     let landmarkName = ariaLabel || ariaLabelledby || tagName;
 
     if (landmarkNames.has(landmarkName)) {
@@ -94,25 +87,20 @@ export function validateUniqueLandmarks(container) {
   });
 
   return issues;
-});
+}
 
-// REACT_041: Add accessible names to SVGs
 export function addSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
   
-  // Add title element as first child
   const title = document.createElement('title');
   title.id = `svg-title-${Date.now()}`;
   title.textContent = accessibleName;
   
-  // Insert title as first child
   svgElement.insertBefore(title, svgElement.firstChild);
   
-  // Add aria-labelledby attribute
   svgElement.setAttribute('aria-labelledby', title.id);
 }
 
-// REACT_036: Fix fake link issues - convert to proper semantic elements
 export function isValidLink(element) {
   if (!element) return true;
   
@@ -120,7 +108,6 @@ export function isValidLink(element) {
   const href = element.getAttribute('href');
   const onClick = element.getAttribute('onclick');
   
-  // Check if it's a fake link (div/span with onClick but no href, or an anchor without href)
   const isFakeLink = (tagName === 'div' || tagName === 'span') && onClick && !href;
   
   if (isFakeLink) {
@@ -133,7 +120,6 @@ export function isValidLink(element) {
   return { valid: true };
 }
 
-// REACT_027: Add scope to table headers
 export function addScopeToHeaders(tableElement) {
   if (!tableElement) return [];
   
@@ -145,10 +131,8 @@ export function addScopeToHeaders(tableElement) {
     const rowIndex = Array.from(row.parentElement.children).indexOf(row);
     const cellIndex = Array.from(row.children).indexOf(th);
     
-    // Determine if scope should be 'col' or 'row'
     let scope = 'col';
     
-    // Check if it's a row header (first cell in a row that's not the first row)
     if (cellIndex === 0 && rowIndex > 0) {
       scope = 'row';
     }
@@ -166,33 +150,19 @@ export function addScopeToHeaders(tableElement) {
   return updates;
 }
 
-// Accessibility issue addressing functions
-function addressAccessibilityIssues(insightReport) {
-  // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
+export function addressAccessibilityIssues(insightReport) {
   insightReport.forEach(issue => {
     console.log(`Addressing issue: ${issue.issue}`);
-    // Implement the solution to the issue
-    // This is a placeholder for the actual implementation
     console.log(`Solution: ${issue.solution}`);
     // ... code to apply the solution ...
   });
 }
 
-// New function to address accessibility issues from insight report
-function newFunction() {
+export function newFunction() {
   // implementation of new function
 }
 
-module.exports.newFunction = newFunction;
-
-// Accessibility Helper Functions
-
-/**
- * Announces a message to screen readers using ARIA live regions
- * @param {string} message - The message to announce
- * @param {string} priority - 'polite' or 'assertive'
- */
-function announceToScreenReader(message, priority = 'polite') {
+export function announceToScreenReader(message, priority = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', priority);
   announcement.setAttribute('aria-atomic', 'true');
@@ -202,12 +172,7 @@ function announceToScreenReader(message, priority = 'polite') {
   setTimeout(() => announcement.remove(), 1000);
 }
 
-/**
- * Traps focus within a specified element (useful for modals)
- * @param {HTMLElement} element - The container element to trap focus within
- * @returns {Function} - Cleanup function to remove the trap
- */
-function trapFocus(element) {
+export function trapFocus(element) {
   const focusableElements = element.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
@@ -232,11 +197,7 @@ function trapFocus(element) {
   return () => element.removeEventListener('keydown', handleKeyDown);
 }
 
-/**
- * Manages focus when navigating between sections
- * @param {string} selector - CSS selector of the target section
- */
-function manageFocusOnNavigation(selector) {
+export function manageFocusOnNavigation(selector) {
   const target = document.querySelector(selector);
   if (target) {
     target.setAttribute('tabindex', '-1');
@@ -245,31 +206,17 @@ function manageFocusOnNavigation(selector) {
   }
 }
 
-/**
- * Checks if user prefers reduced motion
- * @returns {boolean}
- */
-function prefersReducedMotion() {
+export function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/**
- * Safely manages aria-expanded state
- * @param {HTMLElement} trigger - The element that triggers the toggle
- * @param {boolean} isExpanded - Current expanded state
- */
-function setAriaExpanded(trigger, isExpanded) {
+export function setAriaExpanded(trigger, isExpanded) {
   if (trigger) {
     trigger.setAttribute('aria-expanded', String(isExpanded));
   }
 }
 
-/**
- * Validates that an interactive element has proper accessible name
- * @param {HTMLElement} element - The element to validate
- * @returns {boolean}
- */
-function hasAccessibleName(element) {
+export function hasAccessibleName(element) {
   return !!(
     element.textContent?.trim() ||
     element.getAttribute('aria-label') ||
@@ -278,9 +225,6 @@ function hasAccessibleName(element) {
     element.getAttribute('title')
   );
 }
-
-// Export the newFunction for use in other modules
-export { newFunction, addressAccessibilityIssues, announceToScreenReader, trapFocus, manageFocusOnNavigation, prefersReducedMotion, setAriaExpanded, hasAccessibleName };
 
 const container = document.getElementById('root');
 const root = createRoot(container);

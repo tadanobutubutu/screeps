@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// TODO: This is the existing code that needs to be preserved
+
+// Main entry point for the application
+function main() {
+  console.log('Application started');
+}
+
+module.exports = { main };

@@ -1,17 +1,1 @@
-import React from 'react';
-
-function wrapPrimaryContentInMain(content) {
-  return <main>{content}</main>;
-}
-
-function MyComponent() {
-  // Old code that needs to be updated
-  return (
-    <div lang="en">
-      {/* Content */}
-      <span id="content">Content</span>
-    </div>
-  );
-}
-
-export default MyComponent;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

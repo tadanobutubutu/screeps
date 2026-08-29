@@ -11,23 +11,9 @@ const {
   getSvgAccessibleName,
   createInPageButton,
   createAccessibleLink,
-} = require('./accessibilityHelperFunctions');
-
-const {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  countDependencies,
-  myNewFunction,
-} = require('./additionalHelperFunctions'); // assuming the additional helper functions are in a separate file
-
-// Import your custom functions if they exist
-// const { customFunction1, customFunction2 } = require('./customFunctions'); // replace with actual import statement
+} = require('./accessibility-utils');
 
 const viewsDir = path.join(__dirname, 'views');
-
-// TODO: This is the existing code that needs to be preserved
-// ----- END ORIGINAL CODE -----
 
 // The new function you need to add
 function newFunction() {
@@ -46,7 +32,7 @@ function run() {
     .map(file => path.join(viewsDir, file));
 
   files.forEach(file => {
-    updateThScopeAttribute(file);
+    updateThScope(file);
     validateTableAccessibility(file);
     // Add more accessibility checks here if needed
   });
@@ -67,25 +53,86 @@ function checkTableStructure(tableName, expectedColumns) {
   // ... existing implementation ...
 }
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
+/**
+ * Ensures the given element has an id attribute
+ * @param {HTMLElement} element - The element to check
+ * @returns {string} - The id of the element
+ */
 function ensureElementHasId(element) {
-  // ... existing implementation ...
+  if (!element.id) {
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element.id;
 }
 
+/**
+ * Adds an aria-label to the given element
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The label text to add
+ */
 function addAriaLabel(element, label) {
-  // ... existing implementation ...
+  if (element && label) {
+    element.setAttribute('aria-label', label);
+  }
 }
 
+/**
+ * Renders dependency graphs for debugging purposes
+ * @param {Object} dependencies - Object containing dependency mappings
+ * @returns {string} - String representation of the dependency graph
+ */
 function renderDependencyGraphs(dependencies) {
-  // ... existing implementation ...
+  let graphOutput = 'Dependency Graph:\n';
+  
+  if (!dependencies || typeof dependencies !== 'object') {
+    return graphOutput + 'No dependencies to display';
+  }
+  
+  for (const [module, deps] of Object.entries(dependencies)) {
+    graphOutput += `\n${module} -> `;
+    if (Array.isArray(deps)) {
+      graphOutput += deps.join(', ') || 'none';
+    } else if (typeof deps === 'object' && deps !== null) {
+      graphOutput += Object.keys(deps).join(', ') || 'none';
+    } else {
+      graphOutput += String(deps);
+    }
+  }
+  
+  return graphOutput;
 }
 
+/**
+ * Counts the total number of dependencies
+ * @returns {number} - Total count of dependencies
+ */
 function countDependencies() {
-  // ... existing implementation ...
+  // Placeholder implementation
+  return 0;
+}
+
+/**
+ * Module structure display function for debugging purposes
+ * @param {Object} module - The module object to display
+ * @returns {string} - String representation of the module structure
+ */
+function displayModuleStructure(module) {
+  let structure = 'Module Structure:\n';
+  
+  if (!module) {
+    return structure + 'No module provided';
+  }
+  
+  structure += `Name: ${module.name || 'unnamed'}\n`;
+  structure += `Exports: ${Object.keys(module.exports || {}).join(', ') || 'none'}\n`;
+  structure += `Dependencies: ${(module.dependencies || []).length}\n`;
+  
+  return structure;
 }
 
 function myNewFunction(input) {
   // Implement the new function here
+  return input;
 }
 
 function main() {
@@ -102,14 +149,15 @@ const config = {
   enabled: true
 };
 
-function updateThScopeAttribute(file) {
-  // Implementation for updating th scope attribute
-  // This function is called in the run loop but was not defined in either branch
-  // Adding a placeholder implementation
+/**
+ * Updates th elements without scope attribute to include scope="row"
+ * @param {string} file - The file path to process
+ */
+function updateThScope(file) {
   try {
     let content = fs.readFileSync(file, 'utf8');
     // Simple regex to find th elements without scope attribute
-    const updatedContent = content.replace(/<th(?![^>]*\bscope=)/g, '<th scope="row"');
+    const updatedContent = content.replace(/<th(?![^>]*scope)([^>]*)>/gi, '<th scope="row"$1>');
     if (content !== updatedContent) {
       fs.writeFileSync(file, updatedContent);
       console.log(`Updated th scope attributes in ${file}`);
@@ -140,4 +188,5 @@ module.exports = {
     getSvgAccessibleName,
     createInPageButton,
     createAccessibleLink,
+    displayModuleStructure,
 };

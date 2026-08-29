@@ -321,6 +321,72 @@ function addAriaLabel(document, selector, label) {
   return document;
 }
 
+// REACT_040: Replace my-button with actual button id for accessibility
+function fixButtonIdentifiers(document) {
+  const myButtons = document.querySelectorAll('my-button, [is="my-button"]');
+  myButtons.forEach((button, index) => {
+    if (!button.id) {
+      button.id = `button-${index + 1}`;
+    }
+    // Ensure button has accessible name
+    if (!button.textContent.trim() && !button.getAttribute('aria-label') && !button.getAttribute('aria-labelledby')) {
+      button.setAttribute('aria-label', `Button ${index + 1}`);
+    }
+    // Ensure button has proper role
+    if (button.tagName === 'MY-BUTTON' && !button.getAttribute('role')) {
+      button.setAttribute('role', 'button');
+    }
+    // Ensure button is focusable
+    if (!button.hasAttribute('tabindex') && button.getAttribute('tabindex') !== '0') {
+      button.setAttribute('tabindex', '0');
+    }
+  });
+  
+  // Also fix any button elements without proper identifiers
+  const buttons = document.querySelectorAll('button:not([id])');
+  buttons.forEach((button, index) => {
+    button.id = `button-${index + 1}`;
+  });
+  
+  return document;
+}
+
+// REACT_042: Ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphARIA(document) {
+  const graphContainer = document.querySelector('#dependencyGraph') || 
+                         document.querySelector('.dependency-graph') || 
+                         document.querySelector('[data-graph="dependencies"]') ||
+                         document.querySelector('[id*="dependency"]');
+  
+  if (graphContainer) {
+    // Ensure the container has a proper ARIA role
+    if (!graphContainer.getAttribute('role')) {
+      graphContainer.setAttribute('role', 'img');
+    }
+    
+    // Ensure it has an accessible name
+    if (!graphContainer.getAttribute('aria-label') && !graphContainer.getAttribute('aria-labelledby')) {
+      graphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+    
+    // Ensure it has a description if complex
+    if (!graphContainer.getAttribute('aria-describedby')) {
+      const descId = 'dependency-graph-desc';
+      let descElement = document.getElementById(descId);
+      if (!descElement) {
+        descElement = document.createElement('div');
+        descElement.id = descId;
+        descElement.className = 'sr-only';
+        descElement.textContent = 'This graph shows the dependency relationships between modules.';
+        graphContainer.parentNode.insertBefore(descElement, graphContainer.nextSibling);
+      }
+      graphContainer.setAttribute('aria-describedby', descId);
+    }
+  }
+  
+  return document;
+}
+
 // Function to render dependency graphs
 function renderDependencyGraphs(document) {
   const graphContainer = document.querySelector('#dependencyGraph') || 
@@ -330,4 +396,28 @@ function renderDependencyGraphs(document) {
   if (graphContainer) {
     // Create SVG element for the dependency graph
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', '0 0 800 600');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Dependency Graph Visualization');
+    
+    // Add title for accessibility
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = 'Dependency Graph showing module relationships';
+    svg.appendChild(title);
+    
+    // Add description for accessibility
+    const desc = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+    desc.textContent = 'A directed graph visualization showing the dependency relationships between different modules in the application. Nodes represent modules and edges represent dependencies.';
+    svg.appendChild(desc);
+    
+    // Clear container and append SVG
+    graphContainer.innerHTML = '';
+    graphContainer.appendChild(svg);
+    
+    // Ensure ARIA attributes on container
+    ensureDependencyGraphARIA(document);
+  }
+  return document;
+}

@@ -60,6 +60,17 @@ const main = {
   // Add the new function or change here:
   myNewFunction: function() {
     // your new function logic goes here
+  },
+
+  // New accessibility-related function
+  announceRoomStatus: function(room) {
+    if (!room.controller || !room.controller.my) {
+      return;
+    }
+    // Send a notification about room status for accessibility
+    if (room.energyCapacityAvailable > 0) {
+      console.log('<lang="en"> Room ' + room.name + ' is under control with energy available for operations.');
+    }
   }
 };
 

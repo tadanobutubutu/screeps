@@ -18,6 +18,9 @@ const main = {
     // TODO: Implement tower defense
     
     // TODO: Implement spawning logic
+    
+    // New function logic goes here
+    this.myNewFunction();
   },
   
   manageRoom: function(room) {

@@ -15,7 +15,7 @@ function addProperLandmarkRegions(landmarks) {
   landmarks.forEach(landmark => {
     // Assuming landmark has a 'name' and 'coordinates' property
     // You would add the logic to properly add the landmark region here
-    console.log(`Adding landmark region for: ${landmark.name} at coordinates: ${landmark.coordinates}`);
+    console.log(`Adding landmark region for: ${landmark.name} at coordinates: ...`);
   });
 }
 
@@ -25,14 +25,14 @@ function addProperLandmarkRegions(landmarks) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with fixed table structures
  */
-export function fixTableStructureIssues(html) {
+export function fixTableStructure(html) {
   if (typeof html !== 'string') return html;
   
   let result = html;
   
   // Fix tables that need proper scope attributes on headers
   result = result.replace(/<th([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('scope=')) {
+    if (attrs && /scope=/i.test(attrs)) {
       return match;
     }
     return `<th${attrs} scope="col">`;
@@ -40,7 +40,7 @@ export function fixTableStructureIssues(html) {
   
   // Ensure tables have associated caption or summary
   result = result.replace(/<table([^>]*)>/gi, (match, attrs) => {
-    if (attrs && attrs.includes('summary=') || attrs.includes('caption')) {
+    if (attrs && /summary=/i.test(attrs) || /<caption/i.test(result)) {
       return match;
     }
     // Add summary attribute for screen readers
@@ -48,11 +48,11 @@ export function fixTableStructureIssues(html) {
   });
   
   // Ensure proper thead/tbody structure
-  result = result.replace(/(<tr[^>]*>)/gi, (match, attrs) => {
+  result = result.replace(/<tr/gi, (match, attrs) => {
     // Check if tbody already exists before this tr
-    const trIndex = result.indexOf(match);
+    const trIndex = result.indexOf('<tr');
     const beforeTr = result.substring(0, trIndex);
-    if (beforeTr && !beforeTr.includes('<tbody') && !beforeTr.includes('</tbody>')) {
+    if (beforeTr && !/<tbody/i.test(beforeTr) && /<table/i.test(beforeTr)) {
       return `<tbody>${match}`;
     }
     return match;
@@ -68,7 +68,7 @@ export function fixTableStructureIssues(html) {
     if (hasThead || hasTbody || hasTfoot) {
       // Ensure proper structure - tbody should wrap data rows
       if (hasTbody && !/<tbody>[\s\S]*<\/tbody>/i.test(table)) {
-        result = result.replace(table, table.replace(/(<tbody[^>]*>)([\s\S]*?)(<\/table>)/i, '$1<tbody>$2</tbody>$3'));
+        result = result.replace(table, table.replace(/(<table[^>]*>)([\s\S]*)(<\/table>)/gi, '$1<tbody>$2</tbody>$3'));
       }
     }
   });
@@ -85,7 +85,7 @@ export function addMainLandmark(html) {
   if (typeof html !== 'string') return html;
   
   // Check if main landmark already exists
-  if (/<main[\s>]/i.test(html)) {
+  if (/<main/i.test(html)) {
     return html;
   }
   
@@ -94,8 +94,8 @@ export function addMainLandmark(html) {
   if (bodyMatch) {
     const bodyAttrs = bodyMatch[1];
     const bodyContent = bodyMatch[2];
-    const wrappedContent = `<main>${bodyContent}</main>`;
-    return html.replace(/<body[^>]*>[\s\S]*<\/body>/i, wrappedContent);
+    const wrappedContent = `<main${bodyAttrs}>${bodyContent}</main>`;
+    return html.replace(bodyMatch[0], wrappedContent);
   }
   
   return html;
@@ -106,13 +106,13 @@ export function addMainLandmark(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with accessible SVG names
  */
-export function addSvgAccessibleNames(html) {
+export function addAccessibleSvgNames(html) {
   if (typeof html !== 'string') return html;
   
   let svgCounter = 0;
   
   return html.replace(/<svg([^>]*)>/gi, (match, attrs) => {
-    const existingLabel = attrs.match(/aria-label=/) || attrs.match(/aria-labelledby=/);
+    const existingLabel = attrs.match(/aria-label=/i) || attrs.match(/aria-labelledby=/i);
     
     if (existingLabel) {
       return match;
@@ -123,7 +123,7 @@ export function addSvgAccessibleNames(html) {
     let label = titleMatch ? titleMatch[1] : `SVG image ${++svgCounter}`;
     
     // Check for id to reference
-    const idMatch = attrs.match(/id=["']([^"']+)["']/);
+    const idMatch = attrs.match(/id="([^"]*)"/i);
     if (idMatch) {
       return `<svg${attrs} role="img" aria-label="${label}">`;
     }
@@ -141,7 +141,7 @@ export function addSvgAccessibleNames(html) {
  * @param {string} html - The HTML string to process
  * @returns {string} HTML with unique landmarks
  */
-export function ensureUniqueLandmarks(html) {
+export function ensureUniqueLandmarkIds(html) {
   if (typeof html !== 'string') return html;
   
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
@@ -167,7 +167,7 @@ export function ensureUniqueLandmarks(html) {
     // Replace additional <main> tags with <section> while preserving any attributes
     const safeAttrs = attrs || '';
     // Avoid duplicating an aria-label if one already exists
-    if (safeAttrs.includes('aria-label=') || safeAttrs.includes('aria-labelledby=')) {
+    if (safeAttrs && /aria-label=/i.test(safeAttrs)) {
       return `<section${safeAttrs}>`;
     }
     return `<section${safeAttrs} aria-label="Content section">`;
@@ -202,7 +202,7 @@ export function ensureUniqueLandmarks(html) {
   landmarks.forEach(lm => {
     const regex = new RegExp(`<${lm}([^>]*)>`, 'gi');
     html = html.replace(regex, (match, attrs) => {
-      if (attrs && attrs.includes('id=')) {
+      if (attrs && /id=/i.test(attrs)) {
         return match;
       }
       const count = (counters[lm] || 0) + 1;
@@ -218,5 +218,3 @@ export function ensureUniqueLandmarks(html) {
 export { addProperLandmarkRegions };
 
 // existing code... (use the conflict markers to identify and preserve it)
-```
-In this case, I chose to preserve both changes. I kept the existing code, imported the `newFunction` and `newVar` functions, and added the `addProperLandmarkRegions` function. This way, both sets of added code are included, and the script should continue to work as intended for both branches. However, I strongly recommend checking if the `newFunction` and `newVar` are truly needed and non-redundant, as it's not clear from the provided context. If any of these are redundant or cause issues, they should be re-evaluated or removed.

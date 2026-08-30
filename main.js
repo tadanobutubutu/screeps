@@ -8,9 +8,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content

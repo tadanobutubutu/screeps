@@ -40,6 +40,17 @@ function validateTableStructure() {
   // ...
 }
 
+// Added functions for REACT_017 and REACT_025
+function addLandmarkRoles() {
+  // Implementation for REACT_017: Add landmark roles and fix landmark issues
+  // ...
+}
+
+function ensureUniqueLandmarks() {
+  // Implementation for REACT_025: Ensure unique landmarks (2 issues)
+  // ...
+}
+
 // Export functions
 module.exports = {
   formatDate,
@@ -55,5 +66,7 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
   // ... any other relevant functions extracted from the conflicting code base
 };

@@ -35,7 +35,7 @@ function fixFakeLinkIssue() {
 // addLangAttribute();
 // fixTableStructureIssues();
 // // ... and so on for each function
-=======
+
 // TODO: This is the existing code that needs to be preserved
 // TODO: Implement wrapPrimaryContentInMain function, including the added logic
 function wrapPrimaryContentInMain() {

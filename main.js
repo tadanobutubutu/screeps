@@ -456,6 +456,140 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
+// New functions to address accessibility issues
+
+/**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+  }
+}
+
+/**
+ * Creates an accessible in-page button/link
+ * @param {string} text - The text of the button
+ * @param {string} [href] - The href for the link (defaults to '#')
+ * @returns {string} HTML string for the button
+ */
+function createInPageButton(text, href = '#') {
+  return `<a href="${href}" aria-label="${text}">${text}</a>`;
+}
+
+/**
+ * Validates a landmark element
+ * @param {Element} element - The element to check
+ * @returns {boolean} True if the element is a valid landmark
+ */
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute && element.getAttribute('role');
+  const validLandmarks = ['banner', 'main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region', 'article', 'aside', 'footer', 'header'];
+  return role ? validLandmarks.includes(role) : false;
+}
+
+/**
+ * Validates the structure of landmarks on the page
+ * @returns {Object} Validation result with issues array and valid boolean
+ */
+function validateLandmarkStructure() {
+  const issues = [];
+  if (typeof document === 'undefined') return { issues, valid: true };
+  const landmarks = document.querySelectorAll('[role], section, header, footer, main, nav, aside, form');
+  // For simplicity, just check that there is at least one main landmark
+  const hasMain = Array.from(landmarks).some(el => el.getAttribute('role') === 'main' || el.tagName === 'MAIN');
+  if (!hasMain) {
+    issues.push('Missing main landmark');
+  }
+  return { issues, valid: issues.length === 0 };
+}
+
+/**
+ * Validates the accessibility of landmarks, ensuring uniqueness where required
+ * @param {NodeList|Array} [landmarks] - List of landmark elements (optional)
+ * @returns {Object} Validation result
+ */
+function validateLandmarkAccessibility(landmarks) {
+  const issues = [];
+  if (typeof document === 'undefined') return { issues, valid: true };
+  if (!landmarks) {
+    landmarks = document.querySelectorAll('[role]:is([role="banner"],[role="main"],[role="navigation"],[role="search"],[role="contentinfo"])');
+  }
+  const seen = new Set();
+  landmarks.forEach(el => {
+    const role = el.getAttribute('role');
+    if (role && seen.has(role)) {
+      issues.push(`Duplicate landmark role: ${role}`);
+    }
+    seen.add(role);
+  });
+  return { issues, valid: issues.length === 0 };
+}
+
+/**
+ * Gets the accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  return '';
+}
+
+/**
+ * Sets attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {Object} attrs - An object of attributes to set
+ */
+function setSvgAttributes(svg, attrs) {
+  if (!svg) return;
+  for (const [key, value] of Object.entries(attrs)) {
+    svg.setAttribute(key, value);
+  }
+}
+
+/**
+ * Validates the accessibility of a link element
+ * @param {Element} link - The link element to check
+ * @returns {Object} Validation result
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+  if (!link) return { issues, valid: true };
+  if (!link.getAttribute('href')) {
+    issues.push('Link is missing href attribute');
+  }
+  const text = link.textContent.trim();
+  if (!text) {
+    issues.push('Link has no accessible text');
+  }
+  return { issues, valid: issues.length === 0 };
+}
+
+/**
+ * Handles fake links by adding appropriate roles and attributes
+ */
+function handleFakeLinks() {
+  if (typeof document === 'undefined') return;
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('href') && link.onclick) {
+      // Convert to a button-like link
+      link.setAttribute('role', 'button');
+      link.setAttribute('tabindex', '0');
+      if (!link.getAttribute('aria-label')) {
+        link.setAttribute('aria-label', link.textContent.trim() || 'Link');
+      }
+    }
+  });
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
@@ -477,5 +611,13 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    createInPageButton,
+    validateLandmark,
+    validateLandmarkStructure,
+    validateLandmarkAccessibility,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    validateLinkAccessibility,
+    handleFakeLinks
 };

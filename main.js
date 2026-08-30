@@ -27,20 +27,13 @@ export function newNecessaryFunction() {
 }
 
 // Re-added required exports for functionA and functionB
-function functionA() {
+export function functionA() {
   return 'functionA result';
 }
 
-function functionB() {
+export function functionB() {
   return 'functionB result';
 }
-
-// Export affected functions to make them accessible
-module.exports = {
-  ...affectedFunctions,
-  functionA,
-  functionB,
-};
 
 /**
  * Calculate the sum of two numbers

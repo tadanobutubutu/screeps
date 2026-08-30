@@ -4,6 +4,10 @@ const path = require('path');
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
 
+// Import dependency graph and index content modules
+const dependencyGraphContent = require('./dependencyGraphContent');
+const indexContent = require('./indexContent');
+
 // Landmark elements that should be checked for proper usage
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
 
@@ -13,10 +17,17 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
   const warnings = [];
   const foundLandmarks = {};
 
+  // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
+    // Use case-insensitive regex to find landmark elements
     const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
@@ -24,9 +35,17 @@ function checkLandmarkElements(htmlContent) {
     }
   });
 
+  // Check for required main landmark
   if (!foundLandmarks.main) {
     warnings.push('Missing main landmark element');
   }
+
+  // Check for duplicate landmarks (potential issue)
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    if (foundLandmarks[landmark] > 1) {
+      warnings.push(`Multiple ${landmark} elements found`);
+    }
+  });
 
   return {
     foundLandmarks,
@@ -81,11 +100,15 @@ function createInPageButton(options) {
 function countDependencies() {
   // Existing function implementation
 
-  // New implementation to count dependencies using Document and regex
+  // New implementation to count dependencies using dependencyGraphContent and regex
   const importCommentRegExp = /\/\/\s*require\s*\(|import\s+.*\s+from\s+['"`]/g;
-  const document = { body: { textContent: '' } };
-  const importCount = (document.body.textContent || '').match(importCommentRegExp) || [];
+  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
   return importCount.length;
+}
+
+// Render index view content using indexContent
+function renderIndexView() {
+  return indexContent;
 }
 
 // Store for accessibility announcements (screen reader support)
@@ -591,5 +614,6 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  checkLandmarkElementsInDom
+  checkLandmarkElementsInDom,
+  renderIndexView
 };

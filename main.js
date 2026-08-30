@@ -37,78 +37,66 @@ function formatDate(date) {
   return date.toISOString().split('T')[0];
 }
 
+// Function to count dependencies
+function countDependencies(code) {
+  const dependencies = {};
+  const regex = /function\s+([\w\$]+)/g;
+
+  while (match = regex.exec(code)) {
+    key = match[1];
+    if (key !== 'countDependencies') {
+      if (!dependencies[key]) dependencies[key] = 0;
+      dependencies[key]++;
+    }
+  }
+
+  return dependencies;
+}
+
+// Function to use countDependencies
+function newFunction1() {
+  // ... existing code ...
+  const dependencies = countDependencies(code);
+  // ... rest of newFunction1 ...
+}
+
+// Function to use countDependencies
+function newFunction2() {
+  // ... existing code ...
+  const dependencies = countDependencies(code);
+  // ... rest of newFunction2 ...
+}
+
 // Original rendering functions from HEAD
 function renderDependencyGraph(graph) {
     if (!graph || typeof graph !== 'object') {
         return '';
     }
 
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-    const edges = Array.isArray(graph.edges) ? graph.edges : [];
+    // ... existing code ...
+  }
 
-    const nodeSet = new Set(nodes.map(n => n && n.id).filter(Boolean));
-    const validEdges = edges.filter(e => nodeSet.has(e.from) && nodeSet.has(e.to));
-
-    const lines = [];
-    lines.push('digraph dependencies {');
-    lines.push('  rankdir=LR;');
-    lines.push('  node [shape=box, style=filled, fillcolor="#eef"];');
-
-    for (const node of nodes) {
-        if (node && node.id) {
-            const label = (node.label || node.id).replace(/"/g, '\\"');
-            lines.push(`  "${node.id}" [label="${label}"];`);
-        }
-    }
-
-    for (const edge of validEdges) {
-        lines.push(`  "${edge.from}" -> "${edge.to}";`);
-    }
-
-    lines.push('}`);
-    return lines.join('\n');
-}
-
-function renderIndexView(items) {
+  function renderIndexView(items) {
     if (!Array.isArray(items)) {
         return '';
     }
 
-    const lines = [];
-    lines.push('# Index');
-    lines.push('');
+    // ... existing code ...
+  }
 
-    items.forEach((item, index) => {
-        if (!item) {
-            return;
-        }
-        const title = item.title || item.name || `Item ${index + 1}`;
-        const id = item.id !== undefined ? item.id : index;
-        lines.push(`- [${title}](#item-${id})`);
-    });
-
-    lines.push('');
-    return lines.join('\n');
-}
-
-function updateDependencyGraph(view, graph) {
+  function updateDependencyGraph(view, graph) {
     if (!view) {
         return null;
     }
-    const rendered = renderDependencyGraph(graph);
-    view.graphSource = rendered;
-    view.lastUpdated = new Date().toISOString();
-    return view;
-}
+    // ... existing code ...
+  }
 
-function updateIndexView(view, items) {
+  function updateIndexView(view, items) {
     if (!view) {
         return null;
     }
-    view.indexSource = renderIndexView(items);
-    view.lastUpdated = new Date().toISOString();
-    return view;
-}
+    // ... existing code ...
+  }
 
 // Export all functions and constants
 module.exports = {
@@ -123,7 +111,9 @@ module.exports = {
   capitalize,
   greet,
   formatDate,
-  // Placeholder functions
+  // Placeholder functions that use countDependencies
   newFunction1,
-  newFunction2
+  newFunction2,
+  // Function to count dependencies
+  countDependencies
 };

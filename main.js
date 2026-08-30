@@ -33,7 +33,7 @@ function setHtmlLangAttribute(lang) {
 function detectAndSetLang(content) {
   // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
-  
+
   if (content) {
     // Check for common non-ASCII characters to help detect language
     if (/[\u4e00-\u9fff]/.test(content)) {
@@ -50,8 +50,8 @@ function detectAndSetLang(content) {
       lang = 'de'; // German
     }
   }
-  
-  return lang;
+
+  return setHtmlLangAttribute(lang);
 }
 
 // New function to address REACT_015: Add lang attribute to HTML element
@@ -308,4 +308,103 @@ function createAccessibleLink(href, text, options = {}) {
   }
   
   if (ariaLabel) {
-    link.setAttribute('aria-label', ariaLabel
+    link.setAttribute('aria-label', ariaLabel);
+  }
+  
+  if (role && role !== 'link') {
+    link.setAttribute('role', role);
+  }
+  
+  return link;
+}
+
+/**
+ * Creates an accessible in-page button and appends it to the given parent element.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Open modal');
+  parent.appendChild(btn);
+  return btn;
+}
+
+// TODO: Implement tower defense
+function towerDefense() {
+  // A simple tower defense game implementation
+  // Define towers, enemies, waves, and game loop
+  const towers = [];
+  const enemies = [];
+  let wave = 1;
+  
+  // Example: Tower constructor
+  function Tower(x, y, range, damage, rate) {
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.rate = rate;
+    this.lastShot = 0;
+  }
+  
+  // Example: Enemy constructor
+  function Enemy(x, y, health, speed) {
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.speed = speed;
+  }
+  
+  // Add a tower
+  function addTower(x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate));
+  }
+  
+  // Add an enemy
+  function addEnemy(x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed));
+  }
+  
+  // Update game state (simplified)
+  function update() {
+    // Logic for enemy movement, tower shooting, etc.
+    console.log(`Wave ${wave} - updating game state`);
+  }
+  
+  // Start the game
+  function start() {
+    console.log('Tower defense game started');
+    // Add initial towers and enemies
+    addTower(100, 100, 200, 10, 1000);
+    addEnemy(0, 50, 100, 2);
+    // Game loop would be here
+  }
+  
+  // Expose game functions
+  return {
+    start,
+    addTower,
+    addEnemy,
+    update,
+    getWave: () => wave
+  };
+}
+
+// Export all functions to maintain current exports
+module.exports = {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  createAccessibleLink,
+  towerDefense
+};

@@ -253,6 +253,57 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// Added functions for REACT_017 and new REACT_025
+function setLandmarkRoles(elements) {
+  if (!elements || !Array.isArray(elements)) return;
+
+  elements.forEach(el => {
+    if (el && el.tagName) {
+      const tagName = el.tagName.toLowerCase();
+      const landmarkRoleMap = {
+        'header': 'banner',
+        'main': 'main',
+        'nav': 'navigation',
+        'aside': 'complementary',
+        'footer': 'contentinfo',
+        'section': 'region',
+        'article': 'article'
+      };
+
+      if (tagName in landmarkRoleMap && !el.hasAttribute('role')) {
+        el.setAttribute('role', landmarkRoleMap[tagName]);
+      }
+    }
+  });
+}
+
+function resolveLandmarkConflicts(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return [];
+
+  const idCount = {};
+  landmarks.forEach(landmark => {
+    if (landmark.id) {
+      idCount[landmark.id] = (idCount[landmark.id] || 0) + 1;
+    }
+  });
+
+  const resolvedLandmarks = [];
+  landmarks.forEach(landmark => {
+    if (landmark.id && idCount[landmark.id] > 1) {
+      if (!landmark.getAttribute('aria-label')) {
+        const baseName = landmark.id + '-landmark';
+        landmark.setAttribute('aria-label', baseName);
+      }
+      if (!landmark.getAttribute('data-unique-id')) {
+        landmark.setAttribute('data-unique-id', landmark.id + '-' + Date.now());
+      }
+    }
+    resolvedLandmarks.push(landmark);
+  });
+
+  return resolvedLandmarks;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +322,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  setLandmarkRoles,
+  resolveLandmarkConflicts
 };

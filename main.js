@@ -19,6 +19,12 @@ function createInPageButton(buttonText, onClickHandler) {
 
 export { createInPageButton };
 
+function analyzeAccessibility(issuesData) {
+  // presume this function is already defined
+  // placeholder implementation
+  return issuesData;
+}
+
 function generateAccessibilityReport(issuesData) {
   const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined
 
@@ -35,3 +41,6 @@ function generateAccessibilityReport(issuesData) {
   // Return the final report
   return report;
 }
+
+// Export the report function as well
+export { generateAccessibilityReport };

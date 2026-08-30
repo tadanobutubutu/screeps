@@ -12,6 +12,9 @@
 
 // ----- END ORIGINAL CODE -----
 
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
 /**
  * Main application entry point with accessibility features
  */

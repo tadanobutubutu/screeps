@@ -53,7 +53,15 @@ function countDependencies() {
     'antd': true
   };
   return Object.keys(dependencies).length;
-}
+};
+
+// Function to generate a key for each book item
+function generateKey(book) {
+  if (book.id) {
+    return book.id;
+  }
+  return `${book.title}-${book.author}-${Math.random().toString(36).substr(2, 9)}`;
+};
 
 // Function to fetch book dependencies and update the Redux store
 async function fetchBookDependencies(bookId, dispatch) {
@@ -62,15 +70,14 @@ async function fetchBookDependencies(bookId, dispatch) {
 
   // Dispatch an action to update the book's dependencies in the Redux store
   dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
-}
+};
 
 // Component for adding a new book with accessibility improvements
-function AddBookForm() {
+function AddBookForm({ onAdd }) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [error, setError] = useState('');
 
-  // Handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
     
@@ -87,7 +94,11 @@ function AddBookForm() {
 
     // Clear error and add the book
     setError('');
-    addBook({ title: title.trim(), author: author.trim() });
+    if (onAdd) {
+      onAdd({ title: title.trim(), author: author.trim() });
+    } else {
+      addBook({ title: title.trim(), author: author.trim() });
+    }
     
     // Clear form fields after submission
     setTitle('');
@@ -107,6 +118,7 @@ function AddBookForm() {
           onChange={(e) => setTitle(e.target.value)}
           aria-labelledby="book-title-label"
           aria-required="true"
+          placeholder="Enter book title"
         />
       </div>
       
@@ -121,6 +133,7 @@ function AddBookForm() {
           onChange={(e) => setAuthor(e.target.value)}
           aria-labelledby="book-author-label"
           aria-required="true"
+          placeholder="Enter author name"
         />
       </div>
 
@@ -147,7 +160,72 @@ function updateBookDependencies(bookId, newDependencies, dispatch) {
 
   // Dispatch an action to update the book's dependencies in the Redux store
   dispatch(setDependencyGraph({ bookId, dependencies: newDependencies }));
-}
+};
+
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  const sortedList = getBooksList.sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+};
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  const sortedList = getBooksList.sort(sortByAuthor).reverse();
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+};
+
+// REACT_015: Helper to provide the lang attribute for the HTML element.
+// Returns an object containing props to spread onto the root <html> element.
+function getRootHtmlAccessibilityProps(lang = 'en') {
+  return { lang };
+};
+
+// REACT_017 / REACT_025: Helper to build landmark region props with a unique
+// label so each landmark has a distinct accessible name (fixes duplicate
+// landmarks and ensures proper landmark roles are used).
+function getLandmarkProps(role, label, id) {
+  const props = {
+    role,
+    'aria-label': label,
+  };
+  if (id) {
+    props.id = id;
+  }
+  return props;
+};
+
+// REACT_041: Helper to return props that provide an accessible name for an
+// <svg> element (via aria-label) so screen readers can announce it.
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {
+    role: 'img',
+    focusable: 'false',
+  };
+  if (label) {
+    props['aria-label'] = label;
+  } else if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  } else {
+    // Fallback so the SVG is still considered decorative but explicitly marked.
+    props['aria-hidden'] = 'true';
+  }
+  return props;
+};
+
+// REACT_036: Helper that returns props for converting a non-semantic element
+// that is being used as a link into a real, accessible anchor.
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    role: 'link',
+    'aria-label': label,
+  };
+};
 
 // Render the main component containing the book list and sorting controls
 function Main() {
@@ -205,6 +283,7 @@ function Main() {
       <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
     </main>
   );
-}
+};
 
+// Export the Main component
 export default Main;

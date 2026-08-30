@@ -6,7 +6,7 @@
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
@@ -61,6 +61,16 @@ function detectAndSetLang(content) {
 }
 
 /**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+}
+
+/**
  * Addresses accessibility issues from an insight report
  * @param {Object|Array} insightReport - The insight report containing accessibility issues
  * @param {Object} [options] - Options for handling the issues
@@ -80,7 +90,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -161,10 +171,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" class="person-name">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span class="person-name">${name}</span>`;
   }
 }
 
@@ -186,6 +196,8 @@ function validateWebAccessibility(url) {
     try {
         results.accessibility = validateTableAccessibility(url);
         results.structure = validateTableStructure(url);
+        results.landmark = validateLandmark(url);
+        results.landmarkStructure = validateLandmarkStructure(url);
     } catch (error) {
         results.errors.push(error.message);
     }
@@ -373,6 +385,128 @@ function validateTableStructure(tableOrUrl) {
 }
 
 /**
+ * Validates landmark regions on the page
+ * @param {string} [url] - Optional URL parameter for consistency
+ * @returns {Object} Validation results for landmarks
+ */
+function validateLandmark(url) {
+    if (typeof document === 'undefined') {
+        return { issues: [], score: 100, landmarks: {} };
+    }
+    
+    const result = {
+        issues: [],
+        score: 100,
+        landmarks: {}
+    };
+    
+    const landmarkRoles = ['header', 'nav', 'main', 'aside', 'footer', 'form', 'search', 'banner', 'complementary', 'contentinfo', 'navigation', 'region'];
+    
+    landmarkRoles.forEach(landmark => {
+        const elements = document.querySelectorAll(landmark);
+        if (elements.length > 0) {
+            result.landmarks[landmark] = elements.length;
+        }
+    });
+    
+    // Check for main landmark
+    const mains = document.querySelectorAll('main');
+    if (mains.length === 0) {
+        result.issues.push({
+            type: 'missing_main',
+            message: 'Missing main landmark'
+        });
+        result.score -= 25;
+    } else if (mains.length > 1) {
+        result.issues.push({
+            type: 'multiple_main',
+            message: `Multiple main landmarks found (${mains.length})`
+        });
+        result.score -= 10;
+    }
+    
+    return result;
+}
+
+/**
+ * Validates landmark structure
+ * @param {string} [url] - Optional URL parameter for consistency
+ * @returns {Object} Structure validation results
+ */
+function validateLandmarkStructure(url) {
+    if (typeof document === 'undefined') {
+        return { issues: [], score: 100, validStructure: true };
+    }
+    
+    const result = {
+        issues: [],
+        score: 100,
+        validStructure: true
+    };
+    
+    const main = document.querySelector('main');
+    if (main) {
+        const navInsideMain = main.querySelector('nav');
+        if (navInsideMain) {
+            result.issues.push({
+                type: 'nav_in_main',
+                message: 'Nav element found inside main landmark'
+            });
+            result.score -= 10;
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Adds proper landmark regions to the document
+ * @param {Object} [options] - Options for adding landmarks
+ * @param {boolean} [options.verbose=false] - Whether to log detailed information
+ * @returns {Object} Report of added landmarks
+ */
+function addProperLandmarkRegions(options = {}) {
+    const { verbose = false } = options;
+    const result = {
+        added: [],
+        timestamp: new Date().toISOString()
+    };
+    
+    if (typeof document === 'undefined') {
+        return result;
+    }
+    
+    // Ensure main landmark exists
+    let main = document.querySelector('main');
+    if (!main) {
+        main = document.createElement('main');
+        document.body.appendChild(main);
+        result.added.push('main');
+        if (verbose) console.log('Added main landmark');
+    }
+    
+    // Ensure header landmark exists
+    let header = document.querySelector('header');
+    if (!header) {
+        header = document.createElement('header');
+        document.body.insertBefore(header, document.body.firstChild);
+        result.added.push('header');
+        if (verbose) console.log('Added header landmark');
+    }
+    
+    // Ensure footer landmark exists
+    let footer = document.querySelector('footer');
+    if (!footer) {
+        footer = document.createElement('footer');
+        document.body.appendChild(footer);
+        result.added.push('footer');
+        if (verbose) console.log('Added footer landmark');
+    }
+    
+    return result;
+}
+
+/**
  * Counts the total number of dependencies in package.json
  * @returns {Object} An object containing counts for dependencies, devDependencies, and total
  */
@@ -391,7 +525,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: Object.keys(devDependencies).map(name => ({ name, version: devDependencies[name] })),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {
@@ -460,6 +594,9 @@ module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,
     validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    addProperLandmarkRegions,
     elementExists,
     getElementText,
     getAllTables,

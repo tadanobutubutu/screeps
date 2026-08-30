@@ -51,6 +51,22 @@ function BookItem({ book }) {
   );
 }
 
+// Function to generate a report based on accessibility issues
+function generateAccessibilityReport(issues) {
+  if (!issues || issues.length === 0) {
+    return 'No accessibility issues found.';
+  }
+
+  const report = issues.map((issue, index) => {
+    const severityLabel = issue.severity ? issue.severity.toUpperCase() : 'INFO';
+    const lineInfo = issue.line ? `Line ${issue.line}` : 'Unknown location';
+    const description = issue.message || issue.description || 'No description provided';
+    return `${index + 1}. [${severityLabel}] ${description} (${lineInfo})`;
+  }).join('\n');
+
+  return `Accessibility Report (${issues.length} issue(s) found):\n${report}`;
+}
+
 function DependencyGraph({ nodes, edges }) {
   return (
     <div 
@@ -336,6 +352,7 @@ export {
   onTitleSort,
   onAuthorSort,
   defaultSorting,
+  generateAccessibilityReport,
   validateLandmark,
   DependencyGraph,
   AddBookForm,

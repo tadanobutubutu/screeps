@@ -102,7 +102,99 @@ const renderDependencyGraph = (data) => {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 function newFocusTrap() {
-  // New function implementation
+  // New function implementation - returns a focus trap controller
+  let activeElement = null;
+  let firstFocusableElement = null;
+  let lastFocusableElement = null;
+  let cleanupCallback = null;
+
+  const focusableSelector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  const getFocusableElements = (container) => {
+    return container.querySelectorAll(focusableSelector);
+  };
+
+  const setupFocusTrap = (container) => {
+    const focusableElements = getFocusableElements(container);
+    if (focusableElements.length === 0) {
+      // Make the container focusable if no focusable elements inside
+      container.setAttribute('tabindex', '-1');
+      activeElement = container;
+    } else {
+      activeElement = document.activeElement;
+      firstFocusableElement = focusableElements[0];
+      lastFocusableElement = focusableElements[focusableElements.length - 1];
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        if (focusableElements.length === 0) {
+          if (!e.shiftKey) {
+            firstFocusableElement?.focus();
+            e.preventDefault();
+          } else {
+            lastFocusableElement?.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (e.shiftKey && document.activeElement === firstFocusableElement) {
+            lastFocusableElement.focus();
+            e.preventDefault();
+          } else if (!e.shiftKey && document.activeElement === lastFocusableElement) {
+            firstFocusableElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+
+      if (e.key === 'Escape') {
+        deactivate();
+      }
+    };
+
+    const handleFocusOut = (e) => {
+      if (!container.contains(e.relatedTarget) && e.relatedTarget !== container) {
+        if (cleanupCallback) {
+          cleanupCallback();
+        }
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener('focusout', handleFocusOut);
+
+    // Focus the first element or container
+    if (focusableElements.length > 0) {
+      firstFocusableElement.focus();
+    } else {
+      container.focus();
+    }
+
+    return () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener('focusout', handleFocusOut);
+    };
+  };
+
+  const activate = (container, onDeactivate = null) => {
+    cleanupCallback = onDeactivate;
+    return setupFocusTrap(container);
+  };
+
+  const deactivate = () => {
+    if (cleanupCallback) {
+      cleanupCallback();
+      cleanupCallback = null;
+    }
+    if (activeElement && document.activeElement) {
+      activeElement.focus();
+    }
+  };
+
+  return {
+    activate,
+    deactivate
+  };
 }
 
 // Add back any required exports that might have been removed.
@@ -265,6 +357,45 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  const transformValue = (value) => {
+    if (typeof value !== 'string') return value;
+    
+    let result = value;
+    
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    
+    return result;
+  };
+
+  if (Array.isArray(inputData)) {
+    return inputData.map(transformValue);
+  }
+  
+  if (typeof inputData === 'object') {
+    const result = {};
+    if (preserveKeys) {
+      for (const [key, value] of Object.entries(inputData)) {
+        result[key] = transformValue(value);
+      }
+    } else {
+      const values = Object.values(inputData).map(transformValue);
+      return values;
+    }
+    return result;
+  }
+  
+  return transformValue(inputData);
 }
 
 // Initialize on DOM ready
@@ -285,5 +416,7 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  newFocusTrap,
+  transformInputData
 };

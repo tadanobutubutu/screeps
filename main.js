@@ -189,8 +189,142 @@ function ensureLandmarkUniqueness(elements) {
   return uniqueElements;
 }
 
+/**
+ * Ensures landmark roles are unique in the document
+ * Fixes duplicate landmark roles by removing redundant roles or adding aria labels
+ * @returns {Object} - Result with fixed count and details
+ */
 function ensureUniqueLandmarks() {
-  return {};
+  const results = {
+    fixed: 0,
+    errors: [],
+    landmarksProcessed: 0
+  };
+
+  try {
+    // Get all elements with landmark roles
+    const landmarkRoleSelectors = [
+      '[role="main"]',
+      '[role="banner"]',
+      '[role="contentinfo"]',
+      '[role="navigation"]',
+      '[role="complementary"]',
+      '[role="search"]',
+      '[role="form"]',
+      '[role="region"]',
+      'main',
+      'header',
+      'footer',
+      'nav',
+      'aside',
+      'section',
+      'article'
+    ];
+
+    const selector = landmarkRoleSelectors.join(', ');
+    const landmarkElements = document.querySelectorAll(selector);
+
+    // Track landmark roles we've seen
+    const seenRoles = new Map(); // role -> element
+    const roleCounts = {}; // role -> count
+
+    landmarkElements.forEach(el => {
+      results.landmarksProcessed++;
+      
+      // Determine the landmark role
+      let role = el.getAttribute('role');
+      if (!role) {
+        // Map semantic elements to their implicit roles
+        const tagName = el.tagName.toLowerCase();
+        const implicitRoles = {
+          'main': 'main',
+          'header': 'banner',
+          'footer': 'contentinfo',
+          'nav': 'navigation',
+          'aside': 'complementary',
+          'section': 'region',
+          'article': 'region'
+        };
+        role = implicitRoles[tagName] || 'region';
+      }
+
+      // Count roles
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+
+      // Check for duplicates of unique roles
+      const uniqueRoles = ['main', 'banner', 'contentinfo'];
+      if (uniqueRoles.includes(role)) {
+        if (seenRoles.has(role)) {
+          // Duplicate unique role found - fix it
+          const existingEl = seenRoles.get(role);
+          
+          // Prefer the semantic element over the role attribute
+          const existingIsSemantic = ['MAIN', 'HEADER', 'FOOTER'].includes(existingEl.tagName);
+          const currentIsSemantic = ['MAIN', 'HEADER', 'FOOTER'].includes(el.tagName);
+          
+          if (currentIsSemantic && !existingIsSemantic) {
+            // Current is semantic, existing has role attribute - remove role from existing
+            existingEl.removeAttribute('role');
+            results.fixed++;
+            results.errors.push(`Removed duplicate ${role} role from non-semantic element`);
+            seenRoles.set(role, el);
+          } else if (!currentIsSemantic && existingIsSemantic) {
+            // Existing is semantic, current has role attribute - remove role from current
+            el.removeAttribute('role');
+            results.fixed++;
+            results.errors.push(`Removed duplicate ${role} role from non-semantic element`);
+          } else {
+            // Both same type - remove role from current (later in DOM)
+            el.removeAttribute('role');
+            results.fixed++;
+            results.errors.push(`Removed duplicate ${role} role from element`);
+          }
+        } else {
+          seenRoles.set(role, el);
+        }
+      } else {
+        // For non-unique roles (navigation, complementary, search, form, region)
+        // Ensure they have accessible names if there are multiples
+        if (roleCounts[role] > 1) {
+          if (!el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) {
+            // Generate a label based on context
+            let label = '';
+            if (el.id) {
+              label = el.id;
+            } else if (el.className) {
+              label = el.className.split(' ')[0];
+            } else {
+              label = `${role}-${roleCounts[role]}`;
+            }
+            el.setAttribute('aria-label', label);
+            results.fixed++;
+            results.errors.push(`Added aria-label "${label}" to ${role} landmark`);
+          }
+        }
+        if (!seenRoles.has(role)) {
+          seenRoles.set(role, el);
+        }
+      }
+    });
+
+    // Validate required landmarks exist
+    config.requiredLandmarks.forEach(required => {
+      const roleMap = {
+        'main': 'main',
+        'header': 'banner',
+        'footer': 'contentinfo'
+      };
+      const role = roleMap[required];
+      if (!seenRoles.has(role)) {
+        results.errors.push(`Required landmark "${required}" (role="${role}") not found`);
+      }
+    });
+
+  } catch (error) {
+    results.errors.push(`Error ensuring landmark uniqueness: ${error.message}`);
+  }
+
+  return results;
 }
 
 function validateSvgAccessibility() {

@@ -271,7 +271,217 @@ function updateDependencyGraph(graphElement, newData) {
   return true;
 }
 
-// Initialize accessibility features on DOM ready
+// Comprehensive accessibility audit function
+function performAccessibilityAudit() {
+  const auditResults = {
+    errors: [],
+    warnings: [],
+    passed: true
+  };
+  
+  // Check for images without alt text
+  const imagesWithoutAlt = document.querySelectorAll('img:not([alt]):not([role="presentation"])');
+  if (imagesWithoutAlt.length > 0) {
+    auditResults.errors.push(
+      `Found ${imagesWithoutAlt.length} image(s) without alt text. ` +
+      `Consider adding descriptive alt text or marking decorative images with role="presentation".`
+    );
+  }
+  
+  // Check for skipping navigation regions
+  const headers = document.querySelectorAll('header');
+  if (headers.length > 0 && !headers[0].querySelector('nav')) {
+    auditResults.warnings.push(
+      'Header does not contain navigation, which may help keyboard users skip to navigation.'
+    );
+  }
+  
+  // Check for focus handling in interactive elements
+  const interactiveElements = document.querySelectorAll(
+    'button:not([disabled]), [role="button"]:not([aria-disabled="true"]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  interactiveElements.forEach(element => {
+    if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby') && 
+        !element.textContent.trim() && element.tagName !== 'INPUT') {
+      auditResults.warnings.push(
+        `Interactive element ${element.tagName} may lack accessible name.`
+      );
+    }
+  });
+  
+  // Check for proper heading hierarchy
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  let previousLevel = 0;
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.charAt(1));
+    if (level > previousLevel + 1) {
+      auditResults.errors.push(
+        `Skipping heading level between ${previousLevel} and ${level} at element: ${heading.textContent}`
+      );
+    }
+    previousLevel = level;
+  });
+  
+  // Check for color contrast (basic check)
+  const elementsWithColor = document.querySelectorAll('[style*="color"], [class*="text-"]');
+  elementsWithColor.forEach(element => {
+    const style = window.getComputedStyle(element);
+    const color = style.color;
+    const backgroundColor = style.backgroundColor;
+    
+    // Basic validation for elements with both color and background
+    if (color !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'rgba(0, 0, 0, 0)') {
+      // This is a basic check - proper color contrast requires more sophisticated analysis
+      const contrast = calculateRelativeLuminance(color) - calculateRelativeLuminance(backgroundColor);
+      if (Math.abs(contrast) < 0.5) {
+        auditResults.warnings.push(
+          `Element ${element.tagName} may have insufficient color contrast.`
+        );
+      }
+    }
+  });
+  
+  // Validate ARIA attributes
+  const elementsWithAria = document.querySelectorAll('[aria-*]');
+  elementsWithAria.forEach(element => {
+    const ariaAttributes = Array.from(element.attributes).filter(attr => attr.name.startsWith('aria-'));
+    ariaAttributes.forEach(attr => {
+      if (attr.name === 'aria-expanded' && !['true', 'false'].includes(attr.value)) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-expanded value: ${attr.value}`
+        );
+      } else if (attr.name === 'aria-selected' && !['true', 'false'].includes(attr.value)) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-selected value: ${attr.value}`
+        );
+      } else if (attr.name === 'aria-hidden' && !['true', 'false'].includes(attr.value)) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-hidden value: ${attr.value}`
+        );
+      } else if (attr.name === 'aria-level' && isNaN(parseInt(attr.value))) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-level value: ${attr.value}`
+        );
+      } else if (attr.name === 'aria-setsize' && isNaN(parseInt(attr.value))) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-setsize value: ${attr.value}`
+        );
+      } else if (attr.name === 'aria-posinset' && isNaN(parseInt(attr.value))) {
+        auditResults.errors.push(
+          `Element ${element.tagName} has invalid aria-posinset value: ${attr.value}`
+        );
+      }
+    });
+  });
+  
+  // Check for proper landmark regions
+  const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="region"]');
+  landmarks.forEach(landmark => {
+    if (landmark.hasAttribute('role') && landmark.hasAttribute('aria-label')) {
+      // Good - has aria-label
+    } else if (landmark.hasAttribute('role') && landmark.hasAttribute('aria-labelledby')) {
+      // Good - has aria-labelledby
+    } else if (landmark.getAttribute('role') !== 'generic') {
+      auditResults.warnings.push(
+        `Landmark role "${landmark.getAttribute('role')}" may need an accessible name.`
+      );
+    }
+  });
+  
+  auditResults.passed = auditResults.errors.length === 0;
+  return auditResults;
+}
+
+// Helper function to calculate relative luminance for contrast checking
+function calculateRelativeLuminance(color) {
+  const rgb = color.match(/\d+/g);
+  if (!rgb || rgb.length < 3) return 0;
+  
+  const r = parseInt(rgb[0]) / 255;
+  const g = parseInt(rgb[1]) / 255;
+  const b = parseInt(rgb[2]) / 255;
+  
+  const adjust = (c) => {
+    if (c <= 0.03928) return c / 12.92;
+    return Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  
+  const lumR = adjust(r) * 0.2126;
+  const lumG = adjust(g) * 0.7152;
+  const lumB = adjust(b) * 0.0722;
+  
+  return lumR + lumG + lumB;
+}
+
+// Enhanced function to ensure keyboard accessibility for custom components
+function enhanceKeyboardAccessibility() {
+  const focusableSelectors = 'button, [role="button"], a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+  const focusableElements = document.querySelectorAll(focusableSelectors);
+  
+  focusableElements.forEach(element => {
+    // Add focus indicator if missing
+    if (!element.style.outline && !element.classList.contains('focus-visible')) {
+      element.style.outline = '2px solid #007bff';
+      element.style.outlineOffset = '2px';
+    }
+    
+    // Ensure element has proper ARIA attributes
+    if (element.hasAttribute('role') && element.getAttribute('role') === 'button') {
+      if (!element.hasAttribute('aria-pressed')) {
+        element.setAttribute('aria-pressed', 'false');
+      }
+      if (!element.hasAttribute('aria-label') && !element.textContent.trim()) {
+        element.setAttribute('aria-label', 'Button');
+      }
+    }
+    
+    // Enhance link accessibility
+    if (element.tagName === 'A' && element.getAttribute('href') && element.textContent.trim().length < 2) {
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('title')) {
+        element.setAttribute('aria-label', element.getAttribute('href'));
+      }
+    }
+    
+    // Enhance input accessibility
+    if (element.tagName === 'INPUT' && !element.hasAttribute('aria-label') && !element.id) {
+      element.id = `enhanced-input-${Math.random().toString(36).substr(2, 9)}`;
+      const parentLabel = element.closest('label');
+      if (parentLabel) {
+        parentLabel.setAttribute('for', element.id);
+      }
+    }
+  });
+}
+
+// Accessibility function to check and fix viewport meta tag
+function fixViewportMeta() {
+  let viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (!viewportMeta) {
+    viewportMeta = document.createElement('meta');
+    viewportMeta.setAttribute('name', 'viewport');
+    document.head.appendChild(viewportMeta);
+  }
+  
+  const content = viewportMeta.getAttribute('content');
+  if (!content || !content.includes('width=device-width')) {
+    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+  }
+}
+
+// Accessibility function to ensure proper skip links
+function enhanceSkipLinks() {
+  const skipLinks = document.querySelectorAll('a[href^="#main"], a[href^="#navigation"], a[href^="#content"]');
+  skipLinks.forEach(link => {
+    if (!link.textContent.trim()) {
+      link.textContent = link.getAttribute('href').replace('#', '') + ' content';
+    }
+    
+    // Ensure skip links are keyboard accessible
+    link.setAttribute('tabindex', '0');
+  });
+}
+
+// Initialize accessibility features on DOM ready with comprehensive improvements
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', () => {
     // Ensure all form inputs have associated labels
@@ -308,7 +518,21 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
 
-    announceToScreenReader('Page loaded and accessibility features initialized', 'assertive');
+    // Enhanced accessibility improvements
+    fixViewportMeta();
+    enhanceSkipLinks();
+    enhanceKeyboardAccessibility();
+
+    // Announce initial page load
+    announceToScreenReader('Page loaded and comprehensive accessibility features initialized', 'assertive');
+
+    // Perform initial accessibility audit
+    const auditResults = performAccessibilityAudit();
+    console.log('Accessibility Audit Results:', auditResults);
+    
+    if (!auditResults.passed) {
+      console.warn('Accessibility Issues Found:', auditResults.errors);
+    }
   });
 }
 
@@ -330,6 +554,10 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarks,
     fixFakeLinkIssue,
     renderDependencyGraph,
-    updateDependencyGraph
+    updateDependencyGraph,
+    performAccessibilityAudit,
+    enhanceKeyboardAccessibility,
+    fixViewportMeta,
+    enhanceSkipLinks
   };
 }

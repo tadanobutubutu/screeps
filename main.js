@@ -40,6 +40,12 @@ function validateTableStructure() {
   // ...
 }
 
+// Implementation added above for creating in-page buttons
+function createInPageButton(options) {
+  // Implementation for creating in-page buttons
+  // ...
+}
+
 // Export functions
 module.exports = {
   formatDate,
@@ -55,5 +61,6 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  createInPageButton,
   // ... any other relevant functions extracted from the conflicting code base
 };

@@ -186,6 +186,9 @@ function Main() {
   );
 }
 
+// Export named functions for external use and testing
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, defaultSorting, onTitleSort, onAuthorSort };
+
 // Export the Main component
 export default Main;
 

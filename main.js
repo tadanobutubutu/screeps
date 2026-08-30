@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // Accessible Insight Report Interface - Dependency Graph Rendering
 // Line 13: Address accessibility issues from insight report — CONTINUING
 
@@ -14,7 +18,7 @@ function announceToScreenReader(message, priority = 'polite') {
   const announcer = document.getElementById('sr-announcer') || createAnnouncer();
   announcer.setAttribute('aria-live', priority);
   announcer.textContent = message;
-  
+
   // Clear after announcement to allow re-announcement of same message
   setTimeout(() => {
     announcer.textContent = '';
@@ -70,7 +74,7 @@ function trapFocus(element) {
 function toggleAriaExpanded(element) {
   const isExpanded = element.getAttribute('aria-expanded') === 'true';
   element.setAttribute('aria-expanded', !isExpanded);
-  
+
   const controlsId = element.getAttribute('aria-controls');
   if (controlsId) {
     const controlledElement = document.getElementById(controlsId);
@@ -87,7 +91,7 @@ function handleMissingAltText(container) {
     img.setAttribute('alt', `Image ${index + 1} - description unavailable`);
     img.setAttribute('role', 'presentation');
   });
-  
+
   // Add warning for accessibility audit
   if (images.length > 0) {
     console.warn(`Accessibility: ${images.length} image(s) had missing alt text and were assigned default descriptions.`);
@@ -212,30 +216,30 @@ function renderDependencyGraph(container, graphData) {
     console.warn('renderDependencyGraph: Invalid container element');
     return null;
   }
-  
+
   const graphWrapper = document.createElement('div');
   graphWrapper.className = 'dependency-graph';
   graphWrapper.setAttribute('role', 'figure');
   graphWrapper.setAttribute('aria-label', 'Dependency graph');
-  
+
   const title = document.createElement('h3');
   title.textContent = 'Dependency Graph';
   graphWrapper.appendChild(title);
-  
+
   const description = document.createElement('p');
   description.className = 'sr-only';
   description.textContent = 'This visualization shows the dependencies and their relationships.';
   graphWrapper.appendChild(description);
-  
+
   const list = document.createElement('ul');
   list.setAttribute('aria-label', 'Dependency list');
-  
+
   if (graphData && Array.isArray(graphData)) {
     graphData.forEach((item, index) => {
       const listItem = document.createElement('li');
       const itemName = item && item.name ? item.name : `Node ${index + 1}`;
       listItem.textContent = itemName;
-      
+
       if (item && item.dependencies && Array.isArray(item.dependencies) && item.dependencies.length > 0) {
         const subList = document.createElement('ul');
         subList.setAttribute('aria-label', `Dependencies for ${itemName}`);
@@ -246,14 +250,14 @@ function renderDependencyGraph(container, graphData) {
         });
         listItem.appendChild(subList);
       }
-      
+
       list.appendChild(listItem);
     });
   }
-  
+
   graphWrapper.appendChild(list);
   container.appendChild(graphWrapper);
-  
+
   return graphWrapper;
 }
 
@@ -263,10 +267,10 @@ function updateDependencyGraph(graphElement, newData) {
     console.warn('updateDependencyGraph: Invalid graph element');
     return false;
   }
-  
+
   const newGraph = renderDependencyGraph(document.createElement('div'), newData);
   if (!newGraph) return false;
-  
+
   graphElement.parentNode.replaceChild(newGraph, graphElement);
   return true;
 }
@@ -279,7 +283,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     inputs.forEach((input, index) => {
       const id = input.id || `auto-input-${index}`;
       input.id = id;
-      
+
       if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby')) {
         const label = document.createElement('label');
         label.htmlFor = id;

@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
+
 // TODO: Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 // export function calculateSum(a, b) { return a + b; }

@@ -119,22 +119,153 @@ const myNewFunction = () => {
 
 function validateTableAccessibility(table, i) {
     // Check if the table has a valid structure and add accessible properties to its rows and cells
-    // ...
-    // Return the validated table or an error message
+    if (!table || typeof table !== 'object') {
+        return { valid: false, error: 'Invalid table object provided' };
+    }
+    
+    const accessibilityIssues = [];
+    const tableElement = table.element || table;
+    
+    // Check if table has a caption for proper accessibility
+    if (!table.caption && !tableElement.querySelector?.('caption')) {
+        accessibilityIssues.push({
+            issue: 'Missing caption',
+            severity: 'warning',
+            suggestion: 'Add a <caption> element to describe the table purpose'
+        });
+    }
+    
+    // Check for proper header cells (th elements)
+    const headers = tableElement.querySelectorAll?.('th') || table.headers || [];
+    if (headers.length === 0) {
+        accessibilityIssues.push({
+            issue: 'No header cells found',
+            severity: 'error',
+            suggestion: 'Use <th> elements for header cells to improve accessibility'
+        });
+    }
+    
+    // Validate scope attributes on headers
+    if (headers.length > 0) {
+        headers.forEach((header, index) => {
+            const scope = header.getAttribute?.('scope') || header.scope;
+            if (!scope) {
+                accessibilityIssues.push({
+                    issue: `Header at index ${index} missing scope attribute`,
+                    severity: 'warning',
+                    suggestion: 'Add scope="col" or scope="row" to header cells'
+                });
+            }
+        });
+    }
+    
+    // Check for aria-describedby for complex tables
+    if (tableElement.getAttribute?.('aria-describedby') || table['aria-describedby']) {
+        // Complex table with description - good for accessibility
+    } else if (tableElement.querySelector?.('td[colspan], td[rowspan]')) {
+        accessibilityIssues.push({
+            issue: 'Complex table structure without description',
+            severity: 'warning',
+            suggestion: 'Add aria-describedby to provide a text description of the table structure'
+        });
+    }
+    
+    // Return the validated table with accessibility properties added
+    const validatedTable = {
+        ...table,
+        accessibilityValidated: true,
+        accessibilityIndex: i,
+        accessibilityIssues: accessibilityIssues,
+        properties: {
+            ...table.properties,
+            'aria-label': table.properties?.['aria-label'] || tableElement.getAttribute?.('aria-label') || 'Data table',
+            'role': 'table'
+        }
+    };
+    
+    return {
+        valid: accessibilityIssues.filter(issue => issue.severity === 'error').length === 0,
+        table: validatedTable,
+        issues: accessibilityIssues
+    };
 }
 
 function validateTableStructure(table) {
     // Validate the structure of the table and return a message if it's invalid
-    // ...
-    // Return true if the table structure is valid, false otherwise
+    if (!table || typeof table !== 'object') {
+        return {
+            valid: false,
+            message: 'Invalid table object provided'
+        };
+    }
+    
+    const errors = [];
+    const warnings = [];
+    
+    // Check if table has required structure properties
+    if (!table.rows && !table.element) {
+        errors.push('Table must have either "rows" array or "element" property');
+    }
+    
+    // Validate rows array if present
+    if (table.rows) {
+        if (!Array.isArray(table.rows)) {
+            errors.push('Table rows must be an array');
+        } else {
+            const rowLengths = table.rows.map(row => row.cells?.length || row.length || 0);
+            const hasConsistentColumns = rowLengths.every(len => len === rowLengths[0]);
+            
+            if (!hasConsistentColumns) {
+                warnings.push('Table rows have inconsistent column counts');
+            }
+        }
+    }
+    
+    // Check for proper nesting if element is available
+    if (table.element && typeof table.element.querySelector === 'function') {
+        const hasThead = table.element.querySelector('thead') !== null;
+        const hasTbody = table.element.querySelector('tbody') !== null;
+        const hasTr = table.element.querySelector('tr') !== null;
+        
+        if (!hasTr) {
+            errors.push('Table must contain at least one <tr> element');
+        }
+        
+        if (!hasThead && !hasTbody) {
+            warnings.push('Table should have <thead> and <tbody> sections for better structure');
+        }
+    }
+    
+    // Validate data consistency
+    if (table.data && Array.isArray(table.data)) {
+        const firstRowLength = table.data[0]?.length || 0;
+        const hasInconsistentData = table.data.some(row => row.length !== firstRowLength);
+        
+        if (hasInconsistentData) {
+            errors.push('Table data rows have inconsistent lengths');
+        }
+    }
+    
+    const isValid = errors.length === 0;
+    
+    return {
+        valid: isValid,
+        message: isValid 
+            ? (warnings.length > 0 ? `Table structure valid with ${warnings.length} warning(s)` : 'Table structure is valid')
+            : `Table structure invalid: ${errors.join(', ')}`,
+        errors: errors,
+        warnings: warnings
+    };
 }
 
 const myNewTableAccessibilityFunction = (table, i) => {
   // The implementation of the new function to validate table accessibility goes here
+  return validateTableAccessibility(table, i);
 };
 
 const myNewTableStructureFunction = table => {
   // The implementation of the new function to validate table structure goes here
+  return validateTableStructure(table);
 };
 
 // Function to ensure unique landmarks - addresses accessibility by preventing duplicate landmark identifiers

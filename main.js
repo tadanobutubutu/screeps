@@ -1,3 +1,16 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97b2237d968a50cc419 -->
+
+//_Commit: 85a4604564e44b730fd522d9ee7b30dcbfe0a9b3_
+
+//<!-- todo-hash: cf0420f67451113064f0901087557f09c5100c2e -->
+
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
@@ -18,9 +31,7 @@ function getDocument() {
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
-    }
+    doc.documentElement.setAttribute('lang', lang);
   }
 }
 
@@ -35,14 +46,14 @@ function ensureElementId(element) {
 function getFullLangAttribute() {
   const lang = getLangAttribute();
   const countryCode = navigator.userLanguage || navigator.language || "en-US";
-  return lang.split('-')[0] + '-' + countryCode.split('-')[0];
+  return lang.split('-')[0] + '-' + countryCode.split('-')[1];
 }
 
 // Function to trigger accessibility mode
 function triggerAccessibilityMode() {
   const doc = getDocument();
   if (doc) {
-    doc.body.setAttribute('data-accessibility-mode', 'enabled');
+    doc.body.classList.add('accessibility-mode-enabled');
   }
 }
 
@@ -86,13 +97,13 @@ function handleAccessibilityError(errorElement, container) {
 // Function to render dependency graph using dependencyGraphContent
 function renderDependencyGraph(container) {
   createInPageButton();
-  handleAccessibilityIssues(dependencyGraphContent(getDocument(), container));
+  container.appendChild(dependencyGraphContent());
 }
 
 // Function to render index view using indexContent
 function renderIndexView(container) {
   createInPageButton();
-  handleAccessibilityIssues(indexContent(getDocument(), container));
+  container.appendChild(indexContent());
 }
 
 // Address accessibility issues from insight report
@@ -100,7 +111,4 @@ function renderIndexView(container) {
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
-export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };
-```
-
-This resolved file keeps both changes and integrates them logically in the `main.js` file. The added accessibility features from branch `origin/main` have been combined with the existing functionality from the base branch. The final code will compile and satisfy both changes without discarding any functionality.
+export { addLangAttribute, ensureElementId, getDocument, handleAccessibilityIssues, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };

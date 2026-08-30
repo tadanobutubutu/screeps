@@ -33,5 +33,17 @@ function countDependencies() {
   }
 }
 
+/**
+ * Validates a landmark name
+ * @param {string} landmarkName - The name of the landmark to validate
+ * @returns {boolean} True if the landmark is valid, false otherwise
+ */
+function validateLandmark(landmarkName) {
+  if (typeof landmarkName !== 'string' || landmarkName.trim() === '') {
+    return false;
+  }
+  return true;
+}
+
 // Export for use in other modules
-module.exports = { countDependencies };
+module.exports = { countDependencies, validateLandmark };

@@ -39,30 +39,8 @@ function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-
-  // Set the focus on the newly added book item
-  const selector = `[data-key="${generateKey(book)}"]`;
-  const element = document.querySelector(selector);
-  if (element) {
-    element.focus();
-  }
-}
-
-// Function to get the accessible name for an SVG (ADD ACCESSIBILITY)
-function getSvgAccessibleName(svgElement) {
-  const titleElement = svgElement.getElementsByTagName('title')[0];
-  return titleElement ? titleElement.textContent : svgElement.outerHTML;
-}
-
-// Function to set the accessible name for an SVG link (ADD ACCESSIBILITY)
-function setSvgAttributes(svgLinkElement, accessibleName) {
-  svgLinkElement.setAttribute('aria-labelledby', 'svg-accessible-name');
-  const svgAccessibleNameElement = document.createElement('span');
-  svgAccessibleNameElement.id = 'svg-accessible-name';
-  svgAccessibleNameElement.innerHTML = accessibleName;
-  svgLinkElement.appendChild(svgAccessibleNameElement);
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: 'ADD_BOOK', payload: book };
 }
 
 // Container for the dependency graph with proper ARIA role for accessibility
@@ -87,6 +65,14 @@ function AddBookForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     dispatch(addBook(book));
+    
+    // Set the focus on the newly added book item
+    const selector = `[data-key="${generateKey(book)}"]`;
+    const element = document.querySelector(selector);
+    if (element) {
+      element.focus();
+    }
+    
     setBook({ title: '', author: '' }); // Reset the form after submission
   };
 
@@ -132,8 +118,123 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// REACT_015: Function to get the lang attribute for the HTML element
+function getLangAttribute() {
+  // Determine the appropriate lang attribute based on document settings or default to 'en'
+  const lang = document.documentElement.lang || 'en';
+  return lang;
+}
+
+// REACT_015: Function to create an in-page button with proper accessibility attributes
+function createInPageButton(label, onClickHandler) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+// REACT_027: Function to validate table accessibility (checks for caption, summary, headers, etc.)
+function validateTableAccessibility(tableElement) {
+  if (!tableElement) return false;
+  const hasCaption = tableElement.querySelector('caption') !== null;
+  const hasHeaders = tableElement.querySelectorAll('th').length > 0;
+  return hasCaption && hasHeaders;
+}
+
+// REACT_027: Function to validate table structure (checks for proper thead, tbody, tr, td/th nesting)
+function validateTableStructure(tableElement) {
+  if (!tableElement) return false;
+  const hasThead = tableElement.querySelector('thead') !== null;
+  const hasTbody = tableElement.querySelector('tbody') !== null;
+  const rows = tableElement.querySelectorAll('tr');
+  return hasThead && hasTbody && rows.length > 0;
+}
+
+// REACT_017: Function to validate a landmark element exists and has a role
+function validateLandmark(element, expectedRole) {
+  if (!element) return false;
+  const role = element.getAttribute('role') || element.tagName.toLowerCase();
+  return role === expectedRole;
+}
+
+// REACT_017: Function to validate landmark structure (proper nesting and child elements)
+function validateLandmarkStructure(landmarkElement) {
+  if (!landmarkElement) return false;
+  // A landmark should contain accessible content (text or children)
+  return landmarkElement.children.length > 0 || landmarkElement.textContent.trim().length > 0;
+}
+
+// REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
+function validateLandmarkAccessibility(landmarkElements) {
+  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return false;
+  const seenRoles = new Set();
+  const seenLabels = new Set();
+  for (const el of landmarkElements) {
+    const role = el.getAttribute('role') || el.tagName.toLowerCase();
+    const label = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || '';
+    // REACT_025: Ensure unique landmarks (track uniqueness by label for same-role landmarks)
+    const key = `${role}::${label}`;
+    if (seenRoles.has(role) && seenLabels.has(label)) {
+      return false;
+    }
+    seenRoles.add(role);
+    if (label) seenLabels.add(label);
+  }
+  return true;
+}
+
+// REACT_041: Function to get the accessible name for an SVG element
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+  return (
+    svgElement.getAttribute('aria-label') ||
+    svgElement.getAttribute('aria-labelledby') ||
+    svgElement.querySelector('title')?.textContent ||
+    ''
+  );
+}
+
+// REACT_041: Function to set accessible attributes on SVG elements
+function setSvgAttributes(svgElement, accessibleName) {
+  if (!svgElement) return;
+  svgElement.setAttribute('role', 'img');
+  svgElement.setAttribute('aria-label', accessibleName);
+  if (!svgElement.querySelector('title')) {
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = accessibleName;
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+}
+
+// REACT_036: Function to validate link accessibility (href, accessible name, not fake link)
+function validateLinkAccessibility(linkElement) {
+  if (!linkElement) return false;
+  const href = linkElement.getAttribute('href');
+  const accessibleName = linkElement.getAttribute('aria-label') || linkElement.textContent.trim();
+  // A real link should have a non-empty href and an accessible name
+  return href !== null && href !== '' && href !== '#' && accessibleName.length > 0;
+}
+
+// REACT_036: Function to handle fake links (divs/buttons styled as links) and convert to accessible elements
+function handleFakeLinks(fakeLinkElements) {
+  if (!Array.isArray(fakeLinkElements)) return;
+  for (const el of fakeLinkElements) {
+    // Replace fake link with a proper accessible element
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
+      el.setAttribute('aria-label', 'Button');
+    }
+  }
+}
+
 // Render the main component containing the book list, sorting controls, and the AddBookForm
 function Main() {
+  const dispatch = useDispatch();
   const [sorting, setSorting] = useState(defaultSorting);
 
   // UseEffect hook to handle sorting book list updates
@@ -161,12 +262,6 @@ function Main() {
       />
     </div>
   );
-}
-
-// Extract the SVG links and apply accessible names (ADD ACCESSIBILITY)
-function handleFakeLinks() {
-  const svgLinks = document.querySelectorAll('svg a');
-  svgLinks.forEach(setSvgAttributes);
 }
 
 // Export the Main component and handleFakeLinks function

@@ -5,9 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 const fs = require('fs');
 const path = require('path');

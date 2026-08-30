@@ -84,8 +84,8 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
   button.className = buttonClass;
 
   // Append the button to the body or a specific container
-  ...
-
+  // ... (removed stray ... to fix syntax)
+  
   // Return the created button for further manipulation if needed
   return button;
 }
@@ -149,7 +149,7 @@ const a11yStore = {
           }
         }
       });
-    });
+    };
   },
 
   // Manage focus for accessibility
@@ -175,7 +175,7 @@ const a11yStore = {
         e.preventDefault();
         ...
       }
-    });
+    };
   },
 
   // Setup skip links
@@ -203,12 +203,12 @@ const a11yStore = {
 
   // Utility: Check if user prefers reduced motion
   prefersReducedMotion() {
-    return ... reduce)').matches;
+    return ... reduce)'.matches;
   },
 
   // Utility: Check if user prefers high contrast
   prefersHighContrast() {
-    return ... more)').matches;
+    return ... more)'.matches;
   },
 
   // New function to handle dynamic content updates
@@ -225,7 +225,7 @@ const a11yStore = {
       landmarks.forEach((landmark, index) => {
         // Ensure landmark has a unique ID
         if (landmark.id === '') {
-          ... `${element}-${index}`);
+          ... `${element}-${index}`;
         }
 
         // Ensure unique accessible names for duplicate landmarks
@@ -235,7 +235,7 @@ const a11yStore = {
           }
         }
       });
-    });
+    };
   },
 
   // Add SVG accessibility props
@@ -267,11 +267,13 @@ const a11yStore = {
 
   // Fix fake links (REACT_036)
   fixFakeLinks() {
-    const fakeLinks = ...
-    ... => {
-      link.setAttribute('role', 'link');
-      ... '0');
-      ... 'true');
+    const fakeLinks = [...];
+    const handlers = [
+      (link) => link.setAttribute('role', 'link'),
+      (link) => link.setAttribute('type', 'navigation')
+    ];
+    handlers.forEach((handler, i) => {
+      handler(...);
     });
   },
 
@@ -312,7 +314,7 @@ const a11yStore = {
             if (!img.getAttribute('alt')) {
               img.setAttribute('alt', 'Image description');
             }
-          });
+          };
           break;
         case 'missing-label':
           ... select, textarea').forEach(el => {
@@ -358,7 +360,7 @@ function addLandmarkRegions() {
         element.id = ...
       }
     }
-  });
+  };
 }
 
 // New function to check landmark elements
@@ -408,7 +410,7 @@ functionB = {
 // Initialize accessibility features
 ... () => {
   a11yStore.init();
-});
+};
 
 // Preserve existing code
 ...

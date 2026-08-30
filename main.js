@@ -35,7 +35,7 @@ function renderIndex(data = {}) {
  * @returns {string} The rendered application view
  */
 function renderApp(context) {
-  return `<div id="app">${renderIndex(context)}</div>`;
+  return `<div class="app-view">${context.content || ''}</div>`;
 }
 
 module.exports = {

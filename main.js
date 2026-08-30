@@ -17,10 +17,17 @@ const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section'
  * @returns {Object} - Object containing landmark element information and any warnings
  */
 function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
   const warnings = [];
   const foundLandmarks = {};
 
+  // Check for each landmark element in the HTML content
   LANDMARK_ELEMENTS.forEach(landmark => {
+    // Use case-insensitive regex to find landmark elements
     const regex = new RegExp(`<${landmark}[^>]*>`, 'gi');
     const matches = htmlContent.match(regex);
     if (matches) {
@@ -28,9 +35,17 @@ function checkLandmarkElements(htmlContent) {
     }
   });
 
+  // Check for required main landmark
   if (!foundLandmarks.main) {
     warnings.push('Missing main landmark element');
   }
+
+  // Check for duplicate landmarks (potential issue)
+  LANDMARK_ELEMENTS.forEach(landmark => {
+    if (foundLandmarks[landmark] > 1) {
+      warnings.push(`Multiple ${landmark} elements found`);
+    }
+  });
 
   return {
     foundLandmarks,

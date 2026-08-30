@@ -126,15 +126,75 @@ function generateSessionId() {
  * @returns {boolean} True if the table is accessible, false otherwise
  */
 function validateTableStructure(table) {
-  if (!table) {
-    throw new Error('Table is required');
-  }
-  
-  // Placeholder for table structure validation logic
-  // This should include checks for headers, caption, and row grouping
-  
-  // For now, we assume the table is valid
-  return true;
+    if (!table) {
+        throw new Error('Table is required');
+    }
+    
+    // Validate table structure for accessibility
+    // Check for headers, caption, and row grouping
+    const hasValidHeaders = validateTableHeaderCount(table);
+    const hasCaption = validateTableCaption(table);
+    const hasRowGroups = validateRowGroupings(table);
+    
+    return hasValidHeaders && hasCaption && hasRowGroups;
+}
+
+/**
+ * Validates that the table has a reasonable number of headers
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} True if header count is valid, false otherwise
+ */
+function validateTableHeaderCount(table) {
+    const headerCells = table.querySelectorAll('th');
+    const totalCells = table.querySelectorAll('td, th').length;
+    
+    // A table should not have an excessive number of headers compared to data cells
+    // This is a simple heuristic and can be adjusted based on requirements
+    if (totalCells === 0) {
+        return false; // Table has no cells at all
+    }
+    
+    // Headers should not exceed 50% of total cells (this is a conservative check)
+    const headerRatio = headerCells.length / totalCells;
+    return headerRatio <= 0.5;
+}
+
+/**
+ * Validates that the table has a caption element
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} True if caption exists, false otherwise
+ */
+function validateTableCaption(table) {
+    return table.querySelector('caption') !== null;
+}
+
+/**
+ * Validates that row groupings are properly structured
+ * @param {HTMLElement} table - The table to validate
+ * @returns {boolean} True if row groupings are valid, false otherwise
+ */
+function validateRowGroupings(table) {
+    const rows = table.querySelectorAll('tr');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    const tfoot = table.querySelector('tfoot');
+    
+    // If there are thead/tbody/tfoot elements, check if they contain rows
+    if (thead && !thead.querySelectorAll('tr').length) {
+        return false;
+    }
+    
+    if (tbody && !tbody.querySelectorAll('tr').length) {
+        return false;
+    }
+    
+    if (tfoot && !tfoot.querySelectorAll('tr').length) {
+        return false;
+    }
+    
+    // If there are rows but no grouping elements, that's acceptable
+    // The table structure is valid as long as it's properly formed
+    return true;
 }
 
 /**
@@ -287,6 +347,9 @@ module.exports = {
     decodeJwtToken,
     generateSessionId,
     validateTableStructure,
+    validateTableHeaderCount,
+    validateTableCaption,
+    validateRowGroupings,
     validateSession,
     revokeSession,
     getActiveSessionsCount,

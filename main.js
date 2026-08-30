@@ -23,6 +23,10 @@ import { state, updateState } from './state.js';
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLinkAccessibility())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton() and handleFakeLinks())
 
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // Accessibility function stubs
 function getFullLangAttribute() {
   // Existing code...

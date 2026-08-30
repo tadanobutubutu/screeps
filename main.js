@@ -371,6 +371,22 @@ function isLinkAccessible(link) {
   return false;
 }
 
+/**
+ * Retrieves all accessible links from the document.
+ * Uses the isLinkAccessible function to determine accessibility.
+ * @returns {Array} Array of accessible link elements.
+ */
+function function3() {
+  const links = document.querySelectorAll('a');
+  const accessibleLinks = [];
+  links.forEach(link => {
+    if (isLinkAccessible(link)) {
+      accessibleLinks.push(link);
+    }
+  });
+  return accessibleLinks;
+}
+
 addProperLandmarkRegions();
 addProperAccountManagement();
 addAriaToFormControls();
@@ -393,6 +409,7 @@ module.exports = {
   improveKeyboardNavigation,
   addLiveRegionForDynamicContent,
   isLinkAccessible,
+  function3,
   addAriaLabel,
   addLangAttribute
 };

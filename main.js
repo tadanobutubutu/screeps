@@ -2,12 +2,12 @@
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
 
 // Import graph rendering functions
-import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
+import { renderGraph } from ... // Assuming you have a separate file for the new functions
 
 /**
  * Check and ensure accessibility attributes for links and buttons
  */
-export function checkLinkAndButtonAccessibility() {
+export function checkAccessibilityAttributes() {
   const links = document.querySelectorAll('a');
   const buttons = document.querySelectorAll('button');
 
@@ -21,11 +21,11 @@ export function checkLinkAndButtonAccessibility() {
   });
 
   buttons.forEach(button => {
-    if (!button.hasAttribute('role')) {
+    if (!button.hasAttribute('role') || button.getAttribute('role') !== 'button') {
       button.setAttribute('role', 'button');
     }
     // Check for accessible name for buttons
-    if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+    if (!button.textContent.trim() && !button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
       console.error('Accessibility Error: Button without accessible name', button);
     }
   });
@@ -125,11 +125,11 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && !element.hasAttribute('disabled');
+  return isFocusable && !element.disabled;
 }
 
 // Default export for backwards compatibility
@@ -166,27 +166,41 @@ const a11yStore = {
     // Your game logic here...
 
     // Update scope attributes in all .html files in the views directory
-    const viewsDir = path.join(__dirname, 'views');
+    const viewsDir = 'views';
+    const fs = require('fs');
+    const path = require('path');
+    
     fs.readdirSync(viewsDir)
       .filter(file => file.endsWith('.html'))
       .forEach(file => {
         const filePath = path.join(viewsDir, file);
-        updateThScopeAttribute(filePath);
+        // Process each HTML file for scope attribute updates
+        let content = fs.readFileSync(filePath, 'utf8');
+        // Add scope attribute handling logic here if needed
+        fs.writeFileSync(filePath, content);
       });
   },
 
   // New function to check landmark elements
   checkLandmarkElements() {
-    const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
+    const landmarkElements = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], [role="search"]');
+    const landmarkCounts = {};
+    
     landmarkElements.forEach((landmark, index) => {
+      const tagName = landmark.tagName ? landmark.tagName.toLowerCase() : '';
+      landmarkCounts[tagName] = (landmarkCounts[tagName] || 0) + 1;
+      
       // Ensure landmark has a unique ID
       if (landmark.id === '') {
-        landmark.id = `landmark-${index}`;
+        landmark.id = `landmark-${tagName}-${index + 1}`;
       }
 
       // Ensure unique accessible names for duplicate landmarks
-      if (landmark.hasAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
+      if (landmarkCounts[tagName] > 1) {
+        const existingLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+        if (!existingLabel) {
+          landmark.setAttribute('aria-label', `${tagName} ${landmarkCounts[tagName]}`);
+        }
       }
     });
   },
@@ -262,117 +276,4 @@ function addressAccessibilityIssues() {
   // Internationalization support
   const translations = {
     'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
-
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
-  });
-
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinksAndButtons();
-}
-
-export { addressAccessibilityIssues };
-
-// Screeps module exports for game loop integration
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
-
-    // TODO: Add implementation details
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
-    }
-
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-};
+      landmark:

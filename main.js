@@ -91,5 +91,6 @@ module.exports = {
   ensureUniqueLandmarks,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  uniqueLandmarks
 };

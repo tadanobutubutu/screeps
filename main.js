@@ -47,15 +47,6 @@ module.exports = function() {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityErrors())
 
-// NEW: ADD YOUR CODE HERE
-// TODO: The new function to check link accessibility
-// This function will be used to validate the accessibility of links
-function checkLinkAccessibility() {
-    // Implementation for checking link accessibility
-    // For now, assume that all links have correct text and appropriate roles
-    return "All links are accessible";
-}
-
 // Preserve existing functionality
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
@@ -63,35 +54,6 @@ import { validateTableAccessibility, validateTableStructure } from './utils/tabl
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
-// main.js - Combined utility and accessibility features
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// Add the language attribute to the HTML element for proper accessibility
-const htmlElement = document.documentElement;
-const langAttr = getLangAttribute();
-htmlElement.setAttribute('lang', langAttr);
-
-// - REACT_027: Fix 26 table structure issues
-// Review and fix table structure for accessibility compliance
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
-
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
 
 // Internal set to track used landmark IDs
 // Global set to track used landmark IDs
@@ -317,7 +279,18 @@ export const fixAccessibilityIssues = () => {
 
 // New function to check link accessibility
 function checkLinkAccessibility() {
-  return validateLinkAccessibility();
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a');
+  const issues = [];
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    const text = link.textContent.trim();
+    if (!text && !link.getAttribute('aria-label')) {
+      issues.push(`Link with href "${href}" has no accessible text`);
+    }
+  });
+  return issues;
 }
 
 // New function to display module structure
@@ -327,16 +300,8 @@ function displayModuleStructure(module) {
 
 // DOM-based accessibility code
 
-// REACT_015: lang attribute added to HTML element
-// The React component rendering the HTML element provides the `lang` prop
-// The language attribute is set according to the application's settings
-function getFullLangAttribute() {
-  // Implementation for getting full lang attribute
-  return 'en-US'; // Example implementation
-}
-
 // Validate table structure and accessibility
-// Ensuring all tables in the document are accessible
+const tables = document.querySelectorAll('table');
 tables.forEach(table => {
   validateTableAccessibility(table);
   validateTableStructure(table);
@@ -348,7 +313,6 @@ validateLandmarkStructure();
 addFixLandmarkIssues();
 
 // Add accessible names to SVGs
-// Adding accessible names to all SVG elements in the document
 const svgs = document.querySelectorAll('svg');
 svgs.forEach(svg => {
   const accessibleName = getSvgAccessibleName(svg);
@@ -356,7 +320,6 @@ svgs.forEach(svg => {
 });
 
 // Ensure unique landmarks
-// Ensuring all landmarks have unique identifiers
 const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
@@ -373,11 +336,9 @@ landmarks.forEach(landmark => {
 validateLinkAccessibility();
 
 // Fix fake link issues
-// Converting buttons styled as links to proper accessible buttons
 handleFakeLinks();
 
 // Fix button identifiers
-// Ensuring all buttons have proper accessible identifiers
 const buttons = document.querySelectorAll('button, [role="button"]');
 buttons.forEach((button, index) => {
   if (!button.id) {
@@ -416,9 +377,6 @@ setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 ensureUniqueLandmarkId('main-content');
-
-// Validate link accessibility (New Function)
-checkLinkAccessibility();
 
 // Handle fake links
 handleFakeLinks();
@@ -540,7 +498,8 @@ export {
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,
-  handleFakeLinks
+  handleFakeLinks,
+  checkLinkAccessibility,
 };
 
 // Export utility functions
@@ -554,22 +513,6 @@ export {
   validateAndRender,
   renderPage
 };
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
 
 // Export the new function
 export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };

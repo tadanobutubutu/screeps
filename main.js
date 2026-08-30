@@ -253,6 +253,100 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Checks link and button accessibility in a container
+ * @param {HTMLElement} container - The container element to check
+ * @returns {Object} - Validation results with valid flag and errors array
+ */
+function checkLinkButtonAccessibility(container) {
+  const results = {
+    valid: true,
+    errors: [],
+    links: [],
+    buttons: []
+  };
+
+  if (!container) {
+    results.valid = false;
+    results.errors.push('Container element is required');
+    return results;
+  }
+
+  // Check links
+  const links = container.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const linkInfo = {
+      index,
+      href: link.getAttribute('href'),
+      text: link.textContent.trim(),
+      hasAriaLabel: link.hasAttribute('aria-label'),
+      hasAriaLabelledby: link.hasAttribute('aria-labelledby'),
+      valid: true,
+      errors: []
+    };
+
+    // Check if link has valid href
+    if (!linkInfo.href || linkInfo.href === '#' || linkInfo.href.trim() === '') {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link must have a valid href attribute');
+    }
+
+    // Check if link has accessible name
+    const hasAccessibleName = linkInfo.text !== '' || linkInfo.hasAriaLabel || linkInfo.hasAriaLabelledby;
+    if (!hasAccessibleName) {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link must have accessible text content or aria-label/aria-labelledby');
+    }
+
+    // Check for suspicious href patterns
+    if (linkInfo.href && linkInfo.href.startsWith('javascript:')) {
+      linkInfo.valid = false;
+      linkInfo.errors.push('Link should not use javascript: protocol');
+    }
+
+    results.links.push(linkInfo);
+    if (!linkInfo.valid) {
+      results.valid = false;
+      linkInfo.errors.forEach(err => results.errors.push(`Link ${index}: ${err}`));
+    }
+  });
+
+  // Check buttons
+  const buttons = container.querySelectorAll('button');
+  buttons.forEach((button, index) => {
+    const buttonInfo = {
+      index,
+      type: button.getAttribute('type') || 'button',
+      text: button.textContent.trim(),
+      hasAriaLabel: button.hasAttribute('aria-label'),
+      hasAriaLabelledby: button.hasAttribute('aria-labelledby'),
+      disabled: button.disabled,
+      valid: true,
+      errors: []
+    };
+
+    // Check if button has accessible name
+    const hasAccessibleName = buttonInfo.text !== '' || buttonInfo.hasAriaLabel || buttonInfo.hasAriaLabelledby;
+    if (!hasAccessibleName) {
+      buttonInfo.valid = false;
+      buttonInfo.errors.push('Button must have accessible text content or aria-label/aria-labelledby');
+    }
+
+    // Check for missing type attribute (defaults to submit in forms)
+    if (!button.hasAttribute('type')) {
+      buttonInfo.errors.push('Button should have explicit type attribute (button, submit, reset)');
+    }
+
+    results.buttons.push(buttonInfo);
+    if (!buttonInfo.valid) {
+      results.valid = false;
+      buttonInfo.errors.forEach(err => results.errors.push(`Button ${index}: ${err}`));
+    }
+  });
+
+  return results;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +365,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  checkLinkButtonAccessibility
 };

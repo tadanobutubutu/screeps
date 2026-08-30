@@ -38,12 +38,12 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function ... {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
+    if ... {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+        const suffix = ... 9);
+        candidate = ...
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -72,7 +72,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if ... {
         element.setAttribute('aria-label', label);
     }
 }
@@ -82,9 +82,9 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = ...
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    ... 'en'); // Example: English
   }
 }
 
@@ -120,6 +120,36 @@ setSvgAttributes(svg, accessibleName);
 handleFakeLinks();
 
 // ... rest of your code ...
+
+/**
+ * Performs accessibility checks on tables in the document.
+ * Validates table structure and accessibility according to WCAG guidelines.
+ * @param {string|HTMLElement} tableSelector - CSS selector or HTMLElement for the table to check.
+ * @returns {Object} Result object containing accessibility validation results.
+ */
+function checkTableAccessibility(tableSelector) {
+    const tableElement = typeof tableSelector === 'string' 
+        ? document.querySelector(tableSelector) 
+        : tableSelector;
+    
+    if (!tableElement) {
+        return { 
+            success: false, 
+            errors: ['Table element not found'] 
+        };
+    }
+    
+    const accessibilityResult = validateTableAccessibility(tableElement);
+    const structureResult = validateTableStructure(tableElement);
+    
+    return {
+        success: accessibilityResult.valid && structureResult.valid,
+        accessibility: accessibilityResult,
+        structure: structureResult,
+        errors: [...(accessibilityResult.errors || []), ...(structureResult.errors || [])],
+        warnings: [...(accessibilityResult.warnings || []), ...(structureResult.warnings || [])]
+    };
+}
 
 // React / UI related functions
 

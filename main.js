@@ -28,8 +28,6 @@ function getDependencyDepth(dependencies, currentKey = '') {
   return maxDepth;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-
 /**
  * Renders a dependency graph as ASCII art for debugging purposes.
  * @param {Object} dependencies - The dependency object
@@ -128,12 +126,19 @@ function main() {
   console.log('Depth:', getDependencyDepth(sampleDependencies));
 }
 
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
+}
+
 module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   getDependencyDepth,
   generateDependencyReport,
-  main
+  main,
+  visualizeDependencyTree
 };
 
 // Run if executed directly

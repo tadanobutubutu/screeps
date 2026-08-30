@@ -604,6 +604,49 @@ export function generateAccessibilityReport() {
   };
 }
 
+/**
+ * Render the index view
+ * @param {Object} options - Rendering options
+ * @param {string} options.containerId - The ID of the container element
+ * @param {Array} options.items - The items to render in the index
+ * @returns {void}
+ */
+export function renderIndexView(options = {}) {
+  const { containerId = 'index-view-container', items = [] } = options;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Index view');
+
+  const list = document.createElement('ul');
+  list.setAttribute('role', 'list');
+  list.className = 'index-view-list';
+
+  items.forEach((item) => {
+    const listItem = document.createElement('li');
+    listItem.setAttribute('role', 'listitem');
+
+    const link = document.createElement('a');
+    link.href = item.href || '#';
+    link.textContent = item.label || item.title || 'Untitled';
+    link.setAttribute('aria-label', item.ariaLabel || link.textContent);
+
+    if (item.onClick && typeof item.onClick === 'function') {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        item.onClick(item, e);
+      });
+    }
+
+    listItem.appendChild(link);
+    list.appendChild(listItem);
+  });
+
+  container.appendChild(list);
+}
+
 // Helper functions for accessibility
 function createLiveRegion() {
   const liveRegion = document.createElement('div');

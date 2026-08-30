@@ -589,6 +589,36 @@ function newFunction() {
   // Implementation of the new function
 }
 
+/**
+ * Handles the credential response from an authentication request.
+ * @param {Object} response - The credential response object.
+ * @returns {Object|null} The processed credential data or null if invalid.
+ */
+function handleCredentialResponse(response) {
+  if (!response || !response.id) {
+    return null;
+  }
+
+  const credential = {
+    id: response.id,
+    rawId: response.rawId,
+    type: response.type,
+  };
+
+  if (response.response) {
+    credential.response = response.response;
+    if (response.response.clientDataJSON) {
+      try {
+        credential.clientDataJSON = JSON.parse(atob(response.response.clientDataJSON));
+      } catch (e) {
+        credential.clientDataJSON = null;
+      }
+    }
+  }
+
+  return credential;
+}
+
 export function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
@@ -636,7 +666,8 @@ export {
   addSvgAccessibleNames,
   ensurePageUniqueLandmarks,
   fixFakeLink,
-  initializeAccessibility
+  initializeAccessibility,
+  handleCredentialResponse
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -658,6 +689,7 @@ module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
 module.exports.ensurePageUniqueLandmarks = ensurePageUniqueLandmarks;
 module.exports.fixFakeLink = fixFakeLink;
 module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.handleCredentialResponse = handleCredentialResponse;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -680,70 +712,3 @@ function getConfig() {
     timeout: 5000
   };
 }
-=======
-import React from 'react';
-import PropTypes from 'prop-types';
-
-// TODO: Address any missing required exports
-// REACT_015: Add lang attribute
-
-const Main = ({ children, title, lang = 'en' }) => {
-  return (
-    <main role="main" lang={lang}>
-      {title && <h1>{title}</h1>}
-      {children}
-    </main>
-  );
-};
-
-Main.propTypes = {
-  children: PropTypes.node,
-  title: PropTypes.string,
-  lang: PropTypes.string,
-};
-
-export default Main;
-export { Main };
->>>>>>> origin/main
-
-// Resolved file content (HEAD version - vanilla JS accessibility utilities):
-// This is the complete main.js file with all accessibility functions preserved
-// and the React component removed as it's incompatible with the vanilla JS code.
-
-// Existing code starts here
-
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
-
-// More existing code that should be preserved
-
-// Existing code ends here
-
-// TODO: This is the existing code that needs to be preserved
-// (This should be preserved)
-// Addressed accessibility issues from insight report
-
-// ... (other code in main.js)
-
-/**
- * Checks if a specified landmark element is present in the document.
- * @param {string} id - The ID of the landmark element to check for.
- * @returns {boolean} True if the landmark element exists, false otherwise.
- */
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  if (!element) {
-    return false;
-  }
-  
-  // Validate that the landmark has required properties
-  if (element.getAttribute('name') && element.getAttribute('coordinates')) {
-    return true;
-  }
-  
-  return false;
-}
-
-/**
- * Checks accessibility of tables in the document.
- * Ensures that <th> elements

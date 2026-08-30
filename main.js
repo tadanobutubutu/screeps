@@ -33,5 +33,26 @@ function countDependencies() {
   }
 }
 
+/**
+ * Checks for landmark elements in the given HTML content
+ * @param {string} content - HTML content to check for landmark elements
+ * @returns {Object} An object containing information about landmark elements found
+ */
+function checkLandmarkElements(content) {
+  const landmarkTags = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
+  const found = {};
+  
+  for (const tag of landmarkTags) {
+    const regex = new RegExp(`<${tag}[^>]*>`, 'gi');
+    const matches = content.match(regex);
+    found[tag] = matches ? matches.length : 0;
+  }
+  
+  return {
+    landmarks: found,
+    totalLandmarks: Object.values(found).reduce((a, b) => a + b, 0)
+  };
+}
+
 // Export for use in other modules
-module.exports = { countDependencies };
+module.exports = { countDependencies, checkLandmarkElements };

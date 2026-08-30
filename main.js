@@ -23,18 +23,18 @@ function addressAccessibilityIssues(insightReport) {
 // relevant rendering functions.
 
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.getElementById('primary-content');
+  const primaryContent = document.querySelector('...');
   if (!primaryContent) {
     console.error('Primary content element not found');
     return;
   }
 
   // Wrap the primary content in a main tag if it's not already wrapped
-  const mainTag = primaryContent.closest('main');
+  const mainTag = primaryContent.querySelector('main') || primaryContent.closest('main');
   if (!mainTag) {
     const mainElement = document.createElement('main');
-    mainElement.appendChild(primaryContent);
     primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
   }
 }
 
@@ -48,9 +48,9 @@ const indexContent = require('./indexContent');
  */
 function renderDependencyGraph(options = {}) {
   // Update: Incorporate both changes to generate the content
-  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  const content = dependencyGraphContent ? dependencyGraphContent.generate(options) : indexContent.generate(options);
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph-view">${content}</div>`;
 }
 
 /**
@@ -72,8 +72,8 @@ function renderIndex(data = {}) {
  */
 function renderApp(context) {
   // Update: Conditionally render the index or the dependency graph based on context
-  const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraph : renderIndex;
-  return `<div id="app">${viewFunction(context)}</div>`;
+  const viewFunction = context.isDependencyGraphNeeded ? renderDependencyGraph : renderIndex;
+  return `<div class="app-container">${viewFunction(context)}</div>`;
 }
 
 const myNewFunction = () => {

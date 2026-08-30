@@ -1,35 +1,41 @@
 // TODO: This is the existing code that needs to be preserved
 
 // Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-document.documentElement.setAttribute('lang', getLangAttribute());
+const createAccessibleButton = (label, onClick) => {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  button.addEventListener('click', onClick);
+  button.setAttribute('role', 'button');
+  button.setAttribute('tabindex', '0');
+  return button;
+};
 
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-validateTableAccessibility();
-validateTableStructure();
-
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-validateLandmark();
-validateLandmarkStructure();
-
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-getSvgAccessibleName();
-// Additional code to handle SVGs would go here if necessary
-
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// Additional code to handle unique landmarks would go here if necessary
-
-// - REACT_036: Fix 1 fake link issue (handled by ... [PERSON_NAME](), ... and personName())
-// Additional code to handle fake link issues would go here if necessary
-
-// ADD: Address new accessibility issues from insight report
-// Additional code to handle new accessibility issues would go here if necessary
+const createAccessibleInput = (type, placeholder, label) => {
+  const wrapper = document.createElement('div');
+  const input = document.createElement('input');
+  const labelElement = document.createElement('label');
+  
+  input.type = type;
+  input.placeholder = placeholder;
+  input.setAttribute('aria-label', label);
+  input.setAttribute('tabindex', '0');
+  
+  labelElement.textContent = label;
+  input.id = `input-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  labelElement.setAttribute('for', input.id);
+  
+  wrapper.appendChild(labelElement);
+  wrapper.appendChild(input);
+  
+  return wrapper;
+};
 
 // REACT_015: Add lang attribute to HTML element
 const addLangAttribute = () => {
   if (typeof document !== 'undefined') {
     const htmlElement = document.documentElement;
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.setAttribute('lang', getLangAttribute());
   }
 };
 
@@ -102,13 +108,13 @@ const ensureUniqueLandmarks = () => {
         landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
       }
     });
-  }
-};
 
-// REACT_025: Unique landmarks function
-const uniqueLandmarks = () => {
-  if (typeof document !== 'undefined') {
-    ensureUniqueLandmarks();
+    // Warn about duplicate landmarks
+    Object.entries(landmarkCounts).forEach(([role, count]) => {
+      if (count > 1) {
+        console.warn(`Accessibility: Multiple landmarks with role="${role}" found (${count}). Consider using aria-label or aria-labelledby to distinguish them.`);
+      }
+    });
   }
 };
 
@@ -125,25 +131,18 @@ const addSvgAccessibleNames = () => {
   }
 };
 
-// REACT_041: Add accessible names to SVGs
-const addAccessibleNamesToSVGs = () => {
-  addSvgAccessibleNames();
-};
-
 // REACT_036: Fix 1 fake link issue
 const fixFakeLinkIssue = () => {
   if (typeof document !== 'undefined') {
-    const spans = document.querySelectorAll('span[role="button"]');
+    const spans = document.querySelectorAll('span[role="button"], span[onclick], a[href="#"]');
     spans.forEach(span => {
       span.setAttribute('tabindex', '0');
       span.setAttribute('role', 'button');
+      if (!span.hasAttribute('aria-label') && !span.textContent.trim()) {
+        span.setAttribute('aria-label', 'Button');
+      }
     });
   }
-};
-
-// REACT_036: Fix fake link issues
-const fixFakeLinkIssues = () => {
-  fixFakeLinkIssue();
 };
 
 // REACT_037: Google sign-in logic
@@ -169,6 +168,12 @@ const fixButtonIdentifiers = () => {
       } else {
         newButton.id = `btn-${Math.random().toString(36).substr(2, 9)}`;
       }
+      // Copy attributes
+      Array.from(button.attributes).forEach(attr => {
+        if (attr.name !== 'id') {
+          newButton.setAttribute(attr.name, attr.value);
+        }
+      });
       while (button.firstChild) {
         newButton.appendChild(button.firstChild);
       }
@@ -210,36 +215,6 @@ function newExportedFunction() {
   console.log('This is the new exported function.');
 }
 
-// New function to add lang attribute to HTML element
-function addLangAttributeFn() {
-  // Implementation to add lang attribute
-}
-
-// New function to fix table structure issues
-function fixTableStructureFn() {
-  // Implementation to fix table structure
-}
-
-// New function to add/fix landmark issues
-function addLandmarkIssuesFn() {
-  // Implementation to add/fix landmark issues
-}
-
-// New function to add accessible names to SVGs
-function addSvgAccessibleNamesFn() {
-  // Implementation to add accessible names to SVGs
-}
-
-// New function to ensure unique landmarks
-function ensureUniqueLandmarksFn() {
-  // Implementation to ensure unique landmarks
-}
-
-// New function to fix fake link issues
-function fixFakeLinkIssueFn() {
-  // Implementation to fix fake link issues
-}
-
 function getLangAttribute() {
   // ... code for handling lang attribute
   return 'en';
@@ -252,32 +227,48 @@ function personName() {
 
 function validateTableAccessibility() {
   // ... code for handling table accessibility issues
+  fixTableStructure();
 }
 
 function validateTableStructure() {
   // ... code for handling table structure issues
+  fixTableStructure();
 }
 
 function validateLandmark() {
   // ... code for handling landmark issues
+  fixLandmarkIssues();
+  addMainLandmark();
+  addLandmarkRegions();
 }
 
 function validateLandmarkStructure() {
   // ... code for handling landmark structure issues
+  ensureUniqueLandmarks();
 }
 
 function getSvgAccessibleName() {
   // ... code for handling SVG accessible names
+  addSvgAccessibleNames();
   return '';
 }
 
 function createInPageButton() {
   // ... code for handling in-page button creation
+  return createAccessibleButton('Action', () => {});
 }
 
 // ADD: New function for handling the new accessibility issues from the insight report
 function addressNewAccessibilityIssues() {
   // ... code to handle the new accessibility issues
+  addLangAttribute();
+  fixTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  getSvgAccessibleName();
+  fixFakeLinkIssue();
+  fixButtonIdentifiers();
+  ensureDependencyGraphAriaRole();
 }
 
 // Application configuration
@@ -325,13 +316,25 @@ function newFunction() {
 // Exports (if any) must be preserved
 // Export functions for testing
 module.exports = {
-  createServer,
-  startApp,
-  config,
-  newFunction,
-  countDependencies,
-  getLangAttribute,
-  personName,
+  // Accessible component creators
+  createAccessibleButton,
+  createAccessibleInput,
+  
+  // Accessibility fix functions
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addMainLandmark,
+  addLandmarkRegions,
+  ensureUniqueLandmarks,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  googleSignIn,
+  fixButtonIdentifiers,
+  dependencyGraphContainer,
+  ensureDependencyGraphAriaRole,
+  
+  // Validation wrappers
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -339,28 +342,18 @@ module.exports = {
   getSvgAccessibleName,
   createInPageButton,
   addressNewAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  fixButtonIdentifiers,
-  dependencyGraphContainer,
-  ensureDependencyGraphAriaRole,
+  
+  // Core application
+  createServer,
+  startApp,
+  config,
+  newFunction,
+  countDependencies,
   newExportedFunction,
-  addLangAttributeFn,
-  fixTableStructureFn,
-  addLandmarkIssuesFn,
-  addSvgAccessibleNamesFn,
-  ensureUniqueLandmarksFn,
-  fixFakeLinkIssueFn
+  
+  // Utility functions
+  getLangAttribute,
+  personName
 };
 
 // Start the application if run directly

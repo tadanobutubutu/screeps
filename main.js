@@ -9,11 +9,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -30,17 +31,20 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    element.addEventListener('keydown', (e) => {
+    const handleTabKey = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
-    });
+    };
+    
+    element.addEventListener('keydown', handleTabKey);
+    return () => element.removeEventListener('keydown', handleTabKey);
   },
 
   // Announce message to screen readers
@@ -70,7 +74,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
   }
   return element;
 };
@@ -90,6 +94,186 @@ const renderDependencyGraph = (data) => {
   };
 };
 
+// Get language attribute from HTML element
+function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    return htmlElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+// Create in-page button with accessibility support
+function createInPageButton(options = {}) {
+  const { id, label, onClick, className = '', ariaLabel, ariaPressed } = options;
+  const button = document.createElement('button');
+  
+  if (id) button.id = id;
+  if (label) button.textContent = label;
+  if (className) button.className = className;
+  if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
+  if (ariaPressed !== undefined) button.setAttribute('aria-pressed', ariaPressed);
+  
+  if (onClick) {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Ensure button is keyboard accessible
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
+  });
+  
+  return button;
+}
+
+// Person name formatter with accessibility support
+function personName(firstName, lastName, options = {}) {
+  const { format = 'full', includeTitle = false, title = '' } = options;
+  
+  if (format === 'first') return firstName || '';
+  if (format === 'last') return lastName || '';
+  if (format === 'full') {
+    const fullName = [title && includeTitle ? title : '', firstName, lastName].filter(Boolean).join(' ');
+    return fullName.trim();
+  }
+  
+  return `${firstName} ${lastName}`.trim();
+}
+
+// Validate table accessibility
+function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    issues.push('Table element is required');
+    return { valid: false, issues };
+  }
+  
+  const hasCaption = table.querySelector('caption');
+  if (!hasCaption) {
+    issues.push('Table should have a caption element for accessibility');
+  }
+  
+  const headers = table.querySelectorAll('th');
+  if (headers.length === 0) {
+    issues.push('Table should have header cells (th) for accessibility');
+  }
+  
+  const scopeAttrs = table.querySelectorAll('th[scope]');
+  if (headers.length > 0 && scopeAttrs.length === 0) {
+    issues.push('Header cells should have scope attribute');
+  }
+  
+  return { valid: issues.length === 0, issues };
+}
+
+// Validate table structure for accessibility
+function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    issues.push('Table element is required');
+    return { valid: false, issues };
+  }
+  
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) {
+    issues.push('Table must have at least one row');
+  }
+  
+  const cells = table.querySelectorAll('td, th');
+  if (cells.length === 0) {
+    issues.push('Table must have data cells');
+  }
+  
+  // Check for proper thead/tbody structure
+  const hasThead = table.querySelector('thead');
+  const hasTbody = table.querySelector('tbody');
+  
+  if (hasThead && !hasTbody) {
+    issues.push('Table with thead should also have tbody');
+  }
+  
+  return { valid: issues.length === 0, issues };
+}
+
+// Validate landmarks for accessibility
+function validateLandmark(element) {
+  const issues = [];
+  
+  if (!element) {
+    issues.push('Element is required');
+    return { valid: false, issues };
+  }
+  
+  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'form'];
+  const hasLandmarkRole = element.getAttribute('role');
+  const tagName = element.tagName.toLowerCase();
+  
+  if (validLandmarks.includes(tagName) || hasLandmarkRole) {
+    return { valid: true, issues: [] };
+  }
+  
+  issues.push('Element should have a landmark role or be a landmark element');
+  return { valid: false, issues };
+}
+
+// Validate landmark structure for accessibility
+function validateLandmarkStructure(document) {
+  const issues = [];
+  
+  if (!document) {
+    issues.push('Document is required');
+    return { valid: false, issues };
+  }
+  
+  const main = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (!main) {
+    issues.push('Document should have a main landmark');
+  }
+  
+  const header = document.querySelector('header') || document.querySelector('[role="banner"]');
+  if (!header) {
+    issues.push('Document should have a header landmark');
+  }
+  
+  const footer = document.querySelector('footer') || document.querySelector('[role="contentinfo"]');
+  if (!footer) {
+    issues.push('Document should have a footer landmark');
+  }
+  
+  return { valid: issues.length === 0, issues };
+}
+
+// Get SVG accessible name
+function getSvgAccessibleName(svgElement) {
+  if (!svgElement) return '';
+  
+  // Check aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check aria-labelledby
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    if (labelElement) return labelElement.textContent;
+  }
+  
+  // Check title child element
+  const title = svgElement.querySelector('title');
+  if (title) return title.textContent;
+  
+  // Check desc child element
+  const desc = svgElement.querySelector('desc');
+  if (desc) return desc.textContent;
+  
+  return '';
+}
+
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -97,193 +281,4 @@ const renderDependencyGraph = (data) => {
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
-// - ADD: Address new accessibility issues from insight report
-// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
-
-function newFocusTrap() {
-  // New function implementation
-}
-
-// Add back any required exports that might have been removed.
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum(a, b) { return a + b; }
-
-// Credential response handling
-async function handleCredentialResponse(response) {
-  if (!response) {
-    throw new Error('No response received');
-  }
-  
-  if (response.error) {
-    throw new Error(response.error);
-  }
-  
-  if (response.token) {
-    return {
-      success: true,
-      token: response.token,
-      expiresIn: response.expiresIn || 3600
-    };
-  }
-  
-  throw new Error('Invalid credential response');
-}
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
-}
-
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', `Download ${filename}`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    // Announce download completion to screen readers
-    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
-  },
-
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
-
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
-    
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-    csvRows.push(headers.join(','));
-    
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(','));
-    }
-    
-    const csvString = csvRows.join('\n');
-    exportUtils.exportData(csvString, filename || 'export.csv', 'text/csv');
-  }
-};
-
-function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
-}
-
-function readFileSafe(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
-    return null;
-  }
-}
-
-// Existing data processing functions
-function processData(items) {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-}
-
-function filterValidItems(items, validator) {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
-    }
-  });
-}
-
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink();
-  
-  // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      });
-    });
-  });
-};
-
-function groupByCategory(items, getCategory) {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(item);
-    return groups;
-  }, {});
-}
-
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
-
-// TODO: Implement the new function as per the issue requirements
-function transformInputData(inputData, options = {}) {
-  const {
-    preserveKeys = true,
-    uppercase = false,
-    trimWhitespace = true,
-    maxLength = null
-  } = options;
-
-  if (!inputData) {
-    return null;
-  }
-}
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
-  }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  handleCredentialResponse,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum
-};
+// - REACT_036: Fix 1

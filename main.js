@@ -9,7 +9,7 @@ import './table-styles.css';
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 
-// This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has an id and add an aria-label.
+// This is a simple utility library with added dependency graph rendering and module structure display functionalities, bot logic for Screeps and functions to ensure the element has a id and add an aria-label.
 
 // TODO: Update or create the affected functions to be accessible
 
@@ -22,7 +22,7 @@ let internalFunction2 = () => {
 };
 
 /**
- * Ensures the element has an id. If the element doesn't have an id, generates one.
+ * Ensures the element has a id. If the element doesn't have a id, generates one.
  * @param {HTMLElement} element - The element to check
  * @param {string} prefix - Optional prefix for the generated id
  * @returns {string} The id of the element
@@ -36,7 +36,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
 
-  const generatedId = `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = `${prefix}-${Date.now().toString(36)}`;
   element.id = generatedId;
   return generatedId;
 }
@@ -155,7 +155,7 @@ function functionZ() { return 'functionZ'; }
 
 // TODO: Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
-const functionA = {
+export const functionA = {
   // ... (Preserve the existing code for functionA)
 
   X: functionX, // Do not remove or rename this export
@@ -190,7 +190,7 @@ function functionXb() { return 'functionXb'; }
 function functionYb() { return 'functionYb'; }
 function functionZb() { return 'functionZb'; }
 
-const functionB = {
+export const functionB = {
   // ... (Preserve the existing code for functionB)
 
   X: functionXb, // Do not remove or rename this export
@@ -279,41 +279,3 @@ function validateTableStructure(table) {
   if (!thead) {
     issues.push('Table should have a thead section');
   }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates that landmarks have proper roles
- * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
- */
-function validateLandmark(root = document) {
-  const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
-  
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
-  }
-  
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page

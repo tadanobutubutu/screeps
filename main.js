@@ -398,7 +398,7 @@ function fixAccessibilityIssues() {
 }
 
 /**
- * Divides two numbers with proper error handling
+ * Divides two number with proper error handling
  * @param {number} dividend - The number to be divided
  * @param {number} divisor - The number to divide by
  * @returns {number} Result of division
@@ -488,6 +488,40 @@ function exportedFunction() {
   return 'This is an exported function';
 }
 
+/**
+ * Checks accessibility for link and button elements.
+ * @param {HTMLElement} element - The element to check.
+ * @returns {boolean} True if accessible, false otherwise.
+ */
+function checkAccessibility(element) {
+  if (!element) {
+    return false;
+  }
+
+  const tagName = element.tagName;
+  if (tagName === 'A') {
+    return validateLinkAccessibility(element);
+  } else if (tagName === 'BUTTON') {
+    return validateButtonAccessibility(element);
+  }
+
+  return false;
+}
+
+/**
+ * Validates button accessibility.
+ * @param {HTMLElement} buttonElement - Button element to validate.
+ * @returns {boolean} True if accessible, false otherwise.
+ */
+function validateButtonAccessibility(buttonElement) {
+  if (!buttonElement || buttonElement.nodeType !== Node.ELEMENT_NODE || buttonElement.tagName !== 'BUTTON') {
+    return false;
+  }
+
+  const accessibleName = buttonElement.textContent || buttonElement.getAttribute('aria-label');
+  return accessibleName && accessibleName.trim().length > 0;
+}
+
 // Export UI / product functions
 module.exports = {
   main,
@@ -524,27 +558,6 @@ module.exports = {
   renderPage,
   someFunction,
   exportedFunction,
-  greet
+  greet,
+  checkAccessibility
 };
-
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
-      }
-    }
-  };
-  
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
-  
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}

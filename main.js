@@ -258,6 +258,11 @@ function addSvgAccessibleNames() {
   });
 }
 
+// New function to add lang attribute to HTML element (REACT_015)
+function addLangAttribute() {
+  document.documentElement.lang = 'en';
+}
+
 let uniqueLandmarks = {};
 
 // Updated function for REACT_025 (ensuring unique landmarks)

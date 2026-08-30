@@ -48,6 +48,7 @@ function ensureUniqueLandmarks() {
     elements.forEach(el => {
       const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
       if (isUnique) {
+        uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
         uniqueLandmarkMap[landmark].push(el);
       } else {
         // Remove the role if it's not unique
@@ -92,6 +93,11 @@ function renderDependencyGraph(dependencyData) {
 // Placeholder function for index view rendering (to be replaced with actual implementation)
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
+}
+
+// TODO: Implement tower defense
+function towerDefense(gameData) {
+  console.log('Tower defense implemented with gameData:', gameData);
 }
 
 // Function to calculate sum (unchanged)
@@ -249,6 +255,7 @@ module.exports = {
   addressInsightReportIssues,
   renderDependencyGraph,
   renderIndexView,
+  towerDefense,
   calculateSum,
   fixLandmarkIssues,
   addLandmarkRoles,

@@ -2,13 +2,13 @@
 // (This comment remains as-is)
 
 // New function added as per the issue
-function newFunction() {
-  // Implementation details go here
+function newExportedFunction() {
+  // Function implementation here
 }
 
 // New function as per the issue request
 function newFunction() {
-  // New function implementation
+  // Implementation details go here
 }
 
 // TODO: Address accessibility issues from insight report:
@@ -290,5 +290,6 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphAriaRole,
+  newExportedFunction,
   newFunction
 };

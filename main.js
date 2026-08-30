@@ -1,5 +1,4 @@
-// Accessible Insight Report Interface - Dependency Graph Rendering
-// Line 13: Address accessibility issues from insight report — CONTINUING
+// TODO: Implement function for adding proper landmark regions
 
 const { helperFunction } = require('./helpers');
 const { formatData, validateInput } = require('./utils');
@@ -97,6 +96,107 @@ function handleMissingAltText(container) {
 // Accessibility function to add lang attribute to the HTML element
 function addLangAttribute() {
   document.documentElement.lang = 'en';
+}
+
+// Accessibility function to fix table structure issues for better accessibility
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    // Add caption if missing and table has a heading
+    if (!table.querySelector('caption')) {
+      const firstRow = table.querySelector('tr:first-child');
+      if (firstRow) {
+        const cells = firstRow.querySelectorAll('th, td');
+        if (cells.length > 0) {
+          const caption = document.createElement('caption');
+          caption.textContent = `Table ${index + 1}`;
+          table.insertBefore(caption, table.firstChild);
+        }
+      }
+    }
+    
+    // Ensure tables have proper scope attributes on headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach((th, thIndex) => {
+      if (!th.hasAttribute('scope')) {
+        const parentRow = th.parentElement;
+        if (parentRow && parentRow.querySelector('th') === th) {
+          // First th in row is likely a row header
+          th.setAttribute('scope', 'row');
+        } else {
+          // Otherwise it's a column header
+          th.setAttribute('scope', 'col');
+        }
+      }
+    });
+    
+    // Add role="table" for semantic clarity
+    if (!table.hasAttribute('role') || table.getAttribute('role') === 'table') {
+      table.setAttribute('role', 'table');
+    }
+  });
+}
+
+// Accessibility function to add proper main landmark
+function addMainLandmark() {
+  // Check if a main element already exists
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // Find the first content container or body
+    const body = document.body;
+    
+    // Create a new main element
+    mainElement = document.createElement('main');
+    mainElement.setAttribute('id', 'main-content');
+    mainElement.setAttribute('role', 'main');
+    
+    // Try to find a suitable container to wrap
+    const contentSelectors = ['[role="main"]', '#content', '#app', '.content', '.main-content'];
+    let targetContainer = null;
+    
+    for (const selector of contentSelectors) {
+      targetContainer = document.querySelector(selector);
+      if (targetContainer) break;
+    }
+    
+    if (targetContainer) {
+      // Move all children from target container to main element
+      while (targetContainer.firstChild) {
+        mainElement.appendChild(targetContainer.firstChild);
+      }
+      targetContainer.appendChild(mainElement);
+    } else if (body && body.children.length > 0) {
+      // Insert main as the first child of body
+      body.insertBefore(mainElement, body.firstChild);
+    } else if (body) {
+      body.appendChild(mainElement);
+    }
+    
+    console.warn('Accessibility: Added missing <main> landmark element');
+  } else {
+    // Ensure existing main has proper attributes
+    if (!mainElement.hasAttribute('id')) {
+      mainElement.setAttribute('id', 'main-content');
+    }
+    if (!mainElement.hasAttribute('role')) {
+      mainElement.setAttribute('role', 'main');
+    }
+  }
+  
+  // Add skip link to main content if not exists
+  const skipLink = document.querySelector('a[href="#main-content"], a[href="#main"]');
+  if (!skipLink) {
+    const newSkipLink = document.createElement('a');
+    newSkipLink.href = '#main-content';
+    newSkipLink.textContent = 'Skip to main content';
+    newSkipLink.className = 'sr-only';
+    newSkipLink.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+    newSkipLink.setAttribute('tabindex', '0');
+    document.body.insertBefore(newSkipLink, document.body.firstChild);
+  }
+  
+  return mainElement;
 }
 
 // ... Existing functions and exports ...

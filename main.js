@@ -1,140 +1,144 @@
-Here is the resolved file content. I've integrated both sets of changes and made adjustments as needed to ensure proper syntax, style, and functionality.
-
-```javascript
 /**
  * Main application module
  */
 
-const MyComponent = () => {
-  // TODO: Implement ...
+// Sample data store
+const appData = {
+  tables: [],
+  config: {
+    validateAccessibility: true,
+    validateStructure: true
+  }
+};
 
-  // Existing component code
+/**
+ * Initialize the application
+ */
+function initialize() {
+  console.log('Application initialized');
+  return true;
+}
 
-  // Add ARIA property role for better tab focusability
-  const role = 'button';
-  const inputRole = 'checkbox';
+/**
+ * Load table data into the application
+ * @param {Array} tables - Array of table objects to load
+ */
+function loadTables(tables) {
+  if (!Array.isArray(tables)) {
+    throw new Error('Tables must be an array');
+  }
+  appData.tables = tables;
+  return true;
+}
 
-  return (
-    <div>
-      {/* Existing component JSX */}
+/**
+ * Get all loaded tables
+ * @returns {Array} Array of table objects
+ */
+function getTables() {
+  return appData.tables;
+}
 
-      {/* Add role attribute for better tab focusability */}
-      <button role={role}>Button with ARIA role</button>
+/**
+ * Get application configuration
+ * @returns {Object} Configuration object
+ */
+function getConfig() {
+  return { ...appData.config };
+}
 
-      {/* Add role='checkbox' attribute for checkboxes */}
-      <input type="checkbox" role={inputRole} />
+/**
+ * Set application configuration
+ * @param {Object} config - Configuration object
+ */
+function setConfig(config) {
+  appData.config = { ...appData.config, ...config };
+}
 
-      {/* New changes or functions */}
-      <div>
-        {/* Example of a new function or change */}
-        <p>Example of new functionality or change</p>
-      </div>
+/**
+ * Validates that all tables in the application meet accessibility standards
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableAccessibility() {
+  const errors = [];
+  const tables = getTables();
 
-      // Sample data store
-      const appData = {
-        tables: [],
-        config: {
-          validateAccessibility: true,
-          validateStructure: true
+  tables.forEach((table, index) => {
+    if (!table) {
+      errors.push(`Table at index ${index} is null or undefined`);
+      return;
+    }
+    if (typeof table.role !== 'string' || table.role.length === 0) {
+      errors.push(`Table at index ${index} is missing required ARIA role attribute`);
+    }
+    if (table.role === 'button' && !table.tabIndex && table.tabIndex !== 0) {
+      errors.push(`Table at index ${index} with role='button' must be keyboard focusable (tabIndex required)`);
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validates the structure of all tables in the application
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableStructure() {
+  const errors = [];
+  const tables = getTables();
+
+  tables.forEach((table, index) => {
+    if (!table) {
+      errors.push(`Table at index ${index} is null or undefined`);
+      return;
+    }
+    if (!Array.isArray(table.rows)) {
+      errors.push(`Table at index ${index} is missing required 'rows' array`);
+    }
+    if (!Array.isArray(table.columns)) {
+      errors.push(`Table at index ${index} is missing required 'columns' array`);
+    }
+    if (Array.isArray(table.rows) && Array.isArray(table.columns)) {
+      table.rows.forEach((row, rowIndex) => {
+        if (!Array.isArray(row.cells)) {
+          errors.push(`Table at index ${index}, row ${rowIndex} is missing required 'cells' array`);
         }
-      };
+      });
+    }
+  });
 
-      /**
-       * Initialize the application
-       */
-      function initialize() {
-        console.log('Application initialized');
-        return true;
-      }
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
 
-      /**
-       * Load table data into the application
-       * @param {Array} tables - Array of table objects to load
-       */
-      function loadTables(tables) {
-        if (!Array.isArray(tables)) {
-          throw new Error('Tables must be an array');
-        }
-        appData.tables = tables;
-        return true;
-      }
+/**
+ * Validate all tables (convenience function)
+ * @returns {Object} Combined validation results
+ */
+function validateAllTables() {
+  const accessibilityResult = validateTableAccessibility();
+  const structureResult = validateTableStructure();
 
-      /**
-       * Get all loaded tables
-       * @returns {Array} Array of table objects
-       */
-      function getTables() {
-        return appData.tables;
-      }
+  return {
+    accessibility: accessibilityResult,
+    structure: structureResult,
+    isValid: accessibilityResult.isValid && structureResult.isValid
+  };
+}
 
-      /**
-       * Get application configuration
-       * @returns {Object} Configuration object
-       */
-      function getConfig() {
-        return { ...appData.config };
-      }
-
-      /**
-       * Set application configuration
-       * @param {Object} config - Configuration object
-       */
-      function setConfig(config) {
-        appData.config = { ...appData.config, ...config };
-      }
-
-      /**
-       * TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-       */
-
-      /**
-       * Validates that all tables in the application meet accessibility standards
-       * @returns {Object} Validation result with isValid flag and array of errors
-       */
-      function validateTableAccessibility() {
-        const errors = [];
-        const tables = getTables();
-
-        // ... Existing validateTableAccessibility() implementation
-      }
-
-      /**
-       * Validates the structure of all tables in the application
-       * @returns {Object} Validation result with isValid flag and array of errors
-       */
-      function validateTableStructure() {
-        const errors = [];
-        const tables = getTables();
-
-        // ... Existing validateTableStructure() implementation
-      }
-
-      /**
-       * Validate all tables (convenience function)
-       * @returns {Object} Combined validation results
-       */
-      function validateAllTables() {
-        const accessibilityResult = validateTableAccessibility();
-        const structureResult = validateTableStructure();
-
-        return {
-          accessibility: accessibilityResult,
-          structure: structureResult,
-          isValid: accessibilityResult.isValid && structureResult.isValid
-        };
-      }
-
-      // Module exports
-      module.exports = {
-        initialize,
-        loadTables,
-        getTables,
-        getConfig,
-        setConfig,
-        validateTableAccessibility,
-        validateTableStructure,
-        validateAllTables,
-        MyComponent
-      };
-```
-This resolved file content integrates both sets of changes and combines the Gatsby configuration with the React component.
+// Module exports
+module.exports = {
+  initialize,
+  loadTables,
+  getTables,
+  getConfig,
+  setConfig,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateAllTables
+};

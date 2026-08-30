@@ -63,10 +63,23 @@ function deepClone(obj) {
   return obj;
 }
 
+// New function requested in the issue (Add back any required exports that might have been?)
+// Example: a hypothetical new function
+/**
+ * New function to demonstrate the addition of a new export
+ * @param {number} a - The first number
+ * @param {number} b - The second number
+ * @returns {number} - The sum of a and b
+ */
+function add(a, b) {
+  return a + b;
+}
+
 module.exports = {
   isEmpty,
   capitalize,
   getRandomInt,
   clamp,
-  deepClone
+  deepClone,
+  add // Export the new function
 };

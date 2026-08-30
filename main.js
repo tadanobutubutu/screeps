@@ -8,18 +8,18 @@ import { registerSW } from 'effector-sw';
 import { appStarted } from './events/appStarted.js';
 
 // Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
+const createInPageButton = (options) => {
+  const {
+    onClick,
+    label,
+    icon,
+    disabled = false,
+    isActive = false,
+    hoverState,
+    setHoverState,
+    ariaLabel,
+    title,
+  } = options;
 
   const getBackgroundColor = () => {
     if (disabled) return '#999';

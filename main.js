@@ -174,6 +174,38 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Generates a validation report based on the validation results
+ * @param {Object} validationResults - Results from validateAllTables()
+ * @returns {Object} Report object containing summary and details
+ */
+function generateReport(validationResults) {
+  const report = {
+    summary: {
+      totalTables: getTables().length,
+      isValid: validationResults.isValid,
+      accessibilityValid: validationResults.accessibility.isValid,
+      structureValid: validationResults.structure.isValid,
+      totalErrors: validationResults.accessibility.errors.length + validationResults.structure.errors.length
+    },
+    details: {
+      accessibility: {
+        isValid: validationResults.accessibility.isValid,
+        errorCount: validationResults.accessibility.errors.length,
+        errors: validationResults.accessibility.errors
+      },
+      structure: {
+        isValid: validationResults.structure.isValid,
+        errorCount: validationResults.structure.errors.length,
+        errors: validationResults.structure.errors
+      }
+    },
+    generatedAt: new Date().toISOString()
+  };
+  
+  return report;
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +215,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  generateReport
 };

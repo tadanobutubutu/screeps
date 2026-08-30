@@ -42,23 +42,32 @@ function addressReactAccessibilityIssues(insightReport) {
 // relevant rendering functions.
 
 function wrapPrimaryContentInMain() {
-  const primaryContent = document.getElementById('primary-content');
+  const primaryContent = document.querySelector('primary-content') || document.querySelector('[role="main"]') || document.querySelector('main');
   if (!primaryContent) {
     console.error('Primary content element not found');
     return;
   }
 
   // Wrap the primary content in a main tag if it's not already wrapped
-  const mainTag = primaryContent.closest('main');
+  const mainTag = primaryContent.closest('main') || primaryContent.tagName === 'MAIN';
   if (!mainTag) {
     const mainElement = document.createElement('main');
-    mainElement.appendChild(primaryContent);
     primaryContent.parentNode.insertBefore(mainElement, primaryContent);
+    mainElement.appendChild(primaryContent);
   }
 }
 
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+const dependencyGraphContent = {
+  generate: (options = {}) => {
+    return `<div class="dependency-graph" role="tree" aria-label="dependency graph">${options.content || ''}</div>`;
+  }
+};
+
+const indexContent = {
+  generate: (options = {}) => {
+    return `<div class="index-view" role="main" aria-label="index view">${options.content || ''}</div>`;
+  }
+};
 
 /**
  * Renders a dependency graph view
@@ -67,9 +76,9 @@ const indexContent = require('./indexContent');
  */
 function renderDependencyGraph(options = {}) {
   // Update: Incorporate both changes to generate the content
-  const content = (options.isDependencyGraphNeeded) ? dependencyGraphContent.generate(options) : indexContent.generate(options);
+  const content = options.isDependencyGraphNeeded ? dependencyGraphContent.generate(options) : indexContent.generate(options);
   // Render the dependency graph with the generated content
-  return `<div class="dependency-graph">${content}</div>`;
+  return `<div class="dependency-graph-view" role="region" aria-label="dependency graph view">${content}</div>`;
 }
 
 /**
@@ -81,7 +90,7 @@ function renderIndex(data = {}) {
   // Ensure the index view is rendered when the dependency graph view is not requested
   const content = (data.isDependencyGraphNeeded) ? '' : indexContent.generate(data);
   // Render the index with the generated content
-  return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'}>${content}</div>`;
+  return `<div class="index-view hidden"${(content !== '') ? '' : ' style="display: none;"'} role="main" aria-label="index view">${content}</div>`;
 }
 
 /**
@@ -91,34 +100,74 @@ function renderIndex(data = {}) {
  */
 function renderApp(context) {
   // Update: Conditionally render the index or the dependency graph based on context
-  const viewFunction = (context.isDependencyGraphNeeded) ? renderDependencyGraph : renderIndex;
-  return `<div id="app">${viewFunction(context)}</div>`;
+  const viewFunction = context.isDependencyGraphNeeded ? renderDependencyGraph : renderIndex;
+  return `<div class="app-container" role="application" aria-label="application">${viewFunction(context)}</div>`;
 }
 
 const myNewFunction = () => {
   // Implementation of your new function goes here
   // Example: Log a message for accessibility purposes
-  console.log('myNewFunction has been executed');
+  console.log('Accessibility function has been executed');
 };
 
 function validateTableAccessibility(table, i) {
     // Check if the table has a valid structure and add accessible properties to its rows and cells
-    // ...
+    if (!table || !table.rows) {
+        return { valid: false, error: 'Invalid table structure' };
+    }
+    
+    // Add accessible properties
+    table.setAttribute('role', 'table');
+    table.setAttribute('aria-label', `Table ${i}`);
+    
+    // Validate headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach((header, index) => {
+        header.setAttribute('scope', 'col');
+        header.setAttribute('role', 'columnheader');
+    });
+    
+    // Add accessible properties to cells
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+        row.setAttribute('role', 'row');
+        const cells = row.querySelectorAll('td, th');
+        cells.forEach(cell => {
+            cell.setAttribute('role', 'cell');
+        });
+    });
+    
     // Return the validated table or an error message
+    return { valid: true, table: table };
 }
 
 function validateTableStructure(table) {
     // Validate the structure of the table and return a message if it's invalid
-    // ...
+    if (!table) {
+        return false;
+    }
+    
+    // Check if table has rows
+    if (!table.rows || table.rows.length === 0) {
+        return false;
+    }
+    
+    // Check if first row contains th elements for headers
+    const firstRow = table.rows[0];
+    const hasHeaders = firstRow && firstRow.querySelectorAll('th').length > 0;
+    
     // Return true if the table structure is valid, false otherwise
+    return hasHeaders;
 }
 
-const myNewTableAccessibilityFunction = (table, i) => {
+const processTableAccessibility = (table, i) => {
   // The implementation of the new function to validate table accessibility goes here
+  return validateTableAccessibility(table, i);
 };
 
-const myNewTableStructureFunction = table => {
+const checkTableStructure = table => {
   // The implementation of the new function to validate table structure goes here
+  return validateTableStructure(table);
 };
 
 // Function to ensure unique landmarks - addresses accessibility by preventing duplicate landmark identifiers
@@ -153,6 +202,7 @@ const utilityFunction = () => {
 
 const formatData = (data) => {
   // Formatting logic
+  return data;
 };
 
 // Ensure all desired exports are included
@@ -162,8 +212,8 @@ module.exports = {
   renderApp,
   wrapPrimaryContentInMain,
   myNewFunction,
-  validateTableAccessibility: myNewTableAccessibilityFunction,
-  validateTableStructure: myNewTableStructureFunction,
+  validateTableAccessibility,
+  validateTableStructure,
   ensureUniqueLandmarks,
   addressAccessibilityIssues,
   addressReactAccessibilityIssues,

@@ -1,13 +1,6 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
 const fs = require('fs');
 const path = require('path');
@@ -41,12 +34,13 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
+    let html = '<!DOCTYPE html>';
+    html += '<html><head><title>Dependency Index</title></head><body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version}</li>`;
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
     }
     
     html += '</ul></body></html>';
@@ -54,10 +48,39 @@ function renderIndexView(packages) {
 }
 
 /**
+ * Checks if a link/URL is accessible
+ * @param {string} url - The URL to check
+ * @returns {Promise<boolean>} - True if accessible, false otherwise
+ */
+async function isLinkAccessible(url) {
+    if (!url || typeof url !== 'string') {
+        return false;
+    }
+    
+    try {
+        const urlObj = new URL(url);
+        
+        // Only check http and https protocols
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+            return false;
+        }
+        
+        const response = await fetch(url, {
+            method: 'HEAD',
+            redirect: 'follow'
+        });
+        
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
+/**
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
@@ -69,5 +92,6 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
+    isLinkAccessible,
     main
 };

@@ -80,6 +80,54 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// REACT_015: Helper to provide the lang attribute for the HTML element.
+// Returns an object containing props to spread onto the root <html> element.
+function getRootHtmlAccessibilityProps(lang = 'en') {
+  return { lang };
+}
+
+// REACT_017 / REACT_025: Helper to build landmark region props with a unique
+// label so each landmark has a distinct accessible name (fixes duplicate
+// landmarks and ensures proper landmark roles are used).
+function getLandmarkProps(role, label, id) {
+  const props = {
+    role,
+    'aria-label': label,
+  };
+  if (id) {
+    props.id = id;
+  }
+  return props;
+}
+
+// REACT_041: Helper to return props that provide an accessible name for an
+// <svg> element (via aria-label) so screen readers can announce it.
+function getSvgAccessibilityProps(label, labelledById) {
+  const props = {
+    role: 'img',
+    focusable: 'false',
+  };
+  if (label) {
+    props['aria-label'] = label;
+  } else if (labelledById) {
+    props['aria-labelledby'] = labelledById;
+  } else {
+    // Fallback so the SVG is still considered decorative but explicitly marked.
+    props['aria-hidden'] = 'true';
+  }
+  return props;
+}
+
+// REACT_036: Helper that returns props for converting a non-semantic element
+// that is being used as a link into a real, accessible anchor.
+function getAccessibleLinkProps(href, label) {
+  return {
+    href,
+    role: 'link',
+    'aria-label': label,
+  };
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(sortByTitle);

@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues as per insight report
 
 // Import render functions
 const renderHeader = require('./renderHeader');

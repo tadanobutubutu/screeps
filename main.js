@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// Addressed accessibility issues as per insight report
 
 // New utility function to create a web resource button suitable for accessibility
 function createAccessibleWebResourceButton(url, text) {

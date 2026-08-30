@@ -15,6 +15,9 @@ import { List } from 'antd';
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
 
+// Get the dispatch function
+const dispatch = useDispatch();
+
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
@@ -27,7 +30,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return ...
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -36,14 +39,14 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
 }
 
-// Function to create a new book entry in the Redux store
-function addBook(book) {
+// Export the addBook function
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -54,8 +57,58 @@ function addBook(book) {
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // ...
 
-// Accessibility functions
+// Export necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, AddBookForm, onTitleSort, onAuthorSort };
 
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  const sortedList = [...getBooksList].sort(sortByTitle);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  const sortedList = [...getBooksList].sort(sortByAuthor);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// Render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(defaultSorting);
+
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      onTitleSort();
+    } else if (sorting === sortByAuthor) {
+      onAuthorSort();
+    }
+  }, [sorting]);
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = getBooksList.map(BookItem);
+
+  // Render the list of book items and sorting controls
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List dataSource={getBooksList} renderItem={BookItem} />
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
+    </div>
+  );
+}
+
+// Export the Main component
+export default Main;
+
+// Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 // REACT_015: Get lang attribute for HTML element
 function getLangAttribute(element) {
   // Return the lang attribute value from the element
@@ -191,7 +244,91 @@ function getSvgAccessibleName(svgElement) {
 }
 
 // REACT_041: Set SVG attributes for accessibility
-function setSvgAttributes(svgElement, accessibleName) {
+function setSvgAttributes(svg, options = {}) {
+  const { label, role = 'img', description = '' } = options;
+  
+  // Set the role attribute
+  svg.setAttribute('role', role);
+  
+  // Get or set the accessible name
+  const accessibleName = label || getSvgAccessibleName(svg);
+  svg.setAttribute('aria-label', accessibleName);
+  
+  // If there's a description, add it as aria-describedby
+  if (description) {
+    // Create a hidden description element
+    const id = `svg-desc-${Math.random().toString(36).substr(2, 9)}`;
+    const descElement = document.createElement('span');
+    descElement.id = id;
+    descElement.textContent = description;
+    descElement.style.display = 'none';
+    svg.appendChild(descElement);
+    svg.setAttribute('aria-describedby', id);
+  }
+  
+  // If there's a title element, ensure it has an ID linked to aria-labelledby
+  const titleElement = svg.querySelector('title');
+  if (titleElement && !titleElement.id) {
+    const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+    titleElement.id = titleId;
+    svg.setAttribute('aria-labelledby', titleId);
+    svg.removeAttribute('aria-label');
+  }
+  
+  return svg;
+}
+
+// Function to handle adding a new book with accessibility improvements
+function handleAddBook(values) {
+  return addBook({
+    id: Date.now(), // Generate a unique id using current timestamp
+    title: values.title,
+    author: values.author,
+  });
+}
+
+function processLandmarks(landmarks) {
+  // Process landmarks for accessibility
+  const errors = validateLandmarkStructure(landmarks);
+  if (errors.length > 0) {
+    console.warn('Landmark structure issues found:', errors);
+  }
+  return landmarks;
+}
+
+// Line 129 preserved content from issue
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAccessibilityProps())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// Line 129 preserved content from issue
+// TODO: This is the existing code that needs to be preserved
+
+function addLandmarks(landmarks) {
+  processLandmarks(landmarks);
+}
+
+function getUniqueLandmarkName(baseName, existingNames) {
+  if (!existingNames.includes(baseName)) {
+    return baseName;
+  }
+  let counter = 2;
+  let newName = `${baseName} ${counter}`;
+  while (existingNames.includes(newName)) {
+    counter++;
+    newName = `${baseName} ${counter}`;
+  }
+  return newName;
+}
+
+// REACT_041: Set SVG attributes for accessibility (exported as getSvgAccessibleName for compatibility)
+function setSvgAccessibleName(svgElement, accessibleName) {
   if (!svgElement) return;
   
   // Remove any existing aria attributes
@@ -265,14 +402,14 @@ const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = ...
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
@@ -291,14 +428,14 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = getBooksList.map(BookItem);
 
   // Render the list of book items and sorting controls
   return (
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+      <List dataSource={getBooksList} renderItem={BookItem} />
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </div>
@@ -307,3 +444,29 @@ function Main() {
 
 // Export the Main component
 export default Main;
+
+// Export necessary functions for use in other modules
+export {
+  sortByTitle,
+  sortByAuthor,
+  generateKey,
+  BookItem,
+  addBook,
+  onTitleSort,
+  onAuthorSort,
+  getLangAttribute,
+  validateLandmark,
+  validateLandmarkStructure,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  handleAddBook,
+  addLandmarks,
+  getUniqueLandmarkName,
+  setSvgAccessibleName,
+  processLandmarks
+};

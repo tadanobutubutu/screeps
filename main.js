@@ -9,8 +9,6 @@
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
-// - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 4 landmark issues
 // - REACT_025: Ensure unique landmarks
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_036: Fix 1 fake link issue
@@ -40,12 +38,18 @@ function addLangAttribute(element, lang) {
   return false;
 }
 
-function validateTableAccessibility() {
-  // Code for validating table accessibility
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = !!table.querySelector('caption');
+  const hasTh = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasTh;
 }
 
-function validateTableStructure() {
-  // Code for validating table structure
+function validateTableStructure(table) {
+  if (!table) return false;
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  return !!(thead && tbody);
 }
 
 function fixTableStructure() {
@@ -96,7 +100,6 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-// Updated addressAccessibilityIssues with the implementation from origin/main
 function addressAccessibilityIssues(insightReport) {
   // Mock implementation of the function to address accessibility issues
   // This should be replaced with actual logic based on the insight report structure

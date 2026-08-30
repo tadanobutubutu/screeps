@@ -9,11 +9,12 @@
 const accessibilityUtils = {
   // Initialize skip link functionality for keyboard navigation
   initSkipLink: () => {
-    const skipLink = document.querySelector('.skip-link');
+    const skipLink = document.getElementById('skip-link') || document.querySelector('.skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.querySelector(skipLink.getAttribute('href'));
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -33,11 +34,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -70,7 +71,7 @@ const accessibilityUtils = {
 
 const ensureElementId = (element) => {
   if (element && !element.id) {
-    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    element.id = 'elem-' + Math.random().toString(36).substr(2, 9);
   }
   return element;
 };
@@ -100,6 +101,71 @@ const renderDependencyGraph = (data) => {
 // - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+
+// Validate landmark elements for accessibility
+const validateLandmark = (element, expectedRole) => {
+  if (!element) return { valid: false, message: 'Element is null or undefined' };
+  const role = element.getAttribute('role');
+  if (role !== expectedRole) {
+    return { valid: false, message: `Expected role "${expectedRole}", found "${role}"` };
+  }
+  return { valid: true };
+};
+
+// Validate landmark structure
+const validateLandmarkStructure = (document) => {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const landmarkIds = new Set();
+  const issues = [];
+  
+  landmarks.forEach(landmark => {
+    const id = landmark.id;
+    if (id) {
+      if (landmarkIds.has(id)) {
+        issues.push({ type: 'duplicate-landmark-id', id, element: landmark });
+      }
+      landmarkIds.add(id);
+    }
+  });
+  
+  return { valid: issues.length === 0, issues };
+};
+
+// Ensure unique landmark ARIA labels
+const ensureUniqueLandmarkLabels = (document) => {
+  const landmarks = document.querySelectorAll('nav, header, footer, aside, main, [role="navigation"], [role="banner"], [role="main"], [role="contentinfo"], [role="complementary"]');
+  const labelMap = new Map();
+  const duplicates = [];
+  
+  landmarks.forEach(landmark => {
+    const label = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+    if (label && labelMap.has(label)) {
+      duplicates.push({ label, element: landmark });
+    } else {
+      labelMap.set(label, landmark);
+    }
+  });
+  
+  // Assign unique labels to duplicates
+  duplicates.forEach((dup, index) => {
+    const uniqueLabel = `${dup.label}-${index + 1}`;
+    dup.element.setAttribute('aria-label', uniqueLabel);
+  });
+  
+  return duplicates;
+};
+
+// Get landmark accessibility information
+const getLandmarkAccessibilityInfo = (document) => {
+  const landmarks = document.querySelectorAll('[role], nav, header, footer, aside, main');
+  return Array.from(landmarks).map(el => ({
+    tag: el.tagName.toLowerCase(),
+    role: el.getAttribute('role'),
+    ariaLabel: el.getAttribute('aria-label'),
+    ariaLabelledby: el.getAttribute('aria-labelledby'),
+    id: el.id
+  }));
+};
 
 function newFocusTrap() {
   // New function implementation
@@ -133,7 +199,10 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  const logMessage = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+  if (typeof console !== 'undefined') {
+    console.log(logMessage);
+  }
 }
 
 // Export functionality with accessibility support
@@ -180,11 +249,12 @@ const exportUtils = {
 };
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  return filename.replace(/[^a-z0-9.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
   try {
+    const fs = require('fs');
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     log(`Error reading file ${filePath}: ${error.message}`, 'error');
@@ -219,7 +289,7 @@ const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
   
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
+  document.querySelectorAll('button, a, [role="button"]').forEach(element => {
     element.addEventListener('keydown', (e) => {
       accessibilityUtils.handleKeyboardNav(e, {
         Enter: () => element.click(),
@@ -265,25 +335,20 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
-}
-
-// Initialize on DOM ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAccessibility);
-  } else {
-    initAccessibility();
+  
+  if (typeof inputData === 'string') {
+    let result = inputData;
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+    if (uppercase) {
+      result = result.toUpperCase();
+    }
+    if (maxLength && result.length > maxLength) {
+      result = result.substring(0, maxLength);
+    }
+    return result;
   }
-}
-
-// Export all utilities
-module.exports = {
-  accessibilityUtils,
-  exportUtils,
-  initAccessibility,
-  handleCredentialResponse,
-  ensureElementId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum
-};
+  
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => transformInputData(item,

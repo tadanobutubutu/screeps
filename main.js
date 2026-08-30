@@ -55,7 +55,50 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+// // // TODO: Implement CLI logic
+
+/**
+ * Parse command-line arguments and execute appropriate commands
+ * @param {Array} args - Command-line arguments (excluding node and script path)
+ */
+function cli(args) {
+  if (args.length < 2) {
+    console.log('Usage: node main.js <command> [options]');
+    console.log('');
+    console.log('Commands:');
+    console.log('  validate              Validate all tables');
+    console.log('  validate --accessibility  Validate accessibility only');
+    console.log('  validate --structure Validate structure only');
+    console.log('');
+    console.log('Examples:');
+    console.log('  node main.js validate');
+    console.log('  node main.js validate --accessibility');
+    console.log('  node main.js validate --structure');
+    return;
+  }
+
+  const command = args[0];
+  const options = args.slice(1);
+
+  if (command === 'validate') {
+    if (options.includes('--accessibility')) {
+      const result = validateTableAccessibility();
+      console.log(JSON.stringify(result, null, 2));
+    } else if (options.includes('--structure')) {
+      const result = validateTableStructure();
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      const result = validateAllTables();
+      console.log(JSON.stringify(result, null, 2));
+    }
+  } else {
+    console.log(`Unknown command: ${command}`);
+    console.log('Run with no arguments to see usage information.');
+  }
+}
+
+// Export CLI for external use
+module.exports.cli = cli;
 
 /**
  * Validates that all tables in the application meet accessibility standards

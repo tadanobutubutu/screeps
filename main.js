@@ -100,6 +100,36 @@ export function validateFocusableElement(element) {
   return isFocusable && !element.hasAttribute('disabled');
 }
 
+/**
+ * Validate the table structure for accessibility issues
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the table structure is accessible, false otherwise
+ */
+export function validateTableAccessibility(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return false;
+  }
+  return validateTableStructure(table);
+}
+
+/**
+ * Check the internal structure of a table for accessibility compliance
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {boolean} True if the structure is valid, false otherwise
+ */
+export function validateTableStructure(table) {
+  if (!table || table.tagName !== 'TABLE') {
+    return false;
+  }
+  const hasCaption = table.querySelector('caption') !== null;
+  const headers = table.querySelectorAll('th');
+  const hasHeaders = headers.length > 0;
+  const validHeaders = Array.from(headers).every(th => th.hasAttribute('scope') || th.hasAttribute('headers'));
+  const hasRowGroups = table.querySelector('thead') !== null || table.querySelector('tbody') !== null;
+
+  return hasCaption && hasHeaders && validHeaders && hasRowGroups;
+}
+
 // Default export for backwards compatibility
 export default {
   calculateSum,

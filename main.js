@@ -100,6 +100,41 @@ function countDependencies(dependencies) {
  * @param {boolean} isLast - Whether this is the last item at current level
  * @returns {string} ASCII representation of the dependency graph
  */
+function renderDependencyGraphLocal(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
+  }
+  
+  const currentPrefix = prefix;
+  const connector = isLast ? '└── ' : '├── ';
+  const childPrefix = prefix + (isLast ? '    ' : '│   ');
+  
+  let result = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastKey = index === keys.length - 1;
+    const value = dependencies[key];
+    
+    result += currentPrefix + connector + key;
+    
+    if (typeof value === 'object' && value !== null) {
+      result += '\n' + renderDependencyGraphLocal(value, childPrefix, isLastKey);
+    } else {
+      result += ': ' + value + '\n';
+    }
+  });
+  
+  return result;
+}
+
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
 function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
   if (!dependencies || typeof dependencies !== 'object') {
     return '';
@@ -517,8 +552,23 @@ function displayModuleStructure(modules) {
  * Generates a dependency report for debugging
  */
 function generateDependencyReport(dependencies) {
+  let totalDependencies = 0;
+  
+  function countDeps(obj) {
+    if (!obj || typeof obj !== 'object') return;
+    const keys = Object.keys(obj);
+    totalDependencies += keys.length;
+    keys.forEach(key => {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        countDeps(obj[key]);
+      }
+    });
+  }
+  
+  countDeps(dependencies);
+  
   return {
-    totalDependencies: countDependencies(dependencies),
+    totalDependencies: totalDependencies,
     maxDepth: getDependencyDepth(dependencies),
     graph: renderDependencyGraph(dependencies)
   };
@@ -527,6 +577,29 @@ function generateDependencyReport(dependencies) {
 // Additional exports requested
 function calculateSum(a, b) {
   return a + b;
+}
+
+function getDependencyDepth(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let maxDepth = 0;
+  
+  function calculateDepth(obj, depth) {
+    if (depth > maxDepth) {
+      maxDepth = depth;
+    }
+    
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        calculateDepth(obj[key], depth + 1);
+      }
+    }
+  }
+  
+  calculateDepth(dependencies, 0);
+  return maxDepth;
 }
 
 module.exports = {
@@ -553,5 +626,5 @@ module.exports = {
 
 // Run if executed directly
 if (require.main === module) {
-  main();
+  main.init();
 }

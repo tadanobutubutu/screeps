@@ -276,6 +276,48 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// New function: validateTableAccessibility
+function validateTableAccessibility(tableElement) {
+  const issues = [];
+
+  if (!tableElement || tableElement.tagName.toLowerCase() !== 'table') {
+    issues.push('Element is not a TABLE element');
+    return issues;
+  }
+
+  // Check for presence of <caption> (accessibility best practice for table description)
+  const caption = tableElement.querySelector('caption');
+  if (!caption || !caption.textContent.trim()) {
+    issues.push('TABLE is missing a descriptive caption');
+  }
+
+  // Check that all rows have consistent number of cells
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  let expectedCellCount = null;
+
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.children).filter(
+      child => ['TH', 'TD'].includes(child.tagName.toUpperCase())
+    );
+
+    if (expectedCellCount === null && cells.length > 0) {
+      expectedCellCount = cells.length;
+    }
+
+    if (expectedCellCount !== null && cells.length !== expectedCellCount) {
+      issues.push(`Row ${rowIndex + 1} has inconsistent number of cells`);
+    }
+  });
+
+  // Check that TH elements exist (header row/column should be marked)
+  const thCells = tableElement.querySelectorAll('th');
+  if (thCells.length === 0) {
+    issues.push('TABLE has no header cells (TH) defined');
+  }
+
+  return issues;
+}
+
 // Export all utilities
 module.exports = {
   accessibilityUtils,
@@ -285,5 +327,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  validateTableAccessibility
 };

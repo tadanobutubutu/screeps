@@ -114,9 +114,60 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+// Harvest and upgrade logic
+/**
+ * Harvests a resource by a specified amount.
+ * @param {string} resource - The name/type of the resource to harvest.
+ * @param {number} amount - The amount of resource to harvest (default: 1).
+ * @returns {Object|null} Returns an object with resource details and timestamp, or null if invalid.
+ */
+function harvestResource(resource, amount = 1) {
+  if (!resource || typeof resource !== 'string') {
+    console.error('harvestResource: Invalid resource provided');
+    return null;
+  }
+
+  if (typeof amount !== 'number' || amount <= 0) {
+    console.error('harvestResource: Amount must be a positive number');
+    return null;
+  }
+
+  return {
+    resource,
+    amount,
+    timestamp: Date.now()
+  };
+}
+
+/**
+ * Upgrades an item to a specified level.
+ * @param {Object} item - The item object to upgrade.
+ * @param {number} level - The number of levels to upgrade (default: 1).
+ * @returns {Object|null} Returns the upgraded item with new level and timestamp, or null if invalid.
+ */
+function upgradeItem(item, level = 1) {
+  if (!item || typeof item !== 'object') {
+    console.error('upgradeItem: Invalid item provided');
+    return null;
+  }
+
+  if (typeof level !== 'number' || level <= 0) {
+    console.error('upgradeItem: Level must be a positive number');
+    return null;
+  }
+
+  return {
+    ...item,
+    level: (item.level || 0) + level,
+    upgradedAt: Date.now()
+  };
+}
+
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  harvestResource,
+  upgradeItem
 };

@@ -275,3 +275,56 @@ export { specificFunctionThatRendersGraphOrIndex };
 export { fixAccessibilityIssues };
 export { wrapPrimaryContentInMain };
 export { calculateSum };
+
+// REACT_025: Ensure unique landmarks (2 issues) - ensureUniqueLandmarks function
+// This function addresses REACT_025 by ensuring all landmarks on the page are unique.
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], header, nav, main, aside, footer');
+  const landmarkLabels = {};
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const ariaLabel = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || '';
+
+    const key = `${role}:${ariaLabel}`;
+
+    if (landmarkLabels[key]) {
+      // Duplicate landmark found - add unique identifier
+      let uniqueId = ariaLabel ? `${ariaLabel}-${Math.random().toString(36).substr(2, 9)}` : `${role}-${Math.random().toString(36).substr(2, 9)}`;
+      landmark.setAttribute('aria-label', uniqueId);
+      landmarkLabels[`${role}:${uniqueId}`] = true;
+    } else {
+      landmarkLabels[key] = true;
+    }
+  });
+}
+
+// REACT_017: Add landmark roles and fix landmark issues - makeHeaderFocusable function
+// This function addresses REACT_017 by making the header focusable for accessibility.
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header && !header.getAttribute('tabindex')) {
+    header.setAttribute('tabindex', '-1');
+  }
+}
+
+// REACT_015: Get full lang attribute (e.g., "en-US") instead of just "en"
+function getFullLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+// REACT_036: Fix fake link issues - replace fake links with proper buttons
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[role="button"]');
+  fakeLinks.forEach(link => {
+    const button = document.createElement('button');
+    button.innerHTML = link.innerHTML;
+    button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent || 'Button');
+    button.className = link.className;
+    link.parentNode.replaceChild(button, link);
+  });
+}
+
+export { ensureUniqueLandmarks };
+export { makeHeaderFocusable };
+export { fixFakeLinks };

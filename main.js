@@ -80,7 +80,7 @@ function Main() {
 
   // Render the list of book items and sorting controls
   return (
-    <div>
+    <div lang="en">
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />

@@ -605,7 +605,3 @@ module.exports = {
   detectAndSetLang,
   convertAnchorsToButtons
 };
-
-export { a11yStore };
-export { addressAccessibilityIssues };
-export default a11yStore;

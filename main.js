@@ -1,3 +1,4 @@
+// TODO: This is the existing code that needs to be preserved
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -184,13 +185,13 @@ function fixFakeLinkIssues() {
   clickableElements.forEach((element, index) => {
     const tagName = element.tagName.toLowerCase();
     const hasHref = element.getAttribute('href');
-    const hasOnClick = element.hasAttribute('onclick');
+    const hasOnClick = element.getAttribute('onclick') !== null;
     
     // Check if element looks like a link (has cursor pointer, styled as link, etc.)
     const computedStyle = window.getComputedStyle(element);
     const isClickable = computedStyle.cursor === 'pointer' || 
                         element.classList.contains('link') ||
-                        element.classList.contains('btn-link');
+                        computedStyle.textDecoration === 'underline';
     
     if (isClickable && !hasHref && hasOnClick) {
       // Check if it's in a navigation context
@@ -272,7 +273,7 @@ function addressAccessibilityIssues() {
   if (allIssues.length > 0) {
     console.group('Accessibility Issues Found:');
     allIssues.forEach(issue => {
-      console.warn(`[${issue.type}] ${issue.message}`);
+      console.warn(`${issue.type}: ${issue.message}`);
       if (issue.suggestion) {
         console.info(`Suggestion: ${issue.suggestion}`);
       }

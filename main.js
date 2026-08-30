@@ -105,6 +105,39 @@ function newFocusTrap() {
   // New function implementation
 }
 
+const VERSION = '1.0.0';
+
+function hello() {
+  return 'Hello, World!';
+}
+
+function goodbye() {
+  return 'Goodbye!';
+}
+
+class Greeter {
+  constructor(greeting = 'Hello') {
+    this.greeting = greeting;
+  }
+  
+  greet(name) {
+    return `${this.greeting}, ${name}!`;
+  }
+}
+
+function getVersion() {
+  return VERSION;
+}
+
+function capitalize(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function reverseString(str) {
+  return str.split('').reverse().join('');
+}
+
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
@@ -292,6 +325,14 @@ if (typeof document !== 'undefined') {
 
 // Export all utilities
 module.exports = {
+  VERSION,
+  hello,
+  goodbye,
+  Greeter,
+  getVersion,
+  capitalize,
+  reverseString,
+  calculateSum,
   accessibilityUtils,
   exportUtils,
   initAccessibility,
@@ -299,6 +340,5 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum,
   function3
 };

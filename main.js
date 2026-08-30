@@ -71,6 +71,31 @@ export function fixTableStructureIssues(document) {
   return tables.length;
 }
 
+/**
+ * Removes duplicate aria-label attributes from elements within a container
+ * Ensures unique accessible names by keeping only the first occurrence
+ * @param {Document|HTMLElement} document - The document or container element to process
+ * @returns {number} - Number of elements with removed duplicate aria-labels
+ */
+export function function3(document) {
+  const elements = document.querySelectorAll('[aria-label]');
+  const labels = new Map();
+  let removedCount = 0;
+
+  elements.forEach(element => {
+    const label = element.getAttribute('aria-label');
+    
+    if (labels.has(label)) {
+      element.removeAttribute('aria-label');
+      removedCount++;
+    } else {
+      labels.set(label, element);
+    }
+  });
+
+  return removedCount;
+}
+
 export function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

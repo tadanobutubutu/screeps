@@ -90,6 +90,12 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return dependencies.length;
+}
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);

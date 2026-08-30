@@ -4,6 +4,60 @@ import { dependencyGraphContent, indexContent } from './content';
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
+/**
+ * Creates an in-page button element with proper accessibility attributes
+ * @param {string} text - Button text/label
+ * @param {Function} onClick - Click event handler
+ * @param {Object} [options={}] - Additional button options
+ * @param {string} [options.type='button'] - Button type ('button', 'submit', 'reset')
+ * @param {string} [options.className] - CSS class name(s) for styling
+ * @param {string} [options.id] - Button ID attribute
+ * @param {boolean} [options.disabled=false] - Whether button is initially disabled
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(text, onClick, options = {}) {
+  const button = document.createElement('button');
+  
+  // Set button type (default to 'button')
+  button.type = options.type || 'button';
+  
+  // Set button text/label
+  button.textContent = text;
+  
+  // Set click handler
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // Set CSS class if provided
+  if (options.className) {
+    button.className = options.className;
+  }
+  
+  // Set ID if provided
+  if (options.id) {
+    button.id = options.id;
+  }
+  
+  // Set disabled state if provided
+  if (options.disabled) {
+    button.disabled = true;
+  }
+  
+  // Add accessibility attributes
+  button.setAttribute('aria-label', options['aria-label'] || text);
+  
+  // Ensure keyboard accessibility
+  button.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      button.click();
+    }
+  });
+  
+  return button;
+}
+
 // Assuming this is what your main.js might look like before the implementation
 // You'll need to integrate this with your actual main.js content
 
@@ -144,5 +198,6 @@ export {
   renderDependencyGraph,
   renderDependencyTree,
   renderDependencyList,
-  displayModuleStructure
+  displayModuleStructure,
+  createInPageButton
 };

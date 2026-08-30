@@ -41,7 +41,7 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
+    let html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Dependency Index</title></head><body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
@@ -57,7 +57,7 @@ function renderIndexView(packages) {
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});

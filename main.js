@@ -111,9 +111,9 @@ function displayModuleStructure(modules) {
   let result = 'Module Structure:\n';
   result += `Total modules: ${Object.keys(modules).length}\n\n`;
   
-  Object.keys(modules).forEach((moduleName, index) => {
-    const module = modules[moduleName];
-    result += `${index + 1}. Module: ${moduleName}\n`;
+  Object.entries(modules).forEach(([moduleName, module]) => {
+    const moduleIndex = Object.keys(modules).indexOf(moduleName) + 1;
+    result += `${moduleIndex}. Module: ${moduleName}\n`;
     
     if (module.description) {
       result += `   Description: ${module.description}\n`;

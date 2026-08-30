@@ -1,5 +1,8 @@
 const { greeting } = require('./utils');
 const path = require('path');
+
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
 const fs = require('fs');
 
 // Import and re-export someFunction from './utils'
@@ -411,6 +414,21 @@ function getAllTables() {
 function getFullLangAttribute(el) {
     const element = typeof el === 'string' ? document.querySelector(el) : (el || (typeof document !== 'undefined' ? document.documentElement : null));
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
+}
+
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('lang', lang || 'en');
+    }
+}
+
+function detectAndSetLang() {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        const lang = document.documentElement.getAttribute('lang') || document.documentElement.lang || (typeof navigator !== 'undefined' ? navigator.language : null) || 'en';
+        document.documentElement.setAttribute('lang', lang);
+        return lang;
+    }
+    return 'en';
 }
 
 module.exports = {

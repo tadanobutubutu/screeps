@@ -3,27 +3,6 @@ const main = () => {
   const langAttr = getFullLangAttribute();
   const primaryContent = document.querySelector('main') || document.querySelector('[role="main"]') || document.body;
 
-  // Accessibility functions
-  const dependencyGraphContent = '';
-  const indexContent = '';
-
-  // Import custom functions for ensuring element IDs, adding aria-label, and rendering dependency graphs
-  import { createInPageButton, setSvgAttributes, addAriaLabel, ensureElementId } from './utils/accessibilityUtils';
-  import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-  import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
-  import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-  import { formatProductName, renderProductList, calculateTotalPrice, renderCart, validateAndRender, renderPage } from './utils/productUtils';
-  import { spawn } from './utils/spawnUtils';
-  import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
-
-  import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils';
-  import { renderHeader, renderFooter, renderProductCard } from './components';
-  import { state, updateState } from './state';
-
-  // ... (Removed duplicate import statements)
-
-  // ... (Imported utility functions placed after accessibility functions)
-
   // DOM-based accessibility code
   // Add lang attribute to HTML element
   document.documentElement.setAttribute('lang', langAttr);
@@ -97,144 +76,138 @@ const main = () => {
       googleButton.setAttribute('role', 'button');
     }
   });
-
-  // Google sign-in accessibility
-  function googleSignIn() {
-    const googleButton = document.querySelector('[data-google-signin]');
-    if (googleButton) {
-      addAriaLabel(googleButton, 'Sign in with Google');
-      googleButton.setAttribute('role', 'button');
-    }
-  }
-
-  // New function to render dependency graphs or display module structure
-  function renderDependencyGraph(module) {
-    console.log('Rendering dependency graph for:', module);
-    return {
-      module: module,
-      dependencies: [],
-      rendered: true
-    };
-  }
-
-  // New function to display module structure
-  function displayModuleStructure(module) {
-    console.log('Displaying module structure for:', module);
-    return {
-      module: module,
-      structure: {},
-      displayed: true
-    };
-  }
-
-  // New function to check link accessibility
-  function checkLinkAccessibility() {
-    const links = document.querySelectorAll('a');
-    const results = [];
-
-    links.forEach((link, index) => {
-      const hasText = link.textContent.trim().length > 0;
-      const hasAriaLabel = link.hasAttribute('aria-label');
-      const hasTitle = link.hasAttribute('title');
-
-      results.push({
-        index: index,
-        href: link.href,
-        accessible: hasText || hasAriaLabel || hasTitle
-      });
-    });
-
-    return results;
-  }
-
-  // State management
-  const state = {
-    currentModule: null,
-    dependencyGraph: null,
-    moduleStructure: null
-  };
-
-  // Placeholder for dependency graph content
-  const dependencyGraphContent = {};
-
-  // Placeholder for index content
-  const indexContent = {};
-
-  // TODO: add the new functions or changes requested in the issue
-  // Here's a sample implementation for a new function named 'myNewFunction'
-  const myNewFunction = () => {
-    console.log('Executing custom function for rendering graph/index');
-  };
-
-  // Implement updateView using render dependency graph and display module structure functions
-  const updateView = (viewType) => {
-    if (viewType === 'graph') {
-      const dependencyGraphData = renderDependencyGraph(state.currentModule);
-      // ... (assuming you have a renderer for dependency graphs)
-    } else if (viewType === 'index') {
-      const moduleStructureData = displayModuleStructure(state.currentModule);
-      // ... (assuming you have a renderer for module structures)
-    }
-  };
-
-  // Export custom UI/product functions
-  export {
-    createInPageButton,
-    setSvgAttributes,
-    addAriaLabel,
-    ensureElementId,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    formatCurrency,
-    formatDate,
-    calculateDiscount,
-    validateInput,
-    renderHeader,
-    renderFooter,
-    renderProductCard,
-    state,
-    updateState,
-    personName,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    formatCurrency,
-    formatDate,
-    calculateDiscount,
-    validateInput,
-    renderHeader,
-    renderFooter,
-    renderProductCard,
-    calculateSum,
-    newFunction,
-    updateView,
-    checkLinkAccessibility,
-    spawn,
-    renderProductList,
-    calculateTotalPrice,
-    renderCart,
-    validateAndRender,
-    renderPage,
-    googleSignIn,
-    myNewFunction,
-    checkTableAccessibility
-  };
-
-  // Export utility functions
-  export {
-    getFullLangAttribute,
-    getLangAttribute,
-    renderDependencyGraph,
-    displayModuleStructure,
-    formatProductName
-  };
 };
+
+// Google sign-in accessibility
+function googleSignIn() {
+  const googleButton = document.querySelector('[data-google-signin]');
+  if (googleButton) {
+    addAriaLabel(googleButton, 'Sign in with Google');
+    googleButton.setAttribute('role', 'button');
+  }
+}
+
+// New function to render dependency graphs or display module structure
+function renderDependencyGraph(module) {
+  console.log('Rendering dependency graph for:', module);
+  return {
+    module: module,
+    dependencies: [],
+    rendered: true
+  };
+}
+
+// New function to display module structure
+function displayModuleStructure(module) {
+  console.log('Displaying module structure for:', module);
+  return {
+    module: module,
+    structure: {},
+    displayed: true
+  };
+}
+
+/**
+ * Checks link accessibility.
+ * @returns {Array<Object>} Array of link accessibility results
+ */
+function checkLinkAccessibility() {
+  const links = document.querySelectorAll('a');
+  const results = [];
+
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.hasAttribute('aria-label');
+    const hasTitle = link.hasAttribute('title');
+
+    results.push({
+      index: index,
+      href: link.href,
+      accessible: hasText || hasAriaLabel || hasTitle
+    });
+  });
+
+  return results;
+}
+
+// State management
+const state = {
+  currentModule: null,
+  dependencyGraph: null,
+  moduleStructure: null
+};
+
+// Placeholder for dependency graph content
+const dependencyGraphContent = {};
+
+// Placeholder for index content
+const indexContent = {};
+
+// TODO: add the new functions or changes requested in the issue
+// Here's a sample implementation for a new function named 'myNewFunction'
+const myNewFunction = () => {
+  console.log('Executing custom function for rendering graph/index');
+};
+
+// Implement updateView using render dependency graph and display module structure functions
+const updateView = (viewType) => {
+  if (viewType === 'graph') {
+    const dependencyGraphData = renderDependencyGraph(state.currentModule);
+    // ... (assuming you have a renderer for dependency graphs)
+  } else if (viewType === 'index') {
+    const moduleStructureData = displayModuleStructure(state.currentModule);
+    // ... (assuming you have a renderer for module structures)
+  }
+};
+
+// Import custom functions for ensuring element IDs, adding aria-label, and rendering dependency graphs
+import { createInPageButton, setSvgAttributes, addAriaLabel, ensureElementId, getFullLangAttribute, getLangAttribute, getSvgAccessibleName } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+import { formatProductName, renderProductList, calculateTotalPrice, renderCart, validateAndRender, renderPage } from './utils/productUtils';
+import { spawn } from './utils/spawnUtils';
+import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils';
+import { renderHeader, renderFooter, renderProductCard } from './components';
+import { state as appState, updateState } from './state';
+
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  getFullLangAttribute,
+  createInPageButton,
+  setSvgAttributes,
+  addAriaLabel,
+  ensureElementId,
+  getSvgAccessibleName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+  formatCurrency,
+  formatDate,
+  calculateDiscount,
+  validateInput,
+  renderHeader,
+  renderFooter,
+  renderProductCard,
+  renderProductList,
+  calculateTotalPrice,
+  renderCart,
+  validateAndRender,
+  renderPage,
+  formatProductName,
+  spawn,
+  googleSignIn,
+  renderDependencyGraph,
+  displayModuleStructure,
+  myNewFunction,
+  updateView,
+  state,
+  updateState
+};
+```

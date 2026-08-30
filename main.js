@@ -3,6 +3,8 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
 
 import React from 'react';
 

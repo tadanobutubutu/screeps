@@ -28,7 +28,7 @@ function getDependencyDepth(dependencies, currentKey = '') {
   return maxDepth;
 }
 
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
+// TODO: Identify and update specific functions that render dependency graphs or index views for debugging purposes.
 
 /**
  * Renders a dependency graph as ASCII art for debugging purposes.
@@ -50,7 +50,7 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
     
-    output += `${prefix}${connector}${key}`;
+    output += prefix + connector + key;
     
     if (typeof value === 'object' && value !== null) {
       output += '/\n';
@@ -101,8 +101,23 @@ function displayModuleStructure(modules) {
  * @returns {Object} Report containing statistics
  */
 function generateDependencyReport(dependencies) {
+  const countDependencies = (deps, count = 0) => {
+    if (!deps || typeof deps !== 'object') {
+      return count;
+    }
+    const keys = Object.keys(deps);
+    keys.forEach(key => {
+      count++;
+      const value = deps[key];
+      if (typeof value === 'object' && value !== null) {
+        count = countDependencies(value, count);
+      }
+    });
+    return count;
+  };
+  
   return {
-    totalDependencies: Object.keys(dependencies).length,
+    totalDependencies: countDependencies(dependencies),
     maxDepth: getDependencyDepth(dependencies),
     graph: renderDependencyGraph(dependencies)
   };

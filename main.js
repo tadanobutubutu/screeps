@@ -25,10 +25,12 @@ const _usedLandmarkIds = new Set();
  */
 function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
+    let counter = 0;
+    while (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+        const suffix = Math.floor(Math.random() * 10);
+        candidate = `${baseName}-${suffix}-${counter}`;
+        counter++;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -63,6 +65,14 @@ function addAriaLabel(element, label) {
 }
 
 /**
+ * This function gets the language attribute from the HTML element.
+ * @returns {string} - the language attribute value
+ */
+function getLangAttribute() {
+    return document.documentElement.lang || '';
+}
+
+/**
  * This function gets the full language attribute with region (if provided)
  * @returns {string} - the full language attribute with region (if provided)
  */
@@ -93,10 +103,10 @@ function addProperLandmarkRegions() {
   // Create main landmark
   const main = document.querySelector('main') || document.createElement('main');
   main.setAttribute('role', 'main');
-  main.id = 'main-content';
+  main.id = main.id || 'main-content';
 
   // Create navigation landmark
-  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
+  const nav = document.querySelector('nav') || document.createElement('nav');
   nav.setAttribute('role', 'navigation');
   nav.id = nav.id || 'primary-navigation';
 
@@ -127,10 +137,10 @@ function addProperLandmarkRegions() {
  */
 function addProperAccountManagement() {
   // Add aria-expanded to collapsible menus/buttons
-  const collapsibles = document.querySelectorAll('[aria-expanded], .collapsible');
-  collapsibles.forEach(item => {
-    if (!item.hasAttribute('aria-expanded')) {
-      item.setAttribute('aria-expanded', 'false');
+  const collapsibles = document.querySelectorAll('.collapsible');
+  collapsibles.forEach(collapsible => {
+    if (!collapsible.hasAttribute('aria-expanded')) {
+      collapsible.setAttribute('aria-expanded', 'false');
     }
   });
 
@@ -139,7 +149,7 @@ function addProperAccountManagement() {
   inputs.forEach((input, index) => {
     const id = input.id || `input-${index}`;
     input.id = id;
-    if (!input.hasAttribute('aria-label')) {
+    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
       input.setAttribute('aria-label', `Input field ${index + 1}`);
     }
   });
@@ -160,7 +170,7 @@ function addAriaToFormControls() {
     if (!control.id && !control.getAttribute('aria-label')) {
       const label = control.id ? document.querySelector(`label[for="${control.id}"]`) : null;
       if (label) {
-        label.id = label.id || `label-${control.id}`;
+        label.id = label.id || `label-${Math.random().toString(36).substr(2, 9)}`;
         control.setAttribute('aria-labelledby', label.id);
       }
     }
@@ -214,8 +224,6 @@ function isLinkAccessible(link) {
   return false;
 }
 
-addProperLandmarkRegions();
-addProperAccountManagement();
 addAriaToFormControls();
 
 module.exports = {

@@ -313,22 +313,242 @@ function validateTableStructure(tableElement) {
   };
 }
 
-// Calculate sum of numbers array
-function calculateSum(numbers) {
-    return numbers.reduce((sum, num) => sum + num, 0);
+function validateLandmark(landmarkElement) {
+  // Implementation for REACT_017: Add/fix 4 landmark issues
+  if (!landmarkElement) {
+    return { valid: false, errors: ['Landmark element is required'] };
+  }
+
+  const errors = [];
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+  const role = landmarkElement.getAttribute('role');
+
+  // Check if landmark has a valid role
+  if (!role) {
+    errors.push('Landmark element should have a role attribute');
+  } else if (!validRoles.includes(role)) {
+    errors.push(`Landmark element has invalid role: ${role}`);
+  }
+
+  // Check if landmark has accessible name
+  const accessibleName = landmarkElement.getAttribute('aria-label') ||
+                        landmarkElement.getAttribute('aria-labelledby') ||
+                        landmarkElement.getAttribute('title');
+  if (!accessibleName) {
+    errors.push('Landmark element should have an accessible name');
+  }
+
+  // For navigation landmarks, ensure they have distinct accessible names
+  if (role === 'navigation' && !accessibleName) {
+    errors.push('Navigation landmark should have an accessible name to distinguish it from other navigation landmarks');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    role,
+    hasAccessibleName: !!accessibleName
+  };
 }
 
-// Add these new functions
+function validateLandmarkStructure(landmarks) {
+  // Implementation for REACT_017: Add/fix 4 landmark issues
+  if (!Array.isArray(landmarks)) {
+    return { valid: false, errors: ['Landmarks should be provided as an array'] };
+  }
+
+  const errors = [];
+  const seenRoles = {};
+  let duplicateCount = 0;
+
+  // Check for duplicate landmarks of the same type (REACT_025: Ensure unique landmarks)
+  landmarks.forEach((landmark, index) => {
+    const role = landmark.getAttribute('role');
+    if (role) {
+      if (!seenRoles[role]) {
+        seenRoles[role] = 0;
+      }
+      seenRoles[role]++;
+      
+      if (seenRoles[role] > 1) {
+        duplicateCount++;
+        errors.push(`Duplicate landmark of role "${role}" found at index ${index}. Only one "${role}" landmark should exist per page.`);
+      }
+    }
+  });
+
+  // Check that main landmark exists exactly once
+  const mainLandmarks = landmarks.filter(l => l.getAttribute('role') === 'main');
+  if (mainLandmarks.length === 0) {
+    errors.push('Page should have exactly one main landmark');
+  } else if (mainLandmarks.length > 1) {
+    errors.push('Page should have exactly one main landmark, but found multiple');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    landmarkCount: landmarks.length,
+    duplicateCount,
+    mainLandmarkCount: mainLandmarks.length
+  };
+}
+
 function ensureElementHasId(element) {
   // Implement logic to ensure the element has an id
+  if (!element || !element.setAttribute) {
+    return null;
+  }
+  
+  const existingId = element.getAttribute('id');
+  if (existingId) {
+    return existingId;
+  }
+  
+  // Generate a unique ID based on element type and timestamp
+  const tagName = element.tagName ? element.tagName.toLowerCase() : 'element';
+  const uniqueId = `${tagName}-${Date.now()}`;
+  element.setAttribute('id', uniqueId);
+  return uniqueId;
 }
 
-function addAriaLabel(element) {
+function addAriaLabel(element, label) {
   // Implement logic to add aria-label to the element
+  if (!element || !element.setAttribute) {
+    return false;
+  }
+  
+  if (label) {
+    element.setAttribute('aria-label', label);
+    return true;
+  }
+  
+  // If no label provided, try to derive one from content
+  const content = element.textContent?.trim() || element.getAttribute('title');
+  if (content) {
+    element.setAttribute('aria-label', content);
+    return true;
+  }
+  
+  return false;
+}
+
+function createInPageButton(text, options = {}) {
+  // Implementation for REACT_036: Fix 1 fake link issue
+  const { 
+    href = null, 
+    onClick = null, 
+    ariaLabel = null, 
+    className = 'in-page-button' 
+  } = options;
+  
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.className = className;
+  
+  // Set aria-label if provided or derive from text
+  if (ariaLabel) {
+    button.setAttribute('aria-label', ariaLabel);
+  } else {
+    button.setAttribute('aria-label', text);
+  }
+  
+  // Add click event if provided
+  if (onClick && typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+  
+  // If href is provided, make it a real link instead
+  if (href) {
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = text;
+    link.className = className;
+    
+    if (ariaLabel) {
+      link.setAttribute('aria-label', ariaLabel);
+    } else {
+      link.setAttribute('aria-label', text);
+    }
+    
+    return link;
+  }
+  
+  return button;
 }
 
 function renderDependencyGraphs(element) {
   // Implement logic to render the dependency graphs
+  if (!element || !element.appendChild) {
+    return null;
+  }
+  
+  // Create container for graphs
+  const container = document.createElement('div');
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graphs');
+  container.className = 'dependency-graphs-container';
+  
+  // Create SVG for graph visualization
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '400');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'Dependency Graph Visualization');
+  svg.setAttribute('tabindex', '0');
+  
+  // Add title for accessibility
+  const title = document.createElementNS(svgNS, 'title');
+  title.textContent = 'Dependency Graph Visualization';
+  svg.appendChild(title);
+  
+  // Add descriptive text for screen readers
+  const desc = document.createElementNS(svgNS, 'desc');
+  desc.textContent = 'Interactive visualization showing module dependencies. Use arrow keys to navigate between nodes.';
+  svg.appendChild(desc);
+  
+  // Sample nodes (would be populated with actual dependency data)
+  const nodes = [
+    { id: 'main', label: 'Main', x: 100, y: 100 },
+    { id: 'module1', label: 'Module 1', x: 200, y: 200 },
+    { id: 'module2', label: 'Module 2', x: 300, y: 150 }
+  ];
+  
+  // Add nodes to SVG
+  nodes.forEach(node => {
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('role', 'group');
+    g.setAttribute('aria-label', node.label);
+    g.setAttribute('tabindex', '0');
+    
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', node.x);
+    circle.setAttribute('cy', node.y);
+    circle.setAttribute('r', '20');
+    circle.setAttribute('fill', '#4a90e2');
+    
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', node.x);
+    text.setAttribute('y', node.y + 35);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#333');
+    text.textContent = node.label;
+    
+    g.appendChild(circle);
+    g.appendChild(text);
+    svg.appendChild(g);
+  });
+  
+  container.appendChild(svg);
+  element.appendChild(container);
+  
+  return container;
+}
+
+// Calculate sum of numbers array
+function calculateSum(numbers) {
+    return numbers.reduce((sum, num) => sum + num, 0);
 }
 
 // Export all functions
@@ -351,8 +571,11 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
-  calculateSum,
+  validateLandmark,
+  validateLandmarkStructure,
   ensureElementHasId,
   addAriaLabel,
-  renderDependencyGraphs
+  createInPageButton,
+  renderDependencyGraphs,
+  calculateSum
 };

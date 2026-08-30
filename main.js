@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -31,11 +28,9 @@ Here is the resolved file content:
 // Global set to track used landmark IDs
 const _usedLandmarkIds = new Set();
 
-/**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
- */
+// Creates a unique identifier for a landmark given a base name.
+// @param {string} baseName - Base name of the landmark.
+// @returns {string} Unique ID.
 function ensureUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
@@ -47,11 +42,9 @@ function ensureUniqueLandmarkId(baseName) {
     return candidate;
 }
 
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
+// Returns a new array containing only unique landmarks from the input list.
+// @param {Array} landmarks - List of landmark objects.
+// @returns {Array} Unique landmarks.
 function uniqueLandmarks(landmarks) {
     const seen = new Set();
     const result = [];
@@ -73,34 +66,26 @@ function addLangAttribute() {
   }
 }
 
-/**
- * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
- * @param {string} label - The label text to be added.
- */
+// Adds an aria-label attribute to an element if it doesn't already have one.
+// @param {HTMLElement} element - The element to add the aria-label to.
+// @param {string} label - The label text to be added.
 function addAriaLabel(element, label) {
     if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
 
-/**
- * Gets the language attribute from the HTML element.
- * @returns {string} - the language attribute value
- */
+// Gets the language attribute from the HTML element.
+// @returns {string} - the language attribute value
 function getLangAttribute() {
     return document.documentElement.lang || '';
 }
 
-/**
- * This function gets the full language attribute with region (if provided)
- * @returns {string} - the full language attribute with region (if provided)
- */
+// This function gets the full language attribute with region (if provided)
+// @returns {string} - the full language attribute with region (if provided)
 function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
-
-// ... existing functions from both branches
 
 // Accessibility helper functions
 function setupKeyboardNavigation(element, options = {}) {
@@ -152,4 +137,3 @@ function trapFocus(container) {
 }
 
 // ... other existing functions remained unchanged
-```

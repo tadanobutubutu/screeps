@@ -2,9 +2,6 @@
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 
-// Existing function, variables, and exports...
-// ...
-
 // Game loop function
 function run() {
   // Your game logic here...
@@ -66,12 +63,7 @@ updateLangAttribute();
 
 // ----- END ORIGINAL CODE -----
 
-// Example of a simple new function:
-// function newFunction() {
-//   return 'New function logic here';
-// }
-
-// TODO: Add any other missing exports that might have been?
+// Additional function request in the issue
 // Added missing exports as per the issue
 // ==============================================================================
 // Resolved Merge Conflict

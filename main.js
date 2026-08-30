@@ -66,3 +66,20 @@ module.exports = {
   wrapPrimaryContentInMain,
   myNewFunction
 };
+
+// Adding lang attribute to the HTML element
+function addLangAttribute(lang) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  renderApp,
+  wrapPrimaryContentInMain,
+  myNewFunction,
+  addLangAttribute
+};

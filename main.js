@@ -47,7 +47,7 @@ function detectAndSetLang(content) {
     } else if (/[àâäçéèêëîïôûü]/i.test(content)) {
       lang = 'fr'; // French
     } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
+      lang = 'de'; // German;
     }
   }
   
@@ -67,5 +67,7 @@ function createInPageButton(parent = document.body) {
   parent.appendChild(btn);
   return btn;
 }
+
+// TODO: Add any updates related to new functions
 
 module.exports = { setHtmlLangAttribute, detectAndSetLang, createInPageButton };

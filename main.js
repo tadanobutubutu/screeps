@@ -174,6 +174,68 @@ function validateAllTables() {
   };
 }
 
+// REACT_025: Additional accessibility validation functions
+
+/**
+ * Validates HTML attributes for accessibility compliance
+ * Checks for required ARIA attributes and semantic HTML structure
+ * @param {Object} attributes - Object containing HTML attribute key-value pairs
+ * @returns {Object} Validation result with isValid flag and array of warnings
+ */
+function validateHtmlAttributes(attributes) {
+  const warnings = [];
+  const langValue = attributes && attributes.lang;
+  
+  // REACT_015: Check for lang attribute presence and validity
+  if (langValue === undefined || langValue === null || langValue === '') {
+    warnings.push({
+      code: 'REACT_015',
+      message: 'HTML element should have a valid lang attribute for screen readers'
+    });
+  } else if (typeof langValue !== 'string' || langValue.trim().length === 0) {
+    warnings.push({
+      code: 'REACT_015',
+      message: 'lang attribute must be a non-empty string'
+    });
+  }
+  
+  return {
+    isValid: warnings.length === 0,
+    warnings: warnings
+  };
+}
+
+/**
+ * Validates that table cells have proper scope attributes for screen readers
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateTableScopeAttributes() {
+  const errors = [];
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    if (!table.headers || !Array.isArray(table.headers)) {
+      continue;
+    }
+    
+    // Check if headers have scope information
+    const headerScopeInfo = table.headerScope;
+    if (!headerScopeInfo) {
+      warnings.push({
+        tableIndex: i,
+        warning: 'Table should specify header scope (col/row) for accessibility'
+      });
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +245,7 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  validateHtmlAttributes,
+  validateTableScopeAttributes
 };

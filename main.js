@@ -13,7 +13,7 @@ export function calculateSum(a, b) {
 // Below is the existing code (preserving syntax and existing exports)
 // ...
 
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
+const HTML = ({ lang, children }) => <html lang={lang}>{children}</html>;
 
 // ... (existing code, exports, and functions)
 
@@ -188,7 +188,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => fixTableStructure(table));
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -200,7 +201,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_025':
         // Add/fix landmark issues
         try {
-          addMainLandmark();
+          const mainElement = document.querySelector('main') || document.querySelector('[role="main"]') || document.body;
+          addMainLandmark(mainElement);
           ensureUniqueLandmarks();
           actionTaken = true;
           console.log('Added and ensured unique landmarks');
@@ -408,7 +410,7 @@ export default function App() {
   );
 }
 
-module.exports = {
+export {
   config,
   appState,
   initializeApp,

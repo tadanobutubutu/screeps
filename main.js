@@ -114,9 +114,63 @@ function calculateSum(numbers) {
   return numbers.reduce((acc, curr) => acc + curr, 0);
 }
 
+/**
+ * Renders the index view into the specified DOM element.
+ * @param {HTMLElement} targetElement - The DOM element to render the view into.
+ * @param {Object} options - Configuration options for the index view.
+ * @param {string} [options.title='Index View'] - The title to display in the header.
+ * @param {Array} [options.landmarks=[]] - Array of landmark data to display.
+ * @param {Function} [options.onLandmarkClick=()=>{}] - Callback when a landmark is clicked.
+ */
+function renderIndexView(targetElement, options = {}) {
+  const { title = 'Index View', landmarks = [], onLandmarkClick = () => {} } = options;
+
+  if (!targetElement || !(targetElement instanceof HTMLElement)) {
+    console.error('renderIndexView: Invalid target element provided');
+    return;
+  }
+
+  const IndexView = () => {
+    const [hoverState, setHoverState] = React.useState(false);
+
+    return (
+      <div className="index-view" role="main">
+        <header role="banner">
+          <h1>{title}</h1>
+        </header>
+
+        <nav role="navigation" aria-label="Main navigation">
+          <ul>
+            {landmarks.map((landmark, index) => (
+              <li key={index}>
+                {createInPageButton({
+                  onClick: () => onLandmarkClick(landmark),
+                  label: landmark.name || `Landmark ${index + 1}`,
+                  icon: icons[landmark.type] || '📍',
+                  hoverState,
+                  setHoverState,
+                  ariaLabel: landmark.ariaLabel || landmark.name,
+                  title: landmark.title || landmark.name,
+                })}
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <section role="region" aria-label="Content">
+          <Landmark landmarks={processLandmarks(landmarks)} />
+        </section>
+      </div>
+    );
+  };
+
+  ReactDOM.render(<IndexView />, targetElement);
+}
+
 module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  renderIndexView
 };

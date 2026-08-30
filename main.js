@@ -8,7 +8,7 @@ let isInitialized = false;
 const appData = {};
 let uniqueLandmarks = {};
 
-function addressAccessibilityIssues() {
+export function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
   const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
@@ -64,7 +64,7 @@ function addressAccessibilityIssues() {
 }
 
 // TODO: This is the new function request
-function newFunction() {
+export function newFunction() {
   // Implement the new function here
   console.log("New Function has been called!");
 }

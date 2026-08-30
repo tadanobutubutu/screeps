@@ -84,23 +84,37 @@ function handleAccessibilityError(errorElement, container) {
 }
 
 // Function to render dependency graph using dependencyGraphContent
+// Identified and updated to render dependency graphs for debugging purposes
 function renderDependencyGraph(container) {
+  const doc = getDocument();
+  if (!doc) return;
+
+  // Debug logging for module structure inspection
+  console.debug('[renderDependencyGraph] Rendering dependency graph into container:', container);
+
   createInPageButton();
-  handleAccessibilityIssues(dependencyGraphContent(getDocument(), container));
+  handleAccessibilityIssues(dependencyGraphContent(doc, container));
+
+  console.debug('[renderDependencyGraph] Dependency graph rendered successfully');
 }
 
 // Function to render index view using indexContent
+// Identified and updated to display module structure for debugging purposes
 function renderIndexView(container) {
+  const doc = getDocument();
+  if (!doc) return;
+
+  // Debug logging for module structure inspection
+  console.debug('[renderIndexView] Rendering index/module structure into container:', container);
+
   createInPageButton();
-  handleAccessibilityIssues(indexContent(getDocument(), container));
+  handleAccessibilityIssues(indexContent(doc, container));
+
+  console.debug('[renderIndexView] Index view rendered successfully');
 }
 
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
-// TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
 
 export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute };
-```
-
-This resolved file keeps both changes and integrates them logically in the `main.js` file. The added accessibility features from branch `origin/main` have been combined with the existing functionality from the base branch. The final code will compile and satisfy both changes without discarding any functionality.

@@ -19,6 +19,7 @@ const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
 
 function getLangAttribute() {
   // Code for getting the language attribute
+  return document.documentElement.getAttribute('lang');
 }
 
 function addLangAttribute(element) {
@@ -31,7 +32,7 @@ function addLangAttribute(element) {
 // Add the new function or change here:
 function myNewFunction() {
   // your new function logic goes here
-  console.log('myNewFunction called');
+  console.log('New function called');
 }
 
 function processData(data) {
@@ -159,14 +160,14 @@ function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This processes the insight report and takes appropriate actions to fix issues
   
-  if (!insightReport || !Array.isArray(insightReport.accessibilityIssues)) {
+  if (!insightReport || !Array.isArray(insightReport)) {
     console.log('No valid accessibility issues found in the insight report');
     return [];
   }
   
   const addressedIssues = [];
   
-  insightReport.accessibilityIssues.forEach((issue, index) => {
+  insightReport.forEach((issue) => {
     console.log(`Addressing accessibility issue ${issue.code}: ${issue.message}`);
     
     let actionTaken = false;
@@ -176,7 +177,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_015':
         // Add lang attribute to HTML element
         try {
-          addLangAttribute(document.documentElement);
+          const htmlElement = document.documentElement;
+          addLangAttribute(htmlElement);
           actionTaken = true;
           console.log('Added language attribute to HTML element');
         } catch (error) {
@@ -187,7 +189,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => fixTableStructure(table));
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -213,11 +216,9 @@ function addressAccessibilityIssues(insightReport) {
         try {
           const svgElements = document.querySelectorAll('svg');
           svgElements.forEach(svg => {
-            if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('role')) {
-              const accessibleName = getSvgAccessibleName();
-              if (accessibleName) {
-                setSvgAttributes(svg, accessibleName);
-              }
+            const accessibleName = getSvgAccessibleName(svg);
+            if (accessibleName) {
+              setSvgAttributes(svg, accessibleName);
             }
           });
           actionTaken = true;
@@ -275,7 +276,7 @@ function ensureElementHasId(element, prefix = 'element') {
     return element.id;
   }
   
-  const uniqueId = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
   element.id = uniqueId;
   return uniqueId;
 }
@@ -362,81 +363,4 @@ function renderDependencyGraph(dependencies, containerId) {
   const edgesSection = document.createElement('div');
   edgesSection.className = 'graph-edges';
   edgesSection.innerHTML = '<h4>Dependencies:</h4><ul>' + 
-    edges.map(edge => `<li>${edge.source} → ${edge.target}</li>`).join('') + 
-    '</ul>';
-  
-  graphElement.appendChild(nodesSection);
-  graphElement.appendChild(edgesSection);
-  graphContainer.appendChild(graphElement);
-  
-  // Clear container and append the graph
-  container.innerHTML = '';
-  container.appendChild(graphContainer);
-  
-  return graphContainer;
-}
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  calculateSum,
-  myNewFunction
-};
+    edges.map

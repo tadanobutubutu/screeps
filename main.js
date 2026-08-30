@@ -106,26 +106,6 @@ function generateDependencyReport(dependencies) {
   };
 }
 
-/**
- * Main processing function
- */
-function main() {
-  const sampleDependencies = {
-    'express': '4.18.2',
-    'lodash': {
-      'isArray': '4.0.0',
-      'merge': {
-        'isObject': '4.0.0'
-      }
-    }
-  };
-  
-  console.log('Dependency Graph:');
-  console.log(renderDependencyGraph(sampleDependencies));
-  
-  console.log('Depth:', getDependencyDepth(sampleDependencies));
-}
-
 // New function to visualize the dependency tree
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);

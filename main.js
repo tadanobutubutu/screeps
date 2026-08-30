@@ -350,16 +350,41 @@ function addProperLandmarkRegions() {
 // TODO: Implement function for addressing accessibility issues from insight report
 // Placeholder for the new function
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
-
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach((issue) => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
+  if (!insightReport || !insightReport.issues || !Array.isArray(insightReport.issues)) {
+    return;
   }
+  
+  const processedTypes = new Set();
+  
+  insightReport.issues.forEach(issue => {
+    if (!issue || !issue.type || processedTypes.has(issue.type)) {
+      return;
+    }
+    
+    processedTypes.add(issue.type);
+    
+    switch (issue.type) {
+      case 'fake-link':
+        fixFakeLinks();
+        break;
+      case 'missing-landmark':
+        ensureUniqueLandmarks();
+        addMainLandmark();
+        break;
+      case 'missing-lang':
+        addLangAttribute();
+        break;
+      case 'table-structure':
+        fixTableStructureIssues();
+        fixTableHeaderCellScope();
+        break;
+      case 'svg-accessible-name':
+        addSvgAccessibleNames();
+        break;
+      default:
+        console.log(`Accessibility issue detected: ${issue.message || issue.type}`);
+    }
+  });
 }
 
 // - REACT_041: Add accessible names to 2 SVGs

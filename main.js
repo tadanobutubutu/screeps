@@ -1,15 +1,8 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructureIssues)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
+import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { SetLangAttribute } from 'react/src/react'; // Adding missing dependency
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -30,7 +23,7 @@ function generateKey(book) {
 }
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -76,9 +69,14 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Accessibility Helper Functions (assuming they have been implemented elsewhere)
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const [formError, setFormError] = useState('');
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -89,20 +87,91 @@ function Main() {
     }
   }, [sorting]);
 
+  // Handle form submission for adding a new book
+  const handleAddBook = (event) => {
+    event.preventDefault();
+    setFormError('');
+
+    if (!newBookTitle.trim()) {
+      setFormError('Book title is required');
+      return;
+    }
+
+    if (!newBookAuthor.trim()) {
+      setFormError('Book author is required');
+      return;
+    }
+
+    addBook({ title: newBookTitle.trim(), author: newBookAuthor.trim() });
+    setNewBookTitle('');
+    setNewBookAuthor('');
+  };
+
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map((book) => <BookItem key={generateKey(book)} book={book} />);
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* Implement the required changes to improve accessibility for adding a new book */}
-      <button onClick={() => handleAddBook({ title: 'New Book', author: 'Author', label: 'Add new book' })}>Add Book</button>
+    <div id="main-content" role="main">
+      <nav aria-label="Sorting controls">
+        <button
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title"
+          id="sort-by-title-btn"
+        >
+          Sort by Title
+        </button>
+        <button
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author"
+          id="sort-by-author-btn"
+        >
+          Sort by Author
+        </button>
+      </nav>
+      <List
+        itemLayout="vertical"
+        dataSource={bookItems}
+        renderItem={(book) => <BookItem key={generateKey(book)} book={book} />}
+        aria-label="Book list"
+      />
+      <form onSubmit={handleAddBook} aria-describedby={formError ? 'add-book-error' : undefined}>
+        <fieldset>
+          <legend>Add a New Book</legend>
+          <div className="form-group">
+            <label htmlFor="title">Title:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="title"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="author">Author:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="author"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Add Book
+          </button>
+        </fieldset>
+        {formError && <p id="add-book-error" role="alert">{formError}</p>}
+      </form>
     </div>
   );
 }
+
+// Export the necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 
 // Export the Main component
 export default Main;

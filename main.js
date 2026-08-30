@@ -165,6 +165,30 @@ function renderDependencyGraphContent(container) {
   });
 }
 
+/**
+ * Counts the number of dependencies in the dependency data
+ * @param {Array|Object} dependencyData - The dependency data to count
+ * @returns {number} - The number of dependencies
+ */
+function countDependencies(dependencyData) {
+  if (!dependencyData) return 0;
+  
+  if (Array.isArray(dependencyData)) {
+    return dependencyData.length;
+  }
+  
+  if (typeof dependencyData === 'object') {
+    // If it's an object with a dependencies array
+    if (Array.isArray(dependencyData.dependencies)) {
+      return dependencyData.dependencies.length;
+    }
+    // Or count keys
+    return Object.keys(dependencyData).length;
+  }
+  
+  return 0;
+}
+
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
@@ -271,5 +295,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  countDependencies
 };

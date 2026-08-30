@@ -1,5 +1,5 @@
 // Import dependencyGraphContent
-const dependencyGraphContent = require('./dependencyGraph');
+const dependencyGraphContent = require('./dependencyGraph.json');
 
 const fs = require('fs');
 const path = require('path');

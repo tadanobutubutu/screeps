@@ -193,7 +193,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_027':
         // Fix table structure issues
         try {
-          fixTableStructure();
+          const tables = document.querySelectorAll('table');
+          tables.forEach(table => fixTableStructure(table));
           actionTaken = true;
           console.log('Fixed table structure issues');
         } catch (error) {
@@ -205,7 +206,8 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_025':
         // Add/fix landmark issues
         try {
-          addMainLandmark();
+          const mainElements = document.querySelectorAll('[role="main"], main');
+          mainElements.forEach(mainElement => addMainLandmark(mainElement));
           ensureUniqueLandmarks();
           actionTaken = true;
           console.log('Added and ensured unique landmarks');

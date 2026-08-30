@@ -284,9 +284,25 @@ function addLiveRegionForDynamicContent() {
   document.body.appendChild(liveRegion);
 }
 
+/**
+ * Adds the lang attribute to the HTML element for proper screen reader support.
+ * This is essential for accessibility (REACT_015) as it helps screen readers
+ * use the correct pronunciation and language settings.
+ *
+ * @param {string} langCode - The language code (e.g., 'en', 'es', 'fr'). Defaults to 'en'.
+ * @returns {void}
+ */
+function addLangAttribute(langCode = 'en') {
+  const html = document.documentElement;
+  html.setAttribute('lang', langCode);
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
+  
+  // Add lang attribute to HTML element (REACT_015)
+  addLangAttribute();
   
   // Ensure all landmarks have unique IDs
   ensureUniqueLandmarks([]);
@@ -302,7 +318,8 @@ function initializeAccessibility() {
     announce: announcer.announce,
     setupKeyboardNavigation,
     trapFocus,
-    prefersReducedMotion
+    prefersReducedMotion,
+    addLangAttribute
   };
 }
 
@@ -409,7 +426,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    someFunction
+    someFunction,
+    addLangAttribute
   };
 }
-```

@@ -253,6 +253,57 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// New function to address accessibility issue REACT_025: Landmarks must be unique
+function ensureUniqueLandmarksFromReport(insightReport) {
+  const issues = insightReport && insightReport.issues ? insightReport.issues : [];
+  const landmarkElements = [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_025') {
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (el && el.tagName && (el.tagName.toLowerCase() === 'main' || el.getAttribute('role'))) {
+          landmarkElements.push(el);
+        }
+      });
+    }
+  });
+
+  // Remove duplicate landmarks based on role/id
+  const seenRoles = {};
+  const uniqueLandmarks = landmarkElements.filter(el => {
+    const role = el.getAttribute('role');
+    const id = el.id || '';
+    const identifier = role + '|' + id;
+
+    if (seenRoles[identifier]) {
+      return false;
+    }
+    seenRoles[identifier] = true;
+    return true;
+  });
+
+  return uniqueLandmarks;
+}
+
+// New function to address accessibility issue REACT_017: Elements must have discernible text
+function addAccessibleNames(insightReport) {
+  const issues = insightReport && insightReport.issues ? insightReport.issues : [];
+
+  issues.forEach(issue => {
+    if (issue.code === 'REACT_017') {
+      const affectedElements = issue.elements || [];
+      affectedElements.forEach(el => {
+        if (typeof el === 'object' && el !== null) {
+          if (!el['aria-label'] && !el['aria-labelledby'] && !el.textContent) {
+            el['aria-label'] = el.id || 'unnamed-element';
+          }
+        }
+      });
+    }
+  });
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +322,7 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  ensureUniqueLandmarksFromReport,
+  addAccessibleNames
 };

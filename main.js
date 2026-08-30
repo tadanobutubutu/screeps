@@ -60,10 +60,10 @@ function createInPageButton() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
+  ... lang);
 
   // 2. REACT_027: Validate table accessibility and structure
-  const table = document.getElementById('myTable');
+  const table = ...
   if (table) {
     validateTableAccessibility(table);
     validateTableStructure(table);
@@ -71,15 +71,15 @@ function fixAccessibilityIssues() {
 
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
-  validateLandmarkStructure();
+  ...
 
   // 4. REACT_025: Ensure unique landmarks
-  validateLinkAccessibility();
+  ...
   handleFakeLinks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
-  svgElements.forEach(svg => {
+  const svgElements = ... #myOtherSvg');
+  ... => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
   });
@@ -91,21 +91,21 @@ function fixAccessibilityIssues() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return `<main>${primaryContent}</main>`;
+  return ...
 }
 
 // Renders the dependency graph view.
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(dependencyGraphContent);
+  ...
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(indexContent);
+  ...
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
@@ -120,13 +120,13 @@ function ensureElementId(element) {
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+... getLangAttribute());
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Validate table structure and accessibility
-const table = document.getElementById('myTable');
+const table = ...
 if (table) {
   validateTableAccessibility(table);
   validateTableStructure(table);
@@ -134,17 +134,17 @@ if (table) {
 
 // Add/fix landmark issues
 validateLandmark();
-validateLandmarkStructure();
+...
 
 // Add accessible names to SVGs
-const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
-svgElements.forEach(svg => {
+const svgElements = ... #myOtherSvg');
+... => {
   const accessibleName = getSvgAccessibleName(svg);
   setSvgAttributes(svg, accessibleName);
 });
 
 // Ensure unique landmarks
-validateLinkAccessibility();
+...
 handleFakeLinks();
 
 function addAriaLabel(element) {
@@ -154,20 +154,20 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
+const dependencyGraphContainer = ...
 dependencyGraphContainer.id = 'dependencyGraph';
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+... 'region');
+... 'Dependency Graph');
 
 // React / UI related functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ...
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = ...
+  container.innerHTML = ...
   return container;
 }
 
@@ -182,7 +182,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
+      <p>Total: ...
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -190,28 +190,28 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input.products);
+    return ...
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
+  const content = ...
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
 
 // TODO: Update the existing function using the new functions for rendering graph/index
 // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-function specificFunctionThatRendersGraphOrIndex() {
+function ... {
   // Call the updated functions to render the graph or index as needed
   renderDependencyGraph(dependencyGraphContent);
   renderIndex();
 }
 
 function renderProductCard(product) {
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+  return `<div ...
 }
 
 function calculateDiscount(subtotal) {
@@ -229,19 +229,19 @@ export function someFunction() {
 }
 
 function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
+  return ...
 }
 
 function formatDate(date) {
-  return date.toLocaleDateString();
+  return ...
 }
 
 function validateInput(input) {
-  return input && input.products && Array.isArray(input.products);
+  return input && input.products && ...
 }
 
 function setSvgAttributes(svg, accessibleName) {
-  svg.setAttribute('aria-label', accessibleName);
+  ... accessibleName);
 }
 
 function validateLinkAccessibility() {
@@ -256,22 +256,101 @@ function handleAccessibilityIssues(content) {
   // Example handler for accessibility issues
 }
 
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
+// Function for generating a report based on accessibility issues
+function generateAccessibilityReport(options = {}) {
+  const { returnJson = false, verbose = false } = options;
+  const issues = [];
+  const startTime = Date.now();
 
-export { ensureElementId };
-export { addAriaLabel };
-export { renderDependencyGraph };
-export { renderIndex };
-export { dependencyGraphContainer };
-export { specificFunctionThatRendersGraphOrIndex };
-export { fixAccessibilityIssues };
-export { wrapPrimaryContentInMain };
-export { calculateSum };
+  // 1. REACT_015: Check for language attribute on HTML element
+  const lang = getLangAttribute();
+  if (!lang) {
+    issues.push({
+      code: 'REACT_015',
+      severity: 'error',
+      message: 'Missing lang attribute on HTML element',
+      element: 'html'
+    });
+  }
+
+  // 2. REACT_027: Validate table accessibility and structure
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const tableIssues = validateTableAccessibility(table);
+    if (tableIssues && tableIssues.length > 0) {
+      tableIssues.forEach(issue => {
+        issues.push({
+          code: 'REACT_027',
+          severity: 'error',
+          message: `Table ${index + 1}: ${issue}`,
+          element: 'table'
+        });
+      });
+    }
+
+    const structureIssues = validateTableStructure(table);
+    if (structureIssues && structureIssues.length > 0) {
+      structureIssues.forEach(issue => {
+        issues.push({
+          code: 'REACT_027',
+          severity: 'error',
+          message: `Table ${index + 1} structure: ${issue}`,
+          element: 'table'
+        });
+      });
+    }
+  });
+
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach(issue => {
+      issues.push({
+        code: 'REACT_017',
+        severity: 'error',
+        message: `Landmark issue: ${issue}`,
+        element: 'landmark'
+      });
+    });
+  }
+
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach(issue => {
+      issues.push({
+        code: 'REACT_017',
+        severity: 'error',
+        message: `Landmark structure: ${issue}`,
+        element: 'landmark'
+      });
+    });
+  }
+
+  // 4. REACT_025: Ensure unique landmarks
+  const uniqueLandmarkIssues = ensureUniqueLandmarks();
+  if (uniqueLandmarkIssues && uniqueLandmarkIssues.length > 0) {
+    uniqueLandmarkIssues.forEach(issue => {
+      issues.push({
+        code: 'REACT_025',
+        severity: 'error',
+        message: `Unique landmark issue: ${issue}`,
+        element: 'landmark'
+      });
+    });
+  }
+
+  // 5. REACT_041: Check SVG elements for accessible names
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svg, index) => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (!accessibleName || accessibleName.trim() === '') {
+      issues.push({
+        code: 'REACT_041',
+        severity: 'warning',
+        message: `SVG element ${index + 1} missing accessible name`,
+        element: 'svg'
+      });
+    }
+  });
+
+  // 6. REACT_036: Check for fake link issues

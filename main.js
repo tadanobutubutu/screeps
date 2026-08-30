@@ -1,3 +1,7 @@
+function myNewFunction(someArg) {
+    // implementation goes here
+}
+
 // TODO: Address accessibility issues from insight report:
 // Ensure the dependencyGraph container has a proper ARIA role
 // Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
@@ -294,6 +298,7 @@ const loop = () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         loop,
+        myNewFunction,
         ensureDependencyGraphARIA,
         ensureLandmarkIds,
         addressAccessibilityIssues,

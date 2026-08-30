@@ -9,6 +9,14 @@ const appState = {
 };
 
 /**
+ * Count the number of dependencies
+ * @returns {number} - Number of dependencies (total credentials processed)
+ */
+function countDependencies() {
+    return appState.credentials.length;
+}
+
+/**
  * Parse and validate a credential response
  * @param {Object} response - The credential response object
  * @returns {Object} - Parsed and validated response data
@@ -290,5 +298,6 @@ module.exports = {
     validateSession,
     revokeSession,
     getActiveSessionsCount,
-    server
+    server,
+    countDependencies
 };

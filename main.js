@@ -39,22 +39,28 @@ function getVersion() {
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
-  const rootContainer = document.getElementById('root').parentElement;
+  const rootContainer = document.getElementById('root');
   if (rootContainer) {
     rootContainer.setAttribute('role', 'main');
   }
 
   // Create a hidden live region for dynamic announcements
   const announcementId = 'accessibility-announcement';
-  const announcement = document.createElement('div');
+  let announcement = document.getElementById(announcementId);
+  if (!announcement) {
+    announcement = document.createElement('div');
+    document.body.appendChild(announcement);
+  }
   announcement.id = announcementId;
+  announcement.setAttribute('role', 'status');
   announcement.setAttribute('aria-live', 'polite');
   announcement.setAttribute('aria-atomic', 'true');
   // Hide off-screen
   announcement.style.position = 'absolute';
   announcement.style.left = '-9999px';
   announcement.style.top = '-9999px';
-  document.body.appendChild(announcement);
+  
+  return announcement;
 }
 
 // Validate that tables in the document are accessible

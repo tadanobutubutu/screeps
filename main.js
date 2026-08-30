@@ -33,6 +33,23 @@ function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
   const dependencyGraph = document.querySelector('[data-testid="dependency-graph"], .dependency-graph') || document.querySelector('#dependency-graph');
+  if (dependencyGraph) {
+    // Set appropriate ARIA role for the dependency graph container
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'region');
+    }
+    // Ensure it has an accessible name
+    if (!dependencyGraph.getAttribute('aria-label') && !dependencyGraph.getAttribute('aria-labelledby')) {
+      const heading = dependencyGraph.querySelector('h1, h2, h3, h4, h5, h6');
+      if (heading) {
+        const headingId = `dep-graph-heading-${Date.now()}`;
+        heading.id = headingId;
+        dependencyGraph.setAttribute('aria-labelledby', headingId);
+      } else {
+        dependencyGraph.setAttribute('aria-label', 'Dependency graph');
+      }
+    }
+  }
 }
 
 // Render dependency graph content
@@ -339,4 +356,3 @@ module.exports = {
 
 // Execute main function
 main();
-```

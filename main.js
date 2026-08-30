@@ -771,5 +771,8 @@ module.exports = {
   createInPageButtonEnhanced,
   validateLinkAccessibilityEnhanced,
   personName,
-  mainExecution
+  mainExecution,
+  
+  // Required exports that might have been missing
+  someFunction
 };

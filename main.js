@@ -115,8 +115,8 @@ const main = {
   },
 
   myNewFunction: function() {
-    // Example: Log a message to the console to simulate accessibility improvement
-    console.log('Accessibility function is running...');
+    // Log the current language setting as part of accessibility
+    console.log('Current language for accessibility:', getLangAttribute());
   },
 
   automateCreeps: function() {

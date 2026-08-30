@@ -6,7 +6,11 @@
 // Combined utility and accessibility features
 
 // TODO: Address accessibility issues from insight report:
-// - REACT_025: Ensure unique landmarks
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
 
 // Internal set to track used landmark IDs
 const _usedLandmarkIds = new Set();
@@ -284,12 +288,127 @@ function addLiveRegionForDynamicContent() {
   document.body.appendChild(liveRegion);
 }
 
+/**
+ * Adds lang attribute to the HTML element for accessibility.
+ * REACT_015: Add lang attribute to HTML element
+ * 
+ * @param {string} lang - The language code (e.g., 'en', 'es', 'fr'). Defaults to 'en'.
+ * @returns {void}
+ */
+function addLangAttributeToHtml(lang = 'en') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+/**
+ * Adds accessible names to SVG elements that lack them.
+ * REACT_041: Add accessible names to 2 SVGs
+ * 
+ * @returns {number} The number of SVGs that were updated.
+ */
+function addAccessibleNamesToSvgs() {
+  let count = 0;
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg, index) => {
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    
+    if (!hasTitle && !hasAriaLabel) {
+      const title = document.createElement('title');
+      title.textContent = `SVG image ${index + 1}`;
+      title.id = `svg-title-${index + 1}`;
+      
+      // Insert title as first child of SVG
+      if (svg.firstChild) {
+        svg.insertBefore(title, svg.firstChild);
+      } else {
+        svg.appendChild(title);
+      }
+      
+      svg.setAttribute('aria-labelledby', title.id);
+      count++;
+    }
+  });
+  
+  return count;
+}
+
+/**
+ * Fixes fake links - elements that look like links but use incorrect markup.
+ * REACT_036: Fix 1 fake link issue
+ * Converts non-semantic elements with link behavior to proper buttons or anchors.
+ * 
+ * @returns {number} The number of fake links that were fixed.
+ */
+function fixFakeLinks() {
+  let count = 0;
+  
+  // Find anchor tags without href (fake links)
+  const anchorsWithoutHref = document.querySelectorAll('a:not([href])');
+  anchorsWithoutHref.forEach(anchor => {
+    // Check if it has click handler or role="button"
+    const hasClickHandler = anchor.getAttribute('onclick') || 
+                           anchor.addEventListener.toString().includes('onclick') ||
+                           anchor.style.cursor === 'pointer';
+    const hasButtonRole = anchor.getAttribute('role') === 'button';
+    
+    if (hasClickHandler || hasButtonRole) {
+      // Convert to button
+      anchor.setAttribute('role', 'button');
+      if (!anchor.getAttribute('aria-label') && !anchor.textContent.trim()) {
+        anchor.setAttribute('aria-label', 'Button');
+      }
+      count++;
+    }
+  });
+  
+  // Find divs or spans with role="link" or cursor:pointer (fake links)
+  const fakeLinkSelectors = [
+    'div[role="link"]',
+    'span[role="link"]',
+    'div[onclick]',
+    'span[onclick]'
+  ];
+  
+  fakeLinkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      // Only fix if it looks like a link (has pointer cursor)
+      const computedStyle = window.getComputedStyle(el);
+      if (computedStyle.cursor === 'pointer' && !el.querySelector('a, button')) {
+        el.setAttribute('role', 'button');
+        if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
+          el.setAttribute('aria-label', 'Button');
+        }
+        count++;
+      }
+    });
+  });
+  
+  return count;
+}
+
 // Initialize accessibility features
 function initializeAccessibility() {
   const announcer = createAnnouncer();
   
-  // Ensure all landmarks have unique IDs
+  // REACT_015: Add lang attribute to HTML element
+  addLangAttributeToHtml();
+  
+  // REACT_017: Add landmark roles and fix landmark issues
+  addProperLandmarkRegions();
+  
+  // REACT_041: Add accessible names to 2 SVGs
+  addAccessibleNamesToSvgs();
+  
+  // REACT_025: Ensure unique landmarks
   ensureUniqueLandmarks([]);
+  
+  // REACT_036: Fix 1 fake link issue
+  fixFakeLinks();
   
   // Improve keyboard navigation
   improveKeyboardNavigation();
@@ -409,7 +528,9 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
-    someFunction
+    someFunction,
+    addLangAttributeToHtml,
+    addAccessibleNamesToSvgs,
+    fixFakeLinks
   };
 }
-```

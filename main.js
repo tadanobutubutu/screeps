@@ -28,13 +28,6 @@ function newFunction() {
   return 'newFunction executed';
 }
 
-// Initialize accessibility features
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    // a11yStore.init(); // Ensure a11yStore is imported
-  });
-}
-
 // Preserve existing code
 const preserveExistingCode = () => {
   return 'existing code preserved';
@@ -56,19 +49,13 @@ function addressAccessibilityIssues(report) {
   };
 }
 
-// Exporting the new added functions
-module.exports = {
-  // Keep the existing exports here if any
-  renderDependencyGraph, // Export renderDependencyGraph
-  renderIndexView, // Export renderIndexView
-  newFunction,
-  preserveExistingCode,
-  addressAccessibilityIssues
-};
+// Helper function for renderGraphIndex
+function prepareDataForGraph() {
+  // Placeholder for data preparation
+  return { nodes: [], edges: [] };
+}
 
 // Function to render graph/index using new functions
-// import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
-
 function renderGraphIndex() {
   // JavaScript code to prepare data for the graph
   const data = prepareDataForGraph();
@@ -85,8 +72,6 @@ function rotateBack() {
   // Call renderGraphIndex before rotating back
   renderGraphIndex();
 }
-
-// ... Existing functions from current main.js ...
 
 /**
  * Calculate the sum of two numbers
@@ -169,24 +154,6 @@ function validateFocusableElement(element) {
   return isFocusable && !element.hasAttribute('disabled');
 }
 
-// Default export for backwards compatibility
-const defaultExport = {
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  newFunction,
-  addressAccessibilityIssues,
-  preserveExistingCode,
-  initializeApp,
-  generateAccessibilityReport,
-  start() {
-    console.log('Application started');
-    return Promise.resolve();
-  }
-};
-
 const logger = {
   info(message) {
     console.log(`[INFO] ${message}`);
@@ -195,9 +162,6 @@ const logger = {
     console.error(`[ERROR] ${message}`);
   }
 };
-
-// Ensure the dependencyGraph container has a proper ARIA role
-// export { addLandmarkRegions }; // Commented out - function not defined
 
 function initializeApp() {
   console.log('Initializing application...');
@@ -295,8 +259,26 @@ function addressAccessibilityIssuesDOM() {
 
 // ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
 
+// Default export for backwards compatibility
+const defaultExport = {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  newFunction,
+  addressAccessibilityIssues,
+  preserveExistingCode,
+  initializeApp,
+  generateAccessibilityReport,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
+  }
+};
+
 // Screeps bot main loop
-module.exports.loop = function() {
+function loop() {
     // Clear the memory of dead creeps
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
@@ -337,23 +319,37 @@ module.exports.loop = function() {
 }
 
 // Export all utility functions for both environments
-module.exports.calculateSum = calculateSum;
-module.exports.calculateDifference = calculateDifference;
-module.exports.calculateProduct = calculateProduct;
-module.exports.isNumber = isNumber;
-module.exports.clamp = clamp;
-module.exports.divide = divide;
-module.exports.checkAccessibilityAttribute = checkAccessibilityAttribute;
-module.exports.ensureAccessibleLabel = ensureAccessibleLabel;
-module.exports.validateFocusableElement = validateFocusableElement;
-module.exports.defaultExport = defaultExport;
-module.exports.logger = logger;
-module.exports.initializeApp = initializeApp;
-module.exports.generateAccessibilityReport = generateAccessibilityReport;
-module.exports.addressAccessibilityIssuesDOM = addressAccessibilityIssuesDOM;
-module.exports.rotateBack = rotateBack;
-module.exports.renderDependencyGraph = renderDependencyGraph;
-module.exports.renderIndexView = renderIndexView;
-module.exports.newFunction = newFunction;
-module.exports.preserveExistingCode = preserveExistingCode;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+module.exports = {
+  // Math functions
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  divide,
+  
+  // Accessibility functions
+  checkAccessibilityAttribute,
+  ensureAccessibleLabel,
+  validateFocusableElement,
+  
+  // Core functions
+  renderDependencyGraph,
+  renderIndexView,
+  newFunction,
+  preserveExistingCode,
+  addressAccessibilityIssues,
+  renderGraphIndex,
+  prepareDataForGraph,
+  rotateBack,
+  
+  // Backwards compatibility
+  defaultExport,
+  logger,
+  initializeApp,
+  generateAccessibilityReport,
+  addressAccessibilityIssuesDOM,
+  
+  // Screeps
+  loop
+};

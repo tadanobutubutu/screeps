@@ -4,10 +4,10 @@
 // main.js - Accessibility improvements implementation
 
 // Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
+function keyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
-  element.addEventListener('keydown', (event) => {
+  return function(event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -28,7 +28,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -40,7 +40,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  function handleTab(event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -50,7 +50,15 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  }
+
+  container.addEventListener('keydown', handleTab);
+
+  return {
+    destroy: function() {
+      container.removeEventListener('keydown', handleTab);
+    }
+  };
 }
 
 // ARIA live region announcer
@@ -62,11 +70,16 @@ function createAnnouncer() {
   document.body.appendChild(announcer);
   
   return {
-    announce: (message) => {
+    announce: function(message) {
       announcer.textContent = '';
-      setTimeout(() => {
+      setTimeout(function() {
         announcer.textContent = message;
       }, 100);
+    },
+    destroy: function() {
+      if (announcer.parentNode) {
+        announcer.parentNode.removeChild(announcer);
+      }
     }
   };
 }
@@ -83,9 +96,10 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion
+    keyboardNavigation: keyboardNavigation,
+    trapFocus: trapFocus,
+    createAnnouncer: createAnnouncer,
+    prefersReducedMotion: prefersReducedMotion
   };
 }
 
@@ -141,7 +155,7 @@ function clamp(num, min, max) {
 function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Array) return obj.map(function(item) { return deepClone(item); });
   if (obj instanceof Object) {
     const cloned = {};
     for (const key in obj) {
@@ -158,7 +172,7 @@ function deepClone(obj) {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    setupKeyboardNavigation,
+    keyboardNavigation,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -172,7 +186,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     window.accessibilityFeatures = initializeAccessibility();
   });
 }

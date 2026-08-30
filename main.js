@@ -423,25 +423,24 @@ function newFunction() {
   // Implementation of the new function
 }
 
-export function calculateDiscount(price, discount) {
-  if (typeof price !== 'number' || price < 0) {
-    throw new Error('Price must be a non-negative number');
-  }
-  if (typeof discount !== 'number' || discount < 0) {
-    throw new Error('Discount must be a non-negative number');
-  }
-
-  // Calculate discounted price
-  const discountedPrice = price * (1 - discount / 100);
-  return Math.max(0, discountedPrice);
-}
-
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-function add(a, b) {
-  return a + b;
+// Added function to count dependencies
+function countDependencies() {
+  // Count the number of exported functions in this module
+  // We count the named exports that are functions
+  // Note: This is a simplified implementation and may not capture all dependencies
+  // but serves as a placeholder for the actual dependency counting logic.
+  const exports = [
+    initialize, getConfig, setupSkipLinks, setupButtonAccessibility,
+    checkLandmarkElement, createInPageButton, performTask, handleEvent,
+    greet, add, calculateDiscount, newFunction, countDependencies
+  ];
+  let count = 0;
+  exports.forEach(exp => {
+    if (typeof exp === 'function') {
+      count++;
+    }
+  });
+  return count;
 }
 
 // Export existing functionality and new functions
@@ -457,7 +456,8 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  countDependencies 
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
@@ -477,6 +477,7 @@ module.exports.createAccessibleLink = createAccessibleLink;
 module.exports.createInPageButton = createInPageButton;
 module.exports.rotateBack = rotateBack;
 module.exports.checkLandmarkElement = checkLandmarkElement;
+module.exports.countDependencies = countDependencies;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

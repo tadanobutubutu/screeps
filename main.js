@@ -87,7 +87,7 @@ function validateTableAccessibility(tableElement) {
   if (!tableElement) return false;
   
   const headers = tableElement.querySelectorAll('th');
-  const cells = tableElement.querySelectorAll('td, th');
+  const cells = tableElement.querySelectorAll('td');
   
   // Check if table has proper headers
   if (headers.length === 0) {
@@ -143,7 +143,7 @@ function fixTableStructure(tableElement) {
     const thead = document.createElement('thead');
     const firstRow = tableElement.querySelector('tr');
     if (firstRow) {
-      const cells = firstRow.querySelectorAll('th, td');
+      const cells = firstRow.querySelectorAll('td');
       cells.forEach(cell => {
         if (cell.tagName === 'TD') {
           const th = document.createElement('th');
@@ -152,7 +152,7 @@ function fixTableStructure(tableElement) {
           thead.appendChild(th);
         }
       });
-      tableElement.insertBefore(thead, tableElement.firstChild);
+      tableElement.insertBefore(thead, tableElement.querySelector('tbody') || firstRow);
       fixed = true;
     }
   }
@@ -178,7 +178,7 @@ function addMainLandmark(containerElement) {
   if (!containerElement) return false;
   
   // Check if main landmark already exists
-  if (containerElement.querySelector('main')) {
+  if (containerElement.querySelector('main, [role="main"]')) {
     return false;
   }
   
@@ -200,7 +200,7 @@ function validateLandmark(containerElement) {
   // Code for validating landmark
   if (!containerElement) return false;
   
-  const main = containerElement.querySelector('main');
+  const main = containerElement.querySelector('main, [role="main"]');
   return main !== null;
 }
 
@@ -212,7 +212,7 @@ function validateLandmarkStructure(containerElement) {
   const landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
   
   landmarks.forEach(landmark => {
-    const elements = containerElement.querySelectorAll(landmark);
+    const elements = containerElement.querySelectorAll(`${landmark}, [role="${landmark}"]`);
     if (elements.length > 1 && landmark !== 'nav' && landmark !== 'aside') {
       issues.push({
         type: 'duplicate-landmark',
@@ -225,7 +225,7 @@ function validateLandmarkStructure(containerElement) {
   // Check for proper nesting
   const properLandmarks = ['header', 'main', 'footer'];
   properLandmarks.forEach(landmark => {
-    const elements = containerElement.querySelectorAll(`:scope > ${landmark}`);
+    const elements = containerElement.querySelectorAll(`${landmark}, [role="${landmark}"]`);
     if (elements.length === 0 && landmark === 'main') {
       issues.push({
         type: 'missing-landmark',
@@ -311,7 +311,7 @@ function ensureUniqueLandmarks(containerElement) {
   const landmarks = ['header', 'main', 'footer', 'nav', 'aside'];
   
   landmarks.forEach(landmark => {
-    const elements = containerElement.querySelectorAll(landmark);
+    const elements = containerElement.querySelectorAll(`${landmark}, [role="${landmark}"]`);
     if (elements.length > 1) {
       elements.forEach((el, index) => {
         if (!el.id) {
@@ -335,7 +335,7 @@ function createInPageButton() {
   
   // Add click handler
   button.addEventListener('click', () => {
-    const main = document.querySelector('main') || document.getElementById('main-content');
+    const main = document.querySelector('main') || document.querySelector('[role="main"]');
     if (main) {
       main.tabIndex = -1;
       main.focus();
@@ -357,225 +357,30 @@ function addProperLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
-// TODO: Implement function for addressing accessibility issues from insight report
-// Placeholder for the new function
+/**
+ * Addresses accessibility issues from an insight report
+ * @param {Object} insightReport - The insight report containing accessibility issues
+ * @returns {boolean} - Returns true if any issues were addressed
+ */
 function addressAccessibilityIssues(insightReport) {
-  // Mock implementation of the function to address accessibility issues
-  // This should be replaced with actual logic based on the insight report structure
-
-  // For example, we might log the issues or take some action to fix them
-  if (insightReport && insightReport.issues) {
-    insightReport.issues.forEach((issue) => {
-      console.log(`Accessibility issue detected: ${issue.message}`);
-      // Add your logic here to address the issue, such as updating the DOM or calling other functions
-    });
-  }
-}
-
-// - REACT_041: Add accessible names to 2 SVGs
-// ... your accessible names for SVGs refactoring code ...
-
-// ADD CODE HERE if the missing export should be implemented
-export function missingExportPlaceholder() {}
-
-// ... (Existing code from main.js)
-
-// Main execution
-function main() {
-  initialize();
-  console.log('Main function executed');
-}
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-// Added new function for export
-function someNewFunction() {
-  console.log('This is a new function added for export');
-}
-
-// Example usage of the new function (if applicable)
-// This would depend on how the insight report is obtained and when you want to address the issues
-// const report = getInsightReport(); // Hypothetical function to get the insight report
-// addressAccessibilityIssues(report);
-
-export function calculateSum(a, b) {
-  return a + b;
-}
-
-export default function App() {
-  const MyApp = () => {
-    // Your app functionality here
-  };
-
-  return (
-    <HTML lang="en">
-      <React.Fragment>
-        <MyApp />
-        {/* Render your HTML structure */}
-      </React.Fragment>
-    </HTML>
-  );
-}
-
-// Fix fake link issue
-function fixFakeLinks() {
-  // Implementation for fixing fake link issues goes here.
-  // Handle both anchor tags with href="#" and div elements with role="link"
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  let addressed = false;
   
-  [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
-    link.setAttribute('role', 'button');
-    link.tabIndex = 0;
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Button');
-    }
-  });
-}
-
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.lang) {
-    htmlElement.setAttribute('lang', 'en');
+  if (!insightReport || !insightReport.issues) {
+    return addressed;
   }
-}
-
-// Fix table structure issues
-function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure tables have proper structure
-    if (!table.querySelector('thead')) {
-      const firstRow = table.querySelector('tr');
-      if (firstRow) {
-        const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody');
-        thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody || firstRow);
-      }
-    }
-  });
-}
-
-// Fix table header cell scope
-function fixTableHeaderCellScope() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th');
-    headerCells.forEach(cell => {
-      if (!cell.getAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
-        const cellIndex = Array.from(rows[0].querySelectorAll('th, td')).indexOf(cell);
-        let isHeaderRow = true;
-        
-        rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
-          if (rowCells[cellIndex] !== cell) {
-            isHeaderRow = false;
-          }
-        });
-        
-        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
-      }
-    });
-  });
-}
-
-// Add main landmark
-function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  mainElements.forEach(main => {
-    if (!main.getAttribute('role')) {
-      main.setAttribute('role', 'main');
-    }
-  });
-  // If no main element exists, create one for the main content
-  if (mainElements.length === 0) {
-    const content = document.querySelector('#content, .content, [role="main"]');
-    if (content) {
-      const main = document.createElement('main');
-      main.setAttribute('role', 'main');
-      while (content.firstChild) {
-        main.appendChild(content.firstChild);
-      }
-      content.parentNode.insertBefore(main, content);
-    }
-  }
-}
-
-// Add accessible names to SVGs
-function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = `svg-title-${index}`;
-      title.setAttribute('id', titleId);
-      svg.setAttribute('aria-labelledby', titleId);
-    } else {
-      const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
-      svg.insertBefore(title, svg.firstChild);
-    }
-  });
-}
-
-// New function to implement accessibility fixes
-function implementNewFunction() {
-  addressAccessibilityIssues();
-  fixFakeLinks();
-  ensureUniqueLandmarks();
-  addLangAttribute();
-  fixTableStructureIssues();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableHeaderCellScope();
-}
-
-// Existing code preserved below
-function applicationMain() {
-  console.log('Running main application');
-  return someFunction();
-}
-
-// Export all functions for use elsewhere in the repository
-
-module.exports = {
-  config,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  someNewFunction,
-  addressAccessibilityIssues,
-  main,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addSvgAccessibleNames,
-  implementNewFunction,
-  applicationMain
-};
+  
+  insightReport.issues.forEach(issue => {
+    console.log(`Accessibility issue detected: ${issue.message}`);
+    
+    switch (issue.type) {
+      case 'fake-link':
+        if (fixFakeLinks()) {
+          addressed = true;
+        }
+        break;
+      case 'table-structure':
+        if (fixTableStructureIssues()) {
+          addressed = true;
+        }
+        break;
+      case 'table-header-scope

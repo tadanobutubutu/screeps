@@ -2,7 +2,7 @@
  * Main application module
  */
 
-// Sample data store
+ // Sample data store
 const appData = {
   tables: [],
   config: {
@@ -54,8 +54,6 @@ function getConfig() {
 function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
-
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
 
 /**
  * Validates that all tables in the application meet accessibility standards

@@ -39,31 +39,31 @@ function ensureDependencyGraphARIA() {
 }
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
+export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
+export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
-function generateKey(book) {
+export function generateKey(book) {
   return `book-${book.id || book.title.toLowerCase().replace(/\s+/g, '-')}`;
 }
 
 // Function to render a single book item
-function BookItem({ book }) {
+export function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
-      <List.Item.Meta title={book.title} />
+      <List.Item.Meta title={book.title} description={book.author} />
     </List.Item>
   );
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -116,21 +116,19 @@ function generateAccessibilityReport(issues) {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
+export function onTitleSort() {
   const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
+export function onAuthorSort() {
   const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Export the necessary functions for use in other modules
-export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
 // Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Functions to improve accessibility (implementation assumed elsewhere)
@@ -210,6 +208,10 @@ function Main() {
     </div>
   );
 }
+
+// Export the necessary functions for use in other modules
+export { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, handleAddBook, generateAccessibilityReport };
+// Accessibility Helper Functions (REACT_015, REACT_027, REACT_017, REACT_041, REACT_025, REACT_036)
 
 // Export the Main component
 export default Main;

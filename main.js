@@ -45,6 +45,9 @@ function addBook(dispatch, book) {
   return true;
 }
 
+// Export the addBook function
+export { addBook };
+
 // Default sorting function for the book list
 export const defaultSorting = sortByTitle;
 

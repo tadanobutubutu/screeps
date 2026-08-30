@@ -1,9 +1,5 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-=======
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
+// Main module for calculator operations
+// Main entry point for dependency visualization tool
 
 const main = {
   init: function() {
@@ -14,9 +10,6 @@ const main = {
     return `Hello, ${name}!`;
   }
 };
-
-// Main module for calculator operations
-// Main entry point for dependency visualization tool
 
 const fs = require('fs');
 const path = require('path');
@@ -312,5 +305,30 @@ function displayModuleStructure(modules) {
 
 /**
  * Generates a dependency report for debugging
-=========================================
-```
+ */
+
+export {
+  main,
+  getDependencyDepth,
+  renderDependencyGraph,
+  newFunction,
+  greet,
+  newAccessibleFunction,
+  addLandmarkRegionToElement,
+  addLandmark,
+  getLandmarks,
+  removeLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addProperLandmarkRegions,
+  displayModuleStructure
+};

@@ -38,7 +38,7 @@ export function sortByAuthor(a, b) {
 }
 
 // Function to generate a key for each book item
-function generateKey(book) {
+export function generateKey(book) {
   return ...
 }
 
@@ -55,7 +55,7 @@ export function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
+export function addBook(book) {
   // Perform any necessary validation or processing before adding the book
   // ...
 
@@ -134,21 +134,14 @@ function validateLinkAccessibility() {
 }
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
+export function onTitleSort() {
   const sortedList = ...
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
+export function onAuthorSort() {
   const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
@@ -186,4 +179,3 @@ function Main() {
 
 // Export the Main component
 export default Main;
-```

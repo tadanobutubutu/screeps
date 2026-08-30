@@ -108,8 +108,82 @@ function checkLandmarkElements() {
     });
 }
 
+// New function to ensure all landmark elements have unique IDs
+function ensureLandmarkUniqueness() {
+    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+    const ids = new Set();
+    let hasDuplicate = false;
+    
+    landmarkElements.forEach((landmark) => {
+        if (landmark.id) {
+            if (ids.has(landmark.id)) {
+                hasDuplicate = true;
+            }
+            ids.add(landmark.id);
+        } else {
+            const tagName = landmark.tagName.toLowerCase();
+            const id = `${tagName}-${landmark.id ? landmark.id : 0}`;
+            landmark.id = id;
+            if (ids.has(id)) {
+                hasDuplicate = true;
+            }
+            ids.add(id);
+        }
+    });
+    
+    return !hasDuplicate;
+}
+
+// New function to handle adding landmark regions
+function addLandmarkRegions() {
+    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+    landmarkElements.forEach((landmark) => {
+        if (landmark) {
+            if (!landmark.id) {
+                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
+            }
+        }
+    });
+}
+
+// New function to check dependency counts using Document and regex
+function countDependencies() {
+    const importCommentRegExp = /^\s*import\s+({|[\w\s,]*)*\s*;?\s*\s*$/gm;
+    const importCount = (document.body.textContent || '').match(importCommentRegExp)?.length || 0;
+    return importCount;
+}
+
+// Function to add landmark regions ensuring proper IDs
+function addLandmarkRegions() {
+    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+    landmarkElements.forEach((landmark) => {
+        if (landmark) {
+            if (!landmark.id) {
+                landmark.id = `${landmark.tagName.toLowerCase()}-${landmark.id ? landmark.id : 0}`;
+            }
+        }
+    });
+}
+
+// New function to check landmark elements
+function checkLandmarkElements() {
+    const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
+    landmarkElements.forEach((landmark, index) => {
+        if (landmark.id === '') {
+            landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
+        }
+        
+        if (landmarkElements.length > 1) {
+            if (landmark.id === '') {
+                landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
+            }
+        }
+    });
+}
+
 // Store for accessibility announcements (screen reader support)
 const a11yStore = {
+
   // Existing code
 
   // New property to count dependencies
@@ -195,13 +269,13 @@ const a11yStore = {
   },
 
   // Utility: Check if user prefers reduced motion
-  prefersReducedMotion() {
-    return ... reduce)'.matches;
+  preferencesReducedMotion() {
+    return false;
   },
 
   // Utility: Check if user prefers high contrast
   prefersHighContrast() {
-    return ... more)'.matches;
+    return true;
   },
 
   // New function to handle dynamic content updates
@@ -240,90 +314,4 @@ function addLandmarkRegions() {
 function checkLandmarkElements() {
   const landmarkElements = document.querySelectorAll('main, nav, header, footer, aside, section, article');
   landmarkElements.forEach((landmark, index) => {
-    if (landmark.id === '') {
-      landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-    }
-    
-    if (landmarkElements.length > 1) {
-      if (landmark.id === '') {
-        landmark.id = `${landmark.tagName.toLowerCase()}-${index}`;
-      }
-    }
-  });
-}
-
-// Run game logic here...
-
-// Update scope attributes in all .html files in the views directory
-const viewsDir = __dirname + '/views';
-const htmlFiles = [...(fs.readdirSync(viewsDir)).filter(file => file.endsWith('.html'))];
-htmlFiles.forEach(file => {
-  const filePath = path.join(viewsDir, file);
-  // Process each HTML file
-});
-
-// Wrap the entire document content inside a <main> element and set its lang attribute
-const mainElement = document.documentElement;
-if (!mainElement.id) {
-  mainElement.id = 'main';
-}
-mainElement.setAttribute('lang', 'en');
-
-// REACT_015: Ensure the <html> element has a lang attribute for accessibility
-if (!document.documentElement.lang) {
-  document.documentElement.lang = 'en';
-}
-
-// Start the game loop
-Module.onInit = function() {
-  setInterval(run, 1000);
-};
-
-// Define functionA and functionB as objects with properties X, Y, and Z
-functionA = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
-
-functionB = {
-  X: 'valueX2',
-  Y: 'valueY2',
-  Z: 'valueZ2'
-};
-
-// ----- END ORIGINAL CODE -------
-
-// Initialize accessibility features
-a11yStore.init();
-
-// Export affected functions to make them accessible
-module.exports = {
-  addLandmarkRegions,
-  checkLandmarkElements,
-  addSVGAccessibilityProps,
-  fixFakeLinks,
-  setLangAttribute,
-  initAccessibility,
-  generatePageContent,
-  wrapInMainLandmark,
-  updateHTMLWithLandmarks,
-  countDependencies,
-  createInPageButton,
-};
-
-// Export for module usage (ES modules)
-if (typeof exports !== 'undefined') {
-  exports.a11yStore = a11yStore;
-  exports.addLandmarkRegions = addLandmarkRegions;
-  exports.checkLandmarkElements = checkLandmarkElements;
-  exports.addSVGAccessibilityProps = addSVGAccessibilityProps;
-  exports.fixFakeLinks = fixFakeLinks;
-  exports.setLangAttribute = setLangAttribute;
-  exports.initAccessibility = initAccessibility;
-  exports.generatePageContent = generatePageContent;
-  exports.wrapInMainLandmark = wrapInMainLandmark;
-  exports.updateHTMLWithLandmarks = updateHTMLWithLandmarks;
-  exports.countDependencies = countDependencies;
-  exports.createInPageButton = createInPageButton;
-}
+    if (land

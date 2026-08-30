@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -100,8 +97,6 @@ function getFullLangAttribute() {
     return document.documentElement.lang || '';
 }
 
-// ... existing functions from both branches
-
 // Accessibility helper functions
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
@@ -151,5 +146,14 @@ function trapFocus(container) {
   });
 }
 
+// Export new functions for use in other modules
+exports.ensureUniqueLandmarkId = ensureUniqueLandmarkId;
+exports.uniqueLandmarks = uniqueLandmarks;
+exports.addLangAttribute = addLangAttribute;
+exports.addAriaLabel = addAriaLabel;
+exports.getLangAttribute = getLangAttribute;
+exports.getFullLangAttribute = getFullLangAttribute;
+exports.setupKeyboardNavigation = setupKeyboardNavigation;
+exports.trapFocus = trapFocus;
+
 // ... other existing functions remained unchanged
-```

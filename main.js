@@ -1,94 +1,4 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// Importing utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-
-// REACT_015: lang attribute added to HTML element
-// The React component rendering the HTML element provides the `lang` prop
-// The language attribute is set according to the application's settings
-
-// REACT_027: 26 table structure issues fixed
-// Related commit or original table issues have been addressed
-
-// ... other fixes ...
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-document.documentElement.lang = getLangAttribute();
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Ensuring all tables in the document are accessible
-const tables = document.querySelectorAll('table');
-tables.forEach(table => {
-  validateTableAccessibility(table);
-  validateTableStructure(table);
-});
-
-// - REACT_017: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Internal set to track used landmark IDs
-// Global set to track used landmark IDs
-const _usedLandmarkIds = new Set();
-
-/**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
- */
-function ensureUniqueLandmarkId(baseName) {
-    let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
-    }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
-}
-
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
-}
-
-/**
- * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
- * @param {string} label - The label text to be added.
- */
+// Address NEW: Add aria-label
 function addAriaLabel(element, label) {
     if (!element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
@@ -128,15 +38,23 @@ function addAriaLabelById(elementId, label) {
   }
 }
 
-// Ensure elements have the required IDs
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
+// Use the new function to add aria-labels to the appropriate elements
+const myButton = document.querySelector('.my-button');
+const myIcon = document.querySelector('.my-icon');
 
 // Add ARIA labels for better screen reader support
 addAriaLabelById('myTable', 'Product data table');
 addAriaLabelById('mySvg', 'Company logo');
 addAriaLabelById('inPageButton', 'Accessibility menu');
+
+// Add aria-labels for myButton and myIcon
+if (myButton) {
+  addAriaLabel(myButton, 'My Button');
+}
+
+if (myIcon) {
+  addAriaLabel(myIcon, 'My Icon');
+}
 
 // DOM-based accessibility code
 

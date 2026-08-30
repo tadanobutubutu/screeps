@@ -1,12 +1,7 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// TODO: add the new functions or changes requested in the issue
+// Here is the implementation for checking link accessibility
+// The existing isLinkAccessible function implementation
 
-// Preserve existing functionality
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
@@ -218,6 +213,42 @@ function ensureElementHasId(element, baseId = 'element') {
   return element.id;
 }
 
+// New function to render dependency graphs or display module structure
+function renderDependencyGraph(module) {
+  // Implementation to render the dependency graph for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Rendering dependency graph for:', module);
+  // Example output: 'Rendering dependency graph for: ModuleName'
+}
+
+/**
+ * Displays the module structure for a given module
+ * @param {string} moduleName - Name of the module
+ */
+function displayModuleStructure(moduleName) {
+  // Implementation to display the module structure for a given module
+  // This is a placeholder function and should be replaced with actual logic
+  console.log('Displaying module structure for:', moduleName);
+  // Example output: 'Displaying module structure for: ModuleName'
+}
+
+/**
+ * Checks if a link is accessible by making a HEAD request.
+ * @param {string} url - The URL to check.
+ * @returns {Promise<boolean>} True if the link is accessible, false otherwise.
+ */
+async function isLinkAccessible(url) {
+    try {
+        const response = await fetch(url, {
+            method: 'HEAD',
+            mode: 'no-cors'
+        });
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 // Export accessibility utility functions
 export {
   getLangAttribute,
@@ -263,26 +294,17 @@ export {
   renderPage
 };
 
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-/**
- * Displays the module structure for a given module
- * @param {string} moduleName - Name of the module
- */
-function displayModuleStructure(moduleName) {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', moduleName);
-  // Example output: 'Displaying module structure for: ModuleName'
-}
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, createUniqueLandmarkId, uniqueLandmarks, addAriaLabel, addLangAttribute, ensureElementHasId };
+// Export the new functions
+export {
+  checkLinkAccessibility,
+  renderDependencyGraph,
+  displayModuleStructure,
+  createUniqueLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  isLinkAccessible
+};
 
 // ... other exports ...

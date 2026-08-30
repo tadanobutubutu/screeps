@@ -1,28 +1,25 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
-
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
+import { List, Button, Input, Form } from 'antd';
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
+export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
+export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
-function generateKey(book) {
+export function generateKey(book) {
   return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+export function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -34,9 +31,11 @@ function BookItem(book) {
 }
 
 // Function to create a new book entry in the Redux store
-function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
+export function addBook(book) {
+  // Perform validation before adding the book
+  if (!book.title || !book.author) {
+    throw new Error('Book must have both title and author fields');
+  }
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -259,108 +258,129 @@ function setSvgAttributes(svg, name, description = '') {
 
 // <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// Integrated accessibility improvements from the addBook function enhancement:
-// - Added input validation for book properties
-// - Included accessible label attributes for form inputs
-function addBook(book) {
-  // Perform validation before adding the book
-  if (!book.title || !book.author) {
-    throw new Error('Book must have both title and author fields');
-  }
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
-}
-
-// Enhanced addBookForm component with accessibility improvements
-function AddBookForm() {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addBook({ title, author });
-    setTitle('');
-    setAuthor('');
-  };
-
-  return (
-    <form onSubmit={handleSubmit} aria-label="Add new book form">
-      <div>
-        <label htmlFor="book-title">Title</label>
-        <input
-          id="book-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          aria-required="true"
-        />
-      </div>
-      <div>
-        <label htmlFor="book-author">Author</label>
-        <input
-          id="book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-required="true"
-        />
-      </div>
-      <button type="submit">Add Book</button>
-    </form>
-  );
-}
-
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+export function onTitleSort(books) {
+  const sortedList = [...books].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+export function onAuthorSort(books) {
+  const sortedList = [...books].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// Function to handle adding a new book with accessibility improvements
+function handleAddBook(values) {
+  addBook({
+    id: Date.now(), // Generate a unique id using current timestamp
+    title: values.title,
+    author: values.author,
+  });
+}
+
+// Enhanced AddBookForm component with accessibility improvements
+function AddBookForm({ form, onFinish }) {
+  return (
+    <Form
+      form={form}
+      layout="inline"
+      onFinish={onFinish}
+      aria-label="Add new book form"
+    >
+      <Form.Item
+        label="Title"
+        name="title"
+        rules={[{ required: true, message: 'Please enter the book title' }]}
+      >
+        <Input
+          id="book-title"
+          aria-required="true"
+          aria-label="Book title"
+          placeholder="Enter book title"
+        />
+      </Form.Item>
+      <Form.Item
+        label="Author"
+        name="author"
+        rules={[{ required: true, message: 'Please enter the book author' }]}
+      >
+        <Input
+          id="book-author"
+          aria-required="true"
+          aria-label="Book author"
+          placeholder="Enter book author"
+        />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit" aria-label="Add book">
+          Add Book
+        </Button>
+      </Form.Item>
+    </Form>
+  );
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const books = useSelector(state => state.books.list);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      onTitleSort(books);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      onAuthorSort(books);
     }
-  }, [sorting]);
+  }, [sorting, books]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.sort(sorting).map((book, index) => (
-    <BookItem key={index} {...book} />
+  const bookItems = books.sort(sorting).map((book) => (
+    <BookItem key={generateKey(book)} {...book} />
   ));
 
   // Render the list of book items and sorting controls
   return (
     <div {...getLangAttribute()}>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List
-        dataSource={bookItems}
-        renderItem={item => item}
-      />
-      {/* Accessibility improvements for adding a new book */}
-      <AddBookForm />
+      <header>
+        <h1>Book List</h1>
+        <nav>
+          <button onClick={() => setSorting(sortByTitle)} aria-label="Sort books by title ascending">Sort by Title</button>
+          <button onClick={() => setSorting(sortByAuthor)} aria-label="Sort books by author descending">Sort by Author</button>
+        </nav>
+      </header>
+      <main>
+        <List
+          dataSource={bookItems}
+          renderItem={item => item}
+        />
+        {/* Accessibility improvements for adding a new book */}
+        <AddBookForm form={form} onFinish={handleAddBook} />
+      </main>
     </div>
   );
 }
+
+// Export the required functionA and functionB as objects with properties X, Y, and Z
+export const functionA = {
+  X: null,
+  Y: null,
+  Z: null
+};
+
+export const functionB = {
+  X: null,
+  Y: null,
+  Z: null
+};
 
 // Export the Main component
 export default Main;

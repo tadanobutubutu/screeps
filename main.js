@@ -1,242 +1,127 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
+// Main entry point for dependency visualization tool
 
-// Preserve existing functionality
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
-// TODO: This is the existing code that needs to be preserved
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
-// main.js - Accessibility improvements implementation
-// main.js - Combined utility and accessibility features
-
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (2 issues)
-// - REACT_036: Fix 1 fake link issue
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// (Added functions for REACT_017 and new REACT_025)
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
-
-// Internal set to track used landmark IDs
-// Global set to track used landmark IDs
-const _usedLandmarkIds = new Set();
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
+ * Calculates the depth of dependency tree
+ * @param {Object} dependencies - The dependency object
+ * @param {string} currentKey - Current key being processed
+ * @returns {number} Maximum depth of the dependency tree
  */
-function ... {
-    let candidate = baseName;
-    if ... {
-        // Collision handling: add random suffix
-        const suffix = ... 9);
-        candidate = ...
-    }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
-}
-
-/**
- * Returns a new array containing only unique landmarks from the input list.
- * @param {Array} landmarks - List of landmark objects.
- * @returns {Array} Unique landmarks.
- */
-function uniqueLandmarks(landmarks) {
-    const seen = new Set();
-    const result = [];
-    for (const lm of landmarks) {
-        if (!seen.has(lm.id)) {
-            seen.add(lm.id);
-            result.push(lm);
-        }
-    }
-    return result;
-}
-
-/**
- * Adds an aria-label attribute to an element if it doesn't already have one.
- * @param {HTMLElement} element - The element to add the aria-label to.
- * @param {string} label - The label text to be added.
- */
-function addAriaLabel(element, label) {
-    if ... {
-        element.setAttribute('aria-label', label);
-    }
-}
-
-/**
- * Adds lang attribute as per the issue requirement
- */
-function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = ...
-  if (elementToModify) {
-    ... 'en'); // Example: English
+function getDependencyDepth(dependencies, currentKey = '') {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
   }
+  
+  let maxDepth = 0;
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach(key => {
+    const value = dependencies[key];
+    if (typeof value === 'object' && value !== null) {
+      const nestedDepth = getDependencyDepth(value, key);
+      maxDepth = Math.max(maxDepth, nestedDepth + 1);
+    }
+  });
+  
+  return maxDepth;
 }
 
-// ... other fixes ...
-
-// DOM-based accessibility code
-
-// Add lang attribute to HTML element
-getLangAttribute();
-
-// Create in-page button with accessibility considerations
-createInPageButton();
-
-// Validate table structure and accessibility
-// Assuming you have a table element with an id of 'myTable'
-const table = ...
-validateTableAccessibility(table);
-validateTableStructure(table);
-
-// Add/fix landmark issues
-validateLandmark();
-...
-
-// Add accessible names to SVGs
-// Assuming you have an SVG element with an id of 'mySvg'
-const svg = ...
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
-
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-...
-
-// Handle fake links
-handleFakeLinks();
-
-// ... rest of your code ...
-
-// React / UI related functions
-
-// TODO: Add these imported modules to the relevant rendering functions
-
-function formatProductName(product) {
-  return `${product.name} - ...`;
-}
-
-function renderProductList(products) {
-  const container = ...
-  container.innerHTML = products.map(p => ...
-  return container;
-}
-
-function calculateTotalPrice(cart) {
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = calculateDiscount(subtotal);
-  return subtotal - discount;
-}
-
-function renderCart(cart) {
-  const total = calculateTotalPrice(cart);
-  return `
-    <div class="cart">
-      <h2>Shopping Cart</h2>
-      <p>Total: ...${total}</p>
-      <p>Date: ${formatDate(new Date())}</p>
-    </div>
-  `;
-}
-
-function validateAndRender(input) {
-  if (validateInput(input)) {
-    return ...
+/**
+ * Renders a dependency graph as ASCII art for debugging purposes.
+ * @param {Object} dependencies - The dependency object
+ * @param {string} prefix - Current prefix for indentation
+ * @param {boolean} isLast - Whether this is the last item at current level
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return '';
   }
-  return '<p>Invalid input</p>';
+  
+  let output = '';
+  const keys = Object.keys(dependencies);
+  
+  keys.forEach((key, index) => {
+    const isLastItem = index === keys.length - 1;
+    const connector = isLast ? '└── ' : '├── ';
+    const value = dependencies[key];
+    
+    output += `${prefix}${connector}${key}`;
+    
+    if (typeof value === 'object' && value !== null) {
+      output += '/\n';
+      const extension = isLast ? '    ' : '│   ';
+      output += renderDependencyGraph(value, prefix + extension, isLastItem);
+    } else {
+      output += ` -> ${value}\n`;
+    }
+  });
+  
+  return output;
 }
 
-function renderPage(data) {
-  const header = renderHeader(data.title);
-  const content = ...
-  const footer = renderFooter();
-  return `${header}${content}${footer}`;
+/**
+ * Displays module structure for debugging purposes.
+ * @param {Array} modules - Array of module objects
+ * @returns {string} Formatted module structure display
+ */
+function displayModuleStructure(modules) {
+  if (!Array.isArray(modules)) {
+    return 'Error: modules must be an array';
+  }
+  
+  let output = 'Module Structure:\n';
+  output += '==================\n\n';
+  
+  modules.forEach((mod, index) => {
+    const name = mod.name || mod.id || `Module ${index + 1}`;
+    output += `${index + 1}. ${name}\n`;
+    
+    if (mod.dependencies && Array.isArray(mod.dependencies)) {
+      output += `   Dependencies: ${mod.dependencies.join(', ')}\n`;
+    }
+    
+    if (mod.path) {
+      output += `   Path: ${mod.path}\n`;
+    }
+    
+    output += '\n';
+  });
+  
+  return output;
 }
 
-// New function or change requested in the issue
-function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return ...
+/**
+ * Generates a dependency report for debugging
+ * @param {Object} dependencies - The dependency object
+ * @returns {Object} Report containing statistics
+ */
+function generateDependencyReport(dependencies) {
+  return {
+    totalDependencies: Object.keys(dependencies).length,
+    maxDepth: getDependencyDepth(dependencies),
+    graph: renderDependencyGraph(dependencies)
+  };
 }
 
-// Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks
-};
-
-// Export utility functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export component functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
+// New function to visualize the dependency tree
+function visualizeDependencyTree(dependencies) {
+  const report = generateDependencyReport(dependencies);
+  console.log(report.graph);
 }
 
-// New function to display module structure
-function ... {
-  // Implementation to display the module structure for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Displaying module structure for:', module);
-  // Example output: 'Displaying module structure for: ModuleName'
+module.exports = {
+  renderDependencyGraph,
+  displayModuleStructure,
+  getDependencyDepth,
+  generateDependencyReport,
+  main,
+  visualizeDependencyTree
+};
+
+// Run if executed directly
+if (require.main === module) {
+  main();
 }
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// ... other exports ...

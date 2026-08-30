@@ -30,7 +30,9 @@ if (typeof module !== 'undefined' && module.exports) {
     calculateAccessibilityScore,
     ensureUniqueLandmarksFromString,
     validateLandmark,
-    spawnSomeCommand
+    spawnSomeCommand,
+    renderDependencyGraph,
+    displayModuleStructure
   };
 } else {
   // Browser environment - wait for DOM
@@ -327,7 +329,7 @@ function calculateAccessibilityScore(fixedIssues) {
     'other': 1
   };
 
-  return fixedIssue.reduce((score, issue) => {
+  return fixedIssues.reduce((score, issue) => {
     const points = scorePoints[issue.type] || scorePoints['other'];
     return score + points;
   }, 0);
@@ -421,4 +423,48 @@ function spawnSomeCommand(callback) {
       callback(new Error(`someCommand failed with code ${code}`));
     }
   });
+}
+
+/**
+ * Render a dependency graph for debugging purposes
+ * @param {Array<Object>} modules - Array of module objects with name and dependencies
+ * @returns {string} String representation of the dependency graph
+ */
+function renderDependencyGraph(modules) {
+  if (!Array.isArray(modules) || modules.length === 0) {
+    return 'No modules to display';
+  }
+
+  let graph = '';
+  modules.forEach(module => {
+    const deps = module.dependencies && module.dependencies.length > 0
+      ? module.dependencies.join(', ')
+      : 'none';
+    graph += `${module.name} -> [${deps}]\n`;
+  });
+
+  return graph;
+}
+
+/**
+ * Display module structure for debugging purposes
+ * @param {Object} module - The module object to display
+ * @returns {string} String representation of the module structure
+ */
+function displayModuleStructure(module) {
+  if (!module || typeof module !== 'object') {
+    return 'Invalid module structure';
+  }
+
+  let structure = `${module.name || 'Unknown Module'}\n`;
+  if (module.dependencies && module.dependencies.length > 0) {
+    structure += '  Dependencies:\n';
+    module.dependencies.forEach(dep => {
+      structure += `    - ${dep}\n`;
+    });
+  } else {
+    structure += '  Dependencies: none\n';
+  }
+
+  return structure;
 }

@@ -25,6 +25,13 @@ function log(message) {
 
 // TODO: This is the existing code that needs to be preserved
 
+// (This comment remains as-is)
+
+// New function added based on the issue request
+function newExportedFunction() {
+  // Implementation of the new function
+}
+
 /**
  * Initializes the application
  * @returns {Promise<void>}
@@ -47,5 +54,6 @@ module.exports = {
     config,
     log,
     init,
-    shutdown
+    shutdown,
+    newExportedFunction
 };

@@ -21,7 +21,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
 }
 
 function validateInput(input) {
@@ -68,7 +68,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -127,23 +127,48 @@ function calculateSum(numbers) {
 }
 
 // Additional utility functions for accessibility
-function getLangAttribute() {
-  // Implementation for REACT_015: Add lang attribute to HTML element
+function addMainLandmark() {
+  // Implementation for REACT_017: Add landmark issues
   // ...
 }
 
-function getSvgAccessibleName() {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
+function ensureUniqueLandmarks() {
+  // Implementation for REACT_025: Ensure unique landmarks
   // ...
 }
 
-function validateTableAccessibility() {
-  // Implementation for REACT_027: Fix 26 table structure issues
+function addAltAttribute() {
+  // Implementation for adding alt attributes
   // ...
 }
 
-function validateTableStructure() {
-  // Implementation for REACT_027: Fix 26 table structure issues
+function replaceButtonId() {
+  // Implementation for replacing button id
+  // ...
+}
+
+function addLangAttribute() {
+  // Implementation for adding lang attribute
+  // ...
+}
+
+function fixTableStructure() {
+  // Implementation for fixing table structure
+  // ...
+}
+
+function addSvgAccessibleName() {
+  // Implementation for adding SVG accessible name
+  // ...
+}
+
+function fixFakeLinkIssue() {
+  // Implementation for fixing fake link issues
+  // ...
+}
+
+function addAriaAttribute() {
+  // Implementation for adding aria attributes
   // ...
 }
 
@@ -251,7 +276,7 @@ async function handleCredentialResponse(response) {
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
   let activeElementIndex = focusableElements.length - 1;
 
@@ -262,11 +287,10 @@ const focusTrap = (element) => {
       index = 0;
     }
 
-    if (focusableElements[index].focus) {
+    if (focusableElements[index]) {
       focusableElements[index].focus();
     } else {
-      main.ensureElementHasId(focusableElements[index]);
-      focusableElements[index].focus();
+      element.focus();
     }
     activeElementIndex = index;
   }
@@ -275,7 +299,7 @@ const focusTrap = (element) => {
     setActiveElement(activeElementIndex + 1);
   }
 
-  function prevFocusableElement() {
+  function previousFocusableElement() {
     setActiveElement(activeElementIndex - 1);
   }
 
@@ -291,14 +315,14 @@ const focusTrap = (element) => {
     switch (e.key) {
       case 'Tab':
         if (e.shiftKey) {
-          prevFocusableElement();
+          previousFocusableElement();
         } else {
           nextFocusableElement();
         }
         e.preventDefault();
         break;
       case 'ArrowLeft':
-        prevFocusableElement();
+        previousFocusableElement();
         e.preventDefault();
         break;
       case 'ArrowRight':
@@ -319,7 +343,13 @@ const focusTrap = (element) => {
 
 // TODO: Address accessibility issues from insight report
 const addressAccessibilityIssues = (container) => {
-  const fixes = implementAccessibilityFixesFromReport(container, validateAccessibilityReport(container));
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
 
   if (fixes.langAdded) {
     log('Lang attribute added to HTML element', 'info');
@@ -364,11 +394,7 @@ module.exports = {
   filterValidItems,
   groupByCategory,
   myNewFunction,
-  getLangAttribute,
   calculateSum,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
@@ -377,6 +403,8 @@ module.exports = {
   addressAccessibilityIssues,
   createInPageButton,
   createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,

@@ -1,4 +1,5 @@
-// Application main entry point
+// main.js - Application entry point
+// TODO: Address accessibility issues from insight report
 
 const express = require('express');
 const axe = require('axe-core');
@@ -6,90 +7,84 @@ const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
 
-// Existing configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development'
-};
-
-// Landmark configuration
-const landmarkConfig = {
-  dataPath: './data',
-  maxResults: 100
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
 };
 
 // Helper function to validate landmark structure
 function isValidLandmark(landmark) {
-  return landmark && 
-         typeof landmark.id !== 'undefined' && 
-         landmark.id !== null;
+    return landmark && 
+           typeof landmark.id !== 'undefined' && 
+           landmark.id !== null;
 }
 
 // Load landmarks from file
 function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, landmarkConfig.dataPath, 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error loading landmarks:', error.message);
-    return [];
-  }
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
 }
 
 // Process and filter landmarks
 function processLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  
-  const validLandmarks = landmarks.filter(isValidLandmark);
-  const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
-  
-  return uniqueLandmarks.slice(0, landmarkConfig.maxResults);
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    
+    const validLandmarks = landmarks.filter(isValidLandmark);
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+    
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
 }
 
 // Sort landmarks by name
 function sortLandmarks(landmarks, ascending = true) {
-  return landmarks.slice().sort((a, b) => {
-    const nameA = (a.name || '').toLowerCase();
-    const nameB = (b.name || '').toLowerCase();
-    
-    if (ascending) {
-      return nameA.localeCompare(nameB);
-    }
-    return nameB.localeCompare(nameA);
-  });
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
+    });
 }
 
 // Get landmark by ID
 function getLandmarkById(landmarks, id) {
-  return landmarks.find(landmark => landmark.id === id) || null;
+    return landmarks.find(landmark => landmark.id === id) || null;
 }
 
 // Ensure unique landmarks by ID
 function ensureUniqueLandmarks(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-  
-  const seen = new Set();
-  const uniqueLandmarks = [];
-  
-  for (const landmark of landmarks) {
-    if (!landmark || typeof landmark.id === 'undefined') {
-      continue;
+    if (!Array.isArray(landmarks)) {
+        return [];
     }
     
-    const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+    const seen = new Set();
+    const uniqueLandmarks = [];
     
-    if (!seen.has(landmarkId)) {
-      seen.add(landmarkId);
-      uniqueLandmarks.push(landmark);
+    for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+            continue;
+        }
+        
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+        
+        if (!seen.has(landmarkId)) {
+            seen.add(landmarkId);
+            uniqueLandmarks.push(landmark);
+        }
     }
-  }
-  
-  return uniqueLandmarks;
+    
+    return uniqueLandmarks;
 }
 
 // Function to write the generated report to a file
@@ -135,7 +130,7 @@ module.exports = {
 if (require.main === module) {
   const landmarks = loadLandmarks();
   const processed = processLandmarks(landmarks);
-  const sorted = sortLandmarks(landmarks);
+  const sorted = sortLandmarks(processed);
   
   console.log(`Loaded ${landmarks.length} landmarks`);
   console.log(`Processed to ${processed.length} unique landmarks`);

@@ -259,6 +259,22 @@ function handleFakeLinks(doc) {
   return results;
 }
 
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const container = document.getElementById('dependencyGraph') ||
+                    document.querySelector('[data-testid="dependency-graph"]') ||
+                    document.querySelector('.dependency-graph');
+  if (container) {
+    container.setAttribute('role', 'region');
+    container.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// Run the ARIA role fix after the DOM is ready
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', ensureDependencyGraphAriaRole);
+}
+
 // Export functions for testing
 module.exports = {
   getLangAttribute,

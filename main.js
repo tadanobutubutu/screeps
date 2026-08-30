@@ -8,6 +8,31 @@ import { indexContent } from './indexContent';
 // ... (any other imports and functions remain unchanged)
 
 /**
+ * Checks landmark elements in the document.
+ * Landmarks help assistive technologies identify important sections of a page.
+ * @returns {Object} An object containing validation results for landmark elements.
+ */
+export function checkLandmarkElements() {
+  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside', 'section', 'article'];
+  const results = {
+    passed: true,
+    landmarks: {},
+    missing: []
+  };
+
+  landmarkElements.forEach(landmark => {
+    const element = document.querySelector(landmark);
+    results.landmarks[landmark] = element !== null;
+    if (!element && landmark === 'main') {
+      results.passed = false;
+      results.missing.push(landmark);
+    }
+  });
+
+  return results;
+}
+
+/**
  * Renders the dependency graph view.
  * Updated to use dependencyGraphContent.
  */

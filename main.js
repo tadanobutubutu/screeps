@@ -58,7 +58,7 @@ function getLandmarkById(landmarks, id) {
     return landmarks.find(landmark => landmark.id === id) || null;
 }
 
-// TODO: Implement this function for ensuring unique landmarks
+// Ensure unique landmarks by ID
 function ensureUniqueLandmarks(landmarks) {
     if (!Array.isArray(landmarks)) {
         return [];

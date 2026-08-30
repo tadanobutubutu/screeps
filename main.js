@@ -36,8 +36,26 @@ function validateLandmarkStructure() {
   // Code for validating landmark structure
 }
 
-function validateLandmarkAttributes() {
-  // Code for validating landmark attributes
+function validateLandmarkAttributes(landmark) {
+  // Validate landmark attributes for accessibility compliance
+  if (!landmark) return { valid: false, errors: [] };
+  
+  const errors = [];
+  const requiredAttrs = ['role'];
+  const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+  
+  requiredAttrs.forEach(attr => {
+    if (!landmark.getAttribute(attr)) {
+      errors.push(`Missing required attribute: ${attr}`);
+    }
+  });
+  
+  const role = landmark.getAttribute('role');
+  if (role && !validLandmarkRoles.includes(role.toLowerCase())) {
+    errors.push(`Invalid landmark role: ${role}`);
+  }
+  
+  return { valid: errors.length === 0, errors };
 }
 
 function getSvgAccessibleName() {
@@ -68,6 +86,8 @@ function addLandmarkRegions() {
   // Code for adding proper landmark regions
 }
 
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
 function addressAccessibilityIssues(insightReport) {
   // Implementation of the function to address accessibility issues
   // This addresses issues from the insight report:
@@ -103,12 +123,12 @@ function addressAccessibilityIssues(insightReport) {
       case 'REACT_017':
         // Add/fix landmark issues
         if (issue.structure) {
-          validateLandmarkStructure();
           addMainLandmark();
+          addLandmarkRegions();
         } else {
           validateLandmark();
         }
-        addLandmarkRegions();
+        validateLandmarkStructure();
         break;
       case 'REACT_041':
         // Add accessible names to SVGs
@@ -125,6 +145,7 @@ function addressAccessibilityIssues(insightReport) {
         // Fix fake link issues
         handleFakeLinks();
         createInPageButton();
+        validateLinkAccessibility();
         break;
       default:
         // Handle unknown issue types

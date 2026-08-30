@@ -17,7 +17,7 @@ function getConfig() {
   return { version: VERSION, name: APP_NAME };
 }
 
-// Added missing exports
+// Existing function
 function isValid(value) {
   return value !== null && value !== undefined;
 }
@@ -46,7 +46,6 @@ module.exports = {
   // Existing functions
   hello,
   getConfig,
-  // Newly added missing exports
   isValid,
   capitalize,
   greet,

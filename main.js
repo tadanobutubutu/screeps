@@ -25,7 +25,7 @@ const main = {
     this.harvestLoop();
     this.upgradeLoop();
     
-    // TODO: Implement the function for addressing new accessibility issues
+    // FIXED: Address accessibility issues from insight report
     this.myNewFunction();
   },
 
@@ -115,8 +115,7 @@ const main = {
   },
 
   myNewFunction: function() {
-    // Example: Log a message to the console to simulate accessibility improvement
-    console.log('Accessibility function is running...');
+    return addressAccessibilityIssues(report);
   },
 
   automateCreeps: function() {

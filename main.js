@@ -1,6 +1,12 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
+const Landmark = {
+  banner: { tag: 'header', label: 'Banner' },
+  navigation: { tag: 'nav', label: 'Navigation' },
+  main: { tag: 'main', label: 'Main' },
+  contentinfo: { tag: 'footer', label: 'Content Info' },
+ complementary: { tag: 'aside', label: 'Complementary' },
+};
 
 import './styles.css';
 import { initializeApp, appData } from './app.js';
@@ -54,7 +60,7 @@ const createInPageButton = (options: {
         filter: hoverState ? 'brightness(1.1)' : 'none',
       }}
     >
-      <span aria-hidden="true">{icon}</span>
+      <span className={icon}>{icons[icon] || ''}</span>
       <span> {label}</span>
     </button>
   );
@@ -67,30 +73,37 @@ function processLandmarks(landmarks) {
   // Ensure all landmarks have valid structure
   const landmarkStructureCheck = (landmark) => {
     // Check landmark properties here
-    // ...
-    return true; // Add your own check logic
+    if (!landmark || typeof landmark !== 'object') return false;
+    if (!landmark.tag || typeof landmark.tag !== 'string') return false;
+    return true;
   };
 
   const validLandmarks = landmarks.filter(landmarkStructureCheck);
 
   // Ensure the landmarks are unique
   const ensureUniqueLandmarks = (landmarks) => {
-    // Add your own unique landmark logic here
-    // ...
-    return landmarks;
+    const seen = new Set();
+    return landmarks.filter((landmark) => {
+      const key = landmark.tag + (landmark.id || '') + (landmark.label || '');
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   };
 
   return ensureUniqueLandmarks(validLandmarks);
 }
 
-function addLangAttribute(htmlElement) {
+function addLangAttribute(htmlElement, lang) {
   if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
+    console.error('Invalid HTML element provided');
     return;
   }
 
-  if (!htmlElement.hasAttribute('lang')) {
+  if (!lang) {
     htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
+  } else {
+    htmlElement.setAttribute('lang', lang);
   }
 }
 
@@ -118,5 +131,6 @@ module.exports = {
   processLandmarks,
   addLangAttribute,
   checkLandmarkElement,
-  calculateSum
+  calculateSum,
+  Landmark
 };

@@ -24,13 +24,11 @@ const main = {
     this.towerDefense();
     
     // TODO: Implement spawning logic
-    this.automateSpawning();
     this.spawningLogic();
     
     // Additional loop functions from origin branch
     this.harvestLoop();
     this.upgradeLoop();
-    this.myNewFunction();
   },
 
   manageRoom: function(room) {
@@ -58,7 +56,7 @@ const main = {
     });
 
     towers.forEach(tower => {
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      const closestHostile = tower.pos.findClosestByRange(hostiles);
       if (closestHostile) {
         tower.attack(closestHostile);
       }
@@ -66,7 +64,8 @@ const main = {
   },
 
   harvest: function(creep) {
-    const target = creep.pos.findClosestByRange(FIND_SOURCES);
+    const sources = creep.room.find(FIND_SOURCES);
+    const target = sources[0];
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
@@ -86,7 +85,7 @@ const main = {
     const button = document.createElement('button');
     button.id = buttonId;
     button.textContent = buttonText;
-    document.body.appendChild(button);
+    return button;
   },
 
   harvestLoop: function() {
@@ -133,7 +132,7 @@ const main = {
   },
 
   automateSpawning: function() {
-    const spawns = Object.values(Game.spawns);
+    const spawns = Game.spawns;
     
     spawns.forEach(spawn => {
       const harvesterCount = _.filter(Game.creeps, { memory: { role: 'harvester' } }).length;
@@ -271,8 +270,8 @@ function addressAccessibilityIssues(insightReport) {
   // For example, we might log the issues or take some action to fix them
   if (insightReport && typeof insightReport === 'object') {
     if (insightReport.issues && Array.isArray(insightReport.issues)) {
-      insightReport.issues.forEach((issue) => {
-        console.log(`Accessibility issue detected: ${issue.message}`);
+      insightReport.issues.forEach(function(issue) {
+        console.log('Accessibility issue detected: ' + issue.message);
         // Add your logic here to address the issue, such as updating the DOM or calling other functions
       });
     }

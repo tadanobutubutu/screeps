@@ -118,7 +118,7 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
     } else {
       let generatedId = `${prefix}-${index}`;
       while (usedIds.has(generatedId)) {
-        generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+        generatedId = `${prefix}-${index}-${Math.random().toString(36).substr(2, 9)}`;
       }
       landmark.id = generatedId;
       usedIds.add(generatedId);
@@ -134,198 +134,35 @@ function ensureUniqueLandmarks(landmarks, prefix = 'landmark') {
  * @returns {string|null} The language code or null if not set
  */
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
-// Default language setting
-setLanguageAttribute('en');
-
-// Simple interactive page with content rotation functionality
-function initApp() {
-  const container = document.getElementById('app');
-  
-  // Create heading
-  const h1 = document.createElement('h1');
-  h1.textContent = 'My Page';
-  h1.id = 'title';
-  container.appendChild(h1);
-
-  // Create content area
-  const content = document.createElement('div');
-  content.id = 'content';
-  content.style.transition = 'transform 0.3s ease';
-  content.style.transformOrigin = 'center center';
-  container.appendChild(content);
-
-  // Create button for rotating back (FIXED: changed from <a href="#"> to <button>)
-  const unrotateBtn = document.createElement('button');
-  unrotateBtn.id = 'unrotate';
-  unrotateBtn.textContent = 'rotate back';
-  unrotateBtn.setAttribute('aria-label', 'Rotate content back to original position');
-  unrotateBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    content.style.transform = 'rotate(0deg)';
-  });
-  container.appendChild(unrotateBtn);
-
-  // Call the dependency graph rendering utility
-  renderDependencyGraph();
-}
-
-// Placeholder for module structure display utility.
-// Helps developers understand the current structure of loaded modules.
-function displayModuleStructure(modules) {
-  // Future implementation could format and print module hierarchy
-  console.log('Displaying module structure for modules:', modules);
-  return {};
-}
-
-// Function to reset body rotation
-function resetRotation() {
-  document.body.style.transform = 'rotate(0deg)';
-  document.body.style.transition = 'transform 0.3s ease';
-}
-
-function add(a, b) {
-  return a + b;
-}
-
-// Helper functions for functionA
-function functionX() { return 'functionX'; }
-function functionY() { return 'functionY'; }
-function functionZ() { return 'functionZ'; }
-
-// TODO: Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-const functionA = {
-  // ... (Preserve the existing code for functionA)
-
-  X: functionX, // Do not remove or rename this export
-  Y: functionY, // Do not remove or rename this export
-  Z: functionZ, // Do not remove or rename this export
-};
-
-// TODO: Identify and update specific functions that render dependency graphs or display module structure for debugging purposes.
-function renderDependencyGraph(modules) {
-  // Future implementation could traverse and log module dependencies
-  console.log('Rendering dependency graph for modules:', modules);
-  return {};
-}
-
-// Placeholder for bot logic for Screeps
-function loop() {
-  for (let name in Game.creeps) {
-    let creep = Game.creeps[name];
-    if (creep.memory.role === 'harvester') {
-      if (creep.store.getFreeCapacity() > 0) {
-        let source = creep.pos.findClosestByPath(FIND_SOURCES);
-        if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
-        }
-      }
-    }
-  }
-}
-
-// Helper functions for functionB
-function functionXb() { return 'functionXb'; }
-function functionYb() { return 'functionYb'; }
-function functionZb() { return 'functionZb'; }
-
-const functionB = {
-  // ... (Preserve the existing code for functionB)
-
-  X: functionXb, // Do not remove or rename this export
-  Y: functionYb, // Do not remove or rename this export
-  Z: functionZb, // Do not remove or rename this export
-};
-
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
 /**
- * Creates an accessible in-page button with proper ARIA attributes
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @returns {HTMLButtonElement} The created button element
- */
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.type = 'button';
-  
-  // Ensure button has an accessible name
-  if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-    throw new Error('Button must have either text content or aria-label');
-  }
-  
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  
-  return button;
-}
-
-/**
- * Validates table accessibility requirements
- * @param {HTMLTableElement} table - The table to validate
- * @returns {Object} Validation result with issues array
- */
-function validateTableAccessibility(table) {
-  const issues = [];
-  
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
-  }
-  
-  // Check for caption
-  const caption = table.querySelector('caption');
-  if (!caption) {
-    issues.push('Table should have a caption for accessibility');
-  }
-  
-  // Check for th elements with scope or headers
-  const headers = table.querySelectorAll('th');
-  if (headers.length === 0) {
-    issues.push('Table should have header cells (th) for accessibility');
-  }
-  
-  return {
-    valid: issues.length === 0,
-    issues: issues
-  };
-}
-
-/**
- * Validates table structure for proper accessibility
- * @param {HTMLTableElement} table - The table to validate
+ * Validates landmark structure for proper accessibility
+ * @param {Document|Element} root - Root element to search within
  * @returns {Object} Validation result with structure issues
  */
-function validateTableStructure(table) {
+function validateLandmarkStructure(root = document) {
   const issues = [];
   
-  if (!table) {
-    return { valid: false, issues: ['Table element is required'] };
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
   }
   
-  // Check for thead and tbody
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
+  // Check for proper landmark nesting
+  const landmarks = root.querySelectorAll('header, nav, main, footer, aside, section, article, [role]');
   
-  if (!thead) {
-    issues.push('Table should have a thead section');
-  }
-  
-  if (!tbody) {
-    issues.push('Table should have a tbody section');
-  }
+  // Check for proper use of section elements
+  const sections = root.querySelectorAll('section, article');
+  sections.forEach((section, index) => {
+    const hasLabel = section.getAttribute('aria-label') || 
+                     section.getAttribute('aria-labelledby') || 
+                     section.querySelector('h1, h2, h3, h4, h5, h6');
+    if (!hasLabel) {
+      issues.push(`Section/Article at index ${index} should have an accessible name via aria-label, aria-labelledby, or heading`);
+    }
+  });
   
   return {
     valid: issues.length === 0,
@@ -334,33 +171,29 @@ function validateTableStructure(table) {
 }
 
 /**
- * Validates that landmarks have proper roles
+ * Validates link accessibility requirements
  * @param {Document|Element} root - Root element to search within
- * @returns {Object} Validation result with landmark issues
+ * @returns {Object} Validation result with link issues
  */
-function validateLandmark(root = document) {
+function validateLinkAccessibility(root = document) {
   const issues = [];
-  const validLandmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article', 'search'];
   
-  // Check for main landmark
-  const mainElements = root.querySelectorAll('main, [role="main"]');
-  if (mainElements.length === 0) {
-    issues.push('Page should have at least one main landmark');
-  } else if (mainElements.length > 1) {
-    issues.push('Page should have only one main landmark');
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
   }
   
-  // Check for header landmark
-  const headerElements = root.querySelectorAll('header, [role="banner"]');
-  if (headerElements.length > 1) {
-    issues.push('Page should have only one header landmark');
-  }
-  
-  // Check for footer landmark
-  const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
-  if (footerElements.length > 1) {
-    issues.push('Page should have only one footer landmark');
-  }
+  // Check for links without accessible names
+  const links = root.querySelectorAll('a');
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.getAttribute('aria-label');
+    const hasAriaLabelledby = link.getAttribute('aria-labelledby');
+    const hasTitle = link.getAttribute('title');
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby && !hasTitle) {
+      issues.push(`Link at index ${index} has no accessible name`);
+    }
+  });
   
   return {
     valid: issues.length === 0,
@@ -368,23 +201,16 @@ function validateLandmark(root = document) {
   };
 }
 
-// Existing placeholder functions for function1 and function2 (referenced in exports)
-function function1() {
-  return 'function1';
-}
-
-function function2() {
-  return 'function2';
-}
-
-module.exports = {
-  ensureElementHasId,
-  addAriaLabel,
-  setLanguageAttribute,
-  ensureUniqueLandmarks,
-  initApp,
-  displayModuleStructure,
-  functionA,
-  functionB,
-  loop
-};
+/**
+ * Handles fake links (elements with click handlers that look like links)
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Result with fake links found
+ */
+function handleFakeLinks(root = document) {
+  const fakeLinks = [];
+  
+  if (!root) {
+    return { found: false, elements: [] };
+  }
+  
+  // Find elements that have click handlers but are not buttons or links

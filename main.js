@@ -265,6 +265,16 @@ function validateTableStructure(tableElement) {
   };
 }
 
+// Address accessibility issues from insight report
+function addressAccessibilityIssues() {
+  // Consolidates accessibility features required by the insight report
+  return {
+    language: getLangAttribute(),
+    personName: personName(),
+    svgAccessibleNames: getSvgAccessibleName()
+  };
+}
+
 // Calculate sum of numbers array
 function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
@@ -290,5 +300,6 @@ module.exports = {
   getSvgAccessibleName,
   validateTableAccessibility,
   validateTableStructure,
+  addressAccessibilityIssues,
   calculateSum
 };

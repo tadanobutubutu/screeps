@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 const Landmark = require('./Landmark');
@@ -118,12 +122,23 @@ function checkLandmarkElement(id) {
   return element !== null;
 }
 
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAriaRole() {
+  const dependencyGraphContainer = document.getElementById('dependencyGraph');
+  if (dependencyGraphContainer) {
+    if (!dependencyGraphContainer.hasAttribute('role')) {
+      dependencyGraphContainer.setAttribute('role', 'region');
+    }
+    if (!dependencyGraphContainer.hasAttribute('aria-label')) {
+      dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+    }
+  }
+}
+
 module.exports = {
     landmarkStructureCheck,
     ensureUniqueLandmarks,
     addLangAttribute,
-    checkLandmarkElement
+    checkLandmarkElement,
+    ensureDependencyGraphAriaRole
 };
-```
-
-This resolved file integrates both changes, properly keeps and integrates features from both versions, and does not introduce syntax errors. It preserves comments and style as much as possible while also adding the landmark structure checking and ensuring unique landmarks functions, as well as a function for checking if the specific landmark element is in the document.

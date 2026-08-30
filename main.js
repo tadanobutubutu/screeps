@@ -107,7 +107,7 @@ function newFocusTrap() {
 
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
-function calculateSum(a, b) { return a + b; }
+export function calculateSum(a, b) { return a + b; }
 
 // Credential response handling
 async function handleCredentialResponse(response) {

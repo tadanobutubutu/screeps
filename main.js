@@ -47,7 +47,7 @@ function MyComponent() {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// Implement function to create in-page buttons
+// DONE: Implement function to create in-page buttons
 function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
@@ -58,7 +58,7 @@ function createInPageButton(buttonId, buttonText) {
   return button;
 }
 
-// Function for addressing accessibility issues from insight report
+// DONE: Function for addressing accessibility issues from insight report
 function addressAccessibilityIssues(insightReport) {
   if (!insightReport || !insightReport.issues) {
     return [];
@@ -110,7 +110,7 @@ function addressAccessibilityIssues(insightReport) {
   });
 }
 
-// Function for generating a report based on accessibility issues
+// DONE: Function for generating a report based on accessibility issues
 function generateAccessibilityReport(accessibilityReport) {
   const totalIssues = accessibilityReport ? accessibilityReport.length : 0;
   const resolvedIssues = accessibilityReport 
@@ -138,7 +138,7 @@ function generateAccessibilityReport(accessibilityReport) {
   };
 }
 
-// Function for calculating accessibility score based on fixed issues
+// DONE: Function for calculating accessibility score based on fixed issues
 function calculateAccessibilityScore(fixedIssues) {
   if (!Array.isArray(fixedIssues)) {
     return 0;

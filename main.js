@@ -39,6 +39,6 @@ function MyComponent() {
   );
 }
 
-ReactDOM.render(<MyComponent />, document.getElementById('root'));
+export default MyComponent;
 
-// ... other imports and code ...
+ReactDOM.render(<MyComponent />, document.getElementById('root'));

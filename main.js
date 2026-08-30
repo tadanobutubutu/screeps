@@ -1130,6 +1130,43 @@ function validateLandmarkAttributes() {
   // ... existing code ...
 }
 
+/**
+ * Validates landmark roles in the document to ensure proper ARIA landmark usage.
+ * @param {HTMLElement} [container=document] - The container to validate landmarks in
+ * @returns {Object} An object containing validation results
+ */
+function validateLandmarkRole(container = document) {
+  const landmarks = container.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"], main, nav, header, footer, aside');
+  const results = {
+    valid: true,
+    landmarks: [],
+    issues: []
+  };
+
+  landmarks.forEach(landmark => {
+    const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+    const label = landmark.getAttribute('aria-label') || landmark.id || '';
+
+    results.landmarks.push({ role, label, element: landmark.tagName });
+
+    // Check for duplicate landmarks that should be unique
+    const uniqueRoles = ['main', 'banner', 'contentinfo'];
+    if (uniqueRoles.includes(role)) {
+      const duplicates = container.querySelectorAll(`[role="${role}"], ${role}:not(main)`);
+      if (duplicates.length > 1) {
+        results.valid = false;
+        results.issues.push({
+          type: 'duplicate-landmark',
+          role,
+          message: `Multiple ${role} landmarks found. Only one ${role} landmark should exist.`
+        });
+      }
+    }
+  });
+
+  return results;
+}
+
 function setSvgAttributes(svg, options = {}) {
   if (!svg || svg.tagName !== 'SVG') return false;
   // Implementation here

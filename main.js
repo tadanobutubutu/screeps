@@ -611,7 +611,8 @@ function renderGraphIndex() {
   const data = prepareDataForGraph();
 
   // Render the graph using the new functions
-  // renderGraph(data);
+  renderDependencyGraph(data);
+  renderIndexView(data);
 }
 
 // Update the existing rotateBack function to call renderGraphIndex

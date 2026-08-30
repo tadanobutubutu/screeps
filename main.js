@@ -214,6 +214,20 @@ function filterValidItems(items, validator) {
   });
 }
 
+// TODO: Implement new function3 logic here
+function function3(input) {
+  if (input === null || input === undefined) {
+    return null;
+  }
+  if (typeof input === 'string') {
+    return input.trim();
+  }
+  if (Array.isArray(input)) {
+    return input.filter(Boolean);
+  }
+  return input;
+}
+
 // Initialize accessibility features
 const initAccessibility = () => {
   accessibilityUtils.initSkipLink();
@@ -285,5 +299,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  function3
 };

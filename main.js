@@ -1,3 +1,26 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+
+const { getLangAttribute, createInPageButton, wrapPrimaryContentInMain } = require('./utils/accessibilityUtils');
+const { validateTableAccessibility, validateTableStructure } = require('./utils/tableAccessibilityUtils');
+const { validateLinkAccessibility, handleFakeLinks } = require('./utils/linkAccessibilityUtils');
+const { validateLandmark, validateLandmarkStructure, addFixLandmarkIssues, ensureUniqueLandmarks } = require('./utils/landmarkAccessibilityUtils');
+const { getSvgAccessibleName, addAriaToFormControls } = require('./utils/svgAccessibilityUtils');
+const { harvest, upgradeController } = require('./utils/creepUtils');
+
+function checkLinkAccessibility() {
+    const links = document.querySelectorAll('a');
+    const issues = [];
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        const text = link.textContent.trim();
+        if (!text && !link.getAttribute('aria-label')) {
+            issues.push(`Link with href "${href}" has no accessible text`);
+        }
+    });
+    return issues;
+}
+
 module.exports = function() {
     // Initialize accessibility features
     const langAttr = getLangAttribute();
@@ -16,8 +39,8 @@ module.exports = function() {
 
     // Unique landmarks and fake link fixes
     ensureUniqueLandmarks();
-    fixFakeLinkIssues();
-    createAccessibleLink();
+    handleFakeLinks();
+    validateLinkAccessibility();
 
     // Harvest and upgrade logic
     const creeps = Game.creeps;
@@ -39,20 +62,6 @@ module.exports = function() {
     checkLinkAccessibility();
 };
 
-function checkLinkAccessibility() {
-    const doc = getDocument();
-    if (doc) {
-        const links = doc.querySelectorAll('a');
-        let issues = [];
-        links.forEach(link => {
-            if (!link.textContent && !link.getAttribute('aria-label')) {
-                issues.push('Link missing accessible name');
-            }
-        });
-        return issues.length === 0;
-    }
-}
-
 function addressAccessibilityIssues(doc) {
     if (!doc || !doc.documentElement) {
         // Fallback for environment without document (e.g., test environment)
@@ -68,3 +77,12 @@ function getDocument() {
     }
     return null;
 }
+
+// Export accessibility utility functions
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.createInPageButton = createInPageButton;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.handleFakeLinks = handleFakeLinks;
+module.exports.checkLinkAccessibility = checkLinkAccessibility;

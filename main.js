@@ -9,6 +9,8 @@
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
 
+// TODO: Implement solution to the issue
+
 const fs = require('fs');
 const path = require('path');
 
@@ -41,15 +43,23 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html><head><title>Dependencies</title></head><body>';
-    html += '<h1>Dependency Index</h1>';
-    html += '<ul>';
+    let html = '<!DOCTYPE html>\n';
+    html += '<html lang="en">\n<head>\n';
+    html += '    <meta charset="UTF-8">\n';
+    html += '    <title>Dependency Index</title>\n';
+    html += '</head>\n<body>\n';
+    html += '<main>\n';
+    html += '<h1>Dependency Index</h1>\n';
+    html += '<ul>\n';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version}</li>`;
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>\n`;
     }
     
-    html += '</ul></body></html>';
+    html += '</ul>\n';
+    html += '</main>\n';
+    html += '</body>\n';
+    html += '</html>';
     return html;
 }
 
@@ -57,7 +67,7 @@ function renderIndexView(packages) {
  * Main entry point for the application
  */
 function main() {
-    const packageJsonPath = path.join(process.cwd(), 'package.json');
+    const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     
     const graphData = renderDependencyGraph(packageJson.dependencies || {});

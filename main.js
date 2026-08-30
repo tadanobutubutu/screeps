@@ -413,6 +413,52 @@ function getFullLangAttribute(el) {
     return element ? (element.lang || element.getAttribute('lang') || '') : '';
 }
 
+/**
+ * Sets the lang attribute on the document's <html> element
+ * @param {string} lang - The language code to set (e.g., 'en', 'fr', 'es')
+ * @returns {boolean} True if the lang attribute was set successfully
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document === 'undefined' || !document.documentElement) {
+    return false;
+  }
+  if (typeof lang !== 'string' || lang.length === 0) {
+    return false;
+  }
+  document.documentElement.lang = lang;
+  return true;
+}
+
+/**
+ * Detects the language of the provided text and sets it as the document lang attribute
+ * @param {string} text - The text to analyze for language detection
+ * @returns {string|null} The detected language code that was set, or null if no text provided
+ */
+function detectAndSetLang(text) {
+  if (!text || typeof text !== 'string') {
+    return null;
+  }
+  // Simple language detection based on common stopwords/character patterns
+  const langPatterns = {
+    'en': /\b(the|and|is|are|was|were|hello|goodbye)\b/i,
+    'fr': /\b(le|la|les|et|est|sont|bonjour|au revoir)\b/i,
+    'es': /\b(el|la|los|y|es|son|hola|adios)\b/i,
+    'de': /\b(der|die|das|und|ist|sind|hallo|tschuess)\b/i,
+    'it': /\b(il|la|gli|ed|e|sono|ciao|arrivederci)\b/i
+  };
+  
+  let detectedLang = 'en';
+  for (const [lang, pattern] of Object.entries(langPatterns)) {
+    if (pattern.test(text)) {
+      detectedLang = lang;
+      break;
+    }
+  }
+  
+  setHtmlLangAttribute(detectedLang);
+  return detectedLang;
+}
+
 module.exports = {
     validateWebAccessibility,
     validateTableAccessibility,

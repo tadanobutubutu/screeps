@@ -37,7 +37,7 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
     };
 
     if (!insightReport) {
-        result.details.push({
+        console.error({
             type: 'error',
             message: 'No insight report provided'
         });
@@ -106,6 +106,25 @@ function getLangAttribute() {
 }
 
 /**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set (e.g., 'en')
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+}
+
+/**
+ * Detects the language and sets it on the HTML element
+ */
+function detectAndSetLang() {
+  const lang = getLangAttribute();
+  setHtmlLangAttribute(lang);
+  return lang;
+}
+
+/**
  * Creates a properly accessible person name element, ensuring it's not implemented as a fake link
  * @param {string} name - The person's name
  * @param {boolean} isLink - Whether the name should be rendered as a link
@@ -118,10 +137,10 @@ function personName(name, isLink) {
   
   if (isLink) {
     // Properly implement as a link with href attribute to avoid fake link issues
-    return `<a href="#" aria-label="Person: ${name}">${name}</a>`;
+    return `<a href="#" data-person-name="${name}">${name}</a>`;
   } else {
     // Render as a span for non-link content
-    return `<span aria-label="Person: ${name}">${name}</span>`;
+    return `<span data-person-name="${name}">${name}</span>`;
   }
 }
 
@@ -348,7 +367,7 @@ function countDependencies() {
     
     return {
       dependencies: dependencyCount,
-      devDependencies: devDependencyCount,
+      devDependencies: Object.keys(devDependencies),
       total: dependencyCount + devDependencyCount
     };
   } catch (error) {

@@ -209,6 +209,10 @@ function checkLandmarks(container = document) {
   // (code for checkLandmarks remains the same)
 }
 
+/**
+ * Ensure unique main landmarks exist in the document.
+ * Logs a warning if multiple main landmarks are detected.
+ */
 function ensureUniqueLandmarks() {
   const mains = document.querySelectorAll('main, [role="main"]');
   if (mains.length > 1) {
@@ -217,14 +221,65 @@ function ensureUniqueLandmarks() {
   }
 }
 
-// Preserve all existing exports
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Focus trap handler to keep focus within a container.
+ * @param {Element} element - Element to monitor for focus events
+ */
+function handleFocusTrap(element) {
+  if (!element || typeof element.querySelectorAll !== 'function') {
+    return;
+  }
+
+  const focusableElements = Array.from(element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+
+  if (focusableElements.length === 0) {
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
+/**
+ * Preserve all existing exports
+ */
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  // Preserve any other existing exports here
   newFunction,
   checkLandmarkElement,
   wrapPrimaryContentInMain,
   checkLandmarks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession
 };

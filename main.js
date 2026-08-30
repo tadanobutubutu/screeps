@@ -1,3 +1,9 @@
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 07177d2c69c06fd1dfe3543ad6d3c81baa3c821f_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // Import dependencyGraphContent
 const dependencyGraphContent = require('./dependencyGraph');
 
@@ -57,5 +63,25 @@ function convertAnchorsToButtons() {
   }
 }
 
+function getLangAttribute() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.getAttribute('lang') || 'en';
+  }
+  return 'en';
+}
+
+function createInPageButton() {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    const lang = getLangAttribute();
+    document.documentElement.setAttribute('lang', lang);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('lang', lang);
+    button.textContent = 'In page button';
+    return button;
+  }
+  return null;
+}
+
 // Export for use in other modules
-module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons };
+module.exports = { countDependencies, dependencyGraphContent, convertAnchorsToButtons, getLangAttribute, createInPageButton };

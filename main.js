@@ -7,7 +7,7 @@ const accessibilityUtils = {
   // Trap focus within an element (for modals, dialogs)
   trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -15,11 +15,11 @@ const accessibilityUtils = {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
           lastElement.focus();
-          e.preventDefault();
         } else if (!e.shiftKey && document.activeElement === lastElement) {
-          firstElement.focus();
           e.preventDefault();
+          firstElement.focus();
         }
       }
     });
@@ -388,13 +388,14 @@ const initAccessibility = () => {
   }
 
   // Add keyboard support for all interactive elements
-  document.querySelectorAll('[data-accessible]').forEach(element => {
-    element.addEventListener('keydown', (e) => {
+  document.addEventListener('click', (e) => {
+    const element = e.target.closest('[role="button"], button, a');
+    if (element) {
       accessibilityUtils.handleKeyboardNav(e, {
         Enter: () => element.click(),
         ' ': () => element.click()
       });
-    });
+    }
   });
 };
 

@@ -1,12 +1,3 @@
-Looking at this complex merge conflict, I need to carefully integrate the best parts from both sides while maintaining functionality and fixing any issues. I'll resolve it by:
-
-1. Keeping utility functions from origin/main (debounce, throttle, etc.)
-2. Integrating accessibility functions from both sides
-3. Keeping the imports and accessibility handling
-4. Preserving the game loop logic from origin/main
-5. Fixing syntax issues (extra `max)` in clamp, syntax errors)
-6. Properly resolving duplicate function definitions
-
 // main.js - Screeps bot with utility and accessibility features
 
 // Utility functions for common tasks
@@ -106,47 +97,23 @@ function safeJsonParse(str, defaultValue = null) {
   }
 }
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// Preserve existing functionality
-// Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks as ensureLandmarkUniqueness } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks, createAccessibleLink } from './utils/linkAccessibilityUtils';
-
-// Internal set to track used landmark IDs
-// Global set to track used landmark IDs
-const _usedLandmarkIds = new Set();
-
 /**
- * Creates a unique identifier for a landmark given a base name.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
+ * A new utility function added per the issue requirement.
+ * Returns the product of two numeric arguments.
+ * @param {number} arg1 - First number.
+ * @param {number} arg2 - Second number.
+ * @returns {number} The product of arg1 and arg2.
  */
-function createLandmarkId(baseName) {
-    let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
-    }
-    _usedLandmarkIds.add(candidate);
-    return candidate;
+function myNewFunction(arg1, arg2) {
+  return arg1 * arg2;
 }
 
-/**
- * Ensures a landmark ID is unique by generating a new one if necessary.
- * @param {string} baseName - Base name of the landmark.
- * @returns {string} Unique ID.
- */
+// Importing the necessary functions (for illustration purposes)
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
+
+// Accessibility helper functions
 function ensureUniqueLandmarkId(baseName) {
     return createLandmarkId(baseName);
 }
@@ -179,7 +146,6 @@ function addAriaLabel(element, label) {
     }
 }
 
-// Accessibility helper functions
 function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
@@ -453,6 +419,14 @@ function generateAccessibilityReport() {
   return report;
 }
 
+// Get document with safety check
+function getDocument() {
+    if (typeof document !== 'undefined') {
+        return document;
+    }
+    return null;
+}
+
 // Function to check link accessibility
 function checkLinkAccessibility() {
   const doc = getDocument();
@@ -467,25 +441,6 @@ function checkLinkAccessibility() {
     return issues.length === 0;
   }
   return true;
-}
-
-// Get document with safety check
-function getDocument() {
-    if (typeof document !== 'undefined') {
-        return document;
-    }
-    return null;
-}
-
-/**
- * A new utility function added per the issue requirement.
- * Returns the product of two numeric arguments.
- * @param {number} arg1 - First number.
- * @param {number} arg2 - Second number.
- * @returns {number} The product of arg1 and arg2.
- */
-function myNewFunction(arg1, arg2) {
-  return arg1 * arg2;
 }
 
 // Additional accessibility helper functions
@@ -523,114 +478,12 @@ function initializeAccessibility() {
   };
 }
 
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', function() {
-    window.accessibilityFeatures = initializeAccessibility();
-    ensureDependencyGraphARIA();
-    
-    // Run accessibility fixes
-    addLangAttribute();
-    createInPageButton();
-    
-    // Validate tables
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      validateTableAccessibility(table);
-      validateTableStructure(table);
-    });
-    
-    // Validate landmarks
-    validateLandmark();
-    validateLandmarkStructure();
-    ensureUniqueLandmarks();
-    
-    // Add accessible names to SVGs
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      const accessibleName = getSvgAccessibleName(svg);
-      setSvgAttributes(svg, accessibleName);
-    });
-    
-    // Handle fake links
-    handleFakeLinks();
-    
-    // Ensure elements have IDs and ARIA labels
-    ensureElementHasId('myTable');
-    ensureElementHasId('mySvg');
-    ensureElementHasId('inPageButton');
-    addAriaLabelById('myTable', 'Product data table');
-    addAriaLabelById('mySvg', 'Company logo');
-    addAriaLabelById('inPageButton', 'Accessibility menu');
-    
-    // Fix button identifiers
-    const buttons = document.querySelectorAll('button, [role="button"]');
-    buttons.forEach((button, index) => {
-      if (!button.id) {
-        button.id = `accessible-button-${index}`;
-      }
-    });
-    
-    // Google sign-in accessibility
-    const googleButton = document.querySelector('[data-google-signin]');
-    if (googleButton) {
-      googleButton.setAttribute('aria-label', 'Sign in with Google');
-      googleButton.setAttribute('role', 'button');
-    }
-  });
+// Example of adding a new function
+function newFunction() {
+  // Function body
 }
 
-/**
- * Returns the product of two numeric arguments.
- * @param {number} arg1 - First number.
- * @param {number} arg2 - Second number.
- * @returns {number} The product of arg1 and arg2.
- */
-function multiply(arg1, arg2) {
-  return myNewFunction(arg1, arg2);
-}
-
-// Export for use in other modules (CommonJS)
-module.exports = function() {
-    // Initialize accessibility features
-    const langAttr = getLangAttribute();
-    const primaryContent = wrapPrimaryContentInMain();
-
-    // Validate accessibility
-    validateTableAccessibility();
-    validateTableStructure();
-    validateLandmark();
-    validateLandmarkStructure();
-    addFixLandmarkIssues();
-
-    // SVG accessibility
-    const svgName = getSvgAccessibleName();
-    addAriaToFormControls();
-
-    // Unique landmarks and fake link fixes
-    ensureUniqueLandmarks();
-    fixFakeLinkIssues();
-    createAccessibleLink();
-
-    // Harvest and upgrade logic
-    const creeps = Game.creeps;
-    const sources = Game.sources;
-    const controller = Game.controllers[0];
-
-    Object.values(creeps).forEach(creep => {
-        const source = creep.findClosestByPath(FIND_SOURCES, {
-            filter: (source) => source.energy > 0
-        });
-        if (source) {
-            harvest(creep, source);
-        } else {
-            upgradeController(creep, controller);
-        }
-    });
-
-    // Check link accessibility
-    checkLinkAccessibility();
-};
+// Don't forget to test your new additions in the test file
 
 // Screeps game loop helper functions
 function harvest(creep, source) {
@@ -667,3 +520,109 @@ function upgradeController(creep, controller) {
         }
     }
 }
+
+// Main Screeps game loop
+module.exports.loop = function() {
+    // Auto-initialize when DOM is ready (for accessibility features)
+    if (typeof document !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', function() {
+        window.accessibilityFeatures = initializeAccessibility();
+        ensureDependencyGraphARIA();
+        
+        // Run accessibility fixes
+        addLangAttribute();
+        createInPageButton();
+        
+        // Validate tables
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+          validateTableAccessibility(table);
+          validateTableStructure(table);
+        });
+        
+        // Validate landmarks
+        validateLandmark();
+        validateLandmarkStructure();
+        ensureUniqueLandmarks();
+        
+        // Add accessible names to SVGs
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          const accessibleName = getSvgAccessibleName(svg);
+          setSvgAttributes(svg, accessibleName);
+        });
+        
+        // Handle fake links
+        handleFakeLinks();
+        
+        // Ensure elements have IDs and ARIA labels
+        ensureElementHasId('myTable');
+        ensureElementHasId('mySvg');
+        ensureElementHasId('inPageButton');
+        addAriaLabelById('myTable', 'Product data table');
+        addAriaLabelById('mySvg', 'Company logo');
+        addAriaLabelById('inPageButton', 'Accessibility menu');
+        
+        // Fix button identifiers
+        const buttons = document.querySelectorAll('button, [role="button"]');
+        buttons.forEach((button, index) => {
+          if (!button.id) {
+            button.id = `accessible-button-${index}`;
+          }
+        });
+        
+        // Google sign-in accessibility
+        const googleButton = document.querySelector('[data-google-signin]');
+        if (googleButton) {
+          googleButton.setAttribute('aria-label', 'Sign in with Google');
+          googleButton.setAttribute('role', 'button');
+        }
+        
+        // Validate accessibility
+        validateTableAccessibility();
+        validateTableStructure();
+        validateLandmark();
+        validateLandmarkStructure();
+        addFixLandmarkIssues();
+
+        // SVG accessibility
+        const svgName = getSvgAccessibleName();
+        addAriaToFormControls();
+
+        // Unique landmarks and fake link fixes
+        ensureUniqueLandmarks();
+        fixFakeLinkIssues();
+        createAccessibleLink();
+      });
+    }
+    
+    // Screeps game logic
+    const creeps = Game.creeps;
+    const sources = Game.sources;
+    const controller = Game.rooms[Object.keys(Game.rooms)[0]].controller;
+
+    Object.values(creeps).forEach(creep => {
+        const source = creep.findClosestByPath(FIND_SOURCES, {
+            filter: (source) => source.energy > 0
+        });
+        if (source) {
+            harvest(creep, source);
+        } else {
+            upgradeController(creep, controller);
+        }
+    });
+
+    // Check link accessibility
+    checkLinkAccessibility();
+};
+
+// Export accessibility utility functions
+export {
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  checkLinkAccessibility,
+};

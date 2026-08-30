@@ -47,7 +47,6 @@ module.exports = function() {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityErrors())
 
-// NEW: ADD YOUR CODE HERE
 // TODO: The new function to check link accessibility
 // This function will be used to validate the accessibility of links
 function checkLinkAccessibility() {
@@ -82,12 +81,18 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+    let counter = 1;
+    while (_usedLandmarkIds.has(candidate)) {
+        // Collision handling: add numeric suffix
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
+        counter++;
+        if (counter > 100) {
+            candidate = `${baseName}-${Date.now()}`;
+            break;
+        }
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -131,7 +136,7 @@ function validateTableAccessibility() {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (element && !element.getAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -394,9 +399,9 @@ function displayModuleStructure(module) {
 // REACT_015: lang attribute added to HTML element
 // The React component rendering the HTML element provides the `lang` prop
 // The language attribute is set according to the application's settings
-function getFullLangAttribute() {
-    // Implementation for getting full lang attribute
-    return 'en-US'; // Example implementation
+function getFullLangAttribute(lang) {
+    const defaultLang = getLangAttribute();
+    return `${defaultLang}-US`;
 }
 
 // Helper function to get document object safely
@@ -430,15 +435,18 @@ svgs.forEach(svg => {
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = getDocument() ? getDocument().querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"]') : [];
+const landmarks = getDocument() ? getDocument().querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"], [role="search"]') : [];
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
     if (landmark.id) {
         if (landmarkIds.has(landmark.id)) {
-            landmark.removeAttribute('id');
+            const newId = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
+            landmark.id = newId;
         } else {
             landmarkIds.add(landmark.id);
         }
+    } else {
+        landmark.id = createUniqueLandmarkId(landmark.getAttribute('role') || 'landmark');
     }
 });
 
@@ -468,9 +476,9 @@ function createInPageButton() {
 
 // Google sign-in accessibility
 function googleSignIn() {
-    const googleButton = document.querySelector('.google-signin');
+    const googleButton = document.querySelector('[data-google-signin]');
     if (googleButton) {
-        googleButton.setAttribute('aria-label', 'Sign in with Google');
+        addAriaLabel(googleButton, 'Sign in with Google');
         googleButton.setAttribute('role', 'button');
     }
 }
@@ -496,7 +504,7 @@ if (svg) {
 }
 
 // Ensure unique landmarks
-ensureUniqueLandmarkId('main-content');
+createUniqueLandmarkId('main-content');
 
 // Validate link accessibility (New Function)
 checkLinkAccessibility();
@@ -578,20 +586,6 @@ function upgradeController(creep, controller) {
 }
 
 // Added functions for REACT_017 and REACT_025 support
-function getFullLangAttribute() {
-    const lang = getLangAttribute();
-    // Use a default name since personName is not defined
-    return `${lang}-US`;
-}
-
-function createInPageButton() {
-    // Create an accessible in-page button for navigation
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.setAttribute('aria-label', 'Navigate to section');
-    return button;
-}
-
 function handleAccessibilityIssues() {
     // Handle accessibility issues dynamically
     validateLandmark();
@@ -603,6 +597,14 @@ function handleAccessibilityIssues() {
 
 // Export accessibility utility functions
 export { makeHeaderFocusable };
+
+export const createInPageButton = () => {
+    // Create an accessible in-page button for navigation
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Navigate to section');
+    return button;
+};
 
 // Export UI / product functions
 export {

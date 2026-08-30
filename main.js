@@ -1,135 +1,140 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
-const Landmark = require('./Landmark');
+// main.js - Application entry point
 
-import './styles.css';
-import { initializeApp, appData } from './app.js';
-import { registerSW } from 'effector-sw';
-import { appStarted } from './events/appStarted.js';
+const fs = require('fs');
+const path = require('path');
 
-// Function to create in-page buttons
-const createInPageButton = (options: {
-  onClick: () => void;
-  label: string;
-  icon: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  hoverState: boolean;
-  setHoverState: (value: boolean) => void;
-  ariaLabel?: string;
-  title?: string;
-}) => {
-  const { onClick, label, icon, disabled = false, isActive = false, hoverState, setHoverState, ariaLabel, title } = options;
-
-  const getBackgroundColor = () => {
-    if (disabled) return '#999';
-    if (isActive) return '#155d27';
-    return '#004b73';
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-disabled={disabled}
-      aria-label={ariaLabel || label}
-      aria-pressed={isActive}
-      title={title || label}
-      onMouseEnter={() => setHoverState(true)}
-      onMouseLeave={() => setHoverState(false)}
-      onFocus={() => setHoverState(true)}
-      onBlur={() => setHoverState(false)}
-      style={{
-        backgroundColor: getBackgroundColor(),
-        color: 'white',
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.2s ease-in-out',
-        transform: hoverState ? 'scale(1.05)' : 'scale(1)',
-        boxShadow: hoverState ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-        filter: hoverState ? 'brightness(1.1)' : 'none',
-      }}
-    >
-      <span aria-hidden="true">{icon}</span>
-      <span> {label}</span>
-    </button>
-  );
+// Configuration
+const CONFIG = {
+    dataPath: './data',
+    maxResults: 100
 };
 
-// Placeholder for the affected SVGs
-const icons = {};
+// Helper function to validate landmark structure
+function isValidLandmark(landmark) {
+    return landmark && 
+           typeof landmark.id !== 'undefined' && 
+           landmark.id !== null;
+}
 
+// Load landmarks from file
+function loadLandmarks() {
+    try {
+        const filePath = path.join(__dirname, CONFIG.dataPath, 'landmarks.json');
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error loading landmarks:', error.message);
+        return [];
+    }
+}
+
+// Process and filter landmarks
 function processLandmarks(landmarks) {
-  // Ensure all landmarks have valid structure
-  const landmarkStructureCheck = (landmark) => {
-    if (!landmark || typeof landmark !== 'object') {
-      return false;
+    if (!Array.isArray(landmarks)) {
+        return [];
     }
-    if (!landmark.role) {
-      return false;
-    }
-    if (!landmark['aria-label'] && !landmark['aria-labelledby']) {
-      return false;
-    }
-    return true;
-  };
 
-  const validLandmarks = landmarks.filter(landmarkStructureCheck);
+    // Ensure all landmarks have valid structure
+    const landmarkStructureCheck = (landmark) => {
+        if (!landmark || typeof landmark !== 'object') {
+            return false;
+        }
+        if (!landmark.role) {
+            return false;
+        }
+        if (!landmark['aria-label'] && !landmark['aria-labelledby']) {
+            return false;
+        }
+        return true;
+    };
 
-  // Ensure the landmarks are unique
-  const ensureUniqueLandmarks = (landmarks) => {
-    const seen = new Set();
-    return landmarks.filter((landmark) => {
-      const key = landmark.id || `${landmark.role}-${landmark['aria-label']}`;
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
+    const validLandmarks = landmarks.filter(landmarkStructureCheck);
+
+    // Ensure the landmarks are unique
+    const ensureUniqueLandmarks = (landmarks) => {
+        const seen = new Set();
+        return landmarks.filter((landmark) => {
+            const key = landmark.id || `${landmark.role}-${landmark['aria-label']}`;
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+    };
+
+    const uniqueLandmarks = ensureUniqueLandmarks(validLandmarks);
+
+    return uniqueLandmarks.slice(0, CONFIG.maxResults);
+}
+
+// Sort landmarks by name
+function sortLandmarks(landmarks, ascending = true) {
+    return landmarks.slice().sort((a, b) => {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        
+        if (ascending) {
+            return nameA.localeCompare(nameB);
+        }
+        return nameB.localeCompare(nameA);
     });
-  };
-
-  return ensureUniqueLandmarks(validLandmarks);
 }
 
-function addLangAttribute(htmlElement) {
-  if (!htmlElement || !(htmlElement instanceof HTMLElement)) {
-    console.error('addLangAttribute: Invalid HTML element provided');
-    return;
-  }
-
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English if not specified
-  }
+// Get landmark by ID
+function getLandmarkById(landmarks, id) {
+    return landmarks.find(landmark => landmark.id === id) || null;
 }
 
-// Function to check if the specified landmark element is in the document.
-// @param {string} id - The ID of the landmark element.
-// @returns {boolean} Returns true if the element exists; otherwise, false.
-function checkLandmarkElement(id) {
-  const element = document.getElementById(id);
-  return element !== null;
+// Ensure unique landmarks by ID
+function ensureUniqueLandmarks(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    
+    const seen = new Set();
+    const uniqueLandmarks = [];
+    
+    for (const landmark of landmarks) {
+        if (!landmark || typeof landmark.id === 'undefined') {
+            continue;
+        }
+        
+        const landmarkId = typeof landmark.id === 'string' ? landmark.id : String(landmark.id);
+        
+        if (!seen.has(landmarkId)) {
+            seen.add(landmarkId);
+            uniqueLandmarks.push(landmark);
+        }
+    }
+    
+    return uniqueLandmarks;
 }
 
-/**
- * Calculates the sum of an array of numbers.
- * @param {number[]} numbers - The array of numbers to sum.
- * @returns {number} The total sum of the numbers.
- */
-function calculateSum(numbers) {
-  if (!Array.isArray(numbers)) {
-    throw new Error('Input must be an array');
-  }
-  return numbers.reduce((acc, curr) => acc + curr, 0);
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CONFIG,
+        isValidLandmark,
+        loadLandmarks,
+        processLandmarks,
+        sortLandmarks,
+        getLandmarkById,
+        ensureUniqueLandmarks
+    };
 }
 
-module.exports = {
-  processLandmarks,
-  addLangAttribute,
-  checkLandmarkElement,
-  calculateSum
-};
+// Main execution when run directly
+if (require.main === module) {
+    const landmarks = loadLandmarks();
+    const processed = processLandmarks(landmarks);
+    const sorted = sortLandmarks(processed);
+    
+    console.log(`Loaded ${landmarks.length} landmarks`);
+    console.log(`Processed to ${processed.length} unique landmarks`);
+    console.log(`Sorted ${sorted.length} landmarks`);
+    
+    if (sorted.length > 0) {
+        console.log('First landmark:', sorted[0]);
+    }
+}

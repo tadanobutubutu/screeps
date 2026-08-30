@@ -1,3 +1,4 @@
+// TODO: Identify and update specific functions that render dependency graphs or
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
@@ -160,7 +161,11 @@ function renderDependencyGraphContent(container) {
   const elements = container.querySelectorAll('[data-dependency]');
   elements.forEach(el => {
     if (el.dataset) {
-      // Process dependency data
+      const dependency = el.dataset.dependency;
+      if (dependency) {
+        el.classList.add('js-dependency-processed');
+        el.setAttribute('data-graph-node', dependency);
+      }
     }
   });
 }
@@ -232,7 +237,33 @@ function addressInsightIssues(insightReport) {
 }
 
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  if (!dependencyData) {
+    console.log('Rendering dependency graph with data: undefined');
+    return;
+  }
+  
+  const graph = {
+    nodes: [],
+    edges: []
+  };
+  
+  if (dependencyData.nodes) {
+    graph.nodes = dependencyData.nodes.map(node => ({
+      id: node.id || node.name || String(node),
+      label: node.label || node.name || node.id || String(node),
+      type: node.type || 'node'
+    }));
+  }
+  
+  if (dependencyData.edges) {
+    graph.edges = dependencyData.edges.map(edge => ({
+      from: edge.from || edge.source,
+      to: edge.to || edge.target,
+      type: edge.type || 'link'
+    }));
+  }
+  
+  console.log('Rendering dependency graph with data:', graph);
 }
 
 function renderIndexView(indexData) {

@@ -1,5 +1,7 @@
-// main.js - Accessibility-focused implementation
-// TODO: Address accessibility issues from insight report:
+// TODO: This is the existing code that needs to be preserved
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+<!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
 
 /**
  * Main application entry point with accessibility features
@@ -11,6 +13,8 @@ function checkTableStructure(tableName, expectedColumns) {
 // Implement function for addressing accessibility issues from insight report
 // TODO: Implement a function to count dependencies
 function countDependencies() {
+    const path = require('path');
+    const fs = require('fs');
     const packageJsonPath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
@@ -76,6 +80,8 @@ function handleCredentialResponse(response) {
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
   module.exports = {
+    checkTableStructure,
+    countDependencies,
     init,
     setupKeyboardNavigation,
     setupAriaLiveRegions,
@@ -99,7 +105,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
-    handleCredentialResponse
+    handleCredentialResponse,
+    countDependencies
   };
 } else {
   // Browser environment - wait for DOM

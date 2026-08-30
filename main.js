@@ -11,7 +11,7 @@ let uniqueLandmarks = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph') || document.getElementById('dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -26,31 +26,31 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('[role="link"]');
+    const focusable = document.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, [tabindex="0"], [contenteditable]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+  function ensureUniqueLandmarks() {
+    const landmarks = [...new Set(Array.from(document.querySelectorAll('[role]')).map(el => el.getAttribute('role')))];
 
     // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      const elements = document.querySelectorAll('[role="' + landmark + '"]');
       if (elements.length < landmarks.length) {
         const uniqueLandmarkMap = {};
 
         landmarks.forEach(uniqueLandmark => {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
           if (!element[0]) {
-            element = document.createElement(`div`);
-            element.setAttribute('role', uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
+            element = [document.createElement('div')];
+            element[0].setAttribute('role', uniqueLandmark);
+            if (!element[0].id) {
               const id = uniqueLandmark;
-              element.setAttribute('id', id);
+              element[0].setAttribute('id', id);
             }
-            document.body.appendChild(element);
+            document.body.appendChild(element[0]);
           }
           uniqueLandmarkMap[uniqueLandmark] = element[0];
         });
@@ -58,9 +58,9 @@ function addressAccessibilityIssues() {
         uniqueLandmarks = uniqueLandmarkMap;
       } else {
         elements.forEach(el => {
-          const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+          const isUnique = !uniqueLandmarkMap[landmark] || Object.values(uniqueLandmarkMap).filter(e => e === el).length === 0;
           if (isUnique) {
-            uniqueLandmarkMap[landmark].push(el);
+            uniqueLandmarkMap[landmark] = el;
           } else {
             el.removeAttribute('role');
           }
@@ -133,7 +133,7 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]') || document.querySelector('div[data-testid=dependency-graph]');
+  const container = document.querySelector('[data-dependency-graph-content]') || document.querySelector('.dependency-graph-content') || document.getElementById('dependency-graph-content');
   if (container) {
     container.innerHTML = data;
   }
@@ -151,10 +151,21 @@ function capitalizeFirstLetter(text) {
 // Optimized and added function to render Svg elements with accessible names:
 function renderSvg(svgElement) {
   // ... existing code ...
+  if (!svgElement) return;
 
   // New code that uses the imported modules
   const { someModule } = require('some-module');
-  const someValue = someModule.someFunction(svgElement);
+  const someValue = someModule ? someModule.getValue() : 'default';
+  
+  // Ensure SVG has accessible name
+  let title = svgElement.querySelector('title');
+  if (!title) {
+    title = document.createElement('title');
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+  
+  return svgElement;
+}
 
 // New rendering functions for graph/index (to be used by existing functions)
 function renderGraphContentWithOptions(data, options = {}) {
@@ -172,7 +183,7 @@ function renderIndexContentWithOptions(data, options = {}) {
     options.container.innerHTML = data;
   } else {
     // Default rendering behavior for index
-    const container = document.querySelector('.index-content, [data-index-content]');
+    const container = document.querySelector('[data-index-content]') || document.querySelector('.index-content');
     if (container) {
       container.innerHTML = data;
     }
@@ -183,7 +194,7 @@ function renderIndexContentWithOptions(data, options = {}) {
 function renderDependencyGraph(dependencyData) {
   console.log('Rendering dependency graph with data:', dependencyData);
   // Convert dependency data to HTML representation
-  const htmlContent = generateDependencyGraphHTML(dependencyData);
+  const htmlContent = generateDependencyGraphHtml(dependencyData);
   
   // Render the content using the existing render function
   renderDependencyGraphContent(htmlContent);
@@ -194,7 +205,7 @@ function renderDependencyGraph(dependencyData) {
 
 function renderIndexView(indexData) {
   console.log('Rendering index view with data:', indexData);
-  renderIndexContentWithOptions(indexData, { container: document.querySelector('.index-content, [data-index-content]') });
+  renderIndexContentWithOptions(indexData, { container: document.querySelector('[data-index-content]') });
 }
 
 function calculateSum(a, b) {
@@ -202,8 +213,8 @@ function calculateSum(a, b) {
 }
 
 function fixFakeLinks() {
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinkAnchors = document.querySelectorAll('a:not([href])');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"], span[role="link"]');
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
@@ -238,21 +249,21 @@ function fixTableStructureIssues() {
 function fixTableHeaderCellScope() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th, td');
+    const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
-        const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const cellIndex = Array.from(cell.parentElement.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
+          const rowCells = row.querySelectorAll('td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
         });
 
-        cell.setAttribute('scope', isHeaderRow ? 'col' : 'row');
+        cell.setAttribute('scope', isHeaderRow ? 'row' : 'col');
       }
     });
   });
@@ -281,14 +292,14 @@ function addMainLandmark() {
 function addSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = 'svg-title-' + index;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     }
   });
@@ -315,7 +326,7 @@ function newFunction() {
 }
 
 // Updated function for REACT_025 (ensuring unique landmarks)
-function fixUniqueLandmarks(insightReport) {
+function ensureUniqueLandmarksWithInsight(insightReport) {
   const issues = insightReport.issues || [];
 
   issues.forEach(issue => {
@@ -328,20 +339,23 @@ function fixUniqueLandmarks(insightReport) {
     }
   });
 
-  uniqueLandmarks = Object.values(uniqueLandmarks);
+  uniqueLandmarks = uniqueLandmarks;
 
   // Check if all landmarks are unique and re-add if necessary
-  ensureUniqueLandmarks(insightReport);
+  Object.keys(uniqueLandmarks).forEach(role => {
+    const existing = document.querySelector('[role="' + role + '"]');
+    if (!existing && uniqueLandmarks[role]) {
+      document.body.appendChild(uniqueLandmarks[role]);
+    }
+  });
 }
 
 function implementAccessibilityFixes() {
-  improveAccessibility();
-  fixFakeLinks();
   addLangAttribute();
+  fixFakeLinks();
   fixTableStructureIssues();
   addMainLandmark();
   addSvgAccessibleNames();
-  fixTableHeaderCellScope();
 }
 
 function implementNewFunction() {
@@ -350,14 +364,11 @@ function implementNewFunction() {
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
-  fixTableStructureIssues();
   addMainLandmark();
-  addSvgAccessibleNames();
-  fixTableHeaderCellScope();
-  fixUniqueLandmarks();
+  fixTableStructureIssues();
 }
 
-function generateDependencyGraphHTML(data) {
+function generateDependencyGraphHtml(data) {
   if (!data || !Array.isArray(data.nodes)) {
     return '<div class="no-data">No dependency data available</div>';
   }
@@ -365,123 +376,9 @@ function generateDependencyGraphHTML(data) {
   let html = '<ul class="dependency-list">';
 
   data.nodes.forEach(node => {
-    html += `<li class="dependency-node" data-id="${node.id}">`;
-    html += `<span class="node-name">${node.name}</span>`;
+    html += '<li class="dependency-node">';
+    html += '<span class="node-name">' + (node.name || node.id) + '</span>';
 
     if (node.dependencies && node.dependencies.length > 0) {
       html += '<ul class="sub-dependencies">';
-      node.dependencies.forEach(depId => {
-        const depNode = data.nodes.find(n => n.id === depId);
-        if (depNode) {
-          html += `<li class="dependency-item">${depNode.name}</li>`;
-        }
-      });
-      html += '</ul>';
-    }
-
-    html += '</li>';
-  });
-
-  html += '</ul>';
-
-  return html;
-}
-
-function main() {
-  console.log('Running main application');
-  implementNewFunction(); // Address accessibility issues from insight report
-}
-
-<<<<<<< HEAD
-// --- NEW FUNCTIONS ---
-
-/**
- * Ensures that the element selected by `selector` has an id.
- * If it already has an id, it is returned. Otherwise, the element will be assigned a given fallback id.
- *
- * @param {string} selector - CSS selector for the target element.
- * @param {string} fallbackId - ID to assign if the element doesn't have one yet.
- * @returns {string|null} The id of the element or null if not found.
- */
-function ensureElementHasId(selector, fallbackId) {
-  const element = document.querySelector(selector);
-  if (!element) return null;
-
-  if (!element.id) {
-    element.id = fallbackId;
-  }
-  return element.id;
-}
-
-/**
- * Adds an aria-label to the element selected by `selector`.
- *
- * @param {string} selector - CSS selector for the target element.
- * @param {string} ariaLabel - The aria-label value to set.
- */
-function addAriaLabelToElement(selector, ariaLabel) {
-  const element = document.querySelector(selector);
-  if (element) {
-    element.setAttribute('aria-label', ariaLabel);
-  }
-}
-
-/**
- * Renders dependency graph content into the specified container selector.
- * Supports both class and data attribute selectors for compatibility.
- *
- * @param {string} containerSelector - Selector for the container element.
- * @param {string} data - HTML or text content to inject into the container.
- */
-function renderDependencyGraph(containerSelector, data) {
-  const container = document.querySelector(containerSelector);
-  if (container) {
-    container.innerHTML = data;
-  }
-}
-
-// --- End of new functions ---
-
-// Export all functions for use elsewhere in the repository
-=======
-function someFunction() {
-  // Some implementation
-}
-
-const someFunction = () => 'someFunction result';
-
->>>>>>> origin/main
-module.exports = {
-  config,
-  logger,
-  addressAccessibilityIssues,
-  renderSvg,
-  improveAccessibility,
-  addressInsightReportIssues,
-  ensureUniqueLandmarks,
-  addLandmarkRoles,
-  fixLandmarkIssues,
-  renderDependencyGraphContent,
-  renderGraphContentWithOptions,
-  renderIndexContentWithOptions,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  someFunction,
-  implementAccessibilityFixes,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope,
-  addMainLandmark,
-  addSvgAccessibleNames,
-  implementNewFunction,
-  newFunction,
-  addLangAttribute,
-  main,
-  ensureElementHasId,
-  addAriaLabelToElement,
-  renderDependencyGraph
-};
-```
-
-addressAccessibilityIssues(); // Call the combined function to address accessibility issues.
+      node.

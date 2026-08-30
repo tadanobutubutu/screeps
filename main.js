@@ -117,6 +117,15 @@ const main = {
   myNewFunction: function() {
     // Example: Log a message to the console to simulate accessibility improvement
     console.log('Accessibility function is running...');
+    // Run the addressAccessibilityIssues function with a default report
+    const report = {
+      htmlElement: { tagName: 'html', attributes: {} },
+      svgElements: [
+        { id: 'svg1', title: 'Icon 1' },
+        { id: 'svg2', title: 'Icon 2' }
+      ]
+    };
+    addressAccessibilityIssues(report);
   },
 
   automateCreeps: function() {

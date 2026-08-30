@@ -27,5 +27,7 @@ const updateTitle = (newTitle) => {
   // For example, this could be a method that sets a state or a prop that controls the title.
 };
 
+// Adding the missing required exports
+export { Main, PropTypes, updateTitle };
+
 export default Main;
-export { Main, updateTitle };

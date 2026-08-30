@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
     <App />
@@ -26,10 +27,10 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.focus();
   }
 
   // Accessibility: Add skip link functionality
@@ -39,9 +40,10 @@ function initialize() {
   setupButtonAccessibility();
 
   // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
+  const depGraphContainer = document.getElementById('dependency-graph-container');
   if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+    const renderButton = createInPageDepGraphButton(renderDependencyGraph);
+    depGraphContainer.appendChild(renderButton);
   }
   return true;
 }
@@ -49,9 +51,9 @@ function initialize() {
 /**
  * Implement this function for creating in-page buttons
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+function createInPageDepGraphButton(renderFunction) {
   const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+  return button;
 }
 
 /**
@@ -60,7 +62,7 @@ function createInPageDepGraphButton(depGraphContainer, renderFunction) {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
   });
@@ -72,31 +74,13 @@ function renderDependencyGraph() {
   // ...
 }
 
-function getConfig() {
-  return CONFIG;
-}
-
-function getVersion() {
-  return VERSION;
-}
-
-<<<<<<< HEAD
-// Implement the function for addressing new accessibility issues
-function addressAccessibilityIssues() {
-  // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
-    // You might want to set other ARIA properties or check for more complex requirements from the insight report
-  }
-=======
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
   // TODO: Implement the function for addressing new accessibility issues
   const issues = [];
-  const elements = document.querySelectorAll('img');
-  elements.forEach((img) => {
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
     if (!img.hasAttribute('alt')) {
       issues.push({
         type: 'missing-alt',
@@ -106,13 +90,13 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
+  const interactiveElements = document.querySelectorAll('a, input, select, textarea, button');
   interactiveElements.forEach((el) => {
     const hasLabel =
       el.hasAttribute('aria-label') ||
       el.hasAttribute('aria-labelledby') ||
       el.textContent.trim().length > 0 ||
-      el.querySelector('[aria-label]') !== null;
+      el.getAttribute('placeholder') !== null;
     if (!hasLabel) {
       issues.push({
         type: 'missing-accessible-name',
@@ -122,10 +106,10 @@ function addressAccessibilityIssues() {
     }
   });
 
-  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
   let previousLevel = 0;
   headings.forEach((heading) => {
-    const level = parseInt(heading.tagName.substring(1), 10);
+    const level = parseInt(heading.tagName.charAt(1), 10);
     if (previousLevel > 0 && level - previousLevel > 1) {
       issues.push({
         type: 'heading-skip',
@@ -154,10 +138,10 @@ function addressAccessibilityIssues() {
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
->>>>>>> origin/main
+}
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
-const rootContainer = document.getElementById('root').parentElement;
+const rootContainer = document.getElementById('root');
 if (rootContainer) {
   rootContainer.setAttribute('role', 'main');
 }
@@ -172,7 +156,6 @@ announcement.style.position = 'absolute';
 announcement.style.left = '-9999px';
 announcement.style.top = '-9999px';
 document.body.appendChild(announcement);
-
 
 // Validate that tables in the document are accessible
 function validateTableAccessibility() {
@@ -230,6 +213,34 @@ function validateTableStructure() {
   });
   
   return results;
+}
+
+// Helper function to create in-page buttons
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+// Setup skip links for accessibility
+function setupSkipLinks() {
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.style.position = 'absolute';
+  skipLink.style.left = '-9999px';
+  skipLink.style.top = '-9999px';
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+    skipLink.style.top = '0';
+  });
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+    skipLink.style.top = '-9999px';
+  });
+  document.body.insertBefore(skipLink, document.body.firstChild);
 }
 
 // Export existing functionality

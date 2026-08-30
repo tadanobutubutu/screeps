@@ -55,8 +55,6 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-
 /**
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
@@ -174,6 +172,27 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Adds proper landmark regions to the tables for accessibility
+ */
+function addProperLandmarkRegions() {
+  const tables = getTables();
+  
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    
+    // Check for proper ARIA roles and landmarks
+    if (!table.ariaRole) {
+      table.ariaRole = 'table'; // Default to 'table' role
+    }
+    
+    // Check if table has a caption or aria-label
+    if (!table.caption && !table.ariaLabel) {
+      table.ariaLabel = `Table ${i + 1}`;
+    }
+  }
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +202,6 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  addProperLandmarkRegions
 };

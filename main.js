@@ -55,8 +55,6 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
-
 /**
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors

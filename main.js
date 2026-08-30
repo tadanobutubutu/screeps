@@ -261,6 +261,16 @@ function newFunction() {
   // Implementation of the new function
 }
 
+/**
+ * Renders the index view in the application.
+ * Renders the index view, typically by populating a container element
+ * with the index/list view markup and binding any required event handlers.
+ */
+function renderIndexView() {
+  // Implementation of the renderIndexView functionality
+  console.log('Rendering index view');
+}
+
 export function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
@@ -294,8 +304,13 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction, 
+  renderIndexView 
 };
+
+// Compatibility for CommonJS if needed (as per HEAD)
+module.exports.newFunction = newFunction;
+module.exports.renderIndexView = renderIndexView;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {
@@ -330,12 +345,12 @@ const CONFIG = {
   env: process.env.NODE_ENV || 'development'
 };
 
-function initialize() {
+function initializeReactApp() {
   console.log('Application initialized');
   return true;
 }
 
-function getConfig() {
+function getReactConfig() {
   return CONFIG;
 }
 
@@ -474,8 +489,8 @@ function generateAccessibilityReport() {
 export {
   VERSION,
   CONFIG,
-  initialize,
-  getConfig,
+  initialize: initializeReactApp,
+  getConfig: getReactConfig,
   getVersion,
   addressAccessibilityIssues,
   root,
@@ -488,8 +503,8 @@ export {
 export default {
   VERSION,
   CONFIG,
-  initialize,
-  getConfig,
+  initialize: initializeReactApp,
+  getConfig: getReactConfig,
   getVersion,
   addressAccessibilityIssues,
   root,

@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 
 // Accessibility utilities and functions
@@ -66,7 +70,6 @@ const accessibilityUtils = {
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs
 const ensureElementId = (element) => {
   if (element && !element.id) {
     element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -91,7 +94,7 @@ const renderDependencyGraph = (data) => {
 
 // Accessibility utilities and functions
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
@@ -100,8 +103,102 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+const getLangAttribute = () => {
+  const html = document.documentElement;
+  if (html && !html.getAttribute('lang')) {
+    html.setAttribute('lang', 'en');
+  }
+  return html ? html.getAttribute('lang') : null;
+};
+
+const createInPageButton = (label, href) => {
+  const btn = document.createElement('button');
+  btn.textContent = label;
+  btn.setAttribute('aria-label', label);
+  if (href) {
+    btn.addEventListener('click', () => {
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        target.focus();
+      }
+    });
+  }
+  return btn;
+};
+
+const personName = (firstName, lastName) => {
+  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+  return fullName || 'Unknown';
+};
+
+const validateTableAccessibility = (table) => {
+  if (!table || !table.tagName || table.tagName.toLowerCase() !== 'table') return false;
+  const hasCaption = table.querySelector('caption') !== null;
+  const hasHeaders = table.querySelectorAll('th').length > 0;
+  return hasCaption || hasHeaders;
+};
+
+const validateTableStructure = (table) => {
+  if (!table || !table.tagName || table.tagName.toLowerCase() !== 'table') return false;
+  const hasHeaders = table.querySelectorAll('thead th, th').length > 0;
+  const hasRows = table.querySelectorAll('tbody tr, tr').length > 0;
+  return hasHeaders && hasRows;
+};
+
+const validateLandmark = (element) => {
+  if (!element) return false;
+  const tag = element.tagName ? element.tagName.toLowerCase() : '';
+  const role = element.getAttribute ? element.getAttribute('role') : null;
+  const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'form', 'search', 'region', 'banner', 'contentinfo', 'complementary'];
+  return landmarks.includes(role) || landmarks.includes(tag);
+};
+
+const validateLandmarkStructure = () => {
+  const roles = ['main', 'nav', 'aside'];
+  for (const r of roles) {
+    const count = document.querySelectorAll(`[role="${r}"], ${r}`).length;
+    if (count > 1) return false;
+  }
+  return true;
+};
+
+const getSvgAccessibleName = (svg) => {
+  if (!svg || typeof svg.querySelector !== 'function') return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+  const title = svg.querySelector('title');
+  const desc = svg.querySelector('desc');
+  if (ariaLabel) return ariaLabel;
+  if (ariaLabelledBy) {
+    const ref = document.getElementById(ariaLabelledBy);
+    if (ref) return ref.textContent.trim();
+  }
+  if (title) return title.textContent.trim();
+  if (desc) return desc.textContent.trim();
+  return 'graphic';
+};
+
+function newFocusTrap(element) {
+  if (!element) return;
+  const focusableElements = element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusableElements.length === 0) return;
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
 }
 
 // Add back any required exports that might have been removed.
@@ -240,4 +337,16 @@ module.exports = {
   accessibilityUtils,
   exportUtils,
   initAccessibility
+};
+
+export {
+  getLangAttribute,
+  createInPageButton,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  newFocusTrap
 };

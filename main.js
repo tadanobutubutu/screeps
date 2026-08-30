@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)

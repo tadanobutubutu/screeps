@@ -154,17 +154,43 @@ function improveAccessibility(container) {
   });
 }
 
+/**
+ * Renders dependency graph content within a container
+ * @param {HTMLElement} container - The container element
+ */
 function renderDependencyGraphContent(container) {
   if (!container) return;
-  // Process the container for dependency graph content
   const elements = container.querySelectorAll('[data-dependency]');
+  const dependencyMap = new Map();
+
   elements.forEach(el => {
-    if (el.dataset) {
-      // Process dependency data
+    const depKey = el.dataset.dependency;
+    if (depKey) {
+      if (!dependencyMap.has(depKey)) {
+        dependencyMap.set(depKey, []);
+      }
+      dependencyMap.get(depKey).push(el);
     }
+  });
+
+  dependencyMap.forEach((deps, key) => {
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'dependency-group';
+    groupContainer.setAttribute('data-dependency-group', key);
+    deps.forEach(dep => {
+      const clonedEl = dep.cloneNode(true);
+      clonedEl.setAttribute('data-processed', 'true');
+      groupContainer.appendChild(clonedEl);
+    });
+    container.appendChild(groupContainer);
   });
 }
 
+/**
+ * Ensures landmark uniqueness within elements
+ * @param {HTMLElement[]} elements - Array of elements
+ * @returns {HTMLElement[]} - Array of unique elements
+ */
 function ensureLandmarkUniqueness(elements) {
   const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
   const elementsById = {};
@@ -231,12 +257,100 @@ function addressInsightIssues(insightReport) {
   });
 }
 
+/**
+ * Renders a dependency graph from dependency data for debugging purposes
+ * @param {Object} dependencyData - The dependency data to render
+ * @returns {HTMLElement} - The rendered graph container
+ */
 function renderDependencyGraph(dependencyData) {
-  console.log('Rendering dependency graph with data:', dependencyData);
+  if (!dependencyData) return null;
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'dependency-graph';
+  graphContainer.setAttribute('role', 'tree');
+  graphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+  const nodes = Object.keys(dependencyData);
+  nodes.forEach(node => {
+    const nodeEl = document.createElement('div');
+    nodeEl.className = 'dependency-node';
+    nodeEl.setAttribute('data-module', node);
+    nodeEl.setAttribute('role', 'treeitem');
+    nodeEl.textContent = node;
+
+    const deps = dependencyData[node];
+    if (deps && Array.isArray(deps) && deps.length > 0) {
+      const childrenEl = document.createElement('div');
+      childrenEl.className = 'dependency-children';
+      childrenEl.setAttribute('role', 'group');
+      deps.forEach(dep => {
+        const childEl = document.createElement('div');
+        childEl.className = 'dependency-child';
+        childEl.setAttribute('role', 'treeitem');
+        childEl.textContent = dep;
+        childrenEl.appendChild(childEl);
+      });
+      nodeEl.appendChild(childrenEl);
+    }
+
+    graphContainer.appendChild(nodeEl);
+  });
+
+  if (document.body) {
+    document.body.appendChild(graphContainer);
+  }
+
+  return graphContainer;
 }
 
+/**
+ * Renders an index view from index data for displaying module structure
+ * @param {Object|Array} indexData - The index data to render
+ * @returns {HTMLElement} - The rendered index container
+ */
 function renderIndexView(indexData) {
-  console.log('Rendering index view with data:', indexData);
+  if (!indexData) return null;
+
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'index-view';
+  indexContainer.setAttribute('role', 'region');
+  indexContainer.setAttribute('aria-label', 'Index View');
+
+  if (Array.isArray(indexData)) {
+    const listEl = document.createElement('ul');
+    indexData.forEach(item => {
+      const listItem = document.createElement('li');
+      listItem.textContent = typeof item === 'object' ? JSON.stringify(item) : String(item);
+      listEl.appendChild(listItem);
+    });
+    indexContainer.appendChild(listEl);
+  } else if (typeof indexData === 'object') {
+    const tableEl = document.createElement('table');
+    tableEl.setAttribute('aria-label', 'Index Data Table');
+    const headerRow = document.createElement('tr');
+    Object.keys(indexData).forEach(key => {
+      const th = document.createElement('th');
+      th.textContent = key;
+      th.setAttribute('scope', 'col');
+      headerRow.appendChild(th);
+    });
+    tableEl.appendChild(headerRow);
+
+    const row = document.createElement('tr');
+    Object.values(indexData).forEach(value => {
+      const td = document.createElement('td');
+      td.textContent = String(value);
+      row.appendChild(td);
+    });
+    tableEl.appendChild(row);
+    indexContainer.appendChild(tableEl);
+  }
+
+  if (document.body) {
+    document.body.appendChild(indexContainer);
+  }
+
+  return indexContainer;
 }
 
 function calculateSum(a, b) {

@@ -331,4 +331,5 @@ module.exports = {
   addProperLandmarkRegions,
   main,
   mainExecution,
+  calculateSum,
 };

@@ -40,6 +40,30 @@ const addressAccessibilityIssues = (insightReport) => {
         fix.resolution = 'Add proper heading hierarchy (h1-h6)';
         fix.status = 'resolved';
         break;
+      case 'REACT_015':
+        fix.resolution = 'Add lang attribute to HTML element (e.g., <html lang="en">)';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_017':
+        fix.resolution = 'Add/fix landmark regions: ensure proper use of <main>, <nav>, <aside>, <header>, <footer>, or role attributes';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_041':
+        fix.resolution = 'Add accessible names to SVG elements using aria-label, aria-labelledby, or <title> element';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_025':
+        fix.resolution = 'Ensure unique landmarks by using distinct roles or aria-label/aria-labelledby to differentiate repeated landmark types';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_036':
+        fix.resolution = 'Fix fake link: replace non-interactive element with <a href> or add proper button semantics with keyboard handling';
+        fix.status = 'resolved';
+        break;
+      case 'REACT_027':
+        fix.resolution = 'Add scope="col" or scope="row" to <th> elements in data tables';
+        fix.status = 'resolved';
+        break;
       default:
         fix.resolution = 'Manual review required';
         fix.status = 'pending';

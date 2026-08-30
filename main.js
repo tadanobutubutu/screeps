@@ -86,6 +86,10 @@ function createInPageButton() {
   // Existing code...
 }
 
+function ensureUniqueLandmarks() {
+  // Existing code...
+}
+
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
@@ -104,8 +108,7 @@ function fixAccessibilityIssues() {
   validateLandmarkStructure();
 
   // 4. REACT_025: Ensure unique landmarks
-  validateLinkAccessibility();
-  handleFakeLinks();
+  ensureUniqueLandmarks();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
   const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
@@ -114,8 +117,8 @@ function fixAccessibilityIssues() {
     setSvgAttributes(svg, accessibleName);
   });
 
-  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  personName();
+  // 6. REACT_036: Fix fake link issue
+  handleFakeLinks();
 }
 
 // Implement wrapPrimaryContentInMain function
@@ -150,8 +153,7 @@ setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLinkAccessibility();
-handleFakeLinks();
+ensureUniqueLandmarks();
 
 // ... rest of your code ...
 
@@ -239,10 +241,6 @@ function setSvgAttributes(svg, accessibleName) {
   svg.setAttribute('aria-label', accessibleName);
 }
 
-function validateLinkAccessibility() {
-  // Example link accessibility validation
-}
-
 function handleFakeLinks() {
   // Example fake links handler
 }
@@ -251,3 +249,4 @@ export { ensureElementId };
 export { addAriaLabel };
 export { renderDependencyGraph };
 export { dependencyGraphContainer };
+export { fixAccessibilityIssues };

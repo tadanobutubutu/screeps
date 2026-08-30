@@ -3,7 +3,6 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
->>>>>>> origin/main
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
@@ -642,5 +641,3 @@ module.exports = {
   createInPageButton,
   personName
 };
-
-export { a11yStore, addressAccessibilityIssues, handleNewAccessibilityIssue, validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, getSvgAccessibleName, createInPageButton, personName, getLangAttribute, getFullLangAttribute, newFunction, totalDependencies, addressAccessibilityIssuesFromInsightReport, formatDate, generateId, countDependencies, dependencyGraphContent, setHtmlLangAttribute, detectAndSetLang, convertAnchorsToButtons, ensureElementHasId, addAriaLabel, renderDependencyGraph, DependencyGraphRenderer, addressAccessibilityIssue038, addressAccessibilityIssueForSpecificElement, newAccessibilityFunction, addressOldAccessibilityIssues, setSvgAccessibilityProps, isLinkAccessible, isButtonAccessible, checkAccessibility, checkLandmarkElement, wrapPrimaryContentInMain, checkLandmarks, renderIndexView, addLangAttribute, fixTableStructureIssues, addMainLandmark, addSvgAccessibleNames, ensureUniqueLandmarks, fixFakeLinkIssue, setFormElementAccessibleNames, addA11yAttributesToInteractiveElements };

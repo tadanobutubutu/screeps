@@ -9,29 +9,49 @@ const appData = {};
 let uniqueLandmarks = {};
 
 function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
-    document.querySelector('.dependencyGraph') ||
-    document.querySelector('[data-testid="dependency-graph"]') ||
-    document.querySelector('div[data-testid=dependency-graph]');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  // Existing accessibility functions...
+  
+  // New accessibility functions
+  function addLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+      htmlElement.setAttribute('lang', 'en'); // Example language code
+    }
   }
 
-  // New accessibility functions
-  function improveAccessibility() {
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-      if (!button.getAttribute('aria-label')) {
-        button.setAttribute('aria-label', button.textContent || 'Button');
+  function fixTableStructureIssues() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      if (!table.querySelector('thead')) {
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        table.rows.forEach(row => {
+          const headers = row.querySelectorAll('th');
+          headers.forEach(header => {
+            const thClone = header.cloneNode(true);
+            headerRow.appendChild(thClone);
+          });
+        });
+        table.appendChild(thead);
       }
     });
+  }
 
-    const focusable = document.querySelectorAll('[role="link"]');
-    focusable.forEach(el => {
-      if (el.tabIndex < 0) el.tabIndex = 0;
+  function addMainLandmark() {
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.setAttribute('role', 'main');
+    }
+  }
+
+  function addSvgAccessibleNames() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      if (!svg.getAttribute('aria-labelledby')) {
+        const title = document.createElement('title');
+        title.textContent = 'SVG description';
+        svg.appendChild(title);
+      }
     });
   }
 
@@ -56,3 +76,26 @@ function addressAccessibilityIssues() {
             document.body.appendChild(element);
           }
           uniqueLandmarkMap
+        });
+      }
+    });
+  }
+
+  function fixFakeLinkIssue() {
+    const fakeLinks = document.querySelectorAll('.fake-link');
+    fakeLinks.forEach(link => {
+      link.classList.add('real-link');
+      link.setAttribute('role', 'link');
+    });
+  }
+
+  // Call the functions to address the accessibility issues
+  addLangAttribute();
+  fixTableStructureIssues();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  ensureUniqueLandmarks(insightReport);
+  fixFakeLinkIssue();
+}
+
+// Existing code...

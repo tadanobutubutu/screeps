@@ -1,8 +1,5 @@
 // main.js - Accessibility-focused implementation
 // TODO: Address accessibility issues from insight report:
-
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
@@ -140,6 +137,9 @@ function countDependencies() {
     };
 }
 
+var path = require('path');
+var fs = require('fs');
+
 // Ensure DOM is fully loaded before executing scripts
 if (typeof module !== 'undefined' && module.exports) {
   // Node.js environment - setup basic exports
@@ -167,6 +167,8 @@ if (typeof module !== 'undefined' && module.exports) {
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
+    countDependencies,
+    createInPageButton,
     validateLinkAccessibility,
     handleFakeLinks
   };
@@ -539,7 +541,7 @@ function validateLandmark(element) {
   if (!landmarkRoles.includes(landmarkRole)) {
     return { 
       valid: false, 
-      error: `Invalid landmark role: ${landmarkRole}`,
+      error: 'Invalid landmark role: ' + landmarkRole,
       element: tagName,
       role: landmarkRole
     };
@@ -557,7 +559,7 @@ function spawnSomeCommand(callback) {
     if (code === 0) {
       callback(null, 'Successfully executed someCommand');
     } else {
-      callback(new Error(`someCommand failed with code ${code}`));
+      callback(new Error('someCommand failed with code ' + code));
     }
   });
 }

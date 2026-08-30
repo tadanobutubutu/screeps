@@ -1,7 +1,7 @@
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { List, Input, Button, Form } from 'antd';
 
 // Get the list of books from the Redux store
 const getBooksList = useSelector(state => state.books.list);
@@ -18,7 +18,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -27,7 +27,7 @@ function BookItem(book) {
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        description={book.author}
+        description={`by ${book.author}`}
       />
     </List.Item>
   );
@@ -42,8 +42,64 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
+// Accessible AddBookForm component with proper form controls and ARIA attributes
+function AddBookForm({ onAdd }) {
+  const [form] = Form.useForm();
+  const titleInputRef = useRef(null);
+
+  const handleSubmit = (values) => {
+    if (onAdd) {
+      onAdd(values);
+    }
+    form.resetFields();
+    // Focus back on the title input after submission for accessibility
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  };
+
+  return (
+    <Form
+      form={form}
+      onFinish={handleSubmit}
+      aria-label="Add new book form"
+      layout="inline"
+    >
+      <Form.Item
+        name="title"
+        rules={[{ required: true, message: 'Please enter a book title' }]}
+      >
+        <Input
+          ref={titleInputRef}
+          placeholder="Book title"
+          aria-label="Book title"
+          aria-required="true"
+          data-testid="book-title-input"
+        />
+      </Form.Item>
+      <Form.Item
+        name="author"
+        rules={[{ required: true, message: 'Please enter an author name' }]}
+      >
+        <Input
+          placeholder="Author name"
+          aria-label="Author name"
+          aria-required="true"
+          data-testid="book-author-input"
+        />
+      </Form.Item>
+      <Form.Item>
+        <Button
+          type="primary"
+          htmlType="submit"
+          aria-label="Add book to list"
+        >
+          Add Book
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+}
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
@@ -76,16 +132,50 @@ function Main() {
   }, [sorting]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map((book) => BookItem(book));
+
+  // Handle adding a new book
+  const handleAddBook = (book) => {
+    addBook(book);
+  };
 
   // Render the list of book items and sorting controls
   return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
+    <div lang="en">
+      <h1 id="page-title">Book Library</h1>
+      
+      <section aria-labelledby="sorting-controls-heading">
+        <h2 id="sorting-controls-heading" className="sr-only">Sorting Controls</h2>
+        <button 
+          onClick={() => setSorting(sortByTitle)}
+          aria-label="Sort books by title in ascending order"
+          aria-pressed={sorting === sortByTitle}
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-label="Sort books by author in descending order"
+          aria-pressed={sorting === sortByAuthor}
+        >
+          Sort by Author
+        </button>
+      </section>
+
+      <section aria-labelledby="add-book-heading">
+        <h2 id="add-book-heading">Add a New Book</h2>
+        <AddBookForm onAdd={handleAddBook} />
+      </section>
+
+      <section aria-labelledby="book-list-heading">
+        <h2 id="book-list-heading">Book List</h2>
+        <List
+          aria-label="Books collection"
+          bordered
+          dataSource={getBooksList}
+          renderItem={(book) => BookItem(book)}
+        />
+      </section>
     </div>
   );
 }

@@ -58,7 +58,20 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 function ensureUniqueLandmarks() {
-  // Code for ensuring unique landmarks
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      let isFirst = true;
+      elements.forEach(element => {
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          element.removeAttribute('role');
+        }
+      });
+    }
+  });
 }
 
 function createInPageButton() {

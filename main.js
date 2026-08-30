@@ -1,10 +1,36 @@
 // main.js - Combined utility and accessibility features
 
-// Accessibility helper function for keyboard navigation
-function setupKeyboardNavigation(element, options = {}) {
-  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+// Utility functions for common tasks
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-  element.addEventListener('keydown', (event) => {
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// TODO: Any additional changes requested in the issue
+// main.js - Accessibility improvements implementation
+
+// Accessibility helper function for keyboard navigation
+function handleKeyboard(options = {}) {
+  const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
+  return function (event) {
     switch (event.key) {
       case 'Enter':
         if (onEnter) onEnter(event);
@@ -25,7 +51,7 @@ function setupKeyboardNavigation(element, options = {}) {
         }
         break;
     }
-  });
+  };
 }
 
 // Helper to manage focus within a container
@@ -37,7 +63,7 @@ function trapFocus(container) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  container.addEventListener('keydown', (event) => {
+  return function (event) {
     if (event.key !== 'Tab') return;
 
     if (event.shiftKey && document.activeElement === firstElement) {
@@ -47,7 +73,7 @@ function trapFocus(container) {
       event.preventDefault();
       firstElement.focus();
     }
-  });
+  };
 }
 
 // ARIA live region announcer
@@ -80,7 +106,7 @@ function initializeAccessibility() {
   // Return the announcer for use in the app
   return {
     announce: announcer.announce,
-    setupKeyboardNavigation,
+    handleKeyboard,
     trapFocus,
     prefersReducedMotion
   };
@@ -140,11 +166,46 @@ function handleFakeLinks(links) {
   // Implement the logic to handle fake links within the app
 }
 
+// Utility functions (likely originally defined)
+function isEmpty(value) {
+  if (value == null) return true;
+  if (typeof value === 'string') return value.length === 0;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+  return false;
+}
+
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (Array.isArray(obj)) return obj.map(item => deepClone(item));
+  if (typeof obj === 'object') {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) cloned[key] = deepClone(obj[key]);
+    }
+    return cloned;
+  }
+  return obj;
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     initializeAccessibility,
-    setupKeyboardNavigation,
+    handleKeyboard,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
@@ -153,6 +214,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getRandomInt,
     clamp,
     deepClone,
+    debounce,
+    throttle,
     getLangAttribute,
     createInPageButton,
     validateTableAccessibility,

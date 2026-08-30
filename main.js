@@ -1,148 +1,94 @@
 import { dependencyGraphContent, indexContent } from './content';
 
-// TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-
-// Assuming this is what your main.js might look like before the implementation
-// You'll need to integrate this with your actual main.js content
-
-// Existing code would be here...
-
-/**
- * Renders a dependency graph visualization for debugging purposes
- * @param {Object} dependencies - Object containing module dependencies
- * @param {string} [format='tree'] - Output format ('tree', 'list', 'json')
- * @returns {string} Formatted dependency graph
- */
-function renderDependencyGraph(dependencies, format = 'tree') {
-  if (!dependencies || typeof dependencies !== 'object') {
-    return 'Invalid dependencies object';
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || typeof insightReport !== 'object') {
+    return {
+      success: false,
+      message: 'Invalid insight report format'
+    };
   }
 
-  switch (format) {
-    case 'tree':
-      return renderDependencyTree(dependencies);
-    case 'list':
-      return renderDependencyList(dependencies);
-    case 'json':
-      return JSON.stringify(dependencies, null, 2);
-    default:
-      return 'Unsupported format';
-  }
-}
+  const fixes = [];
+  const issues = insightReport.issues || [];
 
-/**
- * Helper function to render dependencies in tree format
- * @param {Object} dependencies - Object containing module dependencies
- * @returns {string} Tree-formatted dependency graph
- */
-function renderDependencyTree(dependencies) {
-  let result = 'Dependency Graph:\n';
-  
-  function traverse(obj, prefix = '') {
-    const keys = Object.keys(obj);
-    keys.forEach((key, index) => {
-      const isLast = index === keys.length - 1;
-      const prefixCurrent = isLast ? '└── ' : '├── ';
-      const prefixNext = isLast ? '    ' : '│   ';
-      
-      result += prefix + prefixCurrent + key + '\n';
-      
-      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-        traverse(obj[key], prefix + prefixNext);
-      } else if (Array.isArray(obj[key])) {
-        obj[key].forEach((item, i) => {
-          const isLastItem = i === obj[key].length - 1;
-          const itemPrefix = isLastItem ? '└── ' : '├── ';
-          result += prefix + prefixNext + itemPrefix + item + '\n';
-        });
-      } else {
-        result += prefix + prefixNext + '└── ' + obj[key] + '\n';
-      }
-    });
-  }
-  
-  traverse(dependencies);
-  return result;
-}
-
-/**
- * Helper function to render dependencies in list format
- * @param {Object} dependencies - Object containing module dependencies
- * @returns {string} List-formatted dependency graph
- */
-function renderDependencyList(dependencies) {
-  let result = 'Dependency List:\n';
-  let counter = 1;
-  
-  function traverse(obj, parentKey = '') {
-    const keys = Object.keys(obj);
-    keys.forEach(key => {
-      const fullKey = parentKey ? `${parentKey}.${key}` : key;
-      
-      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-        traverse(obj[key], fullKey);
-      } else if (Array.isArray(obj[key])) {
-        obj[key].forEach((item, index) => {
-          const arrayKey = `${fullKey}[${index}]`;
-          result += `${counter++}. ${arrayKey}: ${item}\n`;
-        });
-      } else {
-        result += `${counter++}. ${fullKey}: ${obj[key]}\n`;
-      }
-    });
-  }
-  
-  traverse(dependencies);
-  return result;
-}
-
-/**
- * Displays the module structure for debugging purposes
- * @param {Object} modules - Object describing module structure
- * @returns {string} Formatted module structure
- */
-function displayModuleStructure(modules) {
-  if (!modules || typeof modules !== 'object') {
-    return 'Invalid modules object';
-  }
-
-  let result = 'Module Structure:\n';
-  result += `Total modules: ${Object.keys(modules).length}\n\n`;
-  
-  Object.keys(modules).forEach((moduleName, index) => {
-    const module = modules[moduleName];
-    result += `${index + 1}. Module: ${moduleName}\n`;
-    
-    if (module.description) {
-      result += `   Description: ${module.description}\n`;
+  issues.forEach(issue => {
+    const fix = generateAccessibilityFix(issue);
+    if (fix) {
+      fixes.push(fix);
     }
-    
-    if (module.version) {
-      result += `   Version: ${module.version}\n`;
-    }
-    
-    if (module.dependencies && Array.isArray(module.dependencies)) {
-      result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
-    }
-    
-    if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
-    }
-    
-    result += '\n';
   });
-  
-  return result;
+
+  return {
+    success: true,
+    fixes: fixes,
+    summary: `Addressed ${fixes.length} accessibility issues`
+  };
 }
 
-renderDependencyGraph(dependencyGraphContent);
-displayModuleStructure(indexContent);
+function generateAccessibilityFix(issue) {
+  if (!issue || !issue.type) {
+    return null;
+  }
 
-export {
-  renderDependencyGraph,
-  renderDependencyTree,
-  renderDependencyList,
-  displayModuleStructure
-};
+  const fix = {
+    originalIssue: issue,
+    description: '',
+    codeChange: null
+  };
+
+  switch (issue.type) {
+    case 'color-contrast':
+      fix.description = 'Improve color contrast for better visibility';
+      fix.codeChange = generateColorContrastFix(issue);
+      break;
+    case 'missing-alt':
+      fix.description = 'Add alt text to images for screen readers';
+      fix.codeChange = generateAltTextFix(issue);
+      break;
+    case 'missing-aria-label':
+      fix.description = 'Add aria-label for better accessibility';
+      fix.codeChange = generateAriaLabelFix(issue);
+      break;
+    case 'heading-order':
+      fix.description = 'Fix heading hierarchy for proper document structure';
+      fix.codeChange = generateHeadingOrderFix(issue);
+      break;
+    case 'missing-form-label':
+      fix.description = 'Associate form labels with their inputs';
+      fix.codeChange = generateFormLabelFix(issue);
+      break;
+    case 'keyboard-navigation':
+      fix.description = 'Improve keyboard navigation support';
+      fix.codeChange = generateKeyboardFix(issue);
+      break;
+    case 'focus-indicator':
+      fix.description = 'Ensure focus indicators are visible';
+      fix.codeChange = generateFocusIndicatorFix(issue);
+      break;
+    default:
+      fix.description = `Address ${issue.type} accessibility issue`;
+      fix.codeChange = generateGenericAccessibilityFix(issue);
+  }
+
+  return fix;
+}
+
+function generateColorContrastFix(issue) {
+  return {
+    type: 'style',
+    recommendation: 'Increase contrast ratio to at least 4.5:1 for normal text',
+    currentContrast: issue.currentRatio || 'unknown',
+    recommendedColors: issue.suggestedColors || {
+      foreground: '#000000',
+      background: '#FFFFFF'
+    }
+  };
+}
+
+function generateAltTextFix(issue) {
+  return {
+    type: 'attribute',
+    element: issue.element || 'img',
+    attribute: 'alt',
+    value: issue.suggestedAlt || 'Des

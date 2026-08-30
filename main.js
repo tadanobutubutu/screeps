@@ -5,9 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views.
+// - NEW: Implement this function for checking link and button accessibility (DONE: checkAccessibility)
 
 const fs = require('fs');
 const path = require('path');
@@ -66,8 +64,38 @@ function main() {
     return { graphData, indexHtml };
 }
 
+/**
+ * Checks the accessibility of links and buttons in the HTML content
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Array} - An array of accessibility issues found
+ */
+function checkAccessibility(htmlContent) {
+    const issues = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    
+    // Check for links without an href attribute
+    const links = doc.querySelectorAll('a');
+    links.forEach(link => {
+        if (!link.getAttribute('href')) {
+            issues.push(`Accessibility issue: Link with no href attribute at ${link}`);
+        }
+    });
+    
+    // Check for buttons without a name attribute
+    const buttons = doc.querySelectorAll('button');
+    buttons.forEach(button => {
+        if (!button.getAttribute('name')) {
+            issues.push(`Accessibility issue: Button with no name attribute at ${button}`);
+        }
+    });
+    
+    return issues;
+}
+
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
-    main
+    main,
+    checkAccessibility
 };

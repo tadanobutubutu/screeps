@@ -50,7 +50,9 @@ if (typeof module !== 'undefined' && module.exports) {
     ensureUniqueLandmarksFromString,
     validateLandmark,
     spawnSomeCommand,
-    addLangAttribute
+    addLangAttribute,
+    countDependencies,
+    checkTableStructure
   };
 } else {
   // Browser environment - wait for DOM

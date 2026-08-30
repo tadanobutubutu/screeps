@@ -186,6 +186,85 @@ function checkAccessibility(container) {
 }
 
 /**
+ * Validates table structure for proper scope attributes on header cells
+ * @param {HTMLElement} container - The container element to check for table structure issues
+ * @returns {Array} - Array of accessibility issues found
+ */
+function validateTableStructure(container) {
+  const issues = [];
+  
+  if (!container) {
+    container = document;
+  }
+  
+  const tables = container.querySelectorAll('table');
+  
+  tables.forEach((table, tableIndex) => {
+    const rows = table.querySelectorAll('tr');
+    
+    rows.forEach((row, rowIndex) => {
+      const cells = Array.from(row.querySelectorAll('th, td'));
+      
+      cells.forEach((cell, cellIndex) => {
+        // Only check <th> elements
+        if (cell.tagName.toLowerCase() !== 'th') return;
+        
+        const scope = cell.getAttribute('scope');
+        
+        // Determine expected scope based on cell position
+        // First row typically has column headers (scope="col")
+        // First column typically has row headers (scope="row")
+        const isFirstRow = rowIndex === 0;
+        const isFirstColumn = cellIndex === 0;
+        
+        // If it's a header cell and doesn't have a valid scope attribute
+        if (!scope) {
+          issues.push({
+            type: 'table-structure',
+            tableIndex,
+            rowIndex,
+            cellIndex,
+            element: cell,
+            message: 'Table header is missing scope attribute. Add scope="col" or scope="row" so cells map to their headers.'
+          });
+        } else if (scope !== 'col' && scope !== 'row') {
+          // Check if scope has valid value
+          issues.push({
+            type: 'table-structure',
+            tableIndex,
+            rowIndex,
+            cellIndex,
+            element: cell,
+            message: `Table header has invalid scope value "${scope}". Use scope="col" for column headers or scope="row" for row headers.`
+          });
+        }
+      });
+    });
+  });
+  
+  return issues;
+}
+
+/**
+ * Validates table accessibility including scope attributes
+ * @param {HTMLElement} container - The container element to check for table accessibility issues
+ * @returns {Array} - Array of accessibility issues found
+ */
+function validateTableAccessibility(container) {
+  const issues = [];
+  
+  if (!container) {
+    container = document;
+  }
+  
+  // Check table structure
+  const structureIssues = validateTableStructure(container);
+  issues.push(...structureIssues);
+  
+  return issues;
+}
+
+/**
  * Renders a graph visualization for accessibility issues
  * @param {Array} issues - Array of accessibility issues to render
  * @param {HTMLElement} container - The container element to render the graph into
@@ -290,7 +369,8 @@ function getRecommendation(issueType) {
     'missing-form-label': 'Add label elements to form inputs',
     'missing-link-text': 'Use descriptive link text instead of "click here"',
     'missing-lang-attribute': 'Add lang attribute to HTML element',
-    'missing-title': 'Add a descriptive title element'
+    'missing-title': 'Add a descriptive title element',
+    'table-structure': 'Add scope attribute to table headers: use scope="col" for column headers or scope="row" for row headers'
   };
   return recommendations[issueType] || 'Review and fix accessibility issue manually';
 }
@@ -348,8 +428,6 @@ function generateSummary(addressedIssues) {
 const {
   getLangAttribute,
   getFullLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
   createInPageButton,
   createAccessibleLink,
 } = require('./accessibility-helpers');
@@ -492,6 +570,22 @@ function addressAccessibilityIssues(report) {
           }
         });
         break;
+      case 'table-structure':
+        if (issue.element) {
+          // Fix table headers by adding appropriate scope attribute
+          const scope = issue.element.getAttribute('scope');
+          if (!scope) {
+            // Try to determine if it's a row or column header
+            const row = issue.element.closest('tr');
+            const cellIndex = Array.from(row.children).indexOf(issue.element);
+            if (cellIndex === 0) {
+              issue.element.setAttribute('scope', 'row');
+            } else {
+              issue.element.setAttribute('scope', 'col');
+            }
+          }
+        }
+        break;
     }
   });
 }
@@ -586,6 +680,8 @@ if (typeof module !== 'undefined' && module.exports) {
     checkImageAltAccessibility,
     checkFormLabelAccessibility,
     checkAccessibility,
+    validateTableStructure,
+    validateTableAccessibility,
     renderAccessibilityGraph,
     renderAccessibilityIndex,
     renderAccessibilityResults,
@@ -608,6 +704,8 @@ if (typeof window !== 'undefined') {
   window.checkImageAltAccessibility = checkImageAltAccessibility;
   window.checkFormLabelAccessibility = checkFormLabelAccessibility;
   window.checkAccessibility = checkAccessibility;
+  window.validateTableStructure = validateTableStructure;
+  window.validateTableAccessibility = validateTableAccessibility;
   window.renderAccessibilityGraph = renderAccessibilityGraph;
   window.renderAccessibilityIndex = renderAccessibilityIndex;
   window.renderAccessibilityResults = renderAccessibilityResults;

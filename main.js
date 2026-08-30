@@ -7,7 +7,7 @@
 
 // Common landmark selectors
 const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form'];
-const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.map(el => el).join(',');
+const LANDMARK_SELECTORS = LANDMARK_ELEMENTS.join(',');
 
 /**
  * Finds all landmark elements in a document or container

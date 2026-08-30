@@ -12,6 +12,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Import required module(s)
+const accessibility = require('./accessibility');
+
 /**
  * Renders a dependency graph visualization
  * @param {Object} dependencies - The dependencies object
@@ -69,5 +72,11 @@ function main() {
 module.exports = {
     renderDependencyGraph,
     renderIndexView,
-    main
+    main,
+    addLangAttribute: accessibility.addLangAttribute,
+    fixTableStructureIssues: accessibility.fixTableStructureIssues,
+    addMainLandmark: accessibility.addMainLandmark,
+    addSvgAccessibleNames: accessibility.addSvgAccessibleNames,
+    ensureUniqueLandmarks: accessibility.ensureUniqueLandmarks,
+    fixFakeLinkIssue: accessibility.fixFakeLinkIssue
 };

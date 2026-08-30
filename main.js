@@ -18,13 +18,13 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || `${book.title}-${book.author}`;
 }
 
-// Function to render a single book item
+// Function to render a single book item with accessibility
 function BookItem(book) {
   return (
-    <List.Item key={generateKey(book)}>
+    <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
         title={book.title}
         description={book.author}
@@ -36,59 +36,27 @@ function BookItem(book) {
 // Function to create a new book entry in the Redux store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
-  // ...
+  if (!book.title.trim() || !book.author.trim()) {
+    return false;
+  }
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
+  return true;
 }
-
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-// ...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
 function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
+  const sortedList = getBooksList.slice().sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor);
+  const sortedList = getBooksList.slice().sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const [sorting, setSorting] = useState(defaultSorting);
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      onTitleSort();
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort();
-    }
-  }, [sorting]);
-
-  // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
-
-  // Render the list of book items and sorting controls
-  return (
-    <div>
-      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-      {/* ... */}
-    </div>
-  );
-}
-
-// Export the Main component
-export default Main;
+  dispatch({ type: 'SORT_BY

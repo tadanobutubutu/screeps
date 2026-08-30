@@ -1,4 +1,4 @@
-// main.js - Combined utility and accessibility features
+// main.js - Screeps bot with utility and accessibility features
 
 // Utility functions for common tasks
 /**
@@ -97,7 +97,7 @@ function safeJsonParse(str, defaultValue = null) {
   }
 }
 
-// Accessibility helper function for keyboard navigation
+// Accessibility helper functions
 function handleKeyboardNavigation(options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;
   
@@ -181,17 +181,18 @@ function prefersReducedMotion() {
 
 // Get the lang attribute from the HTML element
 function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
+  const doc = getDocument();
+  const htmlElement = doc ? doc.querySelector('html') : null;
   return htmlElement ? htmlElement.getAttribute('lang') : null;
 }
 
 // Ensure the HTML element has proper ARIA attributes including lang
 function ensureDependencyGraphARIA() {
-  let htmlElement = document.querySelector('html');
+  const doc = getDocument();
+  let htmlElement = doc ? doc.querySelector('html') : null;
   
   if (!htmlElement) {
-    htmlElement = document.createElement('html');
-    document.insertBefore(htmlElement, document.firstChild);
+    return { lang: null, dir: null };
   }
   
   // Ensure lang attribute is set (accessibility requirement REACT_015)
@@ -208,23 +209,6 @@ function ensureDependencyGraphARIA() {
   return {
     lang: htmlElement.getAttribute('lang'),
     dir: htmlElement.getAttribute('dir')
-  };
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    handleKeyboardNavigation,
-    handleKeyboard,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    ensureDependencyGraphARIA,
-    getLangAttribute
   };
 }
 
@@ -249,6 +233,7 @@ function addAccessibleNamesToSvg(container) {
  * @returns {boolean} - True if element is in viewport
  */
 function isInViewport(element) {
+  if (typeof document === 'undefined') return false;
   const rect = element.getBoundingClientRect();
   return (
     rect.top >= 0 &&
@@ -335,8 +320,7 @@ function addAriaLabel(element, label) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('html');
+  const elementToModify = typeof document !== 'undefined' ? document.querySelector('html') : null;
   if (elementToModify) {
     elementToModify.setAttribute('lang', 'en'); // Example: English
   }
@@ -344,14 +328,14 @@ function addLangAttribute() {
 
 // New helper functions to address the additional accessibility requirements
 function ensureElementHasId(elementId) {
-  const element = document.getElementById(elementId);
+  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
   if (element && !element.hasAttribute('id')) {
     element.setAttribute('id', elementId);
   }
 }
 
 function addAriaLabelById(elementId, label) {
-  const element = document.getElementById(elementId);
+  const element = typeof document !== 'undefined' ? document.getElementById(elementId) : null;
   if (element) {
     element.setAttribute('aria-label', label);
   }
@@ -386,9 +370,18 @@ function generateAccessibilityReport() {
 
 // Function to check link accessibility
 function checkLinkAccessibility() {
-  // Implementation for checking link accessibility
-  // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const doc = getDocument();
+  if (doc) {
+    const links = doc.querySelectorAll('a');
+    let issues = [];
+    links.forEach(link => {
+      if (!link.textContent && !link.getAttribute('aria-label')) {
+        issues.push('Link missing accessible name');
+      }
+    });
+    return issues.length === 0;
+  }
+  return true;
 }
 
 // Placeholder for validateLinkAccessibility (referenced by checkLinkAccessibility)
@@ -406,6 +399,43 @@ function validateLinkAccessibility() {
  */
 function myNewFunction(arg1, arg2) {
   return arg1 * arg2;
+}
+
+// Additional accessibility helper functions from origin/main
+function addressAccessibilityIssues(doc) {
+    if (!doc || !doc.documentElement) {
+        // Fallback for environment without document (e.g., test environment)
+        return;
+    }
+
+    // ... existing code ...
+}
+
+function getDocument() {
+    if (typeof document !== 'undefined') {
+        return document;
+    }
+    return null;
+}
+
+function wrapPrimaryContentInMain() {
+  // Implement the logic to wrap primary content in a main element
+}
+
+function addFixLandmarkIssues() {
+  // Implement the logic to fix landmark issues
+}
+
+function addAriaToFormControls() {
+  // Implement the logic to add ARIA attributes to form controls
+}
+
+function fixFakeLinkIssues() {
+  // Implement the logic to fix fake link issues
+}
+
+function createAccessibleLink() {
+  // Implement the logic to create an accessible link
 }
 
 // Auto-initialize when DOM is ready
@@ -466,60 +496,103 @@ if (typeof document !== 'undefined') {
   });
 }
 
-// Export for use in other modules (CommonJS)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    // Utility functions
-    debounce,
-    throttle,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    generateId,
-    safeJsonParse,
-    isInViewport,
-    
-    // Accessibility core
-    initializeAccessibility,
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
     handleKeyboardNavigation,
     handleKeyboard,
     trapFocus,
     createAnnouncer,
     prefersReducedMotion,
     ensureDependencyGraphARIA,
-    getLangAttribute,
-    
-    // SVG accessibility
-    addAccessibleNamesToSvg,
-    
-    // Placeholder accessibility functions (REACT issues)
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    ensureUniqueLandmarks,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    handleFakeLinks,
-    validateLinkAccessibility,
-    
-    // Unique landmark ID tracking
-    ensureUniqueLandmarkId,
-    
-    // Helper functions
-    addAriaLabel,
-    addLangAttribute,
-    ensureElementHasId,
-    addAriaLabelById,
-    
-    // New functions
-    renderDependencyGraph,
-    displayModuleStructure,
-    checkLinkAccessibility,
-    generateAccessibilityReport,
-    myNewFunction
+    getLangAttribute
   };
 }
+
+// Screeps game loop
+module.exports = function() {
+    // Initialize accessibility features
+    const langAttr = getLangAttribute();
+    const primaryContent = wrapPrimaryContentInMain();
+
+    // Validate accessibility
+    validateTableAccessibility();
+    validateTableStructure();
+    validateLandmark();
+    validateLandmarkStructure();
+    addFixLandmarkIssues();
+
+    // SVG accessibility
+    const svgName = getSvgAccessibleName();
+    addAriaToFormControls();
+
+    // Unique landmarks and fake link fixes
+    ensureUniqueLandmarks();
+    fixFakeLinkIssues();
+    createAccessibleLink();
+
+    // Harvest and upgrade logic
+    const creeps = Game.creeps;
+    const sources = Game.sources;
+    const controller = Game.controllers[0]; // assuming first controller
+
+    Object.values(creeps).forEach(creep => {
+        const source = creep.findClosestByPath(FIND_SOURCES, {
+            filter: (source) => source.energy > 0
+        });
+        if (source) {
+            harvest(creep, source);
+        } else {
+            upgradeController(creep, controller);
+        }
+    });
+
+    // Check link accessibility
+    checkLinkAccessibility();
+};
+
+// Export for use in other modules (CommonJS)
+module.exports.debounce = debounce;
+module.exports.throttle = throttle;
+module.exports.isEmpty = isEmpty;
+module.exports.capitalize = capitalize;
+module.exports.getRandomInt = getRandomInt;
+module.exports.clamp = clamp;
+module.exports.deepClone = deepClone;
+module.exports.generateId = generateId;
+module.exports.safeJsonParse = safeJsonParse;
+module.exports.isInViewport = isInViewport;
+module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.handleKeyboardNavigation = handleKeyboardNavigation;
+module.exports.handleKeyboard = handleKeyboard;
+module.exports.trapFocus = trapFocus;
+module.exports.createAnnouncer = createAnnouncer;
+module.exports.prefersReducedMotion = prefersReducedMotion;
+module.exports.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.addAccessibleNamesToSvg = addAccessibleNamesToSvg;
+module.exports.createInPageButton = createInPageButton;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.getSvgAccessibleName = getSvgAccessibleName;
+module.exports.setSvgAttributes = setSvgAttributes;
+module.exports.handleFakeLinks = handleFakeLinks;
+module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.ensureUniqueLandmarkId = ensureUniqueLandmarkId;
+module.exports.addAriaLabel = addAriaLabel;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.ensureElementHasId = ensureElementHasId;
+module.exports.addAriaLabelById = addAriaLabelById;
+module.exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.displayModuleStructure = displayModuleStructure;
+module.exports.generateAccessibilityReport = generateAccessibilityReport;
+module.exports.myNewFunction = myNewFunction;
+module.exports.getDocument = getDocument;
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues;

@@ -174,6 +174,48 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Renders a dependency graph for a given table.
+ * @param {Object} table - Table object containing headers and rows.
+ * @returns {string} Graphviz DOT format string representing the dependency graph.
+ */
+function renderDependencyGraph(table) {
+  const nodes = [];
+  const edges = [];
+
+  // Nodes for each header cell
+  table.headers.forEach((header, idx) => {
+    nodes.push(`"header_${idx}" [label="${header}"];`);
+  });
+
+  // Nodes for each row cell and edges from header to cell
+  table.rows.forEach((row, rowIdx) => {
+    row.forEach((cell, colIdx) => {
+      const cellNode = `"cell_${rowIdx}_${colIdx}" [label="${cell}"];`;
+      const headerNode = `"header_${colIdx}"`;
+      edges.push(`${cellNode} -> ${headerNode} [style=dashed];`);
+      nodes.push(cellNode);
+    });
+  });
+
+  return `digraph DependencyGraph {
+    ${nodes.join('\n')}
+    ${edges.join('\n')}
+  }`;
+}
+
+/**
+ * Updates the dependency graph for all tables in the application.
+ * This function could be used to re-render graphs after data changes.
+ */
+function updateDependencyGraphs() {
+  const tables = getTables();
+  tables.forEach(table => {
+    const graph = renderDependencyGraph(table);
+    console.log(`Dependency graph for table ${table.headers[0] || 'unknown'}:\n${graph}`);
+  });
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +225,7 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  renderDependencyGraph,
+  updateDependencyGraphs
 };

@@ -2,20 +2,20 @@
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
 
 // Import graph rendering functions
-import { renderGraph } from './newGraphRenderingFunctions'; // Assuming you have a separate file for the new functions
+import { renderGraph } from ... // Assuming you have a separate file for the new functions
 
 /**
  * Check and ensure accessibility attributes for links and buttons
  */
-export function checkLinkAndButtonAccessibility() {
-  const links = document.querySelectorAll('a');
-  const buttons = document.querySelectorAll('button');
+export function checkLinksAndButtons(container = document) {
+  const links = container.querySelectorAll('a');
+  const buttons = container.querySelectorAll('button');
 
   links.forEach(link => {
     if (!link.hasAttribute('role')) {
       link.setAttribute('role', 'link');
     }
-    if (!link.hasAttribute('href')) {
+    if (!link.hasAttribute('href') && !link.getAttribute('href')) {
       console.error('Accessibility Error: Link without href attribute', link);
     }
   });
@@ -25,7 +25,11 @@ export function checkLinkAndButtonAccessibility() {
       button.setAttribute('role', 'button');
     }
     // Check for accessible name for buttons
-    if (!button.hasAttribute('aria-label') && !button.hasAttribute('aria-labelledby')) {
+    const hasText = button.textContent.trim().length > 0;
+    const hasAriaLabel = button.hasAttribute('aria-label') && button.getAttribute('aria-label').trim() !== '';
+    const hasAriaLabelledby = button.hasAttribute('aria-labelledby') && button.getAttribute('aria-labelledby').trim() !== '';
+    
+    if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
       console.error('Accessibility Error: Button without accessible name', button);
     }
   });
@@ -125,11 +129,11 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = element.tagName?.toLowerCase();
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
   const isFocusable = focusableTags.includes(tagName) ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && !element.hasAttribute('disabled');
+  return isFocusable && ensureAccessibleLabel(element);
 }
 
 // Default export for backwards compatibility
@@ -163,16 +167,16 @@ const a11yStore = {
 
   // New function to check landmark elements
   checkLandmarkElements() {
-    const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
+    const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
     landmarkElements.forEach((landmark, index) => {
       // Ensure landmark has a unique ID
       if (landmark.id === '') {
-        landmark.id = `landmark-${index}`;
+        landmark.id = `landmark-${index + 1}`;
       }
 
       // Ensure unique accessible names for duplicate landmarks
-      if (landmark.hasAttribute('aria-label')) {
-        landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
+      if (landmarkElements.filter(l => l.tagName === landmark.tagName).length > 1) {
+        landmark.setAttribute('aria-label', landmark.tagName + '-' + (index + 1));
       }
     });
   },
@@ -200,165 +204,103 @@ const a11yStore = {
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-
-export { addLandmarkRegions };
-
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
-
-// Existing exports and functions...
-
-export function initializeApp() {
-  console.log('Initializing application...');
-  return Promise.resolve();
+/**
+ * Get language attribute for HTML element
+ * @returns {string} The language attribute value
+ */
+export function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
 }
 
-// TODO: Implement function for generating a report based on accessibility issues
-export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
-}
-
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
-
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    landmark.setAttribute('aria-label', `${translations['en'].landmark}-${index + 1}`);
-    // Additional landmark processing...
-  });
-
-  const svg1 = document.querySelector('.svg1');
-  const svg2 = document.querySelector('.svg2');
-  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
-  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
-
-  const mainElements = document.querySelectorAll('main');
-  if (mainElements.length > 1) {
-    console.warn('Multiple <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
+/**
+ * Validate table accessibility
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with issues array
+ */
+export function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { valid: false, issues: ['Table element is required'] };
   }
 
-  const fakeLinks = document.querySelectorAll('.fake-link');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
-      }
-    });
-
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
-
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
+  const headers = table.querySelectorAll('th');
+  const cells = table.querySelectorAll('td, th');
+  
+  // Check if table has headers
+  if (headers.length === 0) {
+    issues.push({
+      code: 'REACT_027',
+      description: 'Table should have proper header cells (th elements)',
+      element: table
     });
   }
 
-  // Call the function to check accessibility
-  checkLinksAndButtons();
+  // Check table structure
+  const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
+  
+  if (!thead) {
+    issues.push({
+      code: 'REACT_027',
+      description: 'Table should have a thead section',
+      element: table
+    });
+  }
+
+  if (!tbody) {
+    issues.push({
+      code: 'REACT_027',
+      description: 'Table should have a tbody section',
+      element: table
+    });
+  }
+
+  // Check for proper scope attributes on headers
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      issues.push({
+        code: 'REACT_027',
+        description: 'Table header should have a scope attribute',
+        element: th
+      });
+    }
+  });
+
+  return { valid: issues.length === 0, issues };
 }
 
-export { addressAccessibilityIssues };
+/**
+ * Validate table structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result
+ */
+export function validateTableStructure(table) {
+  const result = validateTableAccessibility(table);
+  
+  if (!table) return result;
 
-// Screeps module exports for game loop integration
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
+  // Additional table structure checks
+  const rows = table.querySelectorAll('tr');
+  rows.forEach((row, rowIndex) => {
+    const cells = row.querySelectorAll('td, th');
+    if (cells.length === 0) {
+      result.issues.push({
+        code: 'REACT_027',
+        description: `Row ${rowIndex + 1} has no cells`,
+        element: row
+      });
     }
+  });
 
-    // TODO: Add implementation details
+  return result;
+}
 
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
-    }
-
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
-
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + Game.rooms[name].energyAvailable + ' energy');
-    }
-
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-};
+/**
+ * Validate landmark accessibility
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {Object} Validation result
+ */
+export function validateLandmark(landmark) {
+  const issues = [];

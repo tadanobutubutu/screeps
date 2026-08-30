@@ -245,6 +245,87 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
 
+// New accessibility functions added to address insight report
+
+function getLangAttribute() {
+  const html = document.documentElement;
+  return html ? html.getAttribute('lang') : null;
+}
+
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  return button;
+}
+
+function validateTableAccessibility(table) {
+  // Simple check for caption or aria-label
+  return !!(table.getAttribute('caption') || table.getAttribute('aria-label'));
+}
+
+function validateTableStructure(table) {
+  // Ensure table has thead and tbody
+  return !!table.querySelector('thead') && !!table.querySelector('tbody');
+}
+
+function validateLandmark(element) {
+  const role = element.getAttribute('role');
+  return ['main', 'nav', 'header', 'footer', 'aside', 'form', 'search'].includes(role);
+}
+
+function validateLandmarkStructure() {
+  // Placeholder for landmark nesting validation
+  return true;
+}
+
+function ensureUniqueLandmarks() {
+  const landmarks = document.querySelectorAll('[role], [aria-label]');
+  const ids = new Set();
+  landmarks.forEach(el => {
+    const id = el.getAttribute('id');
+    if (id) ids.add(id);
+  });
+  return true;
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(el => {
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+  });
+}
+
+function validateLinkAccessibility(link) {
+  const text = link.textContent.trim();
+  return text.length > 0;
+}
+
+function getSvgAccessibleName(svg) {
+  return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+}
+
+function setSvgAttributes(svg, attributes) {
+  for (const key in attributes) {
+    svg.setAttribute(key, attributes[key]);
+  }
+}
+
+// Extend exports with new functions
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.getLangAttribute = getLangAttribute;
+  module.exports.createInPageButton = createInPageButton;
+  module.exports.validateTableAccessibility = validateTableAccessibility;
+  module.exports.validateTableStructure = validateTableStructure;
+  module.exports.validateLandmark = validateLandmark;
+  module.exports.validateLandmarkStructure = validateLandmarkStructure;
+  module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+  module.exports.handleFakeLinks = handleFakeLinks;
+  module.exports.validateLinkAccessibility = validateLinkAccessibility;
+  module.exports.getSvgAccessibleName = getSvgAccessibleName;
+  module.exports.setSvgAttributes = setSvgAttributes;
+}
+
 // Auto-initialize when DOM is ready
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {

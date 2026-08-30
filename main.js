@@ -7,21 +7,21 @@ import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } f
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
+
 // Helper function to get document object (cross-environment support)
 function getDocument() {
   if (typeof document !== 'undefined') {
     return document;
+  } else {
+    return null;
   }
-  return null;
 }
 
 // REACT_015: Add lang attribute to HTML element
 function addLangAttribute(lang = 'en') {
   const doc = getDocument();
   if (doc && doc.documentElement) {
-    if (!doc.documentElement.getAttribute('lang')) {
-      doc.documentElement.setAttribute('lang', lang);
-    }
+    doc.documentElement.setAttribute('lang', lang);
   }
 }
 
@@ -36,7 +36,7 @@ function ensureElementId(element) {
 function getFullLangAttribute() {
   const lang = getLangAttribute();
   const countryCode = navigator.userLanguage || navigator.language || "en-US";
-  return lang.split('-')[0] + '-' + countryCode.split('-')[0];
+  return lang.split('-')[0] + '-' + countryCode.split('-')[1];
 }
 
 // Function to trigger accessibility mode
@@ -51,7 +51,7 @@ export function render() {
     const theme = createTheme();
 
     // Check for accessibility compliance
-    const complianceResult = checkAccessibilityCompliance(theme);
+    const complianceResult = handleAccessibilityIssues();
     if (!complianceResult) {
         console.error('Accessibility compliance check failed');
         return;
@@ -102,17 +102,17 @@ function handleAccessibilityError(errorElement, container) {
 // Function to render dependency graph using dependencyGraphContent
 function renderDependencyGraph(container) {
   createInPageButton();
-  handleAccessibilityIssues(dependencyGraphContent(getDocument(), container));
+  container.appendChild(createElement(dependencyGraphContent));
 }
 
 // Function to render index view using indexContent
 function renderIndexView(container) {
   createInPageButton();
-  handleAccessibilityIssues(indexContent(getDocument(), container));
+  container.appendChild(createElement(indexContent));
 }
 
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 // TODO: Any additional changes requested in the issue
 
-export { addLangAttribute, ensureElementId, handleAccessibilityError, handleErrorState, renderDependencyGraph, renderIndexView, getFullLangAttribute, render };
+export { addLangAttribute, ensureElementId, getFullLangAttribute, triggerAccessibilityMode, handleErrorState, handleAccessibilityError, renderDependencyGraph, renderIndexView, getFullLangAttribute, render, createTheme, uuidv4, createElement, getDocument, createInPageButton, handleAccessibilityIssues, createAccessibleLink, dependencyGraphContent, indexContent };

@@ -27,10 +27,10 @@ function addAriaLabel(element, label) {
   return element;
 }
 
-const dependencyGraphContent = require('./dependencyGraph');
-
 const fs = require('fs');
 const path = require('path');
+
+const dependencyGraphContent = require('./dependencyGraph');
 
 // Import dependencyGraphRenderer, addressAccessibilityIssue038, [PERSON_NAME], addressAccessibilityIssueForSpecificElement, totalDependencies, addressOldAccessibilityIssues, and dependencyGraphContent
 const DependencyGraphRenderer = require('./dependencyGraphRenderer');

@@ -18,11 +18,11 @@ function checkLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
     return false;
   }
-  
+
   if (landmarks.length === 0) {
     return false;
   }
-  
+
   return landmarks.every(landmark => {
     if (!landmark) return false;
     return landmark.id || landmark.name;
@@ -34,13 +34,13 @@ function ensureUniqueLandmarks(landmarks) {
   if (!Array.isArray(landmarks)) {
     return [];
   }
-  
+
   const seen = new Set();
   return landmarks.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name;
-    
+
     if (seen.has(identifier)) {
       return false;
     }
@@ -103,6 +103,12 @@ function addressAccessibilityIssues() {
       }
     });
   }
+
+  // Call the function to improve accessibility and ensure unique landmarks
+  improveAccessibility();
+  ensureUniqueLandmarks({
+    issues: [{ariaRole: 'landmark-1'}, {ariaRole: 'landmark-2'}, {ariaRole: 'landmark-3'}, {ariaRole: 'landmark-4'}, {ariaRole: 'landmark-5'}]
+  });
 }
 
 // New function to render dependency graphs
@@ -132,5 +138,6 @@ module.exports = {
   checkLandmarkElements,
   renderDependencyGraph,
   displayModuleStructure,
-  newFunction
+  newFunction,
+  addressAccessibilityIssues  // Add this export for testing purpose
 };

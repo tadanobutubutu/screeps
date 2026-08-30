@@ -23,22 +23,22 @@ function createButton(label, onClick, className = '', disabled = false) {
 }
 
 // Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
+export function sortByTitle(a, b) {
   return a.title.localeCompare(b.title);
 }
 
 // Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
+export function sortByAuthor(a, b) {
   return b.author.localeCompare(a.author);
 }
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id ? `${book.id}-${book.title}` : `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
-function BookItem(book) {
+export function BookItem(book) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
@@ -229,6 +229,9 @@ function validateLinkAccessibility() {
   });
 }
 
+// Default sorting function for the book list
+export const defaultSorting = sortByTitle;
+
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort(books, dispatch) {
   const sortedList = [...books].sort(sortByTitle);
@@ -242,9 +245,6 @@ export function onAuthorSort(books, dispatch) {
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
-
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
 
 // Render the main component containing the book list and sorting controls
 function Main() {

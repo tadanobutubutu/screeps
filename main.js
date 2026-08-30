@@ -21,11 +21,9 @@ import { indexContent } from './indexContent';
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+import { getDocument, getLangAttribute, getFullLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks, validateLandmark, validateLandmarkStructure } from './accessibilityHelpers';
+import { triggerAccessibilityMode } from './accessibilityMode';
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 
@@ -41,14 +39,14 @@ import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } f
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(dependencyGraphContent);
+  ...
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(indexContent);
+  ...
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
@@ -88,67 +86,92 @@ function createInPageButton() {
 function fixAccessibilityIssues() {
   // 1. REACT_015: Ensure lang attribute is set on the HTML element
   const lang = getLangAttribute();
-  document.documentElement.setAttribute('lang', lang);
+  const htmlElement = getDocument().documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
 
   // 2. REACT_027: Validate table accessibility and structure
-  const table = document.getElementById('myTable');
-  if (table) {
+  const tables = getDocument().querySelectorAll('table');
+  tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
-  }
+  });
 
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
   validateLandmarkStructure();
 
-  // 4. REACT_025: Ensure unique landmarks
-  validateLinkAccessibility();
-  handleFakeLinks();
+  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  ensureUniqueLandmarks();
+  validateLandmarkStructure();
 
   // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
-  const svgElements = document.querySelectorAll('#mySvg, #myOtherSvg');
+  const svgElements = getDocument().querySelectorAll('svg');
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
   });
 
   // 6. REACT_036: Fix fake link issue (personName is part of the fix)
-  personName();
+  handleFakeLinks();
+  handleAccessibilityIssues();
 }
 
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return `<main>${primaryContent}</main>`;
+  const mainElement = getDocument().createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent.appendChild) {
+    mainElement.appendChild(primaryContent);
+  }
+  return mainElement;
 }
 
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+const langAttr = getLangAttribute();
+const fullLangAttr = getFullLangAttribute ? getFullLangAttribute() : langAttr;
+const htmlDoc = getDocument().documentElement;
+if (htmlDoc && langAttr) {
+  htmlDoc.setAttribute('lang', fullLangAttr || langAttr);
+}
 
 // Create in-page button with accessibility considerations
 createInPageButton();
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
+const tables = getDocument().querySelectorAll('table');
+tables.forEach(table => {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+});
 
 // Add/fix landmark issues
 validateLandmark();
 validateLandmarkStructure();
 
+// Ensure unique landmarks (addressing REACT_025)
+ensureUniqueLandmarks();
+
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+const svgs = getDocument().querySelectorAll('svg');
+svgs.forEach(svg => {
+  const accessibleName = getSvgAccessibleName(svg);
+  if (accessibleName) {
+    setSvgAttributes(svg, accessibleName);
+  }
+});
 
-// Ensure unique landmarks
-// This would be handled by the appropriate function call
-validateLinkAccessibility();
 handleFakeLinks();
 
 // ... rest of your code ...
@@ -160,22 +183,22 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
+const dependencyGraphContainer = ...
 dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+... 'region');
+... 'Dependency Graph');
 
 // React / UI related functions
 
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ${product.category}`;
+  return `${product.name} - ...
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = ...
+  container.innerHTML = ...
   return container;
 }
 
@@ -190,7 +213,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
+      <p>Total: ...
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -198,13 +221,13 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList(input.products);
+    return ...
   }
 }
 
 function renderProductCard(product) {
   // Example rendering logic
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+  return `<div ...
 }
 
 function calculateDiscount(subtotal) {
@@ -224,17 +247,17 @@ export function someFunction() {
 
 function formatCurrency(amount) {
   // Example currency formatting
-  return `$${amount.toFixed(2)}`;
+  return ...
 }
 
 function formatDate(date) {
   // Example date formatting
-  return date.toLocaleDateString();
+  return ...
 }
 
 function validateInput(input) {
   // Example validation logic
-  return input && input.products && Array.isArray(input.products);
+  return input && input.products && ...
 }
 
 function getLangAttribute() {
@@ -244,7 +267,7 @@ function getLangAttribute() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Example SVG attribute setter
-  svg.setAttribute('aria-label', accessibleName);
+  ... accessibleName);
 }
 
 function validateLinkAccessibility() {

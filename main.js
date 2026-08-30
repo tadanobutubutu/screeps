@@ -260,7 +260,6 @@ function ensureElementId(element) {
   if (!element.id) {
     element.id = element.id || element.name || '';
   }
-}
 
 // DOM-based accessibility code
 document.addEventListener('DOMContentLoaded', () => {
@@ -298,7 +297,6 @@ function addAriaLabel(element) {
   if (!element.getAttribute('aria-label')) {
     element.setAttribute('aria-label', 'View focus');
   }
-}
 
 const dependencyGraphContainer = document.createElement('div');
 dependencyGraphContainer.id = 'dependencyGraph';

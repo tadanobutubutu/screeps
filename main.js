@@ -107,7 +107,6 @@ function groupByCategory(items, getCategory) {
   }, {});
 }
 
-// TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
   const {
     preserveKeys = true,

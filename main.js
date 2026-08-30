@@ -282,6 +282,29 @@ function validateTableStructure() {
   });
 }
 
+/**
+ * Implement validateLandmarkStructure() function to check for landmark structure.
+ * This function checks for the presence of exactly one banner, one main, and one contentinfo landmark.
+ *
+ * @returns {void}
+ */
+function validateLandmarkStructure() {
+    const bannerCount = document.querySelectorAll('[role="banner"]').length;
+    if (bannerCount !== 1) {
+        console.error(`Expected exactly one banner landmark, found ${bannerCount}`);
+    }
+
+    const mainCount = document.querySelectorAll('[role="main"]').length;
+    if (mainCount !== 1) {
+        console.error(`Expected exactly one main landmark, found ${mainCount}`);
+    }
+
+    const contentinfoCount = document.querySelectorAll('[role="contentinfo"]').length;
+    if (contentinfoCount !== 1) {
+        console.error(`Expected exactly one contentinfo landmark, found ${contentinfoCount}`);
+    }
+}
+
 // ARIA live region announcer
 function createAnnouncer() {
   const announcer = document.createElement('div');
@@ -397,6 +420,7 @@ module.exports = {
   uniqueLandmarks,
   validateTableAccessibility,
   validateTableStructure,
+  validateLandmarkStructure,
   addAccessibleNamesToSVGs,
   removeFakeLinks,
   initializeAccessibility,

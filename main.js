@@ -1,9 +1,5 @@
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report
-// ----- END ORIGINAL CODE -----
-=======
-// TODO: Any additional changes requested in the issue
-// main.js - Accessibility improvements implementation
 
 const main = {
   init: function() {
@@ -69,14 +65,14 @@ function renderDependencyGraph(dependencies, prefix = '', isLast = true) {
     const connector = isLast ? '└── ' : '├── ';
     const value = dependencies[key];
     
-    output += `${prefix}${connector}${key}`;
+    output += prefix + connector + key;
     
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      output += '/\\n';
+      output += '/\n';
       const extension = isLast ? '    ' : '│   ';
       output += renderDependencyGraph(value, prefix + extension, isLastItem);
     } else {
-      output += ` -> ${value}\\n`;
+      output += ` -> ${value}\n`;
     }
   });
   
@@ -133,6 +129,13 @@ function removeLandmark(id) {
   return false;
 }
 
+function validateLandmark(landmark) {
+  if (!landmark || typeof landmark !== 'object') {
+    return false;
+  }
+  return true;
+}
+
 function isLatitudeValid(lat) {
   // Existing validation function preserved
   return typeof lat === 'number' && lat >= -90 && lat <= 90;
@@ -175,7 +178,7 @@ function validateTableStructure(table) {
   const rows = table.querySelectorAll('tr');
   
   for (let row of rows) {
-    const cells = row.querySelectorAll('th');
+    const cells = row.querySelectorAll('td, th');
     if (cells.length === 0) {
       return false;
     }
@@ -199,7 +202,7 @@ function getSvgAccessibleName(svg, context) {
     return context;
   }
   
-  return svg.getAttribute('aria-label') || '';
+  return svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby') || '';
 }
 
 function setSvgAttributes(svg, accessibleName) {
@@ -211,7 +214,7 @@ function setSvgAttributes(svg, accessibleName) {
 }
 
 // REACT_025: Ensure unique landmarks
-function ensureUniqueLandmarks(landmarksList) {
+function getUniqueLandmarks(landmarksList) {
   const landmarkNames = new Map();
   const uniqueLandmarks = [];
   
@@ -224,6 +227,8 @@ function ensureUniqueLandmarks(landmarksList) {
     if (!landmarkNames.has(name)) {
       landmarkNames.set(name, []);
       uniqueLandmarks.push(landmark);
+    } else {
+      landmarkNames.get(name).push(landmark);
     }
   }
   
@@ -231,7 +236,7 @@ function ensureUniqueLandmarks(landmarksList) {
 }
 
 // REACT_036: Fix fake link issues
-function validateLinkAccessibility(linkElement) {
+function validateLinkElement(linkElement) {
   if (!linkElement || linkElement.nodeType !== Node.ELEMENT_NODE || linkElement.tagName !== 'A') {
     return false;
   }
@@ -252,7 +257,7 @@ function handleFakeLinks(links) {
   const fixedLinks = [];
   
   for (let link of links) {
-    if (!validateLinkAccessibility(link)) {
+    if (!validateLinkElement(link)) {
       link.setAttribute('href', '#');
       link.setAttribute('role', 'button');
       link.style.pointerEvents = 'none';
@@ -266,7 +271,7 @@ function handleFakeLinks(links) {
 }
 
 // REACT_037: Add proper landmark regions
-function addProperLandmarkRegions(element) {
+function addLandmarkRole(element) {
   if (!element || element.nodeType !== Node.ELEMENT_NODE) {
     return;
   }
@@ -312,5 +317,52 @@ function displayModuleStructure(modules) {
 
 /**
  * Generates a dependency report for debugging
-=========================================
-```
+ * @param {Object} dependencies - The dependencies object
+ * @returns {string} Formatted dependency report
+ */
+function generateDependencyReport(dependencies) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 'No dependencies found';
+  }
+  
+  let report = 'Dependency Report\n';
+  report += '=================\n\n';
+  
+  const depth = getDependencyDepth(dependencies);
+  const graph = renderDependencyGraph(dependencies);
+  
+  report += `Maximum Depth: ${depth}\n\n`;
+  report += 'Dependency Tree:\n';
+  report += graph;
+  
+  return report;
+}
+
+module.exports = {
+  main,
+  getDependencyDepth,
+  renderDependencyGraph,
+  newFunction,
+  greet,
+  newAccessibleFunction,
+  addLandmarkRegionToElement,
+  landmarks,
+  addLandmark,
+  getLandmarks,
+  removeLandmark,
+  validateLandmark,
+  isLatitudeValid,
+  isLongitudeValid,
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  getUniqueLandmarks,
+  validateLinkElement,
+  handleFakeLinks,
+  addLandmarkRole,
+  displayModuleStructure,
+  generateDependencyReport
+};

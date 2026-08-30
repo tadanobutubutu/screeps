@@ -51,6 +51,9 @@ const main = {
     }
     
     // Auto-harvest and upgrade with idle creeps
+    // TODO: This is the existing code that needs to be preserved
+    // ----- BEGIN ORIGINAL CODE (unchanged) -----
+    // Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       if (creep.memory.role === 'harvester') {

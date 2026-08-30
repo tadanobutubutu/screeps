@@ -80,19 +80,6 @@ export function validateTableStructure(tableElement) {
   return issues;
 }
 
-// REACT_041: Add accessible names to SVGs
-export function getSvgAccessibleName(svgElement, accessibleName) {
-  if (!svgElement) {
-    return null;
-  }
-  
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    svgElement.setAttribute('aria-label', accessibleName || 'Decorative SVG');
-  }
-  
-  return svgElement;
-}
-
 // REACT_025: Ensure unique landmarks
 export function ensureUniqueLandmarks(container) {
   const landmarks = [];

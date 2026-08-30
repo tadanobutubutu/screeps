@@ -293,6 +293,19 @@ function checkLinkAccessibility() {
   return issues;
 }
 
+// Existing isLinkAccessible function implementation
+async function isLinkAccessible(url) {
+    try {
+        const response = await fetch(url, {
+            method: 'HEAD',
+            mode: 'no-cors'
+        });
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 // New function to display module structure
 function displayModuleStructure(module) {
   console.log('Displaying module structure for:', module);
@@ -515,4 +528,8 @@ export {
 };
 
 // Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
+export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure, isLinkAccessible };
+
+module.exports = {
+    isLinkAccessible
+};

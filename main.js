@@ -255,6 +255,50 @@ function addressAccessibilityIssues(insightReport) {
   return addressedIssues;
 }
 
+// TODO: Implement function for generating a report based on accessibility issues
+function generateAccessibilityReport(input) {
+  let issues = [];
+
+  if (input && Array.isArray(input.accessibilityIssues)) {
+    issues = input.accessibilityIssues;
+  } else if (Array.isArray(input)) {
+    issues = input;
+  } else {
+    return {
+      totalIssues: 0,
+      addressed: 0,
+      unaddressed: 0,
+      details: [],
+      generatedAt: new Date().toISOString(),
+      summary: 'No valid accessibility issues provided'
+    };
+  }
+
+  const details = issues.map(issue => {
+    const isAddressed = !!(issue && issue.actionTaken);
+    return {
+      code: issue ? issue.code : 'UNKNOWN',
+      message: issue ? issue.message : 'No message',
+      status: isAddressed ? 'addressed' : 'unaddressed',
+      timestamp: issue && issue.timestamp ? issue.timestamp : new Date().toISOString()
+    };
+  });
+
+  const addressed = details.filter(d => d.status === 'addressed').length;
+  const unaddressed = details.length - addressed;
+
+  const report = {
+    totalIssues: details.length,
+    addressed,
+    unaddressed,
+    details,
+    generatedAt: new Date().toISOString(),
+    summary: `Found ${details.length} accessibility issues: ${addressed} addressed, ${unaddressed} unaddressed.`
+  };
+
+  return report;
+}
+
 // - REACT_041: Add accessible names to 2 SVGs
 // ... your accessible names for SVGs refactoring code ...
 
@@ -418,6 +462,7 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
+  generateAccessibilityReport,
   main,
   getLangAttribute,
   addLangAttribute,

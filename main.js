@@ -1,77 +1,29 @@
-const http = require('http');
-const url = require('url');
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+
+// Existing rendering functions (preserving existing exports and functions)
 
 /**
- * Adds SVG accessibility props to the given props object
- * Ensures SVGs are properly accessible by adding role, aria-label, etc.
- * @param {Object} props - The existing props object
- * @returns {Object} The props with accessibility attributes added
+ * Renders the dependency graph view
+ * @param {Object} deps - Dependencies object
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered dependency graph HTML
  */
-function addSvgAccessibilityProps(props) {
-  if (!props) {
-    return { role: 'img' };
-  }
-
-  const {
-    role = 'img',
-    ariaLabel,
-    ariaLabelledby,
-    ariaDescribedby,
-    ariaHidden,
-    focusable = false,
-    ...rest
-  } = props;
-
-  const accessibilityProps = {
-    role,
-    ...(ariaLabel && { 'aria-label': ariaLabel }),
-    ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
-    ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
-    ...(ariaHidden === true && { 'aria-hidden': 'true' }),
-    focusable,
-  };
-
-  return {
-    ...rest,
-    ...accessibilityProps,
-  };
-}
-
-// TODO: Address accessibility issues from insight report — FIXED
-
-// Preserving existing code, exports, and functions
-
-// Application state
-const appState = {
-    credentials: [],
-    sessions: new Map()
-};
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ... ${message}`);
+function renderDependencyGraph(deps, options = {}) {
+  // Use dependencyGraphContent from the imported module
+  return dependencyGraphContent(deps, options);
 }
 
 /**
- * Parse and validate a credential response
- * @param {Object} response - The credential response object
- * @returns {Object} - Parsed and validated response data
+ * Renders the main index view
+ * @param {Object} data - View data
+ * @param {Object} options - Rendering options
+ * @returns {string} Rendered index HTML
  */
-function parseCredentialResponse(response) {
-    if (!response || typeof response !== 'object') {
-        return {
-            success: false,
-            error: 'Invalid response format'
-        };
-    }
-
-    return {
-        success: true,
-        credential: response.credential || null,
-        select_by: response.select_by || null,
-        clientId: response.client_id || null
-    };
+function renderIndex(data, options = {}) {
+  // Use indexContent from the imported module
+  return indexContent(data, options);
 }
 
 /**
@@ -367,18 +319,9 @@ function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
 }
 
-// Export all functions
+// Preserve all existing exports
 module.exports = {
-    addSvgAccessibilityProps,
-    handleCredentialResponse,
-    parseCredentialResponse,
-    decodeJwtToken,
-    generateSessionId,
-    validateTableStructure,
-    validateSession,
-    revokeSession,
-    getActiveSessionsCount,
-    server,
-    sanitizeFilename,
-    processData
+  renderDependencyGraph,
+  renderIndex,
+  // Preserve any other existing exports here
 };

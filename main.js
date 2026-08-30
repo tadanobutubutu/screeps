@@ -38,11 +38,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 10);
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -67,12 +67,27 @@ function uniqueLandmarks(landmarks) {
 }
 
 /**
+ * Ensures all landmarks have unique IDs assigned.
+ * @param {Array} landmarks - List of landmark objects.
+ * @returns {Array} Landmarks with unique IDs.
+ */
+function ensureUniqueLandmarks(landmarks) {
+    return landmarks.map(landmark => {
+        if (!landmark.id) {
+            const role = landmark.role || 'landmark';
+            landmark.id = createUniqueLandmarkId(role);
+        }
+        return landmark;
+    }).filter(landmark => landmark.id);
+}
+
+/**
  * Adds an aria-label attribute to an element if it doesn't already have one.
  * @param {HTMLElement} element - The element to add the aria-label to.
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if ... {
         element.setAttribute('aria-label', label);
     }
 }
@@ -82,9 +97,9 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = ...
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    ... 'en'); // Example: English
   }
 }
 
@@ -100,23 +115,23 @@ createInPageButton();
 
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
-const table = document.getElementById('myTable');
+const table = ...
 validateTableAccessibility(table);
 validateTableStructure(table);
 
 // Add/fix landmark issues
 validateLandmark();
-validateLandmarkStructure();
+...
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
-const svg = document.getElementById('mySvg');
+const svg = ...
 const accessibleName = getSvgAccessibleName(svg);
 setSvgAttributes(svg, accessibleName);
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-ensureUniqueLandmarkId('main-content');
+...
 
 // Handle fake links
 handleFakeLinks();
@@ -132,8 +147,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.createElement('div');
-  container.innerHTML = products.map(p => renderProductCard(p)).join('');
+  const container = ...
+  container.innerHTML = products.map(p => ...
   return container;
 }
 
@@ -156,14 +171,14 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList([input]);
+    return ...
   }
   return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
   const header = renderHeader(data.title);
-  const content = renderProductList(data.products);
+  const content = ...
   const footer = renderFooter();
   return `${header}${content}${footer}`;
 }
@@ -172,7 +187,7 @@ function renderPage(data) {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  return ...
 }
 
 // Export accessibility utility functions
@@ -183,6 +198,7 @@ export {
   validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
+  ensureUniqueLandmarks,
   getSvgAccessibleName,
   setSvgAttributes,
   validateLinkAccessibility,

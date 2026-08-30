@@ -11,7 +11,7 @@ function trapFocus(element) {
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-  element.addEventListener('keydown', function(e) {
+  const trapHandler = function(e) {
     if (e.key === 'Tab') {
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
@@ -25,16 +25,18 @@ function trapFocus(element) {
         }
       }
     }
-  });
+  };
 
-  firstElement.focus();
+  element.addEventListener('keydown', trapHandler);
+
+  return trapHandler;
 }
 
 function announceToScreenReader(message, politeness = 'polite') {
   const announcement = document.createElement('div');
   announcement.setAttribute('aria-live', politeness);
   announcement.setAttribute('aria-atomic', 'true');
-  announcement.setAttribute('class', 'sr-only');
+  announcement.className = 'sr-only';
   announcement.style.position = 'absolute';
   announcement.style.width = '1px';
   announcement.style.height = '1px';
@@ -69,13 +71,13 @@ class AccessibleModal {
   }
 
   setupEventListeners() {
-    const closeButtons = this.modal.querySelectorAll('[data-close-modal]');
+    const closeButtons = this.modal.querySelectorAll('[data-close], .close, [aria-label="Close"]');
     closeButtons.forEach(button => {
       if (!button.getAttribute('aria-label')) {
         button.setAttribute('aria-label', 'Close dialog');
       }
       if (!button.getAttribute('aria-describedby')) {
-        const modalTitle = this.modal.querySelector('[id*="title"], h1, h2, h3');
+        const modalTitle = this.modal.querySelector('h1, h2, h3');
         if (modalTitle && modalTitle.id) {
           button.setAttribute('aria-describedby', modalTitle.id);
         }
@@ -90,8 +92,7 @@ class AccessibleModal {
   }
 
   open() {
-    this.modal.removeAttribute('hidden');
-    this.modal.setAttribute('aria-modal', 'true');
+    this.modal.setAttribute('aria-hidden', 'true');
     this.modal.setAttribute('role', 'dialog');
 
     if (!this.modal.getAttribute('aria-labelledby')) {
@@ -110,19 +111,19 @@ class AccessibleModal {
   }
 
   close() {
-    this.modal.setAttribute('hidden', '');
-    this.modal.setAttribute('aria-modal', 'false');
+    this.modal.setAttribute('aria-hidden', 'false');
+    this.modal.setAttribute('aria-expanded', 'false');
     this.isOpen = false;
     announceToScreenReader('Dialog closed');
   }
 }
 
 function initAccessibleNavigation() {
-  const navToggle = document.querySelector('[aria-controls="primary-nav"]');
-  const nav = document.getElementById('primary-nav');
+  const navToggle = document.querySelector('[aria-controls]');
+  const nav = document.querySelector('nav');
 
   if (navToggle && nav) {
-    if (!navToggle.getAttribute('aria-expanded')) {
+    if (navToggle.hasAttribute('aria-expanded')) {
       navToggle.setAttribute('aria-expanded', 'false');
     }
     if (!nav.getAttribute('aria-label')) {
@@ -134,9 +135,9 @@ function initAccessibleNavigation() {
       navToggle.setAttribute('aria-expanded', !isExpanded);
 
       if (isExpanded) {
-        nav.setAttribute('hidden', '');
+        nav.setAttribute('aria-hidden', 'true');
       } else {
-        nav.removeAttribute('hidden');
+        nav.setAttribute('aria-hidden', 'false');
       }
     });
   }
@@ -148,74 +149,14 @@ function makeFormAccessible(form) {
   inputs.forEach(input => {
     const label = form.querySelector(`label[for="${input.id}"]`) ||
                   input.closest('label') ||
-                  input.parentElement.querySelector('label');
+                  input.previousElementSibling;
 
-    if (!input.getAttribute('aria-describedby') && !input.getAttribute('aria-label')) {
+    if (input.id && label && !input.getAttribute('aria-labelledby')) {
       if (label) {
         const labelId = label.id || 'label-' + input.id;
         if (!label.id) label.id = labelId;
-        input.setAttribute('aria-describedby', labelId);
+        input.setAttribute('aria-labelledby', labelId);
       }
     }
 
-    if (!input.getAttribute('autocomplete') && (input.type === 'email' || input.type === 'tel')) {
-      input.setAttribute('autocomplete', input.type === 'email' ? 'email' : 'tel');
-    }
-  });
-}
-
-function initSkipLink() {
-  const skipLink = document.querySelector('a[href="#main-content"]');
-  const mainContent = document.getElementById('main-content');
-
-  if (skipLink && mainContent) {
-    if (!mainContent.hasAttribute('tabindex')) {
-      mainContent.setAttribute('tabindex', '-1');
-    }
-  }
-}
-
-function initAccessibility() {
-  initSkipLink();
-  initAccessibleNavigation();
-
-  const forms = document.querySelectorAll('form');
-  forms.forEach(form => makeFormAccessible(form));
-
-  const modals = document.querySelectorAll('[data-modal]');
-  modals.forEach(modal => new AccessibleModal(modal));
-
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.textContent.trim() && !button.getAttribute('aria-label')) {
-      console.warn('Button missing accessible name:', button);
-    }
-  });
-
-  const images = document.querySelectorAll('img');
-  images.forEach(img => {
-    if (!img.hasAttribute('alt')) {
-      console.warn('Image missing alt attribute:', img);
-    }
-  });
-
-  announceToScreenReader('Page loaded', 'assertive');
-  validateLandmarkStructure();
-  checkLandmarkElements();
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAccessibility);
-} else {
-  initAccessibility();
-}
-
-export {
-  trapFocus,
-  announceToScreenReader,
-  AccessibleModal,
-  initAccessibleNavigation,
-  makeFormAccessible,
-  initSkipLink,
-  initAccessibility
-};
+    if (!input.hasAttribute('autocomplete') && (input.type === 'email' || input.type === 'tel')) {

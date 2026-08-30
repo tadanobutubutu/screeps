@@ -52,12 +52,13 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function generateUniqueLandmarkId(baseName) {
     let candidate = baseName;
-    if (_usedLandmarkIds.has(candidate)) {
-        // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
-        candidate = `${baseName}-${suffix}`;
+    let counter = 1;
+    while (_usedLandmarkIds.has(candidate)) {
+        const suffix = Math.floor(Math.random() * 9) + 1;
+        candidate = `${baseName}-${suffix}-${counter}`;
+        counter++;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -86,7 +87,7 @@ function uniqueLandmarks(landmarks) {
  * @param {string} label - The label text to be added.
  */
 function addAriaLabel(element, label) {
-    if (!element.hasAttribute('aria-label')) {
+    if (element && !element.hasAttribute('aria-label')) {
         element.setAttribute('aria-label', label);
     }
 }
@@ -95,10 +96,9 @@ function addAriaLabel(element, label) {
  * Adds lang attribute as per the issue requirement
  */
 function addLangAttribute() {
-  // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.querySelector('html');
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.setAttribute('lang', 'en');
   }
 }
 
@@ -122,7 +122,6 @@ if (table) {
 
 // Add/fix landmark issues
 validateLandmark();
-validateLandmarkStructure();
 
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
@@ -133,10 +132,8 @@ if (svg) {
 }
 
 // Ensure unique landmarks
-ensureUniqueLandmarkId('main-content');
 
 // Validate link accessibility
-validateLinkAccessibility();
 
 // Handle fake links
 handleFakeLinks();
@@ -148,12 +145,12 @@ handleFakeLinks();
 // TODO: Add these imported modules to the relevant rendering functions
 
 function formatProductName(product) {
-  return `${product.name} - ...`;
+  return `${product.name} - ${product.category}`;
 }
 
 function renderProductList(products) {
   const container = document.createElement('div');
-  container.innerHTML = products.map(p => renderProductCard(p)).join('');
+  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
   return container;
 }
 
@@ -165,18 +162,20 @@ function calculateTotalPrice(cart) {
 
 function renderCart(cart) {
   const total = calculateTotalPrice(cart);
+  const formattedTotal = formatCurrency(total);
+  const currentDate = formatDate(new Date());
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ...${total}</p>
-      <p>Date: ${formatDate(new Date())}</p>
+      <p>Total: ${formattedTotal}</p>
+      <p>Date: ${currentDate}</p>
     </div>
   `;
 }
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return renderProductList([input]);
+    return `<div class="valid">${input}</div>`;
   }
   return '<p>Invalid input</p>';
 }
@@ -192,7 +191,24 @@ function renderPage(data) {
 function checkLinkAccessibility() {
   // Implementation for checking link accessibility
   // This function will be used to validate the accessibility of links
-  return validateLinkAccessibility();
+  const links = document.querySelectorAll('a');
+  const accessibilityIssues = [];
+  
+  links.forEach((link, index) => {
+    const hasText = link.textContent.trim().length > 0;
+    const hasAriaLabel = link.hasAttribute('aria-label');
+    const hasTitle = link.hasAttribute('title');
+    
+    if (!hasText && !hasAriaLabel && !hasTitle) {
+      accessibilityIssues.push({
+        index,
+        message: 'Link lacks accessible text',
+        element: link
+      });
+    }
+  });
+  
+  return accessibilityIssues;
 }
 
 // Export accessibility utility functions

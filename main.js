@@ -174,6 +174,209 @@ function validateAllTables() {
   };
 }
 
+/**
+ * Get the language attribute for the HTML element (REACT_015)
+ * @param {string} lang - Language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute string
+ */
+function getLangAttribute(lang = 'en') {
+  if (!lang || typeof lang !== 'string' || lang.length === 0) {
+    return 'lang="en"';
+  }
+  return `lang="${lang}"`;
+}
+
+/**
+ * Get landmark role based on element type (REACT_017)
+ * @param {string} elementType - Type of element (e.g., 'nav', 'main', 'aside', 'header', 'footer')
+ * @returns {string} The appropriate landmark role
+ */
+function getLandmarkRole(elementType) {
+  const landmarkRoles = {
+    'nav': 'navigation',
+    'main': 'main',
+    'aside': 'complementary',
+    'header': 'banner',
+    'footer': 'contentinfo',
+    'section': 'region',
+    'form': 'form',
+    'search': 'search'
+  };
+  
+  return landmarkRoles[elementType.toLowerCase()] || 'region';
+}
+
+/**
+ * Validate that landmarks are unique (REACT_025)
+ * @param {Array} landmarks - Array of landmark objects with type and label
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateLandmarks(landmarks) {
+  const errors = [];
+  const seenLandmarks = new Map();
+  
+  if (!Array.isArray(landmarks)) {
+    return {
+      isValid: false,
+      errors: [{ error: 'Landmarks must be an array' }]
+    };
+  }
+  
+  const uniqueLandmarkTypes = ['nav', 'main', 'aside', 'header', 'footer'];
+  
+  for (let i = 0; i < landmarks.length; i++) {
+    const landmark = landmarks[i];
+    const key = `${landmark.type}-${landmark.label || ''}`;
+    
+    // Check for duplicate landmarks with same type
+    if (seenLandmarks.has(key)) {
+      errors.push({
+        index: i,
+        error: `Duplicate landmark: ${landmark.type} with label "${landmark.label || 'unnamed'}"`
+      });
+    }
+    
+    seenLandmarks.set(key, i);
+    
+    // Check for multiple instances of unique landmark types
+    const typeCount = landmarks.filter(l => l.type === landmark.type).length;
+    if (uniqueLandmarkTypes.includes(landmark.type) && typeCount > 1) {
+      errors.push({
+        index: i,
+        error: `Multiple ${landmark.type} landmarks found (${typeCount}). Should only have one.`
+      });
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
+/**
+ * Create an accessible in-page button with proper landmark and accessibility attributes (REACT_015, REACT_017)
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button label text
+ * @param {string} options.id - Unique identifier
+ * @param {string} options.onClick - Click handler function name
+ * @param {string} options.ariaLabel - Optional ARIA label
+ * @returns {Object} Button configuration object
+ */
+function createInPageButton(options = {}) {
+  const { text = '', id = '', onClick = '', ariaLabel = '' } = options;
+  
+  if (!text) {
+    throw new Error('Button text is required');
+  }
+  
+  const buttonConfig = {
+    type: 'button',
+    text: text,
+    id: id,
+    role: 'button',
+    tabIndex: 0,
+    ariaLabel: ariaLabel || text
+  };
+  
+  if (onClick) {
+    buttonConfig.onClick = onClick;
+  }
+  
+  return buttonConfig;
+}
+
+/**
+ * Get accessible name for an SVG element (REACT_041)
+ * @param {Object} svgConfig - SVG configuration
+ * @param {string} svgConfig.title - SVG title element text
+ * @param {string} svgConfig.description - SVG description (desc element)
+ * @param {string} svgConfig.ariaLabel - Direct aria-label attribute
+ * @returns {string} The computed accessible name
+ */
+function getSvgAccessibleName(svgConfig = {}) {
+  const { title, description, ariaLabel } = svgConfig;
+  
+  if (ariaLabel && typeof ariaLabel === 'string') {
+    return ariaLabel;
+  }
+  
+  if (title && typeof title === 'string') {
+    return title;
+  }
+  
+  if (description && typeof description === 'string') {
+    return description;
+  }
+  
+  return '';
+}
+
+/**
+ * Create an accessible link configuration instead of a fake link (REACT_036)
+ * @param {Object} options - Link options
+ * @param {string} options.href - URL the link points to
+ * @param {string} options.text - Link text content
+ * @param {boolean} options.isExternal - Whether the link points to external site
+ * @param {string} options.ariaLabel - Optional ARIA label for additional context
+ * @returns {Object} Link configuration object
+ */
+function createAccessibleLink(options = {}) {
+  const { href = '#', text = '', isExternal = false, ariaLabel = '' } = options;
+  
+  const linkConfig = {
+    type: 'a',
+    tag: 'a',
+    href: href,
+    text: text,
+    isExternal: isExternal
+  };
+  
+  if (isExternal) {
+    linkConfig.rel = 'noopener noreferrer';
+    linkConfig.target = '_blank';
+    // Add visual indicator for external links (accessible)
+    linkConfig.ariaLabel = ariaLabel || `${text} (opens in new tab)`;
+  } else {
+    linkConfig.ariaLabel = ariaLabel || text;
+  }
+  
+  return linkConfig;
+}
+
+/**
+ * Validate SVG accessibility (REACT_041)
+ * @param {Array} svgs - Array of SVG configuration objects
+ * @returns {Object} Validation result with isValid flag and array of errors
+ */
+function validateSvgAccessibility(svgs) {
+  const errors = [];
+  
+  if (!Array.isArray(svgs)) {
+    return {
+      isValid: false,
+      errors: [{ error: 'SVGs must be an array' }]
+    };
+  }
+  
+  for (let i = 0; i < svgs.length; i++) {
+    const svg = svgs[i];
+    const accessibleName = getSvgAccessibleName(svg);
+    
+    if (!accessibleName) {
+      errors.push({
+        index: i,
+        error: 'SVG must have an accessible name (title, desc, or aria-label)'
+      });
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
 // Module exports
 module.exports = {
   initialize,
@@ -183,5 +386,12 @@ module.exports = {
   setConfig,
   validateTableAccessibility,
   validateTableStructure,
-  validateAllTables
+  validateAllTables,
+  getLangAttribute,
+  getLandmarkRole,
+  validateLandmarks,
+  createInPageButton,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  validateSvgAccessibility
 };

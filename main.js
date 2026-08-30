@@ -335,7 +335,85 @@ function validateTableAccessibility(document) {
 }
 
 function checkLandmarkElements(htmlContent) {
-  // Implementation for landmark check
+  const results = {
+    hasMain: false,
+    hasNav: false,
+    hasHeader: false,
+    hasFooter: false,
+    hasAside: false,
+    hasSearch: false,
+    landmarks: [],
+    issues: []
+  };
+
+  // Parse HTML if string
+  let doc;
+  if (typeof htmlContent === 'string') {
+    const parser = new DOMParser();
+    doc = parser.parseFromString(htmlContent, 'text/html');
+  } else {
+    doc = htmlContent;
+  }
+
+  // Check for main element
+  const mainElements = doc.querySelectorAll('main, [role="main"]');
+  results.hasMain = mainElements.length > 0;
+  if (!results.hasMain) {
+    results.issues.push('No main landmark found');
+  }
+
+  // Check for nav elements
+  const navElements = doc.querySelectorAll('nav, [role="navigation"]');
+  results.hasNav = navElements.length > 0;
+  if (!results.hasNav) {
+    results.issues.push('No navigation landmark found');
+  }
+
+  // Check for header elements (not nested in other landmarks)
+  const headerElements = doc.querySelectorAll('header');
+  results.hasHeader = headerElements.length > 0;
+
+  // Check for footer elements (not nested in other landmarks)
+  const footerElements = doc.querySelectorAll('footer');
+  results.hasFooter = footerElements.length > 0;
+
+  // Check for aside elements
+  const asideElements = doc.querySelectorAll('aside, [role="complementary"]');
+  results.hasAside = asideElements.length > 0;
+
+  // Check for search landmark
+  const searchElements = doc.querySelectorAll('search, [role="search"]');
+  results.hasSearch = searchElements.length > 0;
+
+  // Collect all landmarks with their roles and labels
+  const landmarkSelectors = 'header, nav, main, aside, footer, section, form, search, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="region"], [role="search"]';
+
+  doc.querySelectorAll(landmarkSelectors).forEach(landmark => {
+    const tag = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role') || '';
+    const ariaLabel = landmark.getAttribute('aria-label') || '';
+    const ariaLabelledby = landmark.getAttribute('aria-labelledby') || '';
+    const heading = landmark.querySelector('h1, h2, h3, h4, h5, h6');
+    const headingText = heading ? heading.textContent.trim() : '';
+
+    results.landmarks.push({
+      tag,
+      role,
+      label: ariaLabel || headingText,
+      hasLabel: !!(ariaLabel || ariaLabelledby || headingText)
+    });
+  });
+
+  // Check for unlabeled landmarks that should have labels
+  results.landmarks.forEach(landmark => {
+    const shouldHaveLabel = ['section', 'form', 'search'].includes(landmark.tag) || 
+                           ['region'].includes(landmark.role);
+    if (shouldHaveLabel && !landmark.hasLabel) {
+      results.issues.push(`Landmark <${landmark.tag}> is missing an accessible name`);
+    }
+  });
+
+  return results;
 }
 
 function validateLandmarkStructure(landmark) {

@@ -105,6 +105,43 @@ function newFocusTrap() {
   // New function implementation
 }
 
+// Create an in-page button element with proper accessibility attributes
+function createInPageButton(label, onClick, options = {}) {
+  const {
+    className = '',
+    ariaLabel = label,
+    disabled = false,
+    type = 'button',
+    id = ''
+  } = options;
+
+  const button = document.createElement('button');
+  button.type = type;
+  button.textContent = label;
+  button.setAttribute('aria-label', ariaLabel);
+
+  if (id) {
+    button.id = id;
+  } else {
+    ensureElementId(button);
+  }
+
+  if (className) {
+    button.className = className;
+  }
+
+  if (disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  return button;
+}
+
 // Add back any required exports that might have been removed.
 // For example, if the issue requires adding back an export like `calculateSum`, you would add:
 function calculateSum(a, b) { return a + b; }
@@ -285,5 +322,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  createInPageButton
 };

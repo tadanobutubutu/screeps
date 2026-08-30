@@ -253,6 +253,56 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+/**
+ * Generates a report based on accessibility issues
+ * @param {Array} issues - Array of accessibility issue objects
+ * @returns {Object} - Accessibility report
+ */
+function generateAccessibilityReport(issues) {
+  if (!Array.isArray(issues)) {
+    return {
+      totalIssues: 0,
+      uniqueIssues: 0,
+      issuesByCode: {},
+      criticalIssues: [],
+      highIssues: [],
+      moderateIssues: [],
+      lowIssues: []
+    };
+  }
+
+  const report = {
+    totalIssues: issues.length,
+    uniqueIssues: new Set(issues.map(issue => issue.code)).size,
+    issuesByCode: {},
+    criticalIssues: [],
+    highIssues: [],
+    moderateIssues: [],
+    lowIssues: []
+  };
+
+  issues.forEach(issue => {
+    const severity = issue.severity || 'low';
+    if (severity === 'critical') {
+      report.criticalIssues.push(issue);
+    } else if (severity === 'high') {
+      report.highIssues.push(issue);
+    } else if (severity === 'moderate') {
+      report.moderateIssues.push(issue);
+    } else {
+      report.lowIssues.push(issue);
+    }
+
+    if (report.issuesByCode[issue.code]) {
+      report.issuesByCode[issue.code]++;
+    } else {
+      report.issuesByCode[issue.code] = 1;
+    }
+  });
+
+  return report;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +321,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  generateAccessibilityReport
 };

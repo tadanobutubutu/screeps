@@ -265,6 +265,51 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  const processValue = (value) => {
+    if (typeof value === 'string') {
+      let processed = value;
+      if (trimWhitespace) {
+        processed = processed.trim();
+      }
+      if (uppercase) {
+        processed = processed.toUpperCase();
+      }
+      if (maxLength !== null && processed.length > maxLength) {
+        processed = processed.substring(0, maxLength);
+      }
+      return processed;
+    }
+    return value;
+  };
+
+  if (typeof inputData === 'object' && !Array.isArray(inputData) && inputData !== null) {
+    const result = {};
+    const keys = preserveKeys ? Object.keys(inputData) : Object.keys(inputData).map(() => Math.random().toString(36).substr(2, 9));
+    
+    let i = 0;
+    for (const key of Object.keys(inputData)) {
+      const value = inputData[key];
+      if (typeof value === 'object' && value !== null) {
+        result[keys[i]] = transformInputData(value, options);
+      } else {
+        result[keys[i]] = processValue(value);
+      }
+      i++;
+    }
+    return result;
+  }
+
+  if (Array.isArray(inputData)) {
+    return inputData.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        return transformInputData(item, options);
+      }
+      return processValue(item);
+    });
+  }
+
+  return processValue(inputData);
 }
 
 // Initialize on DOM ready
@@ -285,5 +330,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  transformInputData
 };

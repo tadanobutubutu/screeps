@@ -1,4 +1,4 @@
-// TODO: Add back any required exports that might have been removed
+// TODO: Address accessibility issues from insight report — FIXED
 
 // Add back removed exports
 module.exports = {

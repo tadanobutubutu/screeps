@@ -282,6 +282,56 @@ function add(a, b) {
   return a + b;
 }
 
+/**
+ * Generate a report from the given data and configuration
+ * @param {Object} data - The data to include in the report
+ * @param {Object} options - Configuration options for report generation
+ * @param {string} options.format - Output format (e.g., 'json', 'csv', 'html')
+ * @param {string} options.title - Title for the report
+ * @returns {string} The generated report content
+ */
+function generateReport(data, options = {}) {
+  const config = getConfig();
+  const format = options.format || 'json';
+  const title = options.title || 'Generated Report';
+  
+  const report = {
+    title: title,
+    generatedAt: new Date().toISOString(),
+    data: data,
+    metadata: {
+      apiUrl: config.apiUrl,
+      timeout: config.timeout
+    }
+  };
+  
+  switch (format.toLowerCase()) {
+    case 'json':
+      return JSON.stringify(report, null, 2);
+    case 'csv': {
+      const headers = Object.keys(data[0] || {}).join(',');
+      const rows = (data || []).map(row => Object.values(row).join(',')).join('\n');
+      return `${headers}\n${rows}`;
+    }
+    case 'html':
+      return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p>Generated at: ${report.generatedAt}</p>
+  <pre>${JSON.stringify(data, null, 2)}</pre>
+</body>
+</html>`;
+    default:
+      return JSON.stringify(report, null, 2);
+  }
+}
+
 // Export existing functionality and new functions
 export { 
   initialize, 
@@ -294,7 +344,8 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction,
+  generateReport
 };
 
 // Initialize on DOM ready

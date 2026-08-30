@@ -1,4 +1,4 @@
-const config = require('./config');
+const config = {};
 const logger = require('./utils/logger');
 
 // Application state
@@ -9,12 +9,11 @@ const appData = {};
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const dependencyGraph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph') || document.querySelector('#dependency-graph');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
-  // ... any new code or functions requested in the issue ...
 
   return null;
 }
@@ -28,7 +27,7 @@ function improveAccessibility() {
     }
   });
 
-  const focusable = document.querySelectorAll('[role="link"]');
+  const focusable = document.querySelectorAll('[tabindex]');
   focusable.forEach(el => {
     if (el.tabIndex < 0) el.tabIndex = 0;
   });
@@ -71,11 +70,11 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = document.querySelectorAll('[' + landmark + '], ' + landmark);
     elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      const isUnique = !uniqueLandmarkMap[landmark] || Object.values(uniqueLandmarkMap).filter(e => e === el).length === 0;
       if (isUnique) {
-        uniqueLandmarkMap[landmark].push(el);
+        uniqueLandmarkMap[landmark] = el;
       } else {
         el.removeAttribute('role');
       }
@@ -113,70 +112,72 @@ function fixLandmarkIssues(insightReport) {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph-content, [data-dependency-graph-content]') || document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
+  const container = document.querySelector('[data-dependency-graph-content]') || document.querySelector('.dependency-graph-content') || document.querySelector('#dependency-graph-content');
   if (container) {
     container.innerHTML = data;
   }
 }
 
-// Address accessibility issues from insight report
-function improveAccessibility() {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach(button => {
-    if (!button.getAttribute('aria-label')) {
-      button.setAttribute('aria-label', button.textContent || 'Button');
+// Report generation logic
+function generateReport(data) {
+  const report = {
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalIssues: data.issues ? data.issues.length : 0,
+      criticalIssues: data.issues ? data.issues.filter(i => i.severity === 'critical').length : 0,
+      warnings: data.issues ? data.issues.filter(i => i.severity === 'warning').length : 0
+    },
+    issues: data.issues || [],
+    metadata: {
+      generatedAt: Date.now(),
+      version: '1.0.0'
     }
-  });
+  };
 
-  const focusable = document.querySelectorAll('[role="link"]');
-  focusable.forEach(el => {
-    if (el.tabIndex < 0) el.tabIndex = 0;
-  });
+  return report;
 }
 
-// New function to address accessibility issues from insight report
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueLandmarkMap = {};
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
-    elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
-      if (isUnique) {
-        uniqueLandmarkMap[landmark].push(el);
-      } else {
-        el.removeAttribute('role');
-      }
+// Function to format report as HTML
+function formatReportAsHtml(report) {
+  let html = '<div class="report">';
+  html += '<h1>Accessibility Report</h1>';
+  html += '<p>Generated: ' + report.timestamp + '</p>';
+  html += '<p>Total Issues: ' + report.summary.totalIssues + '</p>';
+  html += '<p>Critical Issues: ' + report.summary.criticalIssues + '</p>';
+  html += '<p>Warnings: ' + report.summary.warnings + '</p>';
+  
+  if (report.issues && report.issues.length > 0) {
+    html += '<ul>';
+    report.issues.forEach(function(issue) {
+      html += '<li>' + issue.code + ': ' + (issue.message || 'No message') + '</li>';
     });
-  });
+    html += '</ul>';
+  }
+  
+  html += '</div>';
+  return html;
 }
 
-// New function to add landmark roles and fix issues
-function addLandmarkRoles(insightReport) {
-  const issues = insightReport.issues || [];
-
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
+// Function to export report as JSON
+function exportReportAsJson(report) {
+  return JSON.stringify(report, null, 2);
 }
 
-// Address other insight report issues
-function fixLandmarkIssues(insightReport) {
-  const issues = insightReport.issues || [];
-  issues.forEach(issue => {
-    if (issue.code === 'REACT_017') {
-      const element = document.querySelector(issue.selector);
-      if (element && issue.ariaRole) {
-        element.setAttribute('role', issue.ariaRole);
-      }
-    }
-  });
+// Function to create report and return formatted output
+function createAccessibilityReport(insightReport, format) {
+  const reportData = {
+    issues: insightReport.issues || []
+  };
+  
+  const report = generateReport(reportData);
+  
+  if (format === 'html') {
+    return formatReportAsHtml(report);
+  } else if (format === 'json') {
+    return exportReportAsJson(report);
+  }
+  
+  return report;
 }
 
 function renderDependencyGraph(dependencyData) {
@@ -193,7 +194,7 @@ function calculateSum(a, b) {
 
 function fixFakeLinks() {
   const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
+  const fakeLinkDivs = document.querySelectorAll('div[role="link"]');
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
@@ -224,13 +225,13 @@ function fixTableHeaderCellScope() {
   tables.forEach(table => {
     const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
-      if (!cell.hasAttribute('scope')) {
-        const rows = table.querySelectorAll('tr');
+      if (!cell.getAttribute('scope')) {
+        const rows = Array.from(table.querySelectorAll('tr'));
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = row.querySelectorAll('th, td');
+          const rowCells = row.querySelectorAll('td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -245,7 +246,7 @@ function fixTableHeaderCellScope() {
 function addMainLandmark() {
   const mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
-    if (!main.hasAttribute('role')) {
+    if (!main.getAttribute('role')) {
       main.setAttribute('role', 'main');
     }
   });
@@ -267,15 +268,21 @@ function addSvgAccessibleNames() {
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index}`;
+      const titleId = 'svg-title-' + index;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
       const title = document.createElement('title');
-      title.textContent = `SVG graphic ${index + 1}`;
+      title.textContent = 'SVG graphic ' + (index + 1);
       svg.insertBefore(title, svg.firstChild);
     }
   });
+}
+
+function addLangAttribute() {
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
 }
 
 let uniqueLandmarks = {};
@@ -294,7 +301,7 @@ function fixUniqueLandmarks(insightReport) {
     }
   });
 
-  uniqueLandmarks = Object.values(uniqueLandmarks);
+  uniqueLandmarks = Object.assign({}, uniqueLandmarks);
 
   // Check if all landmarks are unique and re-add if necessary
   ensureUniqueLandmarks();
@@ -305,11 +312,15 @@ function implementNewFunction() {
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
-  fixTableStructureIssues();
+  improveAccessibility();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixTableStructureIssues();
   fixTableHeaderCellScope();
-  fixUniqueLandmarks();
+}
+
+function someFunction() {
+  return true;
 }
 
 function main() {
@@ -339,7 +350,11 @@ module.exports = {
   main,
   addressAccessibilityIssues,
   renderDependencyGraphContent,
-  fixUniqueLandmarks
+  fixUniqueLandmarks,
+  generateReport,
+  formatReportAsHtml,
+  exportReportAsJson,
+  createAccessibilityReport
 };
 
 main();

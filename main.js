@@ -33,6 +33,12 @@ getSvgAccessibleName();
 const http = require('http');
 const path = require('path');
 
+// New function as per the issue request
+function newExportedFunction() {
+  // Implementation of the new function
+  console.log('This is the new exported function.');
+}
+
 // New function to add lang attribute to HTML element
 function addLangAttribute() {
   // Implementation to add lang attribute
@@ -164,7 +170,8 @@ module.exports = {
   addLandmarkIssues,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
-  fixFakeLinkIssue
+  fixFakeLinkIssue,
+  newExportedFunction
 };
 
 // Start the application if run directly

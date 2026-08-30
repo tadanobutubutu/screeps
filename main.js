@@ -101,8 +101,30 @@ const renderDependencyGraph = (data) => {
 // - ADD: Address new accessibility issues from insight report
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
-function newFocusTrap() {
-  // New function implementation
+function newFocusTrap(element) {
+  const focusableSelectors = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const handler = (e) => {
+    if (e.key === 'Tab') {
+      const focusable = element.querySelectorAll(focusableSelectors);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  };
+  element.addEventListener('keydown', handler);
+  // Return a cleanup function
+  return () => element.removeEventListener('keydown', handler);
 }
 
 // Add back any required exports that might have been removed.
@@ -285,5 +307,6 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  newFocusTrap
 };

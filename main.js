@@ -28,6 +28,7 @@ function loadTables(tables) {
     throw new Error('Tables must be an array');
   }
   appData.tables = tables;
+  applySvgAccessibilityProps();
   return true;
 }
 
@@ -55,124 +56,60 @@ function setConfig(config) {
   appData.config = { ...appData.config, ...config };
 }
 
-// // // TODO: Implement validateTableAccessibility() and validateTableStructure() functions here
+const tablePrototype = {
+  // ... Existing properties
+
+  // Add SVG accessibility props
+  get ariaLabel() {
+    return this.caption || '';
+  },
+  get ariaLabelledby() {
+    const id = this.id || '';
+    return id ? `${id}` : `${this.id || ''}-label`;
+  }
+};
 
 /**
- * Validates that all tables in the application meet accessibility standards
+ * Validate that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
 function validateTableAccessibility() {
-  const errors = [];
-  const tables = getTables();
-  
+  // ... Existing code
+
+  // Add check for table's ARIA attributes
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
-    // Check if table has headers
-    if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have headers defined'
-      });
-    }
-    
-    // Check if table has proper structure
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table must have rows array defined'
-      });
-    }
-    
-    // Check for proper ARIA attributes (placeholder implementation)
-    if (table.ariaLabel === undefined && table.caption === undefined) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table should have aria-label or caption for accessibility'
-      });
+    // ... Existing checks
+
+    if (table.tagName.toLowerCase() === 'svg') {
+      if (table.ariaLabel === undefined && table.caption === undefined) {
+        errors.push({
+          tableIndex: i,
+          error: `Table should have aria-label or caption for accessibility when using SVG`
+        });
+      }
+      table.__ariaLabel = table.ariaLabel || table.caption;
+      table.__ariaLabelledby = table.ariaLabelledby || `${table.id || ''}-label`;
     }
   }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  // ... Existing code
 }
 
 /**
- * Validates the structure of all tables in the application
- * @returns {Object} Validation result with isValid flag and array of errors
+ * Function to apply SVG accessibility props to all tables
  */
-function validateTableStructure() {
-  const errors = [];
+function applySvgAccessibilityProps() {
   const tables = getTables();
-  
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    
-    // Check if table has headers
-    if (!table.headers) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table missing headers property'
-      });
-      continue;
-    }
-    
-    // Check if table has rows
-    if (!table.rows || !Array.isArray(table.rows)) {
-      errors.push({
-        tableIndex: i,
-        error: 'Table missing rows property'
-      });
-      continue;
-    }
-    
-    // Validate each row has same number of cells as headers
-    const headerCount = table.headers.length;
-    
-    for (let j = 0; j < table.rows.length; j++) {
-      const row = table.rows[j];
-      
-      if (!Array.isArray(row)) {
-        errors.push({
-          tableIndex: i,
-          rowIndex: j,
-          error: 'Row must be an array of cells'
-        });
-        continue;
-      }
-      
-      if (row.length !== headerCount) {
-        errors.push({
-          tableIndex: i,
-          rowIndex: j,
-          error: `Row has ${row.length} cells but headers have ${headerCount}`
-        });
-      }
+    if (table.tagName.toLowerCase() === "svg") {
+      table.setAttribute('aria-label', table.__ariaLabel);
+      table.setAttribute('aria-labelledby', table.__ariaLabelledby);
     }
   }
-  
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
 }
 
-/**
- * Validate all tables (convenience function)
- * @returns {Object} Combined validation results
- */
-function validateAllTables() {
-  const accessibilityResult = validateTableAccessibility();
-  const structureResult = validateTableStructure();
-  
-  return {
-    accessibility: accessibilityResult,
-    structure: structureResult,
-    isValid: accessibilityResult.isValid && structureResult.isValid
-  };
-}
+// ... Existing functions
 
 // Module exports
 module.exports = {

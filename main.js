@@ -14,9 +14,16 @@ function displayModuleStructure() {
   // Example placeholder for actual implementation
 }
 
+function newFunction() {
+  // Implementation of the new function
+}
+
 // Export the new functions if necessary, depending on the existing exports
 module.exports = {
   // ... existing exports ...
   renderDependencyGraph,
-  displayModuleStructure
+  displayModuleStructure,
+  newFunction
 };
+
+// TODO: Any additional changes requested in the issue (assuming there are none)

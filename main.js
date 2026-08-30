@@ -21,7 +21,7 @@ const CONFIG = {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
 }
 
 function validateInput(input) {
@@ -68,7 +68,7 @@ async function retryOperation(operation, maxRetries = CONFIG.maxRetries) {
 }
 
 function sanitizeFilename(filename) {
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+  return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
 function readFileSafe(filePath) {
@@ -124,27 +124,6 @@ function myNewFunction(input) {
 // Calculate sum of numbers array
 function calculateSum(numbers) {
     return numbers.reduce((sum, num) => sum + num, 0);
-}
-
-// Additional utility functions for accessibility
-function getLangAttribute() {
-  // Implementation for REACT_015: Add lang attribute to HTML element
-  // ...
-}
-
-function getSvgAccessibleName() {
-  // Implementation for REACT_041: Add accessible names to 2 SVGs
-  // ...
-}
-
-function validateTableAccessibility() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
-}
-
-function validateTableStructure() {
-  // Implementation for REACT_027: Fix 26 table structure issues
-  // ...
 }
 
 /**
@@ -251,7 +230,7 @@ async function handleCredentialResponse(response) {
 // TODO: Implement a new function to handle focus trap for keyboard navigation
 const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select, [tabindex]:not([tabindex="-1"])'
   );
   let activeElementIndex = focusableElements.length - 1;
 
@@ -262,11 +241,10 @@ const focusTrap = (element) => {
       index = 0;
     }
 
-    if (focusableElements[index].focus) {
+    if (focusableElements[index]) {
       focusableElements[index].focus();
     } else {
-      main.ensureElementHasId(focusableElements[index]);
-      focusableElements[index].focus();
+      focusableElements[0].focus();
     }
     activeElementIndex = index;
   }
@@ -275,7 +253,7 @@ const focusTrap = (element) => {
     setActiveElement(activeElementIndex + 1);
   }
 
-  function prevFocusableElement() {
+  function previousFocusableElement() {
     setActiveElement(activeElementIndex - 1);
   }
 
@@ -291,14 +269,14 @@ const focusTrap = (element) => {
     switch (e.key) {
       case 'Tab':
         if (e.shiftKey) {
-          prevFocusableElement();
+          previousFocusableElement();
         } else {
           nextFocusableElement();
         }
         e.preventDefault();
         break;
       case 'ArrowLeft':
-        prevFocusableElement();
+        previousFocusableElement();
         e.preventDefault();
         break;
       case 'ArrowRight':
@@ -319,7 +297,13 @@ const focusTrap = (element) => {
 
 // TODO: Address accessibility issues from insight report
 const addressAccessibilityIssues = (container) => {
-  const fixes = implementAccessibilityFixesFromReport(container, validateAccessibilityReport(container));
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  };
 
   if (fixes.langAdded) {
     log('Lang attribute added to HTML element', 'info');
@@ -364,11 +348,7 @@ module.exports = {
   filterValidItems,
   groupByCategory,
   myNewFunction,
-  getLangAttribute,
   calculateSum,
-  getSvgAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
   ensureElementHasId,
   addAriaLabel,
   renderDependencyGraphs,
@@ -381,16 +361,8 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
   validateAccessibilityReport,
-  addMainLandmark,
-  ensureUniqueLandmarks,
-  addAltAttribute,
-  replaceButtonId,
-  addLangAttribute,
-  fixTableStructure,
-  addSvgAccessibleName,
-  fixFakeLinkIssue,
-  addAriaAttribute,
-
   renderDependencyGraph: renderDependencyGraphs
 };

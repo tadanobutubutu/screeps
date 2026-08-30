@@ -167,19 +167,46 @@ function addSvgAccessibleNames() {
 
 // Accessibility function to ensure unique landmarks
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('header, footer, nav, aside, section[aria-label], section[aria-labelledby]');
+  const landmarks = document.querySelectorAll('header, footer, nav, aside, [role="banner"], [role="contentinfo"], [role="navigation"], [role="complementary"], section[aria-label], section[aria-labelledby]');
+  const landmarkCounts = {};
+
   landmarks.forEach(landmark => {
+    let role = landmark.getAttribute('role');
     const tagName = landmark.tagName.toLowerCase();
-    if ((tagName === 'header' || tagName === 'footer') && !landmark.closest('main')) {
-      // Keep multiple headers/footers outside main
-    } else if (landmark.querySelector('main') || landmark.closest('main')) {
-      // Ensure main is not nested incorrectly
-      const nestedMain = landmark.querySelector('main');
-      if (nestedMain && !landmark.closest('section') && !landmark.closest('article')) {
-        const parent = landmark.parentNode;
-        if (parent) {
-          parent.insertBefore(nestedMain, landmark.nextSibling);
-        }
+
+    // Determine effective role for counting
+    if (!role) {
+      switch (tagName) {
+        case 'header':
+          role = landmark.closest('main, [role="main"]') ? 'banner' : 'banner';
+          break;
+        case 'footer':
+          role = landmark.closest('main, [role="main"]') ? 'contentinfo' : 'contentinfo';
+          break;
+        case 'nav':
+          role = 'navigation';
+          break;
+        case 'aside':
+          role = 'complementary';
+          break;
+        default:
+          role = null;
+      }
+    }
+
+    // Only process if we have a determinable role
+    if (role) {
+      // Normalize header/footer roles outside main
+      if (tagName === 'header' && !landmark.closest('main, [role="main"]')) {
+        role = 'banner';
+      }
+      if (tagName === 'footer' && !landmark.closest('main, [role="main"]')) {
+        role = 'contentinfo';
+      }
+
+      landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+      if (landmarkCounts[role] > 1) {
+        landmark.setAttribute('role', role);
       }
     }
   });

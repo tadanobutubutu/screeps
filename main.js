@@ -1,9 +1,10 @@
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
-import { List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
+import { List } from 'antd';
 
-// ... (the rest of the existing code)
+// Get the list of books from the Redux store
+export const getBooksList = useSelector(state => state.books.list);
 
 // Implement the required changes to improve accessibility for the addBook function or form
 function AddBookForm() {
@@ -15,7 +16,7 @@ function AddBookForm() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Perform any necessary validation or processing before adding the book
+    // Perform any necessary validation or processing before adding a book
     // ...
 
     // Create a new book object
@@ -31,43 +32,97 @@ function AddBookForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor="title">Title:</label>
-      <input
-        id="title"
-        type="text"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        required
-      />
-      <label htmlFor="author">Author:</label>
-      <input
-        id="author"
-        type="text"
-        value={author}
-        onChange={e => setAuthor(e.target.value)}
-        required
-      />
+      <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title" />
+      <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Author" />
       <button type="submit">Add Book</button>
     </form>
   );
 }
 
-// ... (remaining existing code)
+// Function to handle sorting books by title (ascending)
+export function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+// Function to handle sorting books by author (descending)
+export function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+// Function to generate a key for each book item
+export function generateKey(book) {
+  return ...
+}
+
+// Function to render a single book item
+export function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        ...
+      />
+    </List.Item>
+  );
+}
+
+// Function to create a new book entry in the Redux store
+export function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Function to ensure the addBook function is accessible
+function ensureAccessibleAddBook() {
+  // Implement accessibility checks and improvements for the addBook function
+  // Example: Check if inputs are properly labeled, if form controls have appropriate roles, etc.
+}
+
+// Default sorting function for the book list
+export const defaultSorting = sortByTitle;
+
+// Function to handle sorting the book list by title (ascending)
+export function onTitleSort() {
+  const sortedList = ...
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+export function onAuthorSort() {
+  const sortedList = ...
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
 
 // Render the main component containing the book list, sorting controls, and the add book form
 function Main() {
-  // ... (the rest of the existing code)
+  const [sorting, setSorting] = useState(defaultSorting);
 
-  // Render the add book form
-  const addBookForm = <AddBookForm />;
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      onTitleSort();
+    } else if (sorting === sortByAuthor) {
+      onAuthorSort();
+    }
+  }, [sorting]);
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = ...
 
   // Render the list of book items and sorting controls and the add book form
   return (
     <div>
-      {addBookForm}
+      <AddBookForm />
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       <List dataSource={bookItems} />
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      <button onClick={ensureAccessibleAddBook}>Add Book</button>
     </div>
   );
 }

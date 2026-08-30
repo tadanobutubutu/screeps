@@ -109,7 +109,7 @@ function displayModuleStructure(modules) {
   }
 
   let result = 'Module Structure:\n';
-  result += `Total modules: ${Object.keys(modules).length}\n\n`;
+  result += `Total modules: ${Object.keys(modules).length}\n`;
   
   Object.keys(modules).forEach((moduleName, index) => {
     const module = modules[moduleName];
@@ -123,12 +123,12 @@ function displayModuleStructure(modules) {
       result += `   Version: ${module.version}\n`;
     }
     
-    if (module.dependencies && Array.isArray(module.dependencies)) {
+    if (module.dependencies && module.dependencies.length) {
       result += `   Dependencies: ${module.dependencies.join(', ')}\n`;
     }
     
     if (module.exports) {
-      result += `   Exports: ${JSON.stringify(module.exports)}\n`;
+      result += `   Exports: ${module.exports}\n`;
     }
     
     result += '\n';

@@ -49,8 +49,8 @@ function addMainLandmark(reactRoot) {
   // Move the first child of reactRoot into the main landmark
   if (reactRoot.firstChild) {
     const firstChild = reactRoot.firstChild;
-    reactRoot.insertBefore(mainLandmark, firstChild);
     mainLandmark.appendChild(firstChild);
+    reactRoot.appendChild(mainLandmark);
   } else {
     reactRoot.appendChild(mainLandmark);
   }
@@ -65,13 +65,13 @@ function addMainLandmark(reactRoot) {
  */
 function announceToScreenReader(message, politeness = 'polite') {
   const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', politeness);
-  announcement.setAttribute('aria-atomic', 'true');
+  announcement.setAttribute('role', politeness);
+  announcement.setAttribute('aria-live', 'true');
   announcement.className = 'sr-only';
-  announcement.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+  announcement.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px);';
   announcement.textContent = message;
   document.body.appendChild(announcement);
-  setTimeout(() => announcement.remove(), 1000);
+  setTimeout(() => announcement.remove(), 1);
 }
 
 /**
@@ -225,7 +225,7 @@ function YouHaveComponent() {
 
 // ... rest of the code
 
-// React-specific exports
+// React--specific exports
 // Exports
 export { YouHaveComponent };
 export { addLangAttribute, fixTableStructure, addMainLandmark };

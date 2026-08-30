@@ -87,8 +87,6 @@ function addressAccessibilityIssues(insightReport) {
   // Apply specific accessibility fixes here based on the report's structure.
   // For now, we simply return the report unchanged.
   return insightReport;
-=======
-  });
 }
 
 // Helper to manage focus within a container
@@ -111,7 +109,6 @@ function trapFocus(container) {
       firstElement.focus();
     }
   });
->>>>>>> origin/main
 }
 
 // Function to ensure landmarks have unique identifiers
@@ -351,6 +348,21 @@ function deepClone(obj) {
 
 // Function to remove the 'my-button' class, and set a specific id for the button element if it exists.
 // Assumes you have already set the id on the button element in your code.
+
+function replaceMyButtonId() {
+  const button = document.getElementById('my-button');
+  if (button) {
+    button.classList.remove('my-button');
+  }
+}
+
+function getLangAttribute() {
+  return document.documentElement.lang || '';
+}
+
+function getFullLangAttribute() {
+  return document.documentElement.getAttribute('lang') || '';
+}
 
 replaceMyButtonId();
 addProperLandmarkRegions();

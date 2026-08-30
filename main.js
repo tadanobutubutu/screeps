@@ -1,11 +1,6 @@
-// TODO: Identify and update specific functions that render dependency graphs or
-// index views to import and use dependencyGraphContent/indexContent from the
-// appropriate modules.
-// Updated: imported and used dependencyGraphContent and indexContent in the
-// relevant rendering functions.
+// ... (Existing code here)
 
-const dependencyGraphContent = require('./dependencyGraphContent');
-const indexContent = require('./indexContent');
+const landmarks = [];
 
 /**
  * Renders a dependency graph view
@@ -30,16 +25,33 @@ function renderIndex(data = {}) {
 }
 
 /**
+ * Adds a unique landmark to the landmarks array and renders the main application view
+ * @param {Object} landmark - Landmark object
+ * @param {Object} context - Application context
+ * @returns {string} The rendered application view
+ */
+function renderAppWithUniqueLandmark(landmark, context) {
+  if (landmarks.includes(landmark)) {
+    console.error(`Landmark ${landmark} is already present in the scene.`);
+    return `<div id="app">${renderIndex(context)}</div>`;
+  }
+
+  landmarks.push(landmark);
+  return `<div id="app">${renderIndex({ ...context, landmarks: landmarks })}</div>`;
+}
+
+/**
  * Renders the main application view
  * @param {Object} context - Application context
  * @returns {string} The rendered application view
  */
 function renderApp(context) {
-  return `<div id="app">${renderIndex(context)}</div>`;
+  return renderAppWithUniqueLandmark('initialLandmark', context);
 }
 
 module.exports = {
   renderDependencyGraph,
   renderIndex,
-  renderApp
+  renderApp,
+  // Add additional functions here if required
 };

@@ -134,7 +134,7 @@ module.exports = {
   validateInput,
   processData,
   formatResponse,
-  config,
+  config: CONFIG,
   // landmark functions
   isValidLandmark,
   loadLandmarks,
@@ -142,7 +142,7 @@ module.exports = {
   sortLandmarks,
   getLandmarkById,
   ensureUniqueLandmarks,
-  landmarkConfig
+  landmarkConfig: CONFIG
 };
 
 // Main execution when run directly

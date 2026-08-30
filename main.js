@@ -26,10 +26,10 @@ function initialize() {
   console.log('Application initialized');
 
   // Accessibility: Ensure main content is keyboard accessible
-  const mainContent = document.getElementById('main-content');
+  const mainContent = document.querySelector('main');
   if (mainContent) {
     mainContent.setAttribute('tabindex', '-1');
-    mainContent.removeAttribute('aria-hidden');
+    mainContent.focus();
   }
 
   // Accessibility: Add skip link functionality
@@ -39,9 +39,9 @@ function initialize() {
   setupButtonAccessibility();
 
   // Add dependency graph button functionality
-  const depGraphContainer = document.getElementById('dep-graph-container');
+  const depGraphContainer = document.getElementById('dependency-graph');
   if(depGraphContainer) {
-    createInPageDepGraphButton(depGraphContainer, renderDependencyGraph);
+    createInPageDepGraphButton(renderDependencyGraph);
   }
   return true;
 }
@@ -49,9 +49,9 @@ function initialize() {
 /**
  * Implement this function for creating in-page buttons
  */
-function createInPageDepGraphButton(depGraphContainer, renderFunction) {
+function createInPageDepGraphButton(renderFunction) {
   const button = createInPageButton('Render Dependency Graph', renderFunction);
-  depGraphContainer.appendChild(button);
+  return button;
 }
 
 /**
@@ -60,9 +60,64 @@ function createInPageDepGraphButton(depGraphContainer, renderFunction) {
 function setupButtonAccessibility() {
   const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
-    if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
       button.setAttribute('aria-label', 'Action button');
     }
+  });
+}
+
+/**
+ * Add skip link functionality for keyboard navigation
+ */
+function setupSkipLinks() {
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.style.position = 'absolute';
+  skipLink.style.left = '-9999px';
+  skipLink.style.top = 'auto';
+  skipLink.style.width = '1px';
+  skipLink.style.height = '1px';
+  skipLink.style.overflow = 'hidden';
+  
+  document.body.insertBefore(skipLink, document.body.firstChild);
+  
+  const mainContent = document.querySelector('main') || document.querySelector('[role="main"]');
+  if (mainContent) {
+    mainContent.id = 'main-content';
+    mainContent.setAttribute('tabindex', '-1');
+  }
+  
+  skipLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (mainContent) {
+      mainContent.focus();
+      mainContent.scrollIntoView();
+    }
+  });
+  
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+    skipLink.style.top = '0';
+    skipLink.style.width = 'auto';
+    skipLink.style.height = 'auto';
+    skipLink.style.zIndex = '9999';
+    skipLink.style.padding = '10px';
+    skipLink.style.backgroundColor = '#fff';
+    skipLink.style.border = '2px solid #000';
+  });
+  
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+    skipLink.style.top = 'auto';
+    skipLink.style.width = '1px';
+    skipLink.style.height = '1px';
+    skipLink.style.overflow = 'hidden';
+    skipLink.style.zIndex = 'auto';
+    skipLink.style.padding = '0';
+    skipLink.style.backgroundColor = 'transparent';
+    skipLink.style.border = 'none';
   });
 }
 
@@ -80,16 +135,6 @@ function getVersion() {
   return VERSION;
 }
 
-<<<<<<< HEAD
-// Implement the function for addressing new accessibility issues
-function addressAccessibilityIssues() {
-  // Assuming we are adding an ARIA role to the dependencyGraph container
-  const dependencyGraph = document.querySelector('.dependencyGraph');
-  if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'group');
-    // You might want to set other ARIA properties or check for more complex requirements from the insight report
-  }
-=======
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 function addressAccessibilityIssues() {
@@ -112,7 +157,7 @@ function addressAccessibilityIssues() {
       el.hasAttribute('aria-label') ||
       el.hasAttribute('aria-labelledby') ||
       el.textContent.trim().length > 0 ||
-      el.querySelector('[aria-label]') !== null;
+      el.getAttribute('placeholder') !== null;
     if (!hasLabel) {
       issues.push({
         type: 'missing-accessible-name',
@@ -125,7 +170,7 @@ function addressAccessibilityIssues() {
   const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
   let previousLevel = 0;
   headings.forEach((heading) => {
-    const level = parseInt(heading.tagName.substring(1), 10);
+    const level = parseInt(heading.tagName.charAt(1), 10);
     if (previousLevel > 0 && level - previousLevel > 1) {
       issues.push({
         type: 'heading-skip',
@@ -154,10 +199,10 @@ function addressAccessibilityIssues() {
       missingLang: issues.filter((i) => i.type === 'missing-lang').length
     }
   };
->>>>>>> origin/main
+}
 
 // New accessibility enhancement: ensure root container has accessible name and create announcement region
-const rootContainer = document.getElementById('root').parentElement;
+const rootContainer = document.getElementById('root');
 if (rootContainer) {
   rootContainer.setAttribute('role', 'main');
 }
@@ -165,6 +210,7 @@ if (rootContainer) {
 const announcementId = 'accessibility-announcement';
 const announcement = document.createElement('div');
 announcement.id = announcementId;
+announcement.setAttribute('role', 'status');
 announcement.setAttribute('aria-live', 'polite');
 announcement.setAttribute('aria-atomic', 'true');
 // Hide off-screen
@@ -230,6 +276,17 @@ function validateTableStructure() {
   });
   
   return results;
+}
+
+/**
+ * Create an accessible in-page button
+ */
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  button.addEventListener('click', onClick);
+  return button;
 }
 
 // Export existing functionality

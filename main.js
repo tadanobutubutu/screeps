@@ -42,6 +42,25 @@ function addBook(book) {
   dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'React',
+    'react-redux',
+    'antd',
+    'useState',
+    'useEffect',
+    'useSelector',
+    'useDispatch',
+    'List',
+  ];
+  const importLines = mainContent.split('\n').filter(line => line.startsWith('import'));
+  const importedModules = importLines.map(line => line.split(' ')[1].split(' from ')[1].split(',')[0].trim());
+
+  const missingDependencies = dependencies.filter(dep => !importedModules.includes(dep));
+  return missingDependencies.length;
+}
+
 // TODO: Implement the required changes to improve accessibility for the addBook function or form
 // ...
 

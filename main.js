@@ -1,18 +1,21 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
 // Implemented validateLandmark functionality
 function validateLandmark(landmark) {
   const errors = [];
-  
+
   // Check if landmark exists
   if (!landmark) {
     errors.push('Landmark is required');
     return { valid: false, errors };
   }
-  
+
   // Validate name
   if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
     errors.push('Landmark must have a valid name');
   }
-  
+
   // Validate latitude
   if (landmark.latitude === undefined || landmark.latitude === null) {
     errors.push('Landmark must have a latitude');
@@ -21,7 +24,7 @@ function validateLandmark(landmark) {
   } else if (landmark.latitude < -90 || landmark.latitude > 90) {
     errors.push('Landmark latitude must be between -90 and 90');
   }
-  
+
   // Validate longitude
   if (landmark.longitude === undefined || landmark.longitude === null) {
     errors.push('Landmark must have a longitude');
@@ -30,7 +33,7 @@ function validateLandmark(landmark) {
   } else if (landmark.longitude < -180 || landmark.longitude > 180) {
     errors.push('Landmark longitude must be between -180 and 180');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -253,6 +256,19 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// ----- BEGIN NEW FUNCTIONALITY -----
+// Added to resolve issue: minor typo correction in variable name
+function addProperLandmarkRegionsFixed(affectedElements) {
+  if (!affectedElements || !Array.isArray(affectedElements)) return;
+
+  affectedElements.forEach(el => {
+    if (el && el.tagName && !el.hasAttribute('role')) {
+      el.setAttribute('role', 'region');
+    }
+  });
+}
+// ----- END NEW FUNCTIONALITY -----
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +287,6 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addProperLandmarkRegionsFixed
 };

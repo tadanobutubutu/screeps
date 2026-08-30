@@ -1,6 +1,71 @@
 import { dependencyGraphContent, indexContent } from './content';
 
-// TODO: This is the existing code that needs to be preserved
+/**
+ * Validates an ARIA landmark element for accessibility compliance
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {Object} Validation result containing isValid boolean and errors array
+ */
+function validateLandmark(element) {
+  const errors = [];
+
+  if (!element || !(element instanceof HTMLElement)) {
+    return { isValid: false, errors: ['Element is not a valid HTMLElement'] };
+  }
+
+  const tagName = element.tagName.toLowerCase();
+  const validLandmarkTags = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'form'];
+  const validAriaRoles = [
+    'banner', 'navigation', 'main', 'complementary', 'contentinfo',
+    'region', 'form', 'search', 'dialog', 'application'
+  ];
+
+  const role = element.getAttribute('role');
+  const hasLandmarkTag = validLandmarkTags.includes(tagName);
+  const hasLandmarkRole = role && validAriaRoles.includes(role.toLowerCase());
+
+  if (!hasLandmarkTag && !hasLandmarkRole) {
+    errors.push(`Element <${tagName}> is not a recognized landmark element and has no valid role attribute`);
+  }
+
+  // Check for accessible label on landmarks that require it
+  if (hasLandmarkRole || ['section', 'form'].includes(tagName)) {
+    const accessibleName =
+      element.getAttribute('aria-label') ||
+      element.getAttribute('aria-labelledby') ||
+      (tagName === 'form' ? element.querySelector('label, legend') : null);
+
+    if (!accessibleName) {
+      errors.push(`Landmark <${tagName}> requires an accessible name (aria-label, aria-labelledby, or title attribute)`);
+    }
+  }
+
+  // Check for duplicate landmarks without distinguishing labels
+  const landmarkType = role || tagName;
+  const sameTypeLandmarks = Array.from(document.querySelectorAll(`[role="${landmarkType}"], ${tagName}[role="${landmarkType}"], ${tagName}`))
+    .filter(el => (el.getAttribute('role') || el.tagName.toLowerCase()) === landmarkType);
+
+  if (sameTypeLandmarks.length > 1 && landmarkType !== 'main') {
+    const hasUniqueness =
+      element.getAttribute('aria-label') ||
+      element.getAttribute('aria-labelledby') ||
+      element.getAttribute('title');
+
+    if (!hasUniqueness) {
+      errors.push(`Multiple landmarks of type "${landmarkType}" found; each should have a unique accessible name`);
+    }
+  }
+
+  // Check for empty landmarks
+  if (element.children.length === 0 && !element.textContent.trim()) {
+    errors.push(`Landmark <${tagName}> is empty`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
 // Address accessibility issues from insight report
 // ----- END ORIGINAL CODE -----
 
@@ -144,5 +209,6 @@ export {
   renderDependencyGraph,
   renderDependencyTree,
   renderDependencyList,
-  displayModuleStructure
+  displayModuleStructure,
+  validateLandmark
 };

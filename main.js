@@ -9,6 +9,13 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
+// Import required modules
+import { v4 as uuidv4 } from 'uuid';
+import { createElement } from 'react';
+import { getDocument, getLangAttribute, getFullLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink, ensureUniqueLandmarks, validateLandmark, validateLandmarkStructure } from './accessibilityHelpers';
+import { triggerAccessibilityMode } from './accessibilityMode';
+
 // Importing utilities for formatting and validation
 import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
 import { renderHeader, renderFooter, renderProductCard } from './components.js';
@@ -60,31 +67,6 @@ function createInPageButton() {
 let dependencyGraphContent;
 let indexContent;
 let personName;
-
-// Placeholder functions for format/product utilities
-function formatProductName() {
-  // placeholder implementation
-}
-
-function renderProductList() {
-  // placeholder implementation
-}
-
-function calculateTotalPrice() {
-  // placeholder implementation
-}
-
-function renderCart() {
-  // placeholder implementation
-}
-
-function validateAndRender() {
-  // placeholder implementation
-}
-
-function renderPage() {
-  // placeholder implementation
-}
 
 // New function to count dependencies
 function countDependencies() {
@@ -150,6 +132,7 @@ function fixAccessibilityIssues() {
   // 3. REACT_017: Validate landmark and landmark structure issues
   validateLandmark();
   validateLandmarkStructure();
+
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -354,7 +337,7 @@ function renderCart(cart) {
 
 function validateAndRender(input) {
   if (validateInput(input)) {
-    return `<div class="content">${input.content}</div>`;
+    return renderPage(input);
   }
   return '<p>Invalid input</p>';
 }
@@ -376,6 +359,152 @@ function updateView(viewType) {
     renderIndex();
   }
 }
+
+// Implement this function for ensuring unique landmarks
+function ensureUniqueLandmarks() {
+  // Landmarks that should be unique on a page
+  const uniqueLandmarkSelectors = ['main', '[role="main"]', '[role="banner"]', '[role="contentinfo"]', '[role="search"]'];
+
+  uniqueLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        // Add or update aria-label to make each landmark unique
+        const existingLabel = element.getAttribute('aria-label');
+        const elementTag = element.tagName.toLowerCase();
+        const role = element.getAttribute('role') || elementTag;
+
+        if (!existingLabel) {
+          // Add index-based label for distinction
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+
+  // Ensure region and navigation landmarks have accessible names when multiple exist
+  const sectionLandmarkSelectors = ['nav', '[role="navigation"]', '[role="region"]', 'aside', '[role="complementary"]'];
+
+  sectionLandmarkSelectors.forEach(selector => {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        const hasLabel = element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.id;
+        const role = element.getAttribute('role') || element.tagName.toLowerCase();
+
+        if (!hasLabel) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// New function to fix accessibility issues as per the insight report
+function fixAccessibilityIssues() {
+  // 1. REACT_015: Ensure lang attribute is set on the HTML element
+  const lang = getLangAttribute();
+  const htmlElement = getDocument().documentElement;
+  if (htmlElement && lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
+
+  // 2. REACT_027: Validate table accessibility and structure
+  const tables = getDocument().querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+
+  // 3. REACT_017: Validate landmark and landmark structure issues
+  validateLandmark();
+  validateLandmarkStructure();
+
+  // 4. REACT_025: Ensure unique landmarks (addressing the 2 landmark uniqueness issues)
+  ensureUniqueLandmarks();
+  validateLandmarkStructure();
+
+  // 5. REACT_041: Add accessible names to SVGs (assuming two SVG elements)
+  const svgElements = getDocument().querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    if (accessibleName) {
+      setSvgAttributes(svg, accessibleName);
+    }
+  });
+
+  // 6. REACT_036: Fix fake link issue (personName is part of the fix)
+  handleFakeLinks();
+  handleAccessibilityIssues();
+}
+
+// Implement wrapPrimaryContentInMain function
+function wrapPrimaryContentInMain(primaryContent) {
+  // Wrap primary content in a <main> element for accessibility
+  const mainElement = getDocument().createElement('main');
+  mainElement.setAttribute('id', 'main-content');
+  mainElement.setAttribute('role', 'main');
+  if (typeof primaryContent === 'string') {
+    mainElement.innerHTML = primaryContent;
+  } else if (primaryContent.appendChild) {
+    mainElement.appendChild(primaryContent);
+  }
+  return mainElement;
+}
+
+// DOM-based accessibility code
+
+// Add lang attribute to HTML element
+const langAttr = getLangAttribute();
+const fullLangAttr = getFullLangAttribute ? getFullLangAttribute() : langAttr;
+const htmlDoc = getDocument().documentElement;
+if (htmlDoc && langAttr) {
+  htmlDoc.setAttribute('lang', fullLangAttr || langAttr);
+}
+
+// Create in-page button with accessibility considerations
+createInPageButton();
+
+// Validate table structure and accessibility
+// Assuming you have a table element with an id of 'myTable'
+const tables = getDocument().querySelectorAll('table');
+tables.forEach(table => {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+});
+
+// Add/fix landmark issues
+validateLandmark();
+validateLandmarkStructure();
+
+// Ensure unique landmarks (addressing REACT_025)
+ensureUniqueLandmarks();
+
+// Add accessible names to SVGs
+// Assuming you have an SVG element with an id of 'mySvg'
+const svgs = getDocument().querySelectorAll('svg');
+svgs.forEach(svg => {
+  const accessibleName = getSvgAccessibleName(svg);
+  if (accessibleName) {
+    setSvgAttributes(svg, accessibleName);
+  }
+});
+
+handleFakeLinks();
+
+function addAriaLabel(element) {
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', 'View focus');
+  }
+}
+
+const dependencyGraphContainer = getDocument().createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph';
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
+
+// React / UI related functions
 
 function renderProductCard(product) {
   return `<div class="product-card" role="article" aria-label="${formatProductName(product)}">
@@ -416,10 +545,6 @@ function setSvgAttributes(svg, accessibleName) {
 
 function validateLinkAccessibility() {
   // Example link accessibility validation
-}
-
-function handleFakeLinks() {
-  // Example fake links handler
 }
 
 function handleAccessibilityIssues(content) {
@@ -561,13 +686,6 @@ function checkTableAccessibility(table) {
 
 // Export new function if necessary
 export { checkTableAccessibility };
-
-// dependencyGraph container with proper ARIA role for accessibility
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-export { dependencyGraphContainer };
 
 // ----- END OF ORIGINAL CODE -----
 

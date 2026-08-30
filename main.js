@@ -368,6 +368,119 @@ function validateLandmark(root = document) {
   };
 }
 
+// New accessibility functions required by the insight report
+function addLangAttribute(languageCode = 'en') {
+  const htmlElement = document.querySelector('html') || document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', languageCode);
+  }
+}
+
+function validateLandmarkStructure(root = document) {
+  const issues = [];
+  const landmarks = root.querySelectorAll ? root.querySelectorAll('header, nav, main, footer, aside, section, article, search, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="region"], [role="article"], [role="search"]') : [];
+  const ids = new Set();
+  landmarks.forEach((landmark) => {
+    if (!landmark) return;
+    if (landmark.id) {
+      if (ids.has(landmark.id)) {
+        issues.push('Landmark has duplicate id: ' + landmark.id);
+      } else {
+        ids.add(landmark.id);
+      }
+    } else {
+      issues.push('Landmark is missing an id');
+    }
+  });
+  return { valid: issues.length === 0, issues };
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return null;
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector ? svg.querySelector('title') : null;
+  if (title && title.textContent) return title.textContent.trim();
+  return svg.getAttribute('id') || null;
+}
+
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) return;
+  svg.setAttribute('role', 'img');
+  const name = accessibleName || getSvgAccessibleName(svg) || '';
+  if (name) {
+    svg.setAttribute('aria-label', name);
+  }
+  if (svg.querySelector) {
+    let titleEl = svg.querySelector('title');
+    if (!titleEl) {
+      titleEl = document.createElement('title');
+      if (svg.firstChild) {
+        svg.insertBefore(titleEl, svg.firstChild);
+      } else {
+        svg.appendChild(titleEl);
+      }
+    }
+    titleEl.textContent = name || '';
+  }
+}
+
+function validateLinkAccessibility(link) {
+  const issues = [];
+  if (!link) {
+    return { valid: false, issues: ['Link element is required'] };
+  }
+  const href = link.getAttribute('href');
+  if (!href || href === '#' || href === 'javascript:void(0)') {
+    issues.push('Link has invalid href');
+  }
+  if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    issues.push('Link is missing accessible name');
+  }
+  return { valid: issues.length === 0, issues };
+}
+
+function handleFakeLinks(element) {
+  if (!element) return 0;
+  if (element.tagName === 'A') {
+    const btn = document.createElement('button');
+    btn.textContent = element.textContent;
+    btn.type = 'button';
+    if (element.getAttribute('aria-label')) {
+      btn.setAttribute('aria-label', element.getAttribute('aria-label'));
+    }
+    if (element.parentNode) {
+      element.parentNode.replaceChild(btn, element);
+    }
+    return 1;
+  }
+  if (element.querySelectorAll) {
+    const fakeLinks = element.querySelectorAll('a[href="#"], a[href="javascript:void(0)"], a[href=""]');
+    let count = 0;
+    fakeLinks.forEach((link) => {
+      handleFakeLinks(link);
+      count++;
+    });
+    return count;
+  }
+  return 0;
+}
+
+function ensureDependencyGraphAccessibility() {
+  if (typeof document !== 'undefined') {
+    const container = document.getElementById('dependencyGraph');
+    if (container) {
+      container.setAttribute('role', 'region');
+      if (!container.getAttribute('aria-label')) {
+        container.setAttribute('aria-label', 'Dependency Graph');
+      }
+    }
+  }
+}
+
+ensureDependencyGraphAccessibility();
+addLangAttribute('en');
+
 // Existing placeholder functions for function1 and function2 (referenced in exports)
 function function1() {
   return 'function1';
@@ -386,5 +499,20 @@ module.exports = {
   displayModuleStructure,
   functionA,
   functionB,
-  loop
+  loop,
+  addLangAttribute,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  ensureDependencyGraphAccessibility,
+  anotherFunction,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  resetRotation,
+  add,
+  renderDependencyGraph
 };

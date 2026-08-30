@@ -6,8 +6,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-<<<<<<< HEAD
-=======
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
@@ -16,13 +14,12 @@
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+// _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
 
 <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // Preserve existing functionality
 
->>>>>>> origin/main
 // Importing the necessary functions (for illustration purposes)
 import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
 import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
@@ -65,11 +62,11 @@ const _usedLandmarkIds = new Set();
  * @param {string} baseName - Base name of the landmark.
  * @returns {string} Unique ID.
  */
-function ensureUniqueLandmarkId(baseName) {
+function createUniqueLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.random().toString(36).substring(2, 9);
+        const suffix = Math.floor(Math.random() * 900) + 100;
         candidate = `${baseName}-${suffix}`;
     }
     _usedLandmarkIds.add(candidate);
@@ -109,9 +106,9 @@ function addAriaLabel(element, label) {
  */
 function addLangAttribute() {
   // Assuming there is a relevant element selector or similar to target
-  const elementToModify = document.querySelector('some-selector');
+  const elementToModify = document.querySelector('html');
   if (elementToModify) {
-    elementToModify.setAttribute('lang', 'en'); // Example: English
+    elementToModify.lang = 'en'; // Example: English
   }
 }
 
@@ -120,12 +117,12 @@ function addLangAttribute() {
 // New helper functions to address the additional accessibility requirements
 function ensureElementHasId(elementId) {
   const element = document.getElementById(elementId);
-  if (element && !element.hasAttribute('id')) {
+  if (element && !element.id) {
     element.setAttribute('id', elementId);
   }
 }
 
-function addAriaLabel(elementId, label) {
+function addAriaLabelToElement(elementId, label) {
   const element = document.getElementById(elementId);
   if (element) {
     element.setAttribute('aria-label', label);
@@ -133,14 +130,15 @@ function addAriaLabel(elementId, label) {
 }
 
 // Ensure elements have the required IDs
-ensureElementHasId('myTable');
-ensureElementHasId('mySvg');
-ensureElementHasId('inPageButton');
+ensureElementHasId('main-content');
+ensureElementHasId('navigation');
+ensureElementHasId('footer');
+
 
 // Add ARIA labels for better screen reader support
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('mySvg', 'Company logo');
-addAriaLabel('inPageButton', 'Accessibility menu');
+addAriaLabelToElement('myTable', 'Product data table');
+addAriaLabelToElement('logo', 'Company logo');
+addAriaLabelToElement('menu', 'Accessibility menu');
 
 // DOM-based accessibility code
 
@@ -151,8 +149,8 @@ document.documentElement.lang = getLangAttribute();
 createInPageButton();
 
 // Ensure button has an id and appropriate ARIA label
-ensureElementHasId('inPageButton');
-addAriaLabel('inPageButton', 'Accessibility menu');
+ensureElementHasId('accessibility-btn');
+addAriaLabelToElement('accessibility-btn', 'Accessibility menu');
 
 // Validate table structure and accessibility
 // Ensuring all tables in the document are accessible
@@ -174,12 +172,12 @@ svgs.forEach(svg => {
 
 // Ensure unique landmarks
 // Ensuring all landmarks have unique identifiers
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="complementary"]');
 const landmarkIds = new Set();
 landmarks.forEach(landmark => {
   if (landmark.id) {
     if (landmarkIds.has(landmark.id)) {
-      landmark.removeAttribute('id');
+      landmark.id = createUniqueLandmarkId(landmark.id.split('-')[0]);
     } else {
       landmarkIds.add(landmark.id);
     }
@@ -198,14 +196,14 @@ handleFakeLinks();
 const buttons = document.querySelectorAll('button, [role="button"]');
 buttons.forEach((button, index) => {
   if (!button.id) {
-    button.id = `accessible-button-${index}`;
+    button.id = `button-${index}`;
   }
 });
 
 // Google sign-in accessibility
 // Ensuring Google sign-in button has proper accessible name and role
 function googleSignIn() {
-  const googleButton = document.querySelector('[data-google-signin]');
+  const googleButton = document.querySelector('.google-sign-in-button');
   if (googleButton) {
     googleButton.setAttribute('aria-label', 'Sign in with Google');
     googleButton.setAttribute('role', 'button');
@@ -213,7 +211,7 @@ function googleSignIn() {
 }
 googleSignIn();
 
-// New function to render dependency graphs or display module structure
+// Function to render dependency graphs or display module structure
 function renderDependencyGraph(module) {
   // Implementation to render the dependency graph for a given module
   // This is a placeholder function and should be replaced with actual logic
@@ -221,7 +219,7 @@ function renderDependencyGraph(module) {
   // Example output: 'Rendering dependency graph for: ModuleName'
 }
 
-// New function to display module structure
+// Function to display module structure
 function displayModuleStructure(module) {
   // Implementation to display the module structure for a given module
   // This is a placeholder function and should be replaced with actual logic
@@ -283,4 +281,3 @@ export {
   renderFooter,
   renderProductCard
 };
-<<

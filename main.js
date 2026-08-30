@@ -99,6 +99,85 @@ function addLangAttribute() {
   document.documentElement.lang = 'en';
 }
 
+// Accessibility function to fix table structure issues
+function fixTableStructureIssues() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure tables have proper structure with thead and tbody
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        
+        // Move first row to thead
+        thead.appendChild(firstRow);
+        
+        // Move remaining rows to tbody
+        while (table.firstChild) {
+          tbody.appendChild(table.firstChild);
+        }
+        
+        table.appendChild(thead);
+        table.appendChild(tbody);
+      }
+    }
+    
+    // Ensure tables have captions or summaries
+    if (!table.querySelector('caption') && !table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Data table';
+      caption.style.cssText = 'font-weight:bold;margin-bottom:0.5em;';
+      table.insertBefore(caption, table.firstChild);
+    }
+    
+    // Ensure th elements have scope attributes
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const row = th.closest('tr');
+        const isFirstCell = row && row.firstChild === th;
+        th.setAttribute('scope', isFirstCell ? 'row' : 'col');
+      }
+    });
+  });
+}
+
+// Accessibility function to add main landmark if missing
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  
+  // If no main element exists, create one wrapping the main content
+  if (mainElements.length === 0) {
+    const body = document.body;
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    
+    // Move content to main element (excluding script, style, and nav elements)
+    const children = Array.from(body.childNodes);
+    children.forEach(child => {
+      const tagName = child.tagName ? child.tagName.toLowerCase() : '';
+      if (tagName !== 'script' && tagName !== 'style' && tagName !== 'link' && tagName !== 'meta' && tagName !== 'noscript') {
+        if (!child.classList || !child.classList.contains('sr-only')) {
+          main.appendChild(child);
+        }
+      }
+    });
+    
+    body.insertBefore(main, body.firstChild);
+  }
+  
+  // Ensure only one main landmark with role="main" or main element
+  const mainWithRole = document.querySelectorAll('[role="main"]');
+  if (mainWithRole.length > 1) {
+    mainWithRole.forEach((main, index) => {
+      if (index > 0 && main.tagName.toLowerCase() !== 'main') {
+        main.removeAttribute('role');
+      }
+    });
+  }
+}
+
 // ... Existing functions and exports ...
 
 // New function to get and set the lang attribute on an element

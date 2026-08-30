@@ -1,33 +1,23 @@
+here is the resolved file content:
+
+```javascript
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { List, Form, Input, Button, UUID } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { List } from 'antd';
+import { useId } from '@react-aria/utils';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, onTitleSort, onAuthorSort, defaultSorting } from './bookFunctions';
 
-// Get the list of books from the Redux store
-const getBooksList = useSelector(state => state.books.list);
-
-// Function to handle sorting books by title (ascending)
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-// Function to handle sorting books by author (descending)
-function sortByAuthor(a, b) {
-  return b.author.localeCompare(a.author);
-}
-
-// Function to generate a key for each book item
-function generateKey(book) {
-  return ...
-}
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
 
 // Function to render a single book item
-function BookItem(book) {
+function BookItem({ book }) {
   return (
     <List.Item key={generateKey(book)}>
       <List.Item.Meta
         title={book.title}
-        ...
+        description={book.author}
       />
     </List.Item>
   );
@@ -35,91 +25,116 @@ function BookItem(book) {
 
 // Function to create a new book entry in the Redux store
 function addBook(book) {
-  // Perform any necessary validation or processing before adding the book
-  // ...
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: book });
+  return { type: 'ADD_BOOK', payload: book };
 }
 
-// Accessibility function: Add accessible names to SVG elements
-function addSvgAccessibleNames(svgElement, accessibleName) {
-  if (!svgElement) return;
-  svgElement.setAttribute('aria-label', accessibleName);
-  svgElement.setAttribute('role', 'img');
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div
+      className="dependency-graph"
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
 }
 
-// Accessibility function: Ensure unique landmarks
-function uniqueLandmarks(element, landmarkType) {
-  const existingLandmarks = document.querySelectorAll(landmarkType);
-  if (existingLandmarks.length > 0) {
-    element.setAttribute('aria-label', `${landmarkType}-${existingLandmarks.length + 1}`);
-  }
-}
+// Function to render a form for adding a new book and to handle form submission
+function AddBookForm() {
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
+  const dispatch = useDispatch();
 
-// Default sorting function for the book list
-const defaultSorting = sortByTitle;
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    dispatch(addBook(book));
+    setBook({ title: '', author: '' }); // Reset the form after submission
+  };
+
+  return (
+    <form onSubmit={handleSubmit} id={formId}>
+      <label>
+        Title:
+        <input
+          type="text"
+          value={book.title}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        Author:
+        <input
+          type="text"
+          value={book.author}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          required
+        />
+      </label>
+      <button type="submit">Add Book</button>
+    </form>
+  );
+}
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
+function onTitleSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByTitle);
   dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort() {
-  const sortedList = ...
-  // Dispatch an action to update the sorted book list in the Redux store
+function onAuthorSort(dispatch, books) {
+  const sortedList = [...books].sort(sortByAuthor);
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Render the main component containing the book list and sorting controls
+// Function to create Main component
 function Main() {
+  const dispatch = useDispatch();
+  const books = useSelector(state => state.books.list);
   const [sorting, setSorting] = useState(defaultSorting);
+
+  // Create memoized sort handlers
+  const handleTitleSort = useCallback(() => {
+    onTitleSort(dispatch, books);
+  }, [dispatch, books]);
+
+  const handleAuthorSort = useCallback(() => {
+    onAuthorSort(dispatch, books);
+  }, [dispatch, books]);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      handleTitleSort();
     } else if (sorting === sortByAuthor) {
-      onAuthorSort();
+      handleAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, handleTitleSort, handleAuthorSort]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = ...
+  const bookItems = books.map((book) => (
+    <BookItem key={generateKey(book)} book={book} />
+  ));
 
-  // Render the list of book items and sorting controls
+  // Render the list of book items, sorting controls, and the AddBookForm
   return (
-    <main role="main" aria-label="Book list main content">
-      <div role="region" aria-label="Sorting controls">
-        <button 
-          id="sort-by-title-button" 
-          onClick={() => setSorting(sortByTitle)}
-          aria-label="Sort books by title in ascending order"
-          type="button"
-        >
-          Sort by Title
-        </button>
-        <button 
-          id="sort-by-author-button" 
-          onClick={() => setSorting(sortByAuthor)}
-          aria-label="Sort books by author in descending order"
-          type="button"
-        >
-          Sort by Author
-        </button>
-      </div>
-      <List ... />
-      {/* Accessibility: Add landmark region for add book form */}
-      <section role="region" aria-label="Add new book form">
-        {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
-        {/* ... */}
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <AddBookForm />
+      <section role="region" aria-label="Book dependency graph" aria-roledescription="dependencyGraph">
+        <List dataSource={bookItems} />
       </section>
-    </main>
+      <DependencyGraph  />
+    </div>
   );
 }
 
 // Export the Main component
 export default Main;
+```

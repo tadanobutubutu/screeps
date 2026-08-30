@@ -4,28 +4,23 @@ import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
 
 // TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
 // (This comment remains as-is)
 //_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 //<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
-//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
-//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
-//<!-- todo-hash: 312aa8ea4c5e1c9430e4b7c36c210eb9a72dea -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
-//_Commit: 33bd865abb006c86b8f7c2a22f441136e44f37f_
+//_Commit: b2121df01283af5803b4e39b5a2143ecea635c8d_
 
-<!-- todo-hash: 88c1c6cc67ee5e0dd4df31d91becf96d321836d1 -->
+<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 // Import required modules
 import { v4 as uuidv4 } from 'uuid';
 import { createElement } from 'react';
-import { getDocument, getLangAttribute } from . ; // Adjust the path to the existing accessibility helper functions if needed
-import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from "..." ; // Adjust the path to the new accessibility helper functions
-
-// Import your new function from your new module
-// import { triggerAccessibilityMode } from ...
+import { getDocument, getLangAttribute } from './accessibilityHelpers';
+import { createInPageButton, handleAccessibilityIssues, createAccessibleLink } from './accessibilityHelpers';
 
 // Import dependency graph and index content modules for rendering dependency graphs and index views
 import { dependencyGraphContent } from './dependencyGraphContent';
@@ -43,17 +38,29 @@ import { indexContent } from './indexContent';
 // Updated to use dependencyGraphContent.
 export function renderDependencyGraph() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(dependencyGraphContent);
+  const container = document.getElementById('dependencyGraph');
+  if (container) {
+    container.innerHTML = dependencyGraphContent;
+  }
 }
 
 // Renders the index view.
 // Updated to use indexContent.
 export function renderIndex() {
   // Example usage: replace with actual rendering logic
-  handleAccessibilityIssues(indexContent);
+  const container = document.getElementById('indexView');
+  if (container) {
+    container.innerHTML = indexContent;
+  }
 }
 
 export { makeHeaderFocusable }; // new export statement from conflicting branch
+
+// Ensure the dependencyGraph container has a proper ARIA role
+export const dependencyGraphContainer = document.createElement('div');
+dependencyGraphContainer.id = 'dependencyGraph';
+dependencyGraphContainer.setAttribute('role', 'region');
+dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
 
 function ensureElementId(element) {
   // Combined and reconciled code from both branches
@@ -94,13 +101,15 @@ function fixAccessibilityIssues() {
 // Implement wrapPrimaryContentInMain function
 function wrapPrimaryContentInMain(primaryContent) {
   // Wrap primary content in a <main> element for accessibility
-  return `<main>${primaryContent}</main>`;
+  const mainElement = document.createElement('main');
+  mainElement.innerHTML = primaryContent;
+  return mainElement;
 }
 
 // DOM-based accessibility code
 
 // Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', getLangAttribute());
+document.documentElement.lang = getLangAttribute();
 
 // Create in-page button with accessibility considerations
 createInPageButton();
@@ -108,8 +117,10 @@ createInPageButton();
 // Validate table structure and accessibility
 // Assuming you have a table element with an id of 'myTable'
 const table = document.getElementById('myTable');
-validateTableAccessibility(table);
-validateTableStructure(table);
+if (table) {
+  validateTableAccessibility(table);
+  validateTableStructure(table);
+}
 
 // Add/fix landmark issues
 validateLandmark();
@@ -118,12 +129,16 @@ validateLandmarkStructure();
 // Add accessible names to SVGs
 // Assuming you have an SVG element with an id of 'mySvg'
 const svg = document.getElementById('mySvg');
-const accessibleName = getSvgAccessibleName(svg);
-setSvgAttributes(svg, accessibleName);
+if (svg) {
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
+}
 
 // Ensure unique landmarks
 // This would be handled by the appropriate function call
-validateLinkAccessibility();
+ensureUniqueLandmarks();
+
+// Handle fake links
 handleFakeLinks();
 
 // ... rest of your code ...
@@ -135,11 +150,6 @@ function addAriaLabel(element) {
   }
 }
 
-const dependencyGraphContainer = document.createElement('div');
-dependencyGraphContainer.id = 'dependencyGraph'; // combined id from both branches
-dependencyGraphContainer.setAttribute('role', 'region');
-dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph');
-
 // React / UI related functions
 
 // TODO: Add these imported modules to the relevant rendering functions
@@ -149,8 +159,8 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-  const container = document.getElementById('product-list');
-  container.innerHTML = products.map(renderProductCard).join('');
+  const container = document.createElement('div');
+  container.innerHTML = products.map(p => `<div class="product">${p.name}</div>`).join('');
   return container;
 }
 
@@ -165,7 +175,7 @@ function renderCart(cart) {
   return `
     <div class="cart">
       <h2>Shopping Cart</h2>
-      <p>Total: ${formatCurrency(total)}</p>
+      <p>Total: $${total.toFixed(2)}</p>
       <p>Date: ${formatDate(new Date())}</p>
     </div>
   `;
@@ -175,11 +185,12 @@ function validateAndRender(input) {
   if (validateInput(input)) {
     return renderProductList(input.products);
   }
+  return null;
 }
 
 function renderProductCard(product) {
   // Example rendering logic
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+  return `<div class="product-card">${product.name}</div>`;
 }
 
 function calculateDiscount(subtotal) {
@@ -209,7 +220,9 @@ function getLangAttribute() {
 
 function setSvgAttributes(svg, accessibleName) {
   // Example SVG attribute setter
-  svg.setAttribute('aria-label', accessibleName);
+  if (svg && accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  }
 }
 
 function validateLinkAccessibility() {
@@ -218,6 +231,18 @@ function validateLinkAccessibility() {
 
 function handleFakeLinks() {
   // Example fake links handler
+}
+
+function ensureUniqueLandmarks() {
+  // Example unique landmarks handler
+}
+
+// Additional accessibility helper functions
+function makeHeaderFocusable() {
+  const header = document.querySelector('header');
+  if (header) {
+    header.setAttribute('tabindex', '0');
+  }
 }
 
 export { ensureElementId };

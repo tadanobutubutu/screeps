@@ -21,7 +21,7 @@ const { someFunction } = { someFunction: () => 'someFunction result' };
 function addressAccessibilityIssues() {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
-  const dependencyGraph = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
+  const dependencyGraph = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
@@ -32,30 +32,10 @@ function addressAccessibilityIssues() {
 function renderDependencyGraphContent(data) {
   // Replace the existing content within the dependencyGraph div using the provided data.
   // Support both class and data attribute selectors for compatibility
-  const container = document.querySelector('.dependency-graph') || document.querySelector('[data-dependency-graph]');
+  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
   if (container) {
     container.innerHTML = data;
   }
-}
-
-// New function to address accessibility issues from insight report
-function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
-  const uniqueLandmarkMap = {};
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`) || [];
-    elements.forEach(el => {
-      const isUnique = !uniqueLandmarkMap[landmark] || Array.from(uniqueLandmarkMap[landmark]).filter(e => e === el).length === 0;
-      if (isUnique) {
-        uniqueLandmarkMap[landmark] = uniqueLandmarkMap[landmark] || [];
-        uniqueLandmarkMap[landmark].push(el);
-      } else {
-        // Remove the role if it's not unique
-        el.removeAttribute('role');
-      }
-    });
-  });
 }
 
 // New function to add landmark roles and fix issues
@@ -73,7 +53,7 @@ function addLandmarkRoles(insightReport) {
 }
 
 // Address other insight report issues
-function addressInsightReportIssues(insightReport) {
+function fixLandmarkIssues(insightReport) {
   const issues = insightReport.issues || [];
   issues.forEach(issue => {
     if (issue.code === 'REACT_017') {
@@ -100,23 +80,23 @@ function calculateSum(a, b) {
   return a + b;
 }
 
-// Fix fake link issue
+// Fix fake link issue (REACT_036)
 function fixFakeLinks() {
   // Implementation for fixing fake link issues goes here.
   // Handle both anchor tags with href="#" and div elements with role="link"
-  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]') || [];
-  const fakeLinkDivs = document.querySelectorAll('[role="link"]') || [];
+  const fakeLinkAnchors = document.querySelectorAll('a[href="#"]');
+  const fakeLinkDivs = document.querySelectorAll('[role="link"]');
 
   [...fakeLinkAnchors, ...fakeLinkDivs].forEach(link => {
     link.setAttribute('role', 'button');
     link.tabIndex = 0;
-    if (link.tagName === 'A' && !link.getAttribute('aria-label')) {
+    if (!link.getAttribute('aria-label')) {
       link.setAttribute('aria-label', 'Button');
     }
   });
 }
 
-// Add lang attribute to HTML element
+// Add lang attribute to HTML element (REACT_015)
 function addLangAttribute() {
   const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.lang) {
@@ -126,14 +106,14 @@ function addLangAttribute() {
 
 // Fix table structure issues
 function fixTableStructureIssues() {
-  const tables = document.querySelectorAll('table') || [];
+  const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     // Ensure tables have proper structure
     if (!table.querySelector('thead')) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = document.createElement('thead');
-        const tbody = table.querySelector('tbody') || null;
+        const tbody = table.querySelector('tbody');
         thead.appendChild(firstRow);
         table.insertBefore(thead, tbody || firstRow);
       }
@@ -141,19 +121,19 @@ function fixTableStructureIssues() {
   });
 }
 
-// Fix table header cell scope
+// Fix table header cell scope (REACT_027)
 function fixTableHeaderCellScope() {
-  const tables = document.querySelectorAll('table') || [];
+  const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    const headerCells = table.querySelectorAll('th') || [];
+    const headerCells = table.querySelectorAll('th');
     headerCells.forEach(cell => {
       if (!cell.hasAttribute('scope')) {
-        const rows = Array.from(table.querySelectorAll('tr'));
+        const rows = table.querySelectorAll('tr');
         const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
         let isHeaderRow = true;
 
         rows.forEach(row => {
-          const rowCells = Array.from(row.querySelectorAll('td')) || [];
+          const rowCells = row.querySelectorAll('th, td');
           if (rowCells[cellIndex] !== cell) {
             isHeaderRow = false;
           }
@@ -165,9 +145,9 @@ function fixTableHeaderCellScope() {
   });
 }
 
-// Add main landmark
+// Add main landmark (REACT_017)
 function addMainLandmark() {
-  const mainElements = document.querySelectorAll('main') || [];
+  const mainElements = document.querySelectorAll('main');
   mainElements.forEach(main => {
     if (!main.hasAttribute('role')) {
       main.setAttribute('role', 'main');
@@ -187,13 +167,13 @@ function addMainLandmark() {
   }
 }
 
-// Add accessible names to SVGs
+// Add accessible names to SVGs (REACT_041)
 function addSvgAccessibleNames() {
-  const svgs = document.querySelectorAll('svg') || [];
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
     if (title) {
-      const titleId = `svg-title-${index + 1}`;
+      const titleId = `svg-title-${index}`;
       title.setAttribute('id', titleId);
       svg.setAttribute('aria-labelledby', titleId);
     } else {
@@ -204,36 +184,81 @@ function addSvgAccessibleNames() {
   });
 }
 
-// Updated function for REACT_025 (ensuring unique landmarks)
+// Ensure unique landmarks (REACT_025)
+function ensureUniqueLandmarks() {
+  const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const uniqueLandmarkMap = {};
+
+  landmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    elements.forEach(el => {
+      const isUnique = !uniqueLandmarkMap[landmark] || uniqueLandmarkMap[landmark].filter(e => e === el).length === 0;
+      if (isUnique) {
+        if (!uniqueLandmarkMap[landmark]) {
+          uniqueLandmarkMap[landmark] = [];
+        }
+        uniqueLandmarkMap[landmark].push(el);
+      } else {
+        // Remove the role if it's not unique
+        el.removeAttribute('role');
+      }
+    });
+  });
+}
+
+// Fix unique landmarks based on insight report (REACT_025)
 function fixUniqueLandmarks(insightReport) {
   const issues = insightReport.issues || [];
 
   issues.forEach(issue => {
     if (issue.code === 'REACT_025') {
       const element = document.querySelector(issue.selector);
-
-      // If the landmark role exists, add it to the unique landmarks object
       if (element && issue.ariaRole) {
-        uniqueLandmarkMap[issue.ariaRole] = uniqueLandmarkMap[issue.ariaRole] || [];
-        uniqueLandmarkMap[issue.ariaRole].push(element);
+        // Remove duplicate landmark roles
+        const landmarkRole = issue.ariaRole;
+        const allElements = document.querySelectorAll(`[role="${landmarkRole}"]`);
+        if (allElements.length > 1) {
+          // Keep the first one, remove role from others
+          for (let i = 1; i < allElements.length; i++) {
+            allElements[i].removeAttribute('role');
+          }
+        }
       }
     }
   });
-
-  // Check if all landmarks are unique and re-add if necessary
-  ensureUniqueLandmarks();
 }
 
 // New function to implement accessibility fixes
-function improveAccessibility() {
+function implementNewFunction() {
   addressAccessibilityIssues();
   fixFakeLinks();
   ensureUniqueLandmarks();
   addLangAttribute();
   fixTableStructureIssues();
-  fixTableHeaderCellScope();
   addMainLandmark();
   addSvgAccessibleNames();
+  fixTableHeaderCellScope();
+  // Note: fixUniqueLandmarks requires an insightReport parameter, so we call it with an empty object
+  fixUniqueLandmarks({ issues: [] });
+}
+
+// Function to improve accessibility based on insight report
+function improveAccessibility(insightReport) {
+  addLangAttribute();
+  addLandmarkRoles(insightReport);
+  fixLandmarkIssues(insightReport);
+  fixFakeLinks();
+  addMainLandmark();
+  addSvgAccessibleNames();
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  ensureUniqueLandmarks();
+  fixUniqueLandmarks(insightReport);
+}
+
+// Function to address insight report issues
+function addressInsightReportIssues(insightReport) {
+  improveAccessibility(insightReport);
 }
 
 // Existing code preserved below

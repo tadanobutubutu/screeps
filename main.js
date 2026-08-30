@@ -1,12 +1,12 @@
+// TODO: This is the existing code that needs to be preserved
+
 /**
  * Main application entry point
  */
- 
+
 // Import required modules
 const http = require('http');
 const path = require('path');
-
-// TODO: This is the existing code that needs to be preserved
 
 function getLangAttribute() {
   // ... code for handling lang attribute

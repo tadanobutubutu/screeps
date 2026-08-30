@@ -237,6 +237,41 @@ function newFunction() {
   // Implementation of the new function
 }
 
+/**
+ * Count the number of dependencies (imports/requires/exports) in the source code.
+ * Analyzes ES module imports, CommonJS requires, and export statements.
+ * @param {string} source - The source code to analyze
+ * @returns {number} The total count of dependencies found
+ */
+function countDependencies(source) {
+  if (typeof source !== 'string') {
+    return 0;
+  }
+
+  let count = 0;
+
+  // Count ES module imports: import ... from '...'; import '...';
+  const importRegex = /import\s+(?:[^'"]*?from\s+)?['"]([^'"]+)['"]/g;
+  let match;
+  while ((match = importRegex.exec(source)) !== null) {
+    count++;
+  }
+
+  // Count CommonJS requires: require('...')
+  const requireRegex = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((match = requireRegex.exec(source)) !== null) {
+    count++;
+  }
+
+  // Count dynamic imports: import('...')
+  const dynamicImportRegex = /import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  while ((match = dynamicImportRegex.exec(source)) !== null) {
+    count++;
+  }
+
+  return count;
+}
+
 export function calculateDiscount(price, discount) {
   if (typeof price !== 'number' || price < 0) {
     throw new Error('Price must be a non-negative number');
@@ -270,11 +305,13 @@ export {
   greet, 
   add, 
   calculateDiscount, 
-  newFunction 
+  newFunction, 
+  countDependencies 
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
-module.exports = newFunction;
+module.exports.newFunction = newFunction;
+module.exports.countDependencies = countDependencies;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

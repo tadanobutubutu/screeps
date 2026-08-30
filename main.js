@@ -32,6 +32,16 @@ const config = {
 };
 
 /**
+ * Sets the lang attribute on the HTML element
+ * @param {string} lang - The language code to set (e.g., 'en', 'zh', 'ja')
+ */
+function setHtmlLangAttribute(lang) {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.lang = lang;
+    }
+}
+
+/**
  * Detects the language of the given content and sets the HTML lang attribute
  * @param {string} content - The text content to analyze
  * @returns {string} The detected language code
@@ -57,6 +67,8 @@ function detectAndSetLang(content) {
     }
   }
   
+  // Set the lang attribute
+  setHtmlLangAttribute(lang);
   return lang;
 }
 
@@ -138,16 +150,211 @@ function addressAccessibilityIssuesFromInsight(insightReport, options = {}) {
 }
 
 /**
- * Gets the current lang attribute value from the document's <html> tag
- * @returns {string} The current lang attribute value
+ * Validates landmark elements and structure for accessibility compliance
+ * @param {string|HTMLElement} elementOrSelector - The element or selector to validate
+ * @returns {Object} Validation results containing landmark information and issues
  */
-function getLangAttribute() {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    return document.documentElement.lang || 'en';
-  }
-  return 'en';
+function validateLandmark(elementOrSelector) {
+    let element;
+    
+    if (typeof elementOrSelector === 'string') {
+        if (typeof document !== 'undefined') {
+            element = document.querySelector(elementOrSelector);
+        } else {
+            return {
+                hasLandmark: false,
+                landmarkRole: null,
+                issues: ['Document not available for validation'],
+                valid: false
+            };
+        }
+    } else {
+        element = elementOrSelector;
+    }
+    
+    if (!element) {
+        return {
+            hasLandmark: false,
+            landmarkRole: null,
+            issues: ['Element not found'],
+            valid: false
+        };
+    }
+    
+    const validLandmarkRoles = [
+        'banner',    // header
+        'navigation', // nav
+        'main',      // main
+        'complementary', // aside
+        'contentinfo', // footer
+        'search',    // search
+        'form',      // form
+        'region'     // generic region
+    ];
+    
+    const ariaLabel = element.getAttribute('aria-label') || 
+                     element.getAttribute('role') || 
+                     element.tagName.toLowerCase();
+    
+    const isValidLandmark = validLandmarkRoles.includes(ariaLabel) || 
+                           element.hasAttribute('role');
+    
+    const issues = [];
+    
+    if (!isValidLandmark && !element.hasAttribute('role')) {
+        issues.push('Element does not have a valid landmark role');
+    }
+    
+    // Check for duplicate landmark roles
+    if (typeof document !== 'undefined') {
+        const allLandmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"], [role="form"], [role="region"]');
+        const sameRoleLandmarks = Array.from(allLandmarks).filter(el => 
+            el.getAttribute('role') === element.getAttribute('role') || 
+            el.getAttribute('role') === ariaLabel
+        );
+        
+        if (sameRoleLandmarks.length > 1) {
+            issues.push('Duplicate landmark role found - should be unique');
+        }
+    }
+    
+    // Check for proper naming
+    const hasName = element.hasAttribute('aria-label') || 
+                   element.hasAttribute('aria-labelledby') || 
+                   element.textContent.trim().length > 0;
+    
+    if (!hasName) {
+        issues.push('Landmark should have an accessible name');
+    }
+    
+    return {
+        hasLandmark: isValidLandmark,
+        landmarkRole: element.getAttribute('role') || ariaLabel,
+        issues: issues,
+        valid: issues.length === 0
+    };
 }
 
+/**
+ * Ensures unique landmark roles across the page
+ * @param {Object} options - Options for landmark uniqueness validation
+ * @param {boolean} options.enforceUniqueness - Whether to enforce unique landmark roles
+ * @returns {Object} Validation results for landmark uniqueness
+ */
+function validateLandmarkUniqueness(options = {}) {
+    const { enforceUniqueness = true } = options;
+    
+    const results = {
+        duplicateLandmarks: [],
+        recommendations: [],
+        valid: true
+    };
+    
+    if (typeof document === 'undefined') {
+        results.recommendations.push('Document not available for landmark uniqueness validation');
+        return results;
+    }
+    
+    const validLandmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
+    const roleCounts = {};
+    
+    // Count occurrences of each landmark role
+    validLandmarkRoles.forEach(role => {
+        const elements = document.querySelectorAll(`[role="${role}"], ${role}:not([role])`);
+        if (elements.length > 0) {
+            roleCounts[role] = elements.length;
+        }
+    });
+    
+    // Check for duplicates
+    Object.entries(roleCounts).forEach(([role, count]) => {
+        if (count > 1) {
+            results.duplicateLandmarks.push({
+                role: role,
+                count: count,
+                issue: `Found ${count} elements with role "${role}" - should be unique`
+            });
+            results.valid = false;
+        }
+    });
+    
+    // Generate recommendations for unique landmarks
+    if (results.duplicateLandmarks.length > 0) {
+        results.duplicateLandmarks.forEach(duplicate => {
+            results.recommendations.push(
+                `Use aria-label or aria-labelledby to distinguish the ${duplicate.role} landmarks: ${duplicate.issue}`
+            );
+        });
+    }
+    
+    return results;
+}
+
+/**
+ * Gets an accessible name for an SVG element
+ * @param {string|HTMLElement} svgOrSelector - The SVG element or its selector
+ * @param {string} fallbackText - Fallback text if no accessible name is found
+ * @returns {string} The accessible name for the SVG
+ */
+function getSvgAccessibleName(svgOrSelector, fallbackText = '') {
+    let svg;
+    
+    if (typeof svgOrSelector === 'string') {
+        if (typeof document !== 'undefined') {
+            svg = document.querySelector(svgOrSelector);
+        } else {
+            return fallbackText || 'SVG element';
+        }
+    } else {
+        svg = svgOrSelector;
+    }
+    
+    if (!svg) {
+        return fallbackText || 'SVG element';
+    }
+    
+    // Check for aria-label
+    const ariaLabel = svg.getAttribute('aria-label');
+    if (ariaLabel) {
+        return ariaLabel;
+    }
+    
+    // Check for aria-labelledby
+    const ariaLabelledBy = svg.getAttribute('aria-labelledby');
+    if (ariaLabelledBy && typeof document !== 'undefined') {
+        const labelledElement = document.getElementById(ariaLabelledBy);
+        if (labelledElement) {
+            return labelledElement.textContent || labelledElement.innerText || '';
+        }
+    }
+    
+    // Extract title element content
+    const titleElement = svg.querySelector('title');
+    if (titleElement && titleElement.textContent) {
+        return titleElement.textContent;
+    }
+    
+    // Extract description from alt text in img/svg
+    const imgElement = svg.querySelector('image');
+    if (imgElement && imgElement.getAttribute('alt')) {
+        return imgElement.getAttribute('alt');
+    }
+    
+    // Try to use the id or class as a fallback
+    const id = svg.id || svg.getAttribute('id');
+    if (id) {
+        return `SVG: ${id}`;
+    }
+    
+    const className = svg.className || '';
+    if (className.baseVal && typeof className.baseVal === 'string') {
+        return `SVG: ${className.baseVal.split(' ')[0]}`;
+    }
+    
+    return fallbackText || 'SVG element';
+}
+
+// Existing function for person name accessibility
 /**
  * Creates a properly accessible person name element, ensuring it's not implemented as a fake link
  * @param {string} name - The person's name
@@ -477,5 +684,8 @@ module.exports = {
     getDate,
     personName,
     setHtmlLangAttribute,
-    detectAndSetLang
+    detectAndSetLang,
+    validateLandmark,
+    validateLandmarkUniqueness,
+    getSvgAccessibleName
 };

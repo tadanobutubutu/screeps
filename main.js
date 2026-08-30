@@ -102,7 +102,77 @@ const renderDependencyGraph = (data) => {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 
 function newFocusTrap() {
-  // New function implementation
+  // New function implementation: traps focus within a given element
+  return (element) => {
+    accessibilityUtils.trapFocus(element);
+  };
+}
+
+// Additional accessibility functions referenced in the insight report
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
+}
+
+function personName(person) {
+  if (!person) return '';
+  return person.firstName ? `${person.firstName} ${person.lastName || ''}`.trim() : person.lastName || '';
+}
+
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  const hasCaption = !!table.querySelector('caption');
+  const hasTh = table.querySelectorAll('th').length > 0;
+  return hasCaption && hasTh;
+}
+
+function validateTableStructure(table) {
+  if (!table) return false;
+  const rows = table.querySelectorAll('tr');
+  if (rows.length === 0) return false;
+  const firstRowCells = rows[0].querySelectorAll('td, th');
+  for (let row of rows) {
+    if (row.querySelectorAll('td, th').length !== firstRowCells.length) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function validateLandmark(element) {
+  if (!element) return false;
+  const role = element.getAttribute('role');
+  const landmarkRoles = ['main', 'nav', 'header', 'footer', 'aside', 'form', 'region'];
+  return landmarkRoles.includes(role);
+}
+
+function validateLandmarkStructure() {
+  const landmarks = document.querySelectorAll('[role], main, nav, header, footer, aside, form, section[aria-label], section[aria-labelledby]');
+  const uniqueLandmarks = new Set();
+  for (const land of landmarks) {
+    const role = land.getAttribute('role') || land.tagName.toLowerCase();
+    if (uniqueLandmarks.has(role)) {
+      return false;
+    }
+    uniqueLandmarks.add(role);
+  }
+  return true;
+}
+
+function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  return '';
+}
+
+function createInPageButton(label, onClick) {
+  const button = document.createElement('button');
+  button.textContent = label;
+  button.setAttribute('aria-label', label);
+  button.addEventListener('click', onClick);
+  return button;
 }
 
 // Add back any required exports that might have been removed.
@@ -249,9 +319,8 @@ function groupByCategory(items, getCategory) {
 // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
 // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
 
-_Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
-
-<!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+// _Commit: b8888a21083c89f599fb68eef1dc4d5df1051e52_
+// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
 
 // TODO: Implement the new function as per the issue requirements
 function transformInputData(inputData, options = {}) {
@@ -265,6 +334,14 @@ function transformInputData(inputData, options = {}) {
   if (!inputData) {
     return null;
   }
+
+  let result = inputData;
+  if (typeof result === 'string') {
+    if (trimWhitespace) result = result.trim();
+    if (uppercase) result = result.toUpperCase();
+    if (maxLength && result.length > maxLength) result = result.slice(0, maxLength);
+  }
+  return result;
 }
 
 // Initialize on DOM ready
@@ -285,5 +362,15 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   renderDependencyGraph,
-  calculateSum
+  calculateSum,
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  newFocusTrap,
+  transformInputData
 };

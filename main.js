@@ -48,7 +48,7 @@ function updateHTMLWithLandmarks(htmlContent) {
     if (htmlContent.includes('<main>')) {
         return htmlContent;
     }
-    
+
     // Find body content and wrap it in main
     const bodyMatch = htmlContent.match(/<body>([\s\S]*?)<\/body>/i);
     if (bodyMatch) {
@@ -59,7 +59,7 @@ function updateHTMLWithLandmarks(htmlContent) {
             `<body>\n        ${wrappedContent}\n    </body>`
         );
     }
-    
+
     return htmlContent;
 }
 
@@ -78,11 +78,7 @@ functionB = {
   Z: 'valueZ2'
 };
 
-// ----- END ORIGINAL CODE -------
-
-// Accessibility fixes as per insight report
-// REACT_015: Add lang attribute
-// REACT_025: Add other accessibility changes as per the insight report
+// ----- NEW ACCESSIBILITY-RELATED FUNCTIONS -------
 
 /**
  * Sets the lang attribute on the document root element
@@ -98,7 +94,7 @@ function setLangAttribute(lang = 'en') {
 function initAccessibility() {
   // REACT_015: Add lang attribute
   setLangAttribute();
-  
+
   // REACT_025: Add skip link functionality for keyboard users
   const skipLink = document.getElementById('main-content') || document.querySelector('main');
   if (skipLink) {
@@ -107,7 +103,7 @@ function initAccessibility() {
       this.removeAttribute('tabindex');
     });
   }
-  
+
   // Ensure all interactive elements are keyboard accessible
   const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
   interactiveElements.forEach(function(element) {

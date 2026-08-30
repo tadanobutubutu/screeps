@@ -301,6 +301,58 @@ function initAccessibility() {
   }
 }
 
+// Missing accessibility functions that were referenced but not defined
+function fixTableStructureIssues() {
+  // Placeholder implementation - original logic should be restored if available
+  // This function ensures table accessibility (e.g., proper headers, scope attributes)
+  // For now, we provide a minimal implementation to avoid reference errors
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // Ensure table has a caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.className = 'sr-only';
+      caption.textContent = 'Data table';
+      table.prepend(caption);
+    }
+    
+    // Ensure table headers have scope attributes
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        // Determine if it's a column or row header based on position
+        const isRowHeader = Array.from(th.parentNode.children).indexOf(th) === 0 &&
+                           Array.from(th.parentNode.parentNode.children).indexOf(th.parentNode) > 0;
+        th.setAttribute('scope', isRowHeader ? 'row' : 'col');
+      }
+    });
+  });
+}
+
+function addMainLandmark() {
+  // Ensure there's exactly one main landmark
+  let mainElement = document.querySelector('main');
+  if (!mainElement) {
+    // Create main element and move body content into it
+    mainElement = document.createElement('main');
+    while (document.body.firstChild) {
+      mainElement.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(mainElement);
+  } else if (document.querySelectorAll('main').length > 1) {
+    // If multiple main elements exist, wrap extra ones in divs
+    const mains = Array.from(document.querySelectorAll('main'));
+    mains.slice(1).forEach((extraMain, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = `main-landmark-wrapper-${index}`;
+      while (extraMain.firstChild) {
+        wrapper.appendChild(extraMain.firstChild);
+      }
+      extraMain.parentNode.replaceChild(wrapper, extraMain);
+    });
+  }
+}
+
 // Initialize accessibility features on DOM ready
 if (typeof document !== 'undefined' && document.addEventListener) {
   document.addEventListener('DOMContentLoaded', () => {

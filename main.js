@@ -316,4 +316,133 @@ function validateLandmark(root = document) {
   // Check for footer landmark
   const footerElements = root.querySelectorAll('footer, [role="contentinfo"]');
   if (footerElements.length > 1) {
-    issues.push('Page
+    issues.push('Page should have only one footer landmark');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Validates landmark structure for proper accessibility
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with structure issues
+ */
+function validateLandmarkStructure(root = document) {
+  const issues = [];
+  
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
+  }
+  
+  // Check for proper landmark nesting
+  const landmarks = root.querySelectorAll('[role], header, nav, main, footer, aside');
+  
+  // Future implementation would check proper nesting and structure
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Gets accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string|null} The accessible name or null
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg) {
+    return null;
+  }
+  
+  // Check for aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+  
+  // Check for aria-labelledby
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labelElement = document.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : null;
+  }
+  
+  // Check for title element within SVG
+  const title = svg.querySelector('title');
+  return title ? title.textContent : null;
+}
+
+/**
+ * Sets accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} accessibleName - The accessible name to set
+ * @returns {void}
+ */
+function setSvgAttributes(svg, accessibleName) {
+  if (!svg) {
+    throw new Error('SVG element is required');
+  }
+  
+  if (accessibleName) {
+    svg.setAttribute('aria-label', accessibleName);
+  }
+}
+
+/**
+ * Validates link accessibility requirements
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {Object} Validation result with issues
+ */
+function validateLinkAccessibility(link) {
+  const issues = [];
+  
+  if (!link) {
+    return { valid: false, issues: ['Link element is required'] };
+  }
+  
+  // Check for accessible text
+  if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
+    issues.push('Link should have accessible text or aria-label');
+  }
+  
+  // Check for href attribute
+  if (!link.getAttribute('href')) {
+    issues.push('Link should have an href attribute');
+  }
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}
+
+/**
+ * Handles fake links (elements that look like links but aren't)
+ * @param {Document|Element} root - Root element to search within
+ * @returns {Object} Validation result with fake link issues
+ */
+function handleFakeLinks(root = document) {
+  const issues = [];
+  
+  if (!root) {
+    return { valid: false, issues: ['Root element is required'] };
+  }
+  
+  // Find elements with onclick that aren't buttons or links
+  const fakeLinks = root.querySelectorAll('[onclick]');
+  
+  fakeLinks.forEach((element) => {
+    const tagName = element.tagName.toLowerCase();
+    if (tagName !== 'button' && tagName !== 'a') {
+      issues.push(`Element ${tagName} has onclick handler - should be a button or link`);
+    }
+  });
+  
+  return {
+    valid: issues.length === 0,
+    issues: issues
+  };
+}

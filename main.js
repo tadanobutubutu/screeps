@@ -253,6 +253,133 @@ function addProperLandmarkRegions(affectedElements) {
   });
 }
 
+// REACT_015: Add lang attribute to HTML element
+function addLangAttribute(lang) {
+  if (typeof document === 'undefined' || !document.documentElement) return;
+  const defaultLang = lang || 'en';
+  document.documentElement.setAttribute('lang', defaultLang);
+}
+
+// REACT_027: Fix 26 table structure issues
+function fixTableStructureIssues(container) {
+  if (typeof document === 'undefined') return [];
+  const root = container || document;
+  const tables = root.querySelectorAll ? root.querySelectorAll('table') : [];
+  const fixedIssues = [];
+
+  tables.forEach(table => {
+    // Ensure <thead> exists
+    let thead = table.querySelector('thead');
+    if (!thead) {
+      thead = document.createElement('thead');
+      table.insertBefore(thead, table.firstChild);
+      fixedIssues.push('Added missing <thead>');
+    }
+
+    // Ensure <tbody> exists
+    let tbody = table.querySelector('tbody');
+    if (!tbody) {
+      tbody = document.createElement('tbody');
+      // Move all rows that are not in thead/tfoot into tbody
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(tr => {
+        if (!tr.parentNode.closest('thead') && !tr.parentNode.closest('tfoot')) {
+          tbody.appendChild(tr);
+        }
+      });
+      if (!tbody.hasChildNodes()) {
+        table.appendChild(tbody);
+      } else {
+        table.appendChild(tbody);
+      }
+      fixedIssues.push('Added missing <tbody>');
+    }
+
+    // Ensure <th> elements have a scope attribute
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+        fixedIssues.push('Added scope attribute to <th>');
+      }
+    });
+
+    // Ensure <caption> exists for tables with multiple rows
+    const rowCount = table.querySelectorAll('tr').length;
+    if (rowCount > 1 && !table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table';
+      table.insertBefore(caption, table.firstChild);
+      fixedIssues.push('Added missing <caption>');
+    }
+  });
+
+  return fixedIssues;
+}
+
+// REACT_017: Add/fix 2 landmark issues
+function addMainLandmark(container) {
+  if (typeof document === 'undefined') return null;
+  const root = container || document.body;
+  if (!root) return null;
+
+  let main = root.querySelector ? root.querySelector('main') : null;
+  if (!main) {
+    main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    root.appendChild(main);
+    return main;
+  }
+
+  // Ensure existing main has proper role
+  if (!main.hasAttribute('role')) {
+    main.setAttribute('role', 'main');
+  }
+  return main;
+}
+
+// REACT_041: Add accessible names to 2 SVGs
+function addSvgAccessibleNames(container) {
+  if (typeof document === 'undefined') return [];
+  const root = container || document;
+  const svgs = root.querySelectorAll ? root.querySelectorAll('svg') : [];
+  const updated = [];
+
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', 'SVG icon ' + (index + 1));
+      updated.push(svg);
+    }
+  });
+
+  return updated;
+}
+
+// REACT_036: Fix 1 fake link issue
+function fixFakeLinkIssue(container) {
+  if (typeof document === 'undefined') return [];
+  const root = container || document;
+  const fixed = [];
+
+  // Find elements that look like links but are not <a> tags
+  const candidates = root.querySelectorAll ? root.querySelectorAll('[role="link"], .link, .fake-link') : [];
+
+  candidates.forEach(el => {
+    if (el.tagName !== 'A') {
+      // Add proper link semantics
+      if (!el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
+      }
+      if (!el.hasAttribute('role')) {
+        el.setAttribute('role', 'link');
+      }
+      fixed.push(el);
+    }
+  });
+
+  return fixed;
+}
+
 module.exports = {
   validateLandmark,
   config,
@@ -271,5 +398,10 @@ module.exports = {
   renderDependencyGraph,
   renderIndexView,
   calculateSum,
-  addProperLandmarkRegions
+  addProperLandmarkRegions,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
 };

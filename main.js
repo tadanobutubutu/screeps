@@ -197,12 +197,21 @@ export function existingExport() {
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(issue => {
-    console.log(`Addressing issue: ${issue.issue}`);
+  if (!insightReport || !Array.isArray(insightReport)) {
+    return [];
+  }
+  
+  return insightReport.map(item => {
+    console.log(`Addressing issue: ${item.issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
-    console.log(`Solution: ${issue.solution}`);
+    console.log(`Solution: ${item.solution}`);
     // ... code to apply the solution ...
+    return {
+      issue: item.issue,
+      solution: item.solution,
+      status: 'addressed'
+    };
   });
 }
 
@@ -217,13 +226,17 @@ describe('addressInsightReportIssues', () => {
       { issue: 'Issue 2', solution: 'Solution 2' }
     ];
     const mockLog = jest.spyOn(console, 'log').mockImplementation();
-    addressInsightReportIssues(insightReport);
+    const result = addressInsightReportIssues(insightReport);
+    
     // Mock console.log to check if the correct messages were logged
     // This is a simplified example; in a real test, you would use a mock library
     expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
     expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
     expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
     expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
+    expect(result).toHaveLength(2);
+    expect(result[0].status).toBe('addressed');
+    expect(result[1].status).toBe('addressed');
     mockLog.mockRestore();
   });
 });

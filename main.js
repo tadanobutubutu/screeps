@@ -177,6 +177,65 @@ function deepClone(obj) {
   return obj;
 }
 
+/**
+ * Renders a dependency graph in the specified container
+ * @param {Object} graphData - The graph data containing nodes and links
+ * @param {HTMLElement} container - The DOM container to render into
+ * @returns {SVGSVGElement|null} - The rendered SVG element or null if invalid input
+ */
+function renderDependencyGraph(graphData, container) {
+  if (!graphData || !container) return null;
+  
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'dependency-graph');
+  
+  const nodes = graphData.nodes || [];
+  const links = graphData.links || [];
+  
+  // Render links between nodes
+  links.forEach(link => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', link.source?.x || 0);
+    line.setAttribute('y1', link.source?.y || 0);
+    line.setAttribute('x2', link.target?.x || 0);
+    line.setAttribute('y2', link.target?.y || 0);
+    line.setAttribute('stroke', '#ccc');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+  });
+  
+  // Render nodes
+  nodes.forEach(node => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', node.x || 0);
+    circle.setAttribute('cy', node.y || 0);
+    circle.setAttribute('r', node.radius || 8);
+    circle.setAttribute('fill', node.color || '#69b3a2');
+    svg.appendChild(circle);
+  });
+  
+  container.appendChild(svg);
+  return svg;
+}
+
+/**
+ * Updates positions of nodes in an existing dependency graph
+ * @param {Object} graphData - The graph data to update
+ * @param {Object} positions - Object mapping node IDs to new positions
+ * @returns {Object} - Updated graph data
+ */
+function updateDependencyGraph(graphData, positions) {
+  if (!graphData || !positions) return graphData;
+  
+  return {
+    ...graphData,
+    nodes: graphData.nodes.map(node => ({
+      ...node,
+      ...positions[node.id]
+    }))
+  };
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -189,7 +248,9 @@ if (typeof module !== 'undefined' && module.exports) {
     capitalize,
     getRandomInt,
     clamp,
-    deepClone
+    deepClone,
+    renderDependencyGraph,
+    updateDependencyGraph
   };
 }
 
